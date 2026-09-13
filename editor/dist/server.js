@@ -9804,6 +9804,47 @@ var keywords = {
         "as"
       ]
     ],
+    "view_flagged": [
+      [
+        "the",
+        "case",
+        "is",
+        "flagged",
+        "as"
+      ]
+    ],
+    "view_flag_when": [
+      [
+        "when"
+      ]
+    ],
+    "view_flag_when_query": [
+      [
+        "when",
+        "query"
+      ]
+    ],
+    "view_has_answer": [
+      [
+        "has",
+        "an",
+        "answer"
+      ]
+    ],
+    "view_numbers_shown": [
+      [
+        "the",
+        "numbers",
+        "are",
+        "shown",
+        "with"
+      ]
+    ],
+    "view_decimals": [
+      [
+        "decimals"
+      ]
+    ],
     "view_documents": [
       [
         "the",
@@ -11506,6 +11547,49 @@ var keywords = {
         "como"
       ]
     ],
+    "view_flagged": [
+      [
+        "o",
+        "caso",
+        "\xE9",
+        "assinalado",
+        "como"
+      ]
+    ],
+    "view_flag_when": [
+      [
+        "quando"
+      ]
+    ],
+    "view_flag_when_query": [
+      [
+        "quando",
+        "a",
+        "consulta"
+      ]
+    ],
+    "view_has_answer": [
+      [
+        "tem",
+        "uma",
+        "resposta"
+      ]
+    ],
+    "view_numbers_shown": [
+      [
+        "os",
+        "n\xFAmeros",
+        "s\xE3o",
+        "mostrados",
+        "com"
+      ]
+    ],
+    "view_decimals": [
+      [
+        "casas",
+        "decimais"
+      ]
+    ],
     "view_documents": [
       [
         "os",
@@ -13148,6 +13232,48 @@ var keywords = {
         "como"
       ]
     ],
+    "view_flagged": [
+      [
+        "el",
+        "caso",
+        "se",
+        "se\xF1ala",
+        "como"
+      ]
+    ],
+    "view_flag_when": [
+      [
+        "cuando"
+      ]
+    ],
+    "view_flag_when_query": [
+      [
+        "cuando",
+        "la",
+        "consulta"
+      ]
+    ],
+    "view_has_answer": [
+      [
+        "tiene",
+        "una",
+        "respuesta"
+      ]
+    ],
+    "view_numbers_shown": [
+      [
+        "los",
+        "n\xFAmeros",
+        "se",
+        "muestran",
+        "con"
+      ]
+    ],
+    "view_decimals": [
+      [
+        "decimales"
+      ]
+    ],
     "view_documents": [
       [
         "los",
@@ -14758,6 +14884,48 @@ var keywords = {
         "sont",
         "list\xE9es",
         "comme"
+      ]
+    ],
+    "view_flagged": [
+      [
+        "le",
+        "cas",
+        "est",
+        "signal\xE9",
+        "comme"
+      ]
+    ],
+    "view_flag_when": [
+      [
+        "quand"
+      ]
+    ],
+    "view_flag_when_query": [
+      [
+        "quand",
+        "la",
+        "requ\xEAte"
+      ]
+    ],
+    "view_has_answer": [
+      [
+        "a",
+        "une",
+        "r\xE9ponse"
+      ]
+    ],
+    "view_numbers_shown": [
+      [
+        "les",
+        "nombres",
+        "sont",
+        "affich\xE9s",
+        "avec"
+      ]
+    ],
+    "view_decimals": [
+      [
+        "d\xE9cimales"
       ]
     ],
     "view_documents": [
@@ -16432,6 +16600,48 @@ var keywords = {
         "sono",
         "elencate",
         "come"
+      ]
+    ],
+    "view_flagged": [
+      [
+        "il",
+        "caso",
+        "\xE8",
+        "segnalato",
+        "come"
+      ]
+    ],
+    "view_flag_when": [
+      [
+        "quando"
+      ]
+    ],
+    "view_flag_when_query": [
+      [
+        "quando",
+        "la",
+        "query"
+      ]
+    ],
+    "view_has_answer": [
+      [
+        "ha",
+        "una",
+        "risposta"
+      ]
+    ],
+    "view_numbers_shown": [
+      [
+        "i",
+        "numeri",
+        "sono",
+        "mostrati",
+        "con"
+      ]
+    ],
+    "view_decimals": [
+      [
+        "decimali"
       ]
     ],
     "view_documents": [

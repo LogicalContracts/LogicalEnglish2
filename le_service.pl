@@ -92,6 +92,9 @@
     % — English in, Logical English out (loaded on first use)
     le_english_to_le/8,         % +Kind, +Sentence, +Templates, +Program, +Model, +Options, -LEText, -Issues
     set_le_llm_provider/1,      % +Module
+    % — the legal view of an LPS program (le_lps_legal.pl)
+    le_legal_view/3,            % +LEText, -Text, -Issues
+    le_legal_view/4,            % +LEText, +Options, -Text, -Issues
     le_service_version/1        % -Version
   ]).
 
@@ -134,6 +137,24 @@
     language_autonym/2,
     language_opener/2
   ]).
+
+%!  le_legal_view(+LEText, -Text, -Issues) is semidet.
+%
+%   The legal-readable view of an LE-for-LPS document (le_lps_legal.pl):
+%   who may do what, when, and with which effect, as an ordinary LE program.
+%   Issues are the writer's issue(Severity, Code, Message) terms. Fails when
+%   the document does not load or does not declare the target language lps.
+le_legal_view(LEText, Text, Issues) :-
+    le_lps_legal:legal_view_text(LEText, [], Text, Issues).
+
+%!  le_legal_view(+LEText, +Options, -Text, -Issues) is semidet.
+%
+%   The same, with le_lps_legal.pl's options: run(States, Happened), a run
+%   of the program, makes the view's scenarios and questions the run's calls.
+le_legal_view(LEText, Options, Text, Issues) :-
+    le_lps_legal:legal_view_text(LEText, Options, Text, Issues).
+
+:- use_module(le_lps_legal, []).
 
 %!  le_service_version(-Version:atom) is det.
 %

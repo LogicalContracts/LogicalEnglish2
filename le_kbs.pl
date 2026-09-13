@@ -95,7 +95,11 @@ le_extra_examples_dir('RulesRus', 'examples/RulesRus').
 %   'pt/cidadania' -> 'examples/pt/cidadania'.
 le_example_relpath(Name0, Path) :-
     ( atom(Name0) -> Name = Name0 ; atom_string(Name, Name0) ),
-    (   sub_atom(Name, Before, _, _, '/'),
+    (   atom_concat('imported/', Rest, Name)          % a translated upload (le_import.pl)
+    ->  atomic_list_concat([Id|RelParts], '/', Rest),
+        atomic_list_concat(RelParts, '/', Rel),
+        atomic_list_concat(['tmp/imports/', Id, '/out/', Rel], Path)
+    ;   sub_atom(Name, Before, _, _, '/'),
         sub_atom(Name, 0, Before, _, Lang),
         language_examples_dir(Lang, _)
     ->  atom_concat('examples/', Name, Path)
@@ -1437,7 +1441,7 @@ printSession(SessionModule) :-
 %   a string, a named query, or an already-parsed compound goal (e.g. produced by
 %   parse_custom_query/3 for the editor's custom-query field).
 query(SessionModule, Goal, TemplateInstance, Unknowns, Why) :-
-    compound(Goal), \+ is_list(Goal), !,
+    parsed_goal(SessionModule, Goal), !,
     ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
     ( do_log -> print_message(informational, 'Executing compound query goal: ~w' - [Goal]); true),
     reasoner:i(Goal, SessionModule, Unknowns, Why0),
@@ -1465,6 +1469,17 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
             )
     ).
 
+%   An already-parsed goal rather than a query's name or text: a compound
+%   term, or the atom of a template with no places ("the business event is
+%   valid" parses to the_business_event_is_valid) — which, taken for a name
+%   and then for text, matched no template.
+parsed_goal(_, Goal) :- compound(Goal), \+ is_list(Goal), !.
+parsed_goal(SessionModule, Goal) :-
+    atom(Goal),
+    catch(SessionModule:le_kb_module_fact(KB), _, fail),
+    \+ ( current_predicate(KB:query_info/3), KB:query_info(Goal, _, _) ),
+    once(( KB:le_dict(D), arg(1, D, [Goal]) )).
+
 %!  parse_query_to_goal(+KBmodule:atom, +Tokens:list, -Goal:term, -Instance:list) is nondet.
 %
 %   Parses free-text query Tokens into a Goal using the chaining-aware literal
@@ -1485,7 +1500,7 @@ parse_query_to_goal(KBmodule, Tokens, Goal, Instance) :-
 %
 %   Executes a query and returns a detailed explanation.
 query_explain(SessionModule, Goal, TemplateInstance, Unknowns, Why) :-
-    compound(Goal), \+ is_list(Goal), !,
+    parsed_goal(SessionModule, Goal), !,
     ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
     reasoner:explain(Goal, SessionModule, Unknowns, Why0),
     ( (KBmodule \== none, item_to_instance(KBmodule, Goal, _Tokens)) -> true ; TemplateInstance = [Goal] ),
@@ -1585,10 +1600,32 @@ postprocess_why(failure(Goal0, Children), SM, failure(Goal, Range, LE, ChildrenO
     ),
     ( (KB \== none, item_to_instance_ranged(KB, Goal, Range, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
     postprocess_why_children(SM, Children, ChildrenOut).
+
 postprocess_why(Whys, SM, WhysOut) :-
     is_list(Whys), !,
     postprocess_why_children(SM, Whys, WhysOut).
 postprocess_why(Other, _, Other).
+
+%   A built-in comparison whose operands are expressions ("le_lt(300000-100000,0)",
+%   which its template's number types do not accept) as LE writes it: the
+%   system template's words with the operands in place, "300000 - 100000 is
+%   less than 0" — not the Prolog term.
+builtin_goal_string(Goal, LE) :-
+    compound(Goal), Goal =.. [F|Args], Args \== [],
+    le_system_templates:le_system_template(dict([F|Vs], _, Words)),
+    length(Vs, N), length(Args, N), !,
+    maplist(operand_text, Args, Texts),
+    copy_term(Vs-Words, Vs1-Words1),
+    Vs1 = Texts,
+    atomic_list_concat(Words1, ' ', LE0),
+    atom_string(LE0, LE).
+
+operand_text(X, T) :- var(X), !, T = '_'.
+operand_text(X, T) :- ( number(X) ; atom(X) ), !, T = X.
+operand_text(X, T) :- string(X), !, format(atom(T), '"~w"', [X]).
+operand_text(X, T) :- X =.. [Op, A, B], current_op(_, yfx, Op), !,
+    operand_text(A, TA), operand_text(B, TB), format(atom(T), '~w ~w ~w', [TA, Op, TB]).
+operand_text(X, T) :- format(atom(T), '~w', [X]).
 
 %!  rule_progress(+Ref, +Children, -Met, -Total) is det.
 %
@@ -2050,6 +2087,7 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
         ->  maplist(maybe_transform_value(KBmodule), WordsAndVars0, WordsAndVars1),
             maplist(fill_variable_name(NTs), WordsAndVars1, WordsAndVars2),
             flatten(WordsAndVars2, WordsAndVars)
+        ;   builtin_goal_string(Head, Str) -> WordsAndVars = [Str]
         ;   term_string(Head, Str), WordsAndVars = [Str]
         )
     ).
@@ -2437,6 +2475,10 @@ placeholder_values(KB, F, A, Dict, WV, Values) :-
               maplist(value_string, Vs0, Vs) ),
             Values).
 
+% a text value with its quotes ("SG"): picked from a list it is written as
+% the rules read it — bare, SG is a name, which no rule comparing with the text
+% "SG" ever matches
+value_string(V, S) :- string(V), !, format(string(S), "\"~w\"", [V]).
 value_string(V, S) :- format(string(S), "~w", [V]).
 
 starred_article_type(V-Type) :-

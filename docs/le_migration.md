@@ -25,6 +25,48 @@ program.le with RESIDUE blocks ──Contract Assistant, mode residue──▶ r
 | `; opposite:` forms are not negation in a condition — documented, and diagnosed (`opposite_as_condition`) | `le_verifier.pl`, `docs/le_summary.md` §2 | D3 |
 | `verify/1` on LPS documents, with the LPS emitter's own diagnostics | `le_kbs.pl` | D4 |
 
+## 0. Opening another system's file (`le_import.pl`)
+
+`File > Open` in the editor, and the LPS2 IDE's `File > Open` for a `.sol`,
+send a file that is not Logical English to the operation `importForeign`,
+which hands it to the translator registered for it. A translator registers
+itself with one clause (the InsurLE translators are listed in
+`InsurLE2/migration/le_importers.pl`, loaded by `le_extensions.pl`):
+
+```prolog
+le_import:importer(Id, Title, Extensions, File, Module:Import, Module:Detect).
+%   call(Import, +Input, +OutDir, -imported(LEFile, Notes))
+%   call(Detect, +Input)       % decides for shared extensions (zip, xml, json, txt)
+```
+
+The upload is kept under `tmp/imports/<id>/` for a day: an archive is
+extracted there (members leaving the tree are skipped), the translation is
+written beside it, and the program opens as the example
+`imported/<id>/<name>` (le_example_relpath/2), so its includes and cited
+documents resolve. A fragment the translator cannot translate is written
+into the program as a residue block, whose first line is `% TODO: …`
+(`le_writer:write_residue/2`); a file no translator reads, or one whose
+translator fails, still opens: its text as a TODO comment, with the reason.
+`importFormats` lists the registered translators (the editor's file picker
+offers their extensions; `File > Import from Another System…` offers only
+theirs). Tests: `testing/test_le_import.pl`,
+`editor/tests/import-foreign.spec.ts`.
+
+**The originals: `sources/` beside the program.** What a program was
+converted from is kept in a `sources/` folder beside it, and the editor's
+`File > Show the Original…` (operation `originals`, which lists that folder's
+text files; each opens in the source viewer through `documentText`) shows
+it. `le_import.pl` copies an upload there unless the translator has already
+put the files its citations use there itself (the Socotra adapter does, under
+the product's own paths); a migration writing twins does the same (the
+Solidity twins' contracts, the Socotra products' configuration files, the OIA
+projects' text files, the documents the miniscript twins quote). A document
+the program cites with `the text of D is at "sources/…"` is then one of
+those files. The LPS2 IDE's *View ▸ The original this was converted from*
+reads the same folder for a program opened from its server. The editor's
+example list does not descend into a `sources/` folder: it holds originals,
+not programs.
+
 ## 1. The Migration IR
 
 A translator's output is a Prolog term, not text:

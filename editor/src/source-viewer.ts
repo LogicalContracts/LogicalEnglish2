@@ -48,10 +48,42 @@ export function provenanceSummary(p: Provenance, rule?: string): string {
 // HTML pages; elsewhere the fragment is ignored).
 export function originalUrl(p: Provenance): string | null {
     if (!p.url) return null;
+    const lines = p.locator ? locatorLines(p.locator) : null;
+    // a code host's page of a file (…/blob/…) takes a line anchor
+    if (lines && !p.url.includes('#') && /\/blob\//.test(p.url)) {
+        return `${p.url}#L${lines[0]}${lines[1] !== lines[0] ? `-L${lines[1]}` : ''}`;
+    }
     if (p.quote && !p.url.includes('#')) {
         return `${p.url}#:~:text=${encodeURIComponent(p.quote)}`;
     }
     return p.url;
+}
+
+// A locator naming lines of the document ("line 12", "lines 12 to 20"; the
+// words of the languages LE is written in): [first, last], 1-based.
+export function locatorLines(locator: string): [number, number] | null {
+    const m = /^\s*(?:lines?|linhas?|l[ií]neas?|lignes?|riga|righe)\s+(\d+)(?:\s*(?:to|a|à|al|-|–)\s*(\d+))?\s*$/i.exec(locator || '');
+    if (!m) return null;
+    const a = parseInt(m[1], 10), b = m[2] ? parseInt(m[2], 10) : a;
+    return a > 0 && b >= a ? [a, b] : null;
+}
+
+// The [start, end) offsets of lines [first, last] of `text`, or null.
+export function lineSpan(text: string, lines: [number, number]): [number, number] | null {
+    let start = 0, line = 1;
+    while (line < lines[0]) {
+        const nl = text.indexOf('\n', start);
+        if (nl < 0) return null;
+        start = nl + 1; line++;
+    }
+    let end = start;
+    while (line <= lines[1]) {
+        const nl = text.indexOf('\n', end);
+        if (nl < 0) { end = text.length; break; }
+        end = line === lines[1] ? nl : nl + 1;
+        line++;
+    }
+    return end > start ? [start, end] : null;
 }
 
 // Find `quote` in `text`, ignoring differences in white space (and, failing
@@ -198,7 +230,8 @@ export function openSourceViewer(p: Provenance, rule: string | undefined, ctx: D
             return;
         }
         const text = res.text;
-        const span = p.quote ? findQuote(text, p.quote) : null;
+        const lines = p.locator ? locatorLines(p.locator) : null;
+        const span = p.quote ? findQuote(text, p.quote) : lines ? lineSpan(text, lines) : null;
         pre.textContent = '';
         if (span) {
             pre.appendChild(document.createTextNode(text.slice(0, span[0])));

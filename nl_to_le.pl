@@ -130,6 +130,15 @@ english_to_le_(Kind, Sentence, Templates0, Program, Model, Options0, LEText, New
     ->  to_string(Doc0, Doc), Options0b = OptionsD,
         program_templates(ProgramS, Templates1),
         ( Templates1 == [] -> Templates = Templates0 ; Templates = Templates1 )
+    ;   Kind == facts
+    ->  % A case typed in English is a case too: when the program marks its
+        % scenario elements, those are what its facts state — offered with the
+        % values the rules read; the conclusions of rules and the defined
+        % globals are not facts to type (a model otherwise states "the child
+        % is a Singapore citizen" instead of the nationality the rules read)
+        Doc = none, Options0b = Options0,
+        program_templates(ProgramS, Templates1),
+        ( Templates1 == [] -> Templates = Templates0 ; Templates = Templates1 )
     ;   Doc = none, Options0b = Options0, Templates = Templates0
     ),
     loop_options(Options0b, Limits, CheckRegressions, Options1),
@@ -156,8 +165,10 @@ english_to_le_(Kind, Sentence, Templates0, Program, Model, Options0, LEText, New
     Messages0 = [ _{role: system, content: System}, _{role: user, content: SentenceS} ],
     le_llm_request(Model, Messages0, Raw0, Options),
     clean_reply(Raw0, LE00),
-    known_string_values(ProgramS, Known),
-    quote_known_strings(Known, LE00, LE0),
+    known_values(ProgramS, Known, KnownNumbers),
+    quote_known_strings(Known, LE00, LE01),
+    unquote_known_numbers(KnownNumbers, Known, LE01, LE02),
+    program_case_and_times(Kind, ProgramS, LE02, LE0),
     refine(Kind, ProgramS, Baseline, Model, Options, Messages0, Raw0, LE0,
            1, none, 0, Limits, LEText1, New1),
     (   Doc == none
@@ -208,8 +219,10 @@ refine(Kind, Program, Baseline, Model, Options, Messages, LastReply, LE,
         append(Messages, [ _{role: assistant, content: LastReply}, _{role: user, content: Feedback} ], Messages1),
         le_llm_request(Model, Messages1, Raw1, Options),
         clean_reply(Raw1, LE10),
-        known_string_values(Program, Known),
-        quote_known_strings(Known, LE10, LE1),
+        known_values(Program, Known, KnownNumbers),
+        quote_known_strings(Known, LE10, LE11),
+        unquote_known_numbers(KnownNumbers, Known, LE11, LE12),
+        program_case_and_times(Kind, Program, LE12, LE1),
         Round1 is Round + 1,
         refine(Kind, Program, Baseline, Model, Options, Messages1, Raw1, LE1,
                Round1, Best, Streak, Limits, FinalLE, FinalNew)
@@ -902,7 +915,8 @@ pitfalls(facts, Text) :-
 - An indefinite article makes a fact UNIVERSAL: 'a payment is 500' says EVERY payment is 500. Name the individual instead ('claim one', 'Alice'), or refer back with 'the payment' / 'this payment' once it has been introduced.\n\
 - Never begin a value with 'a', 'an' or 'the': write 'United Kingdom', not 'the United Kingdom'.\n\
 - Write dates as YYYY-MM-DD, and numbers without thousands separators or currency symbols (18500, not £18,500).\n\
-- Do not state anything the sentence does not: no outcomes, no conclusions the rules are supposed to derive, no invented identifiers beyond what is needed to name the individuals the sentence talks about."
+- Do not state anything the sentence does not: no outcomes, no conclusions the rules are supposed to derive (never a fact of a template marked (derived)), no invented identifiers beyond what is needed to name the individuals the sentence talks about.\n\
+- What the sentence DENIES is not written at all ('the child is not adopted', 'he has no convictions'): a fact that is not stated is false. Never write the fact the sentence denies."
     .
 pitfalls(query, Text) :-
     Text = "Traps to avoid:\n\
@@ -929,9 +943,13 @@ program_context(Kind, Program, Block) :-
     ->  format(string(ELine), "~n~nOne of them, as an example of the conventions to follow (do NOT copy its content — only its style):~n~w", [Example])
     ;   ELine = ""
     ),
-    (   SLine == "", QLine == "", ELine == ""
+    (   Kind == facts, lps_program(Program)
+    ->  LLine = "\n\nThis program runs in time: every sentence of a scenario is an OBSERVATION and ends with its times, 'from T1 to T2' (T2 = T1 + 1) — keep the time the text gives ('at time 8' is 'from 8 to 9'); when it gives none, continue after the last time of the program's scenarios. Name the individuals exactly as the program writes them, in the same letter case."
+    ;   LLine = ""
+    ),
+    (   SLine == "", QLine == "", ELine == "", LLine == ""
     ->  Block = ""
-    ;   format(string(Block), "~n~n--- The program this will be added to ---~w~w~w", [SLine, QLine, ELine])
+    ;   format(string(Block), "~n~n--- The program this will be added to ---~w~w~w~w", [SLine, QLine, ELine, LLine])
     ).
 
 names_line(_, [], "") :- !.
@@ -1017,18 +1035,145 @@ trailer_punctuation(Line0, Line) :-
         )
     ).
 
-% known_string_values(+Program, -Known): the string values the program's rules
-% read at the places of its templates (the values the prompt lists, e.g. the
-% HCPCS codes "K0823", "K0824" of a code list), each as a string.
-known_string_values(Program, Known) :-
-    (   catch(load_text(Program, KB), _, fail)
-    ->  findall(S, ( le_kbs:template_of(KB, F, A, _, _), between(1, A, I),
-                     catch(le_verifier:with_rule_index(KB, slot_values(KB, F, A, I, Vs)), _, fail),
-                     member(S, Vs), string(S) ),
-                Known0),
-        sort(Known0, Known)
-    ;   Known = []
+% program_case_and_times(+Kind, +Program, +LE0, -LE): two slips that change
+% what facts mean. A name written with a capital where the program writes it
+% in lower case ("Alice" for the program's alice) is another individual: it
+% is written as the program writes it. And in a program that runs in time
+% (`the target language is: lps`), a scenario sentence is an observation,
+% which has no meaning without its times: a line without "from T1 to T2"
+% gets the next free times after the last the program's scenarios use.
+program_case_and_times(facts, Program, LE0, LE) :- !,
+    program_words(Program, Words),
+    split_string(LE0, "\n", "", Lines0),
+    maplist(known_case_line(Words), Lines0, Lines1),
+    (   lps_program(Program)
+    ->  last_scenario_time(Program, T0),
+        timed_lines(Lines1, T0, Lines)
+    ;   Lines = Lines1
+    ),
+    atomic_list_concat(Lines, "\n", LE1),
+    atom_string(LE1, LE).
+program_case_and_times(_, _, LE, LE).
+
+program_words(Program, Words) :-
+    split_string(Program, "\n\t .,;:()[]", "\"", Ws0),
+    exclude(==(""), Ws0, Ws1),
+    sort(Ws1, Words).
+
+known_case_line(Words, Line0, Line) :-
+    split_string(Line0, "\"", "", Parts0),
+    known_case_parts(Parts0, out, Words, Parts),
+    atomic_list_concat(Parts, "\"", Line).
+
+known_case_parts([], _, _, []).
+known_case_parts([P0|Ps0], Where, Words, [P|Ps]) :-
+    (   Where == out
+    ->  split_string(P0, " ", "", Ws0),
+        maplist(known_case_word(Words), Ws0, Ws),
+        atomic_list_concat(Ws, " ", P), Next = in
+    ;   P = P0, Next = out
+    ),
+    known_case_parts(Ps0, Next, Words, Ps).
+
+known_case_word(Words, W00, W) :-
+    (   re_matchsub("^(.*?)([.,;:!?]*)$", W00, M, []),
+        get_dict(1, M, W0), get_dict(2, M, Punct)
+    ->  true
+    ;   W0 = W00, Punct = ""
+    ),
+    known_case_word_(Words, W0, W1),
+    string_concat(W1, Punct, W).
+
+known_case_word_(Words, W0, W) :-
+    (   sub_string(W0, 0, 1, _, C), char_type(C, upper),
+        \+ ord_memberchk(W0, Words),
+        string_lower(W0, L), L \== W0,
+        ord_memberchk(L, Words)
+    ->  W = L
+    ;   W = W0
     ).
+
+%   the program's opening statement declares the LPS target (in any language:
+%   "the target language is: lps." / "a linguagem alvo é: lps.")
+lps_program(Program) :-
+    split_string(Program, "\n", "\r", Lines),
+    member(L, Lines),
+    normalize_space(string(S), L), S \== "", \+ sub_string(S, 0, 1, _, "%"), !,
+    re_match(":\\s*lps\\s*\\.$"/i, S).
+
+% the largest T2 of "from T1 to T2" in the program's scenario lines
+last_scenario_time(Program, T) :-
+    re_foldl(add_end_time, "from \\d+ to (\\d+)", Program, [], All, []),
+    ( max_list(All, T) -> true ; T = 0 ).
+
+add_end_time(M, A0, [N|A0]) :- get_dict(1, M, S), number_string(N, S).
+
+timed_lines([], _, []).
+timed_lines([L0|Ls0], T0, [L|Ls]) :-
+    normalize_space(string(S), L0),
+    (   ( S == "" ; sub_string(S, 0, 1, _, "%") ; re_match("from \\d+ to \\d+", S) )
+    ->  L = L0, T1 = T0
+    ;   string_concat(Body, ".", S)
+    ->  T1 is T0 + 1, T2 is T1 + 1,
+        format(string(L), "~w from ~w to ~w.", [Body, T1, T2])
+    ;   L = L0, T1 = T0
+    ),
+    timed_lines(Ls0, T1, Ls).
+
+% known_values(+Program, -Strings, -Numbers): the string values the program's
+% rules read at the places of its templates (the values the prompt lists, e.g.
+% the HCPCS codes "K0823", "K0824" of a code list), and the numbers.
+known_values(Program, Strings, Numbers) :-
+    (   catch(load_text(Program, KB), _, fail)
+    ->  findall(V, ( le_kbs:template_of(KB, F, A, _, _), between(1, A, I),
+                     catch(le_verifier:with_rule_index(KB, le_verifier:slot_values_typed(KB, F, A, I, Vs)), _, fail),
+                     member(V, Vs) ),
+                Vs0),
+        include(string, Vs0, S0), sort(S0, Strings),
+        include(number, Vs0, N0), sort(N0, Numbers)
+    ;   Strings = [], Numbers = []
+    ).
+
+% unquote_known_numbers(+Numbers, +Strings, +LE0, -LE): the other half of
+% quote_known_strings/3. A model quotes a count it was told in words ("2
+% at-fault claims" came back as "2"), and a rule comparing with the number 2
+% then never matches — the case is silently answered as if it had none. A
+% quoted numeral is written as the number when the rules read that number
+% and never the text; quoted passages after a provenance trailer are left
+% alone.
+unquote_known_numbers([], _, LE, LE) :- !.
+unquote_known_numbers(Numbers, Strings, LE0, LE) :-
+    split_string(LE0, "\n", "", Lines0),
+    maplist(unquote_numbers_line(Numbers, Strings), Lines0, Lines),
+    atomic_list_concat(Lines, "\n", LE1),
+    atom_string(LE1, LE).
+
+unquote_numbers_line(Numbers, Strings, Line0, Line) :-
+    findall(K, ( member(Key, [confer, according_to, as_stated_in, because]),
+                 kw_phrase(Key, "", K0), K0 \== "", format(string(K), ", ~w ", [K0]) ), Keys),
+    (   findall(B, ( member(K, Keys), sub_string(Line0, B, _, _, K) ), Bs), Bs \== []
+    ->  min_list(Bs, Cut),
+        sub_string(Line0, 0, Cut, _, Fact0), sub_string(Line0, Cut, _, 0, Rest)
+    ;   Fact0 = Line0, Rest = ""
+    ),
+    split_string(Fact0, "\"", "", Parts),
+    (   Parts = [First|More], length(More, NM), NM mod 2 =:= 0
+    ->  unquote_parts(More, Numbers, Strings, Tail),
+        atomic_list_concat([First|Tail], Fact)
+    ;   Fact = Fact0                          % unbalanced quotes: leave it
+    ),
+    string_concat(Fact, Rest, Line).
+
+% the parts after the first come in pairs: quoted text, then what follows it
+unquote_parts([], _, _, []).
+unquote_parts([Q, After|Ps], Numbers, Strings, [Out, After|Os]) :-
+    (   catch(number_string(N, Q), _, fail),
+        once(( member(X, Numbers), X =:= N )),
+        \+ memberchk(Q, Strings)
+    ->  Out = Q
+    ;   format(string(Out), "\"~w\"", [Q])
+    ),
+    unquote_parts(Ps, Numbers, Strings, Os).
 
 % quote_known_strings(+Known, +LE0, -LE): a model copies a listed value such
 % as "K0823" without its quotes more often than not (the drafts of Medicare

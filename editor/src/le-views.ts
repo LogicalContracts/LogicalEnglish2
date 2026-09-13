@@ -17,7 +17,7 @@
 import { t, detectProgramLanguage, kwPhrases } from './i18n';
 import { ScenarioForm, isTestDirective } from './scenario-form';
 import { parseScenarioBlocks, matchFact, withDefaultProvenance, ScenarioBlock } from './le-templates';
-import { openSourceViewer, fetchDocumentText, findQuote, originalUrl, Provenance } from './source-viewer';
+import { openSourceViewer, fetchDocumentText, findQuote, originalUrl, locatorLines, lineSpan, Provenance } from './source-viewer';
 
 const TOKEN = 'myToken123';
 
@@ -50,6 +50,23 @@ function el(tag: string, cls = '', text?: string): HTMLElement {
     if (text !== undefined) e.textContent = text;
     return e;
 }
+
+// What each part of a view is, said when the pointer rests on it (the view's
+// own words say what the case is about; these say what the widget does).
+const WIDGET_TIPS: Record<string, string> = {
+    facts: 'The facts of the case. Change a value, add or remove a fact, or pick another case; then Re-evaluate',
+    questions: 'The facts the result still depends on: answer them to complete the case',
+    result: "The answer to the view's question for this case, worked out from the rules and the facts on the left",
+    stage: 'The sections of the rules in order: which the case passes, and where it stops',
+    citations: 'Every step of the result that cites a source, in the order of the reasoning; § opens the passage',
+    reasons: 'The facts the result rests on; when it fails, the conditions it did not meet and why',
+    whatif: 'The smallest changes to the facts of the case that would change the result',
+    tables: 'Further answers about this case, one row per answer',
+    compare: 'The same question asked of other scenarios of the program',
+    documents: 'The documents the result cites, with the cited passages marked',
+    cases: "Every scenario of the program run through the view's question, beside the answer the scenario expects",
+    draft: 'A text filled in from the result, to copy into a letter or a note',
+};
 
 const norm = (s: string) => (s || '').replace(/\s+-\s+/g, '-').replace(/\s+/g, ' ').replace(/\.\s*$/, '').trim().toLowerCase();
 
@@ -108,6 +125,7 @@ function ensureStyles() {
     .lv-draft { font-family: Georgia, serif; font-size: 13.5px; line-height: 1.55; white-space: pre-wrap; }
     .lv-interview { max-width: 460px; margin: 0 auto; }
     .lv-ask { font-size: 21px; font-weight: 600; margin: 18px 0 14px; }
+    .lv-answer-field { display: block; width: 100%; box-sizing: border-box; font-size: 17px; padding: 10px; border-radius: 10px; border: 2px solid var(--lv-border); margin: 6px 0; background: var(--lv-bg); color: var(--lv-ink); }
     .lv-bigbtn { display: block; width: 100%; text-align: center; border: 2px solid var(--lv-accent); color: var(--lv-accent); background: var(--lv-bg); border-radius: 12px; padding: 11px; font-size: 16px; font-weight: 600; margin: 8px 0; cursor: pointer; }
     .lv-res { border-radius: 12px; padding: 12px 14px; font-size: 18px; font-weight: 600; }
     .lv-res.yes { background: #e9f6ee; color: #155e2e; } .lv-res.no { background: #fbeceb; color: #8c1d18; }
@@ -117,6 +135,22 @@ function ensureStyles() {
     .lv-kind { display: inline-block; font-size: 11px; border-radius: 10px; padding: 0 7px; margin-left: 6px; border: 1px solid; }
     .lv-kind.silent { color: var(--lv-unknown); border-color: var(--lv-unknown); }
     .lv-kind.met { color: var(--lv-fail); border-color: var(--lv-fail); }
+    .lv-evalbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 12px; padding: 6px 10px; border: 1px solid var(--lv-border); border-radius: 10px; background: var(--lv-bg); position: sticky; top: 0; z-index: 5; }
+    .lv-evalbar.stale { background: #fff6d6; border-color: #e9c46a; }
+    .lv-evalbar .lv-status { flex: 1 1 auto; }
+    .lv-evalbar label { font-size: 12.5px; color: var(--lv-muted); display: flex; align-items: center; gap: 4px; cursor: pointer; }
+    .lv-evalbar .lv-btn[disabled] { opacity: .5; cursor: default; }
+    .lv-stale [data-widget] .lv-body { opacity: .45; transition: opacity .2s; }
+    .lv-changed { background: #fff3bf; border-radius: 4px; transition: background 2s; }
+    .lv-flags:empty, .lv-warnings:empty { display: none; }
+    .lv-flag { background: #fbeceb; color: #8c1d18; border: 2px solid #d9534f; border-radius: 10px; padding: 10px 14px; margin: 0 0 12px; font-size: 17px; display: flex; flex-wrap: wrap; gap: 12px; align-items: baseline; }
+    .lv-flag-why { font-size: 13px; color: #8c1d18; opacity: .85; }
+    .lv-warnings { background: #fff6d6; border: 1px solid #e9c46a; border-radius: 10px; padding: 8px 12px; margin: 0 0 12px; }
+    .lv-warn-h { font-weight: 600; margin-bottom: 4px; }
+    .lv-warn { font-size: 13px; margin: 3px 0; }
+    .lv-types { margin-top: 8px; }
+    .lv-was { color: var(--lv-muted); font-size: 12.5px; text-decoration: line-through; margin-top: 2px; }
+    [title] { text-underline-offset: 3px; }
     `;
     document.head.appendChild(style);
 }
@@ -186,24 +220,89 @@ function draftCitation(n: any): string {
     return parts.join(', ');
 }
 
-// the leaves of an explanation: the facts it rests on (or failed on)
+// the leaves of an explanation: the facts it rests on (or failed on). A
+// negation that holds is one reason, "it is not the case that …" what it
+// denies, ticked — not the crosses of the alternatives it rules out; the
+// denials of one statement with different values are said once ("… is 1, 2
+// or 3"); an equality of a thing with itself says nothing and is left out.
 function leaves(why: any): { literal: string; ok: boolean }[] {
     const out: { literal: string; ok: boolean }[] = [];
     const seen = new Set<string>();
-    const walk = (n: any, negated: boolean) => {
+    const notWords = kwPhrases(detectProgramLanguageSafe(), 'not_the_case')[0] || 'it is not the case that';
+    const push = (lit: string, ok: boolean) => {
+        if (!lit || seen.has(lit)) return;
+        if (/^\s*(\S+)\s*(?:=|is equal to)\s*\1\s*$/.test(lit)) return;
+        seen.add(lit);
+        out.push({ literal: lit, ok });
+    };
+    const failedLeaves = (n: any, acc: string[]) => {
         if (!n || typeof n !== 'object') return;
-        if (Array.isArray(n)) { n.forEach(c => walk(c, negated)); return; }
+        if (Array.isArray(n)) { n.forEach(c => failedLeaves(c, acc)); return; }
         const kids = n.children || [];
+        if (kids.length === 0) { if (n.type !== 'success') acc.push(String(n.plain || n.literal || '')); }
+        else kids.forEach((c: any) => failedLeaves(c, acc));
+    };
+    const walk = (n: any) => {
+        if (!n || typeof n !== 'object') return;
+        if (Array.isArray(n)) { n.forEach(walk); return; }
+        const kids = n.children || [];
+        if (n.naf && n.type === 'success') {
+            const denied: string[] = [];
+            failedLeaves(kids, denied);
+            if (!denied.length) push(String(n.plain || n.literal || ''), true);
+            denied.forEach(d => push(`${notWords} ${d}`, true));
+            return;
+        }
         if (kids.length === 0) {
             const lit = String(n.plain || n.literal || '');
-            if (lit && !/\d\s+is\s+(greater|less|equal)/.test(lit) && !seen.has(lit)) {
-                seen.add(lit);
-                out.push({ literal: lit, ok: n.type === 'success' });
-            }
-        } else kids.forEach((c: any) => walk(c, negated || !!n.naf));
+            if (lit && !/\d\s+is\s+(greater|less|equal)/.test(lit)) push(lit, n.type === 'success');
+        } else kids.forEach(walk);
     };
-    walk(why, false);
+    walk(why);
+    return mergeAlternatives(out);
+}
+
+// consecutive reasons that differ only in their last word: said once
+function mergeAlternatives(ls: { literal: string; ok: boolean }[]): { literal: string; ok: boolean }[] {
+    const out: { literal: string; ok: boolean }[] = [];
+    const or = ` ${kwPhrases(detectProgramLanguageSafe(), 'or')[0] || 'or'} `;
+    let i = 0;
+    while (i < ls.length) {
+        const words = ls[i].literal.split(' ');
+        const stem = words.slice(0, -1).join(' ');
+        const tails = [words[words.length - 1]];
+        let j = i + 1;
+        while (j < ls.length && ls[j].ok === ls[i].ok && stem.length > 12) {
+            const m = ls[j].literal.startsWith(stem + ' ') ? ls[j].literal.slice(stem.length + 1) : null;
+            if (m === null || /\s/.test(m) && !/^[A-Z]/.test(m)) break;
+            tails.push(m); j++;
+        }
+        if (tails.length > 1) out.push({ literal: `${stem} ${tails.slice(0, -1).join(', ')}${or}${tails[tails.length - 1]}`, ok: ls[i].ok });
+        else out.push(ls[i]);
+        i = j;
+    }
     return out;
+}
+
+// Numbers as people read them. Floating point leaves noise in computed
+// amounts (0.49650299999999997, 698.4000000000001): shown to twelve
+// significant digits it goes away. A view that says "the numbers are shown
+// with 2 decimals" gets exactly that (codes such as 6214.30 are written by
+// the program as text and are not touched).
+function tidyNumbers(text: string, decimals: number | null): string {
+    // a value on its own (a heading, a table cell) is a number to format, whole
+    // or not; inside a sentence only decimals are ("vehicle 1" stays)
+    if (decimals !== null && decimals !== undefined && /^\s*-?\d+(?:\.\d+)?\s*$/.test(String(text))) {
+        return Number(text).toFixed(decimals);
+    }
+    return String(text).replace(/(^|[^\w.\-\/])(-?\d+\.\d+)(?![\w.\-\/])/g, (m, pre, num) => {
+        const x = Number(num);
+        if (!isFinite(x)) return m;
+        if (decimals !== null && decimals !== undefined) return pre + x.toFixed(decimals);
+        const digits = num.replace(/^-/, '').replace('.', '').replace(/^0+/, '');
+        if (digits.length < 13) return m;
+        return pre + String(parseFloat(x.toPrecision(12)));
+    });
 }
 
 // ---------------------------------------------------------------------------
@@ -221,6 +320,11 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
     const scenarioNames: string[] = (ctx.load.examples || []).map((e: any) => e.name);
     const templateDefs: any[] = ctx.load.template_defs || [];
     const documentCtx = { source: ctx.program };
+    const decimals: number | null = typeof V.decimals === 'number' ? V.decimals : null;
+    // answers and amounts in the view's format; reasons and citations (where
+    // numbers are also a formula's constants) only without the float noise
+    const num = (x: string) => tidyNumbers(x, decimals);
+    const tidy = (x: string) => tidyNumbers(x, null);
 
     root.innerHTML = '';
     root.classList.add('lv');
@@ -243,11 +347,28 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
     let dirty = false;
 
     const factsCard = el('div', 'lv-card');
+    // "policy 1 is a policy": what kind of thing each thing of the case is.
+    // Kept in the case, shown in one line rather than as rows to edit.
+    let typeFacts: string[] = [];
+    const typeLine = el('div', 'lv-status lv-types');
+    typeLine.title = t('What kind of thing each thing of the case is. They stay in the case as they are.');
+    const TYPE_LABELS = ['*a thing* is a *type*', '*a thing* is an *type*'];
+    const declaredLabels = templateDefs.map(d => d.label);
+    const isTypeFact = (fact: string) => {
+        const core = fact.split(/,\s*(?=(?:according|as stated|because|confer))/i)[0];
+        return !!matchFact(core, TYPE_LABELS) && !matchFact(core, declaredLabels);
+    };
+    const showTypes = () => {
+        typeLine.textContent = typeFacts.length ? `${t('Also stated')}: ${typeFacts.join(' · ')}` : '';
+        typeLine.hidden = !typeFacts.length;
+    };
     const casePicker = document.createElement('select');
     casePicker.style.cssText = 'width:100%;padding:5px;border-radius:8px;border:1px solid var(--lv-border);background:var(--lv-bg);color:var(--lv-ink);';
     casePicker.appendChild(new Option(t('New case'), ''));
     for (const n of scenarioNames) casePicker.appendChild(new Option(n, n));
     const factsHead = el('div', 'lv-h', t('The case'));
+    factsHead.title = t(WIDGET_TIPS.facts);
+    casePicker.title = t("One of the program's scenarios as the case, or a new case to fill in");
     factsCard.appendChild(factsHead);
     if (V.case && V.case.kind !== 'subject') factsCard.appendChild(casePicker);
 
@@ -261,11 +382,14 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
         const sel = document.createElement('select');
         const btn = el('button', 'lv-btn', t('+ Add')) as HTMLButtonElement;
         add.appendChild(sel); add.appendChild(btn);
+        sel.title = t('The kinds of fact this group can state');
+        btn.title = t('Add a fact of the kind chosen');
+        head.title = t('A group of facts, as the view names it');
         box.appendChild(rows); box.appendChild(absent); box.appendChild(add);
         const form = new ScenarioForm({
             source: ctx.source, rowsEl: rows, addSelect: sel, btnAdd: btn,
             extraTemplates: templateDefs, onlyTemplates: all ? undefined : labels,
-            onChange: () => { dirty = true; scheduleRun(); },
+            onChange: () => { dirty = true; caseChanged(); },
         });
         if (form.addableTemplates.length === 0) add.style.display = 'none';
         forms.push({ form, labels, box, absent, named: !all && title !== null || judged });
@@ -273,6 +397,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
     };
     for (const g of groupDefs) factsCard.appendChild(makeGroup(g.title, g.labels, g.judged, false));
     if (V.otherFacts !== false && otherLabels.length) factsCard.appendChild(makeGroup(groupDefs.length ? null : t('Facts'), otherLabels, false, groupDefs.length === 0));
+    factsCard.appendChild(typeLine);
 
     // "every fact shows who states it": the `according to` of a fact's
     // trailers, as a badge on its row
@@ -308,7 +433,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
             for (const label of f.labels) {
                 if (present.has(label)) continue;
                 const a = el('div', 'lv-absent', `${wordsOf.get(label) || label.replace(/\*/g, '')} — ${t('not stated')}`);
-                a.title = t('State it');
+                a.title = t('The case does not state this fact: click to state it');
                 a.addEventListener('click', () => { f.form.addFact(label.replace(/\*/g, ''), false); });
                 f.absent.appendChild(a);
             }
@@ -321,8 +446,10 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
         caseProvenance = block?.provenance || '';
         const facts = block ? block.facts : [];
         const byForm = forms.map(() => [] as string[]);
+        typeFacts = [];
         for (const fact of facts) {
             if (isTestDirective(fact)) continue;     // "… expects answers …": a test, not a fact
+            if (isTypeFact(fact)) { typeFacts.push(fact); continue; }
             let placed = false;
             for (let i = 0; i < forms.length && !placed; i++) {
                 const m = matchFact(fact.split(/,\s*(?=(?:according|as stated|because|confer))/i)[0], forms[i].labels);
@@ -332,11 +459,13 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
         }
         forms.forEach((f, i) => { f.form.loadFacts(byForm[i]); f.form.provenance = caseProvenance; });
         dirty = false;
+        showTypes();
         showAbsent();
     };
 
     const caseFactsText = (): string => {
         const lines: string[] = [];
+        for (const l of typeFacts) lines.push(withDefaultProvenance(l, caseProvenance, ctx.source));
         for (const f of forms) for (const l of f.form.completeFactLines()) lines.push(withDefaultProvenance(l, caseProvenance, ctx.source));
         return lines.map(l => `${l}.`).join('\n');
     };
@@ -363,6 +492,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
     const card = (key: string, title: string) => {
         const c = el('div', 'lv-card'); c.dataset.widget = key;
         const h = el('div', 'lv-h'); h.appendChild(el('span', '', title)); h.appendChild(el('span', 'lv-tools')); c.appendChild(h);
+        if (WIDGET_TIPS[key]) h.title = t(WIDGET_TIPS[key]);
         const body = el('div'); body.className = 'lv-body'; c.appendChild(body);
         cards[key] = c;
         return c;
@@ -391,19 +521,30 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
             else if (!(res.unmet || []).length && res.strongestReason) b.appendChild(el('div', 'lv-sub', res.strongestReason));
             return;
         }
-        for (const r of results.slice(0, 5)) {
+        const FIRST = 5;
+        results.forEach((r: any, i: number) => {
             const slots = answerSlots(queryText(R.query), r.answer);
             const head = R.headedBy ? slots[String(R.headedBy).split(/\s+/).pop()!.toLowerCase()] : null;
+            const box = el('div', 'lv-answer');
+            if (i >= FIRST) box.hidden = true;
             if (head) {
-                const big = el('div', 'lv-big', head);
+                const big = el('div', 'lv-big', num(head));
                 if (R.unit) big.appendChild(el('span', 'lv-unit', R.unit));
-                b.appendChild(big);
+                box.appendChild(big);
             }
             const conditional = r.unknowns && r.unknowns.length;
-            const line = el('div', head ? 'lv-sub' : 'lv-big', r.answer);
+            const line = el('div', head ? 'lv-sub' : 'lv-big', num(r.answer));
+            line.dataset.answer = r.answer;
             if (conditional && !head) line.classList.add('cond');
-            b.appendChild(line);
-            if (conditional) b.appendChild(el('div', 'lv-sub', `${t('provided that')}: ${r.unknowns.join('; ')}`));
+            box.appendChild(line);
+            if (conditional) box.appendChild(el('div', 'lv-sub', `${t('provided that')}: ${r.unknowns.join('; ')}`));
+            b.appendChild(box);
+        });
+        if (results.length > FIRST) {
+            const more = el('button', 'lv-btn', `${t('Show all')} (${results.length})`);
+            more.title = t('The result has more answers than are shown');
+            more.addEventListener('click', () => { b.querySelectorAll('.lv-answer').forEach(x => (x as HTMLElement).hidden = false); more.remove(); });
+            b.appendChild(more);
         }
         if (R.holds) b.appendChild(el('div', 'lv-sub', R.holds));
     };
@@ -418,6 +559,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
             const mark = c.status === 'passed' ? ['lv-ok', '✓'] : c.status === 'failed' ? ['lv-fail', '✗'] : ['lv-na', '–'];
             row.appendChild(el('span', mark[0], mark[1]));
             row.appendChild(el('b', '', sectionWords(c.section)));
+            row.title = c.status === 'passed' ? t('The case meets this section') : c.status === 'failed' ? t('The case stops here: this section is not met') : t('Not reached: an earlier section stopped the case');
             row.appendChild(el('span', 'lv-na', t(c.status === 'passed' ? 'passed' : c.status === 'failed' ? 'failed' : 'not reached')));
             b.appendChild(row);
         }
@@ -453,7 +595,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
         steps.forEach((n, i) => {
             const li = el('li');
             if (i >= FIRST) li.hidden = true;
-            li.appendChild(el('span', '', n.plain || n.literal));
+            li.appendChild(el('span', '', tidy(n.plain || n.literal)));
             if (n.provenance && (n.provenance.text || n.provenance.url)) li.appendChild(sourceButton(n));
             li.appendChild(el('span', 'lv-cite', citationLine(n)));
             ol.appendChild(li);
@@ -465,6 +607,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
             b.appendChild(more);
         }
         const copy = el('button', '', t('Copy'));
+        copy.title = t('Copy to the clipboard');
         copy.addEventListener('click', () => navigator.clipboard?.writeText(
             steps.map((n, i) => `${i + 1}. ${n.plain || n.literal}\n   ${citationLine(n)}`).join('\n')).catch(() => { }));
         headOf('citations')?.appendChild(copy);
@@ -485,8 +628,10 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
             const q = questionFor(u.goal || u.literal);
             const line = el('span', '', q ? q.text : (u.plain || u.literal));
             main.appendChild(line);
-            main.appendChild(el('span', `lv-kind ${u.kind === 'not_stated' ? 'silent' : 'met'}`,
-                u.kind === 'not_stated' ? t('not stated') : t('not met')));
+            const kind = el('span', `lv-kind ${u.kind === 'not_stated' ? 'silent' : 'met'}`,
+                u.kind === 'not_stated' ? t('not stated') : t('not met'));
+            kind.title = u.kind === 'not_stated' ? t('The case says nothing about this') : t('The case states something else');
+            main.appendChild(kind);
             if (u.provenance && (u.provenance.text || u.provenance.url)) main.appendChild(sourceButton(u));
             if (u.rule || u.provenance) main.appendChild(el('span', 'lv-cite', citationLine(u)));
             if ((u.facts || []).length) main.appendChild(el('span', 'lv-cite', `${t('given')}: ${u.facts.join('; ')}`));
@@ -527,7 +672,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
             const q = questionFor(l.literal);
             const row = el('div', 'lv-ck');
             row.appendChild(el('span', l.ok ? 'lv-ok' : 'lv-fail', l.ok ? '✓' : '✗'));
-            row.appendChild(el('span', '', q ? `${q.text} — ${l.ok ? t('yes') : t('no')}` : l.literal));
+            row.appendChild(el('span', '', q ? `${q.text} — ${l.ok ? t('yes') : t('no')}` : tidy(l.literal)));
             b.appendChild(row);
         }
         if (!ls.length) b.appendChild(el('div', 'lv-status', t('No reasons to show.')));
@@ -559,7 +704,9 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
             const res2 = await fetchDocumentText(d.p.text, documentCtx);
             if (!res2 || typeof res2.text !== 'string') { pane.appendChild(el('div', 'lv-status', (res2 && res2.error) || '')); return; }
             const text = res2.text;
-            const spans = d.quotes.map(q => findQuote(text, q)).filter((x): x is [number, number] => !!x).sort((a, b) => a[0] - b[0]);
+            const lineSpans = d.locators.map(l => locatorLines(l)).filter((x): x is [number, number] => !!x).map(ls => lineSpan(text, ls));
+            const spans = [...d.quotes.map(q => findQuote(text, q)), ...lineSpans]
+                .filter((x): x is [number, number] => !!x).sort((a, b) => a[0] - b[0]);
             const box = el('div', 'lv-doc');
             let at = 0;
             for (const [s, e] of spans) {
@@ -596,6 +743,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
         const b = bodyOf('whatif'); if (!b) return;
         b.innerHTML = '';
         const go = el('button', 'lv-btn', t('Find the smallest changes'));
+        go.title = t('Search for the fewest facts (up to three) to add or remove that would change the result');
         const out = el('div');
         b.appendChild(go); b.appendChild(out);
         go.addEventListener('click', async () => {
@@ -652,7 +800,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
             for (const r of results) {
                 const tr = el('tr');
                 const sl = answerSlots(tb.question, r.answer);
-                if (cols.length) cols.forEach(c => tr.appendChild(el('td', '', sl[c] || ''))); else tr.appendChild(el('td', '', r.answer));
+                if (cols.length) cols.forEach(c => tr.appendChild(el('td', '', num(sl[c] || '')))); else tr.appendChild(el('td', '', num(r.answer)));
                 table.appendChild(tr);
             }
             b.appendChild(table);
@@ -670,7 +818,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
             if (R.whether) req.customQuery = R.whether; else req.query = R.query;
             const res = await leapi({ operation: 'answeringQuery', ...req });
             const results: any[] = res.results || [];
-            if (results.length) results.slice(0, 3).forEach(r => b.appendChild(el('div', 'lv-ok', R.whether && R.holds ? R.holds : r.answer)));
+            if (results.length) results.slice(0, 3).forEach(r => b.appendChild(el('div', 'lv-ok', R.whether && R.holds ? R.holds : num(r.answer))));
             else {
                 b.appendChild(el('div', 'lv-fail', R.whether && R.not ? R.not : t('No answer')));
                 const failed = (res.checklist || []).find((c: any) => c.status === 'failed');
@@ -684,6 +832,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
         const b = bodyOf('cases'); if (!b) return;
         b.innerHTML = '';
         const go = el('button', 'lv-btn', t('Run all cases'));
+        go.title = t("Run every scenario of the program through the view's question and compare with what it expects");
         const progress = el('span', 'lv-status lv-progress');
         const out = el('div');
         b.appendChild(go); b.appendChild(progress); b.appendChild(out);
@@ -720,9 +869,9 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
                     const a = el('a', '', sc); a.setAttribute('href', '#'); a.addEventListener('click', (e) => { e.preventDefault(); casePicker.value = sc; loadCase(sc); run(); });
                     const td0 = el('td'); td0.appendChild(a); tr.appendChild(td0);
                     const failedAt = (res.checklist || []).find((c: any) => c.status === 'failed');
-                    tr.appendChild(el('td', '', answers.length ? answers.join('; ')
+                    tr.appendChild(el('td', '', answers.length ? answers.map(num).join('; ')
                         : `${R.not || t('No answer')}${failedAt ? ` · ${t('fails at')} ${sectionWords(failedAt.section)}` : ''}`));
-                    tr.appendChild(el('td', '', expected === null ? '—' : expected.length ? expected.join('; ') : (R.not || t('No answer'))));
+                    tr.appendChild(el('td', '', expected === null ? '—' : expected.length ? expected.map(num).join('; ') : (R.not || t('No answer'))));
                     const agree = expected === null ? '' : sameSet(answers, expected) ? '✓' : '✗';
                     tr.appendChild(el('td', agree === '✓' ? 'lv-ok' : agree === '✗' ? 'lv-fail' : '', agree));
                     table.appendChild(tr);
@@ -756,6 +905,8 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
             'the citations': resultSteps(res).filter(n => n.rule || /^row /.test(String(n.literal)))
                 .map(n => draftCitation(n)).filter((x, i, a) => x && a.indexOf(x) === i),
             'the facts': forms.flatMap(f => f.form.completeFactLines()),
+            // every answer of the result, one per line
+            'the answers': results.map((r: any) => num(String(r.answer))),
             // what a failed result did not meet, each with its passage
             'the reasons': (results.length ? [] : (res.unmet || [])).map((u: any) =>
                 `${u.literal} (${u.kind === 'not_stated' ? t('not stated') : t('not met')})${draftCitation(u) ? ` — ${draftCitation(u)}` : ''}`),
@@ -768,8 +919,8 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
             }),
         };
         const fill: Record<string, string> = {
-            'the result': head || (results[0]?.answer ?? (R.not || t('No answer'))),
-            'the answer': results[0]?.answer ?? (R.not || t('No answer')),
+            'the result': num(head || (results[0]?.answer ?? (R.not || t('No answer')))),
+            'the answer': num(results[0]?.answer ?? (R.not || t('No answer'))),
             'the case': caseName,
         };
         const text = String(template).replace(/\\n/g, '\n').split('\n').map(line => {
@@ -786,6 +937,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
         }).join('\n');
         b.appendChild(el('div', 'lv-draft', text));
         const copy = el('button', '', t('Copy'));
+        copy.title = t('Copy to the clipboard');
         copy.addEventListener('click', () => navigator.clipboard?.writeText(text).catch(() => { }));
         headOf('draft')?.appendChild(copy);
     };
@@ -806,6 +958,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
                 box.appendChild(el('div', '', q ? q.text : `${u}?`));
                 box.appendChild(el('div', 'lv-sub', t('The result holds provided that it does.')));
                 const y = el('span', 'lv-chip', t('Yes, state it'));
+                y.title = t('State this fact in the case');
                 y.addEventListener('click', () => {
                     const f = forms.find(x => matchFact(u, x.labels)) || forms[forms.length - 1];
                     if (f) f.form.addFact(u, false);
@@ -827,12 +980,14 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
             };
             if (ground) {
                 const y = el('span', 'lv-chip', t('Yes, state it'));
+                y.title = t('State this fact in the case');
                 y.addEventListener('click', () => addFact(m.goal));
                 box.appendChild(y);
             } else {
                 const vals: string[] = (m.values || []).flat();
                 for (const v of vals.slice(0, 10)) {
                     const c = el('span', 'lv-chip', v);
+                    c.title = t('State the fact with this value (one the rules read)');
                     c.addEventListener('click', () => {
                         const mm = matchFact(m.goal, [m.label]);
                         if (!mm) { addFact(m.goal); return; }
@@ -843,6 +998,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
                     box.appendChild(c);
                 }
                 const s = el('span', 'lv-chip', t('State it'));
+                s.title = t('State the fact, then fill in its value');
                 s.addEventListener('click', () => addFact(m.goal));
                 box.appendChild(s);
             }
@@ -851,14 +1007,117 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
     };
 
     // --- run ------------------------------------------------------------------
+    // A change to the case marks the results out of date and lights the
+    // Re-evaluate button; they are worked out again when it is pressed (or
+    // Enter is pressed in a field), or at once with "automatically" ticked.
+    // Answers that differ from the last evaluation are marked, and the ones
+    // that went away are shown struck through.
     let runTimer: any = null;
+    let stale = false;
+    let autoEval = false;
+    try { autoEval = localStorage.getItem('le-view-auto-eval') === '1'; } catch { /* no storage */ }
+    let previousAnswers: string[] | null = null;
+    const evalBar = el('div', 'lv-evalbar');
+    const evalBtn = el('button', 'lv-btn', t('Re-evaluate')) as HTMLButtonElement;
+    evalBtn.title = t('Work out the result again from the facts of the case as they are now');
+    const autoBox = document.createElement('input'); autoBox.type = 'checkbox'; autoBox.checked = autoEval;
+    const autoLabel = el('label'); autoLabel.appendChild(autoBox); autoLabel.appendChild(document.createTextNode(t('automatically')));
+    autoLabel.title = t('Re-evaluate on every change, without pressing the button');
+    evalBar.appendChild(status); evalBar.appendChild(evalBtn); evalBar.appendChild(autoLabel);
+    // what the view flags (a decision that stops the case), and the facts of
+    // the case no rule can read as written: above everything else
+    const flagsBox = el('div', 'lv-flags');
+    const warnBox = el('div', 'lv-warnings');
+    const renderWarnings = (res: any) => {
+        warnBox.innerHTML = '';
+        const ws: any[] = res.valueWarnings || [];
+        if (!ws.length) return;
+        const h = el('div', 'lv-warn-h', t('Some facts of the case cannot be read by the rules as written: the result may be wrong.'));
+        h.title = t('A value is written in a form the rules never read at that place (a number in quotes, a near miss of a value they read). Correct it and Re-evaluate.');
+        warnBox.appendChild(h);
+        for (const w of ws) {
+            const row = el('div', 'lv-warn', `⚠ ${w.message} ${w.fix || ''}`);
+            warnBox.appendChild(row);
+        }
+    };
+    const renderFlags = async () => {
+        flagsBox.innerHTML = '';
+        for (const f of V.flags || []) {
+            const req = resultRequest();
+            delete req.query; delete req.customQuery;
+            if (f.query) req.query = f.query; else req.customQuery = f.question;
+            const res = await leapi({ operation: 'answeringQuery', ...req });
+            const results: any[] = res.results || [];
+            if (!results.length) continue;
+            const banner = el('div', 'lv-flag');
+            banner.appendChild(el('b', '', `⚑ ${f.label}`));
+            banner.appendChild(el('span', 'lv-flag-why', results.map((r: any) => num(String(r.answer))).slice(0, 3).join('; ')));
+            banner.title = `${t('The view flags the case when')}: ${f.question || queryText(f.query)}`;
+            flagsBox.appendChild(banner);
+        }
+    };
+    const setStale = (v: boolean) => {
+        stale = v;
+        evalBar.classList.toggle('stale', v);
+        root.classList.toggle('lv-stale', v);
+        evalBtn.classList.toggle('primary', v);
+        if (v) status.textContent = t('The case has changed: the results below are those of the case before the change.');
+    };
+    const caseChanged = () => {
+        setStale(true);
+        if (autoEval) scheduleRun();
+    };
+    autoBox.addEventListener('change', () => {
+        autoEval = autoBox.checked;
+        try { localStorage.setItem('le-view-auto-eval', autoEval ? '1' : '0'); } catch { /* no storage */ }
+        if (autoEval && stale) scheduleRun();
+    });
+    evalBtn.addEventListener('click', () => { if (runTimer) clearTimeout(runTimer); showAbsent(); run(); });
+    factsCard.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter' && (e.target as HTMLElement).tagName === 'INPUT') { e.preventDefault(); evalBtn.click(); }
+    });
     const scheduleRun = () => { if (runTimer) clearTimeout(runTimer); runTimer = setTimeout(() => { showAbsent(); run(); }, 700); };
+    const markChanges = (res: any) => {
+        const now: string[] = (res.results || []).map((r: any) => String(r.answer));
+        const b = bodyOf('result');
+        if (b && previousAnswers) {
+            const before = new Set(previousAnswers);
+            const after = new Set(now);
+            b.querySelectorAll('.lv-big, .lv-sub, .lv-res').forEach(x => {
+                const txt = ((x as HTMLElement).dataset.answer || x.textContent || '').trim();
+                if (now.includes(txt) && !before.has(txt)) {
+                    x.classList.add('lv-changed');
+                    (x as HTMLElement).title = t('Changed by the last evaluation');
+                    setTimeout(() => x.classList.remove('lv-changed'), 4000);
+                }
+            });
+            const gone = previousAnswers.filter(a => !after.has(a));
+            if (gone.length && (now.length || previousAnswers.length)) {
+                const was = el('div', 'lv-was', `${t('before the change')}: ${gone.slice(0, 5).map(num).join('; ')}`);
+                was.title = t('What the result said before the case was changed');
+                b.appendChild(was);
+            }
+        }
+        previousAnswers = now;
+    };
     const run = async () => {
-        status.textContent = t('Running…');
-        const res = await leapi({ operation: 'answeringQuery', ...runRequest() });
+        status.textContent = t('Evaluating…');
+        evalBtn.disabled = true;
+        root.classList.add('lv-busy');
+        let res: any;
+        try {
+            res = await leapi({ operation: 'answeringQuery', ...runRequest() });
+        } finally {
+            evalBtn.disabled = false;
+            root.classList.remove('lv-busy');
+        }
         lastResult = res;
-        status.textContent = res.error ? String(res.error) : '';
+        setStale(false);
+        status.textContent = res.error ? String(res.error)
+            : `${t('Evaluated at')} ${new Date().toLocaleTimeString()}${caseName && !dirty ? ` — ${caseName}` : dirty ? ` — ${t('the case as edited')}` : ''}`;
+        renderWarnings(res);
         renderResult(res);
+        markChanges(res);
         renderStage(res);
         renderCitations(res);
         renderReasons(res);
@@ -866,36 +1125,119 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
         renderDraft(res);
         renderWhatIf();
         if (cards.questions && V.missing) renderMissing();
+        await renderFlags();
         renderTables();
     };
 
     // --- interview: one question at a time ----------------------------------------
+    // The questions: the view's own (`the question for … is "…"`), then the
+    // facts of its groups — a fact with an open value ("the nationality of
+    // the child is a nationality") asked with a field for the value, one
+    // without ("the child is adopted") asked yes / no. Only a question the
+    // result can still depend on is asked (openQuestions: the facts the
+    // closest failed routes lack, or touched).
     if (V.interview) {
         const box = el('div', 'lv-interview');
         root.appendChild(box);
-        const answers = new Map<string, 'yes' | 'no' | 'unsure'>();
-        const facts = () => (V.questions || []).filter((q: any) => answers.get(q.instance) === 'yes').map((q: any) => `${q.instance}.`).join('\n');
+        type Q = { instance: string; text: string; label: string; open: string | null; values: string[]; own?: boolean };
+        const valuesOf = (label: string): string[] => {
+            const d = templateDefs.find(x => x.label === label);
+            return d && Array.isArray(d.values) ? ([] as string[]).concat(...d.values.map((v: any) => Array.isArray(v) ? v : [])).map(String) : [];
+        };
+        // the open value of an instance: an indefinite phrase where its label has a placeholder
+        const openOf = (label: string, instance: string): string | null => {
+            const m = matchFact(instance, [label]);
+            if (!m) return null;
+            const segs = label.match(/\*[^*]+\*/g) || [];
+            for (let i = segs.length - 1; i >= 0; i--) {
+                const v = String(m.values[i] || '').trim();
+                if (/^(a|an)\s+\S/i.test(v) && v.toLowerCase() === segs[i].replace(/\*/g, '').toLowerCase()) return v;
+            }
+            return null;
+        };
+        const qs: Q[] = [];
+        for (const q of V.questions || []) {
+            const said = String(q.words || q.instance);
+            const open = openOf(q.label, said);
+            qs.push({ instance: said, text: q.text, label: q.label, open, values: open ? valuesOf(q.label) : [], own: true });
+        }
+        for (const g of V.groups || []) for (const f of g.facts || []) {
+            // the fact as the view writes it: its definite phrases stay ("the
+            // Father", a role of the case), its indefinite ones are the values
+            // to ask for
+            const said = String(f.words || f.instance);
+            if (qs.some(q => norm(q.instance) === norm(said) || norm(q.instance) === norm(f.instance))) continue;
+            const open = openOf(f.label, said);
+            qs.push({ instance: said, text: open ? said : `${said}?`,
+                      label: f.label, open, values: open ? valuesOf(f.label) : [] });
+        }
+        type A = { kind: 'yes' | 'no' | 'unsure' | 'value'; value?: string };
+        const answers = new Map<string, A>();
+        const factOf = (q: Q, a: A): string | null => {
+            if (a.kind === 'yes') return q.instance;
+            if (a.kind !== 'value' || !q.open || !a.value) return null;
+            let v = a.value.trim();
+            // a value the rules read as text is written as text
+            if (!/^".*"$/.test(v) && q.values.some(x => /^".*"$/.test(x) && x.slice(1, -1) === v)) v = `"${v}"`;
+            const at = q.instance.toLowerCase().lastIndexOf(q.open.toLowerCase());
+            return at < 0 ? null : q.instance.slice(0, at) + v + q.instance.slice(at + q.open.length);
+        };
+        const facts = () => qs.map(q => answers.has(q.instance) ? factOf(q, answers.get(q.instance)!) : null)
+            .filter((x): x is string => !!x).map(x => `${x}.`).join('\n');
         const req = () => {
             const r: any = { sessionModule: ctx.sessionModule, customScenario: facts() };
             if (R.whether) r.customQuery = R.whether; else r.query = R.query;
             return r;
         };
+        const answer = (q: Q, a: A) => { answers.set(q.instance, a); step(); };
         const step = async () => {
             box.innerHTML = '';
+            box.appendChild(el('div', 'lv-status', t('Thinking…')));
             const oq = await leapi({ operation: 'openQuestions', ...req() });
+            box.innerHTML = '';
             const touched = new Set<string>((oq.touched || []).map((x: any) => norm(x.literal)));
-            const next = oq.holds ? null : (V.questions || []).find((q: any) => !answers.has(q.instance) && touched.has(norm(q.instance)));
-            const total = (V.questions || []).length;
+            const wanted = new Set<string>([...(oq.missing || []), ...(oq.touched || [])].map((x: any) => String(x.label)));
+            const next = oq.holds ? null : qs.find(q => !answers.has(q.instance) && (touched.has(norm(q.instance)) || wanted.has(q.label)));
             if (next) {
-                box.appendChild(el('div', 'lv-status', `${t('Question')} ${answers.size + 1} ${t('of at most')} ${total}`));
+                const counter = el('div', 'lv-status', `${t('Question')} ${answers.size + 1} ${t('of at most')} ${qs.length}`);
+                counter.title = t('Only the questions the result can still depend on are asked');
+                box.appendChild(counter);
                 box.appendChild(el('div', 'lv-ask', next.text));
-                for (const [k, label] of [['yes', t('Yes')], ['no', t('No')], ['unsure', t('Not sure')]] as const) {
-                    const bb = el('button', 'lv-bigbtn', label);
-                    bb.addEventListener('click', () => { answers.set(next.instance, k); step(); });
-                    box.appendChild(bb);
+                if (next.open) {
+                    const input = document.createElement('input');
+                    input.className = 'lv-answer-field';
+                    input.placeholder = next.open;
+                    input.title = t('The value, as the rules read it');
+                    if (/\bdate\b/i.test(next.open)) input.type = 'date';
+                    else if (/\b(number|amount|count)\b/i.test(next.open)) input.type = 'number';
+                    if (next.values.length) {
+                        const dl = document.createElement('datalist');
+                        dl.id = `lv-dl-${Math.random().toString(36).slice(2)}`;
+                        for (const v of next.values) { const o = document.createElement('option'); o.value = v.replace(/^"(.*)"$/, '$1'); dl.appendChild(o); }
+                        box.appendChild(dl);
+                        input.setAttribute('list', dl.id);
+                    }
+                    box.appendChild(input);
+                    const ok = el('button', 'lv-bigbtn', t('Next'));
+                    ok.title = t('State this value in the case and go on');
+                    ok.addEventListener('click', () => { if (input.value.trim()) answer(next, { kind: 'value', value: input.value }); else input.focus(); });
+                    input.addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') ok.click(); });
+                    box.appendChild(ok);
+                    const skip = el('button', 'lv-bigbtn', t('Not known'));
+                    skip.title = t('Leave this fact unstated');
+                    skip.addEventListener('click', () => answer(next, { kind: 'unsure' }));
+                    box.appendChild(skip);
+                    setTimeout(() => input.focus(), 0);
+                } else {
+                    for (const [k, label] of [['yes', t('Yes')], ['no', t('No')], ['unsure', t('Not sure')]] as const) {
+                        const bb = el('button', 'lv-bigbtn', label);
+                        bb.addEventListener('click', () => answer(next, { kind: k }));
+                        box.appendChild(bb);
+                    }
                 }
                 if (answers.size) {
                     const back = el('button', 'lv-btn', `← ${t('Back')}`);
+                    back.title = t('Take back the last answer');
                     back.addEventListener('click', () => { const keys = [...answers.keys()]; answers.delete(keys[keys.length - 1]); step(); });
                     box.appendChild(back);
                 }
@@ -904,15 +1246,18 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
             const res = await leapi({ operation: 'answeringQuery', ...req() });
             lastResult = res;
             const holds = (res.results || []).length > 0;
-            box.appendChild(el('div', `lv-res ${holds ? 'yes' : 'no'}`, holds ? (R.holds || res.results[0].answer) : (R.not || t('No'))));
+            box.appendChild(el('div', `lv-res ${holds ? 'yes' : 'no'}`, holds ? (R.holds || num(res.results[0].answer)) : (R.not || t('No'))));
             if (V.reasons) {
                 box.appendChild(el('div', 'lv-grp', t('Why')));
-                for (const q of V.questions || []) {
+                for (const q of qs) {
                     if (!answers.has(q.instance)) continue;
                     const a = answers.get(q.instance)!;
                     const row = el('div', 'lv-ck');
-                    row.appendChild(el('span', a === 'yes' ? 'lv-ok' : 'lv-fail', a === 'yes' ? '✓' : a === 'no' ? '✗' : '?'));
-                    row.appendChild(el('span', '', `${q.text} — ${a === 'yes' ? t('yes') : a === 'no' ? t('no') : t('not sure')}`));
+                    const ok = a.kind === 'yes' || a.kind === 'value';
+                    row.appendChild(el('span', ok ? 'lv-ok' : a.kind === 'no' ? 'lv-fail' : 'lv-na', ok ? '✓' : a.kind === 'no' ? '✗' : '?'));
+                    const said = a.kind === 'value' ? (factOf(q, a) || q.text)
+                        : `${q.own || q.open ? q.text : q.instance} — ${a.kind === 'yes' ? t('yes') : a.kind === 'no' ? t('no') : t('not sure')}`;
+                    row.appendChild(el('span', '', said));
                     box.appendChild(row);
                 }
             }
@@ -938,7 +1283,9 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
     const left = el('div', 'lv-col'), mid = el('div', 'lv-col'), right = el('div', 'lv-col'), wide = el('div', 'lv-wide');
     const grid = el('div', 'lv-grid');
     grid.appendChild(left); grid.appendChild(mid); grid.appendChild(right);
-    root.appendChild(status);
+    root.appendChild(evalBar);
+    root.appendChild(flagsBox);
+    root.appendChild(warnBox);
     root.appendChild(grid);
     root.appendChild(wide);
     left.appendChild(factsCard);
@@ -964,7 +1311,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
     // a small program's cases run straight away
     if (cards.cases && scenarioNames.length <= 12) (cards.cases.querySelector('button') as HTMLButtonElement | null)?.click();
 
-    casePicker.addEventListener('change', () => { loadCase(casePicker.value); run(); });
+    casePicker.addEventListener('change', () => { previousAnswers = null; loadCase(casePicker.value); run(); });
     const initial = new URLSearchParams(location.search).get('scenario');
     const start = initial && scenarioNames.includes(initial) ? initial : (scenarioNames[0] || '');
     casePicker.value = start;

@@ -176,6 +176,10 @@ view_sentence(section_reads(Name, T)) --> kw(view_section), rest(Toks),
       name_of(NameToks, Name) }.
 view_sentence(compare(Toks)) --> kw(view_compare), rest(Toks), { Toks \== [] }.
 view_sentence(table(Q, T)) --> kw(view_answers_to), string_arg(Q), kw(view_listed_as), string_arg(T).
+view_sentence(flag(T, query(N))) --> kw(view_flagged), string_arg(T), kw(view_flag_when_query), rest(Toks),
+    { append(NToks, HasToks, Toks), NToks \== [], phrase(kw(view_has_answer), HasToks), name_of(NToks, N) }.
+view_sentence(flag(T, Q)) --> kw(view_flagged), string_arg(T), kw(view_flag_when), string_arg(Q).
+view_sentence(decimals(N)) --> kw(view_numbers_shown), [number(N, _)], { integer(N), N >= 0, N =< 12 }, kw(view_decimals).
 view_sentence(documents) --> kw(view_documents).
 view_sentence(cases) --> kw(view_cases).
 view_sentence(draft(holds, T)) --> kw(view_draft), string_arg(T), kw(view_when_holds).
@@ -251,8 +255,8 @@ resolve_item(KB, T, V, question(Toks, Q), S, E, question(Inst, Q), Issues) :- !,
     resolve_parts(KB, T, V, [Toks], S, E, Insts, Issues),
     ( Insts = [Inst] -> true ; Inst = none ).
 resolve_item(KB, T, V, result_whether(Toks), S, E, result_whether(Inst), Issues) :- !,
-    (   resolve_instance(KB, T, Toks, Inst)
-    ->  Issues = []
+    (   resolve_instance(KB, T, Toks, Inst0)
+    ->  asked_as(KB, Inst0, Inst), Issues = []
     ;   Inst = none, sentence_text(Toks, Text),
         issue(view_unknown_template, [name-V, text-Text], S, E, I), Issues = [I]
     ).
@@ -264,6 +268,14 @@ resolve_item(KB, _, V, compare(Toks), S, E, compare(Sc), Issues) :- !,
     name_of(Toks, Sc0),
     (   scenario_named(KB, Sc0, Sc) -> Issues = []
     ;   Sc = Sc0, issue(view_unknown_scenario, [name-V, scenario-Sc0], S, E, I), Issues = [I]
+    ).
+resolve_item(KB, _, V, flag(Title, query(N)), S, E, flag(Title, query(N)), Issues) :- !,
+    (   query_named(KB, N) -> Issues = []
+    ;   issue(view_unknown_query, [name-V, query-N], S, E, I), Issues = [I]
+    ).
+resolve_item(KB, _, V, flag(Title, Q), S, E, flag(Title, Q), Issues) :- !,
+    (   catch(le_kbs:parse_custom_query(KB, Q, _), _, fail) -> Issues = []
+    ;   issue(view_bad_question, [name-V, text-Q], S, E, I), Issues = [I]
     ).
 resolve_item(KB, _, V, table(Q, Title), S, E, table(Q, Title), Issues) :- !,
     (   catch(le_kbs:parse_custom_query(KB, Q, _), _, fail) -> Issues = []
@@ -283,6 +295,19 @@ resolve_item(KB, _, V, section_reads(Name, T), S, E, section_reads(Name, T), Iss
     ;   issue(view_unknown_section, [name-V, section-Name], S, E, I), Issues = [I]
     ).
 resolve_item(_, _, _, Item, _, _, Item, []).
+
+% The question a screen asks: the instance as the program renders it, unless
+% that rendering reads back as another sentence (it respells some words,
+% "business_event" as "business event") — then as the view writes it.
+asked_as(KB, inst(FA, Label, Text, Literal, Words), inst(FA, Label, Q, Literal, Words)) :-
+    FA = F/A,
+    (   catch(le_kbs:parse_custom_query(KB, Text, G0), _, fail),
+        strip_extra(G0, G), callable(G), functor(G, F, A)
+    ->  Q = Text
+    ;   Words \== ""
+    ->  Q = Words
+    ;   Q = Text
+    ).
 
 resolve_parts(KB, T, V, Parts, S, E, Insts, Issues) :-
     foldl(resolve_part(KB, T, V, S, E), Parts, [], Pairs0),
@@ -331,6 +356,7 @@ assemble(Items, View) :-
                        holds: null, not: null},
              citations: false, reasons: false, stage: false, missing: false,
              flip: null, keep: [], sections: [], compare: [], tables: [], documents: false,
+             flags: [], decimals: null,
              cases: false, draft: null, draftHolds: null, draftNot: null, order: []},
     foldl(apply_item, Items, Base, View).
 
@@ -377,6 +403,9 @@ apply_(section_reads(N, T), V0, V) :-
     append(V0.sections, [_{section: N, text: T}], Ss), V = V0.put(sections, Ss).
 apply_(compare(Sc), V0, V) :- append(V0.compare, [Sc], Cs), V = V0.put(compare, Cs).
 apply_(table(Q, T), V0, V) :- append(V0.tables, [_{question: Q, title: T}], Ts), V = V0.put(tables, Ts).
+apply_(flag(T, query(N)), V0, V) :- !, append(V0.flags, [_{query: N, label: T}], Fs), V = V0.put(flags, Fs).
+apply_(flag(T, Q), V0, V) :- append(V0.flags, [_{question: Q, label: T}], Fs), V = V0.put(flags, Fs).
+apply_(decimals(N), V0, V) :- V = V0.put(decimals, N).
 apply_(documents, V0, V) :- V = V0.put(documents, true).
 apply_(cases, V0, V) :- V = V0.put(cases, true).
 apply_(draft(T), V0, V) :- V = V0.put(draft, T).

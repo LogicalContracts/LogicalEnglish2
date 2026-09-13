@@ -1331,6 +1331,47 @@ var keywords = {
         "as"
       ]
     ],
+    "view_flagged": [
+      [
+        "the",
+        "case",
+        "is",
+        "flagged",
+        "as"
+      ]
+    ],
+    "view_flag_when": [
+      [
+        "when"
+      ]
+    ],
+    "view_flag_when_query": [
+      [
+        "when",
+        "query"
+      ]
+    ],
+    "view_has_answer": [
+      [
+        "has",
+        "an",
+        "answer"
+      ]
+    ],
+    "view_numbers_shown": [
+      [
+        "the",
+        "numbers",
+        "are",
+        "shown",
+        "with"
+      ]
+    ],
+    "view_decimals": [
+      [
+        "decimals"
+      ]
+    ],
     "view_documents": [
       [
         "the",
@@ -3033,6 +3074,49 @@ var keywords = {
         "como"
       ]
     ],
+    "view_flagged": [
+      [
+        "o",
+        "caso",
+        "\xE9",
+        "assinalado",
+        "como"
+      ]
+    ],
+    "view_flag_when": [
+      [
+        "quando"
+      ]
+    ],
+    "view_flag_when_query": [
+      [
+        "quando",
+        "a",
+        "consulta"
+      ]
+    ],
+    "view_has_answer": [
+      [
+        "tem",
+        "uma",
+        "resposta"
+      ]
+    ],
+    "view_numbers_shown": [
+      [
+        "os",
+        "n\xFAmeros",
+        "s\xE3o",
+        "mostrados",
+        "com"
+      ]
+    ],
+    "view_decimals": [
+      [
+        "casas",
+        "decimais"
+      ]
+    ],
     "view_documents": [
       [
         "os",
@@ -4675,6 +4759,48 @@ var keywords = {
         "como"
       ]
     ],
+    "view_flagged": [
+      [
+        "el",
+        "caso",
+        "se",
+        "se\xF1ala",
+        "como"
+      ]
+    ],
+    "view_flag_when": [
+      [
+        "cuando"
+      ]
+    ],
+    "view_flag_when_query": [
+      [
+        "cuando",
+        "la",
+        "consulta"
+      ]
+    ],
+    "view_has_answer": [
+      [
+        "tiene",
+        "una",
+        "respuesta"
+      ]
+    ],
+    "view_numbers_shown": [
+      [
+        "los",
+        "n\xFAmeros",
+        "se",
+        "muestran",
+        "con"
+      ]
+    ],
+    "view_decimals": [
+      [
+        "decimales"
+      ]
+    ],
     "view_documents": [
       [
         "los",
@@ -6285,6 +6411,48 @@ var keywords = {
         "sont",
         "list\xE9es",
         "comme"
+      ]
+    ],
+    "view_flagged": [
+      [
+        "le",
+        "cas",
+        "est",
+        "signal\xE9",
+        "comme"
+      ]
+    ],
+    "view_flag_when": [
+      [
+        "quand"
+      ]
+    ],
+    "view_flag_when_query": [
+      [
+        "quand",
+        "la",
+        "requ\xEAte"
+      ]
+    ],
+    "view_has_answer": [
+      [
+        "a",
+        "une",
+        "r\xE9ponse"
+      ]
+    ],
+    "view_numbers_shown": [
+      [
+        "les",
+        "nombres",
+        "sont",
+        "affich\xE9s",
+        "avec"
+      ]
+    ],
+    "view_decimals": [
+      [
+        "d\xE9cimales"
       ]
     ],
     "view_documents": [
@@ -7961,6 +8129,48 @@ var keywords = {
         "come"
       ]
     ],
+    "view_flagged": [
+      [
+        "il",
+        "caso",
+        "\xE8",
+        "segnalato",
+        "come"
+      ]
+    ],
+    "view_flag_when": [
+      [
+        "quando"
+      ]
+    ],
+    "view_flag_when_query": [
+      [
+        "quando",
+        "la",
+        "query"
+      ]
+    ],
+    "view_has_answer": [
+      [
+        "ha",
+        "una",
+        "risposta"
+      ]
+    ],
+    "view_numbers_shown": [
+      [
+        "i",
+        "numeri",
+        "sono",
+        "mostrati",
+        "con"
+      ]
+    ],
+    "view_decimals": [
+      [
+        "decimali"
+      ]
+    ],
     "view_documents": [
       [
         "i",
@@ -8453,7 +8663,125 @@ var uiCatalog = {
     "Automatic view": "Vista autom\xE1tica",
     "Drawing the view\u2026": "A desenhar a vista\u2026",
     "No view could be drawn from this program.": "N\xE3o foi poss\xEDvel desenhar uma vista a partir deste programa.",
-    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Desenhada a partir do pr\xF3prio programa. Para a alterar, o Assistente LE do editor escreve-a: Gerar vista LE."
+    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Desenhada a partir do pr\xF3prio programa. Para a alterar, o Assistente LE do editor escreve-a: Gerar vista LE.",
+    "Could not open": "N\xE3o foi poss\xEDvel abrir",
+    "no answer from the server": "sem resposta do servidor",
+    "translated from": "traduzido de",
+    "fragment(s) could not be translated: they are in the program as TODO comments.": "fragmento(s) n\xE3o puderam ser traduzidos: est\xE3o no programa como coment\xE1rios TODO.",
+    "Everything was translated.": "Tudo foi traduzido.",
+    "What the translator did. The program is open in a new tab; save it with File > Save As.": "O que o tradutor fez. O programa est\xE1 aberto num novo separador; guarde-o com Ficheiro > Guardar como.",
+    "translated on opening": "traduzido ao abrir",
+    "Open a Logical English file, or a file of another system that the server has a translator for (a Solidity contract, a Miniscript policy, an Oracle Intelligent Advisor project, a Socotra product as a .zip): it is translated on opening, and what could not be translated is kept as TODO comments": "Abrir um ficheiro Logical English, ou um ficheiro de outro sistema para o qual o servidor tem um tradutor (um contrato Solidity, uma pol\xEDtica Miniscript, um projeto Oracle Intelligent Advisor, um produto Socotra em .zip): \xE9 traduzido ao abrir, e o que n\xE3o p\xF4de ser traduzido fica como coment\xE1rios TODO",
+    "One of the program's scenarios as the case, or a new case to fill in": "Um dos cen\xE1rios do programa como caso, ou um caso novo para preencher",
+    "The kinds of fact this group can state": "Os tipos de facto que este grupo pode afirmar",
+    "Add a fact of the kind chosen": "Acrescentar um facto do tipo escolhido",
+    "A group of facts, as the view names it": "Um grupo de factos, como a vista o designa",
+    "The case does not state this fact: click to state it": "O caso n\xE3o afirma este facto: clique para o afirmar",
+    "The case meets this section": "O caso cumpre esta sec\xE7\xE3o",
+    "The case stops here: this section is not met": "O caso p\xE1ra aqui: esta sec\xE7\xE3o n\xE3o \xE9 cumprida",
+    "Not reached: an earlier section stopped the case": "N\xE3o alcan\xE7ada: uma sec\xE7\xE3o anterior parou o caso",
+    "Copy to the clipboard": "Copiar para a \xE1rea de transfer\xEAncia",
+    "The case says nothing about this": "O caso nada diz sobre isto",
+    "The case states something else": "O caso afirma outra coisa",
+    "Search for the fewest facts (up to three) to add or remove that would change the result": "Procurar os menos factos (at\xE9 tr\xEAs) a acrescentar ou retirar que mudariam o resultado",
+    "Run every scenario of the program through the view's question and compare with what it expects": "Correr cada cen\xE1rio do programa pela pergunta da vista e comparar com o que ele espera",
+    "State this fact in the case": "Afirmar este facto no caso",
+    "State the fact with this value (one the rules read)": "Afirmar o facto com este valor (um que as regras leem)",
+    "State the fact, then fill in its value": "Afirmar o facto e depois preencher o seu valor",
+    "Re-evaluate": "Reavaliar",
+    "Work out the result again from the facts of the case as they are now": "Calcular de novo o resultado a partir dos factos do caso como est\xE3o agora",
+    "automatically": "automaticamente",
+    "Re-evaluate on every change, without pressing the button": "Reavaliar a cada altera\xE7\xE3o, sem carregar no bot\xE3o",
+    "The case has changed: the results below are those of the case before the change.": "O caso mudou: os resultados abaixo s\xE3o os do caso antes da altera\xE7\xE3o.",
+    "Changed by the last evaluation": "Mudou com a \xFAltima avalia\xE7\xE3o",
+    "before the change": "antes da altera\xE7\xE3o",
+    "What the result said before the case was changed": "O que o resultado dizia antes de o caso mudar",
+    "Evaluating\u2026": "A avaliar\u2026",
+    "Evaluated at": "Avaliado \xE0s",
+    "the case as edited": "o caso como editado",
+    "The facts of the case. Change a value, add or remove a fact, or pick another case; then Re-evaluate": "Os factos do caso. Mude um valor, acrescente ou retire um facto, ou escolha outro caso; depois Reavaliar",
+    "The facts the result still depends on: answer them to complete the case": "Os factos de que o resultado ainda depende: responda-lhes para completar o caso",
+    "The answer to the view's question for this case, worked out from the rules and the facts on the left": "A resposta \xE0 pergunta da vista para este caso, calculada a partir das regras e dos factos \xE0 esquerda",
+    "The sections of the rules in order: which the case passes, and where it stops": "As sec\xE7\xF5es das regras por ordem: as que o caso passa, e onde p\xE1ra",
+    "Every step of the result that cites a source, in the order of the reasoning; \xA7 opens the passage": "Cada passo do resultado que cita uma fonte, pela ordem do racioc\xEDnio; \xA7 abre a passagem",
+    "The facts the result rests on; when it fails, the conditions it did not meet and why": "Os factos em que o resultado assenta; quando falha, as condi\xE7\xF5es que n\xE3o cumpriu e porqu\xEA",
+    "The smallest changes to the facts of the case that would change the result": "As menores altera\xE7\xF5es aos factos do caso que mudariam o resultado",
+    "Further answers about this case, one row per answer": "Outras respostas sobre este caso, uma linha por resposta",
+    "The same question asked of other scenarios of the program": "A mesma pergunta feita a outros cen\xE1rios do programa",
+    "The documents the result cites, with the cited passages marked": "Os documentos que o resultado cita, com as passagens citadas marcadas",
+    "Every scenario of the program run through the view's question, beside the answer the scenario expects": "Cada cen\xE1rio do programa passado pela pergunta da vista, ao lado da resposta que o cen\xE1rio espera",
+    "A text filled in from the result, to copy into a letter or a note": "Um texto preenchido a partir do resultado, para copiar para uma carta ou nota",
+    "Run in LPS": "Executar em LPS",
+    "Legal View": "Vista jur\xEDdica",
+    "Legal View of This LPS Program": "Vista jur\xEDdica deste programa LPS",
+    "This is an LPS program: it runs in time, one event after another, instead of answering queries.": "Este \xE9 um programa LPS: corre no tempo, um evento ap\xF3s outro, em vez de responder a consultas.",
+    "Run this LPS program (the target language is: lps) in time with the LPS engine, in a new window: its timeline, state changes and explanations": "Executar este programa LPS (a linguagem alvo \xE9: lps) no tempo com o motor LPS, numa nova janela: a sua linha do tempo, mudan\xE7as de estado e explica\xE7\xF5es",
+    "The legal view of this LPS program: who may do what, when, and with which effect \u2014 each action's integrity constraints as one permission rule, each causal law as an effect \u2014 an ordinary Logical English program, opened in a new tab with the program's own calls as queries": "A vista jur\xEDdica deste programa LPS: quem pode fazer o qu\xEA, quando e com que efeito \u2014 as restri\xE7\xF5es de integridade de cada a\xE7\xE3o como uma regra de permiss\xE3o, cada lei causal como um efeito \u2014 um programa Logical English comum, aberto num novo separador com as chamadas do pr\xF3prio programa como consultas",
+    "The legal view of this LPS program could not be drawn.": "N\xE3o foi poss\xEDvel tirar a vista jur\xEDdica deste programa LPS.",
+    "What kind of thing each thing of the case is. They stay in the case as they are.": "O tipo de cada coisa do caso. Ficam no caso tal como est\xE3o.",
+    "Also stated": "Tamb\xE9m afirmado",
+    "Some facts of the case cannot be read by the rules as written: the result may be wrong.": "Alguns factos do caso n\xE3o podem ser lidos pelas regras tal como est\xE3o escritos: o resultado pode estar errado.",
+    "A value is written in a form the rules never read at that place (a number in quotes, a near miss of a value they read). Correct it and Re-evaluate.": "Um valor est\xE1 escrito numa forma que as regras nunca leem nessa posi\xE7\xE3o (um n\xFAmero entre aspas, um valor quase igual a um que leem). Corrija-o e Reavalie.",
+    "The view flags the case when": "A vista assinala o caso quando",
+    "The result has more answers than are shown": "O resultado tem mais respostas do que as mostradas",
+    "Thinking\u2026": "A pensar\u2026",
+    "Only the questions the result can still depend on are asked": "S\xF3 se fazem as perguntas de que o resultado ainda pode depender",
+    "The value, as the rules read it": "O valor, tal como as regras o leem",
+    "Next": "Seguinte",
+    "State this value in the case and go on": "Afirmar este valor no caso e continuar",
+    "Not known": "Desconhecido",
+    "Leave this fact unstated": "Deixar este facto por afirmar",
+    "Take back the last answer": "Retirar a \xFAltima resposta",
+    "Tests of": "Testes de",
+    "Running the tests\u2026": "A executar os testes\u2026",
+    "only those that did not pass": "s\xF3 os que n\xE3o passaram",
+    "Hide the tests that passed": "Esconder os testes que passaram",
+    "errors": "erros",
+    "tests": "testes",
+    'This program has no tests: a scenario states them with "<query> expects answers [...]".': 'Este programa n\xE3o tem testes: um cen\xE1rio declara-os com "<consulta> espera respostas [...]".',
+    "Got": "Obtido",
+    "Select this scenario and query in the query panel": "Selecionar este cen\xE1rio e esta consulta no painel de consultas",
+    "unknowns": "desconhecidos",
+    "Run the Program's Tests\u2026": "Executar os Testes do Programa\u2026",
+    'Run every expectation of the program (the "expects answers" lines of its scenarios) and list each with its outcome: passed, or what was expected and what came instead. A click on a row selects its scenario and query.': 'Executar cada expectativa do programa (as linhas "espera respostas" dos seus cen\xE1rios) e listar cada uma com o seu resultado: passou, ou o que se esperava e o que veio em vez disso. Um clique numa linha seleciona o seu cen\xE1rio e consulta.',
+    "A new tab with an empty Logical English program": "Um novo separador com um programa Logical English vazio",
+    "Open a copy of a Logical English program published at a web address; its includes and cited documents resolve relative to that address": "Abrir uma c\xF3pia de um programa Logical English publicado num endere\xE7o web; as inclus\xF5es e os documentos citados resolvem-se relativamente a esse endere\xE7o",
+    "Translate a file of another system into Logical English \u2014 deterministically, no LLM \u2014 and open the result in a new tab: what could not be translated is kept as TODO comments, and the file itself stays beside the program (File > Show the Original)": "Traduzir um ficheiro de outro sistema para Logical English \u2014 de forma determin\xEDstica, sem LLM \u2014 e abrir o resultado num novo separador: o que n\xE3o p\xF4de ser traduzido fica como coment\xE1rios TODO, e o pr\xF3prio ficheiro fica ao lado do programa (Ficheiro > Mostrar o original)",
+    "Import from Another System\u2026": "Importar de outro sistema\u2026",
+    "Open a copy of one of the example programs this server keeps: your changes do not touch the server's file": "Abrir uma c\xF3pia de um dos programas de exemplo deste servidor: as suas altera\xE7\xF5es n\xE3o tocam no ficheiro do servidor",
+    "Save the active program to the file it was opened from": "Guardar o programa ativo no ficheiro de onde foi aberto",
+    "Save the active program under a new name": "Guardar o programa ativo com um novo nome",
+    "Show the files this program was converted from (another system's rules, contract or product), kept in the sources folder beside it, in the source viewer": "Mostrar no visualizador os ficheiros de onde este programa foi convertido (regras, contrato ou produto de outro sistema), guardados na pasta sources ao lado dele",
+    "Show the Original\u2026": "Mostrar o original\u2026",
+    "Cut the selection to the clipboard": "Cortar a sele\xE7\xE3o para a \xE1rea de transfer\xEAncia",
+    "Copy the selection to the clipboard": "Copiar a sele\xE7\xE3o para a \xE1rea de transfer\xEAncia",
+    "Paste the clipboard at the cursor": "Colar a \xE1rea de transfer\xEAncia no cursor",
+    "Find text in the program (Ctrl/Cmd+F)": "Procurar texto no programa (Ctrl/Cmd+F)",
+    "Find text and replace it": "Procurar texto e substitu\xED-lo",
+    "Edit the program's scenarios in a form: each fact from one of the program's templates, one field per placeholder": "Editar os cen\xE1rios do programa num formul\xE1rio: cada facto a partir de um dos modelos do programa, um campo por lacuna",
+    "Build or edit the program's queries in a form, from its templates, joined with and / or and negated with not": "Construir ou editar as consultas do programa num formul\xE1rio, a partir dos seus modelos, unidas com e / ou e negadas com n\xE3o",
+    "Fold every rule and section to its first line, to see the outline": "Dobrar cada regra e sec\xE7\xE3o na sua primeira linha, para ver o esquema",
+    "Unfold everything folded": "Desdobrar tudo o que est\xE1 dobrado",
+    "Light text on a dark background": "Texto claro sobre fundo escuro",
+    "Dark text on a light background": "Texto escuro sobre fundo claro",
+    "Maximum contrast, for low vision or bright rooms": "Contraste m\xE1ximo, para baixa vis\xE3o ou salas claras",
+    "Smaller editor text": "Texto do editor mais pequeno",
+    "Medium editor text": "Texto do editor m\xE9dio",
+    "Larger editor text": "Texto do editor maior",
+    "Number the steps of an explanation hierarchically (1, 1.1, 1.2, \u2026)": "Numerar os passos de uma explica\xE7\xE3o hierarquicamente (1, 1.1, 1.2, \u2026)",
+    "The API keys of the LLM providers, and the models the assistant uses (kept in this browser)": "As chaves de API dos fornecedores de LLM e os modelos que o assistente usa (guardados neste navegador)",
+    "How explanations are shown: the prefix of failed steps, per-rule failure detail, repeated explanations, important reasons": "Como as explica\xE7\xF5es s\xE3o mostradas: o prefixo dos passos falhados, o detalhe das falhas por regra, as explica\xE7\xF5es repetidas, as raz\xF5es importantes",
+    "Copy this answer's text to the clipboard": "Copiar o texto desta resposta para a \xE1rea de transfer\xEAncia",
+    "This step is explained in full elsewhere in the explanation (repeats are hidden): go there": "Este passo \xE9 explicado por inteiro noutro ponto da explica\xE7\xE3o (as repeti\xE7\xF5es est\xE3o escondidas): ir para l\xE1",
+    "Copy the explanation, as indented text, to the clipboard": "Copiar a explica\xE7\xE3o, como texto indentado, para a \xE1rea de transfer\xEAncia",
+    "Copy the explanation as a Mermaid flowchart, to paste into Markdown or a Mermaid editor": "Copiar a explica\xE7\xE3o como fluxograma Mermaid, para colar em Markdown ou num editor Mermaid",
+    "Open the explanation at the reason that weighs most for this answer": "Abrir a explica\xE7\xE3o na raz\xE3o que mais pesa nesta resposta",
+    "Walk through the explanation one reason at a time, strongest first: answer Understood or Not yet, and it goes deeper only where needed (a separate window)": "Percorrer a explica\xE7\xE3o uma raz\xE3o de cada vez, a mais forte primeiro: responda Percebido ou Ainda n\xE3o, e s\xF3 aprofunda onde \xE9 preciso (numa janela \xE0 parte)",
+    "This server has no translator from another system.": "Este servidor n\xE3o tem tradutor de outro sistema.",
+    "No original is kept for this program: it was not converted from another system's files (there is no sources folder beside it).": "N\xE3o h\xE1 original guardado para este programa: n\xE3o foi convertido a partir de ficheiros de outro sistema (n\xE3o h\xE1 pasta sources ao lado dele).",
+    "The original files this program was converted from": "Os ficheiros originais de onde este programa foi convertido",
+    "Open it in the source viewer": "Abri-lo no visualizador de fontes",
+    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "A vista jur\xEDdica \xE9 tirada de um programa LPS: este documento n\xE3o declara a linguagem alvo lps (ou n\xE3o carrega)."
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -8883,7 +9211,123 @@ var uiCatalog = {
     "Automatic view": "Vista autom\xE1tica",
     "Drawing the view\u2026": "Dibujando la vista\u2026",
     "No view could be drawn from this program.": "No se pudo dibujar una vista a partir de este programa.",
-    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Dibujada a partir del propio programa. Para cambiarla, el Asistente LE del editor la escribe: Generar vista LE."
+    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Dibujada a partir del propio programa. Para cambiarla, el Asistente LE del editor la escribe: Generar vista LE.",
+    "Could not open": "No se pudo abrir",
+    "no answer from the server": "sin respuesta del servidor",
+    "translated from": "traducido de",
+    "fragment(s) could not be translated: they are in the program as TODO comments.": "fragmento(s) no pudieron traducirse: est\xE1n en el programa como comentarios TODO.",
+    "Everything was translated.": "Todo se tradujo.",
+    "What the translator did. The program is open in a new tab; save it with File > Save As.": "Lo que hizo el traductor. El programa est\xE1 abierto en una pesta\xF1a nueva; gu\xE1rdelo con Archivo > Guardar como.",
+    "translated on opening": "traducido al abrir",
+    "One of the program's scenarios as the case, or a new case to fill in": "Uno de los escenarios del programa como caso, o un caso nuevo por rellenar",
+    "The kinds of fact this group can state": "Los tipos de hecho que este grupo puede afirmar",
+    "Add a fact of the kind chosen": "A\xF1adir un hecho del tipo elegido",
+    "A group of facts, as the view names it": "Un grupo de hechos, como lo nombra la vista",
+    "The case does not state this fact: click to state it": "El caso no afirma este hecho: haga clic para afirmarlo",
+    "The case meets this section": "El caso cumple esta secci\xF3n",
+    "The case stops here: this section is not met": "El caso se detiene aqu\xED: esta secci\xF3n no se cumple",
+    "Not reached: an earlier section stopped the case": "No alcanzada: una secci\xF3n anterior detuvo el caso",
+    "Copy to the clipboard": "Copiar al portapapeles",
+    "The case says nothing about this": "El caso no dice nada de esto",
+    "The case states something else": "El caso afirma otra cosa",
+    "Search for the fewest facts (up to three) to add or remove that would change the result": "Buscar los menos hechos (hasta tres) que a\xF1adir o quitar para cambiar el resultado",
+    "Run every scenario of the program through the view's question and compare with what it expects": "Ejecutar cada escenario del programa con la pregunta de la vista y comparar con lo que espera",
+    "State this fact in the case": "Afirmar este hecho en el caso",
+    "State the fact with this value (one the rules read)": "Afirmar el hecho con este valor (uno que las reglas leen)",
+    "State the fact, then fill in its value": "Afirmar el hecho y luego rellenar su valor",
+    "Re-evaluate": "Reevaluar",
+    "Work out the result again from the facts of the case as they are now": "Calcular de nuevo el resultado a partir de los hechos del caso tal como est\xE1n ahora",
+    "automatically": "autom\xE1ticamente",
+    "Re-evaluate on every change, without pressing the button": "Reevaluar con cada cambio, sin pulsar el bot\xF3n",
+    "The case has changed: the results below are those of the case before the change.": "El caso ha cambiado: los resultados de abajo son los del caso antes del cambio.",
+    "Changed by the last evaluation": "Cambi\xF3 con la \xFAltima evaluaci\xF3n",
+    "before the change": "antes del cambio",
+    "What the result said before the case was changed": "Lo que dec\xEDa el resultado antes de cambiar el caso",
+    "Evaluating\u2026": "Evaluando\u2026",
+    "Evaluated at": "Evaluado a las",
+    "the case as edited": "el caso tal como se edit\xF3",
+    "The facts of the case. Change a value, add or remove a fact, or pick another case; then Re-evaluate": "Los hechos del caso. Cambie un valor, a\xF1ada o quite un hecho, o elija otro caso; luego Reevaluar",
+    "The facts the result still depends on: answer them to complete the case": "Los hechos de los que a\xFAn depende el resultado: resp\xF3ndalos para completar el caso",
+    "The answer to the view's question for this case, worked out from the rules and the facts on the left": "La respuesta a la pregunta de la vista para este caso, calculada a partir de las reglas y los hechos de la izquierda",
+    "The sections of the rules in order: which the case passes, and where it stops": "Las secciones de las reglas en orden: cu\xE1les pasa el caso y d\xF3nde se detiene",
+    "Every step of the result that cites a source, in the order of the reasoning; \xA7 opens the passage": "Cada paso del resultado que cita una fuente, en el orden del razonamiento; \xA7 abre el pasaje",
+    "The facts the result rests on; when it fails, the conditions it did not meet and why": "Los hechos en que se basa el resultado; cuando falla, las condiciones que no cumpli\xF3 y por qu\xE9",
+    "The smallest changes to the facts of the case that would change the result": "Los cambios m\xE1s peque\xF1os en los hechos del caso que cambiar\xEDan el resultado",
+    "Further answers about this case, one row per answer": "Otras respuestas sobre este caso, una fila por respuesta",
+    "The same question asked of other scenarios of the program": "La misma pregunta hecha a otros escenarios del programa",
+    "The documents the result cites, with the cited passages marked": "Los documentos que cita el resultado, con los pasajes citados marcados",
+    "Every scenario of the program run through the view's question, beside the answer the scenario expects": "Cada escenario del programa con la pregunta de la vista, junto a la respuesta que el escenario espera",
+    "A text filled in from the result, to copy into a letter or a note": "Un texto rellenado a partir del resultado, para copiar en una carta o una nota",
+    "Run in LPS": "Ejecutar en LPS",
+    "Legal View": "Vista jur\xEDdica",
+    "Legal View of This LPS Program": "Vista jur\xEDdica de este programa LPS",
+    "This is an LPS program: it runs in time, one event after another, instead of answering queries.": "Este es un programa LPS: se ejecuta en el tiempo, un evento tras otro, en lugar de responder consultas.",
+    "Run this LPS program (the target language is: lps) in time with the LPS engine, in a new window: its timeline, state changes and explanations": "Ejecutar este programa LPS (el lenguaje objetivo es: lps) en el tiempo con el motor LPS, en una ventana nueva: su l\xEDnea de tiempo, cambios de estado y explicaciones",
+    "The legal view of this LPS program: who may do what, when, and with which effect \u2014 each action's integrity constraints as one permission rule, each causal law as an effect \u2014 an ordinary Logical English program, opened in a new tab with the program's own calls as queries": "La vista jur\xEDdica de este programa LPS: qui\xE9n puede hacer qu\xE9, cu\xE1ndo y con qu\xE9 efecto \u2014 las restricciones de integridad de cada acci\xF3n como una regla de permiso, cada ley causal como un efecto \u2014 un programa Logical English corriente, abierto en una pesta\xF1a nueva con las llamadas del propio programa como consultas",
+    "The legal view of this LPS program could not be drawn.": "No se pudo obtener la vista jur\xEDdica de este programa LPS.",
+    "What kind of thing each thing of the case is. They stay in the case as they are.": "Qu\xE9 clase de cosa es cada cosa del caso. Se quedan en el caso tal como est\xE1n.",
+    "Also stated": "Tambi\xE9n se afirma",
+    "Some facts of the case cannot be read by the rules as written: the result may be wrong.": "Algunos hechos del caso no pueden ser le\xEDdos por las reglas tal como est\xE1n escritos: el resultado puede ser err\xF3neo.",
+    "A value is written in a form the rules never read at that place (a number in quotes, a near miss of a value they read). Correct it and Re-evaluate.": "Un valor est\xE1 escrito de una forma que las reglas nunca leen en ese lugar (un n\xFAmero entre comillas, un valor casi igual a uno que leen). Corr\xEDjalo y Reeval\xFAe.",
+    "The view flags the case when": "La vista se\xF1ala el caso cuando",
+    "The result has more answers than are shown": "El resultado tiene m\xE1s respuestas de las que se muestran",
+    "Thinking\u2026": "Pensando\u2026",
+    "Only the questions the result can still depend on are asked": "Solo se hacen las preguntas de las que a\xFAn puede depender el resultado",
+    "The value, as the rules read it": "El valor, tal como lo leen las reglas",
+    "Next": "Siguiente",
+    "State this value in the case and go on": "Afirmar este valor en el caso y seguir",
+    "Not known": "Desconocido",
+    "Leave this fact unstated": "Dejar este hecho sin afirmar",
+    "Take back the last answer": "Retirar la \xFAltima respuesta",
+    "Tests of": "Pruebas de",
+    "Running the tests\u2026": "Ejecutando las pruebas\u2026",
+    "only those that did not pass": "solo las que no pasaron",
+    "Hide the tests that passed": "Ocultar las pruebas que pasaron",
+    "errors": "errores",
+    "tests": "pruebas",
+    'This program has no tests: a scenario states them with "<query> expects answers [...]".': 'Este programa no tiene pruebas: un escenario las declara con "<consulta> espera respuestas [...]".',
+    "Got": "Obtenido",
+    "Select this scenario and query in the query panel": "Seleccionar este escenario y esta consulta en el panel de consultas",
+    "unknowns": "desconocidos",
+    "Run the Program's Tests\u2026": "Ejecutar las Pruebas del Programa\u2026",
+    "A new tab with an empty Logical English program": "Una pesta\xF1a nueva con un programa Logical English vac\xEDo",
+    "Open a copy of a Logical English program published at a web address; its includes and cited documents resolve relative to that address": "Abrir una copia de un programa Logical English publicado en una direcci\xF3n web; sus inclusiones y documentos citados se resuelven respecto a esa direcci\xF3n",
+    "Translate a file of another system into Logical English \u2014 deterministically, no LLM \u2014 and open the result in a new tab: what could not be translated is kept as TODO comments, and the file itself stays beside the program (File > Show the Original)": "Traducir un archivo de otro sistema a Logical English \u2014 de forma determinista, sin LLM \u2014 y abrir el resultado en una pesta\xF1a nueva: lo que no se pudo traducir queda como comentarios TODO, y el propio archivo queda junto al programa (Archivo > Mostrar el original)",
+    "Import from Another System\u2026": "Importar de otro sistema\u2026",
+    "Open a copy of one of the example programs this server keeps: your changes do not touch the server's file": "Abrir una copia de uno de los programas de ejemplo de este servidor: sus cambios no tocan el archivo del servidor",
+    "Save the active program to the file it was opened from": "Guardar el programa activo en el archivo del que se abri\xF3",
+    "Save the active program under a new name": "Guardar el programa activo con otro nombre",
+    "Show the files this program was converted from (another system's rules, contract or product), kept in the sources folder beside it, in the source viewer": "Mostrar en el visor los archivos de los que se convirti\xF3 este programa (reglas, contrato o producto de otro sistema), guardados en la carpeta sources junto a \xE9l",
+    "Show the Original\u2026": "Mostrar el original\u2026",
+    "Cut the selection to the clipboard": "Cortar la selecci\xF3n al portapapeles",
+    "Copy the selection to the clipboard": "Copiar la selecci\xF3n al portapapeles",
+    "Paste the clipboard at the cursor": "Pegar el portapapeles en el cursor",
+    "Find text in the program (Ctrl/Cmd+F)": "Buscar texto en el programa (Ctrl/Cmd+F)",
+    "Find text and replace it": "Buscar texto y reemplazarlo",
+    "Edit the program's scenarios in a form: each fact from one of the program's templates, one field per placeholder": "Editar los escenarios del programa en un formulario: cada hecho a partir de una de las plantillas del programa, un campo por hueco",
+    "Build or edit the program's queries in a form, from its templates, joined with and / or and negated with not": "Construir o editar las consultas del programa en un formulario, a partir de sus plantillas, unidas con y / o y negadas con no",
+    "Fold every rule and section to its first line, to see the outline": "Plegar cada regla y secci\xF3n en su primera l\xEDnea, para ver el esquema",
+    "Unfold everything folded": "Desplegar todo lo plegado",
+    "Light text on a dark background": "Texto claro sobre fondo oscuro",
+    "Dark text on a light background": "Texto oscuro sobre fondo claro",
+    "Maximum contrast, for low vision or bright rooms": "Contraste m\xE1ximo, para baja visi\xF3n o salas luminosas",
+    "Smaller editor text": "Texto del editor m\xE1s peque\xF1o",
+    "Medium editor text": "Texto del editor mediano",
+    "Larger editor text": "Texto del editor m\xE1s grande",
+    "Number the steps of an explanation hierarchically (1, 1.1, 1.2, \u2026)": "Numerar los pasos de una explicaci\xF3n jer\xE1rquicamente (1, 1.1, 1.2, \u2026)",
+    "The API keys of the LLM providers, and the models the assistant uses (kept in this browser)": "Las claves de API de los proveedores de LLM y los modelos que usa el asistente (guardados en este navegador)",
+    "How explanations are shown: the prefix of failed steps, per-rule failure detail, repeated explanations, important reasons": "C\xF3mo se muestran las explicaciones: el prefijo de los pasos fallidos, el detalle de fallos por regla, las explicaciones repetidas, las razones importantes",
+    "Copy this answer's text to the clipboard": "Copiar el texto de esta respuesta al portapapeles",
+    "This step is explained in full elsewhere in the explanation (repeats are hidden): go there": "Este paso se explica completo en otro punto de la explicaci\xF3n (las repeticiones est\xE1n ocultas): ir all\xED",
+    "Copy the explanation, as indented text, to the clipboard": "Copiar la explicaci\xF3n, como texto sangrado, al portapapeles",
+    "Copy the explanation as a Mermaid flowchart, to paste into Markdown or a Mermaid editor": "Copiar la explicaci\xF3n como diagrama de flujo Mermaid, para pegar en Markdown o en un editor Mermaid",
+    "Open the explanation at the reason that weighs most for this answer": "Abrir la explicaci\xF3n en la raz\xF3n que m\xE1s pesa en esta respuesta",
+    "Walk through the explanation one reason at a time, strongest first: answer Understood or Not yet, and it goes deeper only where needed (a separate window)": "Recorrer la explicaci\xF3n una raz\xF3n a la vez, la m\xE1s fuerte primero: responda Entendido o Todav\xEDa no, y solo profundiza donde hace falta (en una ventana aparte)",
+    "This server has no translator from another system.": "Este servidor no tiene traductor de otro sistema.",
+    "No original is kept for this program: it was not converted from another system's files (there is no sources folder beside it).": "No se guarda ning\xFAn original para este programa: no se convirti\xF3 a partir de archivos de otro sistema (no hay carpeta sources junto a \xE9l).",
+    "The original files this program was converted from": "Los archivos originales de los que se convirti\xF3 este programa",
+    "Open it in the source viewer": "Abrirlo en el visor de fuentes",
+    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vista jur\xEDdica se obtiene de un programa LPS: este documento no declara el lenguaje objetivo lps (o no se carga)."
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -9313,7 +9757,123 @@ var uiCatalog = {
     "Automatic view": "Vue automatique",
     "Drawing the view\u2026": "Construction de la vue\u2026",
     "No view could be drawn from this program.": "Aucune vue n'a pu \xEAtre tir\xE9e de ce programme.",
-    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Tir\xE9e du programme lui-m\xEAme. Pour la modifier, l'Assistant LE de l'\xE9diteur l'\xE9crit : G\xE9n\xE9rer une vue LE."
+    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Tir\xE9e du programme lui-m\xEAme. Pour la modifier, l'Assistant LE de l'\xE9diteur l'\xE9crit : G\xE9n\xE9rer une vue LE.",
+    "Could not open": "Impossible d'ouvrir",
+    "no answer from the server": "pas de r\xE9ponse du serveur",
+    "translated from": "traduit de",
+    "fragment(s) could not be translated: they are in the program as TODO comments.": "fragment(s) n'ont pas pu \xEAtre traduits : ils sont dans le programme sous forme de commentaires TODO.",
+    "Everything was translated.": "Tout a \xE9t\xE9 traduit.",
+    "What the translator did. The program is open in a new tab; save it with File > Save As.": "Ce qu'a fait le traducteur. Le programme est ouvert dans un nouvel onglet ; enregistrez-le avec Fichier > Enregistrer sous.",
+    "translated on opening": "traduit \xE0 l'ouverture",
+    "One of the program's scenarios as the case, or a new case to fill in": "Un des sc\xE9narios du programme comme cas, ou un nouveau cas \xE0 remplir",
+    "The kinds of fact this group can state": "Les sortes de faits que ce groupe peut \xE9noncer",
+    "Add a fact of the kind chosen": "Ajouter un fait de la sorte choisie",
+    "A group of facts, as the view names it": "Un groupe de faits, tel que la vue le nomme",
+    "The case does not state this fact: click to state it": "Le cas n'\xE9nonce pas ce fait : cliquez pour l'\xE9noncer",
+    "The case meets this section": "Le cas satisfait cette section",
+    "The case stops here: this section is not met": "Le cas s'arr\xEAte ici : cette section n'est pas satisfaite",
+    "Not reached: an earlier section stopped the case": "Non atteinte : une section ant\xE9rieure a arr\xEAt\xE9 le cas",
+    "Copy to the clipboard": "Copier dans le presse-papiers",
+    "The case says nothing about this": "Le cas ne dit rien \xE0 ce sujet",
+    "The case states something else": "Le cas \xE9nonce autre chose",
+    "Search for the fewest facts (up to three) to add or remove that would change the result": "Chercher le moins de faits (jusqu'\xE0 trois) \xE0 ajouter ou retirer qui changeraient le r\xE9sultat",
+    "Run every scenario of the program through the view's question and compare with what it expects": "Passer chaque sc\xE9nario du programme par la question de la vue et comparer \xE0 ce qu'il attend",
+    "State this fact in the case": "\xC9noncer ce fait dans le cas",
+    "State the fact with this value (one the rules read)": "\xC9noncer le fait avec cette valeur (une que les r\xE8gles lisent)",
+    "State the fact, then fill in its value": "\xC9noncer le fait, puis remplir sa valeur",
+    "Re-evaluate": "R\xE9\xE9valuer",
+    "Work out the result again from the facts of the case as they are now": "Recalculer le r\xE9sultat \xE0 partir des faits du cas tels qu'ils sont maintenant",
+    "automatically": "automatiquement",
+    "Re-evaluate on every change, without pressing the button": "R\xE9\xE9valuer \xE0 chaque changement, sans appuyer sur le bouton",
+    "The case has changed: the results below are those of the case before the change.": "Le cas a chang\xE9 : les r\xE9sultats ci-dessous sont ceux du cas avant le changement.",
+    "Changed by the last evaluation": "Chang\xE9 par la derni\xE8re \xE9valuation",
+    "before the change": "avant le changement",
+    "What the result said before the case was changed": "Ce que disait le r\xE9sultat avant que le cas change",
+    "Evaluating\u2026": "\xC9valuation\u2026",
+    "Evaluated at": "\xC9valu\xE9 \xE0",
+    "the case as edited": "le cas tel que modifi\xE9",
+    "The facts of the case. Change a value, add or remove a fact, or pick another case; then Re-evaluate": "Les faits du cas. Changez une valeur, ajoutez ou retirez un fait, ou choisissez un autre cas ; puis R\xE9\xE9valuer",
+    "The facts the result still depends on: answer them to complete the case": "Les faits dont le r\xE9sultat d\xE9pend encore : r\xE9pondez-y pour compl\xE9ter le cas",
+    "The answer to the view's question for this case, worked out from the rules and the facts on the left": "La r\xE9ponse \xE0 la question de la vue pour ce cas, calcul\xE9e \xE0 partir des r\xE8gles et des faits \xE0 gauche",
+    "The sections of the rules in order: which the case passes, and where it stops": "Les sections des r\xE8gles dans l'ordre : celles que le cas passe, et o\xF9 il s'arr\xEAte",
+    "Every step of the result that cites a source, in the order of the reasoning; \xA7 opens the passage": "Chaque \xE9tape du r\xE9sultat qui cite une source, dans l'ordre du raisonnement ; \xA7 ouvre le passage",
+    "The facts the result rests on; when it fails, the conditions it did not meet and why": "Les faits sur lesquels repose le r\xE9sultat ; en cas d'\xE9chec, les conditions non satisfaites et pourquoi",
+    "The smallest changes to the facts of the case that would change the result": "Les plus petits changements aux faits du cas qui changeraient le r\xE9sultat",
+    "Further answers about this case, one row per answer": "D'autres r\xE9ponses sur ce cas, une ligne par r\xE9ponse",
+    "The same question asked of other scenarios of the program": "La m\xEAme question pos\xE9e \xE0 d'autres sc\xE9narios du programme",
+    "The documents the result cites, with the cited passages marked": "Les documents que cite le r\xE9sultat, avec les passages cit\xE9s marqu\xE9s",
+    "Every scenario of the program run through the view's question, beside the answer the scenario expects": "Chaque sc\xE9nario du programme pass\xE9 par la question de la vue, \xE0 c\xF4t\xE9 de la r\xE9ponse que le sc\xE9nario attend",
+    "A text filled in from the result, to copy into a letter or a note": "Un texte rempli \xE0 partir du r\xE9sultat, \xE0 copier dans une lettre ou une note",
+    "Run in LPS": "Ex\xE9cuter en LPS",
+    "Legal View": "Vue juridique",
+    "Legal View of This LPS Program": "Vue juridique de ce programme LPS",
+    "This is an LPS program: it runs in time, one event after another, instead of answering queries.": "Ceci est un programme LPS : il s'ex\xE9cute dans le temps, un \xE9v\xE9nement apr\xE8s l'autre, au lieu de r\xE9pondre \xE0 des requ\xEAtes.",
+    "Run this LPS program (the target language is: lps) in time with the LPS engine, in a new window: its timeline, state changes and explanations": "Ex\xE9cuter ce programme LPS (le langage cible est : lps) dans le temps avec le moteur LPS, dans une nouvelle fen\xEAtre : sa chronologie, ses changements d'\xE9tat et ses explications",
+    "The legal view of this LPS program: who may do what, when, and with which effect \u2014 each action's integrity constraints as one permission rule, each causal law as an effect \u2014 an ordinary Logical English program, opened in a new tab with the program's own calls as queries": "La vue juridique de ce programme LPS : qui peut faire quoi, quand et avec quel effet \u2014 les contraintes d'int\xE9grit\xE9 de chaque action comme une r\xE8gle de permission, chaque loi causale comme un effet \u2014 un programme Logical English ordinaire, ouvert dans un nouvel onglet avec les appels du programme comme requ\xEAtes",
+    "The legal view of this LPS program could not be drawn.": "La vue juridique de ce programme LPS n'a pas pu \xEAtre tir\xE9e.",
+    "What kind of thing each thing of the case is. They stay in the case as they are.": "La sorte de chaque chose du cas. Elles restent dans le cas telles quelles.",
+    "Also stated": "\xC9galement \xE9nonc\xE9",
+    "Some facts of the case cannot be read by the rules as written: the result may be wrong.": "Certains faits du cas ne peuvent pas \xEAtre lus par les r\xE8gles tels qu'ils sont \xE9crits : le r\xE9sultat peut \xEAtre faux.",
+    "A value is written in a form the rules never read at that place (a number in quotes, a near miss of a value they read). Correct it and Re-evaluate.": "Une valeur est \xE9crite sous une forme que les r\xE8gles ne lisent jamais \xE0 cet endroit (un nombre entre guillemets, une valeur proche d'une qu'elles lisent). Corrigez-la et R\xE9\xE9valuez.",
+    "The view flags the case when": "La vue signale le cas quand",
+    "The result has more answers than are shown": "Le r\xE9sultat a plus de r\xE9ponses que celles affich\xE9es",
+    "Thinking\u2026": "R\xE9flexion\u2026",
+    "Only the questions the result can still depend on are asked": "Seules les questions dont le r\xE9sultat peut encore d\xE9pendre sont pos\xE9es",
+    "The value, as the rules read it": "La valeur, telle que les r\xE8gles la lisent",
+    "Next": "Suivant",
+    "State this value in the case and go on": "\xC9noncer cette valeur dans le cas et continuer",
+    "Not known": "Inconnu",
+    "Leave this fact unstated": "Laisser ce fait non \xE9nonc\xE9",
+    "Take back the last answer": "Reprendre la derni\xE8re r\xE9ponse",
+    "Tests of": "Tests de",
+    "Running the tests\u2026": "Ex\xE9cution des tests\u2026",
+    "only those that did not pass": "seulement ceux qui n'ont pas r\xE9ussi",
+    "Hide the tests that passed": "Masquer les tests r\xE9ussis",
+    "errors": "erreurs",
+    "tests": "tests",
+    'This program has no tests: a scenario states them with "<query> expects answers [...]".': `Ce programme n'a pas de tests : un sc\xE9nario les \xE9nonce avec "<requ\xEAte> attend r\xE9ponses [...]".`,
+    "Got": "Obtenu",
+    "Select this scenario and query in the query panel": "S\xE9lectionner ce sc\xE9nario et cette requ\xEAte dans le panneau des requ\xEAtes",
+    "unknowns": "inconnues",
+    "Run the Program's Tests\u2026": "Ex\xE9cuter les Tests du Programme\u2026",
+    "A new tab with an empty Logical English program": "Un nouvel onglet avec un programme Logical English vide",
+    "Open a copy of a Logical English program published at a web address; its includes and cited documents resolve relative to that address": "Ouvrir une copie d'un programme Logical English publi\xE9 \xE0 une adresse web ; ses inclusions et documents cit\xE9s se r\xE9solvent par rapport \xE0 cette adresse",
+    "Translate a file of another system into Logical English \u2014 deterministically, no LLM \u2014 and open the result in a new tab: what could not be translated is kept as TODO comments, and the file itself stays beside the program (File > Show the Original)": "Traduire un fichier d'un autre syst\xE8me en Logical English \u2014 de fa\xE7on d\xE9terministe, sans LLM \u2014 et ouvrir le r\xE9sultat dans un nouvel onglet : ce qui n'a pas pu \xEAtre traduit reste en commentaires TODO, et le fichier lui-m\xEAme reste \xE0 c\xF4t\xE9 du programme (Fichier > Afficher l'original)",
+    "Import from Another System\u2026": "Importer depuis un autre syst\xE8me\u2026",
+    "Open a copy of one of the example programs this server keeps: your changes do not touch the server's file": "Ouvrir une copie d'un des programmes d'exemple de ce serveur : vos modifications ne touchent pas le fichier du serveur",
+    "Save the active program to the file it was opened from": "Enregistrer le programme actif dans le fichier d'o\xF9 il a \xE9t\xE9 ouvert",
+    "Save the active program under a new name": "Enregistrer le programme actif sous un nouveau nom",
+    "Show the files this program was converted from (another system's rules, contract or product), kept in the sources folder beside it, in the source viewer": "Afficher dans la visionneuse les fichiers d'o\xF9 ce programme a \xE9t\xE9 converti (r\xE8gles, contrat ou produit d'un autre syst\xE8me), conserv\xE9s dans le dossier sources \xE0 c\xF4t\xE9 de lui",
+    "Show the Original\u2026": "Afficher l'original\u2026",
+    "Cut the selection to the clipboard": "Couper la s\xE9lection dans le presse-papiers",
+    "Copy the selection to the clipboard": "Copier la s\xE9lection dans le presse-papiers",
+    "Paste the clipboard at the cursor": "Coller le presse-papiers au curseur",
+    "Find text in the program (Ctrl/Cmd+F)": "Chercher du texte dans le programme (Ctrl/Cmd+F)",
+    "Find text and replace it": "Chercher du texte et le remplacer",
+    "Edit the program's scenarios in a form: each fact from one of the program's templates, one field per placeholder": "Modifier les sc\xE9narios du programme dans un formulaire : chaque fait \xE0 partir d'un des mod\xE8les du programme, un champ par emplacement",
+    "Build or edit the program's queries in a form, from its templates, joined with and / or and negated with not": "Construire ou modifier les requ\xEAtes du programme dans un formulaire, \xE0 partir de ses mod\xE8les, jointes par et / ou et ni\xE9es par non",
+    "Fold every rule and section to its first line, to see the outline": "Replier chaque r\xE8gle et section sur sa premi\xE8re ligne, pour voir le plan",
+    "Unfold everything folded": "D\xE9plier tout ce qui est repli\xE9",
+    "Light text on a dark background": "Texte clair sur fond sombre",
+    "Dark text on a light background": "Texte sombre sur fond clair",
+    "Maximum contrast, for low vision or bright rooms": "Contraste maximal, pour basse vision ou pi\xE8ces lumineuses",
+    "Smaller editor text": "Texte de l'\xE9diteur plus petit",
+    "Medium editor text": "Texte de l'\xE9diteur moyen",
+    "Larger editor text": "Texte de l'\xE9diteur plus grand",
+    "Number the steps of an explanation hierarchically (1, 1.1, 1.2, \u2026)": "Num\xE9roter les \xE9tapes d'une explication de fa\xE7on hi\xE9rarchique (1, 1.1, 1.2, \u2026)",
+    "The API keys of the LLM providers, and the models the assistant uses (kept in this browser)": "Les cl\xE9s d'API des fournisseurs de LLM et les mod\xE8les que l'assistant utilise (conserv\xE9s dans ce navigateur)",
+    "How explanations are shown: the prefix of failed steps, per-rule failure detail, repeated explanations, important reasons": "Comment les explications sont affich\xE9es : le pr\xE9fixe des \xE9tapes en \xE9chec, le d\xE9tail des \xE9checs par r\xE8gle, les explications r\xE9p\xE9t\xE9es, les raisons importantes",
+    "Copy this answer's text to the clipboard": "Copier le texte de cette r\xE9ponse dans le presse-papiers",
+    "This step is explained in full elsewhere in the explanation (repeats are hidden): go there": "Cette \xE9tape est expliqu\xE9e en entier ailleurs dans l'explication (les r\xE9p\xE9titions sont masqu\xE9es) : y aller",
+    "Copy the explanation, as indented text, to the clipboard": "Copier l'explication, en texte indent\xE9, dans le presse-papiers",
+    "Copy the explanation as a Mermaid flowchart, to paste into Markdown or a Mermaid editor": "Copier l'explication comme organigramme Mermaid, \xE0 coller dans du Markdown ou un \xE9diteur Mermaid",
+    "Open the explanation at the reason that weighs most for this answer": "Ouvrir l'explication \xE0 la raison qui p\xE8se le plus pour cette r\xE9ponse",
+    "Walk through the explanation one reason at a time, strongest first: answer Understood or Not yet, and it goes deeper only where needed (a separate window)": "Parcourir l'explication une raison \xE0 la fois, la plus forte d'abord : r\xE9pondez Compris ou Pas encore, et elle ne va plus loin que l\xE0 o\xF9 il le faut (dans une fen\xEAtre \xE0 part)",
+    "This server has no translator from another system.": "Ce serveur n'a pas de traducteur depuis un autre syst\xE8me.",
+    "No original is kept for this program: it was not converted from another system's files (there is no sources folder beside it).": "Aucun original n'est conserv\xE9 pour ce programme : il n'a pas \xE9t\xE9 converti depuis les fichiers d'un autre syst\xE8me (il n'y a pas de dossier sources \xE0 c\xF4t\xE9).",
+    "The original files this program was converted from": "Les fichiers originaux d'o\xF9 ce programme a \xE9t\xE9 converti",
+    "Open it in the source viewer": "L'ouvrir dans la visionneuse de sources",
+    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vue juridique se tire d'un programme LPS : ce document ne d\xE9clare pas le langage cible lps (ou ne se charge pas)."
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -9743,7 +10303,123 @@ var uiCatalog = {
     "Automatic view": "Vista automatica",
     "Drawing the view\u2026": "Costruzione della vista\u2026",
     "No view could be drawn from this program.": "Non \xE8 stato possibile ricavare una vista da questo programma.",
-    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Ricavata dal programma stesso. Per modificarla, l'Assistente LE dell'editor la scrive: Genera vista LE."
+    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Ricavata dal programma stesso. Per modificarla, l'Assistente LE dell'editor la scrive: Genera vista LE.",
+    "Could not open": "Impossibile aprire",
+    "no answer from the server": "nessuna risposta dal server",
+    "translated from": "tradotto da",
+    "fragment(s) could not be translated: they are in the program as TODO comments.": "frammento/i non tradotti: sono nel programma come commenti TODO.",
+    "Everything was translated.": "Tutto \xE8 stato tradotto.",
+    "What the translator did. The program is open in a new tab; save it with File > Save As.": "Ci\xF2 che ha fatto il traduttore. Il programma \xE8 aperto in una nuova scheda; lo salvi con File > Salva con nome.",
+    "translated on opening": "tradotto all'apertura",
+    "One of the program's scenarios as the case, or a new case to fill in": "Uno degli scenari del programma come caso, o un nuovo caso da compilare",
+    "The kinds of fact this group can state": "I tipi di fatto che questo gruppo pu\xF2 affermare",
+    "Add a fact of the kind chosen": "Aggiungere un fatto del tipo scelto",
+    "A group of facts, as the view names it": "Un gruppo di fatti, come lo chiama la vista",
+    "The case does not state this fact: click to state it": "Il caso non afferma questo fatto: clicchi per affermarlo",
+    "The case meets this section": "Il caso soddisfa questa sezione",
+    "The case stops here: this section is not met": "Il caso si ferma qui: questa sezione non \xE8 soddisfatta",
+    "Not reached: an earlier section stopped the case": "Non raggiunta: una sezione precedente ha fermato il caso",
+    "Copy to the clipboard": "Copiare negli appunti",
+    "The case says nothing about this": "Il caso non dice nulla su questo",
+    "The case states something else": "Il caso afferma altro",
+    "Search for the fewest facts (up to three) to add or remove that would change the result": "Cercare il minor numero di fatti (fino a tre) da aggiungere o togliere che cambierebbero il risultato",
+    "Run every scenario of the program through the view's question and compare with what it expects": "Eseguire ogni scenario del programma con la domanda della vista e confrontare con ci\xF2 che si attende",
+    "State this fact in the case": "Affermare questo fatto nel caso",
+    "State the fact with this value (one the rules read)": "Affermare il fatto con questo valore (uno che le regole leggono)",
+    "State the fact, then fill in its value": "Affermare il fatto, poi compilarne il valore",
+    "Re-evaluate": "Rivalutare",
+    "Work out the result again from the facts of the case as they are now": "Ricalcolare il risultato dai fatti del caso come sono ora",
+    "automatically": "automaticamente",
+    "Re-evaluate on every change, without pressing the button": "Rivalutare a ogni modifica, senza premere il pulsante",
+    "The case has changed: the results below are those of the case before the change.": "Il caso \xE8 cambiato: i risultati qui sotto sono quelli del caso prima della modifica.",
+    "Changed by the last evaluation": "Cambiato dall'ultima valutazione",
+    "before the change": "prima della modifica",
+    "What the result said before the case was changed": "Cosa diceva il risultato prima che il caso cambiasse",
+    "Evaluating\u2026": "Valutazione\u2026",
+    "Evaluated at": "Valutato alle",
+    "the case as edited": "il caso come modificato",
+    "The facts of the case. Change a value, add or remove a fact, or pick another case; then Re-evaluate": "I fatti del caso. Cambi un valore, aggiunga o tolga un fatto, o scelga un altro caso; poi Rivalutare",
+    "The facts the result still depends on: answer them to complete the case": "I fatti da cui il risultato dipende ancora: risponda per completare il caso",
+    "The answer to the view's question for this case, worked out from the rules and the facts on the left": "La risposta alla domanda della vista per questo caso, ricavata dalle regole e dai fatti a sinistra",
+    "The sections of the rules in order: which the case passes, and where it stops": "Le sezioni delle regole in ordine: quali il caso supera, e dove si ferma",
+    "Every step of the result that cites a source, in the order of the reasoning; \xA7 opens the passage": "Ogni passo del risultato che cita una fonte, nell'ordine del ragionamento; \xA7 apre il passo",
+    "The facts the result rests on; when it fails, the conditions it did not meet and why": "I fatti su cui si basa il risultato; quando fallisce, le condizioni non soddisfatte e perch\xE9",
+    "The smallest changes to the facts of the case that would change the result": "Le modifiche pi\xF9 piccole ai fatti del caso che cambierebbero il risultato",
+    "Further answers about this case, one row per answer": "Altre risposte su questo caso, una riga per risposta",
+    "The same question asked of other scenarios of the program": "La stessa domanda posta ad altri scenari del programma",
+    "The documents the result cites, with the cited passages marked": "I documenti che il risultato cita, con i passi citati evidenziati",
+    "Every scenario of the program run through the view's question, beside the answer the scenario expects": "Ogni scenario del programma con la domanda della vista, accanto alla risposta che lo scenario si attende",
+    "A text filled in from the result, to copy into a letter or a note": "Un testo compilato dal risultato, da copiare in una lettera o in una nota",
+    "Run in LPS": "Esegui in LPS",
+    "Legal View": "Vista giuridica",
+    "Legal View of This LPS Program": "Vista giuridica di questo programma LPS",
+    "This is an LPS program: it runs in time, one event after another, instead of answering queries.": "Questo \xE8 un programma LPS: si esegue nel tempo, un evento dopo l'altro, invece di rispondere a interrogazioni.",
+    "Run this LPS program (the target language is: lps) in time with the LPS engine, in a new window: its timeline, state changes and explanations": "Eseguire questo programma LPS (il linguaggio obiettivo \xE8: lps) nel tempo con il motore LPS, in una nuova finestra: la sua linea temporale, i cambiamenti di stato e le spiegazioni",
+    "The legal view of this LPS program: who may do what, when, and with which effect \u2014 each action's integrity constraints as one permission rule, each causal law as an effect \u2014 an ordinary Logical English program, opened in a new tab with the program's own calls as queries": "La vista giuridica di questo programma LPS: chi pu\xF2 fare cosa, quando e con quale effetto \u2014 i vincoli di integrit\xE0 di ogni azione come una regola di permesso, ogni legge causale come un effetto \u2014 un normale programma Logical English, aperto in una nuova scheda con le chiamate del programma come interrogazioni",
+    "The legal view of this LPS program could not be drawn.": "Non \xE8 stato possibile ricavare la vista giuridica di questo programma LPS.",
+    "What kind of thing each thing of the case is. They stay in the case as they are.": "Che tipo di cosa \xE8 ogni cosa del caso. Restano nel caso cos\xEC come sono.",
+    "Also stated": "Affermato anche",
+    "Some facts of the case cannot be read by the rules as written: the result may be wrong.": "Alcuni fatti del caso non possono essere letti dalle regole cos\xEC come sono scritti: il risultato potrebbe essere sbagliato.",
+    "A value is written in a form the rules never read at that place (a number in quotes, a near miss of a value they read). Correct it and Re-evaluate.": "Un valore \xE8 scritto in una forma che le regole non leggono mai in quel punto (un numero tra virgolette, un valore quasi uguale a uno che leggono). Lo corregga e Rivaluti.",
+    "The view flags the case when": "La vista segnala il caso quando",
+    "The result has more answers than are shown": "Il risultato ha pi\xF9 risposte di quelle mostrate",
+    "Thinking\u2026": "Sto pensando\u2026",
+    "Only the questions the result can still depend on are asked": "Si pongono solo le domande da cui il risultato pu\xF2 ancora dipendere",
+    "The value, as the rules read it": "Il valore, come lo leggono le regole",
+    "Next": "Avanti",
+    "State this value in the case and go on": "Affermare questo valore nel caso e proseguire",
+    "Not known": "Non noto",
+    "Leave this fact unstated": "Lasciare questo fatto non affermato",
+    "Take back the last answer": "Ritirare l'ultima risposta",
+    "Tests of": "Test di",
+    "Running the tests\u2026": "Esecuzione dei test\u2026",
+    "only those that did not pass": "solo quelli non superati",
+    "Hide the tests that passed": "Nascondere i test superati",
+    "errors": "errori",
+    "tests": "test",
+    'This program has no tests: a scenario states them with "<query> expects answers [...]".': 'Questo programma non ha test: uno scenario li dichiara con "<query> attende risposte [...]".',
+    "Got": "Ottenuto",
+    "Select this scenario and query in the query panel": "Selezionare questo scenario e questa query nel pannello delle query",
+    "unknowns": "incognite",
+    "Run the Program's Tests\u2026": "Eseguire i Test del Programma\u2026",
+    "A new tab with an empty Logical English program": "Una nuova scheda con un programma Logical English vuoto",
+    "Open a copy of a Logical English program published at a web address; its includes and cited documents resolve relative to that address": "Aprire una copia di un programma Logical English pubblicato a un indirizzo web; le sue inclusioni e i documenti citati si risolvono rispetto a quell'indirizzo",
+    "Translate a file of another system into Logical English \u2014 deterministically, no LLM \u2014 and open the result in a new tab: what could not be translated is kept as TODO comments, and the file itself stays beside the program (File > Show the Original)": "Tradurre un file di un altro sistema in Logical English \u2014 in modo deterministico, senza LLM \u2014 e aprire il risultato in una nuova scheda: ci\xF2 che non si \xE8 potuto tradurre resta come commenti TODO, e il file stesso resta accanto al programma (File > Mostra l'originale)",
+    "Import from Another System\u2026": "Importa da un altro sistema\u2026",
+    "Open a copy of one of the example programs this server keeps: your changes do not touch the server's file": "Aprire una copia di uno dei programmi di esempio di questo server: le modifiche non toccano il file del server",
+    "Save the active program to the file it was opened from": "Salvare il programma attivo nel file da cui \xE8 stato aperto",
+    "Save the active program under a new name": "Salvare il programma attivo con un nuovo nome",
+    "Show the files this program was converted from (another system's rules, contract or product), kept in the sources folder beside it, in the source viewer": "Mostrare nel visualizzatore i file da cui questo programma \xE8 stato convertito (regole, contratto o prodotto di un altro sistema), conservati nella cartella sources accanto a esso",
+    "Show the Original\u2026": "Mostra l'originale\u2026",
+    "Cut the selection to the clipboard": "Tagliare la selezione negli appunti",
+    "Copy the selection to the clipboard": "Copiare la selezione negli appunti",
+    "Paste the clipboard at the cursor": "Incollare gli appunti al cursore",
+    "Find text in the program (Ctrl/Cmd+F)": "Cercare testo nel programma (Ctrl/Cmd+F)",
+    "Find text and replace it": "Cercare testo e sostituirlo",
+    "Edit the program's scenarios in a form: each fact from one of the program's templates, one field per placeholder": "Modificare gli scenari del programma in un modulo: ogni fatto da uno dei modelli del programma, un campo per segnaposto",
+    "Build or edit the program's queries in a form, from its templates, joined with and / or and negated with not": "Costruire o modificare le interrogazioni del programma in un modulo, dai suoi modelli, unite con e / o e negate con non",
+    "Fold every rule and section to its first line, to see the outline": "Ripiegare ogni regola e sezione sulla prima riga, per vederne lo schema",
+    "Unfold everything folded": "Dispiegare tutto ci\xF2 che \xE8 ripiegato",
+    "Light text on a dark background": "Testo chiaro su sfondo scuro",
+    "Dark text on a light background": "Testo scuro su sfondo chiaro",
+    "Maximum contrast, for low vision or bright rooms": "Contrasto massimo, per ipovisione o stanze luminose",
+    "Smaller editor text": "Testo dell'editor pi\xF9 piccolo",
+    "Medium editor text": "Testo dell'editor medio",
+    "Larger editor text": "Testo dell'editor pi\xF9 grande",
+    "Number the steps of an explanation hierarchically (1, 1.1, 1.2, \u2026)": "Numerare i passi di una spiegazione in modo gerarchico (1, 1.1, 1.2, \u2026)",
+    "The API keys of the LLM providers, and the models the assistant uses (kept in this browser)": "Le chiavi API dei fornitori di LLM e i modelli usati dall'assistente (conservati in questo browser)",
+    "How explanations are shown: the prefix of failed steps, per-rule failure detail, repeated explanations, important reasons": "Come sono mostrate le spiegazioni: il prefisso dei passi falliti, il dettaglio dei fallimenti per regola, le spiegazioni ripetute, le ragioni importanti",
+    "Copy this answer's text to the clipboard": "Copiare il testo di questa risposta negli appunti",
+    "This step is explained in full elsewhere in the explanation (repeats are hidden): go there": "Questo passo \xE8 spiegato per intero altrove nella spiegazione (le ripetizioni sono nascoste): andarci",
+    "Copy the explanation, as indented text, to the clipboard": "Copiare la spiegazione, come testo rientrato, negli appunti",
+    "Copy the explanation as a Mermaid flowchart, to paste into Markdown or a Mermaid editor": "Copiare la spiegazione come diagramma di flusso Mermaid, da incollare in Markdown o in un editor Mermaid",
+    "Open the explanation at the reason that weighs most for this answer": "Aprire la spiegazione alla ragione che pesa di pi\xF9 per questa risposta",
+    "Walk through the explanation one reason at a time, strongest first: answer Understood or Not yet, and it goes deeper only where needed (a separate window)": "Percorrere la spiegazione una ragione alla volta, la pi\xF9 forte per prima: rispondete Capito o Non ancora, e scende pi\xF9 a fondo solo dove serve (in una finestra a parte)",
+    "This server has no translator from another system.": "Questo server non ha traduttori da un altro sistema.",
+    "No original is kept for this program: it was not converted from another system's files (there is no sources folder beside it).": "Nessun originale \xE8 conservato per questo programma: non \xE8 stato convertito dai file di un altro sistema (non c'\xE8 una cartella sources accanto).",
+    "The original files this program was converted from": "I file originali da cui questo programma \xE8 stato convertito",
+    "Open it in the source viewer": "Aprirlo nel visualizzatore delle fonti",
+    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vista giuridica si ricava da un programma LPS: questo documento non dichiara il linguaggio obiettivo lps (o non si carica)."
   }
 };
 var languages = [
@@ -10538,10 +11214,42 @@ var TOKEN = "myToken123";
 function originalUrl(p) {
   if (!p.url)
     return null;
+  const lines = p.locator ? locatorLines(p.locator) : null;
+  if (lines && !p.url.includes("#") && /\/blob\//.test(p.url)) {
+    return `${p.url}#L${lines[0]}${lines[1] !== lines[0] ? `-L${lines[1]}` : ""}`;
+  }
   if (p.quote && !p.url.includes("#")) {
     return `${p.url}#:~:text=${encodeURIComponent(p.quote)}`;
   }
   return p.url;
+}
+function locatorLines(locator) {
+  const m = /^\s*(?:lines?|linhas?|l[ií]neas?|lignes?|riga|righe)\s+(\d+)(?:\s*(?:to|a|à|al|-|–)\s*(\d+))?\s*$/i.exec(locator || "");
+  if (!m)
+    return null;
+  const a = parseInt(m[1], 10), b = m[2] ? parseInt(m[2], 10) : a;
+  return a > 0 && b >= a ? [a, b] : null;
+}
+function lineSpan(text, lines) {
+  let start = 0, line = 1;
+  while (line < lines[0]) {
+    const nl = text.indexOf("\n", start);
+    if (nl < 0)
+      return null;
+    start = nl + 1;
+    line++;
+  }
+  let end = start;
+  while (line <= lines[1]) {
+    const nl = text.indexOf("\n", end);
+    if (nl < 0) {
+      end = text.length;
+      break;
+    }
+    end = line === lines[1] ? nl : nl + 1;
+    line++;
+  }
+  return end > start ? [start, end] : null;
 }
 function findQuote(text, quote) {
   const norm2 = [];
@@ -10696,7 +11404,8 @@ function openSourceViewer(p, rule, ctx = {}) {
       return;
     }
     const text = res.text;
-    const span = p.quote ? findQuote(text, p.quote) : null;
+    const lines = p.locator ? locatorLines(p.locator) : null;
+    const span = p.quote ? findQuote(text, p.quote) : lines ? lineSpan(text, lines) : null;
     pre.textContent = "";
     if (span) {
       pre.appendChild(document.createTextNode(text.slice(0, span[0])));
@@ -10736,6 +11445,20 @@ function el(tag, cls = "", text) {
     e.textContent = text;
   return e;
 }
+var WIDGET_TIPS = {
+  facts: "The facts of the case. Change a value, add or remove a fact, or pick another case; then Re-evaluate",
+  questions: "The facts the result still depends on: answer them to complete the case",
+  result: "The answer to the view's question for this case, worked out from the rules and the facts on the left",
+  stage: "The sections of the rules in order: which the case passes, and where it stops",
+  citations: "Every step of the result that cites a source, in the order of the reasoning; \xA7 opens the passage",
+  reasons: "The facts the result rests on; when it fails, the conditions it did not meet and why",
+  whatif: "The smallest changes to the facts of the case that would change the result",
+  tables: "Further answers about this case, one row per answer",
+  compare: "The same question asked of other scenarios of the program",
+  documents: "The documents the result cites, with the cited passages marked",
+  cases: "Every scenario of the program run through the view's question, beside the answer the scenario expects",
+  draft: "A text filled in from the result, to copy into a letter or a note"
+};
 var norm = (s) => (s || "").replace(/\s+-\s+/g, "-").replace(/\s+/g, " ").replace(/\.\s*$/, "").trim().toLowerCase();
 function ensureStyles2() {
   if (document.getElementById("le-views-styles"))
@@ -10793,6 +11516,7 @@ function ensureStyles2() {
     .lv-draft { font-family: Georgia, serif; font-size: 13.5px; line-height: 1.55; white-space: pre-wrap; }
     .lv-interview { max-width: 460px; margin: 0 auto; }
     .lv-ask { font-size: 21px; font-weight: 600; margin: 18px 0 14px; }
+    .lv-answer-field { display: block; width: 100%; box-sizing: border-box; font-size: 17px; padding: 10px; border-radius: 10px; border: 2px solid var(--lv-border); margin: 6px 0; background: var(--lv-bg); color: var(--lv-ink); }
     .lv-bigbtn { display: block; width: 100%; text-align: center; border: 2px solid var(--lv-accent); color: var(--lv-accent); background: var(--lv-bg); border-radius: 12px; padding: 11px; font-size: 16px; font-weight: 600; margin: 8px 0; cursor: pointer; }
     .lv-res { border-radius: 12px; padding: 12px 14px; font-size: 18px; font-weight: 600; }
     .lv-res.yes { background: #e9f6ee; color: #155e2e; } .lv-res.no { background: #fbeceb; color: #8c1d18; }
@@ -10802,6 +11526,22 @@ function ensureStyles2() {
     .lv-kind { display: inline-block; font-size: 11px; border-radius: 10px; padding: 0 7px; margin-left: 6px; border: 1px solid; }
     .lv-kind.silent { color: var(--lv-unknown); border-color: var(--lv-unknown); }
     .lv-kind.met { color: var(--lv-fail); border-color: var(--lv-fail); }
+    .lv-evalbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 12px; padding: 6px 10px; border: 1px solid var(--lv-border); border-radius: 10px; background: var(--lv-bg); position: sticky; top: 0; z-index: 5; }
+    .lv-evalbar.stale { background: #fff6d6; border-color: #e9c46a; }
+    .lv-evalbar .lv-status { flex: 1 1 auto; }
+    .lv-evalbar label { font-size: 12.5px; color: var(--lv-muted); display: flex; align-items: center; gap: 4px; cursor: pointer; }
+    .lv-evalbar .lv-btn[disabled] { opacity: .5; cursor: default; }
+    .lv-stale [data-widget] .lv-body { opacity: .45; transition: opacity .2s; }
+    .lv-changed { background: #fff3bf; border-radius: 4px; transition: background 2s; }
+    .lv-flags:empty, .lv-warnings:empty { display: none; }
+    .lv-flag { background: #fbeceb; color: #8c1d18; border: 2px solid #d9534f; border-radius: 10px; padding: 10px 14px; margin: 0 0 12px; font-size: 17px; display: flex; flex-wrap: wrap; gap: 12px; align-items: baseline; }
+    .lv-flag-why { font-size: 13px; color: #8c1d18; opacity: .85; }
+    .lv-warnings { background: #fff6d6; border: 1px solid #e9c46a; border-radius: 10px; padding: 8px 12px; margin: 0 0 12px; }
+    .lv-warn-h { font-weight: 600; margin-bottom: 4px; }
+    .lv-warn { font-size: 13px; margin: 3px 0; }
+    .lv-types { margin-top: 8px; }
+    .lv-was { color: var(--lv-muted); font-size: 12.5px; text-decoration: line-through; margin-top: 2px; }
+    [title] { text-underline-offset: 3px; }
     `;
   document.head.appendChild(style);
 }
@@ -10881,25 +11621,94 @@ function draftCitation(n) {
 function leaves(why) {
   const out = [];
   const seen = /* @__PURE__ */ new Set();
-  const walk = (n, negated) => {
+  const notWords = kwPhrases(detectProgramLanguageSafe(), "not_the_case")[0] || "it is not the case that";
+  const push = (lit, ok) => {
+    if (!lit || seen.has(lit))
+      return;
+    if (/^\s*(\S+)\s*(?:=|is equal to)\s*\1\s*$/.test(lit))
+      return;
+    seen.add(lit);
+    out.push({ literal: lit, ok });
+  };
+  const failedLeaves = (n, acc) => {
     if (!n || typeof n !== "object")
       return;
     if (Array.isArray(n)) {
-      n.forEach((c) => walk(c, negated));
+      n.forEach((c) => failedLeaves(c, acc));
       return;
     }
     const kids = n.children || [];
     if (kids.length === 0) {
-      const lit = String(n.plain || n.literal || "");
-      if (lit && !/\d\s+is\s+(greater|less|equal)/.test(lit) && !seen.has(lit)) {
-        seen.add(lit);
-        out.push({ literal: lit, ok: n.type === "success" });
-      }
+      if (n.type !== "success")
+        acc.push(String(n.plain || n.literal || ""));
     } else
-      kids.forEach((c) => walk(c, negated || !!n.naf));
+      kids.forEach((c) => failedLeaves(c, acc));
   };
-  walk(why, false);
+  const walk = (n) => {
+    if (!n || typeof n !== "object")
+      return;
+    if (Array.isArray(n)) {
+      n.forEach(walk);
+      return;
+    }
+    const kids = n.children || [];
+    if (n.naf && n.type === "success") {
+      const denied = [];
+      failedLeaves(kids, denied);
+      if (!denied.length)
+        push(String(n.plain || n.literal || ""), true);
+      denied.forEach((d) => push(`${notWords} ${d}`, true));
+      return;
+    }
+    if (kids.length === 0) {
+      const lit = String(n.plain || n.literal || "");
+      if (lit && !/\d\s+is\s+(greater|less|equal)/.test(lit))
+        push(lit, n.type === "success");
+    } else
+      kids.forEach(walk);
+  };
+  walk(why);
+  return mergeAlternatives(out);
+}
+function mergeAlternatives(ls) {
+  const out = [];
+  const or = ` ${kwPhrases(detectProgramLanguageSafe(), "or")[0] || "or"} `;
+  let i = 0;
+  while (i < ls.length) {
+    const words = ls[i].literal.split(" ");
+    const stem = words.slice(0, -1).join(" ");
+    const tails = [words[words.length - 1]];
+    let j = i + 1;
+    while (j < ls.length && ls[j].ok === ls[i].ok && stem.length > 12) {
+      const m = ls[j].literal.startsWith(stem + " ") ? ls[j].literal.slice(stem.length + 1) : null;
+      if (m === null || /\s/.test(m) && !/^[A-Z]/.test(m))
+        break;
+      tails.push(m);
+      j++;
+    }
+    if (tails.length > 1)
+      out.push({ literal: `${stem} ${tails.slice(0, -1).join(", ")}${or}${tails[tails.length - 1]}`, ok: ls[i].ok });
+    else
+      out.push(ls[i]);
+    i = j;
+  }
   return out;
+}
+function tidyNumbers(text, decimals) {
+  if (decimals !== null && decimals !== void 0 && /^\s*-?\d+(?:\.\d+)?\s*$/.test(String(text))) {
+    return Number(text).toFixed(decimals);
+  }
+  return String(text).replace(/(^|[^\w.\-\/])(-?\d+\.\d+)(?![\w.\-\/])/g, (m, pre, num) => {
+    const x = Number(num);
+    if (!isFinite(x))
+      return m;
+    if (decimals !== null && decimals !== void 0)
+      return pre + x.toFixed(decimals);
+    const digits = num.replace(/^-/, "").replace(".", "").replace(/^0+/, "");
+    if (digits.length < 13)
+      return m;
+    return pre + String(parseFloat(x.toPrecision(12)));
+  });
 }
 async function mountView(root, ctx) {
   ensureStyles2();
@@ -10915,6 +11724,9 @@ async function mountView(root, ctx) {
   const scenarioNames = (ctx.load.examples || []).map((e) => e.name);
   const templateDefs = ctx.load.template_defs || [];
   const documentCtx = { source: ctx.program };
+  const decimals = typeof V.decimals === "number" ? V.decimals : null;
+  const num = (x) => tidyNumbers(x, decimals);
+  const tidy = (x) => tidyNumbers(x, null);
   root.innerHTML = "";
   root.classList.add("lv");
   if (V.title && !ctx.titleShown) {
@@ -10937,12 +11749,27 @@ async function mountView(root, ctx) {
   const forms = [];
   let dirty = false;
   const factsCard = el("div", "lv-card");
+  let typeFacts = [];
+  const typeLine = el("div", "lv-status lv-types");
+  typeLine.title = t("What kind of thing each thing of the case is. They stay in the case as they are.");
+  const TYPE_LABELS = ["*a thing* is a *type*", "*a thing* is an *type*"];
+  const declaredLabels = templateDefs.map((d) => d.label);
+  const isTypeFact = (fact) => {
+    const core = fact.split(/,\s*(?=(?:according|as stated|because|confer))/i)[0];
+    return !!matchFact(core, TYPE_LABELS) && !matchFact(core, declaredLabels);
+  };
+  const showTypes = () => {
+    typeLine.textContent = typeFacts.length ? `${t("Also stated")}: ${typeFacts.join(" \xB7 ")}` : "";
+    typeLine.hidden = !typeFacts.length;
+  };
   const casePicker = document.createElement("select");
   casePicker.style.cssText = "width:100%;padding:5px;border-radius:8px;border:1px solid var(--lv-border);background:var(--lv-bg);color:var(--lv-ink);";
   casePicker.appendChild(new Option(t("New case"), ""));
   for (const n of scenarioNames)
     casePicker.appendChild(new Option(n, n));
   const factsHead = el("div", "lv-h", t("The case"));
+  factsHead.title = t(WIDGET_TIPS.facts);
+  casePicker.title = t("One of the program's scenarios as the case, or a new case to fill in");
   factsCard.appendChild(factsHead);
   if (V.case && V.case.kind !== "subject")
     factsCard.appendChild(casePicker);
@@ -10957,6 +11784,9 @@ async function mountView(root, ctx) {
     const btn = el("button", "lv-btn", t("+ Add"));
     add.appendChild(sel);
     add.appendChild(btn);
+    sel.title = t("The kinds of fact this group can state");
+    btn.title = t("Add a fact of the kind chosen");
+    head.title = t("A group of facts, as the view names it");
     box.appendChild(rows);
     box.appendChild(absent);
     box.appendChild(add);
@@ -10969,7 +11799,7 @@ async function mountView(root, ctx) {
       onlyTemplates: all ? void 0 : labels,
       onChange: () => {
         dirty = true;
-        scheduleRun();
+        caseChanged();
       }
     });
     if (form.addableTemplates.length === 0)
@@ -10981,6 +11811,7 @@ async function mountView(root, ctx) {
     factsCard.appendChild(makeGroup(g.title, g.labels, g.judged, false));
   if (V.otherFacts !== false && otherLabels.length)
     factsCard.appendChild(makeGroup(groupDefs.length ? null : t("Facts"), otherLabels, false, groupDefs.length === 0));
+  factsCard.appendChild(typeLine);
   const agentOf = (trailers) => {
     const kws = [...kwPhrases(programLang, "according_to"), ...kwPhrases("en", "according_to")].filter(Boolean);
     for (const part of trailers.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/)) {
@@ -11020,7 +11851,7 @@ async function mountView(root, ctx) {
         if (present.has(label))
           continue;
         const a = el("div", "lv-absent", `${wordsOf.get(label) || label.replace(/\*/g, "")} \u2014 ${t("not stated")}`);
-        a.title = t("State it");
+        a.title = t("The case does not state this fact: click to state it");
         a.addEventListener("click", () => {
           f.form.addFact(label.replace(/\*/g, ""), false);
         });
@@ -11034,9 +11865,14 @@ async function mountView(root, ctx) {
     caseProvenance = block?.provenance || "";
     const facts = block ? block.facts : [];
     const byForm = forms.map(() => []);
+    typeFacts = [];
     for (const fact of facts) {
       if (isTestDirective(fact))
         continue;
+      if (isTypeFact(fact)) {
+        typeFacts.push(fact);
+        continue;
+      }
       let placed = false;
       for (let i = 0; i < forms.length && !placed; i++) {
         const m = matchFact(fact.split(/,\s*(?=(?:according|as stated|because|confer))/i)[0], forms[i].labels);
@@ -11053,10 +11889,13 @@ async function mountView(root, ctx) {
       f.form.provenance = caseProvenance;
     });
     dirty = false;
+    showTypes();
     showAbsent();
   };
   const caseFactsText = () => {
     const lines = [];
+    for (const l of typeFacts)
+      lines.push(withDefaultProvenance(l, caseProvenance, ctx.source));
     for (const f of forms)
       for (const l of f.form.completeFactLines())
         lines.push(withDefaultProvenance(l, caseProvenance, ctx.source));
@@ -11089,6 +11928,8 @@ async function mountView(root, ctx) {
     h.appendChild(el("span", "", title));
     h.appendChild(el("span", "lv-tools"));
     c.appendChild(h);
+    if (WIDGET_TIPS[key])
+      h.title = t(WIDGET_TIPS[key]);
     const body = el("div");
     body.className = "lv-body";
     c.appendChild(body);
@@ -11127,22 +11968,37 @@ async function mountView(root, ctx) {
         b.appendChild(el("div", "lv-sub", res.strongestReason));
       return;
     }
-    for (const r of results.slice(0, 5)) {
+    const FIRST = 5;
+    results.forEach((r, i) => {
       const slots = answerSlots(queryText(R.query), r.answer);
       const head = R.headedBy ? slots[String(R.headedBy).split(/\s+/).pop().toLowerCase()] : null;
+      const box = el("div", "lv-answer");
+      if (i >= FIRST)
+        box.hidden = true;
       if (head) {
-        const big = el("div", "lv-big", head);
+        const big = el("div", "lv-big", num(head));
         if (R.unit)
           big.appendChild(el("span", "lv-unit", R.unit));
-        b.appendChild(big);
+        box.appendChild(big);
       }
       const conditional = r.unknowns && r.unknowns.length;
-      const line = el("div", head ? "lv-sub" : "lv-big", r.answer);
+      const line = el("div", head ? "lv-sub" : "lv-big", num(r.answer));
+      line.dataset.answer = r.answer;
       if (conditional && !head)
         line.classList.add("cond");
-      b.appendChild(line);
+      box.appendChild(line);
       if (conditional)
-        b.appendChild(el("div", "lv-sub", `${t("provided that")}: ${r.unknowns.join("; ")}`));
+        box.appendChild(el("div", "lv-sub", `${t("provided that")}: ${r.unknowns.join("; ")}`));
+      b.appendChild(box);
+    });
+    if (results.length > FIRST) {
+      const more = el("button", "lv-btn", `${t("Show all")} (${results.length})`);
+      more.title = t("The result has more answers than are shown");
+      more.addEventListener("click", () => {
+        b.querySelectorAll(".lv-answer").forEach((x) => x.hidden = false);
+        more.remove();
+      });
+      b.appendChild(more);
     }
     if (R.holds)
       b.appendChild(el("div", "lv-sub", R.holds));
@@ -11162,6 +12018,7 @@ async function mountView(root, ctx) {
       const mark = c.status === "passed" ? ["lv-ok", "\u2713"] : c.status === "failed" ? ["lv-fail", "\u2717"] : ["lv-na", "\u2013"];
       row.appendChild(el("span", mark[0], mark[1]));
       row.appendChild(el("b", "", sectionWords(c.section)));
+      row.title = c.status === "passed" ? t("The case meets this section") : c.status === "failed" ? t("The case stops here: this section is not met") : t("Not reached: an earlier section stopped the case");
       row.appendChild(el("span", "lv-na", t(c.status === "passed" ? "passed" : c.status === "failed" ? "failed" : "not reached")));
       b.appendChild(row);
     }
@@ -11204,7 +12061,7 @@ async function mountView(root, ctx) {
       const li = el("li");
       if (i >= FIRST)
         li.hidden = true;
-      li.appendChild(el("span", "", n.plain || n.literal));
+      li.appendChild(el("span", "", tidy(n.plain || n.literal)));
       if (n.provenance && (n.provenance.text || n.provenance.url))
         li.appendChild(sourceButton(n));
       li.appendChild(el("span", "lv-cite", citationLine(n)));
@@ -11220,6 +12077,7 @@ async function mountView(root, ctx) {
       b.appendChild(more);
     }
     const copy = el("button", "", t("Copy"));
+    copy.title = t("Copy to the clipboard");
     copy.addEventListener("click", () => navigator.clipboard?.writeText(
       steps.map((n, i) => `${i + 1}. ${n.plain || n.literal}
    ${citationLine(n)}`).join("\n")
@@ -11239,11 +12097,13 @@ async function mountView(root, ctx) {
       const q = questionFor(u.goal || u.literal);
       const line = el("span", "", q ? q.text : u.plain || u.literal);
       main.appendChild(line);
-      main.appendChild(el(
+      const kind = el(
         "span",
         `lv-kind ${u.kind === "not_stated" ? "silent" : "met"}`,
         u.kind === "not_stated" ? t("not stated") : t("not met")
-      ));
+      );
+      kind.title = u.kind === "not_stated" ? t("The case says nothing about this") : t("The case states something else");
+      main.appendChild(kind);
       if (u.provenance && (u.provenance.text || u.provenance.url))
         main.appendChild(sourceButton(u));
       if (u.rule || u.provenance)
@@ -11295,7 +12155,7 @@ async function mountView(root, ctx) {
       const q = questionFor(l.literal);
       const row = el("div", "lv-ck");
       row.appendChild(el("span", l.ok ? "lv-ok" : "lv-fail", l.ok ? "\u2713" : "\u2717"));
-      row.appendChild(el("span", "", q ? `${q.text} \u2014 ${l.ok ? t("yes") : t("no")}` : l.literal));
+      row.appendChild(el("span", "", q ? `${q.text} \u2014 ${l.ok ? t("yes") : t("no")}` : tidy(l.literal)));
       b.appendChild(row);
     }
     if (!ls.length)
@@ -11340,7 +12200,8 @@ async function mountView(root, ctx) {
         return;
       }
       const text = res2.text;
-      const spans = d.quotes.map((q) => findQuote(text, q)).filter((x) => !!x).sort((a, b2) => a[0] - b2[0]);
+      const lineSpans = d.locators.map((l) => locatorLines(l)).filter((x) => !!x).map((ls) => lineSpan(text, ls));
+      const spans = [...d.quotes.map((q) => findQuote(text, q)), ...lineSpans].filter((x) => !!x).sort((a, b2) => a[0] - b2[0]);
       const box = el("div", "lv-doc");
       let at = 0;
       for (const [s, e] of spans) {
@@ -11386,6 +12247,7 @@ async function mountView(root, ctx) {
       return;
     b.innerHTML = "";
     const go = el("button", "lv-btn", t("Find the smallest changes"));
+    go.title = t("Search for the fewest facts (up to three) to add or remove that would change the result");
     const out = el("div");
     b.appendChild(go);
     b.appendChild(out);
@@ -11463,9 +12325,9 @@ async function mountView(root, ctx) {
         const tr = el("tr");
         const sl = answerSlots(tb.question, r.answer);
         if (cols.length)
-          cols.forEach((c) => tr.appendChild(el("td", "", sl[c] || "")));
+          cols.forEach((c) => tr.appendChild(el("td", "", num(sl[c] || ""))));
         else
-          tr.appendChild(el("td", "", r.answer));
+          tr.appendChild(el("td", "", num(r.answer)));
         table.appendChild(tr);
       }
       b.appendChild(table);
@@ -11488,7 +12350,7 @@ async function mountView(root, ctx) {
       const res = await leapi({ operation: "answeringQuery", ...req });
       const results = res.results || [];
       if (results.length)
-        results.slice(0, 3).forEach((r) => b.appendChild(el("div", "lv-ok", R.whether && R.holds ? R.holds : r.answer)));
+        results.slice(0, 3).forEach((r) => b.appendChild(el("div", "lv-ok", R.whether && R.holds ? R.holds : num(r.answer))));
       else {
         b.appendChild(el("div", "lv-fail", R.whether && R.not ? R.not : t("No answer")));
         const failed = (res.checklist || []).find((c) => c.status === "failed");
@@ -11505,6 +12367,7 @@ async function mountView(root, ctx) {
       return;
     b.innerHTML = "";
     const go = el("button", "lv-btn", t("Run all cases"));
+    go.title = t("Run every scenario of the program through the view's question and compare with what it expects");
     const progress = el("span", "lv-status lv-progress");
     const out = el("div");
     b.appendChild(go);
@@ -11559,8 +12422,8 @@ async function mountView(root, ctx) {
           td0.appendChild(a);
           tr.appendChild(td0);
           const failedAt = (res.checklist || []).find((c) => c.status === "failed");
-          tr.appendChild(el("td", "", answers.length ? answers.join("; ") : `${R.not || t("No answer")}${failedAt ? ` \xB7 ${t("fails at")} ${sectionWords(failedAt.section)}` : ""}`));
-          tr.appendChild(el("td", "", expected === null ? "\u2014" : expected.length ? expected.join("; ") : R.not || t("No answer")));
+          tr.appendChild(el("td", "", answers.length ? answers.map(num).join("; ") : `${R.not || t("No answer")}${failedAt ? ` \xB7 ${t("fails at")} ${sectionWords(failedAt.section)}` : ""}`));
+          tr.appendChild(el("td", "", expected === null ? "\u2014" : expected.length ? expected.map(num).join("; ") : R.not || t("No answer")));
           const agree = expected === null ? "" : sameSet(answers, expected) ? "\u2713" : "\u2717";
           tr.appendChild(el("td", agree === "\u2713" ? "lv-ok" : agree === "\u2717" ? "lv-fail" : "", agree));
           table.appendChild(tr);
@@ -11592,6 +12455,8 @@ async function mountView(root, ctx) {
       // (of a failed result: the passages it does not meet)
       "the citations": resultSteps(res).filter((n) => n.rule || /^row /.test(String(n.literal))).map((n) => draftCitation(n)).filter((x, i, a) => x && a.indexOf(x) === i),
       "the facts": forms.flatMap((f) => f.form.completeFactLines()),
+      // every answer of the result, one per line
+      "the answers": results.map((r) => num(String(r.answer))),
       // what a failed result did not meet, each with its passage
       "the reasons": (results.length ? [] : res.unmet || []).map((u) => `${u.literal} (${u.kind === "not_stated" ? t("not stated") : t("not met")})${draftCitation(u) ? ` \u2014 ${draftCitation(u)}` : ""}`),
       // of those, the facts the case is silent on: what to ask for
@@ -11602,8 +12467,8 @@ async function mountView(root, ctx) {
       })
     };
     const fill = {
-      "the result": head || (results[0]?.answer ?? (R.not || t("No answer"))),
-      "the answer": results[0]?.answer ?? (R.not || t("No answer")),
+      "the result": num(head || (results[0]?.answer ?? (R.not || t("No answer")))),
+      "the answer": num(results[0]?.answer ?? (R.not || t("No answer"))),
       "the case": caseName
     };
     const text = String(template).replace(/\\n/g, "\n").split("\n").map((line) => {
@@ -11621,6 +12486,7 @@ async function mountView(root, ctx) {
     }).join("\n");
     b.appendChild(el("div", "lv-draft", text));
     const copy = el("button", "", t("Copy"));
+    copy.title = t("Copy to the clipboard");
     copy.addEventListener("click", () => navigator.clipboard?.writeText(text).catch(() => {
     }));
     headOf("draft")?.appendChild(copy);
@@ -11640,6 +12506,7 @@ async function mountView(root, ctx) {
         box.appendChild(el("div", "", q ? q.text : `${u}?`));
         box.appendChild(el("div", "lv-sub", t("The result holds provided that it does.")));
         const y = el("span", "lv-chip", t("Yes, state it"));
+        y.title = t("State this fact in the case");
         y.addEventListener("click", () => {
           const f = forms.find((x) => matchFact(u, x.labels)) || forms[forms.length - 1];
           if (f)
@@ -11666,12 +12533,14 @@ async function mountView(root, ctx) {
       };
       if (ground) {
         const y = el("span", "lv-chip", t("Yes, state it"));
+        y.title = t("State this fact in the case");
         y.addEventListener("click", () => addFact(m.goal));
         box.appendChild(y);
       } else {
         const vals = (m.values || []).flat();
         for (const v of vals.slice(0, 10)) {
           const c = el("span", "lv-chip", v);
+          c.title = t("State the fact with this value (one the rules read)");
           c.addEventListener("click", () => {
             const mm = matchFact(m.goal, [m.label]);
             if (!mm) {
@@ -11685,6 +12554,7 @@ async function mountView(root, ctx) {
           box.appendChild(c);
         }
         const s = el("span", "lv-chip", t("State it"));
+        s.title = t("State the fact, then fill in its value");
         s.addEventListener("click", () => addFact(m.goal));
         box.appendChild(s);
       }
@@ -11692,6 +12562,96 @@ async function mountView(root, ctx) {
     }
   };
   let runTimer = null;
+  let stale = false;
+  let autoEval = false;
+  try {
+    autoEval = localStorage.getItem("le-view-auto-eval") === "1";
+  } catch {
+  }
+  let previousAnswers = null;
+  const evalBar = el("div", "lv-evalbar");
+  const evalBtn = el("button", "lv-btn", t("Re-evaluate"));
+  evalBtn.title = t("Work out the result again from the facts of the case as they are now");
+  const autoBox = document.createElement("input");
+  autoBox.type = "checkbox";
+  autoBox.checked = autoEval;
+  const autoLabel = el("label");
+  autoLabel.appendChild(autoBox);
+  autoLabel.appendChild(document.createTextNode(t("automatically")));
+  autoLabel.title = t("Re-evaluate on every change, without pressing the button");
+  evalBar.appendChild(status);
+  evalBar.appendChild(evalBtn);
+  evalBar.appendChild(autoLabel);
+  const flagsBox = el("div", "lv-flags");
+  const warnBox = el("div", "lv-warnings");
+  const renderWarnings = (res) => {
+    warnBox.innerHTML = "";
+    const ws = res.valueWarnings || [];
+    if (!ws.length)
+      return;
+    const h = el("div", "lv-warn-h", t("Some facts of the case cannot be read by the rules as written: the result may be wrong."));
+    h.title = t("A value is written in a form the rules never read at that place (a number in quotes, a near miss of a value they read). Correct it and Re-evaluate.");
+    warnBox.appendChild(h);
+    for (const w of ws) {
+      const row = el("div", "lv-warn", `\u26A0 ${w.message} ${w.fix || ""}`);
+      warnBox.appendChild(row);
+    }
+  };
+  const renderFlags = async () => {
+    flagsBox.innerHTML = "";
+    for (const f of V.flags || []) {
+      const req = resultRequest();
+      delete req.query;
+      delete req.customQuery;
+      if (f.query)
+        req.query = f.query;
+      else
+        req.customQuery = f.question;
+      const res = await leapi({ operation: "answeringQuery", ...req });
+      const results = res.results || [];
+      if (!results.length)
+        continue;
+      const banner = el("div", "lv-flag");
+      banner.appendChild(el("b", "", `\u2691 ${f.label}`));
+      banner.appendChild(el("span", "lv-flag-why", results.map((r) => num(String(r.answer))).slice(0, 3).join("; ")));
+      banner.title = `${t("The view flags the case when")}: ${f.question || queryText(f.query)}`;
+      flagsBox.appendChild(banner);
+    }
+  };
+  const setStale = (v) => {
+    stale = v;
+    evalBar.classList.toggle("stale", v);
+    root.classList.toggle("lv-stale", v);
+    evalBtn.classList.toggle("primary", v);
+    if (v)
+      status.textContent = t("The case has changed: the results below are those of the case before the change.");
+  };
+  const caseChanged = () => {
+    setStale(true);
+    if (autoEval)
+      scheduleRun();
+  };
+  autoBox.addEventListener("change", () => {
+    autoEval = autoBox.checked;
+    try {
+      localStorage.setItem("le-view-auto-eval", autoEval ? "1" : "0");
+    } catch {
+    }
+    if (autoEval && stale)
+      scheduleRun();
+  });
+  evalBtn.addEventListener("click", () => {
+    if (runTimer)
+      clearTimeout(runTimer);
+    showAbsent();
+    run();
+  });
+  factsCard.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.tagName === "INPUT") {
+      e.preventDefault();
+      evalBtn.click();
+    }
+  });
   const scheduleRun = () => {
     if (runTimer)
       clearTimeout(runTimer);
@@ -11700,12 +12660,46 @@ async function mountView(root, ctx) {
       run();
     }, 700);
   };
+  const markChanges = (res) => {
+    const now = (res.results || []).map((r) => String(r.answer));
+    const b = bodyOf("result");
+    if (b && previousAnswers) {
+      const before = new Set(previousAnswers);
+      const after = new Set(now);
+      b.querySelectorAll(".lv-big, .lv-sub, .lv-res").forEach((x) => {
+        const txt = (x.dataset.answer || x.textContent || "").trim();
+        if (now.includes(txt) && !before.has(txt)) {
+          x.classList.add("lv-changed");
+          x.title = t("Changed by the last evaluation");
+          setTimeout(() => x.classList.remove("lv-changed"), 4e3);
+        }
+      });
+      const gone = previousAnswers.filter((a) => !after.has(a));
+      if (gone.length && (now.length || previousAnswers.length)) {
+        const was = el("div", "lv-was", `${t("before the change")}: ${gone.slice(0, 5).map(num).join("; ")}`);
+        was.title = t("What the result said before the case was changed");
+        b.appendChild(was);
+      }
+    }
+    previousAnswers = now;
+  };
   const run = async () => {
-    status.textContent = t("Running\u2026");
-    const res = await leapi({ operation: "answeringQuery", ...runRequest() });
+    status.textContent = t("Evaluating\u2026");
+    evalBtn.disabled = true;
+    root.classList.add("lv-busy");
+    let res;
+    try {
+      res = await leapi({ operation: "answeringQuery", ...runRequest() });
+    } finally {
+      evalBtn.disabled = false;
+      root.classList.remove("lv-busy");
+    }
     lastResult = res;
-    status.textContent = res.error ? String(res.error) : "";
+    setStale(false);
+    status.textContent = res.error ? String(res.error) : `${t("Evaluated at")} ${(/* @__PURE__ */ new Date()).toLocaleTimeString()}${caseName && !dirty ? ` \u2014 ${caseName}` : dirty ? ` \u2014 ${t("the case as edited")}` : ""}`;
+    renderWarnings(res);
     renderResult(res);
+    markChanges(res);
     renderStage(res);
     renderCitations(res);
     renderReasons(res);
@@ -11714,13 +12708,61 @@ async function mountView(root, ctx) {
     renderWhatIf();
     if (cards.questions && V.missing)
       renderMissing();
+    await renderFlags();
     renderTables();
   };
   if (V.interview) {
     const box = el("div", "lv-interview");
     root.appendChild(box);
+    const valuesOf = (label) => {
+      const d = templateDefs.find((x) => x.label === label);
+      return d && Array.isArray(d.values) ? [].concat(...d.values.map((v) => Array.isArray(v) ? v : [])).map(String) : [];
+    };
+    const openOf = (label, instance) => {
+      const m = matchFact(instance, [label]);
+      if (!m)
+        return null;
+      const segs = label.match(/\*[^*]+\*/g) || [];
+      for (let i = segs.length - 1; i >= 0; i--) {
+        const v = String(m.values[i] || "").trim();
+        if (/^(a|an)\s+\S/i.test(v) && v.toLowerCase() === segs[i].replace(/\*/g, "").toLowerCase())
+          return v;
+      }
+      return null;
+    };
+    const qs = [];
+    for (const q of V.questions || []) {
+      const said = String(q.words || q.instance);
+      const open = openOf(q.label, said);
+      qs.push({ instance: said, text: q.text, label: q.label, open, values: open ? valuesOf(q.label) : [], own: true });
+    }
+    for (const g of V.groups || [])
+      for (const f of g.facts || []) {
+        const said = String(f.words || f.instance);
+        if (qs.some((q) => norm(q.instance) === norm(said) || norm(q.instance) === norm(f.instance)))
+          continue;
+        const open = openOf(f.label, said);
+        qs.push({
+          instance: said,
+          text: open ? said : `${said}?`,
+          label: f.label,
+          open,
+          values: open ? valuesOf(f.label) : []
+        });
+      }
     const answers = /* @__PURE__ */ new Map();
-    const facts = () => (V.questions || []).filter((q) => answers.get(q.instance) === "yes").map((q) => `${q.instance}.`).join("\n");
+    const factOf = (q, a) => {
+      if (a.kind === "yes")
+        return q.instance;
+      if (a.kind !== "value" || !q.open || !a.value)
+        return null;
+      let v = a.value.trim();
+      if (!/^".*"$/.test(v) && q.values.some((x) => /^".*"$/.test(x) && x.slice(1, -1) === v))
+        v = `"${v}"`;
+      const at = q.instance.toLowerCase().lastIndexOf(q.open.toLowerCase());
+      return at < 0 ? null : q.instance.slice(0, at) + v + q.instance.slice(at + q.open.length);
+    };
+    const facts = () => qs.map((q) => answers.has(q.instance) ? factOf(q, answers.get(q.instance)) : null).filter((x) => !!x).map((x) => `${x}.`).join("\n");
     const req = () => {
       const r = { sessionModule: ctx.sessionModule, customScenario: facts() };
       if (R.whether)
@@ -11729,25 +12771,72 @@ async function mountView(root, ctx) {
         r.query = R.query;
       return r;
     };
+    const answer = (q, a) => {
+      answers.set(q.instance, a);
+      step();
+    };
     const step = async () => {
       box.innerHTML = "";
+      box.appendChild(el("div", "lv-status", t("Thinking\u2026")));
       const oq = await leapi({ operation: "openQuestions", ...req() });
+      box.innerHTML = "";
       const touched = new Set((oq.touched || []).map((x) => norm(x.literal)));
-      const next = oq.holds ? null : (V.questions || []).find((q) => !answers.has(q.instance) && touched.has(norm(q.instance)));
-      const total = (V.questions || []).length;
+      const wanted = new Set([...oq.missing || [], ...oq.touched || []].map((x) => String(x.label)));
+      const next = oq.holds ? null : qs.find((q) => !answers.has(q.instance) && (touched.has(norm(q.instance)) || wanted.has(q.label)));
       if (next) {
-        box.appendChild(el("div", "lv-status", `${t("Question")} ${answers.size + 1} ${t("of at most")} ${total}`));
+        const counter = el("div", "lv-status", `${t("Question")} ${answers.size + 1} ${t("of at most")} ${qs.length}`);
+        counter.title = t("Only the questions the result can still depend on are asked");
+        box.appendChild(counter);
         box.appendChild(el("div", "lv-ask", next.text));
-        for (const [k, label] of [["yes", t("Yes")], ["no", t("No")], ["unsure", t("Not sure")]]) {
-          const bb = el("button", "lv-bigbtn", label);
-          bb.addEventListener("click", () => {
-            answers.set(next.instance, k);
-            step();
+        if (next.open) {
+          const input = document.createElement("input");
+          input.className = "lv-answer-field";
+          input.placeholder = next.open;
+          input.title = t("The value, as the rules read it");
+          if (/\bdate\b/i.test(next.open))
+            input.type = "date";
+          else if (/\b(number|amount|count)\b/i.test(next.open))
+            input.type = "number";
+          if (next.values.length) {
+            const dl = document.createElement("datalist");
+            dl.id = `lv-dl-${Math.random().toString(36).slice(2)}`;
+            for (const v of next.values) {
+              const o = document.createElement("option");
+              o.value = v.replace(/^"(.*)"$/, "$1");
+              dl.appendChild(o);
+            }
+            box.appendChild(dl);
+            input.setAttribute("list", dl.id);
+          }
+          box.appendChild(input);
+          const ok = el("button", "lv-bigbtn", t("Next"));
+          ok.title = t("State this value in the case and go on");
+          ok.addEventListener("click", () => {
+            if (input.value.trim())
+              answer(next, { kind: "value", value: input.value });
+            else
+              input.focus();
           });
-          box.appendChild(bb);
+          input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter")
+              ok.click();
+          });
+          box.appendChild(ok);
+          const skip = el("button", "lv-bigbtn", t("Not known"));
+          skip.title = t("Leave this fact unstated");
+          skip.addEventListener("click", () => answer(next, { kind: "unsure" }));
+          box.appendChild(skip);
+          setTimeout(() => input.focus(), 0);
+        } else {
+          for (const [k, label] of [["yes", t("Yes")], ["no", t("No")], ["unsure", t("Not sure")]]) {
+            const bb = el("button", "lv-bigbtn", label);
+            bb.addEventListener("click", () => answer(next, { kind: k }));
+            box.appendChild(bb);
+          }
         }
         if (answers.size) {
           const back = el("button", "lv-btn", `\u2190 ${t("Back")}`);
+          back.title = t("Take back the last answer");
           back.addEventListener("click", () => {
             const keys = [...answers.keys()];
             answers.delete(keys[keys.length - 1]);
@@ -11760,16 +12849,18 @@ async function mountView(root, ctx) {
       const res = await leapi({ operation: "answeringQuery", ...req() });
       lastResult = res;
       const holds = (res.results || []).length > 0;
-      box.appendChild(el("div", `lv-res ${holds ? "yes" : "no"}`, holds ? R.holds || res.results[0].answer : R.not || t("No")));
+      box.appendChild(el("div", `lv-res ${holds ? "yes" : "no"}`, holds ? R.holds || num(res.results[0].answer) : R.not || t("No")));
       if (V.reasons) {
         box.appendChild(el("div", "lv-grp", t("Why")));
-        for (const q of V.questions || []) {
+        for (const q of qs) {
           if (!answers.has(q.instance))
             continue;
           const a = answers.get(q.instance);
           const row = el("div", "lv-ck");
-          row.appendChild(el("span", a === "yes" ? "lv-ok" : "lv-fail", a === "yes" ? "\u2713" : a === "no" ? "\u2717" : "?"));
-          row.appendChild(el("span", "", `${q.text} \u2014 ${a === "yes" ? t("yes") : a === "no" ? t("no") : t("not sure")}`));
+          const ok = a.kind === "yes" || a.kind === "value";
+          row.appendChild(el("span", ok ? "lv-ok" : a.kind === "no" ? "lv-fail" : "lv-na", ok ? "\u2713" : a.kind === "no" ? "\u2717" : "?"));
+          const said = a.kind === "value" ? factOf(q, a) || q.text : `${q.own || q.open ? q.text : q.instance} \u2014 ${a.kind === "yes" ? t("yes") : a.kind === "no" ? t("no") : t("not sure")}`;
+          row.appendChild(el("span", "", said));
           box.appendChild(row);
         }
       }
@@ -11803,7 +12894,9 @@ async function mountView(root, ctx) {
   grid.appendChild(left);
   grid.appendChild(mid);
   grid.appendChild(right);
-  root.appendChild(status);
+  root.appendChild(evalBar);
+  root.appendChild(flagsBox);
+  root.appendChild(warnBox);
   root.appendChild(grid);
   root.appendChild(wide);
   left.appendChild(factsCard);
@@ -11850,6 +12943,7 @@ async function mountView(root, ctx) {
   if (cards.cases && scenarioNames.length <= 12)
     cards.cases.querySelector("button")?.click();
   casePicker.addEventListener("change", () => {
+    previousAnswers = null;
     loadCase(casePicker.value);
     run();
   });

@@ -716,48 +716,50 @@
         <div class="menu-item">
             File
             <div class="dropdown">
-                <div class="dropdown-item" id="menu-new">New</div>
-                <div class="dropdown-item" id="menu-new-from-url">New from URL...</div>
-                <div class="dropdown-item" id="menu-open">Open...</div>
-                <div class="dropdown-item" id="menu-open-server">Open copy from server...</div>
+                <div class="dropdown-item" id="menu-new" title="A new tab with an empty Logical English program">New</div>
+                <div class="dropdown-item" id="menu-new-from-url" title="Open a copy of a Logical English program published at a web address; its includes and cited documents resolve relative to that address">New from URL...</div>
+                <div class="dropdown-item" id="menu-open" title="Open a Logical English file, or a file of another system that the server has a translator for (a Solidity contract, a Miniscript policy, an Oracle Intelligent Advisor project, a Socotra product as a .zip): it is translated on opening, and what could not be translated is kept as TODO comments">Open...</div>
+                <div class="dropdown-item" id="menu-import" title="Translate a file of another system into Logical English — deterministically, no LLM — and open the result in a new tab: what could not be translated is kept as TODO comments, and the file itself stays beside the program (File &gt; Show the Original)">Import from Another System…</div>
+                <div class="dropdown-item" id="menu-open-server" title="Open a copy of one of the example programs this server keeps: your changes do not touch the server's file">Open copy from server...</div>
                 <div class="dropdown-divider"></div>
-                <div class="dropdown-item" id="menu-save" style="display: none;">Save</div>
-                <div class="dropdown-item" id="menu-save-as">Save As...</div>
+                <div class="dropdown-item" id="menu-save" style="display: none;" title="Save the active program to the file it was opened from">Save</div>
+                <div class="dropdown-item" id="menu-save-as" title="Save the active program under a new name">Save As...</div>
                 <div class="dropdown-divider"></div>
+                <div class="dropdown-item" id="menu-show-original" title="Show the files this program was converted from (another system's rules, contract or product), kept in the sources folder beside it, in the source viewer">Show the Original…</div>
                 <div class="dropdown-item" id="menu-qr-code" title="Show a QR code that opens this document (with its selected scenario and query)">QR code…</div>
             </div>
         </div>
         <div class="menu-item">
             Edit
             <div class="dropdown">
-                <div class="dropdown-item" id="menu-cut">Cut</div>
-                <div class="dropdown-item" id="menu-copy">Copy</div>
-                <div class="dropdown-item" id="menu-paste">Paste</div>
+                <div class="dropdown-item" id="menu-cut" title="Cut the selection to the clipboard">Cut</div>
+                <div class="dropdown-item" id="menu-copy" title="Copy the selection to the clipboard">Copy</div>
+                <div class="dropdown-item" id="menu-paste" title="Paste the clipboard at the cursor">Paste</div>
                 <div class="dropdown-divider"></div>
-                <div class="dropdown-item" id="menu-find">Find</div>
-                <div class="dropdown-item" id="menu-replace">Replace</div>
+                <div class="dropdown-item" id="menu-find" title="Find text in the program (Ctrl/Cmd+F)">Find</div>
+                <div class="dropdown-item" id="menu-replace" title="Find text and replace it">Replace</div>
                 <div class="dropdown-divider"></div>
-                <div class="dropdown-item" id="menu-scenario-editor">Edit Scenarios…</div>
-                <div class="dropdown-item" id="menu-query-editor">Edit Queries…</div>
+                <div class="dropdown-item" id="menu-scenario-editor" title="Edit the program's scenarios in a form: each fact from one of the program's templates, one field per placeholder">Edit Scenarios…</div>
+                <div class="dropdown-item" id="menu-query-editor" title="Build or edit the program's queries in a form, from its templates, joined with and / or and negated with not">Edit Queries…</div>
                 <div class="dropdown-divider"></div>
-                <div class="dropdown-item" id="menu-fold-all">Collapse All</div>
-                <div class="dropdown-item" id="menu-unfold-all">Expand All</div>
+                <div class="dropdown-item" id="menu-fold-all" title="Fold every rule and section to its first line, to see the outline">Collapse All</div>
+                <div class="dropdown-item" id="menu-unfold-all" title="Unfold everything folded">Expand All</div>
             </div>
         </div>
         <div class="menu-item">
             Misc
             <div class="dropdown">
                 <div style="padding: 8px 15px; font-weight: bold; font-size: 11px; color: #888;">THEME</div>
-                <div class="dropdown-item" id="theme-dark">Dark</div>
-                <div class="dropdown-item" id="theme-light">Light</div>
-                <div class="dropdown-item" id="theme-hc">High Contrast</div>
+                <div class="dropdown-item" id="theme-dark" title="Light text on a dark background">Dark</div>
+                <div class="dropdown-item" id="theme-light" title="Dark text on a light background">Light</div>
+                <div class="dropdown-item" id="theme-hc" title="Maximum contrast, for low vision or bright rooms">High Contrast</div>
                 <div class="dropdown-divider"></div>
                 <div style="padding: 8px 15px; font-weight: bold; font-size: 11px; color: #888;">FONT SIZE</div>
-                <div class="dropdown-item" id="font-small">Small</div>
-                <div class="dropdown-item" id="font-medium">Medium</div>
-                <div class="dropdown-item" id="font-large">Large</div>
+                <div class="dropdown-item" id="font-small" title="Smaller editor text">Small</div>
+                <div class="dropdown-item" id="font-medium" title="Medium editor text">Medium</div>
+                <div class="dropdown-item" id="font-large" title="Larger editor text">Large</div>
                 <div class="dropdown-divider"></div>
-                <div class="dropdown-item" id="menu-hierarchical-numbering">
+                <div class="dropdown-item" id="menu-hierarchical-numbering" title="Number the steps of an explanation hierarchically (1, 1.1, 1.2, …)">
                     <span id="hierarchical-numbering-check" style="margin-right: 5px; visibility: hidden;">✓</span>
                     Hierarchical Numbering
                 </div>
@@ -773,12 +775,15 @@
                 </div>
                 <div class="dropdown-divider"></div>
                 <div class="dropdown-item" id="menu-view-source-graph" title="Visualize the program's templates, rules, facts, scenarios and queries as a dependency graph, in a new browser tab">View Source Graph</div>
+                <div class="dropdown-item" id="menu-test-report" title="Run every expectation of the program (the &quot;expects answers&quot; lines of its scenarios) and list each with its outcome: passed, or what was expected and what came instead. A click on a row selects its scenario and query.">Run the Program's Tests…</div>
                 <div class="dropdown-item" id="menu-open-executive" title="Run the program as its users see it, without its text: the executive view, with the program's views, in a new window">Open Executive View</div>
+                <div class="dropdown-item" id="menu-run-lps" title="Run this LPS program (the target language is: lps) in time with the LPS engine, in a new window: its timeline, state changes and explanations">Run in LPS</div>
+                <div class="dropdown-item" id="menu-legal-view" title="The legal view of this LPS program: who may do what, when, and with which effect — each action's integrity constraints as one permission rule, each causal law as an effect — an ordinary Logical English program, opened in a new tab with the program's own calls as queries">Legal View of This LPS Program</div>
                 <div class="dropdown-divider"></div>
-                <div class="dropdown-item" id="menu-api-keys">API Keys &amp; Assistant Settings...</div>
+                <div class="dropdown-item" id="menu-api-keys" title="The API keys of the LLM providers, and the models the assistant uses (kept in this browser)">API Keys &amp; Assistant Settings...</div>
                 <div class="dropdown-divider"></div>
                 <div style="padding: 8px 15px; font-weight: bold; font-size: 11px; color: #888;">EXPLANATIONS</div>
-                <div class="dropdown-item" id="menu-explanations">Preferences...</div>
+                <div class="dropdown-item" id="menu-explanations" title="How explanations are shown: the prefix of failed steps, per-rule failure detail, repeated explanations, important reasons">Preferences...</div>
             </div>
         </div>
         <div class="menu-item">
@@ -871,6 +876,11 @@
                         <button id="btn-trace" class="query-action">Trace</button>
                         <button id="btn-proof-game" class="query-action" title="Open the Proof Game: interactively build a proof of the selected query by connecting its facts and rules">Proof Game</button>
                         <button id="btn-interrupt-query" style="margin-left: 5px; background-color: #b71c1c; display: none; cursor: pointer;">Interrupt</button>
+                    </div>
+                    <div id="lps-strip" style="display: none; font-size: 12px; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span data-i18n>This is an LPS program: it runs in time, one event after another, instead of answering queries.</span>
+                        <button id="btn-run-lps" class="query-action" title="Run this LPS program (the target language is: lps) in time with the LPS engine, in a new window: its timeline, state changes and explanations">Run in LPS</button>
+                        <button id="btn-legal-view" class="query-action" title="The legal view of this LPS program: who may do what, when, and with which effect — each action's integrity constraints as one permission rule, each causal law as an effect — an ordinary Logical English program, opened in a new tab with the program's own calls as queries">Legal View</button>
                     </div>
                     <div id="custom-scenario-container" class="custom-input-container">
                         <label style="font-size: 11px; color: #888;">Custom Scenario Facts:</label>
@@ -1103,7 +1113,7 @@
 
     <!-- Context Menu for Answers -->
     <div id="answer-context-menu" class="context-menu">
-        <div class="dropdown-item" id="menu-copy-answer" style="padding: 5px 15px; font-size: 12px;">Copy Answer</div>
+        <div class="dropdown-item" id="menu-copy-answer" title="Copy this answer's text to the clipboard" style="padding: 5px 15px; font-size: 12px;">Copy Answer</div>
         <div class="dropdown-item" id="menu-bento-box" style="padding: 5px 15px; font-size: 12px;" title="Render this answer's explanation as nested bento compartments, in a separate window">Bento Box…</div>
     </div>
 
@@ -1112,15 +1122,15 @@
 
     <!-- Context Menu for Explanations -->
     <div id="explanation-context-menu" class="context-menu">
-        <div class="dropdown-item" id="menu-goto-original" style="padding: 5px 15px; font-size: 12px; display: none;">Go to full sub-explanation</div>
-        <div class="dropdown-item" id="menu-copy-explanation" style="padding: 5px 15px; font-size: 12px;">Copy Explanation</div>
-        <div class="dropdown-item" id="menu-copy-mermaid" style="padding: 5px 15px; font-size: 12px;">Copy as Mermaid diagram</div>
+        <div class="dropdown-item" id="menu-goto-original" title="This step is explained in full elsewhere in the explanation (repeats are hidden): go there" style="padding: 5px 15px; font-size: 12px; display: none;">Go to full sub-explanation</div>
+        <div class="dropdown-item" id="menu-copy-explanation" title="Copy the explanation, as indented text, to the clipboard" style="padding: 5px 15px; font-size: 12px;">Copy Explanation</div>
+        <div class="dropdown-item" id="menu-copy-mermaid" title="Copy the explanation as a Mermaid flowchart, to paste into Markdown or a Mermaid editor" style="padding: 5px 15px; font-size: 12px;">Copy as Mermaid diagram</div>
     </div>
 
     <!-- Context Menu for the EXPLANATION title -->
     <div id="explanation-title-menu" class="context-menu">
-        <div class="dropdown-item" id="menu-show-strongest" style="padding: 5px 15px; font-size: 12px;">Show important reason</div>
-        <div class="dropdown-item" id="menu-explanation-drill" style="padding: 5px 15px; font-size: 12px;">Explanation Drill…</div>
+        <div class="dropdown-item" id="menu-show-strongest" title="Open the explanation at the reason that weighs most for this answer" style="padding: 5px 15px; font-size: 12px;">Show important reason</div>
+        <div class="dropdown-item" id="menu-explanation-drill" title="Walk through the explanation one reason at a time, strongest first: answer Understood or Not yet, and it goes deeper only where needed (a separate window)" style="padding: 5px 15px; font-size: 12px;">Explanation Drill…</div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>

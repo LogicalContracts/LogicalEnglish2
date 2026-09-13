@@ -758,7 +758,12 @@ the failure of all earlier ones and exactly one applies. Details:
 - **The guard is the earlier alternative's conditions.** A conjunct that only
   sets an output (`and the rate is 20`, an assignment to a variable no other
   conjunct uses) is left out of the guard, so asking "is the discount rate for
-  ann 10?" does not pass the guard merely because 10 is not 20.
+  ann 10?" does not pass the guard merely because 10 is not 20. The test is
+  syntactic: a variable is taken for an output when no other conjunct of the
+  alternative mentions it, even when the rule bound it *before* the cascade.
+  So an alternative that ends by testing such a variable (`… and the code is
+  equal to "X"`) loses that test from the next alternative's guard. Write the
+  test constant-first (`"X" is equal to the code`), which the guard keeps.
 - **Decide one case at a time.** The guard is a negation as failure: its
   variables should be known when the cascade is reached. Find the individual
   first (e.g. in a calling rule: `if the customer is a customer and the
@@ -1118,7 +1123,9 @@ language):
 | `the result is compared with scenario <name>` | the result of another scenario, and where it fails |
 | `the documents of the case are shown beside the facts` | the cited documents, the case's own open with its passages marked |
 | `the cases are listed with their results` | every scenario, its result and its expectation, run one after another ("running case i of N", and a button to stop) |
-| `the draft reads "<text with {the result}, {the answer}, {the facts}, {the citations}, {the reasons}, {the missing}, {the case}>"` | a text filled from the result, to copy |
+| `the case is flagged as "<label>" when "<query body>"` / `… when query <name> has an answer` | a banner above everything else whenever the query has an answer for the case (a refusal, a referral: a decision that stops the process); the second form for a query with text values, which a quoted query body cannot hold |
+| `the numbers are shown with <N> decimals` | the numbers of the screen written with N decimals (without it, only the noise of floating point is removed: 698.4000000000001 is shown as 698.4) |
+| `the draft reads "<text with {the result}, {the answer}, {the answers}, {the facts}, {the citations}, {the reasons}, {the missing}, {the case}>"` | a text filled from the result, to copy |
 | `the draft reads "<text>" when it holds` / `… when it does not` | a text for each outcome: an approval and a refusal |
 
 - **Checked by the verifier** (errors): a sentence no view form reads
@@ -1152,6 +1159,18 @@ language):
   closest attempts lack. A draft names them as `{the reasons}` (all) and
   `{the missing}` (the facts to ask for). A list placeholder on a line of its
   own is one item per line; `\n` in a draft is a new line.
+- **Editing the case.** A change to a fact marks the results out of date and
+  lights a **Re-evaluate** button (Enter in a field does the same, and an
+  *automatically* box re-evaluates on every change); after it, the answers
+  that changed are highlighted and those that went away are shown struck
+  through. A value the rules cannot read where it stands — a number written
+  in quotes where they compare with the number, text written as a number, a
+  near miss of a value they read — is reported above the result
+  (`answeringQuery` replies `valueWarnings` for a typed-in case;
+  le_verifier:fact_value_warnings/3; the same check on a program's own
+  scenarios is the `mistyped_value` warning). Type facts (`vehicle 1 is a
+  vehicle`) stay in the case but are shown on one line, not as rows. Every
+  widget says what it is when the pointer rests on it.
 - **The load** returns each view compiled (`views`, le_views:program_views/2);
   `answeringQuery` adds the section `checklist` (and `unmet`); `openQuestions`
   gives the facts a failed proof looked for; `draftView` drafts a view.

@@ -255,11 +255,16 @@ becomes `happens/3`, a fluent becomes `holds/2`.
 An LE rule whose head carries a temporal suffix:
 
 ```
-    the players are a number at a time if
-        the number at the time is the sum of each a value
-            such that a player has played the value at the time.
+    the players are a number N at a time if
+        N is the sum of each V such that
+            a player has played V at the time.
 ```
-→ `l_int(holds(num_players(N), T), [ … ]).`
+→ `l_int(holds(num_players(N), T), [holds(findall(V, [holds(played(P,V),T)], L), T), sum_list(L, N)]).`
+
+The aggregate is LE's own (`le_summary.md` §5): the result and the element
+are named (`N`, `V`), and the condition of `such that` is on a line of its
+own, indented. (Written on one line with the rest, or with the element as
+"each a value", it is read as a plain "is" and the run fails.)
 
 ```
     a player pays a prize from a first time to a second time if
@@ -280,6 +285,22 @@ declared an event or action must use `from … to …`.
         and the amount <= 0.
 ```
 → `d_pre([happens(inputs(P,C,A), T1, T2), A =< 0]).`
+
+A constraint that names no event constrains every state: an **invariant**.
+The total supply of a token is the sum of its balances:
+
+```
+    it must not be true that
+        the total supply is an amount T at a time
+        and S is the sum of each B such that
+            the balance of an account is B at the time
+        and S is different from T.
+```
+
+A call that would break a constraint — an invariant or a precondition — is
+refused whole, and the refusal is recorded: the IDE's timeline shows the call
+crossed out, and `why_not(happened(A), T)` answers `refused_by_constraint`,
+naming the constraint and the values it held on.
 
 ### 3.8 `the goal is that …` — planning
 

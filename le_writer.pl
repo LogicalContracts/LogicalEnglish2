@@ -522,10 +522,14 @@ write_comment_block(Indent, Text) :-
 
 %   A residue marker: the source fragment no deterministic rule translated,
 %   kept verbatim (as comments) where its translation belongs, between two
-%   lines the Contract Assistant's residue mode recognises and fills in.
+%   lines the Contract Assistant's residue mode recognises and fills in. The
+%   TODO line is for a person reading the program: editors list and colour
+%   TODO comments, and the fragment below it is what is left to do.
 write_residue(Id, Opts) :-
     option(title(Title), Opts, ''),
     format("% RESIDUE ~w BEGIN: ~w~n", [Id, Title]),
+    writer_word(todo_residue, Todo),
+    format("% TODO: ~w~n", [Todo]),
     (   option(locator(Loc), Opts) -> format("%   source: ~w~n", [Loc]) ; true ),
     (   option(note(Note), Opts) -> write_comment_block(0, Note) ; true ),
     (   option(source(Lang, Code), Opts)

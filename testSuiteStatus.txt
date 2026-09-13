@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      all (core + trees requiring the proprietary le_extensions.pl)
 Command:    testing/run_tests.sh le --with-extensions   (or: runAllTests)
 Sibling:    testSuiteCoreStatus.txt — core (this repository alone; extension-dependent trees excluded)
-Generated:  2026-09-13 15:31:23 UTC
+Generated:  2026-09-13 22:42:51 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 545
-Total tests:     6814
-Passed:          6814
+Files processed: 543
+Total tests:     7180
+Passed:          7180
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -289,12 +289,12 @@ Detailed File Summary:
   [NONE] examples/moreExamples/InsurLE2/migration/miniscript/decaying_multisig/temporal.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/miniscript/hash_threshold/hash_threshold.le: 14 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/miniscript/hash_threshold/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/InsurLE2/migration/oia/warranty_claims/warranty_claims.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/InsurLE2/migration/oia/dctad/dctad.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/oia/warranty_claims/warranty_claims.le: 20 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/oia/dctad/dctad.le: 112 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/oia/gst_at_settlement/gst_at_settlement.le: 206 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/oia/gst_at_settlement/temporal.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/oia/vibect/vibect.le: 269 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/InsurLE2/migration/oia/mom_paternity_leave/mom_paternity_leave.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/oia/mom_paternity_leave/mom_paternity_leave.le: 56 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/oia/mom_paternity_leave/temporal.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/solidity/erc20/erc20.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/solidity/ownable/ownable.le: 0 Pass, 0 Fail, 0 Error
@@ -302,7 +302,6 @@ Detailed File Summary:
   [NONE] examples/moreExamples/InsurLE2/migration/solidity/replay/usdc_window.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/solidity/replay/usdc_window_12.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/solidity/fiat_token/fiat_token.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/migration/solidity/fiat_token/fiat_token_legal_view.le: 5 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/solidity/pausable/pausable.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/solidity/vault/vault.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/solidity/vault/vault_oracle.le: 0 Pass, 0 Fail, 0 Error
@@ -504,12 +503,12 @@ Detailed File Summary:
   [NONE] examples/moreExamples/insureLE2/migration/miniscript/decaying_multisig/temporal.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/miniscript/hash_threshold/hash_threshold.le: 14 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/miniscript/hash_threshold/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/migration/oia/warranty_claims/warranty_claims.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/migration/oia/dctad/dctad.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/oia/warranty_claims/warranty_claims.le: 20 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/oia/dctad/dctad.le: 112 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/oia/gst_at_settlement/gst_at_settlement.le: 206 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/oia/gst_at_settlement/temporal.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/oia/vibect/vibect.le: 269 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/migration/oia/mom_paternity_leave/mom_paternity_leave.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/oia/mom_paternity_leave/mom_paternity_leave.le: 56 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/oia/mom_paternity_leave/temporal.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/solidity/erc20/erc20.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/solidity/ownable/ownable.le: 0 Pass, 0 Fail, 0 Error
@@ -517,7 +516,6 @@ Detailed File Summary:
   [NONE] examples/moreExamples/insureLE2/migration/solidity/replay/usdc_window.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/solidity/replay/usdc_window_12.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/solidity/fiat_token/fiat_token.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/migration/solidity/fiat_token/fiat_token_legal_view.le: 5 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/solidity/pausable/pausable.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/solidity/vault/vault.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/solidity/vault/vault_oracle.le: 0 Pass, 0 Fail, 0 Error

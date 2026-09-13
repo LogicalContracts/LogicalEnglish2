@@ -7,7 +7,7 @@
 
 :- module(le_verifier, [verify/2, verify/3, print_issue/1, is_intensional/3, find_in_body/2,
                         unmatched_sentences/3, slot_values/5, with_rule_index/2,
-                        read_by_a_rule/3]).
+                        read_by_a_rule/3, fact_value_warnings/3]).
 
 :- use_module(le_kbs, [is_system_predicate/1, run_one_test/3, canonical_string/2, ensure_kb_language/1]).
 :- use_module(le_i18n).
@@ -86,6 +86,7 @@ check_issue(KB, _, Issue) :- fact_without_provenance(KB, Issue).
 check_issue(KB, _, Issue) :- service_undeclared(KB, Issue).
 check_issue(KB, _, Issue) :- quote_not_found(KB, Issue).
 check_issue(KB, _, Issue) :- unread_value(KB, Issue).
+check_issue(KB, _, Issue) :- mistyped_value(KB, Issue).
 check_issue(KB, _, Issue) :- le_views:view_issue(KB, Issue).
 
 % --- A value no rule reads, and one they do read is close ---
@@ -128,6 +129,90 @@ unread_value(KB, issue(unread_value, Description, Fix, Start, End)) :-
     le_i18n:le_msg(unread_value_desc, [value-V, text-Text, values-Shown], Description),
     atomic_list_concat(Nearest, ', ', Suggestion),
     le_i18n:le_msg(unread_value_fix, [suggestion-Suggestion], Fix).
+
+% --- A number written as text, or text written as a number ---
+% "the claims of policy 1 is "2"" where the rules compare that place with the
+% NUMBER 2 (or "... is 2" where they read the text "2"): the fact looks right
+% and reads right, and no rule can ever match it — the query silently takes
+% another branch. Reported whenever the rules read the value in the other form
+% and never in the one written.
+mistyped_value(KB, issue(mistyped_value, Description, Fix, Start, End)) :-
+    current_predicate(KB:scenario/2),
+    once(KB:scenario(_, _)),
+    findall(Head-(S-E),
+            ( KB:scenario(_, Terms),
+              member(fact_with_source(Head, S, E), Terms) ),
+            Facts),
+    Facts \== [],
+    pairs_keys(Facts, Heads),
+    fact_value_warnings(KB, Heads, Warnings),
+    member(w(mistyped, Head, _, Description, Fix), Warnings),
+    memberchk(Head-(Start-End), Facts).
+
+%!  fact_value_warnings(+KB, +Heads, -Warnings) is det.
+%
+%   The values of the facts Heads that no rule can read where they stand:
+%   w(mistyped, Head, Value, Description, Fix) for a number written as text or
+%   text written as a number (see mistyped_value/2), and w(unread, ...) for a
+%   constant the rules never read when one they do read is close
+%   (unread_value/2). For facts that are not a scenario of the program — a
+%   custom scenario typed in a screen — so that a screen can say so before it
+%   answers.
+fact_value_warnings(KB, Heads, Warnings) :-
+    findall(c(F/A/I, V, Head),
+            ( member(Head, Heads), compound(Head), Head \= (_ :- _),
+              functor(Head, F, A), \+ sub_atom(F, 0, _, _, le_),
+              arg(I, Head, V), ( string(V) ; number(V) ; atom(V) ) ),
+            Candidates),
+    (   Candidates == []
+    ->  Warnings = []
+    ;   findall(Slot, member(c(Slot, _, _), Candidates), Slots0),
+        sort(Slots0, Slots),
+        with_rule_index(KB,
+            findall(Slot-Values,
+                    ( member(Slot, Slots), Slot = F/A/I,
+                      catch(slot_values_typed(KB, F, A, I, Values), _, fail), Values \== [] ),
+                    Read)),
+        program_constants(KB, Known),
+        findall(W, ( member(c(Slot, V, Head), Candidates),
+                     memberchk(Slot-Values, Read),
+                     value_warning(KB, Known, Head, V, Values, W) ),
+                Warnings0),
+        sort(Warnings0, Warnings)
+    ).
+
+value_warning(KB, _, Head, V, Values, w(mistyped, Head, V, Description, Fix)) :-
+    other_form(V, Other),
+    \+ ( member(X, Values), same_value(X, V) ),
+    member(X, Values), same_value(X, Other), !,
+    fact_le_text(KB, Head, Text),
+    value_text(V, VT), value_text(Other, OT),
+    ( number(Other) -> Msg = mistyped_number_desc ; string(Other) -> Msg = mistyped_text_desc ; Msg = mistyped_name_desc ),
+    le_i18n:le_msg(Msg, [value-VT, text-Text, other-OT], Description),
+    le_i18n:le_msg(mistyped_value_fix, [other-OT], Fix).
+value_warning(KB, Known, Head, V, Values0, w(unread, Head, V, Description, Fix)) :-
+    atom(V), \+ get_assoc(V, Known, _),
+    exclude(number, Values0, Values),
+    nearest_values(V, Values, Nearest), Nearest = [_|_],
+    fact_le_text(KB, Head, Text),
+    shown_values(Values, Shown),
+    le_i18n:le_msg(unread_value_desc, [value-V, text-Text, values-Shown], Description),
+    atomic_list_concat(Nearest, ', ', Suggestion),
+    le_i18n:le_msg(unread_value_fix, [suggestion-Suggestion], Fix).
+
+%   the same value in another form: "2" and 2, SG and "SG"
+other_form(V, N) :- string(V), catch(number_string(N, V), _, fail), !.
+other_form(V, N) :- atom(V), catch(atom_number(V, N), _, fail), !.
+other_form(N, S) :- number(N), number_string(N, S).
+other_form(V, S) :- atom(V), atom_string(V, S).
+other_form(S, V) :- string(S), atom_string(V, S).
+
+same_value(X, Y) :- number(X), number(Y), !, X =:= Y.
+same_value(X, Y) :- string(X), string(Y), !, X == Y.
+same_value(X, Y) :- atom(X), atom(Y), !, X == Y.
+
+value_text(V, T) :- string(V), !, format(atom(T), '"~w"', [V]).
+value_text(V, T) :- format(atom(T), '~w', [V]).
 
 % Every atom the program's own rules, facts and decision-table rows mention —
 % not its scenarios, whose values are what is being checked.
@@ -928,9 +1013,10 @@ rule_without_variables(KB, issue(rule_without_variables, Description, Fix, Start
     % Suppress this warning for a wholly propositional program: if EVERY rule is
     % ground it is obviously propositional by design, so flagging each rule is
     % just noise (e.g. abduction/planning KBs whose beliefs are propositional).
-    \+ all_rules_ground(KB),
+    \+ mostly_ground(KB),
     ground_rule(KB, Head, Body, Ref),
-    le_i18n:le_msg(rule_without_variables_desc, [head-Head, body-Body], Description),
+    rule_texts(KB, Head, Body, HeadText, BodyText),
+    le_i18n:le_msg(rule_without_variables_desc, [head-HeadText, body-BodyText], Description),
     le_i18n:le_msg(rule_without_variables_fix, [], Fix),
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
 
@@ -945,11 +1031,30 @@ a_rule(KB, Head, Body, Ref) :-
 ground_rule(KB, Head, Body, Ref) :-
     a_rule(KB, Head, Body, Ref), ground(Head), ground(Body).
 
-% all_rules_ground(+KB): the program has at least one rule and every rule is
-% ground (propositional).
-all_rules_ground(KB) :-
-    once(a_rule(KB, _, _, _)),
-    \+ ( a_rule(KB, H, B, _), \+ ( ground(H), ground(B) ) ).
+%   the sentences of the rule, for the message
+rule_texts(KB, Head, Body, HeadText, BodyText) :-
+    fact_le_text(KB, Head, HeadText),
+    strip_positions(Body, Body1),
+    (   catch(le_kbs:item_to_instance(KB, Body1, Tokens), _, fail),
+        catch(canonical_string(Tokens, A), _, fail)
+    ->  atom_string(A, BodyText)
+    ;   term_string(Body1, BodyText)
+    ).
+
+strip_positions(le_at(G, _, _), G1) :- !, strip_positions(G, G1).
+strip_positions(T, T1) :- compound(T), !, T =.. [F|As], maplist(strip_positions, As, As1), T1 =.. [F|As1].
+strip_positions(T, T).
+
+% mostly_ground(+KB): the program has rules and more than half of them are
+% ground: it is propositional by design — a program about a single case, as
+% the decision rulebases of systems with one global entity are written ("the
+% margin scheme applies if the payment type is margin scheme") — and a ground
+% rule is its norm, not concrete data misplaced in a rule. (A program with a
+% ground rule or two among general ones is still told about them.)
+mostly_ground(KB) :-
+    aggregate_all(count, a_rule(KB, _, _, _), Total), Total > 0,
+    aggregate_all(count, ( a_rule(KB, H, B, _), ground(H), ground(B) ), Ground),
+    Ground * 2 > Total.
 
 % --- 5. Facts/Rules ratio ---
 %
@@ -1229,10 +1334,10 @@ print_issue(issue(Type, Description, Fix, Start, End)) :-
 % Extend prolog:message to handle our issues
 :- multifile prolog:message//1.
 prolog:message(Type - [Msg, Start, End]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, opposite_as_condition, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited, view_unknown_section, view_keeps_derived]) },
+    { memberchk(Type, [missing_template, undefined_predicate, opposite_as_condition, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, mistyped_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited, view_unknown_section, view_keeps_derived]) },
     [ '~w: ~w at ~w-~w' - [Type, Msg, Start, End] ].
 prolog:message(Type - [Msg]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, opposite_as_condition, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited, view_unknown_section, view_keeps_derived]) },
+    { memberchk(Type, [missing_template, undefined_predicate, opposite_as_condition, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, mistyped_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited, view_unknown_section, view_keeps_derived]) },
     [ '~w: ~w' - [Type, Msg] ].
 
 % ---------------------------------------------------------------------------
@@ -1255,6 +1360,12 @@ slot_values(KB, F, A, I, Values) :-
     findall(V, slot_value(KB, F, A, I, V), Vs0),
     exclude(number, Vs0, Vs1),
     sort(Vs1, Values).
+
+% The same, numbers included (what the rules compare a place with, of every
+% type: the check of a number written as text needs the numbers).
+slot_values_typed(KB, F, A, I, Values) :-
+    findall(V, slot_value(KB, F, A, I, V), Vs0),
+    sort(Vs0, Values).
 
 slot_value(KB, F, A, I, V) :-
     rule_calling(KB, F/A, Head, Body),
