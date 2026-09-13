@@ -305,8 +305,8 @@ the face-to-face requirement is met for an item
 % The Required Face-to-Face Encounter and Written Order Prior to Delivery
 % List (42 CFR 410.38(c)(8)), edition effective 13 April 2026 with the oxygen
 % codes, as published for 28 October 2026: manual wheelchairs, oxygen, power
-% mobility devices, ventilators, osteogenesis stimulators, TENS, hospital
-% beds, support surfaces, orthoses.
+% mobility devices, ventilators, osteogenesis stimulators (E0747, E0748,
+% E0760), hospital beds, support surfaces, orthoses.
 a code is on the required face-to-face and written order prior to delivery list
     if the code is in ["K0002", "K0003", "K0004", "K0005", "K0006", "K0007", "K0738", "E0194", "E0290", "E0301", "E0304", "E0424", "E0431", "E0433", "E0434", "E0439", "E1390", "E1391", "E1392", "E0466", "E0467", "E0468", "E0747", "E0748", "E0760", "E1161", "K0800", "K0801", "K0802", "K0806", "K0807", "K0808", "K0813", "K0814", "K0815", "K0816", "K0820", "K0821", "K0822", "K0823", "K0824", "K0825", "K0826", "K0827", "K0828", "K0829", "K0831", "K0835", "K0836", "K0837", "K0838", "K0839", "K0840", "K0841", "K0842", "K0843", "K0848", "K0849", "K0850", "K0851", "K0852", "K0853", "K0854", "K0855", "K0856", "K0857", "K0858", "K0859", "K0860", "K0861", "K0862", "K0863", "K0864", "L0456", "L0457", "L0486", "L0631", "L0635", "L0636", "L0637", "L0638", "L0639", "L0640", "L0648", "L0650", "L0651", "L1832", "L1833", "L1843", "L1845", "L1851", "L1852", "L1906", "L1932", "L1933", "L1940", "L1951", "L1952", "L1960", "L1970", "L2005", "L2036", "L3761", "L3916", "L3960"].
 

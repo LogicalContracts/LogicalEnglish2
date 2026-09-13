@@ -112,13 +112,7 @@ the templates are:
 
 % The Article's ICD-10 table: the diagnoses that are diabetes mellitus
 % (group 1, the only group; the CSV columns bind to the template's
-% arguments in order: code, group, article, description). The file read is
-% a copy of sources/icd10/A52501_icd10_covered.csv in which the word "and"
-% of a description is written "&": the table loader reads a cell holding
-% "and" as a condition and drops the row (20 rows — the .354x codes of E08,
-% E09, E10, E11 and E13, proliferative retinopathy with combined retinal
-% detachment — would be lost). Point the table back at the original once
-% the loader accepts the word in a value cell.
+% arguments in order: code, group, article, description).
 the table therapeutic_shoes_icd10 is loaded from sources/icd10/A52501_icd10_covered.csv, with all matches:
     code | group | article | description
 

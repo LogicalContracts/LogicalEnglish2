@@ -33,7 +33,11 @@ one program), named after the policy: `oxygen.le`, `hospital_beds.le`. It
    ```
    (or, in `section remedy is:`, rules for
    `the policy specific documentation requirements are met for a claim`
-   guarded by `the policy of the claim is hospital beds`, as `pmd.le` does);
+   guarded by `the policy of the claim is hospital beds`, as `pmd.le` does).
+   Put the code-list rules (`the policy for code ...`) BEFORE the first
+   section marker, not in `applicability`: in a program that includes
+   several policies, another policy's guard `the policy of the claim is X`
+   would otherwise charge a claim's documentation failure to applicability;
 4. in **`section question is:`** states when **`a claim is reasonable and
    necessary`** — the LCD's "Coverage Indications, Limitations and/or Medical
    Necessity", criterion by criterion, each rule labelled and citing its
