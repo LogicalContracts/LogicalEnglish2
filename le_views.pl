@@ -169,10 +169,17 @@ view_sentence(stage) --> kw(view_stage).
 view_sentence(missing) --> kw(view_missing).
 view_sentence(flip(L)) --> kw(view_flipped), comma, kw(view_as), string_arg(L).
 view_sentence(flip(null)) --> kw(view_flipped).
+view_sentence(keeps(Parts)) --> kw(view_flip_keeps), list_parts(Parts).
+view_sentence(section_reads(Name, T)) --> kw(view_section), rest(Toks),
+    { append(NameToks, Tail, Toks), NameToks \== [],
+      phrase((kw(view_reads), string_arg(T)), Tail), !,
+      name_of(NameToks, Name) }.
 view_sentence(compare(Toks)) --> kw(view_compare), rest(Toks), { Toks \== [] }.
 view_sentence(table(Q, T)) --> kw(view_answers_to), string_arg(Q), kw(view_listed_as), string_arg(T).
 view_sentence(documents) --> kw(view_documents).
 view_sentence(cases) --> kw(view_cases).
+view_sentence(draft(holds, T)) --> kw(view_draft), string_arg(T), kw(view_when_holds).
+view_sentence(draft(not, T)) --> kw(view_draft), string_arg(T), kw(view_when_not).
 view_sentence(draft(T)) --> kw(view_draft), string_arg(T).
 
 string_arg(S) --> [doubleQuoteString(S0, _)], { atom_string(S0, S) }.
@@ -264,6 +271,17 @@ resolve_item(KB, _, V, table(Q, Title), S, E, table(Q, Title), Issues) :- !,
     ).
 resolve_item(_, _, _, case_about(Toks), _, _, case_about(Name), []) :- !,
     name_of(Toks, Name).
+resolve_item(KB, T, V, keeps(Parts), S, E, keeps(Insts), Issues) :- !,
+    resolve_parts(KB, T, V, Parts, S, E, Insts, Issues0),
+    findall(I, ( member(inst(F/A, _, _, _, Text), Insts), \+ case_fact_template(KB, F, A),
+                 issue(view_keeps_derived, [name-V, text-Text], S, E, I) ), Derived),
+    append(Issues0, Derived, Issues).
+resolve_item(KB, _, V, section_reads(Name, T), S, E, section_reads(Name, T), Issues) :- !,
+    (   catch(le_sections:program_roles(KB, Present), _, fail),
+        member(_-Sec, Present), atom_string(Sec, Name)
+    ->  Issues = []
+    ;   issue(view_unknown_section, [name-V, section-Name], S, E, I), Issues = [I]
+    ).
 resolve_item(_, _, _, Item, _, _, Item, []).
 
 resolve_parts(KB, T, V, Parts, S, E, Insts, Issues) :-
@@ -312,8 +330,8 @@ assemble(Items, View) :-
              result: _{query: null, whether: null, headedBy: null, unit: null,
                        holds: null, not: null},
              citations: false, reasons: false, stage: false, missing: false,
-             flip: null, compare: [], tables: [], documents: false,
-             cases: false, draft: null, order: []},
+             flip: null, keep: [], sections: [], compare: [], tables: [], documents: false,
+             cases: false, draft: null, draftHolds: null, draftNot: null, order: []},
     foldl(apply_item, Items, Base, View).
 
 apply_item(item(Item, _, _), V0, V) :-
@@ -352,11 +370,18 @@ apply_(reasons, V0, V) :- V = V0.put(reasons, true).
 apply_(stage, V0, V) :- V = V0.put(stage, true).
 apply_(missing, V0, V) :- V = V0.put(missing, true).
 apply_(flip(L), V0, V) :- V = V0.put(flip, _{label: L}).
+apply_(keeps(Insts), V0, V) :-
+    findall(L, member(inst(_, L, _, _, _), Insts), Ls),
+    append(V0.keep, Ls, K), V = V0.put(keep, K).
+apply_(section_reads(N, T), V0, V) :-
+    append(V0.sections, [_{section: N, text: T}], Ss), V = V0.put(sections, Ss).
 apply_(compare(Sc), V0, V) :- append(V0.compare, [Sc], Cs), V = V0.put(compare, Cs).
 apply_(table(Q, T), V0, V) :- append(V0.tables, [_{question: Q, title: T}], Ts), V = V0.put(tables, Ts).
 apply_(documents, V0, V) :- V = V0.put(documents, true).
 apply_(cases, V0, V) :- V = V0.put(cases, true).
 apply_(draft(T), V0, V) :- V = V0.put(draft, T).
+apply_(draft(holds, T), V0, V) :- V = V0.put(draftHolds, T).
+apply_(draft(not, T), V0, V) :- V = V0.put(draftNot, T).
 
 inst_json(inst(_, Label, Text, _, Words), _{label: Label, instance: Text, words: Words}).
 
@@ -377,6 +402,7 @@ item_widget(table(_, _), tables).
 item_widget(documents, documents).
 item_widget(cases, cases).
 item_widget(draft(_), draft).
+item_widget(draft(_, _), draft).
 item_widget(_, none).
 
 % ---------------------------------------------------------------------------
@@ -474,12 +500,21 @@ draft_view(KB, Text) :-
 %   ... named after the program's knowledge base or, for a program that names
 %   none (a contract, say), after NameHint — the editor sends the file's name.
 draft_view(KB, Hint, Text) :-
+    % one pass over the rules for all the templates (the values each reads)
+    le_verifier:with_rule_index(KB, le_views:draft_view_(KB, Hint, Text)).
+
+draft_view_(KB, Hint, Text) :-
     catch(le_kbs:ensure_kb_language(KB), _, true),
     draft_name(KB, Hint, KBName),
+    % the facts a case can state that the program reads: a template no rule
+    % reads and no scenario states (vocabulary of an included library that
+    % this program leaves unused) has nothing to do on the screen
     findall(Label-F/A, ( le_kbs:template_def(KB, F, A, Label, Kind, _),
                          Kind \== judged, case_fact_template(KB, F, A),
+                         read_or_stated(KB, F, A),
                          listable(Label) ), Facts0),
-    findall(Label, ( le_kbs:template_def(KB, _, _, Label, judged, _), listable(Label) ), Judged0),
+    findall(Label, ( le_kbs:template_def(KB, F, A, Label, judged, _),
+                     read_or_stated(KB, F, A), listable(Label) ), Judged0),
     sort(Facts0, Facts1), pairs_keys(Facts1, FactLabels0), sort(FactLabels0, FactLabels),
     sort(Judged0, Judged),
     (   current_predicate(KB:query_info/3), KB:query_info(Q, _, _), \+ flip_query(KB, Q)
@@ -537,7 +572,7 @@ draft_view(KB, Hint, Text) :-
 %   same name, so an address naming it keeps working). Fails when the draft
 %   does not compile cleanly.
 automatic_view(KB, Hint, View) :-
-    once(automatic_view_(KB, Hint, View)).
+    le_verifier:with_rule_index(KB, once(le_views:automatic_view_(KB, Hint, View))).
 
 automatic_view_(KB, Hint, View) :-
     draft_view(KB, Hint, Text),
@@ -562,6 +597,18 @@ optional_line(_, view_flipped).
 optional_line(KB, view_documents) :- cites_anything(KB).
 
 flip_query(KB, Q) :- KB:query_info(Q, le_flip(_, _), _).
+
+% A template of the program's own text is always offered (its author
+% declared it); one of an included library only when this program reads it
+% or states it.
+read_or_stated(KB, F, A) :- \+ library_template(KB, F, A), !.
+read_or_stated(KB, F, A) :- le_verifier:read_by_a_rule(KB, F, A), !.
+read_or_stated(KB, F, A) :- le_kbs:used_in_a_scenario(KB, F, A).
+
+library_template(KB, F, A) :-
+    le_kbs:template_of(KB, F, A, Dict, _),
+    le_verifier:template_source(KB, Dict, S, _),
+    le_verifier:in_included_resource(S), !.
 
 % "*a person* is born in *a place*" -> "a person is born in a place"
 instance_phrase(Label, Phrase) :-

@@ -200,6 +200,7 @@ pagamento é um pagamento`.
   - `*V1* é posterior a *V2*` (datas)
   - `*V1* é anterior a *V2*` (datas)
   - `*V1* é *V2* dias depois de *V3*` (datas e números)
+  - `*V1* é *V2* meses depois de *V3*` (meses de calendário, para datas: seis meses depois de 28 de agosto é 28 de fevereiro; com as duas datas, os meses inteiros entre elas)
   - `*V1* é conhecido`
   - `*V1* está em *V2*` (pertença a lista)
 
@@ -235,7 +236,7 @@ Os cenários podem declarar resultados esperados para consultas, usados pelo exe
   ```le
   cenário alice é:
       John nasceu em o Reino Unido em 2021-10-09.
-      um espera respostas ["John adquire cidadania britânica em 2021-10-9T0:0:0.0"].
+      um espera respostas ["John adquire cidadania britânica em 2021-10-09"].
   ```
 
 ## 13. Predicados de sistema

@@ -9847,6 +9847,24 @@ var keywords = {
         "draft",
         "reads"
       ]
+    ],
+    "view_flip_keeps": [
+      [
+        "the",
+        "flip",
+        "keeps"
+      ]
+    ],
+    "view_section": [
+      [
+        "the",
+        "section"
+      ]
+    ],
+    "view_reads": [
+      [
+        "reads"
+      ]
     ]
   },
   "pt": {
@@ -11532,6 +11550,28 @@ var keywords = {
         "rascunho",
         "diz"
       ]
+    ],
+    "view_flip_keeps": [
+      [
+        "a",
+        "invers\xE3o",
+        "mant\xE9m"
+      ]
+    ],
+    "view_section": [
+      [
+        "a",
+        "sec\xE7\xE3o"
+      ],
+      [
+        "a",
+        "se\xE7\xE3o"
+      ]
+    ],
+    "view_reads": [
+      [
+        "diz"
+      ]
     ]
   },
   "es": {
@@ -13151,6 +13191,24 @@ var keywords = {
         "borrador",
         "dice"
       ]
+    ],
+    "view_flip_keeps": [
+      [
+        "la",
+        "inversi\xF3n",
+        "mantiene"
+      ]
+    ],
+    "view_section": [
+      [
+        "la",
+        "secci\xF3n"
+      ]
+    ],
+    "view_reads": [
+      [
+        "dice"
+      ]
     ]
   },
   "fr": {
@@ -14743,6 +14801,23 @@ var keywords = {
       [
         "le",
         "brouillon",
+        "dit"
+      ]
+    ],
+    "view_flip_keeps": [
+      [
+        "l'inversion",
+        "garde"
+      ]
+    ],
+    "view_section": [
+      [
+        "la",
+        "section"
+      ]
+    ],
+    "view_reads": [
+      [
         "dit"
       ]
     ]
@@ -16399,6 +16474,23 @@ var keywords = {
       [
         "la",
         "bozza",
+        "dice"
+      ]
+    ],
+    "view_flip_keeps": [
+      [
+        "l'inversione",
+        "mantiene"
+      ]
+    ],
+    "view_section": [
+      [
+        "la",
+        "sezione"
+      ]
+    ],
+    "view_reads": [
+      [
         "dice"
       ]
     ]

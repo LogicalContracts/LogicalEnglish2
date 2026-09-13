@@ -193,8 +193,8 @@ reasoning_fields(groq, Model, minimal, Fields) :- !,
     ).
 reasoning_fields(openai, Model, minimal, Fields) :- !,
     atom_string(M, Model),
-    (   sub_atom(M, 0, _, _, 'gpt-5.5')
-    ->  % gpt-5.5 dropped the "minimal" its predecessors accept; its floor is
+    (   openai_effort_floor_none(M)
+    ->  % gpt-5.5 (and gpt-5.6-*) dropped the "minimal" its predecessors accept; its floor is
         % "none" ("Unsupported value: 'reasoning_effort' does not support
         % 'minimal' with this model. Supported values are: 'none', 'low',
         % 'medium', 'high', and 'xhigh'." — an HTTP 400 that failed every call
@@ -210,6 +210,7 @@ reasoning_fields(openai, Model, minimal, Fields) :- !,
     ;   Fields = []
     ).
 reasoning_fields(gemini, _Model, minimal, [reasoning_effort(low)]) :- !.
+
 reasoning_fields(together, Model, minimal, Fields) :- !,
     (   kimi_model(Model)
     ->  % Kimi's chat template takes no enable_thinking switch: with it the
@@ -219,6 +220,20 @@ reasoning_fields(together, Model, minimal, Fields) :- !,
     ;   Fields = [chat_template_kwargs(_{enable_thinking: false})]
     ).
 reasoning_fields(_, _, _, []).
+
+% openai_effort_floor_none(+Model): an OpenAI model whose lowest reasoning
+% effort is "none" rather than "minimal": gpt-5.5 and every later gpt-5.N
+% (gpt-5.6-luna answered the same HTTP 400 in September 2026).
+openai_effort_floor_none(M) :-
+    sub_atom(M, 0, _, _, 'gpt-5.'),
+    sub_atom(M, 6, _, 0, Rest),
+    atom_codes(Rest, Codes),
+    phrase(minor_version(N), Codes, _),
+    N >= 5.
+
+minor_version(N) --> digit_codes(Ds), { Ds \== [], number_codes(N, Ds) }.
+digit_codes([D|Ds]) --> [D], { code_type(D, digit) }, !, digit_codes(Ds).
+digit_codes([]) --> [].
 
 kimi_model(Model) :-
     atom_string(M0, Model), downcase_atom(M0, M),

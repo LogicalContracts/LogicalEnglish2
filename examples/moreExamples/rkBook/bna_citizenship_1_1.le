@@ -54,21 +54,21 @@ scenario mother_citizen is:
     2021-10-09 is after commencement.
     Alice is the mother of John.
     Alice is a British citizen on 2021-10-09.
-    acquisition expects answers ["John acquires British citizenship by subsection 1.1 on 2021-10-9T0:0:0.0"].
+    acquisition expects answers ["John acquires British citizenship by subsection 1.1 on 2021-10-09"].
 
 scenario father_settled is:
     Mary is born in the UK on 2021-10-09.
     2021-10-09 is after commencement.
     Harry is the father of Mary.
     Harry is settled in the UK on 2021-10-09.
-    acquisition expects answers ["Mary acquires British citizenship by subsection 1.1 on 2021-10-9T0:0:0.0"].
+    acquisition expects answers ["Mary acquires British citizenship by subsection 1.1 on 2021-10-09"].
 
 scenario father_citizen is:
     Tom is born in the UK on 2021-10-09.
     2021-10-09 is after commencement.
     George is the father of Tom.
     George is a British citizen on 2021-10-09.
-    acquisition expects answers ["Tom acquires British citizenship by subsection 1.1 on 2021-10-9T0:0:0.0"].
+    acquisition expects answers ["Tom acquires British citizenship by subsection 1.1 on 2021-10-09"].
 
 query acquisition is:
     which person acquires British citizenship by subsection 1.1 on which date.

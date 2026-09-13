@@ -117,6 +117,14 @@ test(openai_gpt55_uses_effort_none) :-
     llm_client:reasoning_fields(openai, 'gpt-5.5', minimal, F),
     assertion(F == [reasoning_effort(none)]).
 
+% ... and so did every later gpt-5.N (gpt-5.6-luna, September 2026: the same
+% HTTP 400); gpt-5.4 and before still take "minimal".
+test(openai_gpt56_uses_effort_none) :-
+    llm_client:reasoning_fields(openai, 'gpt-5.6-luna', minimal, F),
+    assertion(F == [reasoning_effort(none)]),
+    llm_client:reasoning_fields(openai, 'gpt-5.4', minimal, F4),
+    assertion(F4 == [reasoning_effort(minimal)]).
+
 test(openai_o_series_uses_effort_low) :-
     llm_client:reasoning_fields(openai, 'o3-mini', minimal, F),
     assertion(F == [reasoning_effort(low)]).

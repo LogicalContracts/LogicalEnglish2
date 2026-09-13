@@ -1380,6 +1380,24 @@ export const keywords: Record<string, KeywordTable> = {
         "draft",
         "reads"
       ]
+    ],
+    "view_flip_keeps": [
+      [
+        "the",
+        "flip",
+        "keeps"
+      ]
+    ],
+    "view_section": [
+      [
+        "the",
+        "section"
+      ]
+    ],
+    "view_reads": [
+      [
+        "reads"
+      ]
     ]
   },
   "pt": {
@@ -3065,6 +3083,28 @@ export const keywords: Record<string, KeywordTable> = {
         "rascunho",
         "diz"
       ]
+    ],
+    "view_flip_keeps": [
+      [
+        "a",
+        "inversão",
+        "mantém"
+      ]
+    ],
+    "view_section": [
+      [
+        "a",
+        "secção"
+      ],
+      [
+        "a",
+        "seção"
+      ]
+    ],
+    "view_reads": [
+      [
+        "diz"
+      ]
     ]
   },
   "es": {
@@ -4684,6 +4724,24 @@ export const keywords: Record<string, KeywordTable> = {
         "borrador",
         "dice"
       ]
+    ],
+    "view_flip_keeps": [
+      [
+        "la",
+        "inversión",
+        "mantiene"
+      ]
+    ],
+    "view_section": [
+      [
+        "la",
+        "sección"
+      ]
+    ],
+    "view_reads": [
+      [
+        "dice"
+      ]
     ]
   },
   "fr": {
@@ -6276,6 +6334,23 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "le",
         "brouillon",
+        "dit"
+      ]
+    ],
+    "view_flip_keeps": [
+      [
+        "l'inversion",
+        "garde"
+      ]
+    ],
+    "view_section": [
+      [
+        "la",
+        "section"
+      ]
+    ],
+    "view_reads": [
+      [
         "dit"
       ]
     ]
@@ -7934,6 +8009,23 @@ export const keywords: Record<string, KeywordTable> = {
         "bozza",
         "dice"
       ]
+    ],
+    "view_flip_keeps": [
+      [
+        "l'inversione",
+        "mantiene"
+      ]
+    ],
+    "view_section": [
+      [
+        "la",
+        "sezione"
+      ]
+    ],
+    "view_reads": [
+      [
+        "dice"
+      ]
     ]
   }
 } as const;
@@ -8095,7 +8187,10 @@ export const keywordCategories: Record<string, string> = {
   "view_listed_as": "view",
   "view_documents": "view",
   "view_cases": "view",
-  "view_draft": "view"
+  "view_draft": "view",
+  "view_flip_keeps": "view",
+  "view_section": "view",
+  "view_reads": "view"
 } as const;
 
 /** UI chrome strings per language, keyed by the canonical English string. */
@@ -8454,6 +8549,12 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Other facts": "Outros factos",
     "Facts": "Factos",
     "not stated": "não indicado",
+    "not met": "não cumprido",
+    "Why not": "Porque não",
+    "one of": "um de",
+    "The text the model wrote:": "O texto que o modelo escreveu:",
+    "No — no answers for this query.": "Não — esta consulta não tem respostas.",
+    "given": "dado que",
     "State it": "Indicá-lo",
     "No answer": "Sem resposta",
     "assuming": "supondo",
@@ -8872,6 +8973,12 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Other facts": "Otros hechos",
     "Facts": "Hechos",
     "not stated": "no indicado",
+    "not met": "no cumplido",
+    "Why not": "Por qué no",
+    "one of": "uno de",
+    "The text the model wrote:": "El texto que escribió el modelo:",
+    "No — no answers for this query.": "No — esta consulta no tiene respuestas.",
+    "given": "dado que",
     "State it": "Indicarlo",
     "No answer": "Sin respuesta",
     "assuming": "suponiendo",
@@ -9290,6 +9397,12 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Other facts": "Autres faits",
     "Facts": "Faits",
     "not stated": "non indiqué",
+    "not met": "non rempli",
+    "Why not": "Pourquoi pas",
+    "one of": "l’un de",
+    "The text the model wrote:": "Le texte écrit par le modèle :",
+    "No — no answers for this query.": "Non — cette requête n’a pas de réponse.",
+    "given": "étant donné",
     "State it": "L'indiquer",
     "No answer": "Pas de réponse",
     "assuming": "en supposant",
@@ -9708,6 +9821,12 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Other facts": "Altri fatti",
     "Facts": "Fatti",
     "not stated": "non indicato",
+    "not met": "non soddisfatto",
+    "Why not": "Perché no",
+    "one of": "uno tra",
+    "The text the model wrote:": "Il testo scritto dal modello:",
+    "No — no answers for this query.": "No — questa interrogazione non ha risposte.",
+    "given": "dato che",
     "State it": "Indicarlo",
     "No answer": "Nessuna risposta",
     "assuming": "supponendo",

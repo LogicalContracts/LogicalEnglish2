@@ -1374,6 +1374,24 @@ var keywords = {
         "draft",
         "reads"
       ]
+    ],
+    "view_flip_keeps": [
+      [
+        "the",
+        "flip",
+        "keeps"
+      ]
+    ],
+    "view_section": [
+      [
+        "the",
+        "section"
+      ]
+    ],
+    "view_reads": [
+      [
+        "reads"
+      ]
     ]
   },
   "pt": {
@@ -3059,6 +3077,28 @@ var keywords = {
         "rascunho",
         "diz"
       ]
+    ],
+    "view_flip_keeps": [
+      [
+        "a",
+        "invers\xE3o",
+        "mant\xE9m"
+      ]
+    ],
+    "view_section": [
+      [
+        "a",
+        "sec\xE7\xE3o"
+      ],
+      [
+        "a",
+        "se\xE7\xE3o"
+      ]
+    ],
+    "view_reads": [
+      [
+        "diz"
+      ]
     ]
   },
   "es": {
@@ -4678,6 +4718,24 @@ var keywords = {
         "borrador",
         "dice"
       ]
+    ],
+    "view_flip_keeps": [
+      [
+        "la",
+        "inversi\xF3n",
+        "mantiene"
+      ]
+    ],
+    "view_section": [
+      [
+        "la",
+        "secci\xF3n"
+      ]
+    ],
+    "view_reads": [
+      [
+        "dice"
+      ]
     ]
   },
   "fr": {
@@ -6270,6 +6328,23 @@ var keywords = {
       [
         "le",
         "brouillon",
+        "dit"
+      ]
+    ],
+    "view_flip_keeps": [
+      [
+        "l'inversion",
+        "garde"
+      ]
+    ],
+    "view_section": [
+      [
+        "la",
+        "section"
+      ]
+    ],
+    "view_reads": [
+      [
         "dit"
       ]
     ]
@@ -7928,6 +8003,23 @@ var keywords = {
         "bozza",
         "dice"
       ]
+    ],
+    "view_flip_keeps": [
+      [
+        "l'inversione",
+        "mantiene"
+      ]
+    ],
+    "view_section": [
+      [
+        "la",
+        "sezione"
+      ]
+    ],
+    "view_reads": [
+      [
+        "dice"
+      ]
     ]
   }
 };
@@ -8286,6 +8378,12 @@ var uiCatalog = {
     "Other facts": "Outros factos",
     "Facts": "Factos",
     "not stated": "n\xE3o indicado",
+    "not met": "n\xE3o cumprido",
+    "Why not": "Porque n\xE3o",
+    "one of": "um de",
+    "The text the model wrote:": "O texto que o modelo escreveu:",
+    "No \u2014 no answers for this query.": "N\xE3o \u2014 esta consulta n\xE3o tem respostas.",
+    "given": "dado que",
     "State it": "Indic\xE1-lo",
     "No answer": "Sem resposta",
     "assuming": "supondo",
@@ -8345,7 +8443,11 @@ var uiCatalog = {
     "The result holds provided that it does.": "O resultado verifica-se desde que isto se verifique.",
     "Open Executive View": "Abrir a vista executiva",
     "Run the program as its users see it, without its text: the executive view, with the program's views, in a new window": "Executar o programa como os seus utilizadores o veem, sem o texto: a vista executiva, com as vistas do programa, numa nova janela",
-    "The editor's copy of this program is not in this browser: this is the program as saved.": "A c\xF3pia do editor deste programa n\xE3o est\xE1 neste navegador: este \xE9 o programa tal como foi guardado."
+    "The editor's copy of this program is not in this browser: this is the program as saved.": "A c\xF3pia do editor deste programa n\xE3o est\xE1 neste navegador: este \xE9 o programa tal como foi guardado.",
+    "Automatic view": "Vista autom\xE1tica",
+    "Drawing the view\u2026": "A desenhar a vista\u2026",
+    "No view could be drawn from this program.": "N\xE3o foi poss\xEDvel desenhar uma vista a partir deste programa.",
+    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Desenhada a partir do pr\xF3prio programa. Para a alterar, o Assistente LE do editor escreve-a: Gerar vista LE."
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -8700,6 +8802,12 @@ var uiCatalog = {
     "Other facts": "Otros hechos",
     "Facts": "Hechos",
     "not stated": "no indicado",
+    "not met": "no cumplido",
+    "Why not": "Por qu\xE9 no",
+    "one of": "uno de",
+    "The text the model wrote:": "El texto que escribi\xF3 el modelo:",
+    "No \u2014 no answers for this query.": "No \u2014 esta consulta no tiene respuestas.",
+    "given": "dado que",
     "State it": "Indicarlo",
     "No answer": "Sin respuesta",
     "assuming": "suponiendo",
@@ -8759,7 +8867,11 @@ var uiCatalog = {
     "The result holds provided that it does.": "El resultado se cumple siempre que esto se cumpla.",
     "Open Executive View": "Abrir la vista ejecutiva",
     "Run the program as its users see it, without its text: the executive view, with the program's views, in a new window": "Ejecutar el programa como lo ven sus usuarios, sin su texto: la vista ejecutiva, con las vistas del programa, en una nueva ventana",
-    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copia del editor de este programa no est\xE1 en este navegador: este es el programa tal como se guard\xF3."
+    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copia del editor de este programa no est\xE1 en este navegador: este es el programa tal como se guard\xF3.",
+    "Automatic view": "Vista autom\xE1tica",
+    "Drawing the view\u2026": "Dibujando la vista\u2026",
+    "No view could be drawn from this program.": "No se pudo dibujar una vista a partir de este programa.",
+    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Dibujada a partir del propio programa. Para cambiarla, el Asistente LE del editor la escribe: Generar vista LE."
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -9114,6 +9226,12 @@ var uiCatalog = {
     "Other facts": "Autres faits",
     "Facts": "Faits",
     "not stated": "non indiqu\xE9",
+    "not met": "non rempli",
+    "Why not": "Pourquoi pas",
+    "one of": "l\u2019un de",
+    "The text the model wrote:": "Le texte \xE9crit par le mod\xE8le :",
+    "No \u2014 no answers for this query.": "Non \u2014 cette requ\xEAte n\u2019a pas de r\xE9ponse.",
+    "given": "\xE9tant donn\xE9",
     "State it": "L'indiquer",
     "No answer": "Pas de r\xE9ponse",
     "assuming": "en supposant",
@@ -9173,7 +9291,11 @@ var uiCatalog = {
     "The result holds provided that it does.": "Le r\xE9sultat vaut pourvu que cela vaille.",
     "Open Executive View": "Ouvrir la vue ex\xE9cutive",
     "Run the program as its users see it, without its text: the executive view, with the program's views, in a new window": "Ex\xE9cuter le programme tel que ses utilisateurs le voient, sans son texte : la vue ex\xE9cutive, avec les vues du programme, dans une nouvelle fen\xEAtre",
-    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copie de l'\xE9diteur de ce programme n'est pas dans ce navigateur : voici le programme tel qu'enregistr\xE9."
+    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copie de l'\xE9diteur de ce programme n'est pas dans ce navigateur : voici le programme tel qu'enregistr\xE9.",
+    "Automatic view": "Vue automatique",
+    "Drawing the view\u2026": "Construction de la vue\u2026",
+    "No view could be drawn from this program.": "Aucune vue n'a pu \xEAtre tir\xE9e de ce programme.",
+    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Tir\xE9e du programme lui-m\xEAme. Pour la modifier, l'Assistant LE de l'\xE9diteur l'\xE9crit : G\xE9n\xE9rer une vue LE."
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -9528,6 +9650,12 @@ var uiCatalog = {
     "Other facts": "Altri fatti",
     "Facts": "Fatti",
     "not stated": "non indicato",
+    "not met": "non soddisfatto",
+    "Why not": "Perch\xE9 no",
+    "one of": "uno tra",
+    "The text the model wrote:": "Il testo scritto dal modello:",
+    "No \u2014 no answers for this query.": "No \u2014 questa interrogazione non ha risposte.",
+    "given": "dato che",
     "State it": "Indicarlo",
     "No answer": "Nessuna risposta",
     "assuming": "supponendo",
@@ -9587,7 +9715,11 @@ var uiCatalog = {
     "The result holds provided that it does.": "Il risultato vale purch\xE9 questo valga.",
     "Open Executive View": "Apri la vista esecutiva",
     "Run the program as its users see it, without its text: the executive view, with the program's views, in a new window": "Eseguire il programma come lo vedono i suoi utenti, senza il testo: la vista esecutiva, con le viste del programma, in una nuova finestra",
-    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copia dell'editor di questo programma non \xE8 in questo browser: questo \xE8 il programma come salvato."
+    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copia dell'editor di questo programma non \xE8 in questo browser: questo \xE8 il programma come salvato.",
+    "Automatic view": "Vista automatica",
+    "Drawing the view\u2026": "Costruzione della vista\u2026",
+    "No view could be drawn from this program.": "Non \xE8 stato possibile ricavare una vista da questo programma.",
+    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Ricavata dal programma stesso. Per modificarla, l'Assistente LE dell'editor la scrive: Genera vista LE."
   }
 };
 var languages = [
@@ -10641,6 +10773,9 @@ function ensureStyles2() {
     .lv-res { border-radius: 12px; padding: 12px 14px; font-size: 18px; font-weight: 600; }
     .lv-res.yes { background: #e9f6ee; color: #155e2e; } .lv-res.no { background: #fbeceb; color: #8c1d18; }
     .lv-status { color: var(--lv-muted); font-size: 12.5px; }
+    .lv-kind { display: inline-block; font-size: 11px; border-radius: 10px; padding: 0 7px; margin-left: 6px; border: 1px solid; }
+    .lv-kind.silent { color: var(--lv-unknown); border-color: var(--lv-unknown); }
+    .lv-kind.met { color: var(--lv-fail); border-color: var(--lv-fail); }
     `;
   document.head.appendChild(style);
 }
@@ -10705,6 +10840,17 @@ function citationLine(n) {
   if (p.rationale)
     parts.push(`${t("because")} \u201C${p.rationale}\u201D`);
   return parts.join(" \xB7 ");
+}
+function draftCitation(n) {
+  const p = n.provenance || {};
+  const parts = [];
+  if (p.document)
+    parts.push(p.document);
+  if (p.quote)
+    parts.push(`\u201C${p.quote}\u201D`);
+  else if (p.locator)
+    parts.push(p.locator);
+  return parts.join(", ");
 }
 function leaves(why) {
   const out = [];
@@ -10903,6 +11049,12 @@ async function mountView(root, ctx) {
       req.query = R.query;
     return req;
   };
+  const runRequest = () => ({ ...resultRequest(), whyNot: true });
+  const sectionWords = (name) => {
+    const w = (V.sections || []).find((x) => String(x.section) === String(name));
+    return w ? String(w.text) : String(name);
+  };
+  const keep = V.keep || [];
   const cards = {};
   const card = (key, title) => {
     const c = el("div", "lv-card");
@@ -10944,8 +11096,8 @@ async function mountView(root, ctx) {
       b.appendChild(el("div", "lv-big no", R.not || t("No answer")));
       const failed = (res.checklist || []).find((c) => c.status === "failed");
       if (failed)
-        b.appendChild(el("div", "lv-sub", `${t("fails at")} ${failed.section}`));
-      else if (res.strongestReason)
+        b.appendChild(el("div", "lv-sub", `${t("fails at")} ${sectionWords(failed.section)}`));
+      else if (!(res.unmet || []).length && res.strongestReason)
         b.appendChild(el("div", "lv-sub", res.strongestReason));
       return;
     }
@@ -10983,7 +11135,7 @@ async function mountView(root, ctx) {
       const row = el("div", "lv-ck");
       const mark = c.status === "passed" ? ["lv-ok", "\u2713"] : c.status === "failed" ? ["lv-fail", "\u2717"] : ["lv-na", "\u2013"];
       row.appendChild(el("span", mark[0], mark[1]));
-      row.appendChild(el("b", "", String(c.section)));
+      row.appendChild(el("b", "", sectionWords(c.section)));
       row.appendChild(el("span", "lv-na", t(c.status === "passed" ? "passed" : c.status === "failed" ? "failed" : "not reached")));
       b.appendChild(row);
     }
@@ -11015,7 +11167,7 @@ async function mountView(root, ctx) {
       return;
     b.innerHTML = "";
     clearTools("citations");
-    const steps = citedSteps(whyOf(res));
+    const steps = resultSteps(res);
     if (!steps.length) {
       b.appendChild(el("div", "lv-status", t("No cited steps.")));
       return;
@@ -11050,11 +11202,68 @@ async function mountView(root, ctx) {
     headOf("citations")?.appendChild(copy);
   };
   const questionFor = (literal) => (V.questions || []).find((q) => norm(q.instance) === norm(literal));
+  const renderUnmet = (b, unmet) => {
+    const FIRST = 8;
+    unmet.forEach((u, i) => {
+      const box = el("div", "lv-ck lv-unmet");
+      if (i >= FIRST)
+        box.hidden = true;
+      box.appendChild(el("span", "lv-fail", "\u2717"));
+      const main = el("div");
+      const q = questionFor(u.goal || u.literal);
+      const line = el("span", "", q ? q.text : u.plain || u.literal);
+      main.appendChild(line);
+      main.appendChild(el(
+        "span",
+        `lv-kind ${u.kind === "not_stated" ? "silent" : "met"}`,
+        u.kind === "not_stated" ? t("not stated") : t("not met")
+      ));
+      if (u.provenance && (u.provenance.text || u.provenance.url))
+        main.appendChild(sourceButton(u));
+      if (u.rule || u.provenance)
+        main.appendChild(el("span", "lv-cite", citationLine(u)));
+      if ((u.facts || []).length)
+        main.appendChild(el("span", "lv-cite", `${t("given")}: ${u.facts.join("; ")}`));
+      box.appendChild(main);
+      b.appendChild(box);
+    });
+    if (unmet.length > FIRST) {
+      const more = el("button", "lv-btn", `${t("Show all")} (${unmet.length})`);
+      more.addEventListener("click", () => {
+        b.querySelectorAll(".lv-unmet").forEach((x) => x.hidden = false);
+        more.remove();
+      });
+      b.appendChild(more);
+    }
+  };
+  const resultSteps = (res) => {
+    if ((res.results || []).length || !(res.unmet || []).length)
+      return citedSteps(whyOf(res));
+    const out = [], seen = /* @__PURE__ */ new Set();
+    for (const u of res.unmet) {
+      if (!u.provenance || !(u.provenance.document || u.provenance.url))
+        continue;
+      const key = `${u.rule || ""}|${u.provenance.document || ""}|${u.provenance.quote || ""}`;
+      if (seen.has(key))
+        continue;
+      seen.add(key);
+      out.push({ ...u, plain: `${u.kind === "not_stated" ? t("not stated") : t("not met")}: ${u.literal}` });
+    }
+    return out;
+  };
   const renderReasons = (res) => {
     const b = bodyOf("reasons");
     if (!b)
       return;
     b.innerHTML = "";
+    const head = cards.reasons?.querySelector(".lv-h > span");
+    const unmet = (res.results || []).length ? [] : res.unmet || [];
+    if (head)
+      head.textContent = unmet.length ? t("Why not") : t("Reasons");
+    if (unmet.length) {
+      renderUnmet(b, unmet);
+      return;
+    }
     const ls = leaves(whyOf(res)).slice(0, 14);
     for (const l of ls) {
       const q = questionFor(l.literal);
@@ -11072,7 +11281,7 @@ async function mountView(root, ctx) {
       return;
     b.innerHTML = "";
     const docs = /* @__PURE__ */ new Map();
-    for (const n of citedSteps(whyOf(res))) {
+    for (const n of resultSteps(res)) {
       const p = n.provenance || {};
       if (!p.document)
         continue;
@@ -11175,6 +11384,8 @@ async function mountView(root, ctx) {
       const req = resultRequest();
       delete req.query;
       req.customQuery = flipText(goal, negate);
+      if (keep.length)
+        req.keep = keep;
       const res = await leapi({ operation: "answeringQuery", ...req });
       out.innerHTML = "";
       const sets = (res.results || []).map((r) => String(r.answer));
@@ -11300,8 +11511,9 @@ async function mountView(root, ctx) {
         const td0 = el("td");
         td0.appendChild(a);
         tr.appendChild(td0);
-        tr.appendChild(el("td", "", answers.length ? answers.join("; ") : t("No answer")));
-        tr.appendChild(el("td", "", expected === null ? "\u2014" : expected.length ? expected.join("; ") : t("No answer")));
+        const failedAt = (res.checklist || []).find((c) => c.status === "failed");
+        tr.appendChild(el("td", "", answers.length ? answers.join("; ") : `${R.not || t("No answer")}${failedAt ? ` \xB7 ${t("fails at")} ${sectionWords(failedAt.section)}` : ""}`));
+        tr.appendChild(el("td", "", expected === null ? "\u2014" : expected.length ? expected.join("; ") : R.not || t("No answer")));
         const agree = expected === null ? "" : sameSet(answers, expected) ? "\u2713" : "\u2717";
         tr.appendChild(el("td", agree === "\u2713" ? "lv-ok" : agree === "\u2717" ? "lv-fail" : "", agree));
         table.appendChild(tr);
@@ -11309,23 +11521,49 @@ async function mountView(root, ctx) {
     });
   };
   const renderDraft = (res) => {
+    const results = res.results || [];
+    const template = (results.length ? V.draftHolds : V.draftNot) || V.draft;
     const b = bodyOf("draft");
-    if (!b || !V.draft)
+    if (!b)
       return;
     b.innerHTML = "";
     clearTools("draft");
-    const results = res.results || [];
+    if (!template)
+      return;
     const slots = results.length && R.query ? answerSlots(queryText(R.query), results[0].answer) : {};
     const head = R.headedBy ? slots[String(R.headedBy).split(/\s+/).pop().toLowerCase()] : null;
+    const lists = {
+      // the legal basis: the passages a labelled rule or table row cites
+      // (of a failed result: the passages it does not meet)
+      "the citations": resultSteps(res).filter((n) => n.rule || /^row /.test(String(n.literal))).map((n) => draftCitation(n)).filter((x, i, a) => x && a.indexOf(x) === i),
+      "the facts": forms.flatMap((f) => f.form.completeFactLines()),
+      // what a failed result did not meet, each with its passage
+      "the reasons": (results.length ? [] : res.unmet || []).map((u) => `${u.literal} (${u.kind === "not_stated" ? t("not stated") : t("not met")})${draftCitation(u) ? ` \u2014 ${draftCitation(u)}` : ""}`),
+      // of those, the facts the case is silent on: what to ask for
+      "the missing": (results.length ? [] : res.unmet || []).filter((u) => u.kind === "not_stated").map((u) => {
+        const open = /\b(a|an)\s+\w+/.test(String(u.goal || "").replace(/^\S+\s/, ""));
+        const vals = open ? (u.values || []).flat().slice(0, 10) : [];
+        return `${u.goal || u.literal}${vals.length ? ` (${t("one of")}: ${vals.join(", ")})` : ""}${draftCitation(u) ? ` \u2014 ${draftCitation(u)}` : ""}`;
+      })
+    };
     const fill = {
       "the result": head || (results[0]?.answer ?? (R.not || t("No answer"))),
       "the answer": results[0]?.answer ?? (R.not || t("No answer")),
-      // the legal basis: the steps a labelled rule or table row cites
-      "the citations": citedSteps(whyOf(res)).filter((n) => n.rule || /^row /.test(String(n.literal))).map((n) => citationLine(n)).filter((x, i, a) => a.indexOf(x) === i).join("; "),
-      "the facts": forms.flatMap((f) => f.form.completeFactLines()).join("; "),
       "the case": caseName
     };
-    const text = String(V.draft).replace(/\{([^}]+)\}/g, (m, k) => k.trim() in fill ? fill[k.trim()] : m);
+    const text = String(template).replace(/\\n/g, "\n").split("\n").map((line) => {
+      const alone = /^\s*\{([^}]+)\}\s*$/.exec(line);
+      if (alone && alone[1].trim() in lists) {
+        const items = lists[alone[1].trim()];
+        return items.length ? items.map((x) => `- ${x}`).join("\n") : "- \u2014";
+      }
+      return line.replace(/\{([^}]+)\}/g, (m, k) => {
+        const key = k.trim();
+        if (key in lists)
+          return lists[key].join("; ");
+        return key in fill ? fill[key] : m;
+      });
+    }).join("\n");
     b.appendChild(el("div", "lv-draft", text));
     const copy = el("button", "", t("Copy"));
     copy.addEventListener("click", () => navigator.clipboard?.writeText(text).catch(() => {
@@ -11409,7 +11647,7 @@ async function mountView(root, ctx) {
   };
   const run = async () => {
     status.textContent = t("Running\u2026");
-    const res = await leapi({ operation: "answeringQuery", ...resultRequest() });
+    const res = await leapi({ operation: "answeringQuery", ...runRequest() });
     lastResult = res;
     status.textContent = res.error ? String(res.error) : "";
     renderResult(res);
@@ -11486,6 +11724,8 @@ async function mountView(root, ctx) {
         const r2 = req();
         delete r2.query;
         r2.customQuery = flipText(goal, holds);
+        if (keep.length)
+          r2.keep = keep;
         const fl = await leapi({ operation: "answeringQuery", ...r2 });
         const sets = (fl.results || []).map((r) => String(r.answer));
         if (!sets.length)

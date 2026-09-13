@@ -61,6 +61,9 @@ function ensureStyles() {
         .nl-status { font-size: 12px; margin: 10px 0 0 0; min-height: 16px; white-space: pre-line; }
         .nl-status.error { color: #f48771; }
         .nl-status.warn { color: #e2b93d; }
+        .nl-preview { margin: 10px 0 0; max-height: 180px; overflow: auto; white-space: pre-wrap; font-size: 12px;
+                      border: 1px solid rgba(128,128,128,.4); border-radius: 4px; padding: 6px 8px; }
+        .nl-preview-label { font-size: 12px; margin: 10px 0 0; opacity: .8; }
         .nl-actions { display: flex; gap: 10px; align-items: center; justify-content: flex-end; margin-top: 14px; }
         .nl-actions .spacer { flex: 1; }
         .nl-model { color: var(--muted, #888); font-size: 11px; }
@@ -117,6 +120,14 @@ export function openNlInput(opts: NlInputOptions): void {
     textarea.placeholder = opts.placeholder || 'Type your sentence(s) here…';
     const status = document.createElement('div');
     status.className = 'nl-status';
+    // what the model wrote, shown before it is inserted when verification
+    // found something to say about it
+    const previewLabel = document.createElement('div');
+    previewLabel.className = 'nl-preview-label';
+    previewLabel.textContent = t('The text the model wrote:');
+    const preview = document.createElement('pre');
+    preview.className = 'nl-preview';
+    previewLabel.hidden = true; preview.hidden = true;
 
     const actions = document.createElement('div');
     actions.className = 'nl-actions';
@@ -188,6 +199,8 @@ export function openNlInput(opts: NlInputOptions): void {
         dialog.appendChild(box);
     }
     dialog.appendChild(textarea);
+    dialog.appendChild(previewLabel);
+    dialog.appendChild(preview);
     dialog.appendChild(status);
     dialog.appendChild(actions);
     document.body.appendChild(overlay);
@@ -219,6 +232,7 @@ export function openNlInput(opts: NlInputOptions): void {
         primaryMode = 'generate';
         generate.textContent = t('Generate');
         regenerate.style.display = 'none';
+        previewLabel.hidden = true; preview.hidden = true;
     }
     textarea.addEventListener('input', () => { if (primaryMode === 'insert') toGenerateMode(); });
 
@@ -269,6 +283,8 @@ export function openNlInput(opts: NlInputOptions): void {
                     // change what the text MEANS, then cosmetic ones — so the list is
                     // shown in the order it arrives and coloured by its worst entry.
                     pendingLe = res.le;
+                    preview.textContent = res.le.trim();
+                    previewLabel.hidden = false; preview.hidden = false;
                     primaryMode = 'insert';
                     generate.textContent = t('Insert anyway');
                     regenerate.style.display = '';

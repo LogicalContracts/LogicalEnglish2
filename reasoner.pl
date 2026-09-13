@@ -1012,6 +1012,7 @@ is_built_in(le_le(_, _)).
 is_built_in(le_gt(_, _)).
 is_built_in(le_lt(_, _)).
 is_built_in(le_is_days_after(_, _, _)).
+is_built_in(le_is_months_after(_, _, _)).
 is_built_in(le_minimum(_, _, _)).
 is_built_in(le_maximum(_, _, _)).
 is_built_in(le_is_in(_, _)).
@@ -1061,6 +1062,7 @@ call_reasoner_built_in(le_le(X, Y), _) :- !, le_compare(=<, X, Y).
 call_reasoner_built_in(le_gt(X, Y), _) :- !, le_compare(>, X, Y).
 call_reasoner_built_in(le_lt(X, Y), _) :- !, le_compare(<, X, Y).
 call_reasoner_built_in(le_is_days_after(Later, Count, Before), _) :- !, le_is_days_after(Later, Count, Before).
+call_reasoner_built_in(le_is_months_after(Later, Count, Before), _) :- !, le_is_months_after(Later, Count, Before).
 call_reasoner_built_in(le_minimum(X, Y, Z), _) :- !, le_minimum(X, Y, Z).
 call_reasoner_built_in(le_maximum(X, Y, Z), _) :- !, le_maximum(X, Y, Z).
 call_reasoner_built_in(equal_to(X, Y), _) :- !, equal_to(X, Y).
@@ -1112,6 +1114,59 @@ le_is_days_after(Later, Count, Before) :-
     le_date_stamp(Later, LaterStamp),
     le_date_stamp(Before, BeforeStamp),
     Count is round(LaterStamp - BeforeStamp) div 86400. % using negative number to indicate reserve order 
+
+%!  le_is_months_after(?Later, ?Count, ?Before) is semidet.
+%
+%   "*a date* is *a number* months after *an other date*" — calendar months,
+%   as statutes and policies count them ("within six months", "36 months"),
+%   which days cannot express: six months after 28 August is 28 February, 184
+%   days later. With Before (or Later) and Count given, the other date is
+%   computed, the day of the month kept where the month has it and otherwise
+%   the month's last day (31 August + 6 months = 28 February). With both dates
+%   given, Count is the number of WHOLE months from Before to Later (negative
+%   when Later is earlier): 28 February is 6 months after 28 August, 27
+%   February only 5. So a deadline reads "a limit is 6 months after the date
+%   and the other date is before or equal to the limit".
+le_is_months_after(Later, Count, Before) :-
+    nonvar(Before), integer(Count), var(Later), !,
+    le_ymd(Before, Y, M, D),
+    add_months(Y, M, D, Count, Later).
+le_is_months_after(Later, Count, Before) :-
+    nonvar(Later), integer(Count), var(Before), !,
+    le_ymd(Later, Y, M, D),
+    Back is -Count,
+    add_months(Y, M, D, Back, Before).
+le_is_months_after(Later, Count, Before) :-
+    nonvar(Later), nonvar(Before),
+    le_ymd(Later, LY, LM, LD),
+    le_ymd(Before, BY, BM, BD),
+    (   date(LY, LM, LD) @>= date(BY, BM, BD)
+    ->  whole_months(BY, BM, BD, LY, LM, LD, N)
+    ;   whole_months(LY, LM, LD, BY, BM, BD, N0), N is -N0
+    ),
+    ( var(Count) -> Count = N ; number(Count), Count =:= N ).
+
+le_ymd(Date, Y, M, D) :-
+    le_date_stamp(Date, Stamp),
+    stamp_date_time(Stamp, date(Y, M, D, _, _, _, _, _, _), 'UTC').
+
+% the date N months after Y-M-D, the day clamped to the month's length
+add_months(Y, M, D, N, date(Y2, M2, D2)) :-
+    T is Y*12 + (M-1) + N,
+    Y2 is T div 12, M2 is T mod 12 + 1,
+    month_days(Y2, M2, Last),
+    D2 is min(D, Last).
+
+month_days(Y, 2, D) :- !,
+    ( ( Y mod 4 =:= 0, ( Y mod 100 =\= 0 ; Y mod 400 =:= 0 ) ) -> D = 29 ; D = 28 ).
+month_days(_, M, 30) :- memberchk(M, [4, 6, 9, 11]), !.
+month_days(_, _, 31).
+
+% the whole months from the earlier date B to the later date L
+whole_months(BY, BM, BD, LY, LM, LD, N) :-
+    N0 is (LY*12 + LM) - (BY*12 + BM),
+    add_months(BY, BM, BD, N0, date(Y1, M1, D1)),
+    (   date(Y1, M1, D1) @> date(LY, LM, LD) -> N is N0 - 1 ; N = N0 ).
 
 le_date_stamp(date(Y,M,D), Stamp) :-
     date_time_stamp(date(Y,M,D,0,0,0,0,'UTC',-), Stamp).

@@ -32,7 +32,7 @@ scenario alice è:
 	2021-10-09 è posteriore alla data di riferimento.
 	Alice è la madre di John.
 	Alice è cittadina britannica in 2021-10-09.
-    uno attende risposte ["John acquisisce la cittadinanza britannica in 2021-10-9T0:0:0.0"].
+    uno attende risposte ["John acquisisce la cittadinanza britannica in 2021-10-09"].
 
 scenario harry è:
 	John nasce in il Regno Unito in 2021-10-09.
@@ -40,7 +40,7 @@ scenario harry è:
 	Harry dice che Harry è il padre di John.
 	Harry è qualificata per determinare la paternità.
 	Harry è residente nel Regno Unito in 2021-10-09.
-    uno attende risposte ["John acquisisce la cittadinanza britannica in 2021-10-9T0:0:0.0"].
+    uno attende risposte ["John acquisisce la cittadinanza britannica in 2021-10-09"].
 
 interrogazione uno è:
     quale persona acquisisce la cittadinanza britannica in quale data.

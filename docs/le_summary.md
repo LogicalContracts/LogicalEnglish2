@@ -290,6 +290,14 @@ In an explanation tree, a type check renders like the assertion it verifies, e.g
   - `*V1* is after *V2*` (for dates)
   - `*V1* is before *V2*` (for dates)
   - `*V1* is *V2* days after *V3*` (for dates and numbers)
+  - `*V1* is *V2* months after *V3*` (calendar months, for dates): with V3 and
+    V2 given, V1 is computed, the day kept where the month has it and
+    otherwise the month's last day (31 August + 6 months = 28 February); with
+    both dates given, V2 is the number of WHOLE months between them (28
+    February is 6 months after 28 August, 27 February only 5). A deadline
+    reads `a limit is 6 months after the date and the other date is before or
+    equal to the limit` — never "183 days": six months after 28 August is 184
+    days later.
   - `*V1* is known`
   - `*V1* is in *V2*` (List membership)
   - `the minimum of *V1* and *V2* is *V3*` (for numbers)
@@ -347,7 +355,7 @@ Scenarios can define expected results for queries, which are used by the test ru
   ```le
   scenario alice is:
       John is born in the UK on 2021-10-09.
-      one expects answers ["John acquires British citizenship on 2021-10-9T0:0:0.0"] and unknowns ["John is a good person"].
+      one expects answers ["John acquires British citizenship on 2021-10-09"] and unknowns ["John is a good person"].
       two expects ["John is a British citizen"].
   ```
 
@@ -946,6 +954,10 @@ predicates are never changed.
   own attempt supplies the next candidates, so a change that opens a new
   path brings that path's conditions into play. Bounds: Prolog flags
   `le_flip_max_changes` (default 3) and `le_flip_max_evaluations` (400).
+- **Kept facts**: a request may name templates the flip leaves as they are
+  (`answeringQuery` field `keep`, a list of template labels; a view's `the flip
+  keeps …`, §17.10) — the facts that define the case, so that no answer
+  proposes to change them (another item code, another beneficiary).
 - **Without writing the query**: a flip is also a custom query — the
   editor's custom query field (and the `customQuery` of `answeringQuery`)
   accepts the sentence, as it accepts any query body (conditions joined by
@@ -1060,17 +1072,20 @@ language):
 | `the result is whether <instance>` | a yes/no result, the query written in the view |
 | `the result reads "<text>" when it holds` / `… when it does not` | the result in the view's words |
 | `the result shows its citations` | the cited steps of the proof, each opening its passage |
-| `the result shows its reasons` | the facts the result rests on, or failed on |
+| `the result shows its reasons` | the facts the result rests on; for a result that FAILS, **why not**: the conditions it did not meet (below) |
 | `the result shows the stage it reaches` | the checklist of the applicability / question / remedy sections (§17.4) |
 | `the result asks what is missing` | the case facts the failed proof looked for, each one click to state |
 | `the facts are asked one at a time` | an interview: the view's questions, each asked only while the answer can still depend on it |
 | `the question for <instance> is "<text>"` | the question for a fact (and its wording in the reasons and the flip) |
 | `the result can be flipped[, as "<text>"]` | the minimal changes that would change the result (§17.7) |
+| `the flip keeps <instance>, <instance>, …` | facts the flip never adds, removes or changes: those that define the case (the item and its code, a date of service), so that no answer proposes another one |
+| `the section <name> reads "<text>"` | the stage checklist and "fails at" in the view's words (`the section remedy reads "Conditions of payment"`) |
 | `the answers to "<query body>" are listed as "<title>"` | a table of another query's answers, a column per `which` |
 | `the result is compared with scenario <name>` | the result of another scenario, and where it fails |
 | `the documents of the case are shown beside the facts` | the cited documents, the case's own open with its passages marked |
 | `the cases are listed with their results` | every scenario, its result and its expectation |
-| `the draft reads "<text with {the result}, {the answer}, {the facts}, {the citations}, {the case}>"` | a text filled from the result, to copy |
+| `the draft reads "<text with {the result}, {the answer}, {the facts}, {the citations}, {the reasons}, {the missing}, {the case}>"` | a text filled from the result, to copy |
+| `the draft reads "<text>" when it holds` / `… when it does not` | a text for each outcome: an approval and a refusal |
 
 - **Checked by the verifier** (errors): a sentence no view form reads
   (`view_unknown_sentence`), an instance of no template
@@ -1083,10 +1098,29 @@ language):
   (`view_said_twice`), a heading the query does not ask for
   (`view_headed_by_unknown`), the stage of a program without the reserved
   sections (`view_stage_without_sections`), citations or documents of a
-  program that cites nothing (`view_nothing_cited`).
+  program that cites nothing (`view_nothing_cited`), a section the program
+  does not have (`view_unknown_section`), a kept fact the rules conclude
+  (`view_keeps_derived`).
+- **Why not.** For a result that fails, the reasons widget lists its
+  **unmet conditions** (`le_why_not.pl`; `answeringQuery` with `whyNot: true`
+  replies `unmet`). They are read off the failure explanation with one rule
+  node per attempt: where several rules could have concluded a goal, only the
+  attempts that came CLOSEST are followed — those in which the most
+  conditions held before the one that failed (and of those, the ones that
+  met the largest part of themselves) — so another alternative's first test
+  (another policy's code list) is never a reason. Each leaf is `not stated`
+  (a fact the case could state and does not: the record is silent) or `not
+  met` (a comparison false on the case's values, a negation whose subject
+  holds, a fact the case states with another value, a judgment recorded
+  otherwise, a goal no rule concludes), with the rule that asks for it, its
+  provenance and the facts that rule compared. A failed result's citations
+  are those rules' passages; `openQuestions` asks only for the facts the
+  closest attempts lack. A draft names them as `{the reasons}` (all) and
+  `{the missing}` (the facts to ask for). A list placeholder on a line of its
+  own is one item per line; `\n` in a draft is a new line.
 - **The load** returns each view compiled (`views`, le_views:program_views/2);
-  `answeringQuery` adds the section `checklist`; `openQuestions` gives the
-  facts a failed proof looked for; `draftView` drafts a view.
+  `answeringQuery` adds the section `checklist` (and `unmet`); `openQuestions`
+  gives the facts a failed proof looked for; `draftView` drafts a view.
 - **The automatic view.** A program that declares no view is offered one in
   the executive view (`view=*`): the draft below, compiled only when it is
   opened (operation `automaticView`, le_views:automatic_view/3). A declared
@@ -1099,5 +1133,7 @@ language):
 A tutorial, building a view step by step: [IntroducingLEViews.md](IntroducingLEViews.md).
 See the views of `examples/RulesRus/eu261_integration.le` (a claims desk),
 `flip_housing.le` (an interview), `judged_damage.le`, `sections_benefit.le`
-and, in the InsurLE repository, `examples/customs/cbp_62.le` (a
-classification worksheet).
+(its view *rent decision*: sections in its own words, why not, a flip that
+keeps a fact, a letter for each outcome) and, in the InsurLE repository,
+`examples/customs/cbp_62.le` (a classification worksheet) and the coverage
+desks of `examples/medicare/pap_cases.le` and `pmd_cases.le`.

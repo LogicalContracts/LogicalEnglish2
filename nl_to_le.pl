@@ -136,11 +136,14 @@ english_to_le_(Kind, Sentence, Templates0, Program, Model, Options0, LEText, New
     % A document is transcribed, not reasoned about: little reasoning, and room
     % for the facts of several goods. (With a reasoning model and 4096 tokens a
     % ruling of a few pages came back empty — the budget went to reasoning.)
+    % A sentence or a paragraph is transcribed too: with the default effort a
+    % reasoning model spent all of 1024 tokens thinking about a paragraph and
+    % answered nothing (gpt-5.6-luna, a claim described in eight sentences).
     (   Doc == none
-    ->  Options1b = Options1
-    ;   ensure_option(max_tokens(16384), Options1, Options1a),
-        ensure_option(reasoning(minimal), Options1a, Options1b)
+    ->  ensure_option(max_tokens(4096), Options1, Options1a)
+    ;   ensure_option(max_tokens(16384), Options1, Options1a)
     ),
+    ensure_option(reasoning(minimal), Options1a, Options1b),
     ensure_max_tokens(Options1b, Options2),
     ensure_temperature(Options2, Options),
     baseline(ProgramS, CheckRegressions, Baseline),
@@ -331,10 +334,13 @@ collect_issues(ProgramText, Block, Issues) :-
     load_text(ProgramText, KB),
     split_string(ProgramText, "\n", "", SrcLines),
     line_start_offsets(SrcLines, Starts),
-    unmatched_issues(Block, KB, Starts, SrcLines, Unmatched),
+    unmatched_issues(Block, KB, Starts, SrcLines, Unmatched0),
+    unread_issues(Block, KB, Starts, SrcLines, Unread),
+    append(Unmatched0, Unread, Unmatched),
     findall(_{severity: SevS, type: TypeS, message: MsgS, fix: FixS,
               line: LineNo, source: SrcLine},
             ( KB:le_issue(Sev, Type, Msg, Fix, Start, _End),
+              \+ included_offset(Start),
               term_string(Sev, SevS), term_string(Type, TypeS),
               issue_text(Msg, MsgS), issue_text(Fix, FixS),
               issue_location(Starts, SrcLines, Start, LineNo, SrcLine) ),
@@ -343,6 +349,7 @@ collect_issues(ProgramText, Block, Issues) :-
     findall(_{severity: "warning", type: VTypeS, message: DescS, fix: VFixS,
               line: VLineNo, source: VSrcLine},
             ( member(issue(VType, Desc, VFix, VStart, _VEnd), VIssues),
+              \+ included_offset(VStart),
               term_string(VType, VTypeS),
               issue_text(Desc, DescS), issue_text(VFix, VFixS),
               issue_location(Starts, SrcLines, VStart, VLineNo, VSrcLine) ),
@@ -351,6 +358,15 @@ collect_issues(ProgramText, Block, Issues) :-
     % load_text also asserts the verify/2 results as le_issue, so the two sources
     % overlap — keep one of each (by signature), preserving order.
     dedupe_issues(All, [], Issues).
+
+% An issue located in a resource the program includes (a shared library) is
+% not one a fragment of the program can introduce or fix: its offsets, and so
+% the line it would be reported at, also differ from load to load, which made
+% the library's warnings look "new" beside every fragment.
+included_offset(Offset) :-
+    integer(Offset),
+    le_grammar:resource_offset_unit(Unit),
+    Offset >= Unit.
 
 %!  unmatched_issues(+Block, +KB, +Starts, +Lines, -Issues) is det.
 %
@@ -371,6 +387,50 @@ unmatched_issues(check(Kind), KB, Starts, Lines, Issues) :-
     check_block_scope(Kind, Name, Scope),
     unmatched_sentences(KB, Scope, Found),
     maplist(unmatched_issue(Kind, Starts, Lines), Found, Issues).
+
+%!  unread_issues(+Block, +KB, +Starts, +Lines, -Issues) is det.
+%
+%   A value of the new facts that no rule, fact or table row of the program
+%   reads, where the rules read a short list of values: a model that writes
+%   "the finding trained to use the CGM ..." where the rules read "trained on
+%   continuous glucose monitor" states a fact nothing will ever read, and the
+%   answer then silently fails. The program's own scenarios are held to a
+%   stricter test (le_verifier's unread_value: only a value close to one the
+%   rules read), since they may state free descriptions on purpose; a fresh
+%   fragment is shown the whole short list, and so is the model.
+unread_issues(check(facts), KB, Starts, Lines, Issues) :- !,
+    nl_check_name(Name),
+    (   catch(KB:scenario(Name, Terms), _, fail)
+    ->  le_verifier:program_constants(KB, Known),
+        findall(c(F/A/I, V, Head, S),
+                ( member(fact_with_source(Head, S, _), Terms),
+                  compound(Head), Head \= (_ :- _),
+                  functor(Head, F, A), \+ sub_atom(F, 0, _, _, le_),
+                  arg(I, Head, V), atom(V), \+ get_assoc(V, Known, _) ),
+                Cands),
+        findall(Issue,
+                ( member(c(F/A/I, V, Head, S), Cands),
+                  catch(le_verifier:with_rule_index(KB, le_verifier:slot_values(KB, F, A, I, Values)), _, fail),
+                  Values \== [], length(Values, N), N =< 40,
+                  \+ memberchk(V, Values),
+                  unread_issue(KB, V, Head, S, Values, Starts, Lines, Issue) ),
+                Issues)
+    ;   Issues = []
+    ).
+unread_issues(_, _, _, _, []).
+
+unread_issue(KB, V, Head, Start, Values, Starts, Lines, Issue) :-
+    (   catch(le_kbs:item_to_instance(KB, Head, Toks), _, fail)
+    ->  le_kbs:canonical_string(Toks, Text)
+    ;   term_string(Head, Text)
+    ),
+    le_verifier:shown_values(Values, Shown),
+    le_msg(unread_value_desc, [value-V, text-Text, values-Shown], Msg0),
+    le_msg(unread_value_fragment_fix, [], Fix0),
+    issue_text(Msg0, Msg), issue_text(Fix0, Fix),
+    issue_location(Starts, Lines, Start, LineNo, SrcLine),
+    Issue = _{severity: "warning", type: "unread_value", message: Msg, fix: Fix,
+              line: LineNo, source: SrcLine}.
 
 check_block_scope(facts, Name, scenario(Name)).
 check_block_scope(query, Name, query(Name)).
