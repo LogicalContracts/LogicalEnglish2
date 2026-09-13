@@ -15,6 +15,7 @@
 :- use_module('../reasoner').
 :- use_module('../le_system_templates').
 :- use_module('../le_tools').
+:- use_module('../restricted_paths', [is_path_allowed/2]).
 
 :- dynamic mcp_only_query_verify/0.
 % mcp_only_query_verify. % Uncomment to enable the flag
@@ -443,8 +444,54 @@ examples_dir(AbsDir) :-
 
 call_tool("list_examples", _Args, Result) :-
     examples_dir(Dir),
+    get_time(T0), list_summary_budget(B), Deadline is T0 + B,
+    b_setval(mcp_list_deadline, Deadline),
     list_examples_with_summaries(Dir, '', Examples),
     Result = _{examples: Examples}.
+
+%   Seconds a listing may spend loading programs for their summaries. A
+%   summary is cached per file (le_kbs:kb_summary_safe/3), but the first
+%   listing of a large tree would load every program in it — minutes, with
+%   the example corpus of the InsurLE repository mounted — so past the budget
+%   a program not yet summarised is described by its opening comment.
+list_summary_budget(20).
+
+example_summary(Path, Summary) :-
+    (   catch(absolute_file_name(Path, Abs), _, fail),
+        catch(time_file(Abs, Time), _, fail),
+        le_kbs:kb_summary_cache(Abs, Time, Cached), Cached \== failed
+    ->  Summary = Cached
+    ;   nb_current(mcp_list_deadline, Deadline), get_time(Now), Now > Deadline
+    ->  leading_comment_summary(Path, Summary)
+    ;   % skip_tests: the listing only needs each KB loaded for its summary;
+        % running the KBs' embedded tests here would take tens of seconds.
+        % kb_summary_safe holds a module reference while summarizing, so a
+        % concurrent request's session teardown cannot reclaim (abolish) the KB
+        % module mid-read — that race surfaced as existence_error(le_dict/1)
+        % 500s under parallel e2e load.
+        le_kbs:kb_summary_safe(Path, [skip_tests], Summary0)
+    ->  Summary = Summary0
+    ;   Summary = "Failed to load summary"
+    ).
+
+%   The program's opening comment, as one line (at most 300 characters).
+leading_comment_summary(Path, Summary) :-
+    catch(read_file_to_string(Path, Text, [encoding(utf8)]), _, Text = ""),
+    split_string(Text, "\n", "", Lines),
+    comment_prefix(Lines, Cs),
+    atomic_list_concat(Cs, ' ', S0), normalize_space(string(S1), S0),
+    (   S1 == "" -> Summary = "Logical English program (not summarised yet)"
+    ;   string_length(S1, L), L > 300 -> sub_string(S1, 0, 297, _, S2), string_concat(S2, "...", Summary)
+    ;   Summary = S1
+    ).
+
+comment_prefix([], []).
+comment_prefix([L0|Ls], Cs) :-
+    normalize_space(string(L), L0),
+    (   L == "" -> comment_prefix(Ls, Cs)
+    ;   string_concat("%", C0, L) -> normalize_space(string(C), C0), Cs = [C|More], comment_prefix(Ls, More)
+    ;   Cs = []
+    ).
 
 call_tool("get_example_details", Args, Result) :-
     get_dict(example_name, Args, ExampleName),
@@ -485,6 +532,10 @@ example_details_result(KB, Result) :-
 %
 %   Collects example dicts (name, summary) from Dir and its subdirectories.
 %   Subdirectory examples have names of the form "subdir/name".
+%   An MCP/REST client has no session and so no roles: like the editor's own
+%   listing (classic_web_api:list_examples_in_dir/4), the listing leaves out
+%   the role-gated trees (restricted_paths.pl) — which also spares it loading
+%   every program of them for a summary.
 list_examples_with_summaries(Dir, Prefix, Examples) :-
     directory_files(Dir, Files),
     findall(_{name: ExPath, summary: Summary}, (
@@ -494,22 +545,15 @@ list_examples_with_summaries(Dir, Prefix, Examples) :-
         file_name_extension(Base, le, F),
         atom_concat(Prefix, Base, ExPath),
         directory_file_path(Dir, F, Path),
-        % skip_tests: the listing only needs each KB loaded for its summary;
-        % running the KBs' embedded tests here would take tens of seconds.
-        % kb_summary_safe holds a module reference while summarizing, so a
-        % concurrent request's session teardown cannot reclaim (abolish) the KB
-        % module mid-read — that race surfaced as existence_error(le_dict/1)
-        % 500s under parallel e2e load.
-        ( le_kbs:kb_summary_safe(Path, [skip_tests], Summary0) ->
-            Summary = Summary0
-        ; Summary = "Failed to load summary"
-        )
+        restricted_paths:is_path_allowed(Path, []),
+        example_summary(Path, Summary)
     ), DirectExamples),
     findall(SubExamples, (
         member(F, Files),
         \+ sub_atom(F, 0, 1, _, '.'),
         directory_file_path(Dir, F, SubDir),
         exists_directory(SubDir),
+        restricted_paths:is_path_allowed(SubDir, []),
         atomic_list_concat([Prefix, F, '/'], SubPrefix),
         list_examples_with_summaries(SubDir, SubPrefix, SubExamples)
     ), SubExamplesLists),

@@ -57,9 +57,9 @@ program(Header, Items)
 | `fact(Head, Options)` | a fact; Options `provenance(P)` (trailers), `ontology` (in `the ontology is:`) |
 | `table(Name, Options, Columns, Rows)` | a decision table (§17.3). Options: `policy(first\|unique\|all)`, `loaded_from(File)`, `provenance(P)`. Cells: a constant, `any`, `or_list([...])`, `cond(E)` with `E` built from `Op-Value` (`(>=)-1`) and `and/2`, `or/2`, `quote(Text)` (a citation column), `raw(Text)` |
 | `section(Name)` | `section Name is:` |
-| `residue(Id, Options)` | a residue block (§4): Options `title(T)`, `locator(L)`, `source(Language, Code)`, `note(Text)`, `placeholder(LE)` |
+| `residue(Id, Options)` | a residue block (§4): Options `title(T)`, `locator(L)`, `source(Language, Code)`, `note(Text)`, `placeholder(LE)`, `concludes([F, ...])` (what the block must conclude — the expectations that depend on it are pending, §3) |
 | `document(Name, Options)` | `Name is published at "..."` / `the text of Name is at "..."`: Options `url(U)`, `text(Path)` |
-| `scenario(Name, Lines, Options)` | a scenario. Lines: `fact(L)`, `fact(L, Provenance)`, `unknown(L)`, `rule(H, B)`, `expects(Query, Answers)`, `expects(Query, Answers, Unknowns)`, `expects_changes(Query, Sets)`, `comment(T)`. Answers are strings or ground IR literals (written through their templates). Options: `as_stated_in(Doc)`, `at(Locator)` — the scenario's default provenance |
+| `scenario(Name, Lines, Options)` | a scenario. Lines: `fact(L)`, `fact(L, Provenance)`, `unknown(L)`, `rule(H, B)`, `expects(Query, Answers)`, `expects(Query, Answers, Unknowns)`, `expects_changes(Query, Sets)`, `pending(Why, Line)` (a line written as a comment, with its reason), `comment(T)`. Answers are strings or ground IR literals (written through their templates). Options: `as_stated_in(Doc)`, `at(Locator)` — the scenario's default provenance |
 | `query(Name, Body)` / `query(Name, flip(Goal))` | a query; its variables are written `which <type>` |
 | `view(Name, Sentences)` | a view (§17.10), its sentences verbatim |
 | `comment(Text)`, `blank`, `raw(Text)` | verbatim material in the knowledge base |
@@ -160,6 +160,16 @@ write_migration(+Migration, +Dir, +Base, -Report).
 migration_text/3, source_tests_scenarios/2, ledger_markdown/3,
 ledger_dict/3, ledger_counts/2, migration_fidelity/3, copy_library/2.
 ```
+
+**Pending expectations.** An expectation whose query depends on what an
+untranslated residue block must conclude cannot hold yet: when the residue
+item declares `concludes([F, ...])` (IR functors), `le_migration` follows the
+IR's rules from each query and turns every expectation that reaches one of
+them into `pending(Why, Expectation)` — written as a comment in its scenario
+(`% pending — waits for residue r1:`), counted in the ledger, restored when the
+block is translated. A reader may also mark an expectation pending itself —
+`pending('approximated — ...', expects(...))` for a documented departure from
+the source — instead of leaving a test the twin fails by design.
 
 Each source test becomes a scenario whose header cites it
 (`scenario t3 is, as stated in "tests.xlsx" at case 3:`), so every fact of it

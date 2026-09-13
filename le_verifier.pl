@@ -1266,6 +1266,9 @@ slot_value(KB, F, A, I, V) :-
         (   find_in_body(Body, Lit2), Lit2 \== Lit, compound(Lit2),
             functor(Lit2, F2, A2), \+ sub_atom(F2, 0, _, _, le_),
             arg(J, Lit2, Arg2), Arg2 == Arg,
+            % a taxonomy test ("the cover is an exposure") reads a type, not
+            % a value of the place
+            F2 \== is_a,
             fact_argument(KB, F2, A2, J, V)
         ;   % "the construction is in [woven, nonwoven, felt]"
             find_in_body(Body, le_is_in(Arg0, List)), Arg0 == Arg,

@@ -111,10 +111,80 @@ scenario_name(Id, Name) :-
 %
 %   The LE document of a migration: its IR with the source tests appended as
 %   scenarios (before the queries, where scenarios go).
-migration_text(migration(_Meta, program(Header, Items0), _Ledger, Tests), Text, Issues) :-
+migration_text(Migration0, Text, Issues) :-
+    migration_pending(Migration0, migration(_Meta, program(Header, Items0), _Ledger, Tests)),
     source_tests_scenarios(Tests, Scenarios),
     append(Items0, Scenarios, Items),
     le_write(program(Header, Items), Text, Issues).
+
+		 /*******************************
+		 *   EXPECTATIONS NOT YET DUE   *
+		 *******************************/
+
+%!  migration_pending(+Migration0, -Migration) is det.
+%
+%   An expectation whose query depends on what an untranslated residue block
+%   must conclude cannot hold until the block is translated: it becomes
+%   pending(residue(Id), Expectation) — written as a comment in its scenario,
+%   counted in the ledger — instead of a test the twin fails by
+%   construction. A residue item declares what it concludes with the option
+%   concludes([F, ...]) (IR functors); a query depends on it when its body
+%   reaches one of them through the IR's rules. A reader may also mark an
+%   expectation pending itself: pending(Reason, expects(...)) in a test.
+migration_pending(migration(Meta, IR, Ledger, Tests0), migration(Meta, IR, Ledger, Tests)) :-
+    IR = program(_, Items),
+    findall(Id-Fs, ( member(residue(Id, Opts), Items), memberchk(concludes(Fs), Opts), Fs \== [] ), Rs),
+    (   Rs == []
+    ->  Tests = Tests0
+    ;   rule_graph(Items, Graph),
+        findall(Q-Id, ( member(query(Q, B), Items), member(Id-Fs, Rs),
+                        body_functors(B, QFs), reaches_any(Graph, QFs, Fs) ), Waits),
+        maplist(pending_test(Waits), Tests0, Tests)
+    ).
+
+pending_test(Waits, test(I, D, L, F, E0), test(I, D, L, F, E)) :-
+    maplist(pending_expectation(Waits), E0, E).
+
+pending_expectation(Waits, E0, E) :-
+    (   E0 = expects(Q, _) ; E0 = expects(Q, _, _) ),
+    findall(Id, member(Q-Id, Waits), Ids0), sort(Ids0, Ids), Ids \== []
+    ->  atomic_list_concat(Ids, ', ', IdsA),
+        format(atom(Why), 'waits for residue ~w', [IdsA]),
+        E = pending(Why, E0)
+    ;   E = E0.
+
+%   F-[Callee, ...] for each rule head functor (several rules merge).
+rule_graph(Items, Graph) :-
+    findall(F-Cs, ( ( member(rule(H, B, _), Items) ; member(rule(H, B), Items) ),
+                    callable(H), functor(H, F, _), body_functors(B, Cs) ), Pairs),
+    findall(F-All, ( member(F-_, Pairs), findall(C, ( member(F-Cs, Pairs), member(C, Cs) ), All0),
+                     sort(All0, All) ), Graph0),
+    sort(Graph0, Graph).
+
+body_functors(B, Fs) :-
+    findall(F, ( sub_term(G, B), compound(G), \+ connective(G), functor(G, F, _) ), Fs0),
+    findall(F, ( sub_term(G, B), atom(G), G \== true, F = G ), Fs1),
+    append(Fs0, Fs1, Fs2), sort(Fs2, Fs).
+
+connective(G) :- functor(G, F, N), memberchk(F/N, [and/2, or/2, not/1, (',')/2, (;)/2, (\+)/1,
+                                                   forall/2, agg/4, otherwise/1, according_to/2]).
+
+reaches_any(_Graph, Starts, Targets) :-
+    member(T, Targets), memberchk(T, Starts), !.
+reaches_any(Graph, Starts, Targets) :-
+    reach(Graph, Starts, [], Seen),
+    member(T, Targets), memberchk(T, Seen), !.
+
+reach(_, [], Seen, Seen).
+reach(Graph, [F|Fs], Seen0, Seen) :-
+    (   memberchk(F, Seen0) -> reach(Graph, Fs, Seen0, Seen)
+    ;   ( memberchk(F-Cs, Graph) -> true ; Cs = [] ),
+        append(Fs, Cs, Next),
+        reach(Graph, Next, [F|Seen0], Seen)
+    ).
+
+pending_count(Tests, N) :-
+    aggregate_all(count, ( member(test(_, _, _, _, Es), Tests), member(pending(_, _), Es) ), N).
 
 		 /*******************************
 		 *          THE LEDGER          *
@@ -131,7 +201,8 @@ ledger_counts(Ledger, counts(E, A, R)) :-
 %!  ledger_markdown(+Migration, +Fidelity, -Markdown) is det.
 %
 %   Fidelity is migration_fidelity/3's result, or `none`.
-ledger_markdown(migration(Meta, _IR, Ledger, Tests), Fidelity, Markdown) :-
+ledger_markdown(Migration0, Fidelity, Markdown) :-
+    migration_pending(Migration0, migration(Meta, _IR, Ledger, Tests)),
     with_output_to(string(Markdown), write_ledger(Meta, Ledger, Tests, Fidelity)).
 
 write_ledger(Meta, Ledger, Tests, Fidelity) :-
@@ -174,13 +245,23 @@ is_residue(entry(_, _, residue, _, _, _)).
 
 write_fidelity_summary(none, Tests) :- !,
     length(Tests, N),
-    format("Fidelity: ~w source test(s) translated to scenarios; not run.~n~n", [N]).
-write_fidelity_summary(fidelity(Pass, Fail, Err, _), _) :-
+    format("Fidelity: ~w source test(s) translated to scenarios; not run.~n~n", [N]),
+    write_pending_summary(Tests).
+write_fidelity_summary(fidelity(Pass, Fail, Err, _), Tests) :-
     Total is Pass + Fail + Err,
     (   Total > 0 -> Pct is round(1000 * Pass / Total) / 10 ; Pct = 0 ),
     format("Fidelity: **~w of ~w** source test expectation(s) reproduced (~w%)", [Pass, Total, Pct]),
     ( Fail + Err > 0 -> format("; ~w fail, ~w could not be run", [Fail, Err]) ; true ),
-    format(".~n~n").
+    format(".~n~n"),
+    write_pending_summary(Tests).
+
+write_pending_summary(Tests) :-
+    pending_count(Tests, N),
+    (   N =:= 0 -> true
+    ;   findall(W, ( member(test(_, _, _, _, Es), Tests), member(pending(W, _), Es) ), Ws0),
+        sort(Ws0, Ws), atomic_list_concat(Ws, '; ', WT),
+        format("**~w further expectation(s) are pending** (~w): they are written as comments in their scenarios, and are not counted above. Each is restored when what it waits for is done.~n~n", [N, WT])
+    ).
 
 write_fidelity_detail(none) :- !.
 write_fidelity_detail(fidelity(_, _, _, Rows)) :-
@@ -198,14 +279,16 @@ md_cell(X, T) :-
 %!  ledger_dict(+Migration, +Fidelity, -Dict) is det.
 %
 %   The ledger as JSON-ready data.
-ledger_dict(migration(Meta, _, Ledger, Tests), Fidelity, Dict) :-
+ledger_dict(Migration0, Fidelity, Dict) :-
+    migration_pending(Migration0, migration(Meta, _, Ledger, Tests)),
     ledger_counts(Ledger, counts(E, A, R)),
     maplist(entry_dict, Ledger, Entries),
     length(Tests, NT),
+    pending_count(Tests, NPending),
     fidelity_dict(Fidelity, FD),
     meta_dict(Meta, MD),
     Dict = _{meta: MD, counts: _{encoded: E, approximated: A, residue: R},
-             entries: Entries, source_tests: NT, fidelity: FD}.
+             entries: Entries, source_tests: NT, pending_expectations: NPending, fidelity: FD}.
 
 entry_dict(entry(El, K, V, M, In, N), _{element: ElS, kind: KS, verdict: VS,
                                         mapping: MS, in_program: InS, note: NS}) :-
@@ -271,7 +354,8 @@ result_row(error(Q, S, M), row(S, Q, error, M)).
 %   Writes <Dir>/<BaseName>.le, runs its source tests, and writes
 %   <Dir>/<BaseName>.ledger.md and .ledger.json. Report is
 %   report(LEFile, Issues, Counts, Fidelity).
-write_migration(Migration, Dir, Base, report(LEFile, Issues, Counts, Fidelity)) :-
+write_migration(Migration0, Dir, Base, report(LEFile, Issues, Counts, Fidelity)) :-
+    migration_pending(Migration0, Migration),
     make_directory_path(Dir),
     migration_text(Migration, Text, Issues),
     atomic_list_concat([Dir, '/', Base, '.le'], LEFile),
