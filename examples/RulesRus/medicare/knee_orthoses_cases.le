@@ -1,0 +1,199 @@
+% Test cases for the knee orthosis policy (knee_orthoses.le): synthetic
+% claims, one or two per criterion of LCD L33318 and per payment condition of
+% Policy Article A52465, each stating only what its record shows. Findings
+% are recorded as the treating practitioner's or the Council's; a finding
+% nobody made leaves the answer conditional. The queries: whether the claim
+% is payable (the first query, so "stage" reads its checklist), whether it is
+% reasonable and necessary, and what minimal change would make it payable.
+
+the target language is: prolog.
+
+the knowledge base knee_orthoses cases includes these resources:
+    knee_orthoses.
+
+the knowledge base knee_orthoses cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete file for a knee orthosis with adjustable joints (L1833) for an
+% ambulatory beneficiary with chronic knee instability (M23.51, group 4): the
+% finding, the joint laxity tests and the examination findings in the record,
+% the diagnosis on the claim line; L1833 is on the face-to-face and prior
+% authorization lists, so the encounter, the order before delivery and the
+% affirmed prior authorization are in the record too.
+scenario adjustable_joints_complete is:
+    claim 1 is for the knee orthosis.
+    the HCPCS code of the knee orthosis is "L1833".
+    the knee orthosis is furnished to Ann.
+    the date of service of claim 1 is 2026-04-10.
+    Ann is ambulatory.
+    the diagnosis code of Ann is "M23.51".
+    the finding knee instability about Ann is established, according to the treating practitioner.
+    the medical record of Ann documents the joint laxity tests performed on the knee.
+    the medical record of Ann documents examination findings supporting objective joint laxity.
+    claim 1 states the diagnosis code of the beneficiary.
+    the treating practitioner examined Ann for the knee orthosis in a face-to-face encounter on 2026-02-01.
+    the order for the knee orthosis is dated 2026-02-15.
+    the order for the knee orthosis is signed by the treating practitioner.
+    the order for the knee orthosis includes beneficiary name.
+    the order for the knee orthosis includes order date.
+    the order for the knee orthosis includes description of the item.
+    the order for the knee orthosis includes quantity to be dispensed.
+    the order for the knee orthosis includes treating practitioner name.
+    the order for the knee orthosis was communicated to the supplier on 2026-02-16.
+    prior authorization for the knee orthosis was affirmed on 2026-03-01.
+    the knee orthosis was delivered on 2026-04-10.
+    the supplier holds proof of delivery for the knee orthosis.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% The same file without the joint laxity tests in the record: reasonable and
+% necessary, but the Article's documentation of objective laxity is missing.
+scenario adjustable_joints_no_laxity_tests is:
+    claim 1 is for the knee orthosis.
+    the HCPCS code of the knee orthosis is "L1833".
+    the knee orthosis is furnished to Ann.
+    the date of service of claim 1 is 2026-04-10.
+    Ann is ambulatory.
+    the diagnosis code of Ann is "M23.51".
+    the finding knee instability about Ann is established, according to the treating practitioner.
+    the medical record of Ann documents examination findings supporting objective joint laxity.
+    claim 1 states the diagnosis code of the beneficiary.
+    the treating practitioner examined Ann for the knee orthosis in a face-to-face encounter on 2026-02-01.
+    the order for the knee orthosis is dated 2026-02-15.
+    the order for the knee orthosis is signed by the treating practitioner.
+    the order for the knee orthosis includes beneficiary name.
+    the order for the knee orthosis includes order date.
+    the order for the knee orthosis includes description of the item.
+    the order for the knee orthosis includes quantity to be dispensed.
+    the order for the knee orthosis includes treating practitioner name.
+    the order for the knee orthosis was communicated to the supplier on 2026-02-16.
+    prior authorization for the knee orthosis was affirmed on 2026-03-01.
+    the knee orthosis was delivered on 2026-04-10.
+    the supplier holds proof of delivery for the knee orthosis.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: the medical record of Ann documents the joint laxity tests performed on the knee"]].
+
+% An immobilizer (L1830) after knee surgery (a meniscus derangement,
+% M23.211, group 2), and one for a beneficiary whose record documents no
+% recent injury or surgery.
+scenario immobilizer_after_surgery is:
+    claim 1 is for the immobilizer.
+    the HCPCS code of the immobilizer is "L1830".
+    the immobilizer is furnished to Ben.
+    the medical record of Ben documents recent knee surgery.
+    the diagnosis code of Ben is "M23.211".
+    claim 2 is for the other immobilizer.
+    the HCPCS code of the other immobilizer is "L1830".
+    the other immobilizer is furnished to Cy.
+    the diagnosis code of Cy is "M23.211".
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% A rigid knee orthosis (L1836) for a knee flexion contracture (M24.561,
+% group 1) with 25 degrees of movement, and one with 5 degrees (a fixed
+% contracture): criterion fails for the second.
+scenario contracture_movement is:
+    claim 1 is for the rigid orthosis.
+    the HCPCS code of the rigid orthosis is "L1836".
+    the rigid orthosis is furnished to Dee.
+    the diagnosis code of Dee is "M24.561".
+    the movement of the knee of Dee on passive range of motion testing is 25 degrees.
+    claim 2 is for the other rigid orthosis.
+    the HCPCS code of the other rigid orthosis is "L1836".
+    the other rigid orthosis is furnished to Eve.
+    the diagnosis code of Eve is "M24.562".
+    the movement of the knee of Eve on passive range of motion testing is 5 degrees.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% A fixed contracture alone: not reasonable and necessary, at the question.
+scenario fixed_contracture is:
+    claim 1 is for the rigid orthosis.
+    the HCPCS code of the rigid orthosis is "L1836".
+    the rigid orthosis is furnished to Eve.
+    the diagnosis code of Eve is "M24.562".
+    the movement of the knee of Eve on passive range of motion testing is 5 degrees.
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% An orthosis with an inflatable air bladder (L1847): no proven clinical
+% benefit, never covered.
+scenario air_bladder is:
+    claim 1 is for the air bladder orthosis.
+    the HCPCS code of the air bladder orthosis is "L1847".
+    the air bladder orthosis is furnished to Dee.
+    the diagnosis code of Dee is "M24.561".
+    the movement of the knee of Dee on passive range of motion testing is 25 degrees.
+    rn expects answers [].
+
+% The osteoarthritis route of a rotation control orthosis (L1851): medial
+% tibiofemoral osteoarthritis (M17.11, group 6), ambulatory, pain limiting
+% function, a valgus adjustment, willing to use it; the same orthosis for a
+% beneficiary who has not expressed that willingness (criterion d fails). The
+% osteoarthritis codes are also in group 4: the practitioner's examination
+% finds the knees stable, which closes the instability route.
+scenario osteoarthritis_route is:
+    claim 1 is for the unloader.
+    the HCPCS code of the unloader is "L1851".
+    the unloader is furnished to Fay.
+    the compartment adjustment of the unloader is valgus.
+    Fay is ambulatory.
+    the diagnosis code of Fay is "M17.11".
+    the finding osteoarthritis limits function about Fay is established, according to the treating practitioner.
+    the finding knee instability about Fay is unsupported, according to the treating practitioner, because "the varus and valgus stress tests are negative".
+    Fay expresses a willingness to use the unloader.
+    claim 2 is for the other unloader.
+    the HCPCS code of the other unloader is "L1851".
+    the other unloader is furnished to Gus.
+    the compartment adjustment of the other unloader is valgus.
+    Gus is ambulatory.
+    the diagnosis code of Gus is "M17.12".
+    the finding osteoarthritis limits function about Gus is established, according to the treating practitioner.
+    the finding knee instability about Gus is unsupported, according to the treating practitioner, because "the Lachman test is negative".
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% Additions to a covered L1852 (knee instability, M23.52): heavy duty joints
+% (L2385) for a beneficiary of 320 pounds are covered; an L2405 is listed as
+% not reasonable and necessary with an L1852 (no row of the table).
+scenario additions is:
+    claim 1 is for the heavy duty joint.
+    the HCPCS code of the heavy duty joint is "L2385".
+    the heavy duty joint is an accessory of the rotation control orthosis.
+    the heavy duty joint is furnished to Hal.
+    claim 2 is for the knee joint lock.
+    the HCPCS code of the knee joint lock is "L2405".
+    the knee joint lock is an accessory of the rotation control orthosis.
+    the knee joint lock is furnished to Hal.
+    the HCPCS code of the rotation control orthosis is "L1852".
+    the rotation control orthosis is furnished to Hal.
+    Hal is ambulatory.
+    the diagnosis code of Hal is "M23.52".
+    the finding knee instability about Hal is established, according to the treating practitioner.
+    the finding addition medically necessary about Hal is established, according to the treating practitioner.
+    the weight of Hal is 320 pounds.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% The Council finds the record does not show why a prefabricated orthosis
+% would not do for a custom fabricated derotation orthosis (L1840, anterior
+% cruciate disruption M23.611, group 3): not reasonable and necessary.
+scenario council_custom_fabrication_unsupported is:
+    claim 1 is for the derotation orthosis.
+    the HCPCS code of the derotation orthosis is "L1840".
+    the derotation orthosis is furnished to Ida.
+    the diagnosis code of Ida is "M23.611".
+    the finding knee instability about Ida is established, according to the treating practitioner.
+    the finding custom fabrication required about Ida is unsupported, according to the Council, because "the record names no deformity, limb size or muscle mass that a prefabricated derotation orthosis could not accommodate".
+    rn expects answers [].

@@ -1,0 +1,598 @@
+% Knee Orthoses: LCD L33318 and its Policy Article A52465 (DME MACs). A
+% policy program of the DMEPOS model: it includes dmepos.le (orders,
+% delivery, benefit category, continued need, refills) and states when a
+% claim for a knee orthosis is REASONABLE AND NECESSARY:
+%   - an elastic knee orthosis with joints (L1810, L1812, L1820, L1821): an
+%     ambulatory beneficiary with weakness or deformity of the knee who
+%     requires stabilization;
+%   - a locking or rigid knee orthosis (L1831, L1836): a nonfixed flexion or
+%     extension contracture of the knee (at least 10 degrees of movement on
+%     passive range of motion testing; group 1);
+%   - an immobilizer (L1830): a recent injury to or surgery on the knee
+%     (groups 2 or 4);
+%   - adjustable knee joints (L1832, L1833): a recent injury or surgery, or an
+%     ambulatory beneficiary with knee instability (group 4);
+%   - the Swedish type orthosis (L1850): ambulatory, knee instability due to
+%     genu recurvatum (group 5);
+%   - the rotation control orthoses (L1843, L1845, L1851, L1852): objective
+%     knee instability in an ambulatory beneficiary (group 4), or a recent
+%     injury or surgery (groups 2 or 4), or medial or lateral tibiofemoral
+%     osteoarthritis (group 6) with criteria a-d;
+%   - the custom fabricated orthoses (L1834, L1840, L1844, L1846, L1860): the
+%     criteria of their prefabricated counterparts (L1840: instability due to
+%     internal ligamentous disruption, group 3) and a documented physical
+%     characteristic requiring custom fabrication;
+%   - an addition: separately payable with its base orthosis (the LCD's
+%     tables), the base and the addition reasonable and necessary; the heavy
+%     duty joints (L2385, L2395) for a beneficiary over 300 pounds; the
+%     replacement soft interface (K0672) two per year after the first year.
+% The air bladder orthoses (L1847, L1848) are never covered ("no proven
+% clinical benefit"): no rule concludes them. A custom fabricated orthosis
+% for the contracture of a nonambulatory beneficiary is never covered either
+% (no rule concludes one: the contracture codes L1831, L1836 are
+% prefabricated). The concentric torsion mechanism (L2999), whose text the
+% knee LCD repeats from the AFO/KAFO LCD, is decided by afo_kafo.le. The
+% benefit is not durable medical equipment: the Policy Article places knee
+% orthoses under the Medicare braces benefit (Social Security Act
+% §1861(s)(9)).
+%
+% How the criteria are read. What the record states is a scenario fact: the
+% diagnosis code, the movement on passive range of motion testing (a number),
+% the ambulatory status, the documented weakness, deformity, recent injury
+% or recent surgery (the shared template "the medical record of B documents
+% C"), the varus or valgus adjustment of the orthosis, the willingness to use
+% it, the beneficiary's weight, the examination and imaging documentation.
+% What someone finds is the judged template of dmepos.le. The findings this
+% policy reads, and the criterion each stands for:
+%   knee stabilization required (L1810-L1821); knee instability (the
+%   objective instability of L1832/L1833, L1843-L1852, L1850/L1860, L1840 —
+%   the diagnosis group tells the kind); osteoarthritis limits function
+%   (criterion b: pain or a reduction in mobility or function due to the
+%   osteoarthritis); custom fabrication required (the documented physical
+%   characteristic: deformity of the leg or knee, the size of thigh and calf,
+%   minimal muscle mass — ONE finding); addition medically necessary.
+% Three record templates are also templates of afo_kafo.le (the ambulatory
+% status, the orthotist's records, the diagnosis on the claim line): they are
+% declared here, as candidates for dmepos.le, rather than by including
+% afo_kafo.le — its documentation rule, guarded by "the policy of the claim
+% is afo_kafo", fails on every knee claim and would make "stage" blame the
+% applicability section.
+%
+% The Policy Article's ICD-10 table (sources/icd10/A52465_icd10_covered.csv,
+% 9,621 rows, loaded as the table knee_icd10), whose groups the LCD names:
+% group 1 (knee contractures) serves L1831, L1836; groups 2 and 4 (a recent
+% injury or surgery) serve L1830, L1832, L1833, L1834, L1843-L1852, L1844,
+% L1846; group 3 (internal ligamentous disruption) serves L1840; group 4
+% (knee instability) serves L1832, L1833, L1843-L1852, L1844, L1846; group 5
+% (genu recurvatum) serves L1850, L1860; group 6 (tibiofemoral
+% osteoarthritis) serves L1843-L1852, L1844, L1846. The Article's text in
+% sources/ carries no "Group N" paragraphs; the mapping is the LCD's. A code
+% may be in several groups (the osteoarthritis codes M17.x are in groups 2,
+% 4 and 6).
+%
+% The payment conditions the Policy Article adds ("Policy specific
+% documentation requirements"), in section remedy: for L1832, L1833 and L1850
+% and for the rotation control orthoses managing instability, the joint
+% laxity tests performed and the examination findings supporting objective
+% laxity (and, for the latter, the ambulatory status); for the osteoarthritis
+% route the ambulatory status, the symptoms, the physical examination and an
+% imaging report (the willingness to use the orthosis is already criterion
+% d); for a custom fabricated orthosis the orthotist's functional
+% evaluation; for the base codes the diagnosis code on the claim line. The
+% Article requires the laxity documentation of L1832, L1833 and L1850
+% without condition; this program requires it when the recorded finding is
+% knee instability (the LCD: "objective knee instability must be supported by
+% documentation"), so an L1832 after knee surgery needs none.
+%
+% Not modelled: the additions not separately payable or incompatible with a
+% base (denied as incorrect coding, no rule concludes them); the OTS versus
+% custom fitted coding; the hospital and SNF payment rules; the reasonable
+% useful lifetime and replacement rules; the KX/GA/GZ/RT/LT modifiers;
+% repairs (L4205, L4210); the PDAC coding verification. One year is read as
+% 365 days.
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    % candidate for dmepos.le (also a template of afo_kafo.le)
+    *a beneficiary* is ambulatory; undefined.
+    % candidate for dmepos.le (also a template of afo_kafo.le)
+    the records of the orthotist include a functional evaluation corroborating the need for custom fabrication of *an item*; undefined.
+    % candidate for dmepos.le (also a template of afo_kafo.le)
+    *a claim* states the diagnosis code of the beneficiary; undefined.
+    the movement of the knee of *a beneficiary* on passive range of motion testing is *a number* degrees; undefined.
+    the compartment adjustment of *an item* is *an adjustment*; undefined.
+    *a beneficiary* expresses a willingness to use *an item*; undefined.
+    the medical record of *a beneficiary* documents the joint laxity tests performed on the knee; undefined.
+    the medical record of *a beneficiary* documents examination findings supporting objective joint laxity; undefined.
+    the medical record of *a beneficiary* documents the ambulatory status; undefined.
+    the medical record of *a beneficiary* documents the symptoms due to tibiofemoral osteoarthritis; undefined.
+    the medical record of *a beneficiary* documents a physical examination of the knee; undefined.
+    the medical record of *a beneficiary* includes an imaging report describing arthritic changes of the knee; undefined.
+    the count of replacement soft interfaces furnished to *a beneficiary* in the year of *a claim* is *a number*; undefined.
+    % the codes and the lists
+    ICD10 code *a code* is in group *a group* of article *an article* as *a description* under table knee_icd10.
+    addition *a code* is separately payable with base *an other code* under table knee_additions.
+    *a condition* is a qualifying condition for a knee orthosis with joints.
+    *a condition* is a documented recent knee injury.
+    % derived
+    *an item* is a custom fabricated knee orthosis.
+    *an item* is an addition to a knee orthosis.
+    *an item* is a heavy duty knee joint.
+    *an item* is a knee orthosis with examination documentation.
+    *an item* is a knee orthosis requiring the diagnosis code on the claim line.
+    *an item* meets the knee orthosis coverage criteria for *a beneficiary*.
+    *a beneficiary* has a nonfixed knee contracture.
+    *a beneficiary* has had a recent injury to the knee.
+    *a beneficiary* has objective knee instability.
+    *a beneficiary* has knee instability due to genu recurvatum.
+    *a beneficiary* meets the criteria for a knee orthosis with adjustable joints.
+    *a beneficiary* meets the criteria for a rotation control knee orthosis with *an item*.
+    *a beneficiary* meets the osteoarthritis criteria for *an item*.
+    the knee custom fabrication criteria are met for *an item*.
+    the addition specific criteria are met for *an item*.
+    the knee examination documentation is met for *an item*.
+    the knee custom fabrication documentation is met for *an item*.
+    the knee claim line diagnosis requirement is met for *a claim*.
+
+% The Policy Article's ICD-10 table (the CSV columns bind to the template's
+% arguments in order: code, group, article, description).
+the table knee_icd10 is loaded from sources/icd10/A52465_icd10_covered.csv, with all matches:
+    code | group | article | description
+
+% The additions eligible for separate payment with each base orthosis (LCD
+% L33318, the two "Eligible for Separate Payment" tables); an addition the
+% LCD lists as not reasonable and necessary with a base, or the Article as
+% not separately payable or incompatible, has no row.
+the table knee_additions is, with all matches, with provenance LCD L33318,
+        confer "Base Code Addition Codes - Eligible for Separate Payment":
+    addition | base
+    "L2397"  | "L1832"
+    "L2795"  | "L1832"
+    "L2810"  | "L1832"
+    "L2397"  | "L1833"
+    "L2795"  | "L1833"
+    "L2810"  | "L1833"
+    "L2385"  | "L1843"
+    "L2395"  | "L1843"
+    "L2397"  | "L1843"
+    "L2385"  | "L1845"
+    "L2395"  | "L1845"
+    "L2397"  | "L1845"
+    "L2795"  | "L1845"
+    "L2397"  | "L1850"
+    "L2385"  | "L1851"
+    "L2395"  | "L1851"
+    "L2397"  | "L1851"
+    "L2385"  | "L1852"
+    "L2395"  | "L1852"
+    "L2397"  | "L1852"
+    "L2795"  | "L1852"
+    "L2795"  | "L1834"
+    "L2385"  | "L1840"
+    "L2390"  | "L1840"
+    "L2395"  | "L1840"
+    "L2397"  | "L1840"
+    "L2405"  | "L1840"
+    "L2415"  | "L1840"
+    "L2425"  | "L1840"
+    "L2430"  | "L1840"
+    "L2492"  | "L1840"
+    "L2755"  | "L1840"
+    "L2785"  | "L1840"
+    "L2795"  | "L1840"
+    "L2385"  | "L1844"
+    "L2390"  | "L1844"
+    "L2395"  | "L1844"
+    "L2397"  | "L1844"
+    "L2405"  | "L1844"
+    "L2492"  | "L1844"
+    "L2755"  | "L1844"
+    "L2785"  | "L1844"
+    "L2385"  | "L1846"
+    "L2390"  | "L1846"
+    "L2395"  | "L1846"
+    "L2397"  | "L1846"
+    "L2405"  | "L1846"
+    "L2415"  | "L1846"
+    "L2492"  | "L1846"
+    "L2755"  | "L1846"
+    "L2785"  | "L1846"
+    "L2795"  | "L1846"
+    "L2800"  | "L1846"
+
+the knowledge base knee_orthoses includes these resources:
+    dmepos.
+
+the knowledge base knee_orthoses includes:
+
+LCD L33318 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33318".
+the text of LCD L33318 is at "sources/lcd/L33318.txt".
+Policy Article A52465 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52465".
+the text of Policy Article A52465 is at "sources/article/A52465.txt".
+
+% What the items are, by code (Policy Article A52465, LCD L33318).
+rule ko_custom_fabricated_device with provenance Policy Article A52465,
+        confer "For a custom fabricated orthosis (L1834, L1840, L1844, L1846, L1860), there must be detailed documentation in the treating practitioner’s records":
+an item is a custom fabricated knee orthosis
+    if the HCPCS code of the item is a code
+    and the code is in ["L1834", "L1840", "L1844", "L1846", "L1860"].
+
+rule ko_addition_device with provenance Policy Article A52465,
+        confer "L-coded additions to knee orthoses (L2275, L2320, L2330, L2385, L2390, L2395, L2397, L2405, L2415, L2425, L2430, L2492, L2750, L2755, L2780, L2785, L2795, L2800, L2810, L2820, L2830, K0672) will be denied as noncovered when the base orthosis is noncovered":
+an item is an addition to a knee orthosis
+    if the HCPCS code of the item is a code
+    and the code is in ["L2275", "L2320", "L2330", "L2385", "L2390", "L2395", "L2397", "L2405", "L2415", "L2425", "L2430", "L2492", "L2750", "L2755", "L2780", "L2785", "L2795", "L2800", "L2810", "L2820", "L2830"].
+
+rule ko_heavy_duty_joint with provenance LCD L33318,
+        confer "Heavy duty knee joint codes (L2385, L2395) are covered only for beneficiaries who weigh more than 300 pounds":
+an item is a heavy duty knee joint
+    if the HCPCS code of the item is a code
+    and the code is in ["L2385", "L2395"].
+
+% The base codes whose diagnosis code the Article requires on the claim line.
+rule ko_claim_line_codes with provenance Policy Article A52465,
+        confer "The supplier must include on the claim line the diagnosis code(s) for HCPCS codes L1830, L1831, L1832, L1833, L1834, L1836, L1840, L1843, L1844, L1845, L1846, L1850, L1851, L1852 and L1860":
+an item is a knee orthosis requiring the diagnosis code on the claim line
+    if the HCPCS code of the item is a code
+    and the code is in ["L1830", "L1831", "L1832", "L1833", "L1834", "L1836", "L1840", "L1843", "L1844", "L1845", "L1846", "L1850", "L1851", "L1852", "L1860"].
+
+% The base codes the Article's documentation requirements name.
+rule ko_examination_documentation_codes with provenance Policy Article A52465,
+        confer "For a knee orthosis with adjustable knee joints or a prefabricated Swedish type knee orthosis (L1832, L1833, L1850), the medical records must include documentation of the beneficiary’s physical examination of the affected knee(s), including all of the following":
+an item is a knee orthosis with examination documentation
+    if the HCPCS code of the item is a code
+    and the code is in ["L1832", "L1833", "L1850", "L1843", "L1844", "L1845", "L1846", "L1851", "L1852"].
+
+% Two criteria that the documentation requirements (section remedy) read as
+% well as the coverage rules: before the first section, so that a claim
+% failing its documentation is not blamed on the question.
+% A recent injury to or surgery on the knee: documented in the record, with
+% a diagnosis of the Article's group 2 or 4.
+rule ko_recent_injury with provenance LCD L33318,
+        confer "The beneficiary has had a recent injury to or a surgical procedure on the knee(s) (refer to the Groups 2 or Group 4 ICD-10 Codes in the LCD-related Policy Article)":
+a beneficiary has had a recent injury to the knee
+    if the medical record of the beneficiary documents a condition
+    and the condition is a documented recent knee injury
+    and the diagnosis code of the beneficiary is a code
+    and ICD10 code the code is in group a group of article "A52465" as a description under table knee_icd10
+    and the group is in [2, 4].
+
+recent knee injury is a documented recent knee injury,
+    as stated in LCD L33318, confer "has had a recent injury to or a surgical procedure on the knee(s)".
+recent knee surgery is a documented recent knee injury,
+    as stated in LCD L33318, confer "has had a recent injury to or a surgical procedure on the knee(s)".
+
+% Criterion 3 of the rotation control orthoses: osteoarthritis with a-d.
+rule ko_osteoarthritis_criteria with provenance LCD L33318,
+        confer "The beneficiary is experiencing pain or reduction in their mobility and/or function secondary to the medial or lateral tibiofemoral osteoarthritis":
+a beneficiary meets the osteoarthritis criteria for an item
+    if the diagnosis code of the beneficiary is a code
+    and ICD10 code the code is in group 6 of article "A52465" as a description under table knee_icd10
+    and the beneficiary is ambulatory
+    and the finding osteoarthritis limits function about the beneficiary is established
+    and the compartment adjustment of the item is an adjustment
+    and the adjustment is in [varus, valgus]
+    and the beneficiary expresses a willingness to use the item.
+
+section applicability is:
+
+% The codes this policy decides: the prefabricated and custom fabricated
+% knee orthoses, the additions, the replacement soft interface. The L-coded
+% additions are also additions of afo_kafo.le: both policies decide them,
+% and the base orthosis they are provided with tells which rule applies.
+rule ko_codes with provenance Policy Article A52465,
+        confer "Knee orthoses (KO) are covered under the Medicare braces benefit (Social Security Act §1861(s)(9))":
+the policy for code a code is knee_orthoses
+    if the code is in ["L1810", "L1812", "L1820", "L1821", "L1830", "L1831", "L1832", "L1833", "L1834", "L1836", "L1840", "L1843", "L1844", "L1845", "L1846", "L1847", "L1848", "L1850", "L1851", "L1852", "L1860", "L2275", "L2320", "L2330", "L2385", "L2390", "L2395", "L2397", "L2405", "L2415", "L2425", "L2430", "L2492", "L2750", "L2755", "L2780", "L2785", "L2795", "L2800", "L2810", "L2820", "L2830", "K0672"].
+
+% The benefit: not durable medical equipment but the braces benefit of
+% Social Security Act §1861(s)(9).
+rule ko_benefit with provenance Policy Article A52465,
+        confer "Knee orthoses (KO) are covered under the Medicare braces benefit (Social Security Act §1861(s)(9))":
+the benefit category of code a code is braces
+    if the policy for code the code is knee_orthoses.
+
+section question is:
+
+% A claim for a base orthosis: the orthosis meets the criteria of its code.
+rule ko_base_orthosis with provenance LCD L33318,
+        confer "Claims for L1832, L1833, L1843, L1845, L1850, L1851 or L1852 will be denied as not reasonable and necessary when the beneficiary does not meet the above criteria for coverage":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is furnished to a beneficiary
+    and the item meets the knee orthosis coverage criteria for the beneficiary.
+
+% ---------------------------------------------------------------------------
+% Prefabricated knee orthoses.
+% ---------------------------------------------------------------------------
+
+rule ko_elastic_with_joints with provenance LCD L33318,
+        confer "A knee orthosis with joints (L1810, L1812) or knee orthosis with condylar pads and joints with or without patellar control (L1820, L1821) are covered for ambulatory beneficiaries who have weakness or deformity of the knee and require stabilization":
+an item meets the knee orthosis coverage criteria for a beneficiary
+    if the HCPCS code of the item is a code
+    and the code is in ["L1810", "L1812", "L1820", "L1821"]
+    and the beneficiary is ambulatory
+    and the medical record of the beneficiary documents a condition
+    and the condition is a qualifying condition for a knee orthosis with joints
+    and the finding knee stabilization required about the beneficiary is established.
+
+weakness of the knee is a qualifying condition for a knee orthosis with joints,
+    as stated in LCD L33318, confer "ambulatory beneficiaries who have weakness or deformity of the knee and require stabilization".
+deformity of the knee is a qualifying condition for a knee orthosis with joints,
+    as stated in LCD L33318, confer "ambulatory beneficiaries who have weakness or deformity of the knee and require stabilization".
+
+rule ko_contracture with provenance LCD L33318,
+        confer "A knee orthosis with a locking knee joint (L1831) or a rigid knee orthosis (L1836) is covered for beneficiaries with flexion or extension contractures of the knee with movement on passive range of motion testing of at least 10 degrees (i.e., a nonfixed contracture)":
+an item meets the knee orthosis coverage criteria for a beneficiary
+    if the HCPCS code of the item is a code
+    and the code is in ["L1831", "L1836"]
+    and the beneficiary has a nonfixed knee contracture.
+
+rule ko_nonfixed_contracture with provenance LCD L33318,
+        confer "with movement on passive range of motion testing of at least 10 degrees (i.e., a nonfixed contracture) (r efer to the Group 1 ICD-10 Codes in the LCD-related Policy Article )":
+a beneficiary has a nonfixed knee contracture
+    if the diagnosis code of the beneficiary is a code
+    and ICD10 code the code is in group 1 of article "A52465" as a description under table knee_icd10
+    and the movement of the knee of the beneficiary on passive range of motion testing is a number degrees
+    and the number >= 10.
+
+rule ko_immobilizer with provenance LCD L33318,
+        confer "An immobilizer knee orthosis without joints (L1830) is covered for a beneficiary who has had a recent injury to or a surgical procedure on the knee(s)":
+an item meets the knee orthosis coverage criteria for a beneficiary
+    if the HCPCS code of the item is "L1830"
+    and the beneficiary has had a recent injury to the knee.
+
+rule ko_adjustable_joints with provenance LCD L33318,
+        confer "A knee orthosis with adjustable knee joints (L1832, L1833) is covered if one of the following criteria is met":
+an item meets the knee orthosis coverage criteria for a beneficiary
+    if the HCPCS code of the item is a code
+    and the code is in ["L1832", "L1833"]
+    and the beneficiary meets the criteria for a knee orthosis with adjustable joints.
+
+rule ko_adjustable_after_injury with provenance LCD L33318,
+        confer "The beneficiary has had a recent injury to or a surgical procedure on the knee(s) (refer to the Groups 2 or Group 4 ICD-10 Codes in the LCD-related Policy Article)":
+a beneficiary meets the criteria for a knee orthosis with adjustable joints
+    if the beneficiary has had a recent injury to the knee.
+
+rule ko_adjustable_instability with provenance LCD L33318,
+        confer "The beneficiary is ambulatory and has knee instability (refer to the Group 4 ICD-10 Codes in the LCD-related Policy Article)":
+a beneficiary meets the criteria for a knee orthosis with adjustable joints
+    if the beneficiary is ambulatory
+    and the beneficiary has objective knee instability.
+
+% Objective knee instability: the finding, with a diagnosis of group 4.
+rule ko_objective_instability with provenance LCD L33318,
+        confer "objective knee instability must be supported by documentation of the beneficiary’s physical examination including the joint laxity test(s) performed":
+a beneficiary has objective knee instability
+    if the finding knee instability about the beneficiary is established
+    and the diagnosis code of the beneficiary is a code
+    and ICD10 code the code is in group 4 of article "A52465" as a description under table knee_icd10.
+
+rule ko_swedish with provenance LCD L33318,
+        confer "A prefabricated Swedish type knee orthosis (L1850) is covered for a beneficiary who is ambulatory and has knee instability due to genu recurvatum - hyperextended knee, congenital or acquired (refer to the Group 5 ICD-10 Codes in the LCD-related Policy Article)":
+an item meets the knee orthosis coverage criteria for a beneficiary
+    if the HCPCS code of the item is "L1850"
+    and the beneficiary is ambulatory
+    and the beneficiary has knee instability due to genu recurvatum.
+
+rule ko_genu_recurvatum with provenance LCD L33318,
+        confer "has knee instability due to genu recurvatum - hyperextended knee, congenital or acquired (refer to the Group 5 ICD-10 Codes in the LCD-related Policy Article)":
+a beneficiary has knee instability due to genu recurvatum
+    if the finding knee instability about the beneficiary is established
+    and the diagnosis code of the beneficiary is a code
+    and ICD10 code the code is in group 5 of article "A52465" as a description under table knee_icd10.
+
+rule ko_rotation_control with provenance LCD L33318,
+        confer "A knee orthosis with single or double upright, adjustable flexion and extension joint, medial-lateral and rotation control, with or without varus/valgus adjustment (L1843, L1845, L1851, L1852) is covered if one of the following criteria (1-3) is met":
+an item meets the knee orthosis coverage criteria for a beneficiary
+    if the HCPCS code of the item is a code
+    and the code is in ["L1843", "L1845", "L1851", "L1852"]
+    and the beneficiary meets the criteria for a rotation control knee orthosis with the item.
+
+% Criterion 1.
+rule ko_rotation_instability with provenance LCD L33318,
+        confer "The beneficiary is ambulatory and has objective knee instability that must be supported by documentation of a physical examination including the joint laxity test(s) performed":
+a beneficiary meets the criteria for a rotation control knee orthosis with an item
+    if the beneficiary is ambulatory
+    and the beneficiary has objective knee instability.
+
+% Criterion 2.
+rule ko_rotation_injury with provenance LCD L33318,
+        confer "The beneficiary has had a recent injury to or a surgical procedure on the knee(s) (refer to the Groups 2 or Group 4 ICD-10 Codes in the LCD-related Policy Article)":
+a beneficiary meets the criteria for a rotation control knee orthosis with an item
+    if the beneficiary has had a recent injury to the knee.
+
+% Criterion 3: osteoarthritis with a-d.
+rule ko_rotation_osteoarthritis with provenance LCD L33318,
+        confer "The beneficiary has a documented (see the POLICY SPECIFIC DOCUMENTATION REQUIREMENTS section in the LCD-related Policy Article) diagnosis of medial or lateral tibiofemoral osteoarthritis (refer to the Group 6 ICD-10 Codes in the LCD-related Policy Article), and meets all criteria (a-d)":
+a beneficiary meets the criteria for a rotation control knee orthosis with an item
+    if the beneficiary meets the osteoarthritis criteria for the item.
+
+% ---------------------------------------------------------------------------
+% Custom fabricated knee orthoses.
+% ---------------------------------------------------------------------------
+
+rule ko_custom_immobilizer with provenance LCD L33318,
+        confer "A custom fabricated knee immobilizer without joints (L1834) is covered if criteria 1 and 2 are met":
+an item meets the knee orthosis coverage criteria for a beneficiary
+    if the HCPCS code of the item is "L1834"
+    and the beneficiary has had a recent injury to the knee
+    and the knee custom fabrication criteria are met for the item.
+
+rule ko_derotation with provenance LCD L33318,
+        confer "A custom fabricated derotation knee orthosis (L1840) is covered for instability due to internal ligamentous disruption of the knee ( refer to the Group 3 ICD-10 Codes in the LCD-related Policy Article )":
+an item meets the knee orthosis coverage criteria for a beneficiary
+    if the HCPCS code of the item is "L1840"
+    and the finding knee instability about the beneficiary is established
+    and the diagnosis code of the beneficiary is a code
+    and ICD10 code the code is in group 3 of article "A52465" as a description under table knee_icd10
+    and the knee custom fabrication criteria are met for the item.
+
+rule ko_custom_adjustable with provenance LCD L33318,
+        confer "A custom fabricated knee orthosis with an adjustable flexion and extension joint (L1844, L1846) is covered if criteria 1 and 2 are met":
+an item meets the knee orthosis coverage criteria for a beneficiary
+    if the HCPCS code of the item is a code
+    and the code is in ["L1844", "L1846"]
+    and the beneficiary meets the criteria for a rotation control knee orthosis with the item
+    and the knee custom fabrication criteria are met for the item.
+
+rule ko_supracondylar with provenance LCD L33318,
+        confer "A custom fabricated knee orthosis with a modified supracondylar prosthetic socket (L1860) is covered for a beneficiary who is ambulatory and has knee instability due to genu recurvatum - hyperextended knee ( refer to the Group 5 ICD-10 Codes in the LCD-related Policy Article )":
+an item meets the knee orthosis coverage criteria for a beneficiary
+    if the HCPCS code of the item is "L1860"
+    and the beneficiary is ambulatory
+    and the beneficiary has knee instability due to genu recurvatum
+    and the knee custom fabrication criteria are met for the item.
+
+% The general criterion of a custom fabricated orthosis: ONE finding for the
+% documented physical characteristic (deformity, size, minimal muscle mass).
+rule ko_custom_criteria with provenance LCD L33318,
+        confer "A custom fabricated orthosis is covered when there is a documented physical characteristic which requires the use of a custom fabricated orthosis instead of a prefabricated orthosis":
+the knee custom fabrication criteria are met for an item
+    if the item is furnished to a beneficiary
+    and the finding custom fabrication required about the beneficiary is established.
+
+% ---------------------------------------------------------------------------
+% Additions and the replacement soft interface.
+% ---------------------------------------------------------------------------
+
+rule ko_additions with provenance LCD L33318,
+        confer "Addition codes will be denied as not reasonable and necessary if the base orthosis is not reasonable and necessary or the addition is not reasonable and necessary":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is an addition to a knee orthosis
+    and the item is an accessory of a device
+    and the HCPCS code of the item is a code
+    and the HCPCS code of the device is an other code
+    and addition the code is separately payable with base the other code under table knee_additions
+    and the device is furnished to a beneficiary
+    and the device meets the knee orthosis coverage criteria for the beneficiary
+    and the finding addition medically necessary about the beneficiary is established
+    and the addition specific criteria are met for the item.
+
+rule ko_heavy_duty_weight with provenance LCD L33318,
+        confer "Heavy duty knee joint codes (L2385, L2395) are covered only for beneficiaries who weigh more than 300 pounds":
+the addition specific criteria are met for an item
+    if the item is a heavy duty knee joint
+    and the item is furnished to a beneficiary
+    and the weight of the beneficiary is a number pounds
+    and the number > 300.
+
+% any other addition has no criterion of its own: a device of this model
+rule ko_no_addition_specific_criteria:
+the addition specific criteria are met for an item
+    if the HCPCS code of the item is a code
+    and it is not the case that
+        the item is a heavy duty knee joint.
+
+rule ko_replacement_interface with provenance LCD L33318,
+        confer "Coverage of a removable soft interface (K0672) is limited to a maximum of two (2) per year beginning one (1) year after the date of service for initial issuance of the orthosis":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "K0672"
+    and the item is an accessory of a device
+    and the device is furnished to a beneficiary
+    and the device meets the knee orthosis coverage criteria for the beneficiary
+    and the device was delivered on a date
+    and the date of service of the claim is an other date
+    and the other date is a number days after the date
+    and the number >= 365
+    and the item is furnished to the beneficiary
+    and the count of replacement soft interfaces furnished to the beneficiary in the year of the claim is a second number
+    and the second number <= 2.
+
+section remedy is:
+
+% The policy's own conditions of payment (Policy Article A52465, "Policy
+% specific documentation requirements").
+rule ko_documentation with provenance Policy Article A52465,
+        confer "For a custom-fabricated orthosis, there must be documentation in the supplier's records to support the medical necessity of that type of device rather than a prefabricated orthosis":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is knee_orthoses
+    and the claim is for an item
+    and the knee examination documentation is met for the item
+    and the knee custom fabrication documentation is met for the item
+    and the knee claim line diagnosis requirement is met for the claim.
+
+% L1832, L1833, L1850 provided for knee instability: the laxity tests and
+% the examination findings.
+rule ko_laxity_documentation with provenance Policy Article A52465,
+        confer "The joint laxity test(s) performed; and, A description of the exam findings that support objective joint laxity":
+the knee examination documentation is met for an item
+    if the HCPCS code of the item is a code
+    and the code is in ["L1832", "L1833", "L1850"]
+    and the item is furnished to a beneficiary
+    and the finding knee instability about the beneficiary is established
+    and the medical record of the beneficiary documents the joint laxity tests performed on the knee
+    and the medical record of the beneficiary documents examination findings supporting objective joint laxity.
+
+% The rotation control orthoses managing instability: the ambulatory status
+% and the examination.
+rule ko_instability_documentation with provenance Policy Article A52465,
+        confer "for the management of an ambulatory beneficiary with knee instability, the medical records must include documentation of all of the following: The beneficiary’s ambulatory status":
+the knee examination documentation is met for an item
+    if the HCPCS code of the item is a code
+    and the code is in ["L1843", "L1844", "L1845", "L1846", "L1851", "L1852"]
+    and the item is furnished to a beneficiary
+    and the finding knee instability about the beneficiary is established
+    and the medical record of the beneficiary documents the ambulatory status
+    and the medical record of the beneficiary documents the joint laxity tests performed on the knee
+    and the medical record of the beneficiary documents examination findings supporting objective joint laxity.
+
+% The rotation control orthoses managing osteoarthritis: the ambulatory
+% status, the symptoms, the examination, the imaging report.
+rule ko_osteoarthritis_documentation with provenance Policy Article A52465,
+        confer "An imaging report (e.g., x-ray, CT scan, MRI) that describes arthritic changes (e.g., joint space narrowing, bone spurs, cysts) consistent with medial or lateral compartment tibiofemoral osteoarthritis":
+the knee examination documentation is met for an item
+    if the HCPCS code of the item is a code
+    and the code is in ["L1843", "L1844", "L1845", "L1846", "L1851", "L1852"]
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the osteoarthritis criteria for the item
+    and the medical record of the beneficiary documents the ambulatory status
+    and the medical record of the beneficiary documents the symptoms due to tibiofemoral osteoarthritis
+    and the medical record of the beneficiary documents a physical examination of the knee
+    and the medical record of the beneficiary includes an imaging report describing arthritic changes of the knee.
+
+% After a recent injury or surgery the Article names no documentation of its
+% own: a device of this model
+rule ko_injury_documentation:
+the knee examination documentation is met for an item
+    if the item is a knee orthosis with examination documentation
+    and the item is furnished to a beneficiary
+    and the beneficiary has had a recent injury to the knee.
+
+% any other code: a device of this model
+rule ko_no_examination_documentation:
+the knee examination documentation is met for an item
+    if the HCPCS code of the item is a code
+    and it is not the case that
+        the item is a knee orthosis with examination documentation.
+
+rule ko_orthotist_records with provenance Policy Article A52465,
+        confer "This information will be corroborated by the functional evaluation in the orthotist’s records":
+the knee custom fabrication documentation is met for an item
+    if the item is a custom fabricated knee orthosis
+    and the records of the orthotist include a functional evaluation corroborating the need for custom fabrication of the item.
+
+% a prefabricated orthosis: a device of this model
+rule ko_no_custom_documentation:
+the knee custom fabrication documentation is met for an item
+    if the HCPCS code of the item is a code
+    and it is not the case that
+        the item is a custom fabricated knee orthosis.
+
+rule ko_claim_line_diagnosis with provenance Policy Article A52465,
+        confer "The supplier must include on the claim line the diagnosis code(s) for HCPCS codes L1830, L1831, L1832, L1833, L1834, L1836, L1840, L1843, L1844, L1845, L1846, L1850, L1851, L1852 and L1860":
+the knee claim line diagnosis requirement is met for a claim
+    if the claim is for an item
+    and the item is a knee orthosis requiring the diagnosis code on the claim line
+    and the claim states the diagnosis code of the beneficiary.
+
+% an addition or a replacement interface: a device of this model
+rule ko_no_claim_line_diagnosis:
+the knee claim line diagnosis requirement is met for a claim
+    if the claim is for an item
+    and it is not the case that
+        the item is a knee orthosis requiring the diagnosis code on the claim line.

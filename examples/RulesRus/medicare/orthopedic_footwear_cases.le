@@ -1,0 +1,164 @@
+% Test cases for the orthopedic footwear policy (orthopedic_footwear.le):
+% synthetic claims, one or two per criterion of LCD L33641 and of Policy
+% Article A52481, each stating only what its record shows. A shoe on a brace
+% is an integral part of it; an insert or a heel is an accessory of its
+% shoe. The queries: whether the claim is payable (the first query, so
+% "stage" reads its checklist), whether it is reasonable and necessary, and
+% what minimal change would make it payable.
+
+the target language is: prolog.
+
+the knowledge base orthopedic_footwear cases includes these resources:
+    orthopedic_footwear.
+
+the knowledge base orthopedic_footwear cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete claim for an Oxford shoe (L3224) that is an integral part of a
+% covered knee-ankle-foot orthosis (L2000): the order and the delivery.
+scenario oxford_shoe_complete is:
+    claim 1 is for the oxford shoe.
+    the HCPCS code of the oxford shoe is "L3224".
+    the oxford shoe is furnished to Ann.
+    the date of service of claim 1 is 2026-03-01.
+    the oxford shoe is an integral part of the KAFO.
+    the HCPCS code of the KAFO is "L2000".
+    the KAFO is a covered leg brace.
+    the order for the oxford shoe is dated 2026-02-20.
+    the order for the oxford shoe is signed by the treating practitioner.
+    the order for the oxford shoe includes beneficiary name.
+    the order for the oxford shoe includes order date.
+    the order for the oxford shoe includes description of the item.
+    the order for the oxford shoe includes quantity to be dispensed.
+    the order for the oxford shoe includes treating practitioner name.
+    the order for the oxford shoe was communicated to the supplier on 2026-02-22.
+    the oxford shoe was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the oxford shoe.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% A prosthetic shoe (L3250) holding the insert for a congenital absence of
+% the foot and toes (Q72.31, group 1): reasonable and necessary, but the
+% claim does not state the diagnosis code the Article requires.
+scenario prosthetic_shoe_no_diagnosis_on_claim is:
+    claim 1 is for the prosthetic shoe.
+    the HCPCS code of the prosthetic shoe is "L3250".
+    the prosthetic shoe is furnished to Ben.
+    the date of service of claim 1 is 2026-03-01.
+    the prosthetic shoe holds a removable custom fabricated insert for a partial foot amputation.
+    the diagnosis code of Ben is "Q72.31".
+    the order for the prosthetic shoe is dated 2026-02-20.
+    the order for the prosthetic shoe is signed by the treating practitioner.
+    the order for the prosthetic shoe includes beneficiary name.
+    the order for the prosthetic shoe includes order date.
+    the order for the prosthetic shoe includes description of the item.
+    the order for the prosthetic shoe includes quantity to be dispensed.
+    the order for the prosthetic shoe includes treating practitioner name.
+    the order for the prosthetic shoe was communicated to the supplier on 2026-02-22.
+    the prosthetic shoe was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the prosthetic shoe.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: claim 1 states the diagnosis code of the beneficiary"]].
+
+% Prosthetic shoes for other diagnoses: a diabetic foot ulcer (E11.621) is
+% not a partial foot amputation.
+scenario prosthetic_shoe_other_diagnosis is:
+    claim 1 is for the prosthetic shoe.
+    the HCPCS code of the prosthetic shoe is "L3250".
+    the prosthetic shoe is furnished to Cy.
+    the prosthetic shoe holds a removable custom fabricated insert for a partial foot amputation.
+    the diagnosis code of Cy is "E11.621".
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% A partial foot amputation (S98.321A), but the shoe is put on over a
+% partial foot prosthesis attached by other mechanisms (L5010): noncovered.
+scenario shoe_over_prosthesis is:
+    claim 1 is for the prosthetic shoe.
+    the HCPCS code of the prosthetic shoe is "L3250".
+    the prosthetic shoe is furnished to Dee.
+    the prosthetic shoe holds a removable custom fabricated insert for a partial foot amputation.
+    the prosthetic shoe is an integral part of the partial foot prosthesis.
+    the HCPCS code of the partial foot prosthesis is "L5010".
+    the diagnosis code of Dee is "S98.321A".
+    rn expects answers [].
+
+% Shoes not on a brace: an Oxford shoe (L3224) attached to nothing, a
+% matching Oxford shoe (L3215) billed apart from the brace. Both statutorily
+% excluded.
+scenario shoes_not_on_a_brace is:
+    claim 1 is for the oxford shoe.
+    the HCPCS code of the oxford shoe is "L3224".
+    the oxford shoe is furnished to Eve.
+    claim 2 is for the matching shoe.
+    the HCPCS code of the matching shoe is "L3215".
+    the matching shoe is furnished to Eve.
+    rn expects answers [].
+
+% A high top shoe (L3649) on a covered AFO (L1990), an insert (L3000) and a
+% heel replacement (L3455) on it: the shoe and the insert need the finding
+% that they are necessary for the brace to function, the heel does not.
+scenario high_top_shoe_on_brace is:
+    claim 1 is for the high top shoe.
+    the HCPCS code of the high top shoe is "L3649".
+    the high top shoe is furnished to Fay.
+    the high top shoe is an integral part of the AFO.
+    the HCPCS code of the AFO is "L1990".
+    the AFO is a covered leg brace.
+    claim 2 is for the insert.
+    the HCPCS code of the insert is "L3000".
+    the insert is an accessory of the high top shoe.
+    the insert is furnished to Fay.
+    claim 3 is for the heel.
+    the HCPCS code of the heel is "L3455".
+    the heel is an accessory of the high top shoe.
+    the heel is furnished to Fay.
+    the finding footwear necessary for brace function about Fay is established, according to the orthotist, because "the AFO's stirrup is riveted to the shoe and needs a high top for ankle control".
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary", "claim 3 is reasonable and necessary"].
+
+% A sole replacement (L3530) on a shoe of a covered brace, with no order:
+% the Article needs none — payable.
+scenario sole_replacement_without_order is:
+    claim 1 is for the sole.
+    the HCPCS code of the sole is "L3530".
+    the sole is an accessory of the oxford shoe.
+    the sole is furnished to Gus.
+    the date of service of claim 1 is 2026-05-01.
+    the oxford shoe is an integral part of the KAFO.
+    the HCPCS code of the KAFO is "L2020".
+    the KAFO is a covered leg brace.
+    the sole was delivered on 2026-05-01.
+    the supplier holds proof of delivery for the sole.
+    pay expects answers ["claim 1 is payable"].
+
+% The Council finds the record does not show the high top shoe necessary for
+% the brace to function; a foot pressure off-loading device (A9283) has no
+% benefit at all.
+scenario council_shoe_unsupported is:
+    claim 1 is for the high top shoe.
+    the HCPCS code of the high top shoe is "L3649".
+    the high top shoe is furnished to Hal.
+    the high top shoe is an integral part of the AFO.
+    the HCPCS code of the AFO is "L1980".
+    the AFO is a covered leg brace.
+    the finding footwear necessary for brace function about Hal is unsupported, according to the Council, because "the brace is a plastic AFO worn inside any shoe; the record gives no reason it needs a high top".
+    claim 2 is for the off-loading device.
+    the HCPCS code of the off-loading device is "A9283".
+    the off-loading device is furnished to Hal.
+    pay expects answers [].
+    rn expects answers [].

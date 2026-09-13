@@ -1,0 +1,168 @@
+% Test cases for the refractive lenses policy (refractive_lenses.le):
+% synthetic claims, one or two per criterion of LCD L33793 and of Policy
+% Article A52499, each stating only what its record shows. Each lens is a
+% claim of its own; a pair furnished earlier is one dated fact. The queries:
+% whether the claim is payable (the first query, so "stage" reads its
+% checklist), whether it is reasonable and necessary, and what minimal
+% change would make it payable.
+
+the target language is: prolog.
+
+the knowledge base refractive_lenses cases includes these resources:
+    refractive_lenses.
+
+the knowledge base refractive_lenses cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete claim for a bifocal lens (V2200) after a cataract extraction
+% with an intraocular lens (pseudophakia, Z96.1): no pair furnished since the
+% surgery, the diagnosis on the claim, the order and the delivery.
+scenario pseudophakic_complete is:
+    claim 1 is for the bifocal lens.
+    the HCPCS code of the bifocal lens is "V2200".
+    the bifocal lens is furnished to Ann.
+    the date of service of claim 1 is 2026-03-01.
+    the diagnosis code of Ann is "Z96.1".
+    Ann had a cataract extraction with insertion of an intraocular lens on 2026-01-15.
+    claim 1 states the diagnosis code of the beneficiary.
+    the order for the bifocal lens is dated 2026-02-20.
+    the order for the bifocal lens is signed by the treating practitioner.
+    the order for the bifocal lens includes beneficiary name.
+    the order for the bifocal lens includes order date.
+    the order for the bifocal lens includes description of the item.
+    the order for the bifocal lens includes quantity to be dispensed.
+    the order for the bifocal lens includes treating practitioner name.
+    the order for the bifocal lens was communicated to the supplier on 2026-02-22.
+    the bifocal lens was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the bifocal lens.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% The same claim without the diagnosis code on it: reasonable and
+% necessary, but the Article's documentation requirement is not met.
+scenario no_diagnosis_on_claim is:
+    claim 1 is for the bifocal lens.
+    the HCPCS code of the bifocal lens is "V2200".
+    the bifocal lens is furnished to Ann.
+    the date of service of claim 1 is 2026-03-01.
+    the diagnosis code of Ann is "Z96.1".
+    Ann had a cataract extraction with insertion of an intraocular lens on 2026-01-15.
+    the order for the bifocal lens is dated 2026-02-20.
+    the order for the bifocal lens is signed by the treating practitioner.
+    the order for the bifocal lens includes beneficiary name.
+    the order for the bifocal lens includes order date.
+    the order for the bifocal lens includes description of the item.
+    the order for the bifocal lens includes quantity to be dispensed.
+    the order for the bifocal lens includes treating practitioner name.
+    the order for the bifocal lens was communicated to the supplier on 2026-02-22.
+    the bifocal lens was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the bifocal lens.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: claim 1 states the diagnosis code of the beneficiary"]].
+
+% Two cataract surgeries with no pair between them: one pair after the
+% second (claim 1). A beneficiary who received a pair after her surgery
+% claims a replacement (claim 2): noncovered.
+scenario one_pair_after_each_surgery is:
+    claim 1 is for the single vision lens.
+    the HCPCS code of the single vision lens is "V2100".
+    the single vision lens is furnished to Ben.
+    the date of service of claim 1 is 2025-10-15.
+    the diagnosis code of Ben is "Z96.1".
+    Ben had a cataract extraction with insertion of an intraocular lens on 2025-06-01.
+    Ben had a cataract extraction with insertion of an intraocular lens on 2025-09-01.
+    claim 2 is for the replacement lens.
+    the HCPCS code of the replacement lens is "V2100".
+    the replacement lens is furnished to Cy.
+    the date of service of claim 2 is 2026-04-01.
+    the diagnosis code of Cy is "Z96.1".
+    Cy had a cataract extraction with insertion of an intraocular lens on 2025-09-01.
+    Cy was furnished a pair of eyeglasses or contact lenses on 2025-10-01.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% A lens for myopia (H52.11): not a covered diagnosis.
+scenario diagnosis_not_covered is:
+    claim 1 is for the single vision lens.
+    the HCPCS code of the single vision lens is "V2100".
+    the single vision lens is furnished to Dee.
+    the date of service of claim 1 is 2026-03-01.
+    the diagnosis code of Dee is "H52.11".
+    Dee had a cataract extraction with insertion of an intraocular lens on 2026-01-15.
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% An aphakic beneficiary (H27.03): a contact lens (V2521) the practitioner
+% finds medically necessary, a replacement included; and a congenital
+% aphakia (Q12.3) with no finding recorded — the answer is conditional on it.
+scenario aphakic is:
+    claim 1 is for the contact lens.
+    the HCPCS code of the contact lens is "V2521".
+    the contact lens is furnished to Eve.
+    the diagnosis code of Eve is "H27.03".
+    Eve was furnished a pair of eyeglasses or contact lenses on 2025-11-01.
+    the finding lenses medically necessary about Eve is established, according to the treating practitioner.
+    claim 2 is for the other contact lens.
+    the HCPCS code of the other contact lens is "V2521".
+    the other contact lens is furnished to Fay.
+    the diagnosis code of Fay is "Q12.3".
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary"] and unknowns ["the finding lenses medically necessary about Fay is established"].
+
+% Frames and add-ons of a covered lens: standard frames (V2020) are covered;
+% an anti-reflective coating (V2750) without the practitioner's
+% documentation is not; a polycarbonate add-on (V2784) for a beneficiary
+% with functional vision in only one eye is; a UV coating (V2755) on that
+% polycarbonate lens is not; deluxe frames (V2025) never are.
+scenario frames_and_add_ons is:
+    claim 1 is for the frames.
+    the HCPCS code of the frames is "V2020".
+    the frames is an accessory of the lens.
+    the frames is furnished to Gus.
+    claim 2 is for the anti-reflective coating.
+    the HCPCS code of the anti-reflective coating is "V2750".
+    the anti-reflective coating is an accessory of the lens.
+    the anti-reflective coating is furnished to Gus.
+    claim 3 is for the polycarbonate.
+    the HCPCS code of the polycarbonate is "V2784".
+    the polycarbonate is an accessory of the lens.
+    the polycarbonate is furnished to Gus.
+    claim 4 is for the UV coating.
+    the HCPCS code of the UV coating is "V2755".
+    the UV coating is an accessory of the lens.
+    the UV coating is furnished to Gus.
+    claim 5 is for the deluxe frames.
+    the HCPCS code of the deluxe frames is "V2025".
+    the deluxe frames is an accessory of the lens.
+    the deluxe frames is furnished to Gus.
+    claim 6 is for the lens.
+    the HCPCS code of the lens is "V2200".
+    the lens is furnished to Gus.
+    the date of service of claim 6 is 2026-03-01.
+    the diagnosis code of Gus is "Z96.1".
+    Gus had a cataract extraction with insertion of an intraocular lens on 2026-01-15.
+    Gus has functional vision in only one eye.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 3 is reasonable and necessary", "claim 6 is reasonable and necessary"].
+
+% The Council finds the record does not show that the aphakic beneficiary's
+% bifocal lenses are medically necessary: not reasonable and necessary.
+scenario council_lenses_unsupported is:
+    claim 1 is for the bifocal lens.
+    the HCPCS code of the bifocal lens is "V2200".
+    the bifocal lens is furnished to Hal.
+    the diagnosis code of Hal is "H27.01".
+    the finding lenses medically necessary about Hal is unsupported, according to the Council, because "the record holds no refraction since the lens was removed and no note of the vision the new lenses would restore".
+    rn expects answers [].
