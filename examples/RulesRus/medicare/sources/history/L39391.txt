@@ -1,8 +1,0 @@
-LCD L39391: Vitamin D Assay Testing — revision history (Medicare Coverage Database export, 12 September 2026, lcd_x_revision_history)
-
-=== version 6, revision history date 2023-07-27 ===
-Under Bibliography corrected broken hyperlink for source #15. Punctuation errors were corrected throughout the LCD.
-
-=== version 9, revision history date 2026-01-01 ===
-Under Bibliography removed hyperlink for source #15.
-

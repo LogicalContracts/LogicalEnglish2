@@ -27,7 +27,7 @@ test.describe('Facts from a document', () => {
                 { label: '*a garment* has a collar', scenario_element: true },
                 { label: '*a garment* contains *a number* percent of *a material*', scenario_element: true },
             ],
-            example: 'RulesRus/customs/apparel_cbp',
+            example: 'insureLE2/customs/apparel_cbp',
             base: '',
         };
         await page.goto('index.html');
@@ -70,7 +70,7 @@ test.describe('Facts from a document', () => {
         await expect(dialog).toHaveCount(0);
         expect(request.document).toBe('ruling NY N362700');
         expect(request.address).toBe('sources/cbp/N362700.txt');
-        expect(request.source).toBe('RulesRus/customs/apparel_cbp');
+        expect(request.source).toBe('insureLE2/customs/apparel_cbp');
 
         // Two editable rows with their provenance, and the document's address.
         const rows = page.locator('.fact-row');

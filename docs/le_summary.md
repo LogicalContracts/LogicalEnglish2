@@ -572,9 +572,12 @@ shape of a regulatory decision (applicability, one contested predicate,
 remedy), where every fact has a source and the contested predicate is
 decided by someone. Examples live in `examples/RulesRus/`;
 `eu261_integration.le` uses them all together on the facts of the CJEU's
-Wallentin-Hermann judgment, and `customs/` applies them to tariff
-classification — the GRIs and the notes of Chapters 39, 61 and 62, run on
-CBP rulings and EU BTIs (its README reports the comparison).
+Wallentin-Hermann judgment. Two larger applications are kept in the InsurLE
+repository (`examples/customs/`: tariff classification — the GRIs and the
+notes of Chapters 39, 61 and 62, run on CBP rulings and EU BTIs;
+`examples/medicare/`: the 58 DME MAC coverage policies, run on claims and on
+Medicare Appeals Council decisions); with InsurLE checked out beside this
+repository they appear under `examples/moreExamples/insureLE2/`.
 
 ### 17.1 Provenance trailers and judged templates
 Any scenario fact (and any knowledge-base fact) may carry **trailers**,
@@ -693,8 +696,9 @@ close to it: `the fabric construction of style A is knit` where the rules read
 knitted, woven, … — "Did you mean knitted?". A value like none of them (a
 free description, a name) is not reported.
 
-See `examples/RulesRus/judged_damage.le`, and `examples/RulesRus/customs/`,
-where every rule, table and fact cites its passage.
+See `examples/RulesRus/judged_damage.le`, and the customs and Medicare
+programs of the InsurLE repository (`examples/customs/`,
+`examples/medicare/`), where every rule, table and fact cites its passage.
 
 ### 17.2 `otherwise` cascades
 A body line that **opens** with `otherwise` starts a new alternative. It has
@@ -1095,4 +1099,5 @@ language):
 A tutorial, building a view step by step: [IntroducingLEViews.md](IntroducingLEViews.md).
 See the views of `examples/RulesRus/eu261_integration.le` (a claims desk),
 `flip_housing.le` (an interview), `judged_damage.le`, `sections_benefit.le`
-and `customs/cbp_62.le` (a classification worksheet).
+and, in the InsurLE repository, `examples/customs/cbp_62.le` (a
+classification worksheet).

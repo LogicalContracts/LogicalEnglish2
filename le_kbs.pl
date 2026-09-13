@@ -2798,6 +2798,12 @@ extension_dependent_path(Path) :-
     sub_atom(Lower, _, _, _, Fragment),
     !.
 
+test_load_seconds(Secs) :-
+    (   current_prolog_flag(le_test_load_seconds, S), number(S), S > 0
+    ->  Secs = S
+    ;   Secs = 120
+    ).
+
 %!  runTestsFor(+LEFile:atom, -Result:term) is det.
 %
 %   Runs all tests associated with a specific Logical English file.
@@ -2806,10 +2812,15 @@ runTestsFor(LEFile, Result) :-
     % skip_tests: run_one_test below runs every embedded test itself, so
     % letting load-time verification run them too would execute the whole
     % suite TWICE per file (for the largest example that alone is ~24s). The
-    % 30s limit still catches runaway loads while leaving headroom for big
-    % programs (the largest takes ~4.5s to parse+verify on a warm machine,
-    % more under suite load — the old 5s limit made it flaky).
-    (   catch(call_with_time_limit(30, load(LEFile, KBmodule, [skip_tests])), E, (format('Error loading ~w: ~w~n', [LEFile, E]), fail)) ->
+    % load limit (flag le_test_load_seconds, default 120) still catches
+    % runaway loads while leaving headroom for big programs: a program that
+    % includes many others (the InsurLE Medicare model's whole-model file
+    % includes 56 policy programs) takes ~40s, and a parse cut off by the
+    % limit loads nothing — the file then silently counts as having no tests.
+    % (The old 5s limit made the largest single program flaky; 30s cut off
+    % the whole-model files.)
+    test_load_seconds(LoadSecs),
+    (   catch(call_with_time_limit(LoadSecs, load(LEFile, KBmodule, [skip_tests])), E, (format('Error loading ~w: ~w~n', [LEFile, E]), fail)) ->
         atom_concat(LEFile, '.tests', TestsFile),
         (   exists_file(TestsFile) ->  
             setup_call_cleanup(open(TestsFile, read, Stream), read_tests(Stream, LegacyTests), close(Stream))

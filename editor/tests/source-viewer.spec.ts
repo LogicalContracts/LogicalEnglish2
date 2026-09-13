@@ -6,7 +6,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Source viewer', () => {
     test('the § badge of a cited rule shows its source passage', async ({ page }) => {
         test.setTimeout(120000);
-        await page.goto('index.html?example=RulesRus/customs/apparel_cbp&scenario=ny_n362700&query=subheading');
+        await page.goto('index.html?example=insureLE2/customs/apparel_cbp&scenario=ny_n362700&query=subheading');
         await expect(page.locator('#query-select')).toHaveValue('subheading', { timeout: 60000 });
         await page.click('#btn-query');
         await expect(page.locator('#answers-list .answer-item').first()).toBeVisible({ timeout: 60000 });
@@ -29,7 +29,7 @@ test.describe('Source viewer', () => {
     // cites nothing does not.
     test('Show original text in the context menu of a cited fact', async ({ page }) => {
         test.setTimeout(120000);
-        await page.goto('index.html?example=RulesRus/customs/apparel_cbp');
+        await page.goto('index.html?example=insureLE2/customs/apparel_cbp');
         await page.waitForSelector('.monaco-editor', { timeout: 30000 });
 
         const rightClickLine = async (text: string) => {
@@ -85,7 +85,7 @@ test.describe('Source viewer', () => {
     test('the source viewer is legible in the light theme', async ({ page }) => {
         test.setTimeout(120000);
         await page.addInitScript(() => localStorage.setItem('le-editor-theme', 'le-theme-light'));
-        await page.goto('index.html?example=RulesRus/customs/apparel_cbp&scenario=ny_n362700');
+        await page.goto('index.html?example=insureLE2/customs/apparel_cbp&scenario=ny_n362700');
         await expect(page.locator('#scenario-select')).toHaveValue('ny_n362700', { timeout: 60000 });
         await page.evaluate(async () => {
             const ed = (window as any).monaco.editor.getEditors()[0];

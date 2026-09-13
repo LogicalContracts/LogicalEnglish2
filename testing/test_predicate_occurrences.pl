@@ -118,7 +118,7 @@ test(no_predicate_at_a_blank_position) :-
 % A knowledge base whose LAST item is a rule labelled with provenance: its
 % source range must still end at a position. It used to end at the label's
 % provenance tokens, and every lookup by position then threw a type error in
-% =</2 (examples/RulesRus/customs/section_xi.le, "Show occurrences").
+% =</2 (customs/section_xi.le of the InsurLE examples, "Show occurrences").
 prov_program("the target language is: prolog.
 
 the templates are:
