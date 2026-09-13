@@ -335,4 +335,30 @@ query q is:
     first_system(Sys),
     assertion(sub_string(Sys, _, _, _, "\"K0823\", \"K0824\"")).
 
+% A code the model writes bare, though the rules read it as a string, gets
+% its quotes back — in the fact, not in its quoted passage.
+test(document_bare_code_is_quoted,
+     [setup(stub_replies(["the HCPCS code of the chair is K0823, confer \"a K0823 power wheelchair\"."]))]) :-
+    P = "the target language is: prolog.
+
+the templates are:
+    *an item* is a power wheelchair.
+    the HCPCS code of *an item* is *a code*; undefined.
+
+the knowledge base codes includes:
+
+an item is a power wheelchair
+    if the HCPCS code of the item is a code
+    and the code is in [\"K0823\", \"K0824\"].
+
+scenario one is:
+    the HCPCS code of the chair is \"K0823\".
+
+query q is:
+    which item is a power wheelchair.
+",
+    english_to_le(facts, "The supplier furnished a K0823 power wheelchair.", [], P, "stub-model",
+                  [document("decision D")], LE, _Issues),
+    assertion(sub_string(LE, _, _, _, "is \"K0823\", confer \"a K0823 power wheelchair\"")).
+
 :- end_tests(nl_to_le).
