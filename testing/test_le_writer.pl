@@ -13,6 +13,7 @@
 :- use_module(library(lists)).
 :- use_module('../le_kbs').
 :- use_module('../le_writer').
+:- use_module('../le_migration').
 :- use_module('le_writer_roundtrip').
 
 %   Load a written document and run every expectation it carries.
@@ -232,3 +233,29 @@ test(scasp_pred_annotations_give_the_wording) :-
     assertion(all_pass(Results)).
 
 :- end_tests(prolog_to_le).
+
+:- begin_tests(le_migration_pending).
+
+%   An expectation whose query reaches what an open residue block must
+%   conclude is pending: a comment in its scenario, counted in the ledger.
+test(residue_dependent_expectations_are_pending) :-
+    IR = program([kb(x)], [
+        template(base, "the base premium of *a policy* is *an amount*", [undefined]),
+        template(premium, "the premium of *a policy* is *an amount*", []),
+        template(total, "the total of *a policy* is *an amount*", []),
+        template(fee, "the fee of *a policy* is *an amount*", []),
+        residue(r1, [title("the premium plugin"), concludes([premium])]),
+        rule(total(P, T), and(premium(P, A), T is A + 5), []),
+        rule(fee(P, F), and(base(P, B), F is B / 10), []),
+        query(totals, total(_, _)), query(fees, fee(_, _))]),
+    Tests = [test(t1, "tests.json", 'case 1', [base(p1, 100)],
+                  [expects(totals, [total(p1, 125)]), expects(fees, [fee(p1, 10)])])],
+    le_migration:migration_text(migration([], IR, [], Tests), Text, _),
+    assertion(sub_string(Text, _, _, _, "% pending — waits for residue r1:")),
+    assertion(sub_string(Text, _, _, _, "% totals expects answers")),
+    text_results(Text, Results),
+    assertion(Results = [pass(fees, t1)]),
+    le_migration:ledger_markdown(migration([], IR, [], Tests), none, MD),
+    assertion(sub_string(MD, _, _, _, "1 further expectation(s) are pending")).
+
+:- end_tests(le_migration_pending).

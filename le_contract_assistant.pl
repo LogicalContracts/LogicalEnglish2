@@ -4618,11 +4618,18 @@ substitute_slots_(Text0, [K-V|Rest], Text, Big) :-
 
 prompt_text(Name, Text) :-
     atomic_list_concat(['llm/contract_prompts/', Name, '.md'], Rel),
-    (   exists_file(Rel) -> read_file_to_string(Rel, Text, [])
+    ca_source_dir(Dir), atomic_list_concat([Dir, '/', Rel], Abs),
+    (   exists_file(Abs) -> read_file_to_string(Abs, Text, [])
+    ;   exists_file(Rel) -> read_file_to_string(Rel, Text, [])
     ;   atomic_list_concat(['../', Rel], Rel2), exists_file(Rel2)
     ->  read_file_to_string(Rel2, Text, [])
     ;   throw(error(contract_assistant_error(missing_prompt(Name)), _))
     ).
+
+%   The prompts are found beside this file, whatever the working directory
+%   of the job (a migration translator starts one from its own folder).
+:- dynamic ca_source_dir/1.
+:- prolog_load_context(directory, D), retractall(ca_source_dir(_)), assertz(ca_source_dir(D)).
 
 le_syntax_summary(Text) :-
     % The active language's variant (docs/le_summary.<lang>.md) when present;

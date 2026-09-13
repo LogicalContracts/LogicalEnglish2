@@ -341,11 +341,14 @@ cells_row(Cells, row(Tokens, 0, 0)) :-
 % cell, "-" or "any", a condition (a cell opening with a comparison) and a
 % list of alternatives ("cotton or silk") are left to be read as an inline
 % cell is.
+%   A code such as 0005 or 012 reads as a number but is not one.
+leading_zero_code(C) :- sub_atom(C, 0, 1, _, '0'), sub_atom(C, 1, 1, _, D), char_type(D, digit).
+
 csv_cell_text(Cell, Text) :-
     normalize_space(atom(C), Cell),
     (   C == ''
     ->  Text = C
-    ;   atom_number(C, _)
+    ;   atom_number(C, _), \+ leading_zero_code(C)
     ->  Text = C
     ;   ( C == '-' ; class_member(table_any, C) )
     ->  Text = C

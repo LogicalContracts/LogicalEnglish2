@@ -1670,6 +1670,16 @@ scenario_line(Ctx, expects_changes(Q, Sets)) :- !,
     format("    ~w ~w ~w [~w].~n", [Q, E, C, SList]).
 scenario_line(_, comment(C)) :- !, write_comment_block(4, C).
 scenario_line(_, raw(T)) :- !, format("    ~w~n", [T]).
+scenario_line(Ctx, pending(Why, Line)) :- !,
+    %  An expectation that cannot hold yet (it waits for a residue block to be
+    %  translated, or the translation departs from the source in a documented
+    %  way): written as a comment, ready to be restored, and counted in the
+    %  ledger.
+    format("    % pending — ~w:~n", [Why]),
+    with_output_to(string(S), scenario_line(Ctx, Line)),
+    split_string(S, "\n", "", Ls),
+    forall(( member(L0, Ls), normalize_space(string(L), L0), L \== "" ),
+           format("    % ~w~n", [L])).
 scenario_line(Ctx, rule(H, B)) :- !,
     %  A rule stated in a scenario, written as in the knowledge base, one
     %  level in.
