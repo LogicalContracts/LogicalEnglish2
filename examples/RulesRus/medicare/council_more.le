@@ -1,0 +1,541 @@
+% More decisions of the Medicare Appeals Council, on items of seven modelled
+% policies — the transcutaneous electrical joint stimulator (tejsd.le, with
+% the TENS supplies of tens.le), negative pressure wound therapy (npwt.le),
+% the wearable defibrillator (aeds.le), an ultralightweight manual wheelchair
+% (manual_wheelchairs.le), power wheelchairs (pmd.le) — and on two items no
+% policy decides: a diabetic alert dog, which the Council found not to be
+% durable medical equipment, and a face-down positioning system billed as a
+% positioning cushion (E0190), which it found to be (the support surface and
+% wheelchair seating policies are included so that the model is seen not to
+% decide that code).
+%
+% One scenario per decision, named after its text file in sources/council/
+% ("scenario jdk is, as stated in Council decision jdk:"), written as
+% council_pmd.le and council_other.le write theirs: each fact quotes its
+% passage ("confer \"...\""), the treating practitioner's findings say
+% "according to the treating practitioner", the Council's "according to the
+% Council" with the reason it gave. The Council's outcome is NOT a fact: it is
+% in the comment above each scenario; the expectation is what the model
+% derives, and where it differs the comment says DISAGREES and why — a
+% criterion of the LCD the Council applied (the "individual consideration"
+% of a lightweight wheelchair under LCD L11465; the Claims Processing
+% Manual's two days before discharge) that the current LCD or this model does
+% not have, or that the current LCD has and the Council's did not (the
+% specialty evaluation and the ATP of an ultralightweight wheelchair); a fact
+% the decision does not state (a residence, a weight, the start of the wound
+% therapy, a quantity); a code no policy decides (E1399, E0190).
+%
+% Codes: the decisions cite the codes of their day; where a decision names
+% no code the current one is assumed and the comment says so (K0005 for an
+% ultralightweight wheelchair, K0823 for a Group 2 standard power wheelchair
+% as in council_pmd.le); the NPWT canister codes A6551 and A7000 of 2006 are
+% transcribed as the current A7000. Most of these decisions concern many
+% beneficiaries named only by number: a scenario transcribes the one or two
+% the decision says something about, the others being known only through
+% the Council's general holding. Facts the vocabulary cannot express are
+% listed in each comment as candidate templates. The fourth query, "dme",
+% asks the DME definition of dmepos.le, which two of these decisions turned
+% on.
+
+the target language is: prolog.
+scenario facts require provenance.
+
+the knowledge base council more includes these resources:
+    tejsd,
+    tens,
+    npwt,
+    aeds,
+    pmd,
+    manual_wheelchairs,
+    support_surfaces,
+    wheelchair_seating.
+
+the knowledge base council more includes:
+
+% Where each cited decision is published, and a copy of its text (sources/).
+Council decision bionicare is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/bionicare.pdf".
+the text of Council decision bionicare is at "sources/council/bionicare.txt".
+Council decision international rehabilitative sciences is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/in_the_case_of_international_rehabilitative_sciences_inc.pdf.pdf".
+the text of Council decision international rehabilitative sciences is at "sources/council/in_the_case_of_international_rehabilitative_sciences_inc.pdf.txt".
+Council decision kinetic concepts 08 is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/kinetic_concepts08.pdf".
+the text of Council decision kinetic concepts 08 is at "sources/council/kinetic_concepts08.txt".
+Council decision kinetic concepts 09 is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/kinetic_concepts09.pdf".
+the text of Council decision kinetic concepts 09 is at "sources/council/kinetic_concepts09.txt".
+Council decision m 13 751 is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/m-13-751.pdf".
+the text of Council decision m 13 751 is at "sources/council/m-13-751.txt".
+Council decision m 11 1779 is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/m-11-1779.pdf".
+the text of Council decision m 11 1779 is at "sources/council/m-11-1779.txt".
+Council decision hudson home healthcare is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/hudson_home_healthcare.pdf".
+the text of Council decision hudson home healthcare is at "sources/council/hudson_home_healthcare.txt".
+Council decision maximum comfort is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/maximum_comfort.pdf".
+the text of Council decision maximum comfort is at "sources/council/maximum_comfort.txt".
+Council decision jdk is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/jdk.pdf".
+the text of Council decision jdk is at "sources/council/jdk.txt".
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query dme is:
+    which item is durable medical equipment.
+
+% BioniCare Medical Technologies (13 July 2009). The BIO-1000, a device
+% delivering pulsed electrical stimulation to the knee for osteoarthritis,
+% rented to 47 beneficiaries on various dates in 2004 and 2005 and billed
+% under E0762 (today's TEJSD code), with its supplies under A4595 (the TENS
+% supply allowance); the ALJ had denied them for want of documentation that
+% other treatments were tried. One beneficiary stands for the 47 (their
+% dates of service are in an attachment the text does not reproduce).
+% Council: not covered — the evidence (FDA clearance, the HCPCS code,
+% studies by the manufacturer's own people, animal studies, prescriptions by
+% 3,900 physicians) does not establish that the device was a reasonable and
+% necessary treatment for osteoarthritis of the knee; it is "not a TENS
+% unit"; 36 beneficiaries who signed valid ABNs are liable, the supplier for
+% the other 11.
+% Model: not covered — agrees. LCD L34821 now denies every E0762 claim
+% (no rule concludes that one is reasonable and necessary), and an A4595
+% supply is covered only with a TENS unit (E0720, E0730) covered for
+% purchase, which the BIO-1000 is not: the model reads the Council's "not a
+% TENS unit" from the code. No residence is stated, so the queries fail at
+% applicability, one step before the question. The Council's judgment is
+% about the device, not the beneficiary: no finding of the model stands for
+% it, what the Council decided case by case being what the LCD now denies
+% by rule. Liability under section 1879 (the ABNs) is outside the model;
+% candidate template: "the beneficiary signed an advance beneficiary notice
+% for *an item* stating *a reason*".
+scenario bionicare is, as stated in Council decision bionicare:
+    claim 1 is for the BIO-1000,
+        confer "the appellant billed Medicare for the rental of the BIO-1000 under HCPCS code E0762".
+    the HCPCS code of the BIO-1000 is "E0762",
+        confer "the appellant billed Medicare for the rental of the BIO-1000 under HCPCS code E0762".
+    the BIO-1000 is furnished to beneficiary one,
+        confer "which the appellant rented to 47 beneficiaries on various dates in 2004 and 2005".
+    claim 2 is for the supply kit,
+        confer "for related supplies under HCPCS code A4595".
+    the HCPCS code of the supply kit is "A4595",
+        confer "for related supplies under HCPCS code A4595".
+    the supply kit is an accessory of the BIO-1000,
+        confer "Medicare Part B payment for the BIO-1000, a device that delivers pulsed electrical stimulation to the knee and is used in the treatment of osteoarthritis of the knee, and related supplies".
+    the supply kit is furnished to beneficiary one,
+        confer "Medicare coverage is not warranted for the BIO-1000 devices and related supplies furnished to the beneficiaries".
+    the medical record of beneficiary one documents osteoarthritis of the knee,
+        confer "is used in the treatment of osteoarthritis of the knee".
+    rn expects answers [].
+    pay expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% M-10-979, International Rehabilitative Sciences d/b/a RS Medical (22
+% September 2010). BIO-1000 devices (E0762) and supply kits (A4595)
+% furnished to 28 beneficiaries in 2005, 2006 and 2007 (some paid, then
+% questioned for their fee); the ALJ, on remand, found the device
+% experimental and investigational. One beneficiary stands for the 28.
+% Council: not covered — as in BioniCare: FDA clearance and a HCPCS code do
+% not show the device reasonable and necessary, the studies are the
+% sponsor's, the animal studies have no probative value, the physicians'
+% prescriptions and the contractors' payments are not general acceptance;
+% the device is "not a TENS unit"; the Almy decision (D. Md. 2010) is
+% persuasive, International Rehabilitative Sciences v. Sebelius (W.D. Wash.
+% 2010) limited to its facts. Ten beneficiaries with valid ABNs are liable;
+% the supplier for the other eighteen (no ABN, or an ABN "equivocal" on
+% coverage).
+% Model: not covered — agrees, as in BioniCare (no rule covers E0762; the
+% A4595 kit needs a covered TENS unit; no residence stated, so the queries
+% fail at applicability). The fee schedule question (80 percent of the
+% charge before 1 July 2007) is pricing, outside the model.
+scenario international_rehabilitative_sciences is, as stated in Council decision international rehabilitative sciences:
+    claim 1 is for the BIO-1000,
+        confer "The appellant billed Medicare for the BIO-1000s under HCPCS code E0762 and for the supply kits under A4595".
+    the HCPCS code of the BIO-1000 is "E0762",
+        confer "The appellant billed Medicare for the BIO-1000s under HCPCS code E0762".
+    the BIO-1000 is furnished to beneficiary one,
+        confer "BIO-1000 devices and/or supply kits it furnished to 28 Medicare beneficiaries in 2005, 2006, and 2007".
+    claim 2 is for the supply kit,
+        confer "for the supply kits under A4595".
+    the HCPCS code of the supply kit is "A4595",
+        confer "for the supply kits under A4595".
+    the supply kit is an accessory of the BIO-1000,
+        confer "whether the record as a whole supports a finding that the BIO-1000 and, if applicable, any related supplies, were reasonable and necessary".
+    the supply kit is furnished to beneficiary one,
+        confer "BIO-1000 devices and/or supply kits it furnished to 28 Medicare beneficiaries in 2005, 2006, and 2007".
+    the medical record of beneficiary one documents osteoarthritis of the knee,
+        confer "The BIO-1000 is a device that delivers pulsed electrical stimulation to the knee and is used in the treatment of osteoarthritis of the knee".
+    rn expects answers [].
+    pay expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% Kinetic Concepts (28 October 2008): an ORDER remanding to the ALJ the
+% claims for the VAC pump (E2402) and its supplies furnished to 46
+% beneficiaries between January and October 2006, which the ALJ had denied
+% because the supplier's checklist forms lacked medical detail.
+% Council: remand, no decision on coverage — the checklist forms, completed
+% by a provider unaffiliated with the supplier and carrying the wound
+% measurements, suffice for the continued coverage of the first four
+% months (LCD L11500), unlike the bare certificates of Maximum Comfort; they
+% do not suffice beyond four months, which needs additional documentation;
+% shallow wounds are not excluded as such. The one claim the decision
+% describes individually, of beneficiary E.M.R. residing in a skilled
+% nursing facility on the date of service, 2 May 2006, the ALJ denied on
+% that ground, and "would appear to be correct"; the Council deferred it.
+% Model: not payable — agrees with the Council's remark: a skilled nursing
+% facility is not a home (42 CFR 410.38), so the claim fails at
+% applicability. The wound, its type and the start of the therapy are not
+% stated, so the claim is not reasonable and necessary either. The
+% Council's reading of the checklist forms is the model's too: the monthly
+% healing assessment the supplier obtains from the treating clinician
+% (Policy Article A52511, "The supplier need not view the medical records")
+% is a fact of the record, not a medical record the supplier must hold. The
+% monthly rental is not numbered in the decision, and is not transcribed.
+scenario kinetic_concepts08 is, as stated in Council decision kinetic concepts 08:
+    claim 1 is for the VAC,
+        confer "the single claim for beneficiary E.M.R.".
+    the HCPCS code of the VAC is "E2402",
+        confer "The VAC device (HCPCS Code E2402)".
+    the VAC is furnished to EMR,
+        confer "the single claim for beneficiary E.M.R.".
+    the date of service of claim 1 is 2006-05-02,
+        confer "the claimed date of service, May 2, 2006".
+    the residence of EMR is skilled nursing facility,
+        confer "the beneficiary’s residence in a skilled nursing facility on the claimed date of service".
+    rn expects answers [].
+    pay expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% Kinetic Concepts (5 June 2009). VAC pumps (E2402) and supplies for 19
+% beneficiaries whose therapy extended beyond four months, and canisters in
+% excess of ten a month for one of them (Beneficiary 65), between May 2005
+% and January 2007. Two beneficiaries the decision describes: Beneficiary
+% 50, whose dates of service of 24 and 26 October 2006 precede the clinic
+% notes of November 2006 (the first is transcribed, the item of the second
+% not being named), and Beneficiary 65, who used the portable Freedom VAC.
+% Council: not covered — coverage ends after four months unless
+% "additional documentation" — from independent providers, case specific,
+% contemporaneous with the fifth month, explaining the special
+% circumstances and justifying the expense — shows the need; the checklist
+% forms and letters of medical necessity ("Wound healing", "Continue for 1
+% more month") do not; Beneficiary 50's wound, moreover, showed no
+% measurable healing between cycles 13 and 14. The canisters beyond ten a
+% month are not covered with a portable pump: "For high volume exudative
+% wounds, a stationary pump with the largest capacity canister must be
+% used". The supplier is liable.
+% Model: neither claim reasonable and necessary — agrees on the outcome,
+% not on the grounds: the decision states neither wound's type, stage or
+% age, nor the date NPWT started, so neither initial criterion A or B nor
+% the four months (read by npwt.le from the start of therapy, 120 days) can
+% be decided; the "cycles 13 and 14" suggest the fourteenth monthly rental
+% but the decision does not say that a cycle is a month, and the rental
+% month is not transcribed. The individual consideration beyond four months
+% through appeals (Policy Article A52511) is not modelled: no rule covers a
+% pump after 120 days whatever the documentation. The canisters: no quantity
+% is stated ("in excess of ten a month") nor the drainage; and npwt.le's
+% rule for more than ten canisters reads only the drainage (over 90 ml a
+% day), not the stationary pump the current LCD L33821 still requires — on
+% Beneficiary 65's facts with a documented drainage the model would cover
+% the canisters the Council denied. Candidate templates: "*a device* is a
+% stationary pump", "NPWT for *a wound* has been used for *a number*
+% months", "the additional documentation for *a claim* explains the special
+% circumstances necessitating the extended therapy", "the quantity billed
+% on *a claim* exceeds *a number*".
+scenario kinetic_concepts09 is, as stated in Council decision kinetic concepts 09:
+    claim 1 is for the VAC,
+        confer "those dates of service, October 24 and October 26, 2006 are not covered because the case files lack additional documentation".
+    the HCPCS code of the VAC is "E2402",
+        confer "The VAC device (HCPCS Code E2402)".
+    the VAC is furnished to beneficiary fifty,
+        confer "Two dates of service for beneficiary 50 precede the dates of the Clinic Notes".
+    the date of service of claim 1 is 2006-10-24,
+        confer "those dates of service, October 24 and October 26, 2006 are not covered because the case files lack additional documentation".
+    the VAC is applied to the orthopaedic wound,
+        confer "He continues on his VAC dressing".
+    the orthopaedic wound is a wound of beneficiary fifty,
+        confer "the record contains three “File Notes” within the “Orthopaedics Clinic Note:”".
+    a licensed medical professional directly assesses the orthopaedic wound and supervises the NPWT dressing changes,
+        confer "His VAC dressing was changed".
+    claim 2 is for the canisters,
+        confer "the excess canisters provided to Beneficiary 65 are not covered".
+    the HCPCS code of the canisters is "A7000",
+        confer "canisters for the collection of fluid (HCPCS Codes A6551 and A7000)".
+    the canisters is furnished to beneficiary sixty five,
+        confer "the excess canisters provided to Beneficiary 65 are not covered".
+    the canisters is an accessory of the Freedom VAC,
+        confer "the beneficiary was not using the stationary pump but instead was using the portable Freedom VAC pump".
+    the HCPCS code of the Freedom VAC is "E2402",
+        confer "The VAC device (HCPCS Code E2402), which may be prescribed as either a standard or portable model".
+    the Freedom VAC is furnished to beneficiary sixty five,
+        confer "the beneficiary was not using the stationary pump but instead was using the portable Freedom VAC pump".
+    rn expects answers [].
+    pay expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% M-13-751, Zoll LifeCor (21 August 2013). The rental of a wearable
+% defibrillator, the LifeVest (K0606), delivered on 17 September 2010 to a
+% hospital inpatient discharged home on 20 September; order form dated 14
+% September 2010, signed 17 September, with "unknown" for the scheduled
+% discharge date and no initial date of need; ejection fraction 35 percent,
+% a cardiomyopathy documented after the date of service, ventricular
+% tachycardia. The supplier asked that the date of service be the date of
+% discharge.
+% Council: not covered — on the date of service the beneficiary was a
+% hospital inpatient, and a hospital is not a home (42 CFR 410.38(b)); the
+% conditions under which DME may be delivered before discharge (Claims
+% Processing Manual ch. 20 §110.3.1) are not met: no initial date of need on
+% the order, delivery three days (not two) before discharge, payment
+% claimed for a day before discharge; nothing in the record shows a planned
+% discharge date that was delayed. The supplier is liable.
+% Model: not payable — agrees: the residence on the date of service is a
+% hospital, so the claim fails at applicability. The model finds it
+% reasonable and necessary (criterion 3 of LCD L33690: a dilated
+% cardiomyopathy and an ejection fraction of 0.35 or less), where the ALJ
+% found the coverage requirements not met because the cardiomyopathy was
+% documented after the date of service; the Council rested on the place of
+% use and did not decide that. The model's documented conditions and its
+% residence carry no date: the discharge home three days later cannot be
+% stated beside the hospital without letting the claim through, nor the
+% date of the cardiomyopathy's documentation. The two-day pre-discharge
+% delivery rule is not in the model. Candidate templates: "*a beneficiary*
+% was an inpatient of *a place* from *a date* to *an other date*", "the
+% medical record of *a beneficiary* documents *a condition* on *a date*",
+% "the order for *an item* states an initial date of need of *a date*".
+scenario m_13_751 is, as stated in Council decision m 13 751:
+    claim 1 is for the LifeVest,
+        confer "the rental of a wearable automatic external defibrillator (HCPCS code K0606), furnished to the beneficiary on September 17, 2010".
+    the HCPCS code of the LifeVest is "K0606",
+        confer "the rental of a wearable automatic external defibrillator (HCPCS code K0606), furnished to the beneficiary on September 17, 2010".
+    the LifeVest is furnished to the beneficiary,
+        confer "the rental of a wearable automatic external defibrillator (HCPCS code K0606), furnished to the beneficiary on September 17, 2010".
+    the date of service of claim 1 is 2010-09-17,
+        confer "which the record consistently states is the date of service for this claim".
+    the rental month of claim 1 is 1,
+        confer "At issue before the Council is Medicare coverage for the rental of a wearable automatic external defibrillator (AED), the LifeVest®, furnished to the beneficiary on September 17, 2010".
+    the residence of the beneficiary is hospital,
+        confer "on the date of service, the beneficiary was an inpatient in a hospital".
+    the medical record of the beneficiary documents dilated cardiomyopathy,
+        confer "confirming diagnosis of dilated cardiomyopathy".
+    the measured left ventricular ejection fraction of the beneficiary is 0.35,
+        confer "an echocardiogram (ECG) indicated an ejection fraction of 35 percent".
+    the order for the LifeVest is dated 2010-09-14,
+        confer "a physician signed Zoll LifeCor’s order form, dated September 14, 2010".
+    the order for the LifeVest is signed by the treating practitioner,
+        confer "The record reflects that, on September 17, 2010, a physician signed Zoll LifeCor’s order form".
+    the order for the LifeVest includes description of the item,
+        confer "order form, dated September 14, 2010, for the LifeVest®".
+    the order for the LifeVest was communicated to the supplier on 2010-09-17,
+        confer "The appellant furnished the item on the day on which the physician signed the form".
+    the LifeVest was delivered on 2010-09-17,
+        confer "there is no dispute as to the date of delivery, which was September 17, 2010".
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    pay expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% M-11-1779, S.M. (17 December 2012). A diabetic alert dog billed under
+% E1399 ("durable medical equipment, miscellaneous"), provided on 14 April
+% 2009 and claimed by the beneficiary's attorney-in-fact on 7 August 2009;
+% the beneficiary is under a physician's care for diabetes, and the
+% physician thinks the dog in his best interest.
+% Council: not covered (the ALJ's decision adopted) — the dog is not
+% durable medical equipment: an animal trained to detect a drop in blood
+% glucose does not, by constant companionship, primarily and customarily
+% serve a medical purpose, and may be useful to a person in the absence of
+% illness or injury; NCD 280.1's reference list has no such item. The
+% reasonable and necessary question is not reached.
+% Model: not covered — agrees. E1399 belongs to no modelled policy, so the
+% claim is outside the model's scope (the query fails at applicability);
+% and the dog is not durable medical equipment by dmepos.le's definition,
+% none of the four characteristics being stated (the two the Council
+% discussed it denied; the other two, repeated use and use in the home, it
+% did not address). A characteristic denied cannot be stated as such:
+% candidate templates "*an item* is primarily and customarily used for a
+% nonmedical purpose", "*an item* is useful to a person in the absence of
+% illness or injury" (the negations of dmepos.le's characteristics).
+scenario m_11_1779 is, as stated in Council decision m 11 1779:
+    claim 1 is for the diabetic alert dog,
+        confer "a diabetic alert dog (HCPCS code E1399) provided to the beneficiary on April 14, 2009".
+    the HCPCS code of the diabetic alert dog is "E1399",
+        confer "a diabetic alert dog (HCPCS code E1399) provided to the beneficiary on April 14, 2009".
+    the diabetic alert dog is furnished to SM,
+        confer "a diabetic alert dog (HCPCS code E1399) provided to the beneficiary on April 14, 2009".
+    the date of service of claim 1 is 2009-04-14,
+        confer "a diabetic alert dog (HCPCS code E1399) provided to the beneficiary on April 14, 2009".
+    claim 1 was submitted on 2009-08-07,
+        confer "dated August 7, 2009, on behalf of the beneficiary for a diabetic alert dog".
+    the medical record of SM documents diabetes,
+        confer "The beneficiary is under a physician's care for diabetes".
+    rn expects answers [].
+    pay expects answers [].
+    stage expects answers ["the query fails at applicability"].
+    dme expects answers [].
+
+% Hudson Home Health Care (12 August 2009). An ultralightweight manual
+% wheelchair (code not stated; K0005 is assumed) and accessories provided
+% on 25 June 2008 to a 38-year-old woman of 300 pounds with paraplegia from
+% transverse myelitis, whose five-year-old wheelchair was broken beyond
+% repair and below her weight; a letter of 30 March 2008 from a
+% rehabilitation hospital, signed by her physical therapist and her
+% physician, gives her strength (upper extremities 4-/5, lower 2+/5), her
+% independent propulsion of an ultralight wheelchair up to 400 feet, and
+% her inability to propel a standard or lightweight wheelchair for weakness
+% and fatigue. The ALJ had excluded late evidence and read the letter as
+% the therapist's alone.
+% Council: covered — the letter, signed by both, establishes the medical
+% necessity of the ultralightweight wheelchair under LCD L11465, which gave
+% such chairs "individual consideration"; nobody questioned her need of a
+% wheelchair, only of a replacement and its features.
+% DISAGREES: the model finds the claim not reasonable and necessary — the
+% current LCD L33788 covers a K0005 only with a specialty evaluation by a
+% professional with no financial relationship with the supplier and a
+% RESNA-certified ATP directly involved in the selection (criteria (3) and
+% (4)), which the decision does not state (the evaluating therapist is the
+% rehabilitation hospital's; her relationship with the supplier is not
+% said) and which the "individual consideration" of L11465, as the Council
+% read it, did not require. With those two facts the answer would be
+% conditional on the home (C), improvement (D) and willingness (E)
+% findings, which nobody made. Not payable also for want of a residence and
+% an order. Candidate templates: "*an item* replaces equipment broken
+% beyond repair", "the weight capacity of *an item* is *a number* pounds"
+% (the old chair's limit, below her 300 pounds).
+scenario hudson_home_healthcare is, as stated in Council decision hudson home healthcare:
+    claim 1 is for the wheelchair,
+        confer "an ultra lightweight wheelchair and accessories provided to the beneficiary on June 25, 2008".
+    the HCPCS code of the wheelchair is "K0005",
+        confer "the ultra lightweight wheelchair the beneficiary obtained on June 25, 2008".
+    the wheelchair is furnished to the beneficiary,
+        confer "an ultra lightweight wheelchair and accessories provided to the beneficiary on June 25, 2008".
+    the date of service of claim 1 is 2008-06-25,
+        confer "an ultra lightweight wheelchair and accessories provided to the beneficiary on June 25, 2008".
+    the wheelchair was delivered on 2008-06-25,
+        confer "the ultra lightweight wheelchair the beneficiary obtained on June 25, 2008".
+    the weight of the beneficiary is 300 pounds,
+        confer "her present weight of 300 pounds exceeds the weight limit for her previous wheelchair".
+    the finding significant mobility limitation about the beneficiary is established,
+        according to the Council, because "she has transverse myelitis with resulting paraplegia, and none of the decisionmakers questioned whether she requires a wheelchair",
+        confer "None of the decisionmakers in this case has questioned whether the beneficiary requires a wheelchair".
+    the finding walking aids insufficient about the beneficiary is established,
+        according to the Council, because "she has transverse myelitis with resulting paraplegia, and none of the decisionmakers questioned whether she requires a wheelchair",
+        confer "has transverse myelitis with resulting paraplegia".
+    the finding manual wheelchair can be propelled about the beneficiary is established,
+        according to the treating practitioner,
+        confer "is independent with propelling an ultra light wheelchair for distances up to 400 feet".
+    the finding ultralightweight wheelchair justified about the beneficiary is established,
+        according to the Council, because "she is unable to functionally propel a standard manual wheelchair or lightweight wheelchair due to weakness and fatigue",
+        confer "is sufficient to establish the medical necessity of the ultra lightweight wheelchair the beneficiary obtained on June 25, 2008".
+    rn expects answers [].
+    pay expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% Maximum Comfort (11 June 2003, own-motion review). Power-operated
+% wheelchairs (code not stated; the Group 2 standard chair K0823 is assumed,
+% as in council_pmd.le) and accessories supplied in 1998 and 1999 to the
+% beneficiaries of two statistical samples (the H. group, lead beneficiary
+% B.H., and the T. group), paid and then found overpaid on post-payment
+% review; the ALJs found them covered on the certificates of medical
+% necessity the ordering physicians signed. For one beneficiary the CMN's
+% section B was completed by his wife, and the prescribing physician's
+% note of 26 January 1999 says he walks with a walker.
+% Council: not covered — a CMN alone does not establish medical necessity:
+% the DMERC supplier manual and a 1997 newsletter required the supplier to
+% keep supporting medical documentation, and the CMN did not even ask
+% whether the patient would otherwise be bed or chair confined; the record
+% holds none (claim 1, B.H.). The beneficiary who ambulates with a walker
+% does not meet the coverage requirements for a power-operated wheelchair
+% (claim 2). The supplier knew or should have known (section 1879), and is
+% not without fault (section 1870).
+% Model: neither claim reasonable and necessary — agrees on the outcome.
+% Claim 2 fails on the walker (B unsupported). Claim 1 fails only because
+% the weight is not stated: the model reads an unrecorded finding as an
+% open question, not as a denial, so with a weight the answer would be
+% reasonable and necessary conditional on the eight findings — where the
+% Council reads the absence of documentation behind the CMN as the denial.
+% The certificate of medical necessity itself has no place in the model
+% (the standard written order and the findings replace it). Candidate
+% templates: "the certificate of medical necessity for *an item* was
+% completed by *a person*", "the medical record supports the certificate of
+% medical necessity for *an item*".
+scenario maximum_comfort is, as stated in Council decision maximum comfort:
+    claim 1 is for the power wheelchair of BH,
+        confer "a group of cases with B.H. designated as the lead beneficiary".
+    the HCPCS code of the power wheelchair of BH is "K0823",
+        confer "the power-operated wheelchairs and accessories which were provided to the Medicare beneficiaries between January 1, 1998 and January 22, 1999".
+    the power wheelchair of BH is furnished to BH,
+        confer "the power-operated wheelchairs and accessories which were provided to the Medicare beneficiaries between January 1, 1998 and January 22, 1999".
+    the order for the power wheelchair of BH is signed by the treating practitioner,
+        confer "certificates of medical necessity (CMNs) provided by the beneficiaries’ physicians, who also ordered the equipment".
+    claim 2 is for the power wheelchair of the beneficiary,
+        confer "The Appellant provided a power-operated wheelchair and accessories to beneficiary *** that was not medically reasonable and necessary".
+    the HCPCS code of the power wheelchair of the beneficiary is "K0823",
+        confer "the Administrative Law Judge’s conclusion that the medical records provided supported the medical necessity of the power-operated wheelchair is not supported by the evidence of record".
+    the power wheelchair of the beneficiary is furnished to the beneficiary,
+        confer "The Appellant provided a power-operated wheelchair and accessories to beneficiary *** that was not medically reasonable and necessary".
+    the order for the power wheelchair of the beneficiary is signed by the treating practitioner,
+        confer "The clinical record for a visit to the prescribing physician".
+    the finding walking aids insufficient about the beneficiary is unsupported,
+        according to the Council, because "the clinical record of a visit to the prescribing physician on January 26, 1999 states that the beneficiary is ambulating with a walker",
+        confer "because the beneficiary was able to ambulate with a walker".
+    rn expects answers [].
+    pay expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% M-10-579, J.D.K. (20 August 2010). A Vitrectomy Solutions DayTimer
+% positioning system — a seated system with a face-down head support —
+% rented for two weeks from 6 November 2008 after surgery of 4 November
+% 2008 for a macular hole, on a CMN for a face-down support system ("Patient
+% must maintain face down position 45 minutes every hour"); the beneficiary
+% filed the claim himself on 2 December 2008, and the contractor coded it
+% E0190 (positioning cushion) and denied it as not primarily medical; the
+% QIC and the ALJ found it miscoded ("not a cushion but a chair") and could
+% not change the code.
+% Council: covered — the item meets the definition of DME (rented, usable
+% by successive patients; immobilizing the head face down so the gas bubble
+% is not dislodged is a medical purpose; not generally used absent illness
+% or injury; appropriate for use in the home) and was reasonable and
+% necessary for the two weeks; the contractor, which assigned E0190, is to
+% recode it to the appropriate descriptive or miscellaneous code and pay.
+% No limitation of liability applies to an unassigned claim.
+% DISAGREES: the model finds the claim not covered — neither the support
+% surface policies (support_surfaces.le: the Group 1-3 mattresses, overlays
+% and beds) nor the wheelchair seating policy (wheelchair_seating.le:
+% cushions and positioning accessories of a wheelchair) decides E0190, nor
+% would any decide a miscellaneous code (E1399), so the claim is outside the
+% model's scope and the query fails at applicability. The item IS durable
+% medical equipment by dmepos.le's definition — the four characteristics the
+% Council found are stated — but that definition places an item in the
+% benefit only; no rule of the model says when an item that "does not fall
+% logically into any of the generic categories" of NCD 280.1 is reasonable
+% and necessary for the individual patient. Candidate: a rule for such an
+% item reading a finding "item reasonable and necessary for individual
+% patient" (NCD 280.1's individual determination), and "*a code* was
+% assigned to *a claim* by the contractor".
+scenario jdk is, as stated in Council decision jdk:
+    claim 1 is for the positioning system,
+        confer "Vitrectomy Solutions DayTimer positioning system".
+    the HCPCS code of the positioning system is "E0190",
+        confer "it was incorrectly billed as a positioning cushion (billing code E0190)".
+    the positioning system is furnished to JDK,
+        confer "The beneficiary ordered and received, for a rental period of two weeks beginning on November 6, 2008".
+    the date of service of claim 1 is 2008-11-06,
+        confer "The beneficiary ordered and received, for a rental period of two weeks beginning on November 6, 2008".
+    the rental month of claim 1 is 1,
+        confer "for a rental period of two weeks beginning on November 6, 2008".
+    claim 1 was submitted on 2008-12-02,
+        confer "filed a claim, dated December 2, 2008".
+    the medical record of JDK documents macular hole,
+        confer "The beneficiary received surgery on November 4, 2008 to treat a macular hole related to macular degeneration".
+    the order for the positioning system is signed by the treating practitioner,
+        confer "issued a Certificate of Medical Necessity (CMN) for a face-down support system for a period of two weeks".
+    the order for the positioning system includes description of the item,
+        confer "issued a Certificate of Medical Necessity (CMN) for a face-down support system for a period of two weeks".
+    the positioning system can withstand repeated use,
+        confer "could be used by successive patients".
+    the positioning system is primarily and customarily used to serve a medical purpose,
+        confer "This is a medical purpose".
+    the positioning system is generally not useful to a person in the absence of illness or injury,
+        confer "this item would not generally be used in the absence of illness or injury".
+    the positioning system is appropriate for use in the home,
+        confer "was certainly appropriate for use in the patient’s home".
+    rn expects answers [].
+    pay expects answers [].
+    stage expects answers ["the query fails at applicability"].
+    dme expects answers ["the positioning system is durable medical equipment"].
