@@ -120,6 +120,19 @@ async function loadProgram(name) {
     $('answers').innerHTML = '<div class="status">Loading…</div>';
     $('program-issues').hidden = true;
     $('tool-variations').hidden = true;
+    // A view takes a few seconds to open (the program's load, then its first
+    // result): say so where it will appear, with a waiting cursor meanwhile.
+    document.body.classList.add('busy');
+    try { await openProgram(name); } finally { document.body.classList.remove('busy'); }
+}
+
+async function openProgram(name) {
+    if (params().get('view')) {
+        viewSlots();
+        $('default-screen').hidden = true;
+        $('view-root').hidden = false;
+        $('view-root').innerHTML = `<div class="status">${esc(t('Opening the view…'))}</div>`;
+    }
 
     const copy = editorCopy();
     // Fetch the source text in the background — the tool popups need it.

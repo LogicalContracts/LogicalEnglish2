@@ -8406,6 +8406,12 @@ var uiCatalog = {
     "Answer": "Resposta",
     "fails at": "falha em",
     "Run all cases": "Correr todos os casos",
+    "Stop running cases": "Parar de correr os casos",
+    "Stopping\u2026": "A parar\u2026",
+    "Running case {i} of {n}\u2026": "A correr o caso {i} de {n}\u2026",
+    "Stopped after {i} of {n} cases.": "Parado depois de {i} de {n} casos.",
+    "{n} cases run.": "{n} casos corridos.",
+    "Opening the view\u2026": "A abrir a vista\u2026",
     "Case": "Caso",
     "Result": "Resultado",
     "Expected": "Esperado",
@@ -8830,6 +8836,12 @@ var uiCatalog = {
     "Answer": "Respuesta",
     "fails at": "falla en",
     "Run all cases": "Ejecutar todos los casos",
+    "Stop running cases": "Detener la ejecuci\xF3n de los casos",
+    "Stopping\u2026": "Deteniendo\u2026",
+    "Running case {i} of {n}\u2026": "Ejecutando el caso {i} de {n}\u2026",
+    "Stopped after {i} of {n} cases.": "Detenido tras {i} de {n} casos.",
+    "{n} cases run.": "{n} casos ejecutados.",
+    "Opening the view\u2026": "Abriendo la vista\u2026",
     "Case": "Caso",
     "Result": "Resultado",
     "Expected": "Esperado",
@@ -9254,6 +9266,12 @@ var uiCatalog = {
     "Answer": "R\xE9ponse",
     "fails at": "\xE9choue \xE0",
     "Run all cases": "Ex\xE9cuter tous les cas",
+    "Stop running cases": "Arr\xEAter l\u2019ex\xE9cution des cas",
+    "Stopping\u2026": "Arr\xEAt\u2026",
+    "Running case {i} of {n}\u2026": "Ex\xE9cution du cas {i} sur {n}\u2026",
+    "Stopped after {i} of {n} cases.": "Arr\xEAt\xE9 apr\xE8s {i} cas sur {n}.",
+    "{n} cases run.": "{n} cas ex\xE9cut\xE9s.",
+    "Opening the view\u2026": "Ouverture de la vue\u2026",
     "Case": "Cas",
     "Result": "R\xE9sultat",
     "Expected": "Attendu",
@@ -9678,6 +9696,12 @@ var uiCatalog = {
     "Answer": "Risposta",
     "fails at": "fallisce in",
     "Run all cases": "Esegui tutti i casi",
+    "Stop running cases": "Interrompi l\u2019esecuzione dei casi",
+    "Stopping\u2026": "Interruzione\u2026",
+    "Running case {i} of {n}\u2026": "Esecuzione del caso {i} di {n}\u2026",
+    "Stopped after {i} of {n} cases.": "Interrotto dopo {i} casi su {n}.",
+    "{n} cases run.": "{n} casi eseguiti.",
+    "Opening the view\u2026": "Apertura della vista\u2026",
     "Case": "Caso",
     "Result": "Risultato",
     "Expected": "Atteso",
@@ -10773,6 +10797,8 @@ function ensureStyles2() {
     .lv-res { border-radius: 12px; padding: 12px 14px; font-size: 18px; font-weight: 600; }
     .lv-res.yes { background: #e9f6ee; color: #155e2e; } .lv-res.no { background: #fbeceb; color: #8c1d18; }
     .lv-status { color: var(--lv-muted); font-size: 12.5px; }
+    .lv-progress { margin-left: 10px; }
+    .lv-busy, .lv-busy table { cursor: progress; }
     .lv-kind { display: inline-block; font-size: 11px; border-radius: 10px; padding: 0 7px; margin-left: 6px; border: 1px solid; }
     .lv-kind.silent { color: var(--lv-unknown); border-color: var(--lv-unknown); }
     .lv-kind.met { color: var(--lv-fail); border-color: var(--lv-fail); }
@@ -11479,44 +11505,73 @@ async function mountView(root, ctx) {
       return;
     b.innerHTML = "";
     const go = el("button", "lv-btn", t("Run all cases"));
+    const progress = el("span", "lv-status lv-progress");
     const out = el("div");
     b.appendChild(go);
+    b.appendChild(progress);
     b.appendChild(out);
+    let running = false;
+    let stop = false;
+    const say = (key, i, n) => t(key).replace("{i}", String(i)).replace("{n}", String(n));
     go.addEventListener("click", async () => {
+      if (running) {
+        stop = true;
+        go.textContent = t("Stopping\u2026");
+        go.disabled = true;
+        return;
+      }
+      running = true;
+      stop = false;
+      go.textContent = t("Stop running cases");
+      cards.cases?.classList.add("lv-busy");
       out.innerHTML = "";
       const table = el("table");
       const hr = el("tr");
       [t("Case"), t("Result"), t("Expected"), ""].forEach((c) => hr.appendChild(el("th", "", c)));
       table.appendChild(hr);
       out.appendChild(table);
-      for (const sc of scenarioNames) {
-        const req = { sessionModule: ctx.sessionModule, scenario: sc };
-        if (R.whether)
-          req.customQuery = R.whether;
-        else
-          req.query = R.query;
-        const res = await leapi({ operation: "answeringQuery", ...req });
-        const answers = (res.results || []).map((r) => String(r.answer));
-        const block = blocks.find((x) => x.name === sc);
-        const expected = R.query ? expectedAnswers(block, R.query) : null;
-        const tr = el("tr");
-        const a = el("a", "", sc);
-        a.setAttribute("href", "#");
-        a.addEventListener("click", (e) => {
-          e.preventDefault();
-          casePicker.value = sc;
-          loadCase(sc);
-          run();
-        });
-        const td0 = el("td");
-        td0.appendChild(a);
-        tr.appendChild(td0);
-        const failedAt = (res.checklist || []).find((c) => c.status === "failed");
-        tr.appendChild(el("td", "", answers.length ? answers.join("; ") : `${R.not || t("No answer")}${failedAt ? ` \xB7 ${t("fails at")} ${sectionWords(failedAt.section)}` : ""}`));
-        tr.appendChild(el("td", "", expected === null ? "\u2014" : expected.length ? expected.join("; ") : R.not || t("No answer")));
-        const agree = expected === null ? "" : sameSet(answers, expected) ? "\u2713" : "\u2717";
-        tr.appendChild(el("td", agree === "\u2713" ? "lv-ok" : agree === "\u2717" ? "lv-fail" : "", agree));
-        table.appendChild(tr);
+      const total = scenarioNames.length;
+      let done = 0;
+      try {
+        for (const sc of scenarioNames) {
+          if (stop)
+            break;
+          progress.textContent = say("Running case {i} of {n}\u2026", done + 1, total);
+          const req = { sessionModule: ctx.sessionModule, scenario: sc };
+          if (R.whether)
+            req.customQuery = R.whether;
+          else
+            req.query = R.query;
+          const res = await leapi({ operation: "answeringQuery", ...req });
+          const answers = (res.results || []).map((r) => String(r.answer));
+          const block = blocks.find((x) => x.name === sc);
+          const expected = R.query ? expectedAnswers(block, R.query) : null;
+          const tr = el("tr");
+          const a = el("a", "", sc);
+          a.setAttribute("href", "#");
+          a.addEventListener("click", (e) => {
+            e.preventDefault();
+            casePicker.value = sc;
+            loadCase(sc);
+            run();
+          });
+          const td0 = el("td");
+          td0.appendChild(a);
+          tr.appendChild(td0);
+          const failedAt = (res.checklist || []).find((c) => c.status === "failed");
+          tr.appendChild(el("td", "", answers.length ? answers.join("; ") : `${R.not || t("No answer")}${failedAt ? ` \xB7 ${t("fails at")} ${sectionWords(failedAt.section)}` : ""}`));
+          tr.appendChild(el("td", "", expected === null ? "\u2014" : expected.length ? expected.join("; ") : R.not || t("No answer")));
+          const agree = expected === null ? "" : sameSet(answers, expected) ? "\u2713" : "\u2717";
+          tr.appendChild(el("td", agree === "\u2713" ? "lv-ok" : agree === "\u2717" ? "lv-fail" : "", agree));
+          table.appendChild(tr);
+          done++;
+        }
+      } finally {
+        progress.textContent = done < total ? say("Stopped after {i} of {n} cases.", done, total) : say("{n} cases run.", done, total);
+        running = false;
+        go.textContent = t("Run all cases");
+        go.disabled = false;
+        cards.cases?.classList.remove("lv-busy");
       }
     });
   };

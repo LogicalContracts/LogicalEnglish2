@@ -1083,7 +1083,7 @@ language):
 | `the answers to "<query body>" are listed as "<title>"` | a table of another query's answers, a column per `which` |
 | `the result is compared with scenario <name>` | the result of another scenario, and where it fails |
 | `the documents of the case are shown beside the facts` | the cited documents, the case's own open with its passages marked |
-| `the cases are listed with their results` | every scenario, its result and its expectation |
+| `the cases are listed with their results` | every scenario, its result and its expectation, run one after another ("running case i of N", and a button to stop) |
 | `the draft reads "<text with {the result}, {the answer}, {the facts}, {the citations}, {the reasons}, {the missing}, {the case}>"` | a text filled from the result, to copy |
 | `the draft reads "<text>" when it holds` / `… when it does not` | a text for each outcome: an approval and a refusal |
 

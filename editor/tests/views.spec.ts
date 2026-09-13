@@ -116,6 +116,37 @@ test.describe('LE Views', () => {
         await expect(draft).toContainText('We have granted your application: the help for ann is 400.');
     });
 
+    // Opening a view says so, with a waiting cursor; "Run all cases" says which
+    // case it is on and becomes a Stop button while it runs. The server's
+    // answers are slowed so that each state can be seen.
+    test('opening a view and running its cases say where they are, and can be stopped', async ({ page }) => {
+        test.setTimeout(180000);
+        await page.route('**/leapi*', async (route) => {
+            const body = JSON.parse(route.request().postData() || '{}');
+            if (body.operation === 'load' || (body.operation === 'answeringQuery' && body.scenario)) {
+                await new Promise(r => setTimeout(r, 1500));
+            }
+            await route.continue();
+        });
+        await page.goto('/executive?program=RulesRus/sections_benefit&view=rent%20help');
+        await expect(page.locator('#view-root .status')).toHaveText('Opening the view…', { timeout: 30000 });
+        await expect(page.locator('body')).toHaveClass(/busy/);
+        const cases = page.locator('#view-root [data-widget="cases"]');
+        // a small program's cases run straight away: case i of N, then done
+        await expect(cases.locator('.lv-progress')).toContainText(/Running case \d of 4…/, { timeout: 60000 });
+        await expect(cases.locator('button')).toHaveText('Stop running cases');
+        await expect(cases.locator('.lv-progress')).toHaveText('4 cases run.', { timeout: 90000 });
+        await expect(page.locator('body')).not.toHaveClass(/busy/);
+        await expect(cases.locator('button')).toHaveText('Run all cases');
+        // run again, and stop during the first case: it finishes, no other starts
+        await cases.locator('button').click();
+        await expect(cases.locator('.lv-progress')).toHaveText('Running case 1 of 4…');
+        await cases.locator('button', { hasText: 'Stop running cases' }).click();
+        await expect(cases.locator('.lv-progress')).toHaveText('Stopped after 1 of 4 cases.', { timeout: 30000 });
+        await expect(cases.locator('button')).toHaveText('Run all cases');
+        await expect(cases.locator('tr')).toHaveCount(2);     // the header and one case
+    });
+
     test('the plain screen says why not for a query with no answer', async ({ page }) => {
         test.setTimeout(120000);
         await page.goto('/executive?program=RulesRus/sections_benefit&scenario=not_eligible&query=help');

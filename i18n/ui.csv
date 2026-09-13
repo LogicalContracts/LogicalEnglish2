@@ -379,6 +379,12 @@ None.,,Nenhum.,Ninguno.,Aucun.,Nessuno.
 Answer,,Resposta,Respuesta,Réponse,Risposta
 fails at,,falha em,falla en,échoue à,fallisce in
 Run all cases,,Correr todos os casos,Ejecutar todos los casos,Exécuter tous les cas,Esegui tutti i casi
+Stop running cases,,Parar de correr os casos,Detener la ejecución de los casos,Arrêter l’exécution des cas,Interrompi l’esecuzione dei casi
+Stopping…,,A parar…,Deteniendo…,Arrêt…,Interruzione…
+Running case {i} of {n}…,,A correr o caso {i} de {n}…,Ejecutando el caso {i} de {n}…,Exécution du cas {i} sur {n}…,Esecuzione del caso {i} di {n}…
+Stopped after {i} of {n} cases.,,Parado depois de {i} de {n} casos.,Detenido tras {i} de {n} casos.,Arrêté après {i} cas sur {n}.,Interrotto dopo {i} casi su {n}.
+{n} cases run.,,{n} casos corridos.,{n} casos ejecutados.,{n} cas exécutés.,{n} casi eseguiti.
+Opening the view…,,A abrir a vista…,Abriendo la vista…,Ouverture de la vue…,Apertura della vista…
 Case,,Caso,Caso,Cas,Caso
 Result,,Resultado,Resultado,Résultat,Risultato
 Expected,,Esperado,Esperado,Attendu,Atteso

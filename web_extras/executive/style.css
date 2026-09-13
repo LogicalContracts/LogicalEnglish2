@@ -178,3 +178,6 @@ details.full > summary { cursor: pointer; color: var(--accent); font-size: 14px;
 .view-links .auto-note { font-style: italic; }
 body.with-view main { max-width: 1400px; }
 #view-root[hidden], #default-screen[hidden] { display: none; }
+
+/* While a program loads and its view draws its first result */
+body.busy, body.busy * { cursor: progress !important; }
