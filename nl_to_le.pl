@@ -735,7 +735,11 @@ slot_name(Type, Name) :-
 hint_text(SlotName, Values0, Hint) :-
     length(Values0, N),
     (   N > 200 -> length(Values, 200), append(Values, _, Values0), More = ", ..." ; Values = Values0, More = "" ),
-    maplist([V, S]>>format(string(S), "~w", [V]), Values, Ss),
+    % a string value is shown with its quotes ("K0825"): the fact must write it
+    % so, or it states the atom K0825, which no rule comparing with the string
+    % reads (September 2026: the drafts of the Medicare decisions all wrote
+    % their HCPCS and ICD-10 codes bare, as the hints showed them)
+    maplist([V, S]>>( string(V) -> format(string(S), "\"~w\"", [V]) ; format(string(S), "~w", [V]) ), Values, Ss),
     atomic_list_concat(Ss, ', ', Joined),
     format(string(Hint), "~w: ~w~w", [SlotName, Joined, More]).
 
