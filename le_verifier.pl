@@ -1263,7 +1263,7 @@ slot_value(KB, F, A, I, V) :-
     arg(I, Lit, Arg),
     (   atomic(Arg), Arg \== [] -> V = Arg
     ;   var(Arg),
-        (   find_in_body(Body, Lit2), Lit2 \== Lit,
+        (   find_in_body(Body, Lit2), Lit2 \== Lit, compound(Lit2),
             functor(Lit2, F2, A2), \+ sub_atom(F2, 0, _, _, le_),
             arg(J, Lit2, Arg2), Arg2 == Arg,
             fact_argument(KB, F2, A2, J, V)

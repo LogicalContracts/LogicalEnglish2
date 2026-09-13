@@ -25,6 +25,7 @@ the templates are:
     the number of days from *a date* to *a second date* is *a number*.
     *a later date* is *a number* years after *a date*.
     *a later date* is *a number* calendar months after *a date*.
+    *an earlier date* is *a number* calendar months before *a date*.
     *a date* is in the period from *a start date* to *an end date*.
     *a date* is within the last *a number* months before *a reference date*.
     *a date* is within the last *a number* days before *a reference date*.
@@ -57,6 +58,9 @@ a later date is a number N years after a date if
 
 a later date is a number N calendar months after a date if
     prolog le_temporal_add_months(the date, N, the later date).
+
+an earlier date is a number N calendar months before a date if
+    prolog le_temporal_sub_months(the date, N, the earlier date).
 
 a date is in the period from a start date to an end date if
     prolog le_temporal_in_period(the date, the start date, the end date).

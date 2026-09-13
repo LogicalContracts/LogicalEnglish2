@@ -64,6 +64,10 @@ le_temporal_add_months(date(Y, M, D), N, date(Y2, M2, D2)) :-
     le_temporal_days_in_month(Y2, M2, L),
     D2 is min(D, L).
 
+le_temporal_sub_months(Date, N, Earlier) :-
+    M is -N,
+    le_temporal_add_months(Date, M, Earlier).
+
 le_temporal_add_years(Date, N, Later) :-
     M is N * 12,
     le_temporal_add_months(Date, M, Later).

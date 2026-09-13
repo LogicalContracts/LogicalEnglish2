@@ -137,6 +137,7 @@ le_grammar:parse_node_extension(Tokens, Children, Templates, VMIn, VMOut, Logic)
 	le_grammar:lps_target,
 	lps_split_time(Tokens, Core, Suffix, VMIn, VM1),
 	Core \== [],
+	\+ template_to_number(Suffix, Tokens, Templates, VMIn),
 	le_grammar:parse_node(Core, [], Templates, VM1, VM2, Inner),
 	wrap_time(Suffix, Inner, Wrapped),
 	(   Children == []
@@ -144,6 +145,17 @@ le_grammar:parse_node_extension(Tokens, Children, Templates, VMIn, VMOut, Logic)
 	;   le_grammar:hierarchy_to_logic(Children, Templates, VM2, VMOut, Kids),
 	    ( Kids == true -> Logic = Wrapped ; Logic = and(Wrapped, Kids) )
 	).
+
+%   `… to 5` is the prospective form with an integer time — unless the `to`
+%   belongs to a template: `the amount is equal to 5` is le_equal_to/2, and
+%   read as `the amount is equal` at time 5 it was a goal of the generic "is"
+%   form (a constraint on an EVM twin's uint256 maximum came out that way).
+%   A line that is itself an instance of a template (not merely of the
+%   generic "is" form) keeps its `to N`.
+template_to_number(to(N), Tokens, Templates, VMIn) :-
+	integer(N),
+	\+ \+ ( le_grammar:parse_literal(Tokens, Templates, VMIn, _, Lit, _, true),
+	        \+ functor(Lit, le_is, 2) ).
 
 inner_ctx(lps_from_to(_, A, B), _, from_to(A, B)) :- !.
 inner_ctx(lps_at(_, T), _, at(T)) :- !.
@@ -286,8 +298,15 @@ word_of(word(W, _), W).
 time_or_var([number(N, _)], VM, VM, N) :- !.
 time_or_var(Tokens, VMIn, VMOut, Var) :-
 	maplist(word_of, Tokens, Words),
-	le_grammar:extract_var_name(Words, Name),
+	le_grammar:extract_var_name(Words, Name), !,
 	le_grammar:unify_with_vmap(Name, Var, VMIn, VMOut, true).
+%   A bare name the sentence has already introduced: `... becomes amount`
+%   (the right-hand side of an update with no arithmetic), which used to
+%   drop the whole law without a word.
+time_or_var(Tokens, VM, VM, Var) :-
+	maplist(word_of, Tokens, Words),
+	atomic_list_concat(Words, ' ', Name),
+	le_grammar:member_var_name(Name, Var, VM).
 
 
 		 /*******************************

@@ -154,6 +154,24 @@ test(numbered_body, [condition(current_module(le_extensions))]) :-
     text_results(Text, Results),
     assertion(all_pass(Results)).
 
+test(scenario_header_with_a_locator_keeps_its_lines) :-
+    le_write(program([kb(x)], [template(p, "*a thing* is p", [undefined]),
+                               scenario(s1, [fact(p(a)), expects(q, [p(a)])],
+                                        [as_stated_in("tests.xlsx"), at('case 3')]),
+                               query(q, p(_))]), Text),
+    assertion(sub_string(Text, _, _, _, "scenario s1 is, as stated in \"tests.xlsx\" at case 3:\n    a is p.")),
+    text_results(Text, Results),
+    assertion(all_pass(Results)).
+
+test(comparison_of_an_arithmetic_operand_is_evaluated) :-
+    le_write(program([kb(x)], [template(after, "block *a height* is at least *a number* blocks after block *a first height*", []),
+                               rule(after(H, N, F), H - F >= N, []),
+                               scenario(s, [expects(q, []), expects(r, [after(2000, 1000, 100)])], []),
+                               query(q, after(1050, 1000, 100)),
+                               query(r, after(2000, 1000, 100))]), Text),
+    text_results(Text, Results),
+    assertion(all_pass(Results)).
+
 :- end_tests(le_writer_ir).
 
 :- begin_tests(le_writer_roundtrip).
