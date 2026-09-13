@@ -113,6 +113,14 @@ le_example_relpath(Name0, Path) :-
    ;  true
    ).
 
+%  The LPS target's second-pass hooks (le_lps.pl). A document declaring
+%  `the target language is: lps.` parses only with them loaded; without them
+%  every LPS sentence stays an uninterpreted token list and the knowledge base
+%  section fails to process — which is how verify/1 used to reject every LPS
+%  document (defect D4 of InsurLE2/docs/MiggratingFromOtherSystems.md). The
+%  hooks are gated on the declared target, so a Prolog document is unaffected.
+:- use_module(le_lps, []).
+
 %!  is_a_hierarchy(+KBmodule, -Hierarchy) is det.
 %
 %   Finds all is_a(Type, SuperType) relationships in the KB module and builds
@@ -2665,6 +2673,39 @@ verify(LEfilePath) :-
         verify_in_folder(LEfilePath, Dir),
         retractall(le_include_base(_))).
 
+%!  verify_lps_emission(+KB, +LEfilePath) is det.
+%
+%   The LPS half of verifying an `lps`-target document: translate it to LPS
+%   internal syntax, as `getLps` does, and print what the emitter alone can
+%   see (a `when` with no trigger, a condition whose role cannot be decided,
+%   ...), with its line and column. The issues the loader recorded are
+%   printed above already. A Prolog-target document has nothing to emit.
+verify_lps_emission(KB, LEfilePath) :-
+    (   catch(KB:le_target_language(lps), _, fail)
+    ->  lps_emission_issues(KB, LEfilePath, Issues),
+        forall(member(le_lps_issue(Severity, Type, Msg, Line, Col), Issues),
+               print_message(Severity, format("LPS ~w: ~w (line ~w, column ~w)",
+                                              [Type, Msg, Line, Col])))
+    ;   true
+    ).
+
+%!  lps_emission_issues(+KB, +LEfilePath, -Issues) is det.
+%
+%   The diagnostics of the LPS emitter for a loaded `lps` document, as
+%   le_lps_issue(Severity, Type, Message, Line, Col) terms — the ones the
+%   emitter adds, not those it carries over from the loader.
+lps_emission_issues(KB, LEfilePath, Issues) :-
+    read_file_to_string(LEfilePath, Text, [encoding(utf8)]),
+    (   catch(le_lps:le_lps_module(KB, Text, _, _, All), E,
+              ( print_message(error, E), fail ))
+    ->  findall(I, ( member(I, All), I = le_lps_issue(_, Type, Msg, _, _),
+                     \+ ( current_predicate(KB:le_issue/6),
+                          KB:le_issue(_, Type, Msg, _, _, _) ) ),
+                Issues)
+    ;   Issues = [le_lps_issue(error, lps_emission_failed,
+                               'the document could not be translated to LPS', 0, 0)]
+    ).
+
 verify_in_folder(LEfilePath, Dir) :-
     uuid(UUID), atom_concat(v, UUID, KBmodule),
     forall(is_system_predicate(F/N), dynamic(KBmodule:F/N)),
@@ -2685,6 +2726,7 @@ verify_in_folder(LEfilePath, Dir) :-
       forall(KBmodule:le_issue(Severity, Type, Desc, _Fix, Start, End),
              print_message(Severity, Type - [Desc, Start, End]))
     ; true ),
+    verify_lps_emission(KBmodule, LEfilePath),
     atom_concat(LEfilePath, '.tests', TestsFile),
     (   exists_file(TestsFile) ->  
         setup_call_cleanup(open(TestsFile, read, Stream), read_tests(Stream, LegacyTests), close(Stream))

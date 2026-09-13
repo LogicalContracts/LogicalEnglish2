@@ -35,6 +35,12 @@ When no opener matches, the program is parsed as English (decision O-1).
 - **`messages.csv`** — diagnostics and other generated messages, with
   **named placeholders** `{name}` that translations may reorder ( `{newline}`
   is predefined). An empty cell falls back to English.
+- **`writer_words.csv`** — the few words the LE writer (`le_writer.pl`, the
+  translators' last step) inserts when it *generates* a program: indefinite
+  and definite articles, ordinals and `which`, each in a masculine (`_m`) and
+  a feminine (`_f`) form, and the noun endings taken as feminine when a
+  generated variable needs an article (`feminine_endings`, a heuristic for
+  readability only — the parser accepts either form).
 - **`ui.csv`** — editor/UI chrome strings, keyed by the canonical English
   string. An empty cell falls back to English.
 

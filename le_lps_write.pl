@@ -415,7 +415,7 @@ expr_text(_, T, S) :- number(T), !, format(atom(S), '~w', [T]).
 expr_text(Ns, T, S) :- arith(T), !, expr_operand(Ns, T, S).
 expr_text(_, T, S) :- format(atom(S), '~w', [T]).
 
-arith(T) :- compound(T), T =.. [Op, _, _], memberchk(Op, [+, -, *, /]).
+arith(T) :- compound(T), T =.. [Op, _, _], memberchk(Op, [+, -, *, /, //, mod]).
 
 expr_operand(Ns, T, S) :- var(T), !, name_of(Ns, T, S0), drop_article(S0, S).
 expr_operand(_, T, S) :- number(T), !, format(atom(S), '~w', [T]).
