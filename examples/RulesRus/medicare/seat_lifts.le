@@ -95,7 +95,7 @@ a claim needs a certificate of medical necessity
 rule seat_lifts_codes with provenance Policy Article A52518,
         confer "the supplier may bill the seat lift mechanism using E0627 or E0629, and bill A9270 for the chair":
 the policy for code a code is seat_lifts
-    if the code is in ["E0627", "E0629", "E0172", "A9270"].
+    if the code is in ["E0627", "E0629", "E0172"].
 
 section applicability is:
 
