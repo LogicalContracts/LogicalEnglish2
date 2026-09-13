@@ -1,90 +1,0 @@
-CBP ruling NY N338772 (2024-07-10): The tariff classification and status under the Dominican Republic-Central America-United States Free Trade Agreement (DR-CAFTA) of men’s shirts from Guatemala
-https://rulings.cbp.gov/ruling/N338772 — text as served by https://rulings.cbp.gov/api/ruling/N338772
-
-N338772 
-
-July 10, 2024 
-
-CLA-2-62:OT:RR:NC:N3:356
-
-CATEGORY: Classification
-
-TARIFF NO.: 6205.20.2051; 6205.20.2067
-
-Mr. Pinsiri Fernando
-Vision Apparel, S.A.
-2 Avenida 1-59San Pedro Sacatepequez 01058Guatemala
-
-RE: The tariff classification and status under the Dominican Republic-Central America-United States Free Trade Agreement (DR-CAFTA) of men’s shirts from Guatemala
-
-Dear Mr. Fernando:
-
-In your letter dated March 11, 2024, you requested a ruling on the classification and status under the DR-CAFTA status of two styles of men’s shirts from Guatemala. Our response was delayed due to laboratory analysis. Your submitted samples will be retained in our office.
-
-Style 789023555314 is a men’s shirt stated to be constructed from 100% cotton chambray woven fabric. The garment features a self-fabric button-down collar; a left-over-right, full front opening with seven button closures; long, vented sleeves with one button on each cuff and one button on each vent; a patch pocket on the left chest; a back yoke; and a curved, hemmed bottom.
-
-Style 710804257 is a men’s shirt stated to be constructed from 100% cotton woven fabric. The garment features a self-fabric button-down collar; a left-over-right, full front opening with six button closures; long, vented sleeves with one button on each cuff and one button on each vent; a back yoke; a patch pocket on the left chest; and a curved, hemmed bottom. 
-
-The applicable subheading for Style 789023555314 will be 6205.20.2051, Harmonized Tariff Schedule of the United States (HTSUS), which provides for: Men’s or boys’ shirts: Of cotton: Other: Other: Other: With two or more colors in the warp and/or the filling: Other: Men’s. The general rate of duty will be 19.7 percent ad valorem. 
-
-The applicable subheading for Style 710804257 will be 6205.20.2067, HTSUS, which provides for: Men’s or boys’ shirts: Of cotton: Other: Other: Other: Other: Men’s: Other. The general rate of duty will be 19.7 percent ad valorem.
-
-You state that Styles 789023555314 and 710804257 are cut and sewn in Guatemala from fabric of Indian origin, and that the finished garments will be exported directly from Guatemala to the United States. You have asked whether the shirts are eligible for preferential duty treatment under the DR-CAFTA in accordance with paragraph 2 of the Office of Textiles and Apparel’s (OTEXA) DR-CAFTA short supply list (Annex 3.25). Specifically, your inquiry concerns whether the shirts are eligible for DR-CAFTA preference pursuant to short supply number 24.
-
-General Note 29, HTSUS, sets forth the criteria for determining whether a good is originating under the DR-CAFTA. General Note 29(b), HTSUS, (19 U.S.C. § 1202) states, in pertinent part:
-
-For the purposes of this note, subject to the provisions of subdivisions (c), (d), (m) and (n) thereof, a good imported into the customs territory of the United States is eligible for treatment as an originating good under the terms of this note if-
-
-(i)the good is a good wholly obtained or produced entirely in the territory of one or more of the parties to the Agreement;
-
-(ii) the good was produced entirely in the territory of one or more of the parties to the Agreement, and-
-
-(A) each of the non-originating materials used in the production of the good undergoes an applicable change in tariff classification specified in subdivision (n) of this note; or
-
-(B) the good otherwise satisfies any applicable regional value content or other requirements specified in subdivision (n) of this note;
-
-and the good satisfies all other applicable requirements of this note; or
-
-(iii) the good was produced entirely in the territory of one or more of the parties to the Agreement exclusively from originating materials.
-
-Since the fabric of the shirts is produced in India, the shirts are not wholly produced within the DR-CAFTA territory or produced entirely within the DR-CAFTA territory exclusively from originating materials. Moreover, neither shirt meets the specific rule of origin, set out in HTSUS, GN 29(n)/62, that applies to its tariff classification.
-
-However, GN 29(m)(viii)(B) states, in pertinent part:
-
-An apparel good of chapter 61 or 62 of the tariff schedule and imported under heading 9822.05.01 of the tariff schedule shall be considered originating if it is cut or knit to shape, or both, and sewn or otherwise assembled in the territory of one or more of the parties to the Agreement, and if the fabric of the outer shell, exclusive of collars and cuffs where applicable, is wholly of—
-
-(1) one or more fabrics listed in U.S. note 20 to subchapter XXII of chapter 98….
-                                      HTSUS, Chapter 98, Subchapter XXII, U.S. Note 20(a) states:
-
-Heading 9822.05.01 shall apply to textile or apparel goods of chapters 50 through 63 and subheading 9404.90 that contain any of the fabrics, yarns or fibers set forth herein, are described in general note 29 to the tariff schedule and otherwise meet the requirements of such general note 29.
-
-Within HTSUS, Chapter 98, Subchapter XXII, U.S. Note 20(a) and OTEXA’s short supply list for DR-CAFTA (Annex 3.25) are the following designated fabrics:
-
-(24) Fabrics classified in subheading 5208.42 or 5208.49, not of square construction, containing more than 85 warp ends and filling picks per square centimeter, of average yarn number exceeding 85 metric, of average yarn number exceeding 135 metric if the fabric is Oxford construction.
-
-Please note that only fabrics meeting the exact description and specifications set out above will be deemed to be commercially unavailable and eligible to be used to qualify products for DR-CAFTA preferential treatment pursuant to GN 29(m)(viii)(B).
-
-The fabrics of Styles 789023555314 and 710804257 were tested by the Customs and Border Protection laboratory, and it was determined that neither fabric meets the exact description and specifications set out in short supply number 24. Specifically, each fabric is of square construction, neither fabric contains more than 85 warp ends and filling picks per square centimeter, and both fabrics are of an Oxford construction with an average yarn number not exceeding 135 metric.
-
-Consequently, Styles 789023555314 and 710804257 are not entitled to a free rate of duty under the DR-CAFTA pursuant to short supply number 24, because they do not meet the requirements of HTSUS, GN 29(m)(viii)(B).
-
-Styles 789023555314 and 710804257 not properly marked with their country of origin. Specifically, a fabric label containing country of origin information is sewn into the inner button placket of each shirt. Each label is sewn so that the printing is oriented sideways to the reader.
-
-Section 134.11 of the Customs Regulations (19 C.F.R. 134.11) provides in part:Unless excepted by law... every article of foreign origin (or its container) imported into the U.S. shall be marked in a conspicuous place as legibly, indelibly, and permanently as the nature of the article (or container) will permit, in such a manner as to indicate to an ultimate purchaser in the U.S. the English name of the country of origin of the article, at the time of importation into the Customs territory of the U.S.Further, Treasury Decision (T.D.) 54640(6) (1958) provides, in pertinent part:Subject to the exceptions from marking provided under Section 304(a), Tariff Act of 1930, as amended… wearing apparel, such as shirts, blouses, coats and sweaters, etc., must be legibly and conspicuously marked with the name of the country of origin by means of a fabric label or label made from natural or synthetic film sewn or otherwise permanently affixed on the inside center of the neck midway between the shoulder seams or in that immediate area or otherwise permanently marked in that area in some other manner.Finally, Styles 789023555314 and 710804257 lack fiber content marking. Textile fiber products imported into the United States must be labeled in accordance with the Textile Fiber Products Identification Act (15 U.S.C. 70 through 70k) and the rules promulgated thereunder by the Federal Trade Commission. We suggest you contact the Federal Trade Commission, 600 Pennsylvania Avenue, N.W., Washington, D.C. 20580 for information concerning the requirements of this Act. Information may also be obtained at the Federal Trade Commission website, www.ftc.gov.
-
-Duty rates are provided for your convenience and are subject to change. The text of the most recent HTSUS and the accompanying duty rates are provided at https://hts.usitc.gov/current.
-
-The holding set forth above applies only to the specific factual situation and merchandise description as identified in the ruling request. This position is clearly set forth in Title 19, Code of Federal Regulations (CFR), Section 177.9(b)(1). This section states that a ruling letter is issued on the assumption that all of the information furnished in the ruling letter, whether directly, by reference, or by implication, is accurate and complete in every material respect. In the event that the facts are modified in any way, or if the goods do not conform to these facts at time of importation, you should bring this to the attention of U.S. Customs and Border Protection (CBP) and submit a request for a new ruling in accordance with 19 CFR 177.2. Additionally, we note that the material facts described in the foregoing ruling may be subject to periodic verification by CBP.
-
-This ruling is being issued under the provisions of Part 177 of the Customs and Border Protection Regulations (19 C.F.R. 177).
-
-A copy of the ruling or the control number indicated above should be provided with the entry documents filed at the time this merchandise is imported. If you have any questions regarding the ruling, please contact National Import Specialist Maryalice Nowak at maryalice.nowak@cbp.dhs.gov.
-
-Should you wish to request an administrative review of this ruling, submit a copy of this ruling and all relevant facts and arguments within 30 days of the date of this letter, to the Director, Commercial Rulings Division, U.S. Customs and Border Protection, Regulations & Rulings, 90 K Street N.E. – 10th floor, Washington, DC 20229-1177.
-
-
-Sincerely, 
-
-Steven A. Mack 
-Director 
-National Commodity Specialist Division 

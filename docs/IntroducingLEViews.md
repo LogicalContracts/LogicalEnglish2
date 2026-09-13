@@ -490,7 +490,8 @@ Two more views in the repository show the rest:
 
   ![The claim file: a result that waits for a judgment](IntroducingLEViews/07-claim-file.png)
 
-- **`customs/cbp_62.le`, "worksheet"** is the classification worksheet a US
+- **`customs/cbp_62.le`, "worksheet"** (in the InsurLE repository,
+  `examples/customs/`) is the classification worksheet a US
   customs specialist asked for, in a review of the customs programs
   (CustomsOfficerReport.md, in the InsurLE repository):
   - the good's facts as the CBP ruling states them, grouped as article, fabric,

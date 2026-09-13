@@ -1,111 +1,0 @@
-CBP ruling NY N286226 (2017-06-09): The tariff classification and status under the Dominican Republic-Central America-United States Free Trade Agreement (DR-CAFTA) of a men’s woven vest from Guatemala
-https://rulings.cbp.gov/ruling/N286226 — text as served by https://rulings.cbp.gov/api/ruling/N286226
-
-N286226
-
-June 9, 2017
-
-CLA-2-62:OT:RR:NC:N3:356
-
-CATEGORY:	Classification
-
-TARIFF NO.: 6211.39.3040
-
-Mr. Alexis Martinez-Medina
-Sam Sol, S.A.
-Km 37.5 Carretera Interamerica
-Santiago Sacatepequez 
-Guatemala
-03017
-
-RE:	The tariff classification and status under the Dominican Republic-Central America-United States Free Trade Agreement (DR-CAFTA) of a men’s woven vest from Guatemala   
-
-Dear Mr. Martinez-Medina:
-
-In your letter dated May 3, 2017, you requested a ruling on the classification and eligibility under the DR-CAFTA of a men’s woven vest from Guatemala. Your sample will not be returned.
-
-The submitted sample, Style 8361V, is a men’s vest constructed from four panels sewn together lengthwise. The garment is constructed of two different fabrics: The two front panels are constructed from 100% worsted wool, woven fabric, and the two rear panels are constructed from 100% polyester, woven fabric. You state that the average fiber diameter of the wool yarn used for the fabric of the front panels is 17.5 microns. Both the front and back panels are lined with the same 100% polyester, woven fabric used to construct the rear panels. Style 8361V features a V-neckline; oversized armholes; a full front opening with five button closures; pointed front panels; two besom pockets at the waist; and an adjustable polyester fabric belt in the rear with a metal buckle. 
-
-As noted above, Style 8361V is constructed from two different fabrics. As such, it is considered a composite good, with its classification determined by the material that imparts its essential character. General Rules of Interpretation (GRI) 3(b), Harmonized Tariff Schedule of the United States (HTSUS), noted. The essential character of Style 8361V is imparted by the 100% worsted wool, woven fabric, as this material comprises the entire front of the garment.
-
-Consequently, the applicable subheading for Style 8361V will be 6211.39.3040, HTSUS, which provides for: Track suits, ski-suits and swimwear; other garments: Other garments, men's or boys': Of other textile materials: Other: Of wool or fine animal hair: Vests. The rate of duty will be 12 percent ad valorem.
-
-The manufacturing operations for Style 8361V are as follows:
-
-Wool hairs of Chinese origin are imported into Mexico. 
-
-In Mexico, the wool hairs are cleaned, carded, combed, and spun into wool yarns. Also in Mexico, the wool yarns are woven into fabric that is used to produce the front panels of the garments, and the fabric is dyed.
-
-The wool fabric is shipped from Mexico to Guatemala.
-
-In Korea, non-textured polyester filament yarns are extruded, formed, and woven into fabric that is used to produce the rear panels and lining of the garments. Also in Korea, the fabric is dyed.
-
-The polyester fabric is shipped from Korea to Guatemala.
- 
-The thread that is used to sew the garments is of 100% polyester filament. It is formed and finished in China, and imported into Guatemala. 
-
-In Guatemala, the fabrics are cut, sewn, and assembled into the finished garments.
-
-The garments are exported from Guatemala directly to the United States. 
-
-General Note (GN) 29, HTSUS, sets forth the criteria for determining whether a good is originating under the DR-CAFTA. GN 29(b), HTSUS (19 U.S.C. § 1202) states:For the purposes of this note, subject to the provisions of subdivisions (c), (d), (m) and (n) thereof, a good imported into the customs territory of the United States is eligible for treatment as an originating good under the terms of this note if—
-
-(i) the good is a good wholly obtained or produced entirely in the territory of one or more of the parties to the Agreement;
-(ii) the good was produced entirely in the territory of one or more of the parties to the Agreement, and—
-(A) each of the non-originating materials used in the production of the good undergoes an applicable change in tariff classification specified in subdivision (n) of this note; or
-(B) the good otherwise satisfies any applicable regional value content or other requirements specified in subdivision (n) of this note;
-
-and the good satisfies all other applicable requirements of this note; or
-(iii) the good was produced entirely in the territory of one or more of the parties to the Agreement exclusively from originating materials.
-
-As style 8361V contains non-originating materials, it must undergo the applicable change in tariff classification specified in GN 29(n) in order to meet the requirements of GN 29(b)(ii)(A). For goods classified in subheading 6211.39, GN 29(n)/62.38 requires:
-
-A change to subheadings 6211.31 through 6211.39 from any other chapter, except from headings 5111 through 5113, 5204 through 5212, 5310 through 5311, chapter 54, headings 5508 through 5516, 5801 through 5802 or 6001 through 6001, provided that the good is cut or knit to shape, or both, and sewn or otherwise assembled in the territory or one or more of the parties to the Agreement. 
-
-In addition to the tariff shift rule set out in GN 29(n)/62.38, the good must also meet any applicable chapter rules found in GN 29(n), Chapter 62. The chapter rules that apply to the subject good are 1, 2, and 4.     
-
-GN 29(n), Chapter 62, Chapter rule 2 states, in pertinent part: 
-
-For purposes of determining whether a good of this chapter is originating, the rule applicable to that good shall only apply to the component that determines the tariff classification of the good and such component must satisfy the tariff change requirements set out in the rule for that good.
-
-The component that determines the tariff classification of the subject good is the worsted wool woven fabric. Therefore, this fabric is the only component that must satisfy the tariff shift rule of GN 29(n)/62.38.
-
-The remaining chapter rules that apply to the subject good (GN 29(n), Chapter 62, Chapter rules 1 and 4) concern the origin of the visible lining fabric and sewing thread, respectively, that are used in the production of the good. However, as noted below, the subject good fails to meet the requirements set out in each of these rules.  
-
-GN 29(n), Chapter 62, Chapter rule 1 states, in pertinent part:
-
-…the fabrics identified in the following headings and subheadings, when used as visible lining material in certain men's… suits… and similar articles…other than men’s… vests… of wool fabric, of subheadings… 6211.39… provided that such goods are not made of carded wool fabric or made from wool yarn having an average fiber diameter of less than or equal to 18.5 microns, must be both formed from yarn and finished in the territory of one or more of the parties to the Agreement:…5407.61…
-
-GN 29(n), Chapter 62, Chapter rule 4 states, in pertinent part:
-
-Notwithstanding chapter rule 2, a good of this chapter, other than— … (b) men’s… vests… of wool fabric, of subheadings… 6211.39… provided that such goods are not made of carded wool fabric or made from wool yarn having an average fiber diameter of less than or equal to 18.5 microns, containing sewing thread of 5204, 5401 or 5508 or yarn of 5402 used as sewing thread shall be considered originating only if such sewing thread or yarn is both formed and finished in the territory of one or more of the parties to the Agreement. 
-
-Since Style 8361V is made of worsted wool fabric, it is not made of carded wool fabric. However, the average fiber diameter of the wool yarn used to produce this fabric is 17.5 microns. Since 17.5 microns is less than 18.5 microns, the exceptions noted in GN 29(n), Chapter rules 1 and 4 do not apply to the subject good. Accordingly, the visible lining fabric must be formed from yarn and finished in the territory of one of more parties to the Agreement, and the sewing thread used to assemble the garments must be both formed and finished in the territory of one or more parties to the Agreement.
-
-You have provided information certifying that the visible lining of Style 8361V is comprised of fabric of non-textured polyester filament yarn, which is classified under subheading 5407.61, HTSUS. Because this fabric is formed from yarn and finished in Korea, it fails to meet the requirements set out in GN 29(n), Chapter 62, Chapter rule 1.    
-
-Further, since the polyester sewing thread used to assemble the garments is classified in heading 5401, HTSUS, and is formed and finished in China, it fails to meet the requirements of GN 29(n), Chapter 62, Chapter rule 4. 
-
-Finally, you have asked whether Style 8361V may be imported under the “Mexican cumulation” provision of the DR-CAFTA. GN 29(d)(vii) sets forth the “cumulation” provision of the DR-CAFTA and provides:Notwithstanding other provisions of this note, for purposes of determining whether a good of chapter 62 of the tariff schedule is an originating good, materials used in the production of such a good that are produced in the territory of Canada or of Mexico and that would be originating under this note if produced in the territory of a party to the Agreement shall be considered as having been produced in the territory of a party to the Agreement, provided that the United States Trade Representative has determined in a notice published in the Federal Register that the requirements of Appendix 4.1-B of the Agreement specified in subdivision (a) of this note have been met with respect to Canada or Mexico, as the case may be, and has announced the effective date of U.S. note 21 to subchapter XXII of chapter 98 of the tariff schedule. Such goods shall be entered under subheading 9822.05.05 of the tariff schedule, subject to the terms of such U.S. note 21, on or after the effective date specified in such notice. [Compiler’s Note: effective with respect to materials from MX, 8/15/08; reference to subheading 9822.05.05 is obsolete and current provisions appear to be 9822.05.11 and 9822.05.13.]
-Please note that Style 8361V does not meet the provisions of either 9822.05.11 or 9822.05.13, which are set forth in HTSUS, Chapter 98, Subchapter XXII, U.S. Notes 21(b) and (c), respectively. Specifically, the tariff classification number of the garment (6211.39) is not among those enumerated in Note 21(b). Further, as detailed above, Note 21(c) does not apply to Style 8361V because the average fiber diameter of the yarn used to produce the fabric of the garment is less than 18.5 microns.      
-Based on the facts provided, Style 8316V fails to qualify for DR-CAFTA preferential treatment, because it does not meet the requirements of GN 29(b)(ii)(A), HTSUS. The merchandise will not be entitled to a free rate of duty under the DR-CAFTA.   
-
-In addition, the submitted sample is not properly marked with its country of origin. Specifically, a label containing country of origin and fiber content information has been sewn into the inside left side seam of the garment. The label is sewn so that the printing is oriented sideways to the reader. 
-
-Section 134.11 of the Customs Regulations (19 C.F.R. 134.11) provides in part:Unless excepted by law...every article of foreign origin (or its container) imported into the U.S. shall be marked in a conspicuous place as legibly, indelibly, and permanently as the nature of the article (or container) will permit, in such a manner as to indicate to an ultimate purchaser in the U.S. the English name of the country of origin of the article, at the time of importation into the Customs territory of the U.S.Treasury Decision (T.D.) 54640(6) (1958) provides, in pertinent part, as follows:Subject to the exceptions from marking provided under Section 304(a), Tariff Act of 1930, as amended…wearing apparel, such as shirts, blouses, coats and sweaters, etc., must be legibly and conspicuously marked with the name of the country of origin by means of a fabric label or label made from natural or synthetic film sewn or otherwise permanently affixed on the inside center of the neck midway between the shoulder seams or in that immediate area or otherwise permanently marked in that area in some other manner.Further, textile fiber products imported into the United States must be labeled in accordance with the Textile Fiber Products Identification Act (15 U.S.C. 70 through 70k) and the rules promulgated thereunder by the Federal Trade Commission. We suggest you contact the Federal Trade Commission, 600 Pennsylvania Avenue, N.W., Washington, D.C. 20580 for information concerning the requirements of this Act. Information may also be obtained at the Federal Trade Commission website, www.ftc.gov.
-
-Duty rates are provided for your convenience and are subject to change. The text of the most recent HTSUS and the accompanying duty rates are provided on the World Wide Web at https://hts.usitc.gov/current.
-
-This ruling is being issued under the provisions of Part 177 of the Customs Regulations (19 C.F.R. 177).
-
-A copy of the ruling or the control number indicated above should be provided with the entry documents filed at the time this merchandise is imported. If you have any questions regarding the ruling, contact National Import Specialist Maryalice Nowak at maryalice.nowak@.cbp.dhs.gov.
-
-Sincerely,
-
-
-
-
-Steven A. Mack
-Director
-National Commodity Specialist Division
-

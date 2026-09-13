@@ -5,7 +5,7 @@ import * as path from 'path';
 // The line of gri.le whose rule proves the root: the head of the GRI 6 rule
 // (the subheading within the heading the good is classified in).
 function subheadingRuleLine(): number {
-    const text = fs.readFileSync(path.join(__dirname, '../../examples/RulesRus/customs/gri.le'), 'utf8');
+    const text = fs.readFileSync(path.join(__dirname, '../../examples/moreExamples/insureLE2/customs/gri.le'), 'utf8');
     return text.split('\n').findIndex(l => l.startsWith('the subheading of a good is a code')) + 1;
 }
 
@@ -23,7 +23,7 @@ const editorState = () => {
 test.describe('Navigation into included resources', () => {
     test('clicking a node proved in an included file opens that file at the rule, in a tab', async ({ page }) => {
         test.setTimeout(120000);
-        await page.goto('index.html?example=RulesRus/customs/apparel_cbp&scenario=ny_n362700&query=subheading');
+        await page.goto('index.html?example=insureLE2/customs/apparel_cbp&scenario=ny_n362700&query=subheading');
         // Wait until the URL's selections applied (the module load can be slow).
         await expect(page.locator('#query-select')).toHaveValue('subheading', { timeout: 60000 });
         await page.click('#btn-query');
@@ -49,7 +49,7 @@ test.describe('Navigation into included resources', () => {
         await expect(tabs.nth(0)).toHaveClass(/program/);
         await expect(root).toContainText('the subheading of style');
         await expect(page.locator('#query-select')).toHaveValue('subheading');
-        expect(new URL(page.url()).searchParams.get('example')).toBe('RulesRus/customs/apparel_cbp');
+        expect(new URL(page.url()).searchParams.get('example')).toBe('insureLE2/customs/apparel_cbp');
 
         // A range of the program itself (a click on one of its own nodes, in
         // the graph, the proof game...) brings its tab back.
@@ -62,7 +62,7 @@ test.describe('Navigation into included resources', () => {
         await tabs.nth(1).click();
         await expect(tabs.nth(1)).toHaveClass(/active/);
         await expect(page.locator('#answers-list .answer-item')).toHaveCount(0);
-        expect(new URL(page.url()).searchParams.get('example')).toBe('RulesRus/customs/gri');
+        expect(new URL(page.url()).searchParams.get('example')).toBe('insureLE2/customs/gri');
         // ... and back: apparel_cbp's answers and explanation are as they were.
         await tabs.nth(0).click();
         await expect(page.locator('#answers-list .answer-item').first()).toBeVisible();

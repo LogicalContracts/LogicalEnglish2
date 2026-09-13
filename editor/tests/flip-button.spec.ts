@@ -7,7 +7,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Flip button', () => {
     test('flips the selected answer', async ({ page }) => {
         test.setTimeout(120000);
-        await page.goto('index.html?example=RulesRus/customs/plastics_cbp&scenario=ny_n363253&query=heading');
+        await page.goto('index.html?example=insureLE2/customs/plastics_cbp&scenario=ny_n363253&query=heading');
         await expect(page.locator('#query-select')).toHaveValue('heading', { timeout: 90000 });
         await page.click('#btn-query');
         const answer = page.locator('#answers-list .answer-item.selected');
@@ -38,7 +38,7 @@ test.describe('Flip button', () => {
     // A named flip query's answers are change sets: Flip offers the flip itself.
     test('on a flip query, offers its goal', async ({ page }) => {
         test.setTimeout(120000);
-        await page.goto('index.html?example=RulesRus/customs/plastics_cbp&scenario=ny_n363253&query=household');
+        await page.goto('index.html?example=insureLE2/customs/plastics_cbp&scenario=ny_n363253&query=household');
         await expect(page.locator('#query-select')).toHaveValue('household', { timeout: 90000 });
         await page.click('#btn-query');
         await expect(page.locator('#answers-list .answer-item.selected')).toContainText('add:', { timeout: 90000 });
@@ -52,7 +52,7 @@ test.describe('Flip button', () => {
     // or read back it would be the number 3901.9 and "no change is needed".
     test('keeps a number-like value a string', async ({ page }) => {
         test.setTimeout(120000);
-        await page.goto('index.html?example=RulesRus/customs/cbp_39&scenario=ny_n345907&query=subheading');
+        await page.goto('index.html?example=insureLE2/customs/cbp_39&scenario=ny_n345907&query=subheading');
         await expect(page.locator('#query-select')).toHaveValue('subheading', { timeout: 90000 });
         await page.click('#btn-query');
         await page.locator('#answers-list .answer-item', { hasText: 'FUSABOND A560' }).click({ timeout: 90000 });

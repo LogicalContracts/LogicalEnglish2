@@ -2,7 +2,8 @@ import { test, expect } from '@playwright/test';
 
 // The forms and views for people who state facts rather than write rules,
 // on a program whose templates all come from the resources it includes
-// (examples/RulesRus/customs/by_hand.le includes the tariff):
+// (examples/moreExamples/insureLE2/customs/by_hand.le, from the InsurLE
+// repository checked out beside this one, includes the tariff):
 // - the Scenario Editor, opened before the program has loaded, still offers
 //   the included templates; each blank suggests the values the rules read
 //   there; a fact takes the passage that states it ("confer …");
@@ -13,7 +14,7 @@ test.describe('Forms and views for stating facts', () => {
     test('Scenario Editor: included templates, value suggestions, a citation', async ({ page, context }) => {
         test.setTimeout(120000);
         await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-        await page.goto('index.html?example=RulesRus/customs/by_hand');
+        await page.goto('index.html?example=insureLE2/customs/by_hand');
         await page.waitForSelector('.monaco-editor', { timeout: 30000 });
         // no load yet: the menu entry loads the program before opening the window
         const [se] = await Promise.all([
@@ -49,7 +50,7 @@ test.describe('Forms and views for stating facts', () => {
 
     test('Scenario Variations: the facts of included templates are editable rows', async ({ page, context }) => {
         test.setTimeout(120000);
-        await page.goto('/executive?program=RulesRus/customs/plastics_cbp&scenario=ny_n363253&query=subheading');
+        await page.goto('/executive?program=insureLE2/customs/plastics_cbp&scenario=ny_n363253&query=subheading');
         await expect(page.locator('#answers .answer').first()).toBeVisible({ timeout: 90000 });
         const [sv] = await Promise.all([context.waitForEvent('page'), page.click('#tool-variations')]);
         await sv.waitForLoadState();
@@ -60,7 +61,7 @@ test.describe('Forms and views for stating facts', () => {
 
     test('Executive view: the cited steps first, each opening its passage', async ({ page }) => {
         test.setTimeout(120000);
-        await page.goto('/executive?program=RulesRus/customs/cbp_62&scenario=ny_n346508&query=subheading');
+        await page.goto('/executive?program=insureLE2/customs/cbp_62&scenario=ny_n346508&query=subheading');
         const answer = page.locator('#answers .answer').first();
         await expect(answer).toBeVisible({ timeout: 90000 });
         await answer.locator('.answer-head').click();

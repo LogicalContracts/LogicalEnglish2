@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      all (core + trees requiring the proprietary le_extensions.pl)
 Command:    testing/run_tests.sh le --with-extensions   (or: runAllTests)
 Sibling:    testSuiteCoreStatus.txt — core (this repository alone; extension-dependent trees excluded)
-Generated:  2026-09-12 17:12:37 UTC
+Generated:  2026-09-13 08:58:37 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 162
-Total tests:     683
-Passed:          683
+Files processed: 425
+Total tests:     3324
+Passed:          3324
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -115,6 +115,146 @@ Detailed File Summary:
   [PASS] examples/moreExamples/InsurLE2/unless_test.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/which_test.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/which_test2.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/customs/apparel_cbp.le: 32 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/customs/apparel_ebti.le: 13 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/customs/by_hand.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/customs/cbp_39.le: 45 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/customs/cbp_61.le: 50 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/customs/cbp_62.le: 30 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/customs/chapter_39.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/customs/chapter_61.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/customs/chapter_62.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/customs/gri.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/customs/heldout_apparel_cbp.le: 11 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/customs/heldout_cbp_2.le: 25 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/customs/heldout_plastics_cbp.le: 5 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/customs/plastics_cbp.le: 22 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/customs/plastics_ebti.le: 4 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/customs/section_xi.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/customs/tariff.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/aeds.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/aeds_cases.le: 24 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/afo_kafo.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/afo_kafo_cases.le: 25 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/all_cases.le: 7 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/blind_extraction.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/bowel_management.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/bowel_management_cases.le: 22 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/breast_prostheses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/breast_prostheses_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/canes_crutches.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/canes_crutches_cases.le: 15 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/cervical_traction.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/cervical_traction_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/cold_therapy.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/cold_therapy_cases.le: 13 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/commodes.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/commodes_cases.le: 18 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/council_more.le: 29 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/council_other.le: 27 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/council_pmd.le: 26 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/council_supplies.le: 18 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/dmepos.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/dmepos_all.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/enteral_nutrition.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/enteral_nutrition_cases.le: 21 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/external_infusion_pumps.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/external_infusion_pumps_cases.le: 19 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/eye_prostheses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/eye_prostheses_cases.le: 17 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/facial_prostheses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/facial_prostheses_cases.le: 17 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/glucose_monitors.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/glucose_monitors_cases.le: 30 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/glucose_versions_cases.le: 3 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/heating_pads.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/heating_pads_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/hfcwo.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/hfcwo_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/hospital_beds.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/hospital_beds_cases.le: 32 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/immunosuppressive_drugs.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/immunosuppressive_drugs_cases.le: 19 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/infrared_heating.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/infrared_heating_cases.le: 13 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/ipv.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/ipv_cases.le: 14 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/ivig.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/ivig_cases.le: 18 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/knee_orthoses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/knee_orthoses_cases.le: 15 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/lower_limb_prostheses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/lower_limb_prostheses_cases.le: 14 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/manual_wheelchairs.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/manual_wheelchairs_cases.le: 27 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/mechanical_insufflation.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/mechanical_insufflation_cases.le: 14 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/nebulizers.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/nebulizers_cases.le: 31 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/npwt.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/npwt_cases.le: 26 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/oral_anticancer.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/oral_anticancer_cases.le: 19 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/oral_antiemetic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/oral_antiemetic_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/oral_appliances.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/oral_appliances_cases.le: 14 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/orthopedic_footwear.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/orthopedic_footwear_cases.le: 15 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/osteogenesis_stimulators.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/osteogenesis_stimulators_cases.le: 14 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/ostomy_supplies.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/ostomy_supplies_cases.le: 19 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/oxygen.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/oxygen_cases.le: 20 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/pap.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/pap_cases.le: 20 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/parenteral_nutrition.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/parenteral_nutrition_cases.le: 17 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/patient_lifts.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/patient_lifts_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/pmd.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/pmd_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/rad.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/rad_cases.le: 24 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/refractive_lenses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/refractive_lenses_cases.le: 13 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/seat_lifts.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/seat_lifts_cases.le: 22 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/speech_generating_devices.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/speech_generating_devices_cases.le: 13 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/spinal_orthoses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/spinal_orthoses_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/suction_pumps.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/suction_pumps_cases.le: 17 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/support_surfaces.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/support_surfaces_cases.le: 29 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/surgical_dressings.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/surgical_dressings_cases.le: 18 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/tejsd.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/tejsd_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/tens.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/tens_cases.le: 15 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/therapeutic_shoes.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/therapeutic_shoes_cases.le: 27 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/tracheostomy_supplies.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/tracheostomy_supplies_cases.le: 17 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/tremor_stimulator.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/tremor_stimulator_cases.le: 15 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/tumor_treatment_field.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/tumor_treatment_field_cases.le: 14 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/urological_supplies.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/urological_supplies_cases.le: 18 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/vacuum_erection.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/vacuum_erection_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/vitamin_d.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/vitamin_d_cases.le: 32 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/walkers.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/walkers_cases.le: 22 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/wheelchair_options.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/wheelchair_options_cases.le: 24 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/medicare/wheelchair_seating.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/medicare/wheelchair_seating_cases.le: 30 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/testing/effectcause.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/testing/hiscox.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/testing/hiscoxclaim1.le: 0 Pass, 0 Fail, 0 Error
@@ -130,6 +270,146 @@ Detailed File Summary:
   [PASS] examples/moreExamples/insureLE2/unless_test.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/which_test.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/which_test2.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/customs/apparel_cbp.le: 32 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/customs/apparel_ebti.le: 13 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/customs/by_hand.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/customs/cbp_39.le: 45 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/customs/cbp_61.le: 50 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/customs/cbp_62.le: 30 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/customs/chapter_39.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/customs/chapter_61.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/customs/chapter_62.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/customs/gri.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/customs/heldout_apparel_cbp.le: 11 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/customs/heldout_cbp_2.le: 25 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/customs/heldout_plastics_cbp.le: 5 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/customs/plastics_cbp.le: 22 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/customs/plastics_ebti.le: 4 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/customs/section_xi.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/customs/tariff.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/aeds.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/aeds_cases.le: 24 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/afo_kafo.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/afo_kafo_cases.le: 25 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/all_cases.le: 7 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/blind_extraction.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/bowel_management.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/bowel_management_cases.le: 22 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/breast_prostheses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/breast_prostheses_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/canes_crutches.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/canes_crutches_cases.le: 15 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/cervical_traction.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/cervical_traction_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/cold_therapy.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/cold_therapy_cases.le: 13 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/commodes.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/commodes_cases.le: 18 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/council_more.le: 29 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/council_other.le: 27 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/council_pmd.le: 26 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/council_supplies.le: 18 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/dmepos.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/dmepos_all.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/enteral_nutrition.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/enteral_nutrition_cases.le: 21 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/external_infusion_pumps.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/external_infusion_pumps_cases.le: 19 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/eye_prostheses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/eye_prostheses_cases.le: 17 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/facial_prostheses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/facial_prostheses_cases.le: 17 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/glucose_monitors.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/glucose_monitors_cases.le: 30 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/glucose_versions_cases.le: 3 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/heating_pads.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/heating_pads_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/hfcwo.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/hfcwo_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/hospital_beds.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/hospital_beds_cases.le: 32 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/immunosuppressive_drugs.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/immunosuppressive_drugs_cases.le: 19 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/infrared_heating.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/infrared_heating_cases.le: 13 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/ipv.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/ipv_cases.le: 14 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/ivig.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/ivig_cases.le: 18 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/knee_orthoses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/knee_orthoses_cases.le: 15 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/lower_limb_prostheses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/lower_limb_prostheses_cases.le: 14 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/manual_wheelchairs.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/manual_wheelchairs_cases.le: 27 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/mechanical_insufflation.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/mechanical_insufflation_cases.le: 14 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/nebulizers.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/nebulizers_cases.le: 31 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/npwt.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/npwt_cases.le: 26 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/oral_anticancer.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/oral_anticancer_cases.le: 19 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/oral_antiemetic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/oral_antiemetic_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/oral_appliances.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/oral_appliances_cases.le: 14 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/orthopedic_footwear.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/orthopedic_footwear_cases.le: 15 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/osteogenesis_stimulators.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/osteogenesis_stimulators_cases.le: 14 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/ostomy_supplies.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/ostomy_supplies_cases.le: 19 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/oxygen.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/oxygen_cases.le: 20 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/pap.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/pap_cases.le: 20 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/parenteral_nutrition.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/parenteral_nutrition_cases.le: 17 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/patient_lifts.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/patient_lifts_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/pmd.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/pmd_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/rad.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/rad_cases.le: 24 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/refractive_lenses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/refractive_lenses_cases.le: 13 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/seat_lifts.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/seat_lifts_cases.le: 22 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/speech_generating_devices.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/speech_generating_devices_cases.le: 13 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/spinal_orthoses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/spinal_orthoses_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/suction_pumps.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/suction_pumps_cases.le: 17 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/support_surfaces.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/support_surfaces_cases.le: 29 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/surgical_dressings.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/surgical_dressings_cases.le: 18 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/tejsd.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/tejsd_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/tens.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/tens_cases.le: 15 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/therapeutic_shoes.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/therapeutic_shoes_cases.le: 27 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/tracheostomy_supplies.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/tracheostomy_supplies_cases.le: 17 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/tremor_stimulator.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/tremor_stimulator_cases.le: 15 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/tumor_treatment_field.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/tumor_treatment_field_cases.le: 14 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/urological_supplies.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/urological_supplies_cases.le: 18 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/vacuum_erection.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/vacuum_erection_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/vitamin_d.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/vitamin_d_cases.le: 32 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/walkers.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/walkers_cases.le: 22 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/wheelchair_options.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/wheelchair_options_cases.le: 24 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/medicare/wheelchair_seating.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/medicare/wheelchair_seating_cases.le: 30 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/effectcause.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscox.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscoxclaim1.le: 0 Pass, 0 Fail, 0 Error
@@ -155,23 +435,6 @@ Detailed File Summary:
   [PASS] examples/RulesRus/sections_benefit.le: 8 Pass, 0 Fail, 0 Error
   [NONE] examples/RulesRus/semantic_llm.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/RulesRus/semantic_match.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/RulesRus/customs/apparel_cbp.le: 32 Pass, 0 Fail, 0 Error
-  [PASS] examples/RulesRus/customs/apparel_ebti.le: 13 Pass, 0 Fail, 0 Error
-  [NONE] examples/RulesRus/customs/by_hand.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/RulesRus/customs/cbp_39.le: 45 Pass, 0 Fail, 0 Error
-  [PASS] examples/RulesRus/customs/cbp_61.le: 50 Pass, 0 Fail, 0 Error
-  [PASS] examples/RulesRus/customs/cbp_62.le: 30 Pass, 0 Fail, 0 Error
-  [NONE] examples/RulesRus/customs/chapter_39.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/RulesRus/customs/chapter_61.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/RulesRus/customs/chapter_62.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/RulesRus/customs/gri.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/RulesRus/customs/heldout_apparel_cbp.le: 11 Pass, 0 Fail, 0 Error
-  [PASS] examples/RulesRus/customs/heldout_cbp_2.le: 25 Pass, 0 Fail, 0 Error
-  [PASS] examples/RulesRus/customs/heldout_plastics_cbp.le: 5 Pass, 0 Fail, 0 Error
-  [PASS] examples/RulesRus/customs/plastics_cbp.le: 22 Pass, 0 Fail, 0 Error
-  [PASS] examples/RulesRus/customs/plastics_ebti.le: 4 Pass, 0 Fail, 0 Error
-  [NONE] examples/RulesRus/customs/section_xi.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/RulesRus/customs/tariff.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/cidadania.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/desconhecidos.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/despesas.le: 6 Pass, 0 Fail, 0 Error
