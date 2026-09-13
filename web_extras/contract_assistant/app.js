@@ -106,8 +106,16 @@ const MODE_TEXT = {
         subtitle: 'A question in English + your Logical English program → one new query',
         start: 'Generate the query',
         empty: 'paste a program and a question to estimate'
+    },
+    residue: {
+        subtitle: 'A migrated program with RESIDUE blocks → the residue translated, nothing else changed',
+        start: 'Translate the residue',
+        empty: 'paste a program with residue blocks to estimate'
     }
 };
+
+// The residue mode needs the program only; its text is optional background.
+function textRequired() { return currentMode() !== 'residue'; }
 
 function applyMode() {
     const mode = currentMode(), fragment = isFragmentMode();
@@ -122,6 +130,8 @@ function applyMode() {
     $('btn-start').textContent = t.start;
     $('fragment-text-label').innerHTML = mode === 'query'
         ? 'The question to convert <em>(required)</em>'
+        : mode === 'residue'
+        ? 'Background <em>(optional: the source system\'s documentation, say)</em>'
         : 'The situation to convert <em>(required)</em>';
     $('fragment-text').placeholder = mode === 'query'
         ? 'e.g. Which claims are covered, and how much will we pay for each?'
@@ -133,7 +143,7 @@ function applyMode() {
 // Everything a run of this mode cannot start without.
 function refreshStartButton() {
     $('btn-start').disabled = isFragmentMode()
-        ? !(fragmentProgram() && fragmentText())
+        ? !(fragmentProgram() && (fragmentText() || !textRequired()))
         : !$('file-wording').files.length;
 }
 
@@ -204,7 +214,7 @@ function scheduleEstimate() {
 async function runEstimate() {
     const box = $('cost'), value = $('cost-value');
     const chars = inputChars();
-    const ready = isFragmentMode() ? (fragmentProgram() && fragmentText())
+    const ready = isFragmentMode() ? (fragmentProgram() && (fragmentText() || !textRequired()))
                                    : ($('file-wording').files.length || chars);
     if (!ready) {
         box.classList.add('unknown');
@@ -393,7 +403,7 @@ async function start() {
         if ($('adv-reasoning').value !== '') payload.reasoning = $('adv-reasoning').value;
         if (isFragmentMode()) {
             payload.program = fragmentProgram();
-            payload.text = fragmentText();
+            if (fragmentText()) payload.text = fragmentText();
             if (fragmentName()) payload.name = fragmentName();
         } else {
             payload.wording = await fileToUpload($('file-wording').files[0]);
@@ -451,7 +461,8 @@ function rememberJob(job) {
         started: new Date().toISOString(),
         model: $('model').value,
         mode: currentMode(),
-        wording: isFragmentMode()
+        wording: currentMode() === 'residue' ? 'migration residue'
+            : isFragmentMode()
             ? `one ${currentMode()}`
             : (wording ? wording.name : '')
     };
@@ -579,7 +590,7 @@ let lastRunHeader = null;   // last {config, elapsed} seen — shown on the Resu
 function summaryBits(c) {
     const fragment = c.mode && c.mode !== 'contract';
     return [
-        fragment ? `one ${c.mode} for a fixed program` : null,
+        c.mode === 'residue' ? 'the residue of a fixed skeleton' : fragment ? `one ${c.mode} for a fixed program` : null,
         `model ${c.model}`,
         c.judge_model && c.judge_model !== c.model ? `judge ${c.judge_model}` : null,
         fragment ? `W=${c.w} repairs=${c.repairs}` : `K=${c.k} W=${c.w} repairs=${c.repairs}`,
@@ -706,7 +717,8 @@ async function showResult(job) {
             'Recovered from this job\u2019s files on the server \u2014 the server has restarted since the run, so its settings and timings are no longer available.';
     }
     const fragment = data.mode && data.mode !== 'contract';
-    $('result-title').textContent = fragment ? `Result — one ${data.mode}` : 'Result';
+    $('result-title').textContent = data.mode === 'residue' ? 'Result — the residue translated'
+        : fragment ? `Result — one ${data.mode}` : 'Result';
     $('result-le').textContent = data.le || '';
     $('result-ledger').textContent = data.ledger || '(no ledger)';
     const scores = $('scores');

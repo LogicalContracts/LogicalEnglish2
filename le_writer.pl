@@ -206,7 +206,17 @@ declared_arity(Item, N) :-
 template_text_dict(Text, dict(FA, NTs, WV)) :-
     tokenizer:tokenize(Text, Tokens0),
     exclude(is_indent, Tokens0, Tokens),
-    phrase(le_grammar:template_instance(Parts), Tokens, []),
+    %  The template alone, with no line of a document around it: a word of
+    %  it that a section header opens with ("scenario", "the contract") must
+    %  not end it. With no line-start table every position counts as a line
+    %  start (le_grammar:at_line_start//0); a table holding one offset no
+    %  token has makes none do.
+    findall(O, le_grammar:line_start_offset(O), Saved),
+    setup_call_cleanup(
+        ( retractall(le_grammar:line_start_offset(_)),
+          assertz(le_grammar:line_start_offset(-1)) ),
+        phrase(le_grammar:template_instance(Parts), Tokens, []),
+        le_grammar:restore_line_starts(Saved)),
     le_grammar:process_template(Parts, FA, NTs, WV).
 
 is_indent(indent(_, _)).
@@ -623,8 +633,8 @@ numbered_item(Ctx, St, G, D, Trail, [Line|Sub]) :-
     ;   G = not(N0)
     ->  kw(not_the_case, K), format(atom(Line), '~w. ~w:', [D, K]),
         (   chain(N0, or, Alts), Alts = [_, _|_]
-        ->  numbered_item(Ctx, St, N0, SubPrefix1, Trail, Sub0),
-            format(atom(SubPrefix1), '~w1', [SubPrefix]), Sub = Sub0
+        ->  format(atom(SubPrefix1), '~w1', [SubPrefix]),
+            numbered_item(Ctx, St, N0, SubPrefix1, Trail, Sub)
         ;   chain(N0, and, Conjs),
             numbered_list(Ctx, St, Conjs, and, SubPrefix, Trail, Sub)
         )
@@ -775,7 +785,9 @@ single(Ctx, St, G, node(none, T, [])) :-
 %   leftmost condition is the line, every connective up the left spine a child.
 compound_single(Ctx, St, B, Node) :-
     left_spine(B, Leaf, Steps),
-    (   line_goal(Leaf)
+    %  A negation cannot carry continuation lines: `it is not the case that X`
+    %  with lines nested under it reads them as its own scope.
+    (   line_goal(Leaf), \+ Leaf = not(_)
     ->  goal_text(Ctx, St, Leaf, LT),
         maplist(step_node(Ctx, St), Steps, Kids),
         Node = node(none, LT, Kids)
@@ -1475,6 +1487,11 @@ list_element_text(X, T) :-
     ).
 
 render_number(X, T) :- integer(X), !, format(atom(T), '~d', [X]).
+%   In an expected answer a number is written as the engine prints the answer
+%   it computes (`7.0e+04`), which is what the test runner compares.
+render_number(X, T) :- float(X), nb_current(le_writer_answer, true),
+    catch(le_kbs:canonical_string(X, S), _, fail), !,
+    atom_string(T, S).
 render_number(X, T) :- float(X), !,
     (   X =:= float_integer_part(X), abs(X) < 1.0e15
     ->  format(atom(T0), '~1f', [X])
@@ -1608,8 +1625,8 @@ write_scenario(Ctx, Name, Lines, Opts) :-
     kw(scenario, S), kw(marker_is, Is),
     (   option(as_stated_in(D), Opts)
     ->  document_text(D, DT), kw(as_stated_in, K),
-        (   option(at(L), Opts)
-        ->  locator_text(L, LT), kw(at_locator, AtK),
+        (   option(at(Loc), Opts)
+        ->  locator_text(Loc, LT), kw(at_locator, AtK),
             format("~w ~w ~w, ~w ~w ~w ~w:~n", [S, Name, Is, K, DT, AtK, LT])
         ;   format("~w ~w ~w, ~w ~w:~n", [S, Name, Is, K, DT])
         )
@@ -1674,7 +1691,10 @@ scenario_literal_text(Ctx, F, T) :-
 %   An expected answer: a string as given, or a ground literal rendered.
 answer_text(_, A, T) :- string(A), !, render_string(A, T).
 answer_text(Ctx, A, T) :-
-    scenario_literal_text(Ctx, A, T0), render_string(T0, T).
+    setup_call_cleanup(b_setval(le_writer_answer, true),
+                       scenario_literal_text(Ctx, A, T0),
+                       b_setval(le_writer_answer, false)),
+    render_string(T0, T).
 
 change_text(_, C, T) :- string(C), !, render_string(C, T).
 change_text(Ctx, add(F), T) :- !, scenario_literal_text(Ctx, F, T0), format(atom(T1), 'add: ~w', [T0]), render_string(T1, T).
@@ -1730,12 +1750,23 @@ write_views(Items) :-
 %   An LPS internal term, written by le_lps_write.pl over a scratch module
 %   holding the IR's templates.
 write_lps_term(ctx(Dicts, _, _), Term) :-
+    ensure_lps_writer,
     lps_scratch_module(Dicts, M),
     (   catch(le_lps_write:le_lps_sentence(M, Term, S), E,
               ( print_message(error, E), fail ))
     ->  format("~w", [S])
     ;   format(atom(T), '~q', [Term]),
         note(error, lps_not_written, "an LPS term could not be written: ~w"-[T])
+    ).
+
+%   le_lps_write.pl is loaded on first use: it loads the LPS emitter and the
+%   knowledge-base loader, which a Prolog-target writer never needs.
+ensure_lps_writer :-
+    (   current_predicate(le_lps_write:le_lps_sentence/3)
+    ->  true
+    ;   writer_dir(Dir),
+        atomic_list_concat([Dir, '/le_lps_write'], F),
+        use_module(F)
     ).
 
 lps_scratch_module(Dicts, M) :-
@@ -1749,7 +1780,7 @@ lps_scratch_module(Dicts, M) :-
                  template_fa_vars(WV1, Args),
                  assertz(M:le_dict(dict([Derived|Args], NTs1, WV1, [], _, _, _))),
                  ( Derived == F -> true ; assertz(M:le_lps_functor(Derived/N, F)) ),
-                 ( Kind == template -> true ; assertz(M:le_lps_role(F/N, Kind)) ) ))
+                 ( memberchk(Kind, [template, opposite]) -> true ; assertz(M:le_lps_role(F/N, Kind)) ) ))
     ).
 
 		 /*******************************

@@ -393,7 +393,9 @@ comparison(X >= Y, X, '>=', Y).
 comparison(X =< Y, X, '<=', Y).
 comparison(X > Y,  X, '>',  Y).
 comparison(X < Y,  X, '<',  Y).
-comparison(X = Y,  X, '=',  Y).
+%   `=` in LE is an assignment (le_assign, `is/2`); unification is
+%   `is equal to` (le_equal_to).
+comparison(X = Y,  X, 'is equal to',  Y).
 comparison(X \= Y, X, 'is different from', Y).
 comparison(is(X, Y), X, '=', Y).
 
@@ -470,6 +472,7 @@ dict_args(KB, F/N, DArgs, WV) :-
 	length(DArgs, N), !.
 
 arg_text(Ns, A, T) :- var(A), !, name_of(Ns, A, T).
+arg_text(_, A, T) :- string(A), !, format(atom(T), '"~w"', [A]).   % a string stays one
 arg_text(_, A, T) :- format(atom(T), '~w', [A]).
 
 token_text(W, W) :- atomic(W), !.

@@ -53,7 +53,7 @@ test(included_library_answers, [setup(tmp_dir(Dir)), cleanup(delete_directory_an
     atomic_list_concat([Dir, '/uses_temporal.le'], File),
     copy_file('testing/fixtures/temporal/uses_temporal.le', File),
     le_kbs:runTestsFor(File, test_file(_, Results)),
-    assertion(Results = [_, _]),
+    assertion(Results = [_, _, _]),
     assertion(forall(member(R, Results), R = pass(_, _))).
 
 tmp_dir(Dir) :- tmp_file(temporal, Dir), make_directory(Dir).

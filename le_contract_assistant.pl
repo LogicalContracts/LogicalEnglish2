@@ -2014,7 +2014,7 @@ effort_estimate(JobID, Config, Materials, Config1) :-
 %   - when a model matches several providers in the price table, the dearest
 %     is used (see llm_prices.pl).
 cost_estimate(P, Est) :-
-    (   fragment_mode(P.get(mode, contract))
+    (   ( fragment_mode(P.get(mode, contract)) ; P.get(mode, contract) == residue )
     ->  fragment_call_plan(P.w, P.repairs, MainCalls, JudgeCalls),
         % One section out, however big the program that goes in.
         OutTok = 1500

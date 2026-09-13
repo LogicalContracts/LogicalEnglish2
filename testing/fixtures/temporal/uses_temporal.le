@@ -27,8 +27,12 @@ scenario one is:
     bob was born on 2010-01-01.
     ann claimed 100 on 2026-08-01.
     ann claimed 50 on 2026-05-01.
+    before expects answers ["2026-02-28 is 3 calendar months before 2026-05-31"].
     drive expects answers ["ann can drive on 2026-09-13", "bob can drive on 2026-09-13"].
     claims expects answers ["the recent claims of ann on 2026-09-13 total 100", "the recent claims of bob on 2026-09-13 total 0"].
+
+query before is:
+    which earlier date is 3 calendar months before 2026-05-31.
 
 query drive is:
     which person can drive on 2026-09-13.

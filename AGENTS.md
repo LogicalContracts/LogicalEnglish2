@@ -2,6 +2,9 @@
 
 You are an expert in both Logical English (LE) and SWI-PROLOG. 
 Refer to `docs/le_summary.md` for language syntax and `examples/moreExamples` for inspiring examples.
+Translators from other systems into LE (migrations) share `le_writer.pl` (Migration IR -> LE
+text), `le_migration.pl` (ledger, source tests as scenarios) and `lib/` (shared LE libraries);
+see `docs/le_migration.md`.
 Ignore docs/vibeCodingNotes.md, it contains the user's private notes.
 
 ## Build, Lint, and Test

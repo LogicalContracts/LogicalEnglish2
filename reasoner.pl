@@ -1068,7 +1068,8 @@ call_reasoner_built_in(le_maximum(X, Y, Z), _) :- !, le_maximum(X, Y, Z).
 call_reasoner_built_in(equal_to(X, Y), _) :- !, equal_to(X, Y).
 call_reasoner_built_in(G, _) :- call(G).
 
-le_compare(Op, X, Y) :-
+le_compare(Op, X0, Y0) :-
+    le_compare_operand(X0, X), le_compare_operand(Y0, Y),
     number(X), number(Y), !,
     Goal =.. [Op, X, Y],
     call(Goal).
@@ -1076,6 +1077,15 @@ le_compare(>=, X, Y) :- !, X @>= Y.
 le_compare(=<, X, Y) :- !, X @=< Y.
 le_compare(>, X, Y) :- !, X @> Y.
 le_compare(<, X, Y) :- !, X @< Y.
+
+%   An arithmetic operand (`H - F >= N`) is evaluated before it is compared;
+%   compared as a term it was always "greater" than a number, whatever its
+%   value. A date, a constant or an unbound value is left as it is.
+le_compare_operand(X, V) :-
+    (   compound(X), X \= date(_, _, _), ground(X), catch(V0 is X, _, fail)
+    ->  V = V0
+    ;   V = X
+    ).
 
 equal_to(X, X).
 
