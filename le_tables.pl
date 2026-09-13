@@ -115,7 +115,7 @@ compile_row(M, Name, I, K, IdCol, Cite, row(Tokens, RS, RE), TStart, TEnd) :- !,
         ->  CellToks = [IdToks|ValueToks], cell_text(IdToks, RowId)
         ;   ValueToks = CellToks, RowId = I
         ),
-        (   maplist(parse_cell, ValueToks, Cells),
+        (   parse_row_cells(RS, ValueToks, Cells),
             citation_cell(CiteToks, Quote)
         ->  (   last(Cells, Out), \+ output_cell(Out)
             ->  table_issue(M, error, table_bad_output, [name-Name, row-RowId], RS, RE)
@@ -133,6 +133,24 @@ compile_row(M, Name, I, K, IdCol, Cite, row(Tokens, RS, RE), TStart, TEnd) :- !,
 
 output_cell(val(_)).
 output_cell(oneof(_)).
+
+% The cells of a row. A loaded (CSV) row — RS = 0 — is data: its output cell
+% is the value written there, a text whose words may include "or" and "and"
+% ("Duchenne or Becker muscular dystrophy"), never a list of alternatives or
+% a condition; its input cells are read as an inline row's are.
+parse_row_cells(RS, ValueToks, Cells) :-
+    (   RS == 0,
+        append(InToks, [OutToks], ValueToks),
+        OutToks \== []
+    ->  maplist(parse_cell, InToks, InCells),
+        (   parse_cell(OutToks, OutCell0), OutCell0 = val(_)
+        ->  OutCell = OutCell0
+        ;   cell_value(OutToks, V) -> OutCell = val(V)
+        ;   parse_cell(OutToks, OutCell)
+        ),
+        append(InCells, [OutCell], Cells)
+    ;   maplist(parse_cell, ValueToks, Cells)
+    ).
 
 table_issue(M, Severity, Type, Pairs, Start, End) :-
     (   nonvar(M), M \== (-)
