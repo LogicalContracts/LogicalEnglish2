@@ -308,4 +308,31 @@ test(document_paraphrased_quote_warns,
     english_to_le(facts, T, [], P, "stub-model", [document("ruling NY N362700")], _LE, Issues),
     assertion(nl_has_issue(Issues, "quote_not_in_text")).
 
+% A value the rules read as a string is shown with its quotes, so the model
+% writes the code as the string the rules compare with, not a bare atom.
+test(document_prompt_quotes_string_values,
+     [setup(stub_replies(["the HCPCS code of the chair is \"K0823\", confer \"a K0823 power wheelchair\"."]))]) :-
+    P = "the target language is: prolog.
+
+the templates are:
+    *an item* is a power wheelchair.
+    the HCPCS code of *an item* is *a code*; undefined.
+
+the knowledge base codes includes:
+
+an item is a power wheelchair
+    if the HCPCS code of the item is a code
+    and the code is in [\"K0823\", \"K0824\"].
+
+scenario one is:
+    the HCPCS code of the chair is \"K0823\".
+
+query q is:
+    which item is a power wheelchair.
+",
+    english_to_le(facts, "The supplier furnished a K0823 power wheelchair.", [], P, "stub-model",
+                  [document("decision D")], _LE, _Issues),
+    first_system(Sys),
+    assertion(sub_string(Sys, _, _, _, "\"K0823\", \"K0824\"")).
+
 :- end_tests(nl_to_le).
