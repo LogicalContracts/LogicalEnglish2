@@ -152,7 +152,9 @@ english_to_le_(Kind, Sentence, Templates0, Program, Model, Options0, LEText, New
     ),
     Messages0 = [ _{role: system, content: System}, _{role: user, content: SentenceS} ],
     le_llm_request(Model, Messages0, Raw0, Options),
-    clean_reply(Raw0, LE0),
+    clean_reply(Raw0, LE00),
+    known_string_values(ProgramS, Known),
+    quote_known_strings(Known, LE00, LE0),
     refine(Kind, ProgramS, Baseline, Model, Options, Messages0, Raw0, LE0,
            1, none, 0, Limits, LEText1, New1),
     (   Doc == none
@@ -202,7 +204,9 @@ refine(Kind, Program, Baseline, Model, Options, Messages, LastReply, LE,
             [IssuesText, RewindNote, Noun, Noun, WorkLE]),
         append(Messages, [ _{role: assistant, content: LastReply}, _{role: user, content: Feedback} ], Messages1),
         le_llm_request(Model, Messages1, Raw1, Options),
-        clean_reply(Raw1, LE1),
+        clean_reply(Raw1, LE10),
+        known_string_values(Program, Known),
+        quote_known_strings(Known, LE10, LE1),
         Round1 is Round + 1,
         refine(Kind, Program, Baseline, Model, Options, Messages1, Raw1, LE1,
                Round1, Best, Streak, Limits, FinalLE, FinalNew)
@@ -952,6 +956,66 @@ trailer_punctuation(Line0, Line) :-
         ;   Line = T1
         )
     ).
+
+% known_string_values(+Program, -Known): the string values the program's rules
+% read at the places of its templates (the values the prompt lists, e.g. the
+% HCPCS codes "K0823", "K0824" of a code list), each as a string.
+known_string_values(Program, Known) :-
+    (   catch(load_text(Program, KB), _, fail)
+    ->  findall(S, ( le_kbs:template_of(KB, F, A, _, _), between(1, A, I),
+                     catch(le_verifier:with_rule_index(KB, slot_values(KB, F, A, I, Vs)), _, fail),
+                     member(S, Vs), string(S) ),
+                Known0),
+        sort(Known0, Known)
+    ;   Known = []
+    ).
+
+% quote_known_strings(+Known, +LE0, -LE): a model copies a listed value such
+% as "K0823" without its quotes more often than not (the drafts of Medicare
+% Appeals Council decisions wrote every HCPCS and ICD-10 code bare, with the
+% codes quoted in the prompt): the atom K0823 then states nothing the rules
+% read. In the fact itself — outside quoted text, before any provenance
+% trailer — a bare word equal to a known string value gets its quotes back.
+quote_known_strings([], LE, LE) :- !.
+quote_known_strings(Known, LE0, LE) :-
+    split_string(LE0, "\n", "", Lines0),
+    maplist(quote_known_line(Known), Lines0, Lines),
+    atomic_list_concat(Lines, "\n", LE1),
+    atom_string(LE1, LE).
+
+quote_known_line(Known, Line0, Line) :-
+    findall(K, ( member(Key, [confer, according_to, as_stated_in, because]),
+                 kw_phrase(Key, "", K0), K0 \== "", format(string(K), ", ~w ", [K0]) ), Keys),
+    (   findall(B, ( member(K, Keys), sub_string(Line0, B, _, _, K) ), Bs), Bs \== []
+    ->  min_list(Bs, Cut),
+        sub_string(Line0, 0, Cut, _, Fact0), sub_string(Line0, Cut, _, 0, Rest)
+    ;   Fact0 = Line0, Rest = ""
+    ),
+    split_string(Fact0, "\"", "", Parts0),
+    quote_known_parts(Parts0, out, Known, Parts),
+    atomic_list_concat(Parts, "\"", Fact),
+    string_concat(Fact, Rest, Line).
+
+quote_known_parts([], _, _, []).
+quote_known_parts([P0|Ps0], Where, Known, [P|Ps]) :-
+    (   Where == out
+    ->  re_split("[A-Za-z0-9][A-Za-z0-9.]*[A-Za-z0-9]|[A-Za-z0-9]", P0, Pieces),
+        quote_known_pieces(Pieces, 1, Known, Pieces1),
+        atomic_list_concat(Pieces1, P), Next = in
+    ;   P = P0, Next = out
+    ),
+    quote_known_parts(Ps0, Next, Known, Ps).
+
+% re_split/3 alternates the text between matches (odd places) and the
+% matches (even places)
+quote_known_pieces([], _, _, []).
+quote_known_pieces([X0|Xs0], I, Known, [X|Xs]) :-
+    (   I mod 2 =:= 0, memberchk(X0, Known)
+    ->  format(string(X), "\"~w\"", [X0])
+    ;   X = X0
+    ),
+    I1 is I + 1,
+    quote_known_pieces(Xs0, I1, Known, Xs).
 
 % "%" starts a comment in LE: "56% cotton." would silently lose the rest of
 % the line (and the fact its full stop). Outside quoted passages it is the
