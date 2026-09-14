@@ -2234,6 +2234,10 @@ explanation" link forward to the top, in case the user wants to jump to it
 
 In examples/RulesRus/sections_benefit.le, the Proof Game's "Show Proof" lays out a tree, but no prize (no green!)
 
+# Changes summary
+Logical English and LPS (repo here at /lps2 ) have gone through substantial improvements since last Sep 10 until today. Look at the changes, as well as the design/planning documents in /InsurLE2/docs that motivated mosyt of them - MiggratingFromOtherSystems.md , RulesRUs.md and the associated LE_extensions_proposal.md. Then write a /InsurLE2/docs/MidSeptemberLeap.md describing those changes, organised in sections for LE/InsurLE and LPS, and by topics and features under those, including small language fragments when language extensions are involved. Use a technically precise, low key academic tone. Zero cockiness. Refer main files for each feature, as well as the application/domain requirements motivating them (short sentences with pointers to those planning documents). Include screenshots for the IDE  UI improvements.
+AND then add a small summary TLDR-like at the beginning, no more than a page. And a TOC
+
 ## TBD
 
 In the editor, "Show s(CASP)" should appear only if the selected engine is s(CASP)

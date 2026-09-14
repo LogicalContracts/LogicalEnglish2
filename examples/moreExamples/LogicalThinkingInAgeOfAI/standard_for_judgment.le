@@ -1,0 +1,207 @@
+% Logical Thinking in the Age of AI, slide 8: "Within the Ethical Realm" -
+% VERIFICATION OF CONSISTENCY / VALIDITY: is there a standard for judgment?
+%
+%   Leniency is in order towards a criminal who felt provoked into a crime by
+%   the victim's (devoid of actual aggression) attitude.
+%
+% Generalising the argument of slide 7 (provocation_transposed.le) turns it
+% into a STANDARD: a rule meant to judge every case. A standard can be tested
+% like any theory, against what it has to agree with:
+%   - consistency: it must not contradict a settled judgment. Here the settled
+%     judgment is the transposed case of slide 7, which nobody accepts: no
+%     leniency towards a murderer whose victim showed no actual aggression;
+%   - impartiality: it must treat like cases alike. Two cases with the same
+%     morally relevant factors must get the same judgment.
+%
+% Three candidate standards, each one rule:
+%   - the provocation standard: slide 8's sentence, for any crime;
+%   - the selective standard: slide 7's sentence, for rape only;
+%   - the aggression standard: leniency only when what provoked the offender
+%     involved actual aggression by the victim. (Criminal law has a standard
+%     of this kind: in England and Wales, for instance, the partial defence
+%     of loss of control needs a "qualifying trigger", such as a fear of
+%     serious violence from the victim; Coroners and Justice Act 2009, s. 55.)
+%
+% Scenario three_cases puts all three standards to the tests: query
+% contradictions finds that the provocation standard contradicts the settled
+% judgment; query double_standards finds that the selective standard - the
+% one that avoids that contradiction - treats Ron's case and Mark's case
+% differently although they have the same factors; query acceptable answers
+% the slide's question: the aggression standard.
+
+the target language is: prolog.
+
+the templates are:
+    *a standard* grants leniency towards *a person* for *a crime*.
+    settled judgment rejects leniency towards *a person* for *a crime*.
+    *a standard* contradicts settled judgment on *a person*.
+    *a standard* treats like cases differently.
+    *a standard* is acceptable.
+    the case of *a person* is like the case of *a second person*.
+    the case of *a person* has factor *a factor*.
+    *a crime* is a serious violent crime.
+    *an attitude* is devoid of actual aggression.
+    *a person* committed *a crime* against *a victim*; undefined.
+    *a person* felt provoked into *a crime* by *an attitude* of *a victim*; undefined.
+    *an attitude* involves actual aggression; undefined.
+
+the knowledge base standard_for_judgment includes:
+
+% ---------------------------------------------------------------------------
+% The candidate standards
+% ---------------------------------------------------------------------------
+
+the provocation standard is a standard.
+the selective standard is a standard.
+the aggression standard is a standard.
+
+% Slide 8: leniency is in order towards a criminal who felt provoked into a
+% crime by the victim's (devoid of actual aggression) attitude.
+the provocation standard grants leniency towards a person for a crime
+    if the person committed the crime against a victim
+    and the person felt provoked into the crime by an attitude of the victim
+    and the attitude is devoid of actual aggression.
+
+% Slide 7: the same, for rape only.
+the selective standard grants leniency towards a person for rape
+    if the person committed rape against a victim
+    and the person felt provoked into rape by an attitude of the victim
+    and the attitude is devoid of actual aggression.
+
+% Provocation mitigates only when the victim's conduct involved actual
+% aggression.
+the aggression standard grants leniency towards a person for a crime
+    if the person committed the crime against a victim
+    and the person felt provoked into the crime by an attitude of the victim
+    and the attitude involves actual aggression.
+
+an attitude is devoid of actual aggression
+    if it is not the case that
+        the attitude involves actual aggression.
+
+% ---------------------------------------------------------------------------
+% Test 1, consistency: a standard must not contradict a settled judgment
+% ---------------------------------------------------------------------------
+
+% Slide 7, transposed: nobody accepts leniency towards a murderer who felt
+% provoked into killing by the victim's (devoid of actual aggression) attitude.
+settled judgment rejects leniency towards a person for murder
+    if the person committed murder against a victim
+    and the person felt provoked into murder by an attitude of the victim
+    and the attitude is devoid of actual aggression.
+
+a standard contradicts settled judgment on a person
+    if the standard grants leniency towards the person for a crime
+    and settled judgment rejects leniency towards the person for the crime.
+
+% ---------------------------------------------------------------------------
+% Test 2, impartiality: a standard must treat like cases alike
+% ---------------------------------------------------------------------------
+
+% The morally relevant factors of a case.
+the case of a person has factor provocation
+    if the person committed a crime against a victim
+    and the person felt provoked into the crime by an attitude of the victim.
+
+the case of a person has factor actual aggression
+    if the person committed a crime against a victim
+    and the person felt provoked into the crime by an attitude of the victim
+    and the attitude involves actual aggression.
+
+the case of a person has factor no actual aggression
+    if the person committed a crime against a victim
+    and the person felt provoked into the crime by an attitude of the victim
+    and the attitude is devoid of actual aggression.
+
+the case of a person has factor serious violence
+    if the person committed a crime against a victim
+    and the crime is a serious violent crime.
+
+rape is a serious violent crime.
+murder is a serious violent crime.
+homicide is a serious violent crime.
+
+% Two cases are alike when they have the same factors.
+the case of a first person is like the case of a second person
+    if the first person committed a first crime against a first victim
+    and the second person committed a second crime against a second victim
+    and for all cases in which
+            the case of the first person has factor a factor
+        it is the case that
+            the case of the second person has factor the factor
+    and for all cases in which
+            the case of the second person has factor an other factor
+        it is the case that
+            the case of the first person has factor the other factor.
+
+a standard treats like cases differently
+    if the standard grants leniency towards a first person for a first crime
+    and the case of the first person is like the case of a second person
+    and the second person committed a second crime against a victim
+    and it is not the case that
+        the standard grants leniency towards the second person for the second crime.
+
+% ---------------------------------------------------------------------------
+% Is there a standard for judgment?
+% ---------------------------------------------------------------------------
+
+a standard is acceptable
+    if the standard is a standard
+    and it is not the case that
+        the standard contradicts settled judgment on a person
+    and it is not the case that
+        the standard treats like cases differently.
+
+% The two cases of slide 7, and a killing provoked by an actual attack.
+scenario three_cases is:
+    Ron committed rape against Vicky.
+    Ron felt provoked into rape by seductive attire of Vicky.
+    Mark committed murder against Wendy.
+    Mark felt provoked into murder by defiant attire of Wendy.
+    Sam committed homicide against Tom.
+    Sam felt provoked into homicide by knife attack of Tom.
+    knife attack involves actual aggression.
+    leniency expects answers [
+        "the provocation standard grants leniency towards Ron for rape",
+        "the provocation standard grants leniency towards Mark for murder",
+        "the selective standard grants leniency towards Ron for rape",
+        "the aggression standard grants leniency towards Sam for homicide"].
+    contradictions expects answers [
+        "the provocation standard contradicts settled judgment on Mark"].
+    double_standards expects answers [
+        "the selective standard treats like cases differently"].
+    acceptable expects answers ["the aggression standard is acceptable"].
+    alike expects answers [
+        "the case of Ron is like the case of Ron",
+        "the case of Ron is like the case of Mark",
+        "the case of Mark is like the case of Ron",
+        "the case of Mark is like the case of Mark",
+        "the case of Sam is like the case of Sam"].
+
+% With the rape case alone nothing refutes the provocation standard: the
+% test is only as good as the cases it is run on. That is what transposing
+% an argument (slide 7) is for.
+scenario rape_case_alone is:
+    Ron committed rape against Vicky.
+    Ron felt provoked into rape by seductive attire of Vicky.
+    contradictions expects answers [].
+    double_standards expects answers [].
+    acceptable expects answers [
+        "the provocation standard is acceptable",
+        "the selective standard is acceptable",
+        "the aggression standard is acceptable"].
+
+query leniency is:
+    which standard grants leniency towards which person for which crime.
+
+query contradictions is:
+    which standard contradicts settled judgment on which person.
+
+query double_standards is:
+    which standard treats like cases differently.
+
+query acceptable is:
+    which standard is acceptable.
+
+query alike is:
+    the case of which person is like the case of which other person.

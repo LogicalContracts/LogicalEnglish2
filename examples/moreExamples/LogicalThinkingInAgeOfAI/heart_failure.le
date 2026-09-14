@@ -1,0 +1,285 @@
+% Logical Thinking in the Age of AI, slides 5 and 6: "Within the Medical Realm".
+%
+% Three sentences of the 2013 ACCF/AHA Guideline for the Management of Heart
+% Failure, as quoted and coded in answer set programming by Chen, Marple,
+% Salazar, Gupta and Tamil, "A Physician Advisory System for Chronic Heart
+% Failure Management Based on Knowledge Patterns", TPLP 2016,
+% https://arxiv.org/pdf/1610.08115
+%
+%  1. ARBs are recommended in patients with HFrEF (heart failure with reduced
+%     ejection fraction) with current or prior symptoms who are ACE inhibitor
+%     intolerant, unless contraindicated, to reduce morbidity and mortality.
+%  2. Diuretics should generally be combined with an ACE inhibitor, beta
+%     blocker, and aldosterone antagonist. Few patients with HF will be able
+%     to maintain target weight without the use of diuretics.
+%  3. In patients with a current or recent history of fluid retention, beta
+%     blockers should not be prescribed without diuretics.
+%
+% The paper builds its program from "knowledge patterns" (section 3.2). Here
+% each pattern is one general rule, in English, and the guideline sentences
+% become short rules and facts that the patterns use:
+%   - "... unless contraindicated": the aggressive reasoning pattern;
+%   - sentence 1 is the preference pattern: the second-line choice (ARBs) when
+%     the first-line choice (ACE inhibitors) is not available;
+%   - sentence 2 is the concomitant choice pattern;
+%   - sentence 3 is the indispensable choice pattern.
+% The paper needs negation through cycles (stable models) for the last two;
+% in LE they are ordinary rules, read top-down.
+%
+% Slide 5, DECISION MAKING - which treatment is correct according to the
+% guideline? Query "treatments", in each scenario; query "withheld" lists
+% the treatments the guideline indicates but does not recommend, and why.
+% Slide 6, PROBLEM SOLVING - a precise description of a solution: the
+% explanation of an answer. For the patient of the paper (scenario
+% paper_patient), the explanation of "the guideline recommends ACE inhibitors
+% with class 1 for Ann" is the English counterpart of the paper's answer set
+% (Fig. 3):
+%   { accf stage(c), hf with reduced ef, recommendation(ace inhibitors,class 1),
+%     recommendation(beta blockers,class 1), recommendation(diuretics,class 1),
+%     not contraindication(ace inhibitors), ..., not history(angioedema), ...,
+%     not pregnancy }
+% heart_failure_what_if.le continues slide 6 with the paper's abductive query.
+
+the target language is: prolog.
+
+the templates are:
+    the guideline recommends *a treatment* with *a class* for *a patient*.
+    *a patient* has an indication for *a treatment* with *a class*.
+    *a patient* has a contraindication to *a treatment*.
+    *a treatment* should generally be combined with *a second treatment*.
+    *a treatment* should not be prescribed without *a second treatment* for *a patient*.
+    *a patient* has heart failure with reduced ejection fraction.
+    *a patient* has current or prior symptoms of heart failure.
+    % the patient's record (scenario elements):
+    *a patient* is in stage *a stage*; undefined.
+    the ejection fraction of *a patient* is *a percentage*; undefined.
+    the NYHA class of *a patient* is *a number*; undefined.
+    the sex of *a patient* is *a sex*; undefined.
+    the serum creatinine of *a patient* is *a number* mg per dL; undefined.
+    the serum potassium of *a patient* is *a number* mEq per L; undefined.
+    *a patient* is intolerant to *a treatment*; undefined.
+    *a patient* has a history of *a condition*; undefined.
+    *a patient* has a current or recent history of fluid retention; undefined.
+    *a patient* has elevated natriuretic peptide levels; undefined.
+    *a patient* is pregnant; undefined.
+
+the knowledge base heart_failure includes:
+
+% ---------------------------------------------------------------------------
+% The knowledge patterns
+% ---------------------------------------------------------------------------
+
+% "... unless contraindicated" (aggressive reasoning): a treatment that the
+% guideline indicates is recommended if nothing shows it to be dangerous -
+% neither the treatment itself, nor a treatment it may not be prescribed
+% without (indispensable choice, sentence 3).
+the guideline recommends a treatment with a class for a patient
+    if the patient has an indication for the treatment with the class
+    and it is not the case that
+        the patient has a contraindication to the treatment
+    and it is not the case that
+        the treatment should not be prescribed without a second treatment for the patient
+        and the patient has a contraindication to the second treatment.
+
+% Concomitant choice (sentence 2): when a treatment is recommended, the
+% treatments it should generally be combined with are recommended too,
+% unless they are contraindicated.
+the guideline recommends a second treatment with a class for a patient
+    if a first treatment should generally be combined with the second treatment
+    and the guideline recommends the first treatment with the class for the patient
+    and it is not the case that
+        the patient has a contraindication to the second treatment.
+
+% A treatment the patient cannot tolerate is contraindicated.
+a patient has a contraindication to a treatment
+    if the patient is intolerant to the treatment.
+
+% ---------------------------------------------------------------------------
+% The guideline
+% ---------------------------------------------------------------------------
+
+% HFrEF: heart failure with an ejection fraction of 40% or less.
+a patient has heart failure with reduced ejection fraction
+    if the patient has current or prior symptoms of heart failure
+    and the ejection fraction of the patient is a percentage P
+    and P <= 40.
+
+% Stage C: structural heart disease with prior or current symptoms of HF.
+a patient has current or prior symptoms of heart failure
+    if the patient is in stage C.
+
+% First-line choice: ACE inhibitors are recommended in patients with HFrEF
+% with current or prior symptoms, unless contraindicated.
+a patient has an indication for ACE inhibitors with class 1
+    if the patient has heart failure with reduced ejection fraction.
+
+a patient has a contraindication to ACE inhibitors
+    if the patient has a history of angioedema
+    or the patient is pregnant.
+
+% Sentence 1 - the second-line choice.
+a patient has an indication for ARBs with class 1
+    if the patient has heart failure with reduced ejection fraction
+    and the patient is intolerant to ACE inhibitors.
+
+a patient has a contraindication to ARBs
+    if the patient is pregnant.
+
+% Beta blockers are recommended for all patients with current or prior
+% symptoms of HFrEF, unless contraindicated.
+a patient has an indication for beta blockers with class 1
+    if the patient has heart failure with reduced ejection fraction.
+
+% Aldosterone antagonists are recommended in patients with NYHA class II-IV
+% and an ejection fraction of 35% or less, unless contraindicated; in NYHA
+% class II only after a cardiovascular hospitalization or with elevated
+% natriuretic peptide levels.
+a patient has an indication for aldosterone antagonists with class 1
+    if the patient has heart failure with reduced ejection fraction
+    and the ejection fraction of the patient is a percentage P
+    and P <= 35
+    and the NYHA class of the patient is a number N
+    and N >= 3
+        or N = 2
+            and the patient has a history of cardiovascular hospitalization
+                or the patient has elevated natriuretic peptide levels.
+
+% ... provided creatinine is at most 2.5 mg/dL in men or 2.0 mg/dL in women,
+% and potassium is below 5.0 mEq/L.
+a patient has a contraindication to aldosterone antagonists
+    if the serum potassium of the patient is a number K mEq per L
+    and K >= 5.0.
+
+a patient has a contraindication to aldosterone antagonists
+    if the sex of the patient is male
+    and the serum creatinine of the patient is a number C mg per dL
+    and C > 2.5.
+
+a patient has a contraindication to aldosterone antagonists
+    if the sex of the patient is female
+    and the serum creatinine of the patient is a number C mg per dL
+    and C > 2.0.
+
+% Sodium restriction is reasonable for patients with symptomatic HF, to
+% reduce congestive symptoms (class 2a).
+a patient has an indication for sodium restriction with class 2a
+    if the patient has current or prior symptoms of heart failure.
+
+% Sentence 2.
+ACE inhibitors should generally be combined with diuretics.
+beta blockers should generally be combined with diuretics.
+aldosterone antagonists should generally be combined with diuretics.
+
+% Sentence 3. (Sentence 2 already adds the diuretics to the beta blockers;
+% this one withdraws the beta blockers when the diuretics cannot be given.)
+beta blockers should not be prescribed without diuretics for a patient
+    if the patient has a current or recent history of fluid retention.
+
+% ---------------------------------------------------------------------------
+% Patients
+% ---------------------------------------------------------------------------
+
+% The patient of the paper (Fig. 2): a 78-year-old woman in stage C, NYHA
+% class 3, ejection fraction 35%, with fluid retention. (Her other data -
+% diagnoses, ECG, a history of stroke - play no part in these rules.)
+scenario paper_patient is:
+    Ann is in stage C.
+    the NYHA class of Ann is 3.
+    the ejection fraction of Ann is 35.
+    the sex of Ann is female.
+    the serum creatinine of Ann is 1.8 mg per dL.
+    the serum potassium of Ann is 4.9 mEq per L.
+    Ann has a current or recent history of fluid retention.
+    Ann has a history of cardiovascular hospitalization.
+    treatments expects answers [
+        "the guideline recommends ACE inhibitors with class 1 for Ann",
+        "the guideline recommends beta blockers with class 1 for Ann",
+        "the guideline recommends aldosterone antagonists with class 1 for Ann",
+        "the guideline recommends diuretics with class 1 for Ann",
+        "the guideline recommends sodium restriction with class 2a for Ann"].
+    withheld expects answers [].
+
+% Sentence 1: ACE inhibitor intolerant, so ARBs instead.
+scenario ace_intolerant is:
+    Bob is in stage C.
+    the NYHA class of Bob is 2.
+    the ejection fraction of Bob is 30.
+    the sex of Bob is male.
+    Bob is intolerant to ACE inhibitors.
+    treatments expects answers [
+        "the guideline recommends ARBs with class 1 for Bob",
+        "the guideline recommends beta blockers with class 1 for Bob",
+        "the guideline recommends diuretics with class 1 for Bob",
+        "the guideline recommends sodium restriction with class 2a for Bob"].
+    withheld expects answers [
+        "Bob has an indication for ACE inhibitors with class 1 and it is not the case that the guideline recommends ACE inhibitors with class 1 for Bob"].
+
+% Sentence 1, "unless contraindicated": ARBs are indicated, but not in pregnancy.
+scenario ace_intolerant_and_pregnant is:
+    Carla is in stage C.
+    the NYHA class of Carla is 2.
+    the ejection fraction of Carla is 30.
+    the sex of Carla is female.
+    Carla is intolerant to ACE inhibitors.
+    Carla is pregnant.
+    treatments expects answers [
+        "the guideline recommends beta blockers with class 1 for Carla",
+        "the guideline recommends diuretics with class 1 for Carla",
+        "the guideline recommends sodium restriction with class 2a for Carla"].
+    withheld expects answers [
+        "Carla has an indication for ACE inhibitors with class 1 and it is not the case that the guideline recommends ACE inhibitors with class 1 for Carla",
+        "Carla has an indication for ARBs with class 1 and it is not the case that the guideline recommends ARBs with class 1 for Carla"].
+
+% Sentence 3, as in the paper: "if diuretics are contraindicated for any
+% reason, then our system will not recommend beta blockers either."
+scenario fluid_retention_without_diuretics is:
+    Dave is in stage C.
+    the NYHA class of Dave is 2.
+    the ejection fraction of Dave is 38.
+    the sex of Dave is male.
+    Dave has a current or recent history of fluid retention.
+    Dave is intolerant to diuretics.
+    treatments expects answers [
+        "the guideline recommends ACE inhibitors with class 1 for Dave",
+        "the guideline recommends sodium restriction with class 2a for Dave"].
+    withheld expects answers [
+        "Dave has an indication for beta blockers with class 1 and it is not the case that the guideline recommends beta blockers with class 1 for Dave"].
+
+% ... and without fluid retention the beta blockers stay.
+scenario no_fluid_retention_without_diuretics is:
+    Eve is in stage C.
+    the NYHA class of Eve is 2.
+    the ejection fraction of Eve is 38.
+    the sex of Eve is female.
+    Eve is intolerant to diuretics.
+    treatments expects answers [
+        "the guideline recommends ACE inhibitors with class 1 for Eve",
+        "the guideline recommends beta blockers with class 1 for Eve",
+        "the guideline recommends sodium restriction with class 2a for Eve"].
+    withheld expects answers [].
+
+% NYHA class 2 with elevated natriuretic peptides: aldosterone antagonists are
+% indicated, but his kidneys rule them out.
+scenario high_creatinine is:
+    Frank is in stage C.
+    the NYHA class of Frank is 2.
+    the ejection fraction of Frank is 30.
+    Frank has elevated natriuretic peptide levels.
+    the sex of Frank is male.
+    the serum creatinine of Frank is 2.7 mg per dL.
+    the serum potassium of Frank is 4.5 mEq per L.
+    treatments expects answers [
+        "the guideline recommends ACE inhibitors with class 1 for Frank",
+        "the guideline recommends beta blockers with class 1 for Frank",
+        "the guideline recommends diuretics with class 1 for Frank",
+        "the guideline recommends sodium restriction with class 2a for Frank"].
+    withheld expects answers [
+        "Frank has an indication for aldosterone antagonists with class 1 and it is not the case that the guideline recommends aldosterone antagonists with class 1 for Frank"].
+
+query treatments is:
+    the guideline recommends which treatment with which class for which patient.
+
+query withheld is:
+    a patient has an indication for a treatment with a class
+    and it is not the case that
+        the guideline recommends the treatment with the class for the patient.
