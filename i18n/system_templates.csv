@@ -12,6 +12,7 @@ le_lt,date date,{1} is before {2},{1} é anterior a {2},{1} es anterior a {2},{1
 le_known,any,{1} is known,{1} é conhecido|{1} é conhecida,{1} es conocido|{1} es conocida,{1} est connu|{1} est connue,{1} è noto|{1} è nota
 le_is,any any,{1} is {2},{1} é {2},{1} es {2},{1} est {2},{1} è {2}
 le_is_in,any list,{1} is in {2},{1} está em {2},{1} está en {2},{1} est dans {2},{1} è in {2}
+le_holds,any,{1} is the case,{1} é o caso,{1} es el caso,{1} est le cas,{1} è il caso
 le_is_days_after,date number date,{1} is {2} days after {3},{1} é {2} dias depois de {3},{1} es {2} días después de {3},{1} est {2} jours après {3},{1} è {2} giorni dopo {3}
 le_is_months_after,date number date,{1} is {2} months after {3},{1} é {2} meses depois de {3},{1} es {2} meses después de {3},{1} est {2} mois après {3},{1} è {2} mesi dopo {3}
 le_minimum,number number number,the minimum of {1} and {2} is {3},o mínimo de {1} e {2} é {3},el mínimo de {1} y {2} es {3},le minimum de {1} et {2} est {3},il minimo di {1} e {2} è {3}

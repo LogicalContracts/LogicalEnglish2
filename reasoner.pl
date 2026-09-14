@@ -136,6 +136,13 @@ solve_real_actual(or(A, B), SM, KM, Anc, D, MyID, Us, Whys) :- !,
     (   solve(A, SM, KM, Anc, D, MyID, Us, Whys)
     ;   solve(B, SM, KM, Anc, D, MyID, Us, Whys)
     ).
+% A sentence as a condition (`the sentence is the case`): the sentence a
+% variable holds, proved like any other goal. What the deontic library
+% (lib/deontic.le) needs to say that an obligation's content has, or has
+% not, come about.
+solve_real_actual(le_holds(S), SM, KM, Anc, D, MyID, Us, Whys) :- !,
+    nonvar(S),
+    solve(S, SM, KM, Anc, D, MyID, Us, Whys).
 % Once
 solve_real_actual(once(Goal), SM, KM, Anc, D, MyID, Us, Whys) :- !,
     once(solve(Goal, SM, KM, Anc, D, MyID, Us, Whys)).

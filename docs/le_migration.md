@@ -20,6 +20,7 @@ program.le with RESIDUE blocks ──Contract Assistant, mode residue──▶ r
 | The migration ledger, source tests as scenarios, fidelity | `le_migration.pl` | E14 |
 | Residue mode: a fixed skeleton, only the residue translated by the LLM | `le_contract_assistant.pl` (mode `residue`), prompts `llm/contract_prompts/residue_*.md` | Phase 0 item 4 |
 | Dates, periods and lock times | `lib/temporal.le` + `lib/temporal.pl` | E3 |
+| Obligations, permissions, prohibitions, violations (the deontic pattern library) and `*a sentence* is the case` | `lib/deontic.le`, `reasoner.pl` (`le_holds/1`) | N4 |
 | Integer division `//` and remainder `mod` | `le_grammar.pl` | E4 |
 | `either`/`any of` with nested `all of`; negation in numbered items | `le_extensions.pl` (InsurLE) | D1, D2 |
 | `; opposite:` forms are not negation in a condition — documented, and diagnosed (`opposite_as_condition`) | `le_verifier.pl`, `docs/le_summary.md` §2 | D3 |

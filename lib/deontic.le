@@ -1,0 +1,50 @@
+% lib/deontic.le — obligations, permissions and prohibitions, as LE templates.
+%
+% The deontic pattern library (N4) of InsurLE2/docs/MiggratingFromOtherSystems.md
+% (§7.4, Phase 2f): what LegalRuleML's Obligation, Permission, Prohibition and
+% Reparation (and later Daml's, L4's and Symboleo's) are written with, so that
+% no translator invents its own. A library, not syntax: include it as a
+% resource (a translator copies it beside the program it writes).
+%
+% A deontic statement is about a sentence — what the bearer must, may or must
+% not bring about: `the lender is obliged that the lender notifies the
+% borrower`. Whether it came about is that sentence, proved like any other
+% condition (`the sentence is the case`). Violations and compliance follow
+% from the statements and the facts; what applies when one is violated (a
+% reparation, a penalty) is the program's own rule, concluding a new
+% obligation from the violation.
+%
+% The timeless reading: who is obliged, permitted, forbidden, and what is
+% violated in a case. Deadlines and the life of an obligation over time are
+% LE for LPS, where an obligation is a fluent its trigger initiates and its
+% fulfilment terminates, and its deadline a constraint (not a library yet).
+
+the templates are:
+    *a party* is obliged that *a sentence*.
+    *a party* is permitted that *a sentence*.
+    *a party* is forbidden that *a sentence*.
+    the obligation of *a party* that *a sentence* is violated.
+    the prohibition of *a party* that *a sentence* is violated.
+    *a party* complies with the obligation that *a sentence*.
+    *a party* is in breach.
+
+the knowledge base deontic includes:
+
+the obligation of a party that a sentence is violated if
+    the party is obliged that the sentence
+    and it is not the case that
+        the sentence is the case.
+
+the prohibition of a party that a sentence is violated if
+    the party is forbidden that the sentence
+    and the sentence is the case.
+
+a party complies with the obligation that a sentence if
+    the party is obliged that the sentence
+    and the sentence is the case.
+
+a party is in breach if
+    the obligation of the party that a sentence is violated.
+
+a party is in breach if
+    the prohibition of the party that a sentence is violated.

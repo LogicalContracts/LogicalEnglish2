@@ -1472,6 +1472,9 @@ arg_text(Ctx, St, X, T) :- is_list(X), \+ ground(X), !,
     maplist(arg_text(Ctx, St), X, Ts), atomic_list_concat(Ts, ', ', In),
     format(atom(T), '[~w]', [In]).
 arg_text(Ctx, St, X, T) :- arith_expr(X), !, expr_text(Ctx, St, X, T).
+arg_text(Ctx, St, X, T) :-                  % an embedded sentence with no places
+    atom(X), Ctx = ctx(Dicts, _, _), lookup_td_for(Dicts, X, _), !,
+    render_literal(Ctx, St, X, T).
 arg_text(_, _, X, T) :- render_constant(X, T).
 
 %   An arithmetic operand: variables as their ids.
@@ -1744,7 +1747,8 @@ scenario_line(Ctx, pending(Why, Line)) :- !,
     %  translated, or the translation departs from the source in a documented
     %  way): written as a comment, ready to be restored, and counted in the
     %  ledger.
-    format("    % pending — ~w:~n", [Why]),
+    format(string(Why0), "~w", [Why]), normalize_space(string(Why1), Why0),   % one line
+    format("    % pending — ~w:~n", [Why1]),
     with_output_to(string(S), scenario_line(Ctx, Line)),
     split_string(S, "\n", "", Ls),
     forall(( member(L0, Ls), normalize_space(string(L), L0), L \== "" ),
