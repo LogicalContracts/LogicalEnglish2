@@ -1193,7 +1193,7 @@ skip_reserved(Type, Reserved, C0, C) :-
 count_name(1, Type, Type) :- !.
 count_name(C, Type, Name) :-
     (   ordinal(C, Type, Ord) -> format(atom(Name), '~w ~w', [Ord, Type])
-    ;   format(atom(Name), '~w ~w', [Type, C])
+    ;   format(atom(Name), '~w~w', [Type, C])     % `thing7`: `thing 7` reads as two places
     ).
 
 memberchk_eq(X, [Y|Ys]) :- ( X == Y -> true ; memberchk_eq(X, Ys) ).
@@ -2646,6 +2646,7 @@ typed_by_annotation(Terms, F, N, I, Type) :-
     member(C-_, Terms), clause_literal(C, L), functor(L, F, N),
     arg(I, L, A), var(A),
     clause_literal(C, L2), L2 \== L, \+ functor(L2, F, N),
+    compound(L2),                         % a proposition has no places
     arg(J, L2, A2), A2 == A,
     functor(L2, F2, N2),
     member(T2-Bs2, Terms), pred_annotation(T2, Spec2, W2), callable(Spec2), functor(Spec2, F2, N2),
@@ -2736,7 +2737,7 @@ distinct_place_names(Names, Places) :-
 place_name_step(N, C0-Acc, C1-[P|Acc]) :-
     ( select(N-K0, C0, C2) -> K is K0 + 1 ; K = 1, C2 = C0 ),
     C1 = [N-K|C2],
-    ( K =:= 1 -> P = N ; ordinal(K, N, O) -> format(atom(P), '~w ~w', [O, N]) ; format(atom(P), '~w ~w', [N, K]) ).
+    ( K =:= 1 -> P = N ; ordinal(K, N, O) -> format(atom(P), '~w ~w', [O, N]) ; format(atom(P), '~w~w', [N, K]) ).
 
 functor_words(F, Words) :-
     atomic_list_concat(Ws0, '_', F),

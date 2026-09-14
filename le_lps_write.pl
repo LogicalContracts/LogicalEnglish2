@@ -549,6 +549,10 @@ condition(_, Ns, Comparison, S) :-
 	comparison(Comparison, X, Op, Y), !,
 	expr_text(Ns, X, XS), expr_text(Ns, Y, YS),
 	format(atom(S), '~w ~w ~w', [XS, Op, YS]).
+%   A timeless negated condition (LE's `it is not the case that` with no time).
+condition(KB, Ns, not(G), S) :-
+	render(KB, Ns, G, GS), GS \== '', !,
+	format(atom(S), 'it is not the case that ~w', [GS]).
 condition(KB, Ns, G, S) :-
 	render(KB, Ns, G, S0), S0 \== '', !, S = S0.
 condition(_, _, G, S) :- format(atom(S), '% ~q', [G]).
@@ -654,6 +658,13 @@ dict_args(KB, F/N, DArgs, WV) :-
 
 arg_text(Ns, A, T) :- var(A), !, name_of(Ns, A, T).
 arg_text(_, A, T) :- string(A), !, format(atom(T), '"~w"', [A]).   % a string stays one
+arg_text(_, A, T) :-                   % a constant LE would read as a word of its own (`a`)
+	atom(A), lone_keyword(A), !, format(atom(T), '"~w"', [A]).
+
+lone_keyword(A) :-
+	(   le_i18n:class_member(article_narrow, A) ; le_i18n:class_member(definite_article, A)
+	;   le_i18n:class_member(reserved, A)
+	), !.
 arg_text(_, A, T) :- format(atom(T), '~w', [A]).
 
 token_text(W, W) :- atomic(W), !.

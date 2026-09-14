@@ -1395,7 +1395,7 @@ slot_value(KB, F, A, I, V) :-
         ;   % "the construction is in [woven, nonwoven, felt]"
             find_in_body(Body, le_is_in(Arg0, List)), Arg0 == Arg,
             is_list(List), member(V, List), atomic(V)
-        ;   arg(K, Head, HArg), HArg == Arg,
+        ;   compound(Head), arg(K, Head, HArg), HArg == Arg,
             functor(Head, HF, HA),
             head_argument_value(KB, HF, HA, K, V)
         )
