@@ -324,6 +324,9 @@ In an explanation tree, a type check renders like the assertion it verifies, e.g
     equal to the limit` — never "183 days": six months after 28 August is 184
     days later.
   - `*V1* is known`
+  - `*V1* is the case` (V1 a sentence: proves the sentence a variable holds —
+    `the sentence is the case` — what `lib/deontic.le` checks an obligation's
+    content with)
   - `*V1* is in *V2*` (List membership)
   - `the minimum of *V1* and *V2* is *V3*` (for numbers)
   - `the maximum of *V1* and *V2* is *V3*` (for numbers)
@@ -447,6 +450,18 @@ translators), so a program and its libraries form one directory.
   `block *a height* is at least *a number* blocks after block *a first
   height*`). Its templates are not reported as untested in a program that
   includes it. See `testing/fixtures/temporal/uses_temporal.le`.
+- **`lib/deontic.le`** — obligations, permissions and prohibitions (the
+  deontic pattern library): `*a party* is obliged / permitted / forbidden that
+  *a sentence*`, `the obligation (prohibition) of *a party* that *a sentence*
+  is violated`, `*a party* complies with the obligation that *a sentence*`,
+  `*a party* is in breach`. A program concludes the deontic statements; the
+  library says when one is violated (an obligation's sentence not the case, a
+  prohibition's the case) and a program's reparation is a rule concluding a
+  new obligation from a violation: `a person is obliged that the person pays
+  200 penalty units if the prohibition of the person that the person engages
+  in a credit activity is violated`. Timeless: who is bound, and what is
+  violated, in a case. The LegalRuleML translator (InsurLE2 Phase 2f) writes
+  its twins with it.
 
 ## 15. LE Extensions
 Features beyond the core constructs summarised above. Some are implemented in

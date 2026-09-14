@@ -173,6 +173,7 @@ le_builtin_functor(and).
 le_builtin_functor(or).
 le_builtin_functor(not).
 le_builtin_functor(for_all_cases).
+le_builtin_functor(le_holds).
 %   LE's own records, which are not the program's clauses: the ontology
 %   section's record (its clauses are is_a/2 clauses of their own), flip
 %   expectations, services.
@@ -470,6 +471,7 @@ lower_leaf(le_table(_, _), true, [I]) :- scasp_issue(decision_table, unknown, sc
 lower_leaf(G, true, [I]) :-
     compound(G), functor(G, F, _), memberchk(F, [le_semantically_similar, le_best_match, le_satisfies_description]), !,
     scasp_issue(service, unknown, scasp_service, [], I).
+lower_leaf(le_holds(_), true, [I]) :- scasp_issue(meta_call, unknown, scasp_meta_call, [], I), !.
 lower_leaf(unknown_template(_), true, [I]) :- scasp_issue(missing_template, unknown, scasp_missing_template, [], I), !.
 lower_leaf(Leaf, CLeaf, []) :- to_classical(Leaf, CLeaf).      % user domain predicate (an opposite form: -p)
 

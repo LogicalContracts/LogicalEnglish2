@@ -685,7 +685,8 @@ is_defined_real(KB, Literal) :-
     (   Literal = is_a(_, _) -> true
     ;   memberchk(F/A, [and/2, or/2, not/1, forall/2, true/0, fail/0, sum/3, count/3, min/3, max/3, average/3]) -> true
     ;   memberchk(F/A, [le_is/2, le_equal_to/2, le_not_equal_to/2, le_assign/2, le_ge/2, le_le/2, le_gt/2, le_lt/2, le_known/1, le_is_in/2, le_type_check/2, le_table/2, le_fails_at_section/1, le_query_fails_at_section/2,
-                       le_semantically_similar/2, le_best_match/3, le_satisfies_description/2, le_flip/2]) -> true
+                       le_semantically_similar/2, le_best_match/3, le_satisfies_description/2, le_flip/2,
+                       le_holds/1]) -> true
     ;   (F == says_that, A == 2) -> true
     ;   safe_clause(KB, Literal) -> true
     ;   safe_scenario_fact(KB, F, A) -> true
@@ -967,6 +968,20 @@ template_consumed(KB, F, A) :-
     KB:query_info(_, Goal, _),
     find_in_body(Goal, Literal),
     functor(Literal, F, A), !.
+%   A sentence the program talks about (`the lender is obliged that the
+%   lender pays ...`, a place holding a literal) is read when the program
+%   asks whether a sentence is the case (le_holds/1, lib/deontic.le's
+%   violations and compliance).
+template_consumed(KB, F, A) :-
+    reads_sentences(KB),
+    current_predicate(KB:Other/OA),
+    \+ is_system_predicate(Other/OA),
+    functor(H, Other, OA),
+    le_kbs:kb_own_predicate(KB, H),
+    clause(KB:H, Body),
+    ( find_in_body(Body, Literal) ; Literal = H ),
+    compound(Literal), arg(_, Literal, Sentence),
+    contains_literal(Sentence, F, A), !.
 %   An LPS program's rules are le_lps_item/3 payloads, not clauses, and the
 %   payload nests head and body together — so any mention counts, rather than
 %   reporting every fact template of a perfectly ordinary LPS program.
@@ -974,6 +989,15 @@ template_consumed(KB, F, A) :-
     current_predicate(KB:le_lps_item/3),
     KB:le_lps_item(_, Payload, _),
     contains_literal(Payload, F, A), !.
+
+%   Some rule asks whether a sentence is the case (`the sentence is the case`).
+reads_sentences(KB) :-
+    current_predicate(KB:Other/OA),
+    \+ is_system_predicate(Other/OA),
+    functor(H, Other, OA),
+    le_kbs:kb_own_predicate(KB, H),
+    clause(KB:H, Body),
+    find_in_body(Body, le_holds(_)), !.
 
 %!  template_source(+KB, +Dict, -Start, -End) is det.
 template_source(KB, Dict, Start, End) :-
