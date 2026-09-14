@@ -67,6 +67,29 @@ reads the same folder for a program opened from its server. The editor's
 example list does not descend into a `sources/` folder: it holds originals,
 not programs.
 
+**The other way: exporting (`exporter/6`).** `File > Export to Another
+System…` in the editor (and the LPS2 IDE's Misc ▸ Export to another
+system…, through `le_service:le_export/4`) writes the loaded program in
+another system's format. An exporter registers itself with one clause:
+
+```prolog
+le_import:exporter(Id, Title, Extension, File, Module:Export, Module:Applies).
+%   call(Applies, +KB)                      % can it write this program?
+%   call(Export, +KB, +Options, -exported(FileName, Text, Notes, Links))
+%       Options: text(Doc), base(Dir); Links: [link(Title, Url)] — a public
+%       sandbox or playground the result opens in
+```
+
+KB is the loaded knowledge base, so an exporter reads the program through
+`le_writer:kb_to_ir/2` (or the LPS translation), never its text. Operations
+`exportFormats` (the exporters that apply to a program) and `exportForeign`
+(the text, notes and links); the editor lists only the exporters that apply,
+and shows the result to copy or save, with its notes and a button per link.
+What an exporter cannot express it says in Notes — never silently. Tests:
+`testing/test_le_import.pl` (a made-up exporter), `editor/tests/
+import-foreign.spec.ts` (both ways). The InsurLE exporters are registered
+in `InsurLE2/migration/le_importers.pl` beside the importers.
+
 ## 1. The Migration IR
 
 A translator's output is a Prolog term, not text:

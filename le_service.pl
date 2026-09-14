@@ -95,6 +95,10 @@
     % — the legal view of an LPS program (le_lps_legal.pl)
     le_legal_view/3,            % +LEText, -Text, -Issues
     le_legal_view/4,            % +LEText, +Options, -Text, -Issues
+    % — other systems' formats, both ways (le_import.pl)
+    le_import_formats/1,        % -Formats
+    le_export_formats/3,        % +LEText, +Options, -Formats
+    le_export/4,                % +LEText, +Exporter, +Options, -Reply
     le_service_version/1        % -Version
   ]).
 
@@ -156,12 +160,48 @@ le_legal_view(LEText, Options, Text, Issues) :-
 
 :- use_module(le_lps_legal, []).
 
+		 /*******************************
+		 *   OTHER SYSTEMS, BOTH WAYS   *
+		 *******************************/
+
+%!  le_import_formats(-Formats:list(dict)) is det.
+%
+%   The translators from other systems this installation has (le_import.pl):
+%   `{id, title, extensions}`. An embedder's File ▸ Open offers their
+%   extensions and hands such a file to le_import:import_upload/4.
+le_import_formats(Formats) :- le_import:import_formats(Formats).
+
+%!  le_export_formats(+LEText, +Options, -Formats:list(dict)) is det.
+%
+%   The exporters that can write the program LEText (`{id, title,
+%   extension}`); Options: base(Dir) resolves its includes.
+le_export_formats(LEText, Options, Formats) :-
+    option(base(Base), Options, (-)),
+    (   catch(le_kbs:load_text(LEText, Base, KB), _, fail)
+    ->  le_import:export_formats(KB, Formats)
+    ;   Formats = []
+    ).
+
+%!  le_export(+LEText, +Exporter, +Options, -Reply:dict) is det.
+%
+%   The program written by the exporter Exporter: le_import:export_kb/4's
+%   reply (`document`, `fileName`, `exporter`, `notes`, `links`, or `error`).
+le_export(LEText, Id, Options, Reply) :-
+    option(base(Base), Options, (-)),
+    (   catch(le_kbs:load_text(LEText, Base, KB), E, ( print_message(error, E), fail ))
+    ->  le_import:export_kb(Id, KB, [text(LEText), base(Base)], Reply)
+    ;   Reply = _{error: "The program could not be loaded"}
+    ).
+
+:- use_module(le_import, []).
+:- use_module(library(option)).
+
 %!  le_service_version(-Version:atom) is det.
 %
 %   The version of the surface described in this module's header. An embedder
 %   that cares whether the LE2 checkout it loaded is new enough checks this;
 %   it moves when a predicate here changes shape, not when LE itself grows.
-le_service_version('1.1').
+le_service_version('1.2').
 
 
 		 /*******************************

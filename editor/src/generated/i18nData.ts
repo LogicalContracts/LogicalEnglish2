@@ -9241,7 +9241,17 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "No original is kept for this program: it was not converted from another system's files (there is no sources folder beside it).": "Não há original guardado para este programa: não foi convertido a partir de ficheiros de outro sistema (não há pasta sources ao lado dele).",
     "The original files this program was converted from": "Os ficheiros originais de onde este programa foi convertido",
     "Open it in the source viewer": "Abri-lo no visualizador de fontes",
-    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "A vista jurídica é tirada de um programa LPS: este documento não declara a linguagem alvo lps (ou não carrega)."
+    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "A vista jurídica é tirada de um programa LPS: este documento não declara a linguagem alvo lps (ou não carrega).",
+    "Export to Another System…": "Exportar para outro sistema…",
+    "Write this program in another system's format — deterministically, no LLM — with an exporter the server has for it (for instance a Bitcoin spending policy as a Miniscript policy): the result is shown to copy or save, with links to a public sandbox where there is one": "Escrever este programa no formato de outro sistema — de forma determinística, sem LLM — com um exportador que o servidor tenha para ele (por exemplo uma política de gasto Bitcoin como política Miniscript): o resultado é mostrado para copiar ou guardar, com ligações para uma sandbox pública quando existe",
+    "Exported as": "Exportado como",
+    "Copy the exported text to the clipboard": "Copiar o texto exportado para a área de transferência",
+    "Save…": "Guardar…",
+    "Save the exported text as a file": "Guardar o texto exportado num ficheiro",
+    "Open in a new tab": "Abrir num novo separador",
+    "Could not export": "Não foi possível exportar",
+    "No exporter on this server can write this program in another system's format.": "Nenhum exportador deste servidor consegue escrever este programa no formato de outro sistema.",
+    "Export this program as": "Exportar este programa como"
   },
   "es": {
     "+ Add": "+ Añadir",
@@ -9787,7 +9797,17 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "No original is kept for this program: it was not converted from another system's files (there is no sources folder beside it).": "No se guarda ningún original para este programa: no se convirtió a partir de archivos de otro sistema (no hay carpeta sources junto a él).",
     "The original files this program was converted from": "Los archivos originales de los que se convirtió este programa",
     "Open it in the source viewer": "Abrirlo en el visor de fuentes",
-    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vista jurídica se obtiene de un programa LPS: este documento no declara el lenguaje objetivo lps (o no se carga)."
+    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vista jurídica se obtiene de un programa LPS: este documento no declara el lenguaje objetivo lps (o no se carga).",
+    "Export to Another System…": "Exportar a otro sistema…",
+    "Write this program in another system's format — deterministically, no LLM — with an exporter the server has for it (for instance a Bitcoin spending policy as a Miniscript policy): the result is shown to copy or save, with links to a public sandbox where there is one": "Escribir este programa en el formato de otro sistema — de forma determinista, sin LLM — con un exportador que el servidor tenga para él (por ejemplo una política de gasto de Bitcoin como política Miniscript): el resultado se muestra para copiar o guardar, con enlaces a un sandbox público cuando lo hay",
+    "Exported as": "Exportado como",
+    "Copy the exported text to the clipboard": "Copiar el texto exportado al portapapeles",
+    "Save…": "Guardar…",
+    "Save the exported text as a file": "Guardar el texto exportado como archivo",
+    "Open in a new tab": "Abrir en una pestaña nueva",
+    "Could not export": "No se pudo exportar",
+    "No exporter on this server can write this program in another system's format.": "Ningún exportador de este servidor puede escribir este programa en el formato de otro sistema.",
+    "Export this program as": "Exportar este programa como"
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -10333,7 +10353,17 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "No original is kept for this program: it was not converted from another system's files (there is no sources folder beside it).": "Aucun original n'est conservé pour ce programme : il n'a pas été converti depuis les fichiers d'un autre système (il n'y a pas de dossier sources à côté).",
     "The original files this program was converted from": "Les fichiers originaux d'où ce programme a été converti",
     "Open it in the source viewer": "L'ouvrir dans la visionneuse de sources",
-    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vue juridique se tire d'un programme LPS : ce document ne déclare pas le langage cible lps (ou ne se charge pas)."
+    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vue juridique se tire d'un programme LPS : ce document ne déclare pas le langage cible lps (ou ne se charge pas).",
+    "Export to Another System…": "Exporter vers un autre système…",
+    "Write this program in another system's format — deterministically, no LLM — with an exporter the server has for it (for instance a Bitcoin spending policy as a Miniscript policy): the result is shown to copy or save, with links to a public sandbox where there is one": "Écrire ce programme dans le format d'un autre système — de façon déterministe, sans LLM — avec un exportateur que le serveur possède pour lui (par exemple une politique de dépense Bitcoin en politique Miniscript) : le résultat s'affiche pour être copié ou enregistré, avec des liens vers un bac à sable public s'il en existe un",
+    "Exported as": "Exporté en",
+    "Copy the exported text to the clipboard": "Copier le texte exporté dans le presse-papiers",
+    "Save…": "Enregistrer…",
+    "Save the exported text as a file": "Enregistrer le texte exporté dans un fichier",
+    "Open in a new tab": "Ouvrir dans un nouvel onglet",
+    "Could not export": "Impossible d'exporter",
+    "No exporter on this server can write this program in another system's format.": "Aucun exportateur de ce serveur ne sait écrire ce programme dans le format d'un autre système.",
+    "Export this program as": "Exporter ce programme en"
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -10879,7 +10909,17 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "No original is kept for this program: it was not converted from another system's files (there is no sources folder beside it).": "Nessun originale è conservato per questo programma: non è stato convertito dai file di un altro sistema (non c'è una cartella sources accanto).",
     "The original files this program was converted from": "I file originali da cui questo programma è stato convertito",
     "Open it in the source viewer": "Aprirlo nel visualizzatore delle fonti",
-    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vista giuridica si ricava da un programma LPS: questo documento non dichiara il linguaggio obiettivo lps (o non si carica)."
+    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vista giuridica si ricava da un programma LPS: questo documento non dichiara il linguaggio obiettivo lps (o non si carica).",
+    "Export to Another System…": "Esporta verso un altro sistema…",
+    "Write this program in another system's format — deterministically, no LLM — with an exporter the server has for it (for instance a Bitcoin spending policy as a Miniscript policy): the result is shown to copy or save, with links to a public sandbox where there is one": "Scrivere questo programma nel formato di un altro sistema — in modo deterministico, senza LLM — con un esportatore che il server ha per esso (per esempio una politica di spesa Bitcoin come politica Miniscript): il risultato è mostrato per essere copiato o salvato, con collegamenti a una sandbox pubblica quando esiste",
+    "Exported as": "Esportato come",
+    "Copy the exported text to the clipboard": "Copiare il testo esportato negli appunti",
+    "Save…": "Salva…",
+    "Save the exported text as a file": "Salvare il testo esportato in un file",
+    "Open in a new tab": "Apri in una nuova scheda",
+    "Could not export": "Impossibile esportare",
+    "No exporter on this server can write this program in another system's format.": "Nessun esportatore di questo server sa scrivere questo programma nel formato di un altro sistema.",
+    "Export this program as": "Esporta questo programma come"
   }
 } as const;
 

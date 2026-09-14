@@ -250,6 +250,8 @@ handle_operation(Dict, Response) :-
         ; Op == "nl_to_le" -> handle_nl_to_le(Dict, Response)
         ; Op == "importForeign" -> handle_import_foreign(Dict, Response)
         ; Op == "importFormats" -> ( le_import:import_formats(Fs), Response = _{formats: Fs} )
+        ; Op == "exportFormats" -> handle_export_formats(Dict, Response)
+        ; Op == "exportForeign" -> handle_export_foreign(Dict, Response)
         ; Op == "is_a_hierarchy" -> handle_is_a_hierarchy(Dict, Response)
         ; Op == "graph" -> handle_graph(Dict, Response)
         ; Response = _{error: "Unknown operation"}
@@ -996,6 +998,33 @@ handle_import_foreign(Dict, Response) :-
     ;   ( get_dict(importer, Dict, Imp), Imp \== null, Imp \== "" -> Opts = [importer(Imp)] ; Opts = [] ),
         catch(le_import:import_upload(Name, Content, Response, Opts), E,
               ( print_message(error, E), term_string(E, ES), Response = _{error: ES} ))
+    ).
+
+%!  handle_export_formats(+Dict, -Response) is det.
+%
+%   The exporters (le_import.pl, exporter/6) that can write the program `le`
+%   (`source`/`base` resolve its includes): {formats: [{id, title,
+%   extension}]}, empty when the program does not load.
+handle_export_formats(Dict, _{formats: Fs}) :-
+    get_dict(le, Dict, Doc),
+    load_base_of(Dict, Base),
+    (   catch(le_kbs:load_text(Doc, Base, KB), _, fail)
+    ->  catch(le_import:export_formats(KB, Fs), E, ( print_message(error, E), Fs = [] ))
+    ;   Fs = []
+    ).
+
+%!  handle_export_foreign(+Dict, -Response) is det.
+%
+%   The program `le` written by the exporter `exporter`: {document,
+%   fileName, exporter, notes, links} or {error}.
+handle_export_foreign(Dict, Response) :-
+    get_dict(le, Dict, Doc),
+    get_dict(exporter, Dict, Id),
+    load_base_of(Dict, Base),
+    (   catch(le_kbs:load_text(Doc, Base, KB), E, (print_message(error, E), fail))
+    ->  catch(le_import:export_kb(Id, KB, [text(Doc), base(Base)], Response), E2,
+              ( print_message(error, E2), term_string(E2, ES), Response = _{error: ES} ))
+    ;   Response = _{error: "The program could not be loaded"}
     ).
 
 handle_nl_to_le(Dict, Response) :-

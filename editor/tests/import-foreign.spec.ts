@@ -58,4 +58,33 @@ test.describe('Opening another system\'s file', () => {
         await expect.poll(() => editorText(page), { timeout: 60000 }).toContain('the coin can be spent');
         await expect(page.locator('#import-report')).toContainText('translated from');
     });
+
+    // File > Export to Another System: the way back. A program no exporter
+    // writes says so; a spending policy's twin is written as a Miniscript
+    // policy, shown with its notes and the Minsc link.
+    test('a program no exporter writes says so', async ({ page }) => {
+        await page.goto('index.html');
+        await page.waitForSelector('.monaco-editor', { timeout: 30000 });
+        const message = new Promise<string>(resolve => page.once('dialog', async (d: any) => {
+            resolve(d.message()); await d.dismiss();
+        }));
+        await page.evaluate(() => (document.getElementById('menu-export') as HTMLElement).click());
+        expect(await message).toContain('No exporter on this server can write this program');
+    });
+
+    test('a translated policy exports back as a policy', async ({ page, request }) => {
+        const formats = await (await request.post('/leapi', {
+            data: { token: 'myToken123', operation: 'importFormats' } })).json();
+        test.skip(!(formats.formats || []).some((f: any) => f.id === 'miniscript'),
+                  'no Miniscript translator on this server (the InsurLE extensions are not installed)');
+        await page.goto('index.html');
+        await page.waitForSelector('.monaco-editor', { timeout: 30000 });
+        await openFile(page, 'vault.policy', 'or(pk(A),and(pk(B),older(144)))\n');
+        await expect.poll(() => editorText(page), { timeout: 60000 }).toContain('the coin can be spent');
+        await page.locator('#import-report span').click();
+        await page.evaluate(() => (document.getElementById('menu-export') as HTMLElement).click());
+        await expect(page.locator('#export-result')).toBeVisible({ timeout: 60000 });
+        await expect(page.locator('#export-text')).toContainText('or(pk(key_a),and(pk(key_b),older(144)))');
+        await expect(page.locator('#export-result .export-link')).toHaveText('Try it in Minsc');
+    });
 });

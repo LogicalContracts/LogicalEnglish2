@@ -1891,7 +1891,11 @@ le_write_kb(KB, Text) :-
 %   facts, tables, scenarios and queries (not those of included resources;
 %   not its views).
 kb_to_ir(KB, program(Header, Items)) :-
-    ( catch(KB:le_kb(Name0), _, fail) -> Name = Name0 ; Name = program ),
+    %  the program's own name, not the name of a library it includes
+    (   catch(le_kbs:program_kb_name(KB, Name0), _, fail) -> Name = Name0
+    ;   catch(KB:le_kb(Name0), _, fail) -> Name = Name0
+    ;   Name = program
+    ),
     ( catch(KB:le_target_language(T), _, fail) -> Target = T ; Target = prolog ),
     (   current_predicate(KB:le_provenance_required/0), KB:le_provenance_required
     ->  PR = [provenance_required] ; PR = [] ),
