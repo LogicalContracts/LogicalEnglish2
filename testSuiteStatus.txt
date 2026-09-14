@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      all (core + trees requiring the proprietary le_extensions.pl)
 Command:    testing/run_tests.sh le --with-extensions   (or: runAllTests)
 Sibling:    testSuiteCoreStatus.txt — core (this repository alone; extension-dependent trees excluded)
-Generated:  2026-09-14 22:50:03 UTC
+Generated:  2026-09-14 23:57:39 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 706
-Total tests:     7889
-Passed:          7889
+Files processed: 731
+Total tests:     8135
+Passed:          8135
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -276,12 +276,13 @@ Detailed File Summary:
   [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex9_alternatives/deontic.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex9_alternatives/ex9_alternatives.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex10_mix/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex10_mix/ex10_mix.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex9b_alternatives/deontic.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/legalruleml/ex9b_alternatives/ex9b_alternatives.le: 8 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex11_maternity_alternatives/deontic.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex11_maternity_alternatives/ex11_maternity_alternatives.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex12_usc_17_504_context/deontic.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex12_usc_17_504_context/ex12_usc_17_504_context.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/legalruleml/ex12_usc_17_504_context/ex12_usc_17_504_context.le: 20 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex8b_defeasible/deontic.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/legalruleml/ex8b_defeasible/ex8b_defeasible.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex1_curies/deontic.le: 0 Pass, 0 Fail, 0 Error
@@ -303,6 +304,18 @@ Detailed File Summary:
   [PASS] examples/moreExamples/InsurLE2/migration/blawx/oasa/oasa.le: 20 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/blawx/siblings/siblings.le: 10 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/blawx/numerical_constraints/numerical_constraints.le: 11 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/oipa/annuity_deposit/annuity_deposit.le: 12 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/oipa/annuity_deposit/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/oipa/termlife_grace_check/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/oipa/termlife_grace_check/termlife_grace_check.le: 6 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/oipa/termlife_premium_payment/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/oipa/termlife_premium_payment/termlife_premium_payment.le: 12 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/oipa/annuity_full_surrender/annuity_full_surrender.le: 3 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/oipa/annuity_full_surrender/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/oipa/annuity_withdrawal/annuity_withdrawal.le: 30 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/oipa/annuity_withdrawal/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/oipa/termlife_issue/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/oipa/termlife_issue/termlife_issue.le: 40 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/miniscript/bolt3_received_htlc/bolt3_received_htlc.le: 25 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/miniscript/bolt3_received_htlc/temporal.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/miniscript/liana_inheritance/liana_inheritance.le: 39 Pass, 0 Fail, 0 Error
@@ -579,7 +592,7 @@ Detailed File Summary:
   [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex11_maternity_alternatives/deontic.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex11_maternity_alternatives/ex11_maternity_alternatives.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex12_usc_17_504_context/deontic.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex12_usc_17_504_context/ex12_usc_17_504_context.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/legalruleml/ex12_usc_17_504_context/ex12_usc_17_504_context.le: 20 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex8b_defeasible/deontic.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/legalruleml/ex8b_defeasible/ex8b_defeasible.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex1_curies/deontic.le: 0 Pass, 0 Fail, 0 Error
@@ -601,6 +614,18 @@ Detailed File Summary:
   [PASS] examples/moreExamples/insureLE2/migration/blawx/oasa/oasa.le: 20 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/blawx/siblings/siblings.le: 10 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/blawx/numerical_constraints/numerical_constraints.le: 11 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/oipa/annuity_deposit/annuity_deposit.le: 12 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/oipa/annuity_deposit/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/oipa/termlife_grace_check/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/oipa/termlife_grace_check/termlife_grace_check.le: 6 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/oipa/termlife_premium_payment/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/oipa/termlife_premium_payment/termlife_premium_payment.le: 12 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/oipa/annuity_full_surrender/annuity_full_surrender.le: 3 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/oipa/annuity_full_surrender/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/oipa/annuity_withdrawal/annuity_withdrawal.le: 30 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/oipa/annuity_withdrawal/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/oipa/termlife_issue/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/oipa/termlife_issue/termlife_issue.le: 40 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/miniscript/bolt3_received_htlc/bolt3_received_htlc.le: 25 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/miniscript/bolt3_received_htlc/temporal.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/miniscript/liana_inheritance/liana_inheritance.le: 39 Pass, 0 Fail, 0 Error
