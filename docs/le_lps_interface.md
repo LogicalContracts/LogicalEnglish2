@@ -1,6 +1,6 @@
 # The LE2 ↔ LPS2 interface
 
-**Version 2.** This document is duplicated verbatim in both repositories —
+**Version 3.** This document is duplicated verbatim in both repositories —
 `docs/le_lps_interface.md` in LPS2 and in LogicalEnglish2. Change it in one
 and copy it to the other, in the same commit, or the version stamp is a lie.
 
@@ -184,6 +184,7 @@ traces. LE2 may emit any of it; LPS2 accepts all of it.
 | `events([E, …])` | event declarations |
 | `actions([A, …])` | action declarations |
 | `fluents([F, …])` | fluent declarations |
+| `defaults([F, …])` | **LPS2 only (version 3).** Each `F` is a fluent's most general term with its last argument the value it holds, for a key (its other arguments) bound and with no stored fact, *by default* — LE's `; 0 by default`. Upstream LPS has no such declaration; `le_lps:lps_expand_defaults/2` gives the same program without it (a present and an absent variant of every read, and a law storing the default before each update) |
 | `prolog_events([E, …])` | polled Prolog-defined events |
 | `unserializable([F, …])` | fluents excluded from the trace |
 | `initial_state([F, …])` | the state at time 1 |
@@ -216,7 +217,19 @@ Condition lists are **lists**, not `,/2` conjunctions. Antecedents and
 consequents of a `reactive_rule` are lists too.
 
 Times are ordinary Prolog variables, shared across the terms of one rule the
-usual way. There are no time constants beyond integers.
+usual way. There are no time constants beyond integers. An event whose end (or
+start) is named nowhere else is `happens(E, T1, _)` (or `happens(E, _, T2)`):
+an atomic event still spans one cycle, which the engine enforces.
+
+**Defaults (version 3).** For a fluent declared in `defaults/1`, `holds(F, T)`
+with F's key bound holds for its stored fact, or — when none is stored for that
+key — with F's value the default; with the key unbound only stored facts are
+enumerated. So `holds(not F, T)` with the value unbound never succeeds for a
+bound key. An `updated` law of such a fluent reads the default as the old value
+of an absent key; its conditions that do not mention the old value are
+evaluated first (they may bind the key), and its instances are its distinct
+solutions against the state before it. Nothing changes for a program with no
+`defaults/1`.
 
 ---
 

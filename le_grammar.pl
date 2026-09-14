@@ -273,6 +273,7 @@ section_start(ontology(_, S, _), S).
 section_start(unknown_section(_, S, _), S).
 section_start(meta(_), 0).
 section_start(templates(_), 0).
+section_start(constants(_, _, S, _), S).
 section_start(predicates(_), 0).
 section_start(fluents(_), 0).
 section_start(events(_), 0).
@@ -394,6 +395,18 @@ doc(Sections) --> { set_allow_commas(true) }, sections(Sections), any_indent.
 % sections([S|Ss]) parses one or more sections.
 sections([S|Ss]) --> section(S), !, sections(Ss).
 sections([]) --> [].
+
+% section(extends(...)) parses "the knowledge base <name> extends <base>, <base>."
+% (docs/le_lps_surface.md §1.1): the bases are found the way included resources
+% are, and give their templates, laws, constraints and timeless rules — never
+% their `initially`, settings, scenarios or queries (le_kbs:fetch_resources/3).
+% Tried before the kb sections, whose name would otherwise run on to the next
+% `includes`.
+section(extends(Name, Bases, Start, End)) -->
+    any_indent, kw_start(kb_open, Start), kb_name_tokens_extends(Tokens), { Tokens \== [] },
+    kw(kb_extends),
+    { reconstruct_name(Tokens, Name) },
+    resource_list(Bases, End).
 
 % section(resources(...)) parses a resources inclusion section.
 section(resources(Name, Resources, Start, End)) -->
@@ -557,6 +570,18 @@ section(templates(Dicts)) -->
     any_indent, kw(templates), t(punctuation(':', _)),
     templates(Dicts).
 
+% section(constants(...)) parses "the constants are:" (docs/le_summary.md §2.2).
+% Each line names one value — `the unlimited allowance is 115…` — and is short
+% for a template with a `defines global` name and one fact:
+%     the value of the unlimited allowance is *a number*; defines global the unlimited allowance.
+%     the value of the unlimited allowance is 115….
+% The name is then a global (§6.0) wherever a rule, a scenario or a query uses
+% it, and the fact is timeless (an LPS law reads it at any time). The type of
+% the value is taken from the literal: a number, a text, or a name.
+section(constants(Dicts, Facts, Start, End)) -->
+    any_indent, kw_start(constants, Start), t(punctuation(':', loc(_, HEnd))),
+    constant_lines(Dicts, Facts, HEnd, End).
+
 % section(fluents(...)) parses a fluents declaration section.
 section(fluents(Dicts)) -->
     any_indent, kw(fluents), t(punctuation(':', _)),
@@ -688,6 +713,13 @@ kb_name_tokens([T|Ts]) -->
     kb_name_tokens(Ts).
 kb_name_tokens([]) --> [].
 
+% kb_name_tokens_extends(Tokens): the name before `extends`, on one line.
+kb_name_tokens_extends([T|Ts]) -->
+    \+ kw(kb_extends), \+ kw(kb_include),
+    [T], { T = word(_, _) ; T = number(_, _) }, !,
+    kb_name_tokens_extends(Ts).
+kb_name_tokens_extends([]) --> [].
+
 % kb_name_tokens_contract(Tokens) consumes tokens until the 'states that' keyword.
 kb_name_tokens_contract([T|Ts]) -->
     \+ kw(contract_states),
@@ -758,6 +790,9 @@ next_section_start --> any_indent, at_line_start, section_opener.
 % it must still end the section before it; a table header is recognised by
 % its whole shape (table_header_ahead//0).
 section_opener --> kw(guard).
+% An LPS setting (`the maximum time is 7.`) is a section of its own, in an LPS
+% document only: a resource list before it (`… extends token.`) ends there.
+section_opener --> { lps_target }, ( kw(lps_max_time) ; kw(lps_max_real_time) ; kw(lps_min_cycle_time) ).
 section_opener --> kw(provenance_required).
 section_opener --> table_header_ahead.
 section_opener --> view_header_ahead.
@@ -967,6 +1002,28 @@ kb_item(expected(QueryName, Answers, Unknowns, Start, End)) -->
 % is a fluent and which an event, is settled later still — in le_lps.pl, which
 % is the only module that knows anything about LPS.
 % ---------------------------------------------------------------------------
+
+% "rule <label>: <an LPS sentence>" — a labelled law or constraint, which a
+% knowledge base that extends this one can replace by naming it (§1.1).
+kb_item(lps_labelled(Label, Item)) -->
+    { lps_target },
+    any_indent, kw(rule), ( t(word(Label)) | t(number(Label)) ), t(punctuation(':')),
+    kb_item(Item), { Item =.. [F|_], memberchk(F, [lps_rule, lps_denial]) }, !.
+
+% "this law replaces law <label> of <base>." / "this constraint replaces
+% constraint <label> of <base>." — the next law (constraint) of this knowledge
+% base takes the place of the labelled one of a base it extends (§1.1).
+kb_item(lps_replaces(Kind, Label, Base, Start, End)) -->
+    { lps_target },
+    any_indent,
+    (   kw_start(lps_this_law_replaces, Start) -> { Kind = law }
+    ;   kw_start(lps_this_constraint_replaces, Start), { Kind = constraint }
+    ),
+    ( t(word(Label)) | t(number(Label)) ),
+    kw(lps_of),
+    replaced_base_tokens(BaseToks), { BaseToks \== [] },
+    t(punctuation('.', loc(_, End))),
+    { reconstruct_name(BaseToks, Base) }.
 
 % "when <antecedent> then <consequent>." — a causal law.
 kb_item(lps_rule(when, Ante, Cons, Indent, Start, End)) -->
@@ -1330,6 +1387,60 @@ period_before_colon([punctuation('.', loc(_, E)) | _], E) :- !.
 period_before_colon([punctuation(':', _) | _], _) :- !, fail.
 period_before_colon([_ | T], E) :- period_before_colon(T, E).
 
+% The base named by `this law replaces law <label> of <base>.` (kb_item(lps_replaces(...))).
+replaced_base_tokens([T|Ts]) -->
+    [T], { T \= punctuation('.', _), T \= indent(_, _) }, !,
+    replaced_base_tokens(Ts).
+replaced_base_tokens([]) --> [].
+
+% The lines of a `the constants are:` section (section(constants(...)) above).
+constant_lines(Dicts, [F|Fs], _, End) -->
+    \+ next_section_start,
+    constant_line(D, F, E1), !,
+    constant_lines(Ds, Fs, E1, End),
+    { append(D, Ds, Dicts) }.
+constant_lines([], [], End, End) --> [].
+
+constant_line(Dicts, fact(Head, Start, End), End) -->
+    any_indent,
+    constant_tokens(Toks), { Toks = [First|_] },
+    t(punctuation('.', loc(_, End))),
+    {   get_token_start(First, Start),
+        constant_split(Toks, NameToks, IsTok, ValueToks),
+        constant_value_type(ValueToks, Type),
+        le_i18n:kw_main_words(constant_value_of, VOWords),
+        le_i18n:kw_main_words(defines_global, DGWords),
+        maplist(synthetic_word(Start), VOWords, VOToks),
+        maplist(synthetic_word(Start), DGWords, DGToks),
+        Star = punctuation('*', loc(Start, Start)),
+        append([VOToks, NameToks,
+                [IsTok, Star, word(a, loc(Start, Start)), word(Type, loc(Start, Start)), Star,
+                 punctuation(';', loc(Start, Start))],
+                DGToks, NameToks, [punctuation('.', loc(End, End))]], TToks),
+        phrase(template(Dicts), TToks, _),
+        append([VOToks, NameToks, [IsTok], ValueToks], Head)
+    }.
+
+constant_tokens([T|Ts]) -->
+    [T], { \+ T = punctuation('.', _), \+ T = indent(_, _),
+           \+ T = line_comment(_, _), \+ T = multi_comment(_, _) }, !,
+    constant_tokens(Ts).
+constant_tokens([]) --> [].
+
+%   Name and value around the LAST copula (`is`): a name may contain one.
+constant_split(Toks, NameToks, IsTok, ValueToks) :-
+    findall(N-I-V, ( append(N, [I|V], Toks), I = word(W, _),
+                     once(le_i18n:kw_synonym_words(marker_is, [W])),
+                     N \== [], V \== [] ), Splits),
+    last(Splits, NameToks-IsTok-ValueToks).
+
+constant_value_type([number(_, _)], number) :- !.
+constant_value_type([doubleQuoteString(_, _)], text) :- !.
+constant_value_type([quoteString(_, _)], text) :- !.
+constant_value_type(_, thing).
+
+synthetic_word(Start, W, word(W, loc(Start, Start))).
+
 % template(Dicts) parses a single template definition into a list of dicts.
 % The list always contains the main dict and, if an opposite was declared, a
 % second synthesized dict for the opposite words so it can be matched directly.
@@ -1436,6 +1547,12 @@ template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, 
         t(word(Functor)),
         { record_template_functor(FunctorArgs, Functor, TStart, TEnd) },
         template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, FunctorArgs, TStart, TEnd)
+    ;   default_value(Value), kw(by_default) ->
+        % "; 0 by default" on a fluent (docs/le_lps_surface.md §2): the value
+        % its LAST place holds for every key no fact is stored for — a
+        % Solidity mapping's zero, a C+ `default`. Recorded like `known as`.
+        { record_template_default(FunctorArgs, Value, TStart, TEnd) },
+        template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, FunctorArgs, TStart, TEnd)
     ;   kw(image) ->
         % "; image "URL"" on a TEMPLATE: only meaningful on a no-variable
         % (propositional) template — its single ground literal then renders as
@@ -1464,6 +1581,38 @@ record_template_functor(FunctorArgs, Functor, TStart, TEnd) :-
         ;   le_i18n:le_msg(known_as_not_lps_desc, [], Desc),
             le_i18n:le_msg(known_as_not_lps_fix, [], Fix),
             assertz(M:le_issue(warning, known_as_not_lps, Desc, Fix, TStart, TEnd))
+        )
+    ;   true
+    ).
+
+%!  default_value(-Value)// is nondet.
+%
+%   The constant of a `; <value> by default` addition: a number, a quoted
+%   text, or a name (`the zero address`) — the shortest run of words that the
+%   keyword follows.
+default_value(N) --> t(number(N, _)).
+default_value(S) --> t(doubleQuoteString(S, _)).
+default_value(S) --> t(quoteString(S0, _)), { atom_string(S0, S) }.
+default_value(A) --> default_words(Ws), { atomic_list_concat(Ws, ' ', A) }.
+
+default_words([W]) --> t(word(W, _)).
+default_words([W|Ws]) --> t(word(W, _)), default_words(Ws).
+
+%!  record_template_default(+FunctorArgs, +Value, +TStart, +TEnd) is det.
+%
+%   Records `; <value> by default` as le_lps_default(F/A, Value) in the
+%   compiling module (le_lps.pl emits it as `defaults([...])`). Only an LPS
+%   fluent has one: a template with no place for the value, or a document
+%   that is not an LPS program, gets a warning instead.
+record_template_default(FunctorArgs, Value, TStart, TEnd) :-
+    (   le_kbs:current_compiling_module(M), M \== (-)
+    ->  FunctorArgs = [Derived|Args],
+        length(Args, Arity),
+        (   le_grammar:lps_target, Arity >= 1
+        ->  assertz(M:le_lps_default(Derived/Arity, Value))
+        ;   le_i18n:le_msg(default_not_lps_desc, [], Desc),
+            le_i18n:le_msg(default_not_lps_fix, [], Fix),
+            assertz(M:le_issue(warning, default_not_lps, Desc, Fix, TStart, TEnd))
         )
     ;   true
     ).
@@ -2226,7 +2375,25 @@ second_pass(Sections, NewSections, M) :-
                   ; true ))),
     % Collect types from ontology
     forall(member(S, Sections), collect_types_in_section(S, SortedDicts)),
+    record_lps_section_roles(Sections),
     maplist(second_pass_section(SortedDicts, M), Sections, NewSections).
+
+%!  lps_section_role(?Functor/Arity, ?Role) is nondet.
+%
+%   The LPS role a template was declared with (fluent, event, action,
+%   prolog_event), known from the declaration sections while the second pass
+%   runs — before le_kbs asserts le_lps_role/2. A timed fact needs it: `bob
+%   pays 5 at 3` is an observation when paying is an event, a timed fact when
+%   it is a fluent (le_lps.pl).
+:- thread_local lps_section_role/2.
+
+record_lps_section_roles(Sections) :-
+    retractall(lps_section_role(_, _)),
+    forall(( member(S, Sections), S =.. [Kind, Ds],
+             memberchk(Kind-Role, [fluents-fluent, events-event, actions-action,
+                                   prolog_events-prolog_event]),
+             member(D, Ds), D =.. [dict, [F|Args]|_], length(Args, N) ),
+           assertz(lps_section_role(F/N, Role))).
 
 collect_types_in_section(ontology(Content, _, _), Templates) :-
     forall(member(Item, Content), collect_types_in_item(Item, Templates)).
@@ -2309,11 +2476,14 @@ get_dicts(fluents(Ds), Ds).
 get_dicts(events(Ds), Ds).
 get_dicts(actions(Ds), Ds).
 get_dicts(prolog_events(Ds), Ds).
+get_dicts(constants(Ds, _, _, _), Ds).
 get_dicts(meta(_), []).       % meta carries the target atom, not user dicts
 get_dicts(_, []).
 
 second_pass_section(Templates, M, kb(Name, Content, Start, End), kb(Name, NewContent, Start, End)) :-
     second_pass_content(Content, Templates, NewContent, M).
+second_pass_section(Templates, M, constants(Dicts, Facts, Start, End), constants(Dicts, NewFacts, Start, End)) :-
+    second_pass_content(Facts, Templates, NewFacts, M).
 second_pass_section(_, _, unknown_section(Tokens, Start, End), unknown_section(Tokens, Start, End)).
 % Section markers are only meaningful in knowledge base sections; strip any that
 % appear in ontology/scenario/query content (they share kb_content with the KB).

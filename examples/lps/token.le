@@ -1,0 +1,82 @@
+the target language is: lps.
+
+the maximum time is 7.
+
+the actions are:
+    *a sender* transfers *an amount* to *a recipient*; known as transfer.
+    *an owner* approves *a spender* for *an amount*; known as approve.
+    *a spender* moves *an amount* from *an owner* to *a recipient*; known as transfer_from.
+    *a sender* airdrops *an amount* to *a list*; known as airdrop.
+
+the fluents are:
+    the balance of *an account* is *an amount*; known as balance; 0 by default.
+    the allowance of *an owner* for *a spender* is *an amount*; known as allowance; 0 by default.
+
+the constants are:
+    the unlimited allowance is 1000000.
+
+the knowledge base token includes:
+
+initially the balance of alice is 100.
+
+it must not be true that
+    a sender transfers an amount to a recipient
+    and the balance of the sender is a second amount
+    and the second amount < the amount.
+
+when a sender transfers an amount to a recipient
+then the balance of the sender that is a second amount becomes second amount - amount.
+
+rule credit:
+when a sender transfers an amount to a recipient
+then the balance of the recipient that is a second amount becomes second amount + amount.
+
+when an owner approves a spender for an amount
+then the allowance of the owner for the spender that is a second amount becomes the amount.
+
+it must not be true that
+    a spender moves an amount from an owner to a recipient
+    and the allowance of the owner for the spender is a second amount
+    and the second amount is different from the unlimited allowance
+    and the second amount < the amount.
+
+it must not be true that
+    a spender moves an amount from an owner to a recipient
+    and the balance of the owner is a second amount
+    and the second amount < the amount.
+
+when a spender moves an amount from an owner to a recipient
+    and the allowance of the owner for the spender is a second amount
+    and the second amount is different from the unlimited allowance
+then the allowance of the owner for the spender that is a third amount becomes third amount - amount.
+
+when a spender moves an amount from an owner to a recipient
+then the balance of the owner that is a second amount becomes second amount - amount
+    and the balance of the recipient that is a third amount becomes third amount + amount.
+
+it must not be true that
+    a sender airdrops an amount to a list
+    and the balance of the sender is a second amount
+    and N is the count of each E such that
+        E is in the list
+    and the second amount < amount * N.
+
+when a sender airdrops an amount to a list
+    and N is the count of each E such that
+        E is in the list
+then the balance of the sender that is a second amount becomes second amount - amount * N.
+
+when a sender airdrops an amount to a list
+    and a recipient is in the list
+    and N is the count of each E such that
+        E is in the list
+        and E is equal to the recipient
+then the balance of the recipient that is a second amount becomes second amount + amount * N.
+
+scenario one is:
+    alice transfers 30 to bob at 1.
+    bob transfers 50 to carol at 2.
+    alice airdrops 5 to [bob, carol, bob] at 3.
+    alice approves dan for 1000000 at 4.
+    dan moves 20 from alice to carol at 5.
+    carol moves 1 from alice to dan at 6.

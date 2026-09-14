@@ -1,6 +1,6 @@
 # Logical English for LPS — the surface language
 
-**M8b.** This is the language the fifteen programs in `examples/lps/` (of the
+**M8b.** This is the language the programs in `examples/lps/` (of the
 LE2 repository) are written in, and the language `le_lps.pl` implements. It is
 duplicated verbatim in both repositories, like `le_lps_interface.md`.
 
@@ -12,8 +12,11 @@ Every construct here has a written mapping to the internal term set of
 - [Logical English for LPS — the surface language](#logical-english-for-lps--the-surface-language)
   - [0. Where this came from](#0-where-this-came-from)
   - [1. The shape of a document](#1-the-shape-of-a-document)
+    - [1.1 `extends` — a knowledge base built on others](#11-extends--a-knowledge-base-built-on-others)
   - [2. Declarations](#2-declarations)
     - [`; known as f`](#-known-as-f)
+    - [`; 0 by default`](#-0-by-default)
+    - [`the constants are:`](#the-constants-are)
   - [3. Sentences](#3-sentences)
     - [3.1 Temporal suffixes](#31-temporal-suffixes)
     - [3.2 `initially`](#32-initially)
@@ -27,7 +30,7 @@ Every construct here has a written mapping to the internal term set of
     - [3.10 `display`](#310-display)
   - [4. Conditions](#4-conditions)
   - [5. The prospective form](#5-the-prospective-form)
-  - [6. The fifteen programs](#6-the-fifteen-programs)
+  - [6. The programs](#6-the-programs)
   - [7. What is out of scope, and why](#7-what-is-out-of-scope-and-why)
 
 ---
@@ -106,6 +109,49 @@ one extension means one Monaco language id, one Monarch grammar, one LSP
 worker; see `docs/le_lps_design.md` §2 for the argument in full, including the
 stated test that would make `.leps` right instead.
 
+### 1.1 `extends` — a knowledge base built on others
+
+```
+the knowledge base fee token extends token.
+
+the knowledge base fee token includes:
+
+initially the balance of alice is 100.
+
+this law replaces law credit of token.
+when a sender transfers an amount to a recipient
+then the balance of the recipient that is a second amount becomes second amount + amount - 1
+    and the balance of the treasury that is a third amount becomes third amount + 1.
+```
+
+A base is named the way an included resource is (`le_summary.md` §14): a path
+relative to the document, `.le` implied, or a URL, and the same rule decides
+whether it may be read — a local base lives in the document's own directory
+tree (a translator copies bases beside the program, as it does libraries).
+The document gets the base's templates, laws, constraints and timeless rules,
+and never its `initially`, its settings or its scenarios and queries: those
+describe an instance, not the contract. A base's own bases come with it; a
+base reached twice is read once.
+
+- **Constraints are cumulative.** A child adds constraints; it cannot remove
+  one without naming it.
+- **A law is replaced only by naming it.** The base labels it (`rule credit:`
+  before `when …`, or before `it must not be true that …`), and the child
+  writes `this law replaces law credit of token.` (or `this constraint
+  replaces constraint … of …`) just before the law that replaces it — the base
+  as named in `extends`, or its knowledge base's name. The base's law is then
+  left out, and the verifier says so (`lps_replaces`, a warning: replacing is
+  allowed, and loud). A replacement that names nothing is an error.
+- **An unlabelled clash is an error.** A law of the child that changes the
+  same entry on the same action as a law of a base (`lps_extends_clash`):
+  both would apply, which is rarely what a child that restates a law means.
+
+The program LPS2 runs is the flattened one; every law keeps its file's
+positions, so an explanation cites the base it came from. The legal view
+(`le_lps_legal.pl`) is of the flattened program, with a line naming the bases.
+A document read as bare text, with no file, has no directory to find its
+bases in: open it from its file.
+
 ---
 
 ## 2. Declarations
@@ -118,6 +164,8 @@ stated test that would make `.leps` right instead.
 | `the events are: …` | `events([…]).` |
 | `the actions are: …` | `actions([…]).` |
 | `the fluents are: …` | `fluents([…]).` |
+| `…; <value> by default` on a fluent | `defaults([…]).` (LPS2 only) |
+| `the constants are: …` | a timeless fact per constant, and its template |
 | `the prolog events are: …` | `prolog_events([…]).` |
 | `the templates are: …`, `the predicates are: …` | nothing — timeless vocabulary |
 
@@ -144,6 +192,59 @@ the same predicate.
 
 Argument order is the order the `*slots*` appear in the sentence.
 
+### `; 0 by default`
+
+```
+    the balance of *an account* is *an amount*; known as balance; 0 by default.
+    the owner of the token is *an account*; known as owner; the zero address by default.
+```
+
+The value the fluent's **last** place holds for every key (its other places)
+no fact is stored for — a Solidity mapping's zero, the `default` of the action
+language C+. It gives `defaults([balance(_, 0), owner('the zero address')])`,
+an LPS2 declaration (`le_lps_interface.md` §5, version 3). The default is
+*virtual*: it is never stored, so the state stays as the program wrote it.
+
+- **Read.** `the balance of bob is an amount` with bob's key bound holds for
+  bob's stored fact, or, when there is none, with the amount 0. With the key
+  unbound, only stored facts are enumerated: an aggregate over a defaulted
+  fluent sums or counts the stored entries (the verifier warns on a count,
+  `lps_default_count`).
+- **Absence.** `it is not the case that the balance of bob is a thing` never
+  succeeds — bob has a balance, 0 at least — and the verifier says so
+  (`lps_default_absence`).
+- **Write.** `the balance of the recipient that is N becomes N + amount` of
+  an absent entry reads the default as N and stores the new value.
+  Initiating a value with no termination of the old one in the same action
+  would give a key two values (`lps_default_two_values`).
+- **The timeline** shows the stored entries' lanes and one more line per
+  defaulted fluent: *every other: balance(…, 0)*. An explanation of a value
+  held by default says so: `balance(dan,0) holds at cycle 3 — (the default:
+  no entry was stored)`.
+- **Deploy as Solidity** writes a fluent whose default is the zero of its
+  type (0, the zero address, false, the empty text) as a plain mapping, with
+  no presence map; any other default is refused.
+- The legal view (a timeless program over stated facts) and upstream LPS see
+  the defaults made explicit (`le_lps:lps_expand_defaults/2`).
+
+A default is a constant, and only a fluent of an LPS program has one; on any
+other template it is reported (`default_not_lps`) and ignored.
+
+### `the constants are:`
+
+```
+the constants are:
+    the unlimited allowance is 115792089237316195423570985008687907853269984665640564039457584007913129639935.
+```
+
+A named value, one line each (`le_summary.md` §2.2): short for the template
+`the value of the unlimited allowance is *a number*; defines global the
+unlimited allowance.` and its fact. Where the name is used —
+`the second amount is different from the unlimited allowance` — LE reads the
+value (`the_value_of_the_unlimited_allowance_is(H), G \= H`), and an
+explanation shows it as a reason. The fact is timeless, so a law reads it at
+any time. The verifier reports a constant nothing uses (`unused_constant`).
+
 ---
 
 ## 3. Sentences
@@ -155,6 +256,7 @@ Any template instance in a rule may carry one of
 ```
     … at <time>
     … from <time> to <time>
+    … from <time>
     … to <time>
 ```
 
@@ -163,11 +265,32 @@ time`, `the second time`) and occasionally an integer.
 
 - `at T` on a fluent → `holds(F, T)`
 - `from T1 to T2` on an event or action → `happens(E, T1, T2)`
+- `from T` on an event or action → `happens(E, T, _)`: it starts at T, and
+  its end is not named — an atomic event or action ends at T + 1, which the
+  engine enforces; a composite event's end stays free
+- `at T` on an event or action → the same as `from T` (the Event Calculus
+  reading)
 - `to T` on an event → `happens(E, _, T)`, the **prospective form** (§5)
 
+(`from T` on a fluent is read as `at T`, with a warning. A template's own
+`… is different from 5` is never taken for a time.)
+
 A template instance with no suffix is timed by its context: inside a `when …
-then …` the trigger's times are used, and inside `initially` there is no time
-at all.
+then …` the trigger's times are used, inside `it must not be true that …` the
+event's start for every condition, and inside `initially` there is no time at
+all. So a law or a constraint whose conditions all read the state at the
+start of its one event needs no times, and that is how the writer
+(`le_lps_write.pl`) writes one:
+
+```
+    it must not be true that
+        a sender transfers an amount to a recipient
+        and the balance of the sender is a second amount
+        and the second amount < the amount.
+```
+
+is exactly `d_pre([happens(transfer(S,A,R),T1,T2), holds(balance(S,B),T1), B<A])`.
+Times are written only where a sentence relates two moments.
 
 This is a *suffix on a sentence*, not a slot in a template — the specimens do
 it this way, and it is why one fluent template serves both `the reward is 0`
@@ -325,6 +448,8 @@ scenario one is:
 → `observe([inputs(miguel,rock,1000)], 2).` and one more.
 
 `observe/2` takes the *end* time, which is why `from 1 to 2` produces `2`.
+`miguel inputs rock and 1000 from 1` and `… at 1` say the same: an observed
+event or action is atomic.
 A scenario fact with no temporal suffix is an error, not a fact at time 0:
 an untimed observation has no meaning in LPS and silently placing it would be
 worse than saying so.
@@ -348,7 +473,21 @@ beside it, and that is the documented answer.
 Everything LE2 already parses works unchanged inside an antecedent: `and`,
 `or`, `it is not the case that`, `for all cases in which … it is the case that
 …`, aggregates (`is the sum of each … such that …`), comparisons, arithmetic,
-lists. What §3.1 adds is the temporal suffix, and what `le_lps.pl` adds is the
+lists — in a law's conditions as in any other:
+
+```
+    when a sender airdrops an amount to a list
+        and a recipient is in the list
+        and N is the count of each E such that
+            E is in the list
+            and E is equal to the recipient
+    then the balance of the recipient that is a second amount becomes second amount + amount * N.
+```
+
+(A list is a value like any other, in an observation too: `alice airdrops 5
+to [bob, carol, bob] at 3`. With the balance defaulted, bob — listed twice —
+is one instance of the law, credited 10: an update law of a defaulted fluent
+has its distinct solutions as instances.) What §3.1 adds is the temporal suffix, and what `le_lps.pl` adds is the
 decision, per literal, between `holds/2`, `happens/3` and a plain Prolog goal:
 
 | the literal's template was declared | becomes |
@@ -399,9 +538,10 @@ So the acceptance test is met, and §I.9.6's scope limit is narrower than
 
 ---
 
-## 6. The fifteen programs
+## 6. The programs
 
-In the LE2 repository, `examples/lps/`. Each `NAME.le` has a `NAME.expected.lpsw`
+In the LE2 repository, `examples/lps/`: the fifteen below, and `token.le` and
+`fee_token.le`. Each `NAME.le` has a `NAME.expected.lpsw`
 beside it: the internal syntax `le_lps.pl` must produce, compared `variant/2`
 term by term.
 
@@ -422,16 +562,18 @@ term by term.
 | `escrow.le` | multi-party, obligations |
 | `delivery_delay.le` | deadlines and elapsed time |
 | `life.le` | intensional fluents over a grid — the stress case |
+| `token.le` | `; 0 by default`, a named constant, times left out, a labelled law, an airdrop over a list |
+| `fee_token.le` | `extends token`, and a law that replaces the base's |
 
-All fifteen translate, and their expectations are checked by
-`testing/lps_test.pl`. Thirteen also survive the **round trip** —
+All seventeen translate, and their expectations are checked by
+`testing/lps_test.pl`. Fifteen also survive the **round trip** —
 `LE → internal → LE → internal`, with the two internal forms `variant/2`-equal
 term by term (`testing/lps_roundtrip.pl`, and `le_lps_write.pl` for what that
 does and does not claim). The two that do not are `delivery_delay.le` and
 `loan_agreement.le`, both for the same reason and both listed in the test with
 it: a calendar date appears as a *constant* (`2018-04-01`), and a date constant
 has no LE surface form of its own, so the writer cannot put it back.
- Thirteen also *run* to `success` under LPS2
+ Fifteen also *run* to `success` under LPS2
 (`./lps run examples/lps/NAME.le` with `LPS_LE2_DIR` set). The two that do not:
 
 - `prospective_goat.le` ends in `failure` — and so does the original

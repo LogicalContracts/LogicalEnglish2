@@ -74,6 +74,9 @@ read_all(In, Terms) :-
 
 %!  le_lps_document(+KB, +Terms, -Text) is det.
 le_lps_document(KB, Terms, Text) :-
+	%  the fluents' defaults (`defaults/1`), for their declaration lines
+	( memberchk(defaults(Ds), Terms) -> true ; Ds = [] ),
+	b_setval(le_lps_write_defaults, Ds),
 	partition_terms(Terms, P),
 	with_output_to(string(Text), write_document(KB, P)).
 
@@ -99,7 +102,7 @@ body_term(T) :-
 	\+ setting_term(T),
 	functor(T, F, N),
 	\+ memberchk(F/N, [fluents/1, events/1, actions/1, prolog_events/1,
-			   observe/2, (:-)/1]).
+			   observe/2, (:-)/1, defaults/1]).
 
 write_document(KB, p(Settings, F, E, A, PE, Body, Obs)) :-
 	format('the target language is: lps.~n~n'),
@@ -109,11 +112,36 @@ write_document(KB, p(Settings, F, E, A, PE, Body, Obs)) :-
 	write_section(KB, 'the actions are', A),
 	write_section(KB, 'the prolog events are', PE),
 	write_section(KB, 'the fluents are', F),
-	timeless_templates(KB, [F, E, A, PE], Timeless),
+	timeless_templates(KB, [F, E, A, PE], Timeless0),
+	partition(constant_template(KB), Timeless0, Constants, Timeless),
 	write_section(KB, 'the templates are', Timeless),
+	partition(constant_fact(KB, Constants), Body, ConstFacts, Body1),
+	write_constants(KB, ConstFacts),
 	format('the knowledge base lps includes:~n~n'),
-	forall(member(T, Body), write_sentence(KB, T)),
+	forall(member(T, Body1), write_sentence(KB, T)),
 	( Obs == [] -> true ; write_scenario(KB, Obs) ).
+
+%   A named constant (`the constants are:`): a one-place timeless template
+%   that defines a global, and its fact.
+constant_template(KB, T) :-
+	functor(T, F, 1), rename_in(KB, T, T1), functor(T1, F1, 1),
+	current_predicate(KB:le_dict/1),
+	KB:le_dict(D), D =.. [dict, [F1, _], _, _, [_|_]|_], !,
+	F = F.
+
+constant_fact(KB, Constants, Fact) :-
+	compound(Fact), functor(Fact, F, 1), arg(1, Fact, V), atomic(V),
+	member(C, Constants), functor(C, F, 1), !,
+	KB = KB.
+
+write_constants(_, []) :- !.
+write_constants(KB, Facts) :-
+	format('the constants are:~n'),
+	forall(( member(Fact, Facts), functor(Fact, F, 1), arg(1, Fact, V),
+		 functor(G, F, 1), global_goal(KB, G, _, Name) ),
+	       ( ( string(V) -> format(atom(VT), '"~w"', [V]) ; format(atom(VT), '~w', [V]) ),
+		 format('    ~w is ~w.~n', [Name, VT]) )),
+	nl.
 
 write_setting(maxTime(N))       :- format('the maximum time is ~w.~n', [N]).
 write_setting(maxRealTime(N))   :- format('the maximum real time is ~w.~n', [N]).
@@ -126,16 +154,22 @@ write_section(KB, Header, Terms) :-
 	nl.
 
 %   A declaration line is the template as the author wrote it, with `*slots*`
-%   restored from the dictionary and the `; known as f` binding restored when
-%   the functor is not the one LE2 would have derived.
+%   restored from the dictionary, the `; known as f` binding restored when
+%   the functor is not the one LE2 would have derived, and a fluent's
+%   default (`; 0 by default`).
 write_template(KB, Term) :-
 	functor(Term, F, N),
 	(   template_words(KB, F/N, Derived/N, Words)
 	->  atomic_list_concat(Words, ' ', Line),
-	    (   Derived == F
-	    ->  format('    ~w.~n', [Line])
-	    ;   format('    ~w; known as ~w.~n', [Line, F])
-	    )
+	    ( Derived == F -> Known = '' ; format(atom(Known), '; known as ~w', [F]) ),
+	    (   nb_current(le_lps_write_defaults, Ds), is_list(Ds),
+		member(D, Ds), functor(D, F, N)
+	    ->  arg(N, D, V),
+		( string(V) -> format(atom(VT), '"~w"', [V]) ; format(atom(VT), '~w', [V]) ),
+		format(atom(Def), '; ~w by default', [VT])
+	    ;   Def = ''
+	    ),
+	    format('    ~w~w~w.~n', [Line, Known, Def])
 	;   format('    % no template for ~w/~w~n', [F, N])
 	).
 
@@ -222,12 +256,129 @@ write_scenario(KB, Obs) :-
 le_lps_sentence(KB, Term, Sentence) :-
 	with_output_to(string(Sentence), write_sentence(KB, Term)).
 
-write_sentence(KB, Term) :-
-	naming(KB, Term, Names),
+write_sentence(KB, Term0) :-
+	copy_term(Term0, Term),
+	shorten_times(Term),
+	naming(KB, Term, Names0),
+	global_names(KB, Term, Names0, Names),
 	(   sentence(KB, Names, Term, Text)
 	->  format('~w~n~n', [Text])
-	;   format('% not expressible in Logical English: ~q~n~n', [Term])
+	;   format('% not expressible in Logical English: ~q~n~n', [Term0])
 	).
+
+%!  global_goal(+KB, +Goal, -Var, -Name) is semidet.
+%
+%   Goal reads a named constant (`the constants are:`, or any template with
+%   `; defines global Name`): LE inserts it where the name is used, and the
+%   writer writes the name instead of the goal.
+global_goal(KB, G, V, Name) :-
+	compound(G), rename_in(KB, G, G1),
+	G1 =.. [F, V], var(V),
+	current_predicate(KB:le_dict/1),
+	KB:le_dict(D), D =.. [dict, [F, _], _, _, [Name|_]|_], !.
+
+%   Each variable a constant's goal binds is named by the constant.
+global_names(KB, Term, Names0, Names) :-
+	maplist(global_name_of(KB, Term), Names0, Names).
+
+global_name_of(KB, Term, V-M0, V-M) :-
+	(   sub_term(G, Term), global_goal(KB, G, V1, Name), V1 == V
+	->  M = m(Name, seen)
+	;   M = M0
+	).
+
+%!  shorten_times(!Term) is det.
+%
+%   The times a sentence need not name, bound to markers the renderer leaves
+%   out (docs/le_lps_surface.md §3.1):
+%
+%     - a causal law or a constraint whose conditions all read the state at
+%       the start of its one event, and which uses the event's end nowhere,
+%       is written with no times at all — `when a sender transfers …`,
+%       `it must not be true that a sender transfers … and the balance of the
+%       sender is …` — which LE-for-LPS reads back as exactly the same term.
+%       So is an invariant whose conditions all read one state;
+%     - elsewhere, an event whose end is named nowhere else is written
+%       `… from T`, and one whose start is named nowhere else `… to T`.
+%
+%   Times stay wherever a sentence relates two moments.
+shorten_times(Term) :-
+	(   elided_times(Term) -> true ; true ),
+	open_event_times(Term).
+
+elided_times(Term) :-
+	causal_trigger(Term, happens(E, T1, T2), Rest),
+	var(T1), var(T2), T1 \== T2,
+	\+ occurs_var(T1, E), \+ occurs_var(T2, E),
+	\+ occurs_var(T2, Rest),
+	only_state_time(Rest, T1), !,
+	T1 = lps_now, T2 = lps_now.
+elided_times(d_pre(Cs)) :-
+	select(happens(E, T1, T2), Cs, Gs),
+	\+ memberchk(happens(_, _, _), Gs),
+	var(T1), var(T2), T1 \== T2,
+	\+ occurs_var(T1, E), \+ occurs_var(T2, E),
+	\+ occurs_var(T2, Gs),
+	only_state_time(Gs, T1), !,
+	T1 = lps_now, T2 = lps_now.
+elided_times(d_pre(Cs)) :-
+	\+ memberchk(happens(_, _, _), Cs),
+	once(member(holds(_, T), Cs)), var(T),
+	only_state_time(Cs, T), !,
+	T = lps_now.
+
+causal_trigger(initiated(Tr, F, Cs), Tr, F-Cs).
+causal_trigger(terminated(Tr, F, Cs), Tr, F-Cs).
+causal_trigger(updated(Tr, F, Ch, Cs), Tr, F-Ch-Cs).
+
+%   T occurs in Goals only as the time of a holds/2 (also inside an
+%   aggregate's findall), and at least nowhere else.
+only_state_time(Goals, T) :-
+	untime(T, Goals, G),
+	\+ occurs_var(T, G).
+
+untime(T, G0, G) :-
+	(   var(G0) -> G = G0
+	;   G0 = holds(F0, T0), T0 == T -> untime(T, F0, F), G = holds(F, lps_now)
+	;   compound(G0) -> G0 =.. [N|As0], maplist(untime(T), As0, As), G =.. [N|As]
+	;   G = G0
+	).
+
+occurs_var(V, T) :- sub_term(S, T), S == V, !.
+
+%   `happens(E, T1, T2)` with T2 mentioned nowhere else: `… from T1`; with
+%   T1 mentioned nowhere else: `… to T2`.
+%   (Bound in place, not with forall/2, which would undo the bindings.)
+open_event_times(Term) :-
+	happens_terms(Term, [], Hs),
+	maplist(open_end(Term), Hs),
+	maplist(open_start(Term), Hs).
+
+open_end(Term, happens(_, A, B)) :-
+	(   var(A), var(B), A \== B, once_in(B, Term) -> B = lps_open ; true ).
+open_start(Term, happens(_, A, B)) :-
+	(   var(A), B \== lps_open, once_in(A, Term) -> A = lps_open ; true ).
+
+happens_terms(T, Acc, Out) :-
+	(   var(T) -> Out = Acc
+	;   T = happens(_, _, _) -> Out = [T|Acc]
+	;   compound(T) -> T =.. [_|As], foldl(happens_terms_, As, Acc, Out)
+	;   Out = Acc
+	).
+happens_terms_(A, Acc, Out) :- happens_terms(A, Acc, Out).
+
+once_in(V, Term) :-
+	aggregate_all(count, ( sub_term(S, Term), S == V ), 1).
+
+%   The time suffix of an event (`from T1 to T2`, `from T1`, `to T2`, or none)
+%   and of a state (`at T`, or none).
+event_times(_, T1, _, '') :- T1 == lps_now, !.
+event_times(Ns, T1, T2, S) :- T2 == lps_open, !, name_of(Ns, T1, S1), format(atom(S), ' from ~w', [S1]).
+event_times(Ns, T1, T2, S) :- T1 == lps_open, !, name_of(Ns, T2, S2), format(atom(S), ' to ~w', [S2]).
+event_times(Ns, T1, T2, S) :- name_of(Ns, T1, S1), name_of(Ns, T2, S2), format(atom(S), ' from ~w to ~w', [S1, S2]).
+
+state_time(_, T, '') :- T == lps_now, !.
+state_time(Ns, T, S) :- name_of(Ns, T, TS), format(atom(S), ' at ~w', [TS]).
 
 sentence(KB, Ns, initial_state(Fs), Text) :- !,
 	maplist(render(KB, Ns), Fs, Ss),
@@ -241,7 +392,7 @@ sentence(KB, Ns, achieve(Fs), Text) :- !,
 
 sentence(KB, Ns, d_pre(Cs0), Text) :- !,
 	fold_aggregates(Cs0, Cs),
-	maplist(condition(KB, Ns), Cs, Ss),
+	conditions(KB, Ns, Cs, Ss),
 	join(Ss, '\n    and ', Body),
 	format(atom(Text), 'it must not be true that\n    ~w.', [Body]).
 
@@ -266,7 +417,7 @@ sentence(KB, Ns, updated(Trigger, Fluent, Old-New, Conds), Text) :- !,
 
 sentence(KB, Ns, reactive_rule(Ante0, Cons), Text) :- !,
 	fold_aggregates(Ante0, Ante),
-	maplist(condition(KB, Ns), Ante, As),
+	conditions(KB, Ns, Ante, As),
 	maplist(conclusion(KB, Ns), Cons, Cs),
 	join(As, '\n    and ', A),
 	join(Cs, '\n    and ', C),
@@ -275,21 +426,21 @@ sentence(KB, Ns, reactive_rule(Ante0, Cons), Text) :- !,
 sentence(KB, Ns, l_int(holds(F, T), Body0), Text) :- !,
 	fold_aggregates(Body0, Body),
 	render(KB, Ns, F, S), name_of(Ns, T, TS),
-	maplist(condition(KB, Ns), Body, Bs),
+	conditions(KB, Ns, Body, Bs),
 	join(Bs, '\n    and ', B),
 	( B == '' -> format(atom(Text), '~w at ~w.', [S, TS])
 	; format(atom(Text), '~w at ~w if\n    ~w.', [S, TS, B]) ).
 
 sentence(KB, Ns, l_events(happens(E, T1, T2), Body0), Text) :- !,
 	fold_aggregates(Body0, Body),
-	render(KB, Ns, E, S), name_of(Ns, T1, S1), name_of(Ns, T2, S2),
-	maplist(condition(KB, Ns), Body, Bs),
+	render(KB, Ns, E, S), event_times(Ns, T1, T2, TS),
+	conditions(KB, Ns, Body, Bs),
 	join(Bs, '\n    and ', B),
-	format(atom(Text), '~w from ~w to ~w if\n    ~w.', [S, S1, S2, B]).
+	format(atom(Text), '~w~w if\n    ~w.', [S, TS, B]).
 
 sentence(KB, Ns, l_timeless(H, Body), Text) :- !,
 	render(KB, Ns, H, S),
-	maplist(condition(KB, Ns), Body, Bs),
+	conditions(KB, Ns, Body, Bs),
 	join(Bs, '\n    and ', B),
 	format(atom(Text), '~w if\n    ~w.', [S, B]).
 
@@ -298,15 +449,16 @@ sentence(KB, Ns, Fact, Text) :-
 	render(KB, Ns, Fact, S),
 	format(atom(Text), '~w.', [S]).
 
-%   The trigger's times are written out even though `when` supplies them,
-%   because a condition may share one -- upstream evaluates a causal law's
+%   The trigger's times are written out unless shorten_times/1 found the law
+%   needs none: a condition may share one -- upstream evaluates a causal law's
 %   conditions at the event's start time -- and an unnamed variable comes back
 %   as a different one.
-causal(KB, Ns, happens(E, T1, T2), Conds, Head) :-
+causal(KB, Ns, happens(E, T1, T2), Conds0, Head) :-
+	fold_aggregates(Conds0, Conds),
 	render(KB, Ns, E, S),
-	name_of(Ns, T1, S1), name_of(Ns, T2, S2),
-	maplist(condition(KB, Ns), Conds, Cs),
-	format(atom(Trigger), '~w from ~w to ~w', [S, S1, S2]),
+	event_times(Ns, T1, T2, TS),
+	conditions(KB, Ns, Conds, Cs),
+	format(atom(Trigger), '~w~w', [S, TS]),
 	( Cs == [] -> format(atom(Head), 'when ~w', [Trigger])
 	; join(Cs, '\n    and ', C), format(atom(Head), 'when ~w\n    and ~w', [Trigger, C]) ).
 
@@ -356,32 +508,43 @@ reduction(mean_list, average).
 reduction(min_list, min).
 reduction(max_list, max).
 
+%   The conditions of a sentence, as text; a named constant's goal says
+%   nothing of its own (the constant's name stands where its value is used).
+conditions(KB, Ns, Goals, Texts) :-
+	maplist(condition(KB, Ns), Goals, Texts0),
+	exclude(==(''), Texts0, Texts).
+
+condition(KB, _, G, '') :- global_goal(KB, G, _, _), !.
 condition(KB, Ns, agg(Op, E, G, T, R), S) :- !,
 	name_of(Ns, R, RS), name_of(Ns, E, ES),
 	le_i18n:kw_main_words(is_the, IsThe), atomic_list_concat(IsThe, ' ', IsTheA),
 	le_i18n:kw_main_words(Op, OpW), atomic_list_concat(OpW, ' ', OpA),
 	le_i18n:kw_main_words(of_each, OfEach), atomic_list_concat(OfEach, ' ', OfEachA),
 	le_i18n:kw_main_words(such_that, SuchThat), atomic_list_concat(SuchThat, ' ', SuchThatA),
-	maplist(condition(KB, Ns), G, Gs),
+	conditions(KB, Ns, G, Gs),
 	join(Gs, '\n        and ', GS),
 	format(atom(S), '~w ~w ~w ~w ~w ~w\n        ~w',
 	       [RS, IsTheA, OpA, OfEachA, ES, SuchThatA, GS]),
 	T = T.
 
 condition(KB, Ns, holds(not(F), T), S) :- !,
-	render(KB, Ns, F, FS), name_of(Ns, T, TS),
-	format(atom(S), 'it is not the case that ~w at ~w', [FS, TS]).
+	render(KB, Ns, F, FS), state_time(Ns, T, TS),
+	format(atom(S), 'it is not the case that ~w~w', [FS, TS]).
 condition(KB, Ns, holds(F, T), S) :- !,
 	( F = findall(_, _, _) -> fail ; true ),
-	render(KB, Ns, F, FS), name_of(Ns, T, TS),
-	format(atom(S), '~w at ~w', [FS, TS]).
+	render(KB, Ns, F, FS), state_time(Ns, T, TS),
+	format(atom(S), '~w~w', [FS, TS]).
 condition(KB, Ns, happens(not(E), T1, T2), S) :- !,
-	render(KB, Ns, E, ES), name_of(Ns, T1, S1), name_of(Ns, T2, S2),
-	format(atom(S), 'it is not the case that ~w from ~w to ~w', [ES, S1, S2]).
+	render(KB, Ns, E, ES), event_times(Ns, T1, T2, TS),
+	format(atom(S), 'it is not the case that ~w~w', [ES, TS]).
 condition(KB, Ns, happens(E, T1, T2), S) :- !,
 	render(KB, Ns, E, ES),
-	name_of(Ns, T1, S1), name_of(Ns, T2, S2),
-	format(atom(S), '~w from ~w to ~w', [ES, S1, S2]).
+	event_times(Ns, T1, T2, TS),
+	format(atom(S), '~w~w', [ES, TS]).
+%   `member(X, L)`: LE's `X is in L`.
+condition(_, Ns, member(X, L), S) :- !,
+	expr_text(Ns, X, XS), expr_text(Ns, L, LS),
+	format(atom(S), '~w is in ~w', [XS, LS]).
 condition(_, Ns, Comparison, S) :-
 	comparison(Comparison, X, Op, Y), !,
 	expr_text(Ns, X, XS), expr_text(Ns, Y, YS),
@@ -401,11 +564,11 @@ comparison(X \= Y, X, 'is different from', Y).
 comparison(is(X, Y), X, '=', Y).
 
 conclusion(KB, Ns, happens(initiate(F), T1, T2), S) :- !,
-	render(KB, Ns, F, FS), name_of(Ns, T1, S1), name_of(Ns, T2, S2),
-	format(atom(S), 'initiate ~w from ~w to ~w', [FS, S1, S2]).
+	render(KB, Ns, F, FS), event_times(Ns, T1, T2, TS),
+	format(atom(S), 'initiate ~w~w', [FS, TS]).
 conclusion(KB, Ns, happens(terminate(F), T1, T2), S) :- !,
-	render(KB, Ns, F, FS), name_of(Ns, T1, S1), name_of(Ns, T2, S2),
-	format(atom(S), 'terminate ~w from ~w to ~w', [FS, S1, S2]).
+	render(KB, Ns, F, FS), event_times(Ns, T1, T2, TS),
+	format(atom(S), 'terminate ~w~w', [FS, TS]).
 conclusion(KB, Ns, G, S) :- condition(KB, Ns, G, S).
 
 %   A whole term keeps its article -- `the amount >= 10` -- but the operands
@@ -424,9 +587,26 @@ expr_operand(Ns, T, S) :- var(T), !, name_of(Ns, T, S0), drop_article(S0, S).
 expr_operand(_, T, S) :- number(T), !, format(atom(S), '~w', [T]).
 expr_operand(Ns, T, S) :-
 	arith(T), !, T =.. [Op, A, B],
-	expr_operand(Ns, A, AS), expr_operand(Ns, B, BS),
+	sub_operand(Ns, Op, left, A, AS), sub_operand(Ns, Op, right, B, BS),
 	format(atom(S), '~w ~w ~w', [AS, Op, BS]).
+
+
 expr_operand(_, T, S) :- format(atom(S), '~w', [T]).
+
+%   An operand in parentheses where precedence or the non-associativity of
+%   `-` and `/` needs them: `amount - (0 + total)`, not `amount - 0 + total`.
+sub_operand(Ns, Op, Side, X, S) :-
+	expr_operand(Ns, X, S0),
+	(   arith(X), X =.. [SubOp, _, _],
+	    prec(SubOp, PS), prec(Op, PO),
+	    ( PS > PO
+	    ; Side == right, PS =:= PO, memberchk(Op, [-, /, //, mod])
+	    )
+	->  format(atom(S), '(~w)', [S0])
+	;   S = S0
+	).
+
+prec(Op, P) :- ( memberchk(Op, [+, -]) -> P = 500 ; P = 400 ).
 
 drop_article(Name, Bare) :-
 	atomic_list_concat([W|Ws], ' ', Name),
@@ -544,6 +724,11 @@ type_of_var(KB, Term, V, Type) :-
 	lit_type(KB, Lit, V, Type), !.
 
 lit_type(_, Lit, V, time) :- nonvar(Lit), Lit = time_slot(V0), V0 == V.
+%   An aggregate's result, and a list's element, have no template place of
+%   their own: `a number is the count of each an element such that …`.
+lit_type(_, Lit, V, number) :- nonvar(Lit), Lit = length(_, N), N == V.
+lit_type(_, Lit, V, total) :- nonvar(Lit), Lit = sum_list(_, N), N == V.
+lit_type(_, Lit, V, element) :- nonvar(Lit), Lit = member(E, _), E == V.
 lit_type(KB, Lit, V, Type) :-
 	compound(Lit), Lit \= time_slot(_),
 	rename_in(KB, Lit, Lit1),

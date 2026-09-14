@@ -48,9 +48,13 @@ programs(Files) :-
 %
 %   First is the internal form of the document; Second is the internal form of
 %   the English this module writes back from it.
+%   A document that extends others is read with its bases (found beside
+%   it); the English written back is the flattened program, which stands
+%   alone.
 roundtrip(File, First, Second) :-
 	read_file_to_string(File, Text, [encoding(utf8)]),
-	le_kbs:load_text(Text, KB1),
+	absolute_file_name(File, Abs), file_directory_name(Abs, Dir),
+	le_kbs:load_text(Text, Dir, KB1),
 	le_lps:le_lps_module(KB1, Text, Internal1, _, _),
 	terms_of(Internal1, First),
 	le_lps_write:le_lps_document(KB1, First, LE2),

@@ -19,10 +19,11 @@
     docs/le_migration.md; in short:
 
         Header:  kb(Name), target(prolog|lps), comment(Text),
-                 includes([Resource, ...]), provenance_required,
+                 includes([Resource, ...]), extends([Base, ...]), provenance_required,
                  extensions(auto|true|false)
         Items:   template(F, "text with *a slot*", Additions)
                  fluent/event/action(F, Text, Additions)       (target lps)
+                 constant(F, Name, Value)       a named value (`the constants are:`)
                  rule(Head, Body, Options)   fact(Head, Options)
                  table(Name, Options, Columns, Rows)
                  section(Name)   comment(Text)   blank   raw(Text)
@@ -194,6 +195,19 @@ template_item(template(F, Text, Adds), template, F, Text, Adds).
 template_item(fluent(F, Text, Adds), fluent, F, Text, Adds).
 template_item(event(F, Text, Adds), event, F, Text, Adds).
 template_item(action(F, Text, Adds), action, F, Text, Adds).
+%   A named constant is the template `the value of <name> is *a <type>*` with
+%   `; defines global <name>` (le_summary.md §2.2); F is its functor.
+template_item(constant(F, Name, Value), constant, F, Text, [defines_global(Name)]) :-
+    constant_template_text(Name, Value, Text).
+
+constant_template_text(Name, Value, Text) :-
+    kw(constant_value_of, VO), kw(marker_is, Is),
+    constant_value_type(Value, Type),
+    format(atom(Text), '~w ~w ~w *a ~w*', [VO, Name, Is, Type]).
+
+constant_value_type(V, number) :- number(V), !.
+constant_value_type(V, text) :- string(V), !.
+constant_value_type(_, thing).
 
 declared_arity(Item, N) :-
     template_item(Item, _, F, _, Adds),
@@ -258,6 +272,7 @@ write_program_(Header, Items, Text) :-
     with_output_to(string(Text),
         ( write_header(Header, Target, KBName),
           write_templates(Ctx, Items),
+          write_constants(Items),
           write_tables(Ctx, Items),
           write_kb(Ctx, KBName, Items),
           write_scenarios(Ctx, Items),
@@ -284,6 +299,13 @@ write_header(Header, Target, KBName) :-
     ;   true
     ),
     nl,
+    %  `the knowledge base <name> extends <base>, <base>.` (le_lps_surface.md §1.1)
+    (   memberchk(extends(Bs), Header), Bs \== []
+    ->  kw(kb_open, KOE), kw(kb_extends, KE),
+        atomic_list_concat(Bs, ', ', BList),
+        format("~w ~w ~w ~w.~n~n", [KOE, KBName, KE, BList])
+    ;   true
+    ),
     (   memberchk(includes(Rs), Header), Rs \== []
     ->  kw(kb_open, KO), kw(resources_include, RI),
         maplist(render_resource, Rs, RTs),
@@ -324,8 +346,21 @@ write_templates(ctx(Dicts, _, Target), _Items) :-
     ),
     write_template_section(Dicts, template, templates).
 
+%   `the constants are:` — one line per named value.
+write_constants(Items) :-
+    (   memberchk(constant(_, _, _), Items)
+    ->  kw(constants, Header),
+        format("~w:~n", [Header]),
+        kw(marker_is, Is),
+        forall(member(constant(_, Name, Value), Items),
+               ( render_constant(Value, VT), format("    ~w ~w ~w.~n", [Name, Is, VT]) )),
+        nl
+    ;   true
+    ).
+
 write_template_section(Dicts, Kind, Key) :-
-    include(td_kind(Kind), Dicts, Mine),
+    include(td_kind(Kind), Dicts, Mine0),
+    exclude(td_included, Mine0, Mine),
     (   Mine == []
     ->  true
     ;   kw(Key, Header),
@@ -335,6 +370,7 @@ write_template_section(Dicts, Kind, Key) :-
     ).
 
 td_kind(Kind, TD) :- arg(5, TD, Kind).
+td_included(TD) :- arg(6, TD, Adds), memberchk(included, Adds).
 
 write_template_line(td(_, _, _, _, _, Adds, _)) :-
     memberchk(included, Adds), !.        % declared by an included resource
@@ -356,6 +392,7 @@ addition_text(opposite(O), T)   :- kw(opposite, K), format(atom(T), '; ~w: ~w', 
 addition_text(synonym(S), T)    :- kw(synonym, K), format(atom(T), '; ~w ~w', [K, S]).
 addition_text(via_service(S), T) :- kw(via_service, K), format(atom(T), '; ~w ~w', [K, S]).
 addition_text(known_as(F), T)   :- kw(known_as, K), format(atom(T), '; ~w ~w', [K, F]).
+addition_text(default(V), T)    :- kw(by_default, K), render_constant(V, VT), format(atom(T), '; ~w ~w', [VT, K]).
 addition_text(defines_global(G), T) :- kw(defines_global, K), format(atom(T), '; ~w ~w', [K, G]).
 
 		 /*******************************
@@ -567,7 +604,8 @@ write_rule(Ctx, Head, Body0, Opts) :-
     ->  write_fact(Ctx, Head, Opts)
     ;   forall(member(comment(C), Opts), write_comment_block(0, C)),
         write_rule_label(Opts),
-        copy_term(Head-Body-Hints0, H-B-Hints),
+        copy_term(Head-Body-Hints0, H-B1-Hints),
+        name_globals(Ctx, B1, B2), simplify_body(B2, B),
         b_setval(le_writer_hints, Hints),
         clause_naming(Ctx, rule, H, B, St),
         render_head(Ctx, St, H, HT),
@@ -584,6 +622,20 @@ write_rule(Ctx, Head, Body0, Opts) :-
         ),
         nl
     ).
+
+%   The goal LE inserts where a global name (`; defines global`, a named
+%   constant) is used: the name is written instead, where its value is read.
+name_globals(Ctx, T0, T) :-
+    (   var(T0) -> T = T0
+    ;   global_goal(Ctx, T0, V, Name) -> V = '$global'(Name), T = true
+    ;   compound(T0) -> T0 =.. [N|As0], maplist(name_globals(Ctx), As0, As), T =.. [N|As]
+    ;   T = T0
+    ).
+
+global_goal(ctx(Dicts, _, _), G, V, Name) :-
+    compound(G), functor(G, F, 1), arg(1, G, V), var(V),
+    member(TD, Dicts), td_key(TD, F, 1), TD = td(_, _, _, _, _, Adds, _),
+    memberchk(defines_global(Name), Adds), !.
 
 		 /*******************************
 		 *       NUMBERED BODIES        *
@@ -1410,6 +1462,7 @@ tidy_punctuation(T0, T) :-
 %   A template argument: a variable, a constant, or an embedded sentence (the
 %   argument of a meta template such as `*a person* says that *a sentence*`).
 arg_text(Ctx, St, X, T) :- var(X), !, var_text(Ctx, St, X, T).
+arg_text(_, _, '$global'(Name), Name) :- !.
 arg_text(Ctx, St, X, T) :-
     compound(X), \+ is_list(X), \+ X = date(_, _, _), \+ arith_expr(X), \+ X = '$VAR'(_), !,
     goal_text(Ctx, St, X, T).
@@ -1469,7 +1522,11 @@ render_constant(date(Y, M, D), T) :- integer(Y), !,
     format(atom(T), '~|~`0t~d~4+-~|~`0t~d~2+-~|~`0t~d~2+', [Y, M, D]).
 render_constant(X, T) :- string(X), !, render_string(X, T).
 render_constant(X, T) :- is_list(X), !,
-    maplist(list_element_text, X, Ts), atomic_list_concat(Ts, ', ', In),
+    maplist(list_element_text, X, Ts),
+    %  in an expected answer, a list as LE writes one in its answers
+    %  (le_kbs:render_list_value/3: `[bob carol]`); elsewhere, as it is read
+    ( nb_current(le_writer_answer, true) -> Sep = ' ' ; Sep = ', ' ),
+    atomic_list_concat(Ts, Sep, In),
     format(atom(T), '[~w]', [In]).
 render_constant(X, T) :- atom(X), !,
     (   bare_atom_ok(X) -> T = X
@@ -1787,14 +1844,15 @@ lps_scratch_module(Dicts, M) :-
     variant_sha1(Dicts, H), atom_concat(le_writer_lps_, H, M),
     (   current_predicate(M:le_dict/1) -> true
     ;   dynamic(M:le_dict/1), dynamic(M:le_lps_functor/2), dynamic(M:le_lps_role/2),
-        forall(member(td(F0, N, WV, NTs, Kind, _Adds, _), Dicts),
+        forall(member(td(F0, N, WV, NTs, Kind, Adds, _), Dicts),
                ( td_key(td(F0, N, WV, NTs, Kind, _, _), F, N),
                  le_grammar:wv_functor(WV, Derived),
                  length(Args, N), copy_term(WV-NTs, WV1-NTs1),
                  template_fa_vars(WV1, Args),
-                 assertz(M:le_dict(dict([Derived|Args], NTs1, WV1, [], _, _, _))),
+                 findall(G, member(defines_global(G), Adds), Globals),
+                 assertz(M:le_dict(dict([Derived|Args], NTs1, WV1, Globals, _, _, _))),
                  ( Derived == F -> true ; assertz(M:le_lps_functor(Derived/N, F)) ),
-                 ( memberchk(Kind, [template, opposite]) -> true ; assertz(M:le_lps_role(F/N, Kind)) ) ))
+                 ( memberchk(Kind, [template, opposite, constant]) -> true ; assertz(M:le_lps_role(F/N, Kind)) ) ))
     ).
 
 		 /*******************************
@@ -1843,11 +1901,23 @@ kb_to_ir(KB, program(Header, Items)) :-
     ( Rs == [] -> Inc = [] ; Inc = [includes(Rs)] ),
     append([[kb(Name), target(Target)], Lang, PR, Inc], Header),
     kb_templates(KB, Templates),
+    kb_constants(KB, Constants),
     kb_tables(KB, Tables),
     kb_clauses(KB, Clauses),
     kb_scenarios(KB, Scenarios),
     kb_queries(KB, Queries),
-    append([Templates, Tables, Clauses, Scenarios, Queries], Items).
+    append([Templates, Constants, Tables, Clauses, Scenarios, Queries], Items).
+
+%   The named constants (`the constants are:`), each with the value its fact
+%   states; their templates and facts are the section's, not written again.
+kb_constants(KB, Items) :-
+    findall(constant(F, Name, V),
+            ( current_predicate(KB:le_constant/2), KB:le_constant(Name, F/1),
+              G =.. [F, V], once(clause(KB:G, true)) ),
+            Items).
+
+kb_constant_functor(KB, F/N) :-
+    current_predicate(KB:le_constant/2), KB:le_constant(_, F/N).
 
 own_range(Start) :- integer(Start), Start < 10000000.     % not in an included resource
 
@@ -1858,6 +1928,7 @@ kb_templates(KB, Items) :-
               D = dict([F|Args], NTs, WV, Globals, Opp, Prep, Unknown),
               \+ le_system_templates:le_system_template(dict([F|Args], _, _)),
               wv_derives(WV, F),                             % the main dict, not a synonym
+              length(Args, NA), \+ kb_constant_functor(KB, F/NA),
               catch(KB:le_source_info(Ref, Start, _, template), _, fail),
               wv_template_text(WV, NTs, Text),
               length(Args, N),
@@ -1912,6 +1983,7 @@ template_additions(KB, F, N, Args, Globals, Opp, Prep, Unknown, Adds) :-
             ;   synonym_text(KB, F, N, ST), A = synonym(ST)
             ;   current_predicate(KB:le_service_template/2), KB:le_service_template(F/N, S), A = via_service(S)
             ;   current_predicate(KB:le_lps_functor/2), KB:le_lps_functor(F/N, KA), A = known_as(KA)
+            ;   current_predicate(KB:le_lps_default/2), KB:le_lps_default(F/N, DV), A = default(DV)
             ),
             Adds).
 
@@ -1963,6 +2035,7 @@ kb_clauses(KB, Items) :-
               \+ memberchk(F/N, [le_target_language/1, le_lang/1, le_kb_module_fact/1,
                                  le_program_base/1, le_tests_skipped/0, le_dict_fa/3]),
               functor(H, F, N),
+              \+ kb_constant_functor(KB, F/N),
               le_kbs:kb_own_predicate(KB, H),
               clause(KB:H, B, Ref),
               \+ B = le_table(_, _),

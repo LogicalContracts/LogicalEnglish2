@@ -8486,6 +8486,11 @@ var keywords = {
         "includes"
       ]
     ],
+    "kb_extends": [
+      [
+        "extends"
+      ]
+    ],
     "contract_open": [
       [
         "the",
@@ -8565,6 +8570,20 @@ var keywords = {
         "are"
       ]
     ],
+    "constants": [
+      [
+        "the",
+        "constants",
+        "are"
+      ]
+    ],
+    "constant_value_of": [
+      [
+        "the",
+        "value",
+        "of"
+      ]
+    ],
     "meta_target": [
       [
         "the",
@@ -8603,6 +8622,11 @@ var keywords = {
       ]
     ],
     "guard": [
+      [
+        "the",
+        "constants",
+        "are"
+      ],
       [
         "the",
         "predicates"
@@ -8838,6 +8862,12 @@ var keywords = {
       [
         "known",
         "as"
+      ]
+    ],
+    "by_default": [
+      [
+        "by",
+        "default"
       ]
     ],
     "defines_global": [
@@ -9366,6 +9396,27 @@ var keywords = {
         "cycle",
         "time",
         "is"
+      ]
+    ],
+    "lps_this_law_replaces": [
+      [
+        "this",
+        "law",
+        "replaces",
+        "law"
+      ]
+    ],
+    "lps_this_constraint_replaces": [
+      [
+        "this",
+        "constraint",
+        "replaces",
+        "constraint"
+      ]
+    ],
+    "lps_of": [
+      [
+        "of"
       ]
     ],
     "provenance_required": [
@@ -9922,6 +9973,11 @@ var keywords = {
         "inclui"
       ]
     ],
+    "kb_extends": [
+      [
+        "estende"
+      ]
+    ],
     "contract_open": [
       [
         "o",
@@ -10001,6 +10057,20 @@ var keywords = {
         "s\xE3o"
       ]
     ],
+    "constants": [
+      [
+        "as",
+        "constantes",
+        "s\xE3o"
+      ]
+    ],
+    "constant_value_of": [
+      [
+        "o",
+        "valor",
+        "de"
+      ]
+    ],
     "meta_target": [
       [
         "a",
@@ -10056,6 +10126,11 @@ var keywords = {
         "os",
         "eventos",
         "prolog"
+      ],
+      [
+        "as",
+        "constantes",
+        "s\xE3o"
       ],
       [
         "a",
@@ -10332,6 +10407,20 @@ var keywords = {
       [
         "conhecido",
         "como"
+      ]
+    ],
+    "by_default": [
+      [
+        "por",
+        "omiss\xE3o"
+      ],
+      [
+        "por",
+        "defeito"
+      ],
+      [
+        "por",
+        "padr\xE3o"
       ]
     ],
     "defines_global": [
@@ -11021,6 +11110,29 @@ var keywords = {
         "\xE9"
       ]
     ],
+    "lps_this_law_replaces": [
+      [
+        "esta",
+        "lei",
+        "substitui",
+        "a",
+        "lei"
+      ]
+    ],
+    "lps_this_constraint_replaces": [
+      [
+        "esta",
+        "restri\xE7\xE3o",
+        "substitui",
+        "a",
+        "restri\xE7\xE3o"
+      ]
+    ],
+    "lps_of": [
+      [
+        "de"
+      ]
+    ],
     "provenance_required": [
       [
         "os",
@@ -11672,6 +11784,11 @@ var keywords = {
         "incluye"
       ]
     ],
+    "kb_extends": [
+      [
+        "extiende"
+      ]
+    ],
     "contract_open": [
       [
         "el",
@@ -11751,6 +11868,20 @@ var keywords = {
         "son"
       ]
     ],
+    "constants": [
+      [
+        "las",
+        "constantes",
+        "son"
+      ]
+    ],
+    "constant_value_of": [
+      [
+        "el",
+        "valor",
+        "de"
+      ]
+    ],
     "meta_target": [
       [
         "el",
@@ -11814,6 +11945,11 @@ var keywords = {
         "los",
         "eventos",
         "prolog"
+      ],
+      [
+        "las",
+        "constantes",
+        "son"
       ],
       [
         "los",
@@ -12087,6 +12223,12 @@ var keywords = {
       [
         "conocido",
         "como"
+      ]
+    ],
+    "by_default": [
+      [
+        "por",
+        "defecto"
       ]
     ],
     "defines_global": [
@@ -12772,6 +12914,29 @@ var keywords = {
         "es"
       ]
     ],
+    "lps_this_law_replaces": [
+      [
+        "esta",
+        "ley",
+        "sustituye",
+        "la",
+        "ley"
+      ]
+    ],
+    "lps_this_constraint_replaces": [
+      [
+        "esta",
+        "restricci\xF3n",
+        "sustituye",
+        "la",
+        "restricci\xF3n"
+      ]
+    ],
+    "lps_of": [
+      [
+        "de"
+      ]
+    ],
     "provenance_required": [
       [
         "los",
@@ -13354,6 +13519,11 @@ var keywords = {
         "inclut"
       ]
     ],
+    "kb_extends": [
+      [
+        "\xE9tend"
+      ]
+    ],
     "contract_open": [
       [
         "le",
@@ -13438,6 +13608,20 @@ var keywords = {
         "sont"
       ]
     ],
+    "constants": [
+      [
+        "les",
+        "constantes",
+        "sont"
+      ]
+    ],
+    "constant_value_of": [
+      [
+        "la",
+        "valeur",
+        "de"
+      ]
+    ],
     "meta_target": [
       [
         "la",
@@ -13490,6 +13674,11 @@ var keywords = {
       [
         "les",
         "\xE9v\xE9nements",
+        "sont"
+      ],
+      [
+        "les",
+        "constantes",
         "sont"
       ],
       [
@@ -13770,6 +13959,12 @@ var keywords = {
       [
         "connu",
         "comme"
+      ]
+    ],
+    "by_default": [
+      [
+        "par",
+        "d\xE9faut"
       ]
     ],
     "defines_global": [
@@ -14418,6 +14613,29 @@ var keywords = {
         "est"
       ]
     ],
+    "lps_this_law_replaces": [
+      [
+        "cette",
+        "loi",
+        "remplace",
+        "la",
+        "loi"
+      ]
+    ],
+    "lps_this_constraint_replaces": [
+      [
+        "cette",
+        "contrainte",
+        "remplace",
+        "la",
+        "contrainte"
+      ]
+    ],
+    "lps_of": [
+      [
+        "de"
+      ]
+    ],
     "provenance_required": [
       [
         "les",
@@ -15004,6 +15222,11 @@ var keywords = {
         "include"
       ]
     ],
+    "kb_extends": [
+      [
+        "estende"
+      ]
+    ],
     "contract_open": [
       [
         "il",
@@ -15083,6 +15306,20 @@ var keywords = {
         "sono"
       ]
     ],
+    "constants": [
+      [
+        "le",
+        "costanti",
+        "sono"
+      ]
+    ],
+    "constant_value_of": [
+      [
+        "il",
+        "valore",
+        "di"
+      ]
+    ],
     "meta_target": [
       [
         "il",
@@ -15139,6 +15376,11 @@ var keywords = {
       [
         "i",
         "predicati",
+        "sono"
+      ],
+      [
+        "le",
+        "costanti",
         "sono"
       ],
       [
@@ -15415,6 +15657,17 @@ var keywords = {
       [
         "noto",
         "come"
+      ]
+    ],
+    "by_default": [
+      [
+        "per",
+        "impostazione",
+        "predefinita"
+      ],
+      [
+        "di",
+        "default"
       ]
     ],
     "defines_global": [
@@ -16140,6 +16393,29 @@ var keywords = {
         "di",
         "ciclo",
         "\xE8"
+      ]
+    ],
+    "lps_this_law_replaces": [
+      [
+        "questa",
+        "legge",
+        "sostituisce",
+        "la",
+        "legge"
+      ]
+    ],
+    "lps_this_constraint_replaces": [
+      [
+        "questo",
+        "vincolo",
+        "sostituisce",
+        "il",
+        "vincolo"
+      ]
+    ],
+    "lps_of": [
+      [
+        "di"
       ]
     ],
     "provenance_required": [

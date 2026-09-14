@@ -897,8 +897,19 @@ contains_literal(T, F, A) :-
 % Only EXTENSIONAL predicates are reported. A predicate with rules of its own
 % that no query reaches is already `untested_predicate`, which says the same
 % thing about a derivation rather than about data.
+%   A named constant (`the constants are:`, le_summary.md §2.2) that nothing
+%   reads is said as such: its template and fact are the section's, not the
+%   author's words.
+unconsumed_facts(KB, issue(unused_constant, Description, Fix, Start, End)) :-
+    current_predicate(KB:le_constant/2),
+    KB:le_constant(Name, F/A),
+    once(template_data(KB, F, A, knowledge_base, Start, End)),
+    \+ template_consumed(KB, F, A),
+    le_i18n:le_msg(unused_constant_desc, [constant-Name], Description),
+    le_i18n:le_msg(unused_constant_fix, [], Fix).
 unconsumed_facts(KB, issue(unconsumed_facts, Description, Fix, Start, End)) :-
     le_kbs:template_of(KB, F, A, _Dict, Label),
+    \+ ( current_predicate(KB:le_constant/2), KB:le_constant(_, F/A) ),
     once(template_data(KB, F, A, Where, Start, End)),
     % `current_predicate` FIRST, always. is_intensional/3 probes the predicate
     % with predicate_property/clause, and probing one the KB never defined —
@@ -1334,10 +1345,10 @@ print_issue(issue(Type, Description, Fix, Start, End)) :-
 % Extend prolog:message to handle our issues
 :- multifile prolog:message//1.
 prolog:message(Type - [Msg, Start, End]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, opposite_as_condition, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, mistyped_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited, view_unknown_section, view_keeps_derived]) },
+    { memberchk(Type, [missing_template, undefined_predicate, opposite_as_condition, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, unused_constant, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, mistyped_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited, view_unknown_section, view_keeps_derived]) },
     [ '~w: ~w at ~w-~w' - [Type, Msg, Start, End] ].
 prolog:message(Type - [Msg]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, opposite_as_condition, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, mistyped_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited, view_unknown_section, view_keeps_derived]) },
+    { memberchk(Type, [missing_template, undefined_predicate, opposite_as_condition, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, unused_constant, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, mistyped_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited, view_unknown_section, view_keeps_derived]) },
     [ '~w: ~w' - [Type, Msg] ].
 
 % ---------------------------------------------------------------------------
