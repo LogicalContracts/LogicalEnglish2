@@ -96,6 +96,8 @@ le_scasp_available :- current_predicate(have_scasp/0).
 %   Issues is a list of le_scasp_issue(Kind, RuleID, Message) for constructs the
 %   s(CASP) backend cannot handle.
 le_scasp_program_text(KBModule, Text, Issues) :-
+    nb_setval(le_scasp_forall_n, 0),
+    opposite_map(KBModule, OppMap), b_setval(le_scasp_opposites, OppMap),
     kb_rule_clauses(KBModule, Rules),
     kb_fact_clauses(KBModule, Facts),
     findall(P, pred_directive(KBModule, P), Preds0),
@@ -144,7 +146,9 @@ kb_fact_clauses(KB, Facts) :-
 user_predicate(KB, Head) :-
     callable(Head),
     functor(Head, F, A),
-    \+ reasoner:le_metadata_predicate(F/A),
+    %  is_a/2 is LE's own (types, the ontology), but its clauses in the
+    %  program are the program's
+    ( F/A == is_a/2 -> true ; \+ reasoner:le_metadata_predicate(F/A) ),
     \+ le_builtin_functor(F),
     ( known_template(KB, F, A) -> true ; true ).
 
@@ -169,6 +173,13 @@ le_builtin_functor(and).
 le_builtin_functor(or).
 le_builtin_functor(not).
 le_builtin_functor(for_all_cases).
+%   LE's own records, which are not the program's clauses: the ontology
+%   section's record (its clauses are is_a/2 clauses of their own), flip
+%   expectations, services.
+le_builtin_functor(ontology).
+le_builtin_functor(le_expected_changes).
+le_builtin_functor(le_service).
+le_builtin_functor(le_service_template).
 
 known_template(KB, F, A) :-
     KB:le_dict(dict([F|Args], _, _, _, _, _, _)),
@@ -189,12 +200,46 @@ pred_directive(KB, Line) :-
     \+ le_builtin_functor(F),
     is_list(WV),
     copy_term(t(Args, NTs, WV), t(Args1, NTs1, WV1)),
-    Head =.. [F|Args1],
+    Head0 =.. [F|Args1],
+    to_classical(Head0, Head),
     numbervars(t(Head, NTs1, WV1), 0, _),
     format_from_wv(WV1, NTs1, Parts),
-    atomic_list_concat(Parts, ' ', Fmt),
+    atomic_list_concat(Parts, ' ', Fmt0),
+    atomic_list_concat(Qs, '\'', Fmt0), atomic_list_concat(Qs, '\'\'', Fmt),   % an apostrophe in the wording
     format(string(HeadS), "~W", [Head, [numbervars(true), quoted(true)]]),
     format(string(Line), "#pred ~w :: '~w'.", [HeadS, Fmt]).
+
+%!  opposite_map(+KB, -Map) is det.
+%
+%   `; opposite:` (§4): the opposite form is the classical negation of its
+%   template, `-p(...)`. Map pairs each opposite's functor with its main
+%   template's: OF/N-F. Both forms have a dictionary entry, each naming the
+%   other; the main one (the declaration) is asserted first.
+opposite_map(KB, Map) :-
+    findall(F/N-OF, ( KB:le_dict(dict([F|Args], _, _, _, Opp, _, _)), nonvar(Opp),
+                      length(Args, N), functor(Opp, OF, N) ), Pairs),
+    opposite_pairs(Pairs, [], Map).
+
+opposite_pairs([], _, []).
+opposite_pairs([F/N-OF|Ps], Seen, Map) :-
+    (   memberchk(F/N, Seen)                    % F is itself the opposite of an earlier one
+    ->  opposite_pairs(Ps, Seen, Map)
+    ;   Map = [OF/N-F|Map1], opposite_pairs(Ps, [OF/N|Seen], Map1)
+    ).
+
+classical_deep(G, G) :- var(G), !.
+classical_deep(G, C) :- to_classical(G, C), C \== G, !.
+classical_deep(G, C) :- compound(G), functor(G, F, _), memberchk(F, [',', ';', not, '\\+']), !,
+    G =.. [F|As], maplist(classical_deep, As, Bs), C =.. [F|Bs].
+classical_deep(G, G).
+
+%   An opposite form's literal as the classical negation of its template's.
+to_classical(G, G) :- var(G), !.
+to_classical(G, -(M)) :-
+    callable(G), functor(G, OF, N),
+    nb_current(le_scasp_opposites, Map), memberchk(OF/N-F, Map), !,
+    G =.. [_|Args], M =.. [F|Args].
+to_classical(G, G).
 
 % format_from_wv(+WordsAndVars, +NameTypes, -Parts): render each template token,
 % turning numbervar'd slots into '@(Name:type)' placeholders.
@@ -225,7 +270,7 @@ varname('$VAR'(N), Name) :-
 %   s(CASP) may assume them and report the assumption set per model.
 abducible_directive(KB, Line) :-
     KB:le_dict(dict([F|Args], _, _, _, _, _, Unknown)),
-    nonvar(Unknown),
+    Unknown == unknown,                 % `; unknown` / `; assumable` (§4), not a scenario element
     \+ le_builtin_functor(F),
     length(Args, A),
     functor(Head, F, A),
@@ -240,9 +285,11 @@ abducible_directive(KB, Line) :-
 %   For a template declared with `; opposite: T`, add the global constraint
 %   `false :- p(X), -p(X).` linking p and its opposite under classical negation.
 opposite_constraints(KB, Lines) :-
+    ( nb_current(le_scasp_opposites, Map) -> true ; opposite_map(KB, Map) ),
     findall(L,
         ( KB:le_dict(dict([F|Args], _, _, _, Opposite, _, _)),
           nonvar(Opposite),
+          length(Args, N0), \+ memberchk(F/N0-_, Map),     % the main form only
           \+ le_builtin_functor(F),
           length(Args, A),
           functor(Head, F, A),
@@ -260,12 +307,18 @@ opposite_constraints(KB, Lines) :-
 
 emit_rules(_KB, [], [], []).
 emit_rules(KB, [rule(ID,_S,_E,Head,Body)|T], Lines, Issues) :-
+    b_setval(le_scasp_rule, Head-Body), b_setval(le_scasp_aux, []),
     ( catch(lower_body(KB, ID, Body, SBody, BIssues), Err, true) ->
         ( var(Err) ->
             % s(CASP) forbids ;/2 in a clause body: DNF-expand into one clause
             % per conjunction (each printed whole so head/body vars correspond).
             body_to_dnf(SBody, Conjs),
-            maplist(clause_line(Head), Conjs, RLines),
+            to_classical(Head, CHead),
+            maplist(clause_line(CHead), Conjs, RLines0),
+            b_getval(le_scasp_aux, Aux), reverse(Aux, AuxInOrder),
+            findall(AL, ( member((AH :- AB), AuxInOrder), body_to_dnf(AB, ACs),
+                          member(AC, ACs), clause_line(AH, AC, AL) ), AuxLines),
+            append(RLines0, AuxLines, RLines),
             Lines0 = RLines, Issues0 = BIssues
         ; Err = le_scasp_untranslatable(Key) ->
             % A construct we recognise but cannot express in s(CASP) (e.g. double
@@ -319,7 +372,8 @@ append_each(_, [], []).
 append_each(Ca, [Cb|CBs], [C|Cs]) :- append(Ca, Cb, C), append_each(Ca, CBs, Cs).
 
 emit_facts(_KB, [], [], []).
-emit_facts(KB, [fact(_ID,_S,_E,Head)|T], [L|LT], Issues) :-
+emit_facts(KB, [fact(_ID,_S,_E,Head0)|T], [L|LT], Issues) :-
+    to_classical(Head0, Head),
     format(string(L), "~W.", [Head, [quoted(true), numbervars(true)]]),
     emit_facts(KB, T, LT, Issues), !.
 emit_facts(KB, [_|T], LT, Issues) :- emit_facts(KB, T, LT, Issues).
@@ -339,9 +393,40 @@ lower_body(KB, ID, (A;B), (SA;SB), Is) :- !,
 lower_body(KB, ID, not(G), NegBody, Is) :- !,
     lower_body(KB, ID, G, SG, Is),
     demorgan_negate(SG, NegBody).
+%   `for all cases in which C it is the case that G`: s(CASP)'s forall/2
+%   quantifies one variable and it has no call/1, so the universal is the
+%   negation of a helper that finds a counterexample (Lloyd-Topor):
+%       not le_forall_<rule>_<n>(Shared)
+%       le_forall_<rule>_<n>(Shared) :- C, not G.
+%   Shared are the variables the universal shares with the rest of the rule.
+%   The helper's clauses follow the rule's (emit_rules/4); the s(CASP)
+%   reader (le_writer:prolog_to_ir/3) folds them back into the universal.
+lower_body(KB, ID, forall(C, G), not(Aux), Is) :- !,
+    lower_body(KB, ID, C, SC, Ic), lower_body(KB, ID, G, SG, Ig), append(Ic, Ig, Is),
+    demorgan_negate(SG, NG),
+    b_getval(le_scasp_rule, Head-Body),
+    term_variables(forall(C, G), FVs),
+    replace_subterm(Body, forall(C, G), true, Rest),
+    term_variables(Head-Rest, OVs),
+    include(var_in(FVs), OVs, Shared),            % in the order the rule names them
+    b_getval(le_scasp_aux, Aux0),
+    ( nb_current(le_scasp_forall_n, K0) -> true ; K0 = 0 ), K is K0 + 1, nb_setval(le_scasp_forall_n, K),
+    ignore(ID = _),
+    format(atom(AF), 'le_forall_~w', [K]),
+    Aux =.. [AF|Shared],
+    b_setval(le_scasp_aux, [(Aux :- (SC, NG))|Aux0]).
 lower_body(_KB, _ID, le_scoped(_, _), true, _) :- !,
     throw(le_scasp_untranslatable(scasp_scoped_proof)).
 lower_body(_KB, _ID, Leaf, SLeaf, Is) :- lower_leaf(Leaf, SLeaf, Is).
+
+var_in(Vs, V) :- member(X, Vs), X == V, !.
+
+replace_subterm(T, Old, New, New) :- T == Old, !.
+replace_subterm(T, Old, New, R) :- compound(T), !,
+    T =.. [F|As], replace_subterms(As, Old, New, Bs), R =.. [F|Bs].
+replace_subterm(T, _, _, T).
+replace_subterms([], _, _, []).
+replace_subterms([A|As], Old, New, [B|Bs]) :- replace_subterm(A, Old, New, B), replace_subterms(As, Old, New, Bs).
 
 % demorgan_negate(+Body, -Negated): push a negation inward so that no ;/2 or
 % conjunction survives directly under a not/1 — s(CASP) accepts only
@@ -381,7 +466,12 @@ lower_leaf(Aggr, true, [I]) :-
     reasoner:is_aggregate(Aggr, _, _, _, _), !,
     scasp_issue(aggregate, unknown, scasp_aggregate, [], I).
 lower_leaf(for_all_cases(_), true, [I]) :- scasp_issue(universal, unknown, scasp_universal, [], I), !.
-lower_leaf(Leaf, Leaf, []).      % user domain predicate: pass through
+lower_leaf(le_table(_, _), true, [I]) :- scasp_issue(decision_table, unknown, scasp_decision_table, [], I), !.
+lower_leaf(G, true, [I]) :-
+    compound(G), functor(G, F, _), memberchk(F, [le_semantically_similar, le_best_match, le_satisfies_description]), !,
+    scasp_issue(service, unknown, scasp_service, [], I).
+lower_leaf(unknown_template(_), true, [I]) :- scasp_issue(missing_template, unknown, scasp_missing_template, [], I), !.
+lower_leaf(Leaf, CLeaf, []) :- to_classical(Leaf, CLeaf).      % user domain predicate (an opposite form: -p)
 
 number_ish(X, Y) :- ( number(X) ; number(Y) ), !.
 arithmetic_term(T) :- compound(T), functor(T, F, A), A >= 1, arith_op(F, A), !.
@@ -414,10 +504,13 @@ le_scasp_query(KBModule, ScenarioName, Goal, Options, Answers, Issues) :-
     option(time_limit(TL), Options, 10),
     option(max_models(Max), Options, 25),
     le_scasp_program_text(KBModule, ProgText, PIssues),
-    scenario_facts(KBModule, ScenarioName, Options, Facts),
+    scenario_facts(KBModule, ScenarioName, Options, Facts0),
+    %  an opposite form is -p in the unit (its variables shared, so the
+    %  answers bind the caller's goal)
+    classical_deep(Goal, SGoal), maplist(classical_deep, Facts0, Facts),
     setup_call_cleanup(
         load_scasp_unit(ProgText, Facts, Unit, File),
-        run_models(Unit, Goal, TL, Max, Answers, RIssues),
+        run_models(Unit, SGoal, TL, Max, Answers, RIssues),
         cleanup_scasp_unit(Unit, File)),
     append(PIssues, RIssues, Issues).
 le_scasp_query(_, _, _, _, [], [I]) :- scasp_issue(no_pack, unknown, scasp_engine_not_installed, [], I).

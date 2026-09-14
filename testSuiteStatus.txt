@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      all (core + trees requiring the proprietary le_extensions.pl)
 Command:    testing/run_tests.sh le --with-extensions   (or: runAllTests)
 Sibling:    testSuiteCoreStatus.txt — core (this repository alone; extension-dependent trees excluded)
-Generated:  2026-09-14 05:37:38 UTC
+Generated:  2026-09-14 22:50:03 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 553
-Total tests:     7180
-Passed:          7180
+Files processed: 706
+Total tests:     7889
+Passed:          7889
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -265,30 +265,91 @@ Detailed File Summary:
   [PASS] examples/moreExamples/InsurLE2/testing/policy-KIMI-K3.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/testing/policy-gpt-5.6-terra.le: 6 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/testing/shorterpathassumable.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/bolt3_received_htlc/bolt3_received_htlc.le: 18 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex8_defeasible/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/legalruleml/ex8_defeasible/ex8_defeasible.le: 4 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex5_section29new/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/legalruleml/ex5_section29new/ex5_section29new.le: 24 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex2_references/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex2_references/ex2_references.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex8c_defeasible/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/legalruleml/ex8c_defeasible/ex8c_defeasible.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex9_alternatives/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex9_alternatives/ex9_alternatives.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex10_mix/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex9b_alternatives/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/legalruleml/ex9b_alternatives/ex9b_alternatives.le: 8 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex11_maternity_alternatives/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex11_maternity_alternatives/ex11_maternity_alternatives.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex12_usc_17_504_context/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex12_usc_17_504_context/ex12_usc_17_504_context.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex8b_defeasible/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/legalruleml/ex8b_defeasible/ex8b_defeasible.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex1_curies/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex1_curies/ex1_curies.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/legalruleml/ex3_deontic/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/legalruleml/ex3_deontic/ex3_deontic.le: 8 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/blawx/beard_tax/beard_tax.le: 13 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/blawx/covid_test/covid_test.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/blawx/rps/rps.le: 11 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/blawx/logical_constraints/logical_constraints.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/blawx/list_demo/list_demo.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/blawx/net30/net30.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/blawx/wills/wills.le: 10 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/blawx/wills_tutorial/wills_tutorial.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/blawx/bird/bird.le: 17 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/blawx/mortality/mortality.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/blawx/life_act/life_act.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/blawx/r34/r34.le: 64 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/blawx/oasa/oasa.le: 20 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/blawx/siblings/siblings.le: 10 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/blawx/numerical_constraints/numerical_constraints.le: 11 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/bolt3_received_htlc/bolt3_received_htlc.le: 25 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/miniscript/bolt3_received_htlc/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/liana_inheritance/liana_inheritance.le: 30 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/liana_inheritance/liana_inheritance.le: 39 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/miniscript/liana_inheritance/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/bolt3_to_local/bolt3_to_local.le: 12 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/bolt3_to_local/bolt3_to_local.le: 15 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/miniscript/bolt3_to_local/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/liquid_federation/liquid_federation.le: 21 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/liquid_federation/liquid_federation.le: 34 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/miniscript/liquid_federation/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/halving_decay/halving_decay.le: 76 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/halving_decay/halving_decay.le: 92 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/miniscript/halving_decay/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/cosigning_service/cosigning_service.le: 12 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/cosigning_service/cosigning_service.le: 16 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/miniscript/cosigning_service/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/revault_unvault/revault_unvault.le: 16 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/revault_unvault/revault_unvault.le: 29 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/miniscript/revault_unvault/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/core_2of3_multisig/core_2of3_multisig.le: 18 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/core_2of3_multisig/core_2of3_multisig.le: 25 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/miniscript/core_2of3_multisig/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/liana_recovery/liana_recovery.le: 12 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/liana_recovery/liana_recovery.le: 15 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/miniscript/liana_recovery/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/bolt3_offered_htlc/bolt3_offered_htlc.le: 17 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/bolt3_offered_htlc/bolt3_offered_htlc.le: 24 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/miniscript/bolt3_offered_htlc/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/decaying_multisig/decaying_multisig.le: 25 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/miniscript/decaying_multisig/decaying_multisig.le: 33 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/miniscript/decaying_multisig/temporal.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/miniscript/hash_threshold/hash_threshold.le: 14 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/miniscript/hash_threshold/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/drools/fire_alarm/fire_alarm.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/drools/shipping/shipping.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/drools/discount/discount.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/drools/discount/discount_decision.le: 1 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/drools/honest_politician/honest_politician.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/drools/insurance/insurance.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/scasp/classic_negation_inconstistent/classic_negation_inconstistent.le: 1 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/scasp/obligation/obligation.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/scasp/subset/subset.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/scasp/loanwithcure/loanwithcure.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/scasp/minicontract/minicontract.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/scasp/isdapermissioncorrected/isdapermissioncorrected.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/scasp/turingcomplete/turingcomplete.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/scasp/family_le/family_le.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/scasp/family/family.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/scasp/impossibleancestor/impossibleancestor.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/scasp/citizenshiptrust/citizenshiptrust.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/scasp/criminaljustice/criminaljustice.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/scasp/list/list.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/scasp/abdbirds/abdbirds.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/scasp/birds/birds.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/scasp/itispermittedthat/itispermittedthat.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/scasp/simplerps/simplerps.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/oia/warranty_claims/warranty_claims.le: 20 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/oia/dctad/dctad.le: 112 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/oia/gst_at_settlement/gst_at_settlement.le: 206 Pass, 0 Fail, 0 Error
@@ -311,6 +372,19 @@ Detailed File Summary:
   [NONE] examples/moreExamples/InsurLE2/migration/solidity/vault/vault.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/solidity/vault/vault_oracle.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/solidity/vault/vault_view.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/epilog/hunter/hunter.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/epilog/blocks/blocks.le: 6 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/epilog/cram/cram.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/epilog/hamilton/hamilton.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/epilog/missionaries/missionaries.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/epilog/bridgecrossing/bridgecrossing.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/epilog/lightboard/lightboard.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/epilog/knightstour/knightstour.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/epilog/tictactoe/tictactoe.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/epilog/buttonsandlights/buttonsandlights.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/epilog/kinship/kinship.le: 5 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/epilog/graphs/graphs.le: 6 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/epilog/connectfour/connectfour.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/socotra/contract_surety/contract_surety.le: 80 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/socotra/cyber/cyber.le: 20 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/socotra/personal_auto/personal_auto.le: 80 Pass, 0 Fail, 0 Error
@@ -329,6 +403,10 @@ Detailed File Summary:
   [PASS] examples/moreExamples/InsurLE2/migration/socotra/commercial_general_liability/commercial_general_liability.le: 80 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/socotra/errors_omissions/errors_omissions.le: 80 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/socotra/travel_multi_trip/travel_multi_trip.le: 20 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/LogicalThinkingInAgeOfAI/heart_failure.le: 12 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/LogicalThinkingInAgeOfAI/heart_failure_what_if.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/LogicalThinkingInAgeOfAI/provocation_transposed.le: 8 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/LogicalThinkingInAgeOfAI/standard_for_judgment.le: 8 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/big_conclusions.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/globals.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/unless_test.le: 2 Pass, 0 Fail, 0 Error
@@ -484,30 +562,92 @@ Detailed File Summary:
   [PASS] examples/moreExamples/insureLE2/testing/policy-KIMI-K3.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/testing/policy-gpt-5.6-terra.le: 6 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/shorterpathassumable.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/migration/miniscript/bolt3_received_htlc/bolt3_received_htlc.le: 18 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex8_defeasible/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/legalruleml/ex8_defeasible/ex8_defeasible.le: 4 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex5_section29new/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/legalruleml/ex5_section29new/ex5_section29new.le: 24 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex2_references/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex2_references/ex2_references.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex8c_defeasible/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/legalruleml/ex8c_defeasible/ex8c_defeasible.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex9_alternatives/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex9_alternatives/ex9_alternatives.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex10_mix/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex10_mix/ex10_mix.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex9b_alternatives/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/legalruleml/ex9b_alternatives/ex9b_alternatives.le: 8 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex11_maternity_alternatives/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex11_maternity_alternatives/ex11_maternity_alternatives.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex12_usc_17_504_context/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex12_usc_17_504_context/ex12_usc_17_504_context.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex8b_defeasible/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/legalruleml/ex8b_defeasible/ex8b_defeasible.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex1_curies/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex1_curies/ex1_curies.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/legalruleml/ex3_deontic/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/legalruleml/ex3_deontic/ex3_deontic.le: 8 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/blawx/beard_tax/beard_tax.le: 13 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/blawx/covid_test/covid_test.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/blawx/rps/rps.le: 11 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/blawx/logical_constraints/logical_constraints.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/blawx/list_demo/list_demo.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/blawx/net30/net30.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/blawx/wills/wills.le: 10 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/blawx/wills_tutorial/wills_tutorial.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/blawx/bird/bird.le: 17 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/blawx/mortality/mortality.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/blawx/life_act/life_act.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/blawx/r34/r34.le: 64 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/blawx/oasa/oasa.le: 20 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/blawx/siblings/siblings.le: 10 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/blawx/numerical_constraints/numerical_constraints.le: 11 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/miniscript/bolt3_received_htlc/bolt3_received_htlc.le: 25 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/miniscript/bolt3_received_htlc/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/migration/miniscript/liana_inheritance/liana_inheritance.le: 30 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/miniscript/liana_inheritance/liana_inheritance.le: 39 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/miniscript/liana_inheritance/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/migration/miniscript/bolt3_to_local/bolt3_to_local.le: 12 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/miniscript/bolt3_to_local/bolt3_to_local.le: 15 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/miniscript/bolt3_to_local/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/migration/miniscript/liquid_federation/liquid_federation.le: 21 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/miniscript/liquid_federation/liquid_federation.le: 34 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/miniscript/liquid_federation/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/migration/miniscript/halving_decay/halving_decay.le: 76 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/miniscript/halving_decay/halving_decay.le: 92 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/miniscript/halving_decay/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/migration/miniscript/cosigning_service/cosigning_service.le: 12 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/miniscript/cosigning_service/cosigning_service.le: 16 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/miniscript/cosigning_service/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/migration/miniscript/revault_unvault/revault_unvault.le: 16 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/miniscript/revault_unvault/revault_unvault.le: 29 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/miniscript/revault_unvault/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/migration/miniscript/core_2of3_multisig/core_2of3_multisig.le: 18 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/miniscript/core_2of3_multisig/core_2of3_multisig.le: 25 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/miniscript/core_2of3_multisig/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/migration/miniscript/liana_recovery/liana_recovery.le: 12 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/miniscript/liana_recovery/liana_recovery.le: 15 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/miniscript/liana_recovery/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/migration/miniscript/bolt3_offered_htlc/bolt3_offered_htlc.le: 17 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/miniscript/bolt3_offered_htlc/bolt3_offered_htlc.le: 24 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/miniscript/bolt3_offered_htlc/temporal.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/migration/miniscript/decaying_multisig/decaying_multisig.le: 25 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/miniscript/decaying_multisig/decaying_multisig.le: 33 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/miniscript/decaying_multisig/temporal.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/miniscript/hash_threshold/hash_threshold.le: 14 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/miniscript/hash_threshold/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/drools/fire_alarm/fire_alarm.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/drools/shipping/shipping.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/drools/discount/discount.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/drools/discount/discount_decision.le: 1 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/drools/honest_politician/honest_politician.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/drools/insurance/insurance.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/scasp/classic_negation_inconstistent/classic_negation_inconstistent.le: 1 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/scasp/obligation/obligation.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/scasp/subset/subset.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/scasp/loanwithcure/loanwithcure.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/scasp/minicontract/minicontract.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/scasp/isdapermissioncorrected/isdapermissioncorrected.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/scasp/turingcomplete/turingcomplete.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/scasp/family_le/family_le.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/scasp/family/family.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/scasp/impossibleancestor/impossibleancestor.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/scasp/citizenshiptrust/citizenshiptrust.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/scasp/criminaljustice/criminaljustice.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/scasp/list/list.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/scasp/abdbirds/abdbirds.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/scasp/birds/birds.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/scasp/itispermittedthat/itispermittedthat.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/scasp/simplerps/simplerps.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/oia/warranty_claims/warranty_claims.le: 20 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/oia/dctad/dctad.le: 112 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/oia/gst_at_settlement/gst_at_settlement.le: 206 Pass, 0 Fail, 0 Error
@@ -530,6 +670,19 @@ Detailed File Summary:
   [NONE] examples/moreExamples/insureLE2/migration/solidity/vault/vault.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/solidity/vault/vault_oracle.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/solidity/vault/vault_view.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/epilog/hunter/hunter.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/epilog/blocks/blocks.le: 6 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/epilog/cram/cram.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/epilog/hamilton/hamilton.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/epilog/missionaries/missionaries.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/epilog/bridgecrossing/bridgecrossing.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/epilog/lightboard/lightboard.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/epilog/knightstour/knightstour.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/epilog/tictactoe/tictactoe.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/epilog/buttonsandlights/buttonsandlights.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/epilog/kinship/kinship.le: 5 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/epilog/graphs/graphs.le: 6 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/epilog/connectfour/connectfour.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/socotra/contract_surety/contract_surety.le: 80 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/socotra/cyber/cyber.le: 20 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/socotra/personal_auto/personal_auto.le: 80 Pass, 0 Fail, 0 Error

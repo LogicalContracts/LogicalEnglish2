@@ -75,7 +75,9 @@
     kb_to_ir/2,                  % +KB, -IR
     le_write_kb/2,               % +KB, -Text
     prolog_to_ir/3,              % +Terms, +Options, -IR
-    prolog_file_to_ir/3          % +File, +Options, -IR
+    prolog_file_to_ir/3,         % +File, +Options, -IR
+    read_prolog_terms/2,         % +File, -Terms  (with s(CASP)'s operators)
+    prolog_goal_ir/2             % +PrologBody, -IRBody
   ]).
 
 :- use_module(library(lists)).
@@ -1520,6 +1522,12 @@ needs_parens(Op, Sub, right) :- prec(Op, P), prec(Sub, P), !.
 render_constant(X, T) :- number(X), !, render_number(X, T).
 render_constant(date(Y, M, D), T) :- integer(Y), !,
     format(atom(T), '~|~`0t~d~4+-~|~`0t~d~2+-~|~`0t~d~2+', [Y, M, D]).
+%   In an expected answer, text is written bare: LE shows a string (or a
+%   constant it had to quote) in its answers as its words.
+render_constant(X, T) :-
+    nb_current(le_writer_answer, true),
+    ( string(X) ; atom(X), \+ bare_atom_ok(X) ), !,
+    format(atom(T), '~w', [X]).
 render_constant(X, T) :- string(X), !, render_string(X, T).
 render_constant(X, T) :- is_list(X), !,
     maplist(list_element_text, X, Ts),
@@ -2156,6 +2164,18 @@ prolog_file_to_ir(File, Options, IR) :-
     read_prolog_terms(File, Terms),
     prolog_to_ir(Terms, Options, IR).
 
+%!  prolog_goal_ir(+Body, -IRBody) is det.
+%
+%   A Prolog or s(CASP) clause body as an IR body (conjunctions the way LE
+%   reads sibling lines; classical negation left as -(G) for the caller to
+%   name). What a reader of a Prolog-generating system (Blawx, Epilog, ...)
+%   uses for the bodies it keeps.
+prolog_goal_ir(B, G) :- prolog_body(B, G0), left_assoc(G0, G).
+
+%!  read_prolog_terms(+File, -Terms) is det.
+%
+%   The file's terms with their variable names (Term-Bindings), read with
+%   s(CASP)'s operators (#pred, #abducible, ::, not, the CLP(Q) ones).
 read_prolog_terms(File, Terms) :-
     setup_call_cleanup(
         ( open(File, read, In), push_scasp_ops ),
@@ -2171,28 +2191,202 @@ read_terms(In, Terms) :-
 push_scasp_ops :-
     op(1150, fx, le_writer_ops:(#)),
     op(1100, fx, le_writer_ops:pred),
+    op(1100, fx, le_writer_ops:abducible),
     op(1000, xfx, le_writer_ops:(::)),
-    op(900, fy, le_writer_ops:not).
+    op(900, fy, le_writer_ops:not),
+    op(700, xfx, le_writer_ops:(#=)),  op(700, xfx, le_writer_ops:(#<>)),
+    op(700, xfx, le_writer_ops:(#<)),  op(700, xfx, le_writer_ops:(#>)),
+    op(700, xfx, le_writer_ops:(#=<)), op(700, xfx, le_writer_ops:(#>=)).
 pop_scasp_ops.
 
 %!  prolog_to_ir(+Terms, +Options, -IR) is det.
 %
 %   Terms are clauses, each optionally paired with its variable names
 %   (Clause-Bindings, as read_term/3's variable_names gives them). Options:
-%   kb(Name); queries([Name-Goal, ...]).
-prolog_to_ir(Terms0, Options, program(Header, Items)) :-
-    maplist(term_bindings, Terms0, Terms),
+%   kb(Name); queries([Name-Goal, ...]); language(Lang) (the program's
+%   language, for the articles and keywords written: en by default).
+%
+%   s(CASP) programs (§5.7 of the migration report; the reverse of LE's own
+%   s(CASP) target, docs/sCASP_on_LE.md §4, read backwards):
+%
+%     #pred p(X) :: '@(X) ...'   the template (`@(X:type)` names the place)
+%     -p(X)                      the opposite form of p (`; opposite:`), its
+%                                wording from `#pred -p(X) :: ...` or made
+%                                from p's; LE's `false :- p(X), -p(X).` is
+%                                that link and is not repeated
+%     #abducible p(X)            `; assumable`
+%     :- B.  /  false :- B.      a denial: LE has no timeless constraint, so
+%                                by convention (N1) it is a query named
+%                                denial_<n> that the program's scenarios
+%                                expect to have no answer
+%     X #> Y, #>=, #<, #=<,      comparisons; X #= E with E arithmetic is an
+%     #=, #<>                    assignment
+%     ?- Q.                      a query (query_<n>)
+%     #show, #include, :- ...    directives: not program content
+%
+%   The target is `scasp` when the program has abducibles, classical
+%   negation or denials, `prolog` otherwise.
+prolog_to_ir(Terms0, Options, IR) :-
+    %  the wording is made in the program's language, whatever the process's
+    option(language(Lang), Options, en),
+    le_i18n:with_le_language(Lang, le_writer:prolog_to_ir_(Terms0, Options, IR)).
+
+prolog_to_ir_(Terms0, Options, program(Header, Items)) :-
+    maplist(term_bindings, Terms0, Terms1),
+    fold_foralls(Terms1, Terms),
     option(kb(Name), Options, prolog_program),
-    Header = [kb(Name), target(prolog),
-              comment("Translated from Prolog by le_writer:prolog_to_ir/3.")],
     findall(Spec-Words, ( member(T-Bs, Terms), pred_annotation(T, Spec, Words),
                           maplist(bind_var_name, Bs) ), Annotated),
+    findall(F/N, ( member(T-_, Terms), ( abducible_spec(T, Sp) ; T = le_unknown(Sp) ),
+                   callable(Sp), functor(Sp, F, N) ), Abducibles0),
+    sort(Abducibles0, Abducibles),
+    classical_negations(Terms, Negated),
     program_predicates(Terms, Preds),
-    maplist(predicate_template(Terms, Annotated), Preds, Templates),
-    findall(Item, ( member(C-_, Terms), prolog_clause_item(C, Item) ), Clauses),
+    maplist(predicate_template(Terms, Annotated, Abducibles, Negated), Preds, Templates),
+    opposite_functors(Templates, Negated, OppMap),
+    findall(Item, ( member(C-Bs, Terms), prolog_clause_item(C, Item0),
+                    (   partial_list_clause(C)
+                    ->  list_pattern_residue(C, Bs, Item)
+                    ;   negations_to_opposites(Item0, OppMap, Item)
+                    ) ), Clauses0),
+    number_residues(Clauses0, 1, Clauses),
+    denials(Terms, OppMap, Denials),
+    source_queries(Terms, OppMap, SourceQueries),
     option(queries(Qs), Options, []),
     findall(query(QN, QG), member(QN-QG, Qs), Queries),
-    append([Templates, Clauses, Queries], Items).
+    (   ( Abducibles \== [] ; Negated \== [] ; Denials \== [] ) -> Target = scasp ; Target = prolog ),
+    (   option(language(Lang), Options) -> LangH = [language(Lang)] ; LangH = [] ),
+    append([[kb(Name), target(Target)], LangH,
+            [comment("Translated from Prolog by le_writer:prolog_to_ir/3.")]], Header),
+    append([Templates, Clauses, Denials, SourceQueries, Queries], Items).
+
+%   LE has no list patterns (a list's head and tail, `[H|T]`): such a
+%   clause is a residue block, with its text, for a person or the assistant.
+partial_list_clause(C) :- sub_term(T, C), nonvar(T), T = [_|Tail], \+ is_list(Tail), !.
+
+list_pattern_residue(C, Bs, residue(_, [title("a clause that takes a list apart"),
+                                      source(prolog, Text),
+                                      note("Logical English has no list patterns (a list's first element and the rest, [H|T]); a recursive definition over a list is written with an included Prolog resource, or restated with aggregates")])) :-
+    with_output_to(string(Text), ( maplist(bind_var_name, Bs), portray_clause(C) )).
+
+number_residues([], _, []).
+number_residues([residue(Id, O)|Is], N, [residue(Id, O)|Os]) :- !,
+    ( var(Id) -> format(atom(Id), 'list_pattern_~w', [N]) ; true ),
+    N1 is N + 1, number_residues(Is, N1, Os).
+number_residues([I|Is], N, [I|Os]) :- number_residues(Is, N, Os).
+
+%   LE's s(CASP) target writes a universal as the negation of a helper that
+%   looks for a counterexample (le_scasp: `not le_forall_R_K(Shared)` and
+%   `le_forall_R_K(Shared) :- C, not G.`, one clause per negated conjunct of
+%   G). Read back, the helper is the universal again: forall(C, G).
+fold_foralls(Terms0, Terms) :-
+    findall(F/N, ( member(T-_, Terms0), T = (H :- _), callable(H), functor(H, F, N),
+                   sub_atom(F, 0, _, _, le_forall_) ), Hs0),
+    sort(Hs0, Helpers),
+    (   Helpers == [] -> Terms = Terms0
+    ;   exclude(helper_clause(Helpers), Terms0, Terms1),
+        maplist(fold_term(Terms0, Helpers), Terms1, Terms)
+    ).
+
+helper_clause(Helpers, (H :- _)-_) :- callable(H), functor(H, F, N), memberchk(F/N, Helpers).
+
+fold_term(All, Helpers, T-Bs, T1-Bs) :- fold_goal(All, Helpers, T, T1).
+
+fold_goal(_, _, V, V) :- var(V), !.
+fold_goal(All, Helpers, not(A), forall(C, G)) :-
+    callable(A), functor(A, F, N), memberchk(F/N, Helpers), !,
+    findall(Hd-Body, ( member((Hd :- Body)-_, All), functor(Hd, F, N) ), Cls0),
+    copy_term(Cls0, Cls),
+    maplist(unify_head(A), Cls),
+    %  (no findall from here: it would copy the variables the universal
+    %  shares with the rule)
+    maplist(clause_parts, Cls, Parts),
+    Parts = [C0-_|_],
+    maplist(part_goal, Parts, Gs),
+    list_conj(Gs, G1),
+    fold_goal(All, Helpers, C0, C),
+    fold_goal(All, Helpers, G1, G).
+fold_goal(All, Helpers, T, T1) :- compound(T), !,
+    T =.. [F|As], fold_args(As, All, Helpers, Bs), T1 =.. [F|Bs].
+fold_goal(_, _, T, T).
+
+fold_args([], _, _, []).
+fold_args([A|As], All, Hs, [B|Bs]) :- fold_goal(All, Hs, A, B), fold_args(As, All, Hs, Bs).
+
+unify_head(A, Hd-_) :- A = Hd.
+clause_parts(_-Body, C-G) :- split_counterexample(Body, C, G).
+part_goal(_-G, G).
+
+%   `C, not G`: the condition and the goal (the last conjunct negated).
+split_counterexample(Body, C, G) :-
+    conj_to_list(Body, L), append(CL, [not(G)], L), !, list_conj(CL, C).
+
+conj_to_list((A, B), L) :- !, conj_to_list(A, LA), conj_to_list(B, LB), append(LA, LB, L).
+conj_to_list(G, [G]).
+list_conj([], true) :- !.
+list_conj([G], G) :- !.
+list_conj([G|Gs], (G, R)) :- list_conj(Gs, R).
+
+abducible_spec((# abducible(Spec)), Spec) :- !.
+abducible_spec((#(abducible(Spec))), Spec).
+
+%   The predicates the program negates classically (`-p(X)` anywhere).
+classical_negations(Terms, Negated) :-
+    findall(F/N, ( member(C-_, Terms), \+ C = (:- _), \+ C = (# _),
+                   sub_term(-(G), C), callable(G), \+ number(G),
+                   functor(G, F, N) ), Ns0),
+    findall(F/N, ( member(T-_, Terms), pred_annotation(T, -(Sp), _), functor(Sp, F, N) ), Ns1),
+    append(Ns0, Ns1, Ns), list_to_set(Ns, Negated).
+
+%   p/N -> the functor LE derives from p's opposite wording.
+opposite_functors(Templates, Negated, Map) :-
+    findall(F/N-OF,
+            ( member(F/N, Negated),
+              member(template(F/N, _, Adds), Templates),
+              memberchk(opposite(OText), Adds),
+              template_text_dict(OText, dict(_, _, OWV)),
+              wv_derives(OWV, OF) ),
+            Map).
+
+negations_to_opposites(T, _, T) :- var(T), !.
+negations_to_opposites(-(G), Map, O) :- callable(G), functor(G, F, N), memberchk(F/N-OF, Map), !,
+    G =.. [_|Args], O =.. [OF|Args].
+negations_to_opposites(T, Map, O) :- compound(T), !,
+    T =.. [F|As], negations_list(As, Map, Bs), O =.. [F|Bs].
+negations_to_opposites(T, _, T).
+
+negations_list([], _, []).
+negations_list([A|As], Map, [B|Bs]) :- negations_to_opposites(A, Map, B), negations_list(As, Map, Bs).
+
+%   Denials, by the N1 convention: a query per denial, named denial_<n>.
+%   LE's own link between a predicate and its opposite is skipped.
+denials(Terms, Map, Items) :-
+    findall(B, ( member(C-_, Terms), ( C = (:- B0) ; C = (false :- B0) ),
+                 \+ directive_body(B0), \+ opposite_link(B0), B = B0 ), Bs),
+    length(Bs, N), ( N =:= 0 -> Is = [] ; numlist(1, N, Is) ),
+    findall([comment(Cm), query(QN, G)],
+            ( nth1(I, Bs, B), member(I, Is),
+              format(atom(QN), 'denial_~w', [I]),
+              prolog_body(B, G0), left_assoc(G0, G1), negations_to_opposites(G1, Map, G),
+              format(string(Cm), "A constraint of the source (~w): no case may meet these conditions, so every scenario expects no answer to the query ~w.", [I, QN]) ),
+            Pairs),
+    append(Pairs, Items).
+
+directive_body(B) :- var(B), !, fail.
+directive_body(B) :- functor(B, F, _),
+    memberchk(F, [use_module, module, dynamic, discontiguous, set_prolog_flag, style_check,
+                  ensure_loaded, include, multifile, table, initialization, op]).
+
+opposite_link((P, -(Q))) :- nonvar(P), nonvar(Q), P =@= Q.
+
+%   `?- Q.` in the source: its queries.
+source_queries(Terms, Map, Items) :-
+    findall(Q, ( member(C-_, Terms), C = (?- Q) ), Qs),
+    length(Qs, N), ( N =:= 0 -> Is = [] ; numlist(1, N, Is) ),
+    findall(query(QN, G),
+            ( nth1(I, Qs, Q), member(I, Is), format(atom(QN), 'query_~w', [I]),
+              prolog_body(Q, G0), left_assoc(G0, G1), negations_to_opposites(G1, Map, G) ),
+            Items).
 
 bind_var_name(Name = Var) :- ( var(Var) -> Var = Name ; true ).
 
@@ -2200,9 +2394,11 @@ term_bindings(T-Bs, T-Bs) :- is_list(Bs), !.
 term_bindings(T, T-[]).
 
 pred_annotation((# pred(Spec :: W)), Spec, W) :- !.
-pred_annotation((#(pred(Spec :: W))), Spec, W).
+pred_annotation((#(pred(Spec :: W))), Spec, W) :- !.
+pred_annotation((# pred(Spec) :: W), Spec, W).
 
-prolog_clause_item(C, _) :- ( C = (:- _) ; C = (# _) ), !, fail.
+prolog_clause_item(C, _) :- ( C = (:- _) ; C = (# _) ; C = (?- _) ; C = (false :- _) ), !, fail.
+prolog_clause_item(le_unknown(_), _) :- !, fail.       % LE's `; unknown`, as an addition
 prolog_clause_item((H :- B), rule(H, B2, [])) :- !, prolog_body(B, B1), left_assoc(B1, B2).
 prolog_clause_item(H, fact(H, [])) :- callable(H).
 
@@ -2228,6 +2424,16 @@ prolog_body(X > Y, le_gt(X, Y)) :- !.
 prolog_body(X >= Y, le_ge(X, Y)) :- !.
 prolog_body(X < Y, le_lt(X, Y)) :- !.
 prolog_body(X =< Y, le_le(X, Y)) :- !.
+prolog_body('#>'(X, Y), le_gt(X, Y)) :- !.        % s(CASP)'s CLP(Q) constraints
+prolog_body('#>='(X, Y), le_ge(X, Y)) :- !.
+prolog_body('#<'(X, Y), le_lt(X, Y)) :- !.
+prolog_body('#=<'(X, Y), le_le(X, Y)) :- !.
+prolog_body('#<>'(X, Y), le_not_equal_to(X, Y)) :- !.
+prolog_body('#='(X, Y), G) :- !,
+    (   var(X), compound(Y) -> G = le_assign(X, Y)
+    ;   var(Y), compound(X) -> G = le_assign(Y, X)
+    ;   G = le_equal_to(X, Y)
+    ).
 prolog_body(G, prolog(G)) :- prolog_builtin(G), !.
 prolog_body(G, G).
 
@@ -2254,15 +2460,27 @@ prolog_builtin(G) :-
     functor(H, F, N),
     predicate_property(system:H, defined), !.
 
-program_predicates(Terms, Preds) :-
+%   `X is a T` is LE's own form (types and the ontology): no template.
+own_form(is_a/2).
+own_form(le_unknown/1).
+
+program_predicates(Terms, Preds0) :-
+    program_predicates_(Terms, Preds1),
+    exclude([P]>>own_form(P), Preds1, Preds0).
+
+program_predicates_(Terms, Preds) :-
     findall(F/N, ( member(C-_, Terms), clause_head(C, H), functor(H, F, N) ), Ps0),
     findall(F/N, ( member(C-_, Terms), C = (_ :- B), body_literal(B, L), functor(L, F, N),
                    \+ prolog_builtin(L) ), Ps1),
-    findall(F/N, ( member(T-_, Terms), pred_annotation(T, Spec, _), functor(Spec, F, N) ), Ps2),
+    findall(F/N, ( member(T-_, Terms), pred_annotation(T, Spec0, _),
+                   ( Spec0 = -(Spec) -> true ; Spec0 = not(Spec) -> true ; Spec = Spec0 ),
+                   callable(Spec), functor(Spec, F, N) ), Ps2),
     append([Ps0, Ps1, Ps2], Ps), list_to_set(Ps, Preds).
 
-clause_head(C, _) :- ( C = (:- _) ; C = (# _) ), !, fail.
+clause_head(C, _) :- ( C = (:- _) ; C = (# _) ; C = (?- _) ; C = (false :- _) ), !, fail.
+clause_head((-(H) :- _), H) :- callable(H), !.      % a classical negation's own predicate
 clause_head((H :- _), H) :- !.
+clause_head(-(H), H) :- callable(H), !.
 clause_head(H, H) :- callable(H).
 
 body_literal(V, _) :- var(V), !, fail.
@@ -2273,19 +2491,74 @@ body_literal(\+ G, L) :- !, body_literal(G, L).
 body_literal(not(G), L) :- !, body_literal(G, L).
 body_literal(forall(A, B), L) :- !, ( body_literal(A, L) ; body_literal(B, L) ).
 body_literal(aggregate_all(_, G, _), L) :- !, body_literal(G, L).
+body_literal(-(G), L) :- callable(G), !, body_literal(G, L).
 body_literal(G, G) :- callable(G), \+ comparison_or_builtin(G).
 
-comparison_or_builtin(G) :- functor(G, F, _), memberchk(F, [=, \=, is, >, <, >=, =<, member, ==, \==]), !.
+comparison_or_builtin(G) :- functor(G, F, _),
+    memberchk(F, [=, \=, is, >, <, >=, =<, member, ==, \==, #=, #<>, #<, #>, #=<, #>=]), !.
 
 %   A template for F/N: the s(CASP) annotation's wording, or the naive
 %   verbalisation — the functor's words between the places, the places
 %   named after the variables of the first clause that has them.
-predicate_template(Terms, Annotated, F/N, template(F/N, Text, [arity(N)])) :-
-    (   member(Spec-W, Annotated), functor(Spec, F, N)
-    ->  annotation_text(Terms, Spec, W, Text)
+predicate_template(Terms, Annotated, Abducibles, Negated, F/N, template(F/N, Text, Adds)) :-
+    findall(Sp-Wd, ( member(Sp-Wd, Annotated), callable(Sp), \+ Sp = -(_), \+ Sp = not(_), functor(Sp, F, N) ), Wordings),
+    (   Wordings = [_|_]
+    ->  main_wording(Terms, F, Wordings, Spec-W, Others),
+        annotation_text(Terms, Spec, W, Text0),
+        findall(synonym(ST), ( member(OS-OW, Others), annotation_text(Terms, OS, OW, ST0), unclash(ST0, ST) ), Syns)
     ;   place_names(Terms, F, N, Names),
         (   N =:= 2, numeric_place(Terms, F, 2) -> Shape = value ; Shape = relation ),
-        naive_text(F, Names, Shape, Text)
+        naive_text(F, Names, Shape, Text0), Syns = []
+    ),
+    unclash(Text0, Text),
+    (   memberchk(F/N, Abducibles) -> A1 = [assumable] ; A1 = [] ),
+    (   memberchk(F/N, Negated)
+    ->  (   member(-(NSpec)-NW, Annotated), functor(NSpec, F, N)
+        ->  annotation_text(Terms, NSpec, NW, OText)
+        ;   opposite_wording(Text, OText)
+        ),
+        A2 = [opposite(OText)]
+    ;   A2 = []
+    ),
+    append([[arity(N)], A1, A2, Syns], Adds).
+
+%   Of several `#pred` wordings of one predicate (LE's synonyms), the main
+%   one is the one whose words give the predicate's name; the others are its
+%   synonyms.
+main_wording(Terms, F, Wordings, Main, Others) :-
+    (   member(Sp-W, Wordings),
+        annotation_text(Terms, Sp, W, T), template_text_dict(T, dict(_, _, WV)),
+        wv_derives(WV, F)
+    ->  Main = Sp-W, exclude(==(Sp-W), Wordings, Others)
+    ;   Wordings = [Main|Others]
+    ).
+
+%   A template whose words are those of one of LE's own sentence forms
+%   (`*a thing* is a *a kind*`, `*a thing* is *a value*`, `*a thing* is in
+%   *a list*`) would be read as that form: its words change a little.
+unclash(Text0, Text) :-
+    atom_string(Text0, S),
+    split_string(S, "*", "", Parts),
+    (   Parts = ["", P1, Mid, P2, ""], normalize_space(string(M), Mid), clash_words(M, New)
+    ->  format(atom(Text), "*~w* ~w *~w*", [P1, New, P2])
+    ;   Text = Text0
+    ).
+
+clash_words("is", "is the same as").
+clash_words("is in", "is contained in").
+
+%   The opposite of a template, when the source gives no wording: `is`
+%   becomes `is not`, `has` `does not have`, anything else is prefixed by
+%   `it is false that`.
+opposite_wording(Text, OText) :-
+    atom_string(Text, S),
+    (   sub_string(S, B, _, A, " is ")
+    ->  sub_string(S, 0, B, _, Pre), sub_string(S, _, A, 0, Post),
+        format(atom(OText), "~w is not ~w", [Pre, Post])
+    ;   sub_string(S, B, _, A, " has ")
+    ->  sub_string(S, 0, B, _, Pre), sub_string(S, _, A, 0, Post),
+        format(atom(OText), "~w does not have ~w", [Pre, Post])
+    ;   format(atom(OText), "it is false that ~w", [S])
     ).
 
 %   The place holds numbers in some fact of the program (`age(bob, 55)`).
@@ -2296,20 +2569,41 @@ numeric_place(Terms, F, I) :-
 annotation_text(Terms, Spec, W, Text) :-
     Spec =.. [F|Vars],
     length(Vars, N),
-    numlist(1, N, Is),
-    maplist(annotation_place(Terms, F, N), Is, Vars, Places),
-    distinct_place_names(Places, Distinct),
-    atom_string(W, S0),
-    foldl(annotation_slot, Vars, Distinct, S0, S),
+    ( N =:= 0 -> Is = [] ; numlist(1, N, Is) ),
+    atom_string(W, S00), normalize_space(string(S0), S00),
+    maplist(annotation_place(Terms, F, N, S0), Is, Vars, Places),
+    %  a wording that types every place (`@(X:person) ... @(Y:person)`) is
+    %  kept as it is; otherwise the places are told apart (`a second ...`)
+    (   forall(member(V, Vars), typed_placeholder(S0, V, _, _, _)) -> Distinct = Places
+    ;   distinct_place_names(Places, Distinct)
+    ),
+    foldl(annotation_slot, Vars, Distinct, S0, S1),
+    normalize_space(string(S), S1),
     atom_string(Text, S).
 
 %   A one- or two-letter annotation variable (`@(X)`) says nothing: the
 %   place takes its name from the clauses' variables instead.
-annotation_place(Terms, F, N, I, V, Name) :-
-    (   atom(V), atom_length(V, L), L > 2
+annotation_place(Terms, F, N, W, I, V, Name) :-
+    (   typed_placeholder(W, V, Type, _, _) -> Name = Type
+    ;   atom(V), atom_length(V, L), L > 2
     ->  place_type(V, Name)
     ;   place_name(Terms, F, N, I, Name)
     ).
+
+%   `@(X:person)` in the wording: the type names the place (LE1 writes its
+%   #pred annotations so). Before and After are the text around it.
+typed_placeholder(W, V, Type, Before, After) :-
+    format(string(TPat), "@(~w:", [V]),
+    sub_string(W, B, L, _, TPat),
+    B1 is B + L, sub_string(W, B1, _, 0, Rest), sub_string(Rest, E, 1, _, ")"), !,
+    sub_string(Rest, 0, E, _, Type0), E1 is E + 1, sub_string(Rest, E1, _, 0, After),
+    sub_string(W, 0, B, _, Before),
+    normalize_space(atom(Type1), Type0), downcase_atom(Type1, Type2),
+    ( Type2 == '' -> fail ; type_words(Type2, Type) ).
+
+type_words(T0, T) :-
+    atomic_list_concat(Ws0, ' ', T0), maplist(clean_word, Ws0, Ws),
+    exclude(==(thing), Ws, Ws1), ( Ws1 == [] -> T = thing ; atomic_list_concat(Ws1, ' ', T) ).
 
 %   `@(X)` in the annotation's wording becomes the slot `*an x*`. The
 %   annotation's arguments are read with their variable names bound to the
@@ -2320,6 +2614,9 @@ annotation_slot(V, Place, S1, S2) :-
     ->  sub_string(S1, 0, B, _, Pre), sub_string(S1, _, A, 0, Post),
         slot_text(Place, Slot),
         string_concat(Pre, Slot, P1), string_concat(P1, Post, S2)
+    ;   typed_placeholder(S1, V, _, Pre, Post)      % @(X:person)
+    ->  slot_text(Place, Slot),
+        string_concat(Pre, Slot, P1), string_concat(P1, Post, S2)
     ;   S2 = S1
     ).
 
@@ -2327,27 +2624,51 @@ place_type(V, T) :- ( var(V) -> T = thing ; downcase_atom(V, T0), clean_word(T0,
 
 %   Each place is named after the first variable found in it, in any clause
 %   head or body literal of the predicate.
+place_names(_, _, 0, []) :- !.
 place_names(Terms, F, N, Names) :-
     numlist(1, N, Is),
     maplist(place_name(Terms, F, N), Is, Names).
 
 place_name(Terms, F, N, I, Name) :-
-    (   member(C-Bs, Terms), clause_literal(C, L), functor(L, F, N),
+    (   typed_by_annotation(Terms, F, N, I, Name0)
+    ->  Name = Name0
+    ;   member(C-Bs, Terms), clause_literal(C, L), functor(L, F, N),
         arg(I, L, A), arg_place_name(Bs, A, Name0), Name0 \== thing
     ->  Name = Name0
     ;   Name = thing
     ).
+
+%   A place of an unannotated predicate takes the type of an annotated
+%   place (`#pred p(X) :: '@(X:person) ...'`) that its variable fills in the
+%   same clause: `parent(C, A)` beside `born(A, ...)` makes A a person.
+typed_by_annotation(Terms, F, N, I, Type) :-
+    \+ ( member(T-_, Terms), pred_annotation(T, Spec, _), callable(Spec), functor(Spec, F, N) ),
+    member(C-_, Terms), clause_literal(C, L), functor(L, F, N),
+    arg(I, L, A), var(A),
+    clause_literal(C, L2), L2 \== L, \+ functor(L2, F, N),
+    arg(J, L2, A2), A2 == A,
+    functor(L2, F2, N2),
+    member(T2-Bs2, Terms), pred_annotation(T2, Spec2, W2), callable(Spec2), functor(Spec2, F2, N2),
+    arg(J, Spec2, V2), ( var(V2), member(VN = VV, Bs2), VV == V2 -> true ; VN = V2 ),
+    atom_string(W2, WS2), normalize_space(string(WS3), WS2),
+    typed_placeholder(WS3, VN, Type, _, _), !.
 
 clause_literal(C, L) :- clause_head(C, L).
 clause_literal((_ :- B), L) :- body_literal(B, L).
 
 arg_place_name(Bs, A, Name) :-
     (   var(A), member(VN = V, Bs), V == A, \+ sub_atom(VN, 0, _, _, '_'),
+        \+ uninformative_name(VN),
         downcase_atom(VN, L), clean_word(L, Name0),
         \+ le_i18n:class_member(qualifier, Name0), \+ le_i18n:class_member(article, Name0)
     ->  Name = Name0
     ;   Name = thing
     ).
+
+%   X, Y, T1: a name that says nothing about what the place holds.
+uninformative_name(VN) :-
+    atom_codes(VN, [C|Cs]), code_type(C, alpha),
+    forall(member(D, Cs), code_type(D, digit)).
 
 alpha_code(C) :- code_type(C, alpha).
 
@@ -2389,8 +2710,16 @@ binary_words(Words, relation, S1, S2, All) :-
 %   `*a thing* is childless`, `*a thing* is a person`: an adjective-looking
 %   single word takes the bare copula, anything else the indefinite article.
 unary_words([W], [is, W]) :- adjective_like(W), !.
+unary_words([W], [W]) :- verb_like(W), !.            % `*a thing* flies`
 unary_words([W], [is, Art, W]) :- !, article_for(W, W, Art).
 unary_words(Words, [is|Words]).
+
+%   A third-person verb (`flies`, `runs`): a word ending in s, not in ss, us
+%   or is.
+verb_like(W) :-
+    sub_atom(W, _, 1, 0, s),
+    \+ ( member(E, [ss, us, is, os, as]), sub_atom(W, _, _, 0, E) ),
+    atom_length(W, L), L > 3.
 
 adjective_like(W) :-
     member(Suffix, [ful, less, ous, able, ible, al, ive, ic, ed, ing, ent, ant, y, ish]),
