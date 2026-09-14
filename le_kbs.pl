@@ -436,8 +436,22 @@ process_section_acc(ontology(Content, Start, End), M) :-
 process_section_acc(resources(_, Resources, Start, End), M) :-
     forall(member(R, Resources), assertz(M:le_included_resource(R, Start, End))).
 
+%   `the knowledge base <name> extends <base>, ...`: the bases were read with
+%   the includes (fetch_base/4); le_kb_extends/3 is the sentence itself.
+process_section_acc(extends(Name, Bases, Start, End), M) :-
+    assertz(M:le_kb_extends(Name, Bases, Start-End)).
+
 process_section_acc(predicates(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
 process_section_acc(templates(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
+%   `the constants are:` (le_summary.md §2.2): each line is a template with a
+%   `defines global` name and its one fact; le_constant(Name, F/1) records
+%   which templates are constants, for the verifier and the writer.
+process_section_acc(constants(Dicts, Facts, _, _), M) :-
+    forall(member(D, Dicts),
+           ( assert_dict_with_source(D, M),
+             D =.. [dict, [F|Args], _, _, _, _, [Name|_]|_], length(Args, N),
+             assertz(M:le_constant(Name, F/N)) )),
+    forall(member(Item, Facts), process_item(Item, M)).
 process_section_acc(fluents(Dicts), M) :- assert_role_dicts(Dicts, fluent, M).
 process_section_acc(events(Dicts), M) :- assert_role_dicts(Dicts, event, M).
 process_section_acc(actions(Dicts), M) :- assert_role_dicts(Dicts, action, M).
@@ -562,19 +576,61 @@ has_reportable_content(Tokens) :-
 %   top-level call of a load (nested calls arrive via parse_resource_text
 %   with the state already set).
 fetch_resources(Sections, MergedSections, M) :-
-    (   member(resources(_, Resources, _, _), Sections)
+    findall(include(R), ( member(resources(_, Rs, _, _), Sections), member(R, Rs) ), Incs),
+    findall(base(Name, R), ( member(extends(Name, Bs, _, _), Sections), member(R, Bs) ), Bases),
+    append(Bases, Incs, Wanted),
+    (   Wanted \== []
     ->  (   le_include_depth(_)
-        ->  fetch_all_resources(Resources, M, IncludedSections)      % nested
+        ->  fetch_all_wanted(Wanted, M, IncludedSections)            % nested
         ;   setup_call_cleanup(
                 ( assertz(le_include_depth(0)),
                   retractall(le_include_seen(_)) ),
-                fetch_all_resources(Resources, M, IncludedSections),
+                fetch_all_wanted(Wanted, M, IncludedSections),
                 ( retractall(le_include_depth(_)),
                   retractall(le_include_seen(_)) ))
         ),
         append(IncludedSections, Sections, MergedSections)
     ;   MergedSections = Sections
     ).
+
+fetch_all_wanted([], _, []).
+fetch_all_wanted([W|Ws], M, AllSections) :-
+    (   W = include(R) -> fetch_resource(R, M, Sections)
+    ;   W = base(Child, R), fetch_base(Child, R, M, Sections)
+    ),
+    fetch_all_wanted(Ws, M, RestSections),
+    append(Sections, RestSections, AllSections).
+
+%!  fetch_base(+Child, +Resource, +M, -Sections) is det.
+%
+%   A base of `the knowledge base <child> extends <base>, ...`
+%   (docs/le_lps_surface.md §1.1): found and read as an included resource,
+%   but only the contract is taken — its templates, laws, constraints and
+%   timeless rules; its `initially` and its settings (the maximum time)
+%   describe an instance, and are left out, as its scenarios and queries are
+%   for any include. le_kb_base(Child, Resource, Id, BaseName) records where
+%   each base came from, which names a law a child replaces.
+fetch_base(Child, Resource, M, Sections) :-
+    current_include_base(Base),
+    resolve_resource(Resource, Base, _, Id),
+    fetch_resource(Resource, M, Sections0),
+    exclude(instance_section, Sections0, Sections1),
+    maplist(contract_only, Sections1, Sections),
+    (   nonvar(M), M \== (-)
+    ->  %  the base's own knowledge base is its last (its bases come first)
+        ( findall(N, member(kb(N, _, _, _), Sections), Ns), last(Ns, BaseName) -> true ; BaseName = Resource ),
+        ( catch(M:le_kb_base(Child, Resource, Id, _), _, fail) -> true
+        ; assertz(M:le_kb_base(Child, Resource, Id, BaseName)) )
+    ;   true
+    ).
+
+instance_section(lps_setting(_, _, _, _)).
+
+contract_only(kb(N, Content0, S, E), kb(N, Content, S, E)) :- !,
+    exclude(instance_item, Content0, Content).
+contract_only(Section, Section).
+
+instance_item(lps_initially(_, _, _, _)).
 
 fetch_all_resources([], _, []).
 fetch_all_resources([R|Rs], M, AllSections) :-
@@ -1066,7 +1122,19 @@ process_item(lps(Kind, Payload, Start, End, ID), M) :-
     assertz(M:le_lps_item(Kind, Payload, ActualID), Ref),
     assertz(M:le_source_info(Ref, Start, End, ActualID)),
     ( current_section(Section) -> true ; Section = main ),
-    assertz(M:le_source_section(Section, ActualID)).
+    assertz(M:le_source_section(Section, ActualID)),
+    %  a `this law replaces law <label> of <base>.` just before it
+    (   retract(M:le_lps_replaces_pending(RKind, Label, Base, RS))
+    ->  assertz(M:le_lps_replaces(ActualID, RKind-Label, Base-RS))
+    ;   true
+    ).
+
+%  `this law replaces law <label> of <base>.`: for the next law.
+process_item(lps_replaces(Kind, Label, Base, Start, _End), M) :-
+    !,
+    dynamic(M:le_lps_replaces_pending/4),
+    retractall(M:le_lps_replaces_pending(_, _, _, _)),
+    assertz(M:le_lps_replaces_pending(Kind, Label, Base, Start)).
 
 process_item(clause(Head, _Body, _Start, _End, _ID), _M) :-
     functor(Head, F, N),
@@ -2652,6 +2720,15 @@ is_system_predicate(le_prolog_resource/2).
 is_system_predicate(le_lps_role/2).
 is_system_predicate(le_lps_functor/2).
 is_system_predicate(le_lps_item/3).
+% `the constants are:` (le_summary.md §2.2): which templates are named constants.
+is_system_predicate(le_constant/2).
+% `; <value> by default` on a fluent (le_lps_surface.md §2), and `extends`
+% (§1.1): the bases of a knowledge base, and the laws a child replaces.
+is_system_predicate(le_lps_default/2).
+is_system_predicate(le_kb_base/4).
+is_system_predicate(le_kb_extends/3).
+is_system_predicate(le_lps_replaces/3).
+is_system_predicate(le_lps_replaces_pending/4).
 % Provenance-bearing facts (le_provenance.pl): the parse-time record keyed by
 % the fact's source range, its public per-session form, and the program-level
 % "scenario facts require provenance." declaration.

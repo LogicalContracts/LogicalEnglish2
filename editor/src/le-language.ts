@@ -80,7 +80,7 @@ export function buildLeMonarchTokens(lang: string): any {
     const W = '[A-Za-zÀ-ÖØ-öø-ÿ0-9_]';
     const b = (re: string) => `(?<!${W})(?:${re})(?!${W})`;
 
-    const headers = alt(T, ['kb_open', 'contract_open', 'scenario', 'query', 'ontology', 'meta_target']);
+    const headers = alt(T, ['kb_open', 'contract_open', 'scenario', 'query', 'ontology', 'meta_target', 'constants']);
     const templateHeaders = alt(T, ['predicates', 'templates', 'fluents', 'events', 'actions', 'prolog_events']);
     const structural = alt(T, [
         'resources_include', 'kb_include', 'if', 'only_if', 'either', 'any_of',
@@ -94,6 +94,9 @@ export function buildLeMonarchTokens(lang: string): any {
         'lps_when', 'lps_then', 'lps_if', 'lps_initially', 'lps_must_not',
         'lps_goal', 'lps_initiate', 'lps_terminate', 'lps_becomes',
         'lps_max_time', 'lps_max_real_time', 'lps_min_cycle_time',
+        // MiggratingFromOtherSystems Phase 1e: a knowledge base built on
+        // others, and a law of the child that replaces one of a base's.
+        'kb_extends', 'lps_this_law_replaces', 'lps_this_constraint_replaces',
         // Regulatory-decision constructs (docs/le_summary.md §17): provenance
         // trailers, otherwise cascades, decision tables, services, flip queries.
         'provenance_required', 'according_to', 'as_stated_in', 'because',
@@ -106,7 +109,7 @@ export function buildLeMonarchTokens(lang: string): any {
     const qualifiers = words(T, ['qualifier']);
     const copulas = words(T, ['copula', 'ignorable', 'meta_marker', 'that']);
     const preps = words(T, ['connective_heuristic', 'of']);
-    const additions = alt(T, ['defines_global', 'opposite', 'synonym', 'prepositional', 'unknown', 'undefined', 'known_as', 'judged', 'via_service']);
+    const additions = alt(T, ['defines_global', 'opposite', 'synonym', 'prepositional', 'unknown', 'undefined', 'known_as', 'judged', 'via_service', 'by_default']);
 
     return {
         tokenizer: {

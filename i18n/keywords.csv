@@ -1,6 +1,7 @@
 category,key,en,pt,es,fr,it
 section,kb_open,the knowledge base,a base de conhecimento,la base de conocimiento,la base de connaissances,la base di conoscenza
 section,kb_include,includes,inclui,incluye,comprend|inclut,include
+section,kb_extends,extends,estende,extiende,étend,estende
 section,contract_open,the contract,o contrato,el contrato,le contrat,il contratto
 section,contract_states,states that,estabelece que,establece que,stipule que,stabilisce che
 section,resources_include,includes these resources,inclui estes recursos,incluye estos recursos,comprend ces ressources|inclut ces ressources,include queste risorse
@@ -13,11 +14,13 @@ section,fluents,the fluents are,os fluentes são,los fluentes son,les fluents so
 section,events,the events are,os eventos são,los eventos son,les événements sont,gli eventi sono
 section,actions,the actions are,as ações são,las acciones son,les actions sont,le azioni sono
 section,prolog_events,the prolog events are,os eventos prolog são,los eventos prolog son,les événements prolog sont,gli eventi prolog sono
+section,constants,the constants are,as constantes são,las constantes son,les constantes sont,le costanti sono
+constant,constant_value_of,the value of,o valor de,el valor de,la valeur de,il valore di
 section,meta_target,the target language is,a linguagem alvo é,el lenguaje objetivo es,la langue cible est,il linguaggio obiettivo è
 section,marker,section,secção|seção,sección,section,sezione
 section,marker_is,is,é,es,est,è
 section,annexes,the annexes to the contract are|the annexes to the knowledge base are,os anexos ao contrato são|os anexos à base de conhecimento são,los anexos al contrato son|los anexos a la base de conocimiento son,les annexes au contrat sont|les annexes à la base de connaissances sont,gli allegati al contratto sono|gli allegati alla base di conoscenza sono
-section,guard,the knowledge|the contract|scenario|query|the ontology|the predicates|the templates|the fluents|the events|the actions|the prolog|the target,a base de conhecimento|o contrato|cenário|consulta|a ontologia é|os predicados são|os modelos são|os fluentes são|os eventos são|as ações são|os eventos prolog|a linguagem alvo,la base de conocimiento|el contrato|escenario|consulta|la ontología es|los predicados son|las plantillas son|los fluentes son|los eventos son|las acciones son|los eventos prolog|el lenguaje objetivo,la base de connaissances|le contrat|scénario|requête|la taxonomie est|les prédicats sont|les modèles sont|les fluents sont|les événements sont|les actions sont|les événements prolog|la langue cible,la base di conoscenza|il contratto|scenario|interrogazione|la tassonomia è|i predicati sono|i modelli sono|i fluenti sono|gli eventi sono|le azioni sono|gli eventi prolog|il linguaggio obiettivo
+section,guard,the knowledge|the contract|scenario|query|the ontology|the predicates|the templates|the fluents|the events|the actions|the prolog|the target|the constants are,a base de conhecimento|o contrato|cenário|consulta|a ontologia é|os predicados são|os modelos são|os fluentes são|os eventos são|as ações são|os eventos prolog|a linguagem alvo|as constantes são,la base de conocimiento|el contrato|escenario|consulta|la ontología es|los predicados son|las plantillas son|los fluentes son|los eventos son|las acciones son|los eventos prolog|el lenguaje objetivo|las constantes son,la base de connaissances|le contrat|scénario|requête|la taxonomie est|les prédicats sont|les modèles sont|les fluents sont|les événements sont|les actions sont|les événements prolog|la langue cible|les constantes sont,la base di conoscenza|il contratto|scenario|interrogazione|la tassonomia è|i predicati sono|i modelli sono|i fluenti sono|gli eventi sono|le azioni sono|gli eventi prolog|il linguaggio obiettivo|le costanti sono
 section,reserved_word,knowledge|contract|ontology|predicates|templates|fluents|events|actions|prolog|target,base|contrato|ontologia|predicados|modelos|fluentes|eventos|linguagem,base|contrato|ontología|predicados|plantillas|fluentes|eventos|lenguaje,base|contrat|taxonomie|prédicats|modèles|fluents|événements|langue,base|contratto|tassonomia|predicati|modelli|fluenti|eventi|linguaggio
 expect,expects,expects,espera,espera,attend,attende
 expect,answers,answers,respostas,respuestas,réponses,risposte
@@ -44,6 +47,7 @@ forall,it_is_true_that,it is true that,é verdade que,es verdad que,il est vrai 
 unknown,it_is,it is,é,es,il est,è
 unknown,whether,whether,se,si,si,se
 template_addition,known_as,known as,conhecido como,conocido como,connu comme,noto come
+template_addition,by_default,by default,por omissão|por defeito|por padrão,por defecto,par défaut,per impostazione predefinita|di default
 template_addition,defines_global,defines global,define global,define global,définit global,definisce globale
 template_addition,opposite,opposite,oposto,opuesto,opposé,opposto
 template_addition,synonym,synonym,sinónimo|sinônimo,sinónimo,synonyme,sinonimo
@@ -96,6 +100,9 @@ lps,lps_to,to,até,hasta,jusqu'à,fino a
 lps,lps_max_time,the maximum time is,o tempo máximo é,el tiempo máximo es,le temps maximum est,il tempo massimo è
 lps,lps_max_real_time,the maximum real time is,o tempo real máximo é,el tiempo real máximo es,le temps réel maximum est,il tempo reale massimo è
 lps,lps_min_cycle_time,the minimum cycle time is,o tempo mínimo de ciclo é,el tiempo mínimo de ciclo es,le temps de cycle minimum est,il tempo minimo di ciclo è
+lps,lps_this_law_replaces,this law replaces law,esta lei substitui a lei,esta ley sustituye la ley,cette loi remplace la loi,questa legge sostituisce la legge
+lps,lps_this_constraint_replaces,this constraint replaces constraint,esta restrição substitui a restrição,esta restricción sustituye la restricción,cette contrainte remplace la contrainte,questo vincolo sostituisce il vincolo
+lps,lps_of,of,de,de,de,di
 section,provenance_required,scenario facts require provenance,os factos do cenário exigem proveniência|os fatos do cenário exigem proveniência,los hechos del escenario requieren procedencia,les faits du scénario exigent une provenance,i fatti dello scenario richiedono una provenienza
 template_addition,judged,judged|open textured|evaluative,julgado|julgada|avaliativo|avaliativa,juzgado|juzgada|evaluativo|evaluativa,jugé|jugée|évaluatif|évaluative,giudicato|giudicata|valutativo|valutativa
 provenance,according_to,according to,de acordo com|segundo,de acuerdo con|según,selon|suivant,secondo|stando a

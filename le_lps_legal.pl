@@ -162,7 +162,17 @@ legal_view_kb(KB, Options0, IR) :-
     ;   catch(KB:le_lang(L), _, fail) -> Options2 = [language(L)|Options1]
     ;   Options2 = Options1
     ),
-    run_options(Items, Options2, Options),
+    run_options(Items, Options2, Options3),
+    %  a program that extends others is viewed flattened, and says so
+    (   catch(KB:le_kb_extends(_, Bases, _), _, fail)
+    ->  atomic_list_concat(Bases, ', ', BT),
+        legal_word(legal_extends_comment, EW), format(string(EC), EW, [BT]),
+        (   select(comment(C0), Options3, Rest)
+        ->  format(string(C1), "~w~n~w", [C0, EC]), Options = [comment(C1)|Rest]
+        ;   Options = [comment(EC)|Options3]
+        )
+    ;   Options = Options3
+    ),
     legal_view_ir(Items, Options, IR).
 
 %   A run gives the scenarios and questions, unless the caller gave its own.
@@ -206,9 +216,23 @@ lps_program_items(KB, Items) :-
     keysort(Pairs0, Pairs1), pairs_values(Pairs1, Templates0),
     list_to_set(Templates0, Templates),
     le_lps_module(KB, "", Internal, _, _),
-    setup_call_cleanup(open_string(Internal, In), read_terms(In, Terms), close(In)),
+    setup_call_cleanup(open_string(Internal, In), read_terms(In, Terms0), close(In)),
+    %  the view's state is a scenario of stated facts: a keyed fluent's
+    %  default (`; 0 by default`) is made explicit — the entry stored, or
+    %  absent and holding it; a fluent with no key has one value, and the
+    %  view's scenarios state its default when the program stores none
+    %  (scalar_default/2 items)
+    (   select(defaults(Ds), Terms0, Terms1)
+    ->  partition(scalar_default_term, Ds, Scalars, Keyed),
+        ( Keyed == [] -> Terms2 = Terms1 ; Terms2 = [defaults(Keyed)|Terms1] ),
+        findall(scalar_default(F, D), ( member(D, Scalars), functor(D, F, _) ), SDs)
+    ;   Terms2 = Terms0, SDs = []
+    ),
+    lps_expand_defaults(Terms2, Terms),
     findall(lps(T), member(T, Terms), Lps),
-    append(Templates, Lps, Items).
+    append([Templates, SDs, Lps], Items).
+
+scalar_default_term(D) :- functor(D, _, 1).
 
 role_item(fluent, F, T, fluent(F, T, [])).
 role_item(action, F, T, action(F, T, [])).
@@ -346,7 +370,7 @@ permission_rule(Items, AF, N, rule(Head, Body, [comment(Cm)])) :-
     pairs_keys_values(Pairs, Acts, Nots0),
     maplist(=(Act), Acts),
     maplist(simplify_not, Nots0, Nots1),
-    role_checks(Nots1, Args, Nots2),
+    role_checks(Items, Nots1, Args, Nots2),
     maplist(readable_condition(Args), Nots2, Nots),
     (   Nots == [] -> Body = true
     ;   conj_list(Nots, Body)
@@ -412,8 +436,17 @@ materialisation(F, Gs, T1) :-
     member(holds(not(G), T), Gs), T == T1,
     G =.. [N|_].
 
-%   LPS conditions at the call's start time as timeless conditions.
+%   LPS conditions at the call's start time as timeless conditions. An LPS
+%   aggregate (a findall inside holds/2, then its reduction) is LE's own
+%   (`agg(Op, Element, Goal, Result)`: `N is the count of each E such that …`).
 timeless_conds([], _, []).
+timeless_conds([holds(findall(E, Gs, L), T), Red|Rest], T1, [agg(Op, E, G, R)|Cs]) :-
+    T == T1, nonvar(Red), Red =.. [Pred, L2, R], L2 == L,
+    memberchk(Pred-Op, [length-count, sum_list-sum, max_list-max, min_list-min, mean_list-average]),
+    is_list(Gs), !,
+    timeless_conds(Gs, T1, GCs),
+    ( GCs == [] -> G = true ; conj_list(GCs, G) ),
+    timeless_conds(Rest, T1, Cs).
 timeless_conds([G|Gs], T1, Cs) :-
     (   G = holds(not(F), T), T == T1 -> C = not(F)
     ;   G = holds(F, T), T == T1 -> C = F
@@ -433,17 +466,24 @@ and_acc(X, Acc, and(Acc, X)).
 %   that the owner is something` is `the owner is the caller`: the caller is
 %   then named by the rule rather than left to a negation (which would leave
 %   it unbound — "who may pause?" would have no one for an answer).
-role_checks(Items0, Args, Items) :-
+%   A fluent with no key and a default (`the owner of the token is *an
+%   account*; the zero address by default`) always has exactly one value, so
+%   the first negation alone says the same.
+role_checks(Prog, Items0, Args, Items) :-
     select(not(and(F, Neq)), Items0, Items1),
     neq_parts(Neq, X, C),
     var(X), var(C), memberchk_eq(C, Args),
     compound(F), F =.. [FN|FA], append(Keys, [V], FA), V == X,
-    select(E, Items1, Items2),
-    compound(E), E =.. [FN|EA], append(EKeys, [_], EA), EKeys =@= Keys, EKeys = Keys,
+    (   select(E, Items1, Items2),
+        compound(E), E =.. [FN|EA], append(EKeys, [_], EA), EKeys =@= Keys, EKeys = Keys
+    ->  true
+    ;   Keys == [], memberchk(scalar_default(FN, _), Prog)
+    ->  Items2 = Items1
+    ),
     !,
     append(Keys, [C], FA2), F2 =.. [FN|FA2],
-    role_checks([F2|Items2], Args, Items).
-role_checks(Items, _, Items).
+    role_checks(Prog, [F2|Items2], Args, Items).
+role_checks(_, Items, _, Items).
 
 neq_parts(X \= C, X, C).
 neq_parts(C \= X, X, C).
@@ -517,8 +557,9 @@ disj_list([C|Cs], or(C, R)) :- disj_list(Cs, R).
 
 %   The program's initial state, as a scenario.
 default_scenarios(Items, Scenarios) :-
-    (   member(lps(initial_state(Fs)), Items), Fs \== []
-    ->  findall(fact(F), member(F, Fs), Lines),
+    (   member(lps(initial_state(Fs0)), Items), Fs0 \== []
+    ->  with_scalar_defaults(Items, Fs0, Fs),
+        findall(fact(F), member(F, Fs), Lines),
         legal_word(legal_initial_scenario, SN),
         Scenarios = [scenario(SN, Lines, [])]
     ;   Scenarios = []
@@ -546,7 +587,8 @@ msort_stable(Pairs, Sorted) :-
 run_call(Items, I, E, T1, T2, States, Happened, scenario(SN, Lines, []), Qs) :-
     call_stem(I, Stem),
     format(atom(SN), 'before_~w', [Stem]),
-    state_at(States, T1, Before),
+    state_at(States, T1, Before0),
+    with_scalar_defaults(Items, Before0, Before),
     (   memberchk(T2-Es, Happened), memberchk(E, Es) -> Accepted = true ; Accepted = false ),
     state_at(States, T2, After),
     call_queries(Items, [E], [names([Stem])], Qs0),
@@ -589,6 +631,12 @@ effect_answers(G, AF, Before, After, Answers) :-
             Answers).
 
 %   The state at time T: the last one recorded at or before it.
+%   A state with the default of each fluent with no key and no stored value
+%   (`the owner of the token is the zero address`, when there is no owner).
+with_scalar_defaults(Items, State0, State) :-
+    findall(D, ( member(scalar_default(F, D), Items), \+ ( member(S, State0), functor(S, F, 1) ) ), Ds),
+    append(State0, Ds, State).
+
 state_at(States, T, State) :-
     findall(T0-S, ( member(T0-S, States), T0 =< T ), Earlier),
     ( last(Earlier, _-State) -> true ; State = [] ).

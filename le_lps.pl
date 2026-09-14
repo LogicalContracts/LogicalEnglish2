@@ -65,7 +65,8 @@
     le_lps_json_text/1,          % +LEText
     le_lps_dict/4,               % +Text, +Provenance, +Issues, -Dict
     offset_line_col/4,           % +Text, +Offset, -Line, -Col  (for le_service.pl)
-    lps_split_time/5             % for le_lps_write.pl and the tests
+    lps_split_time/5,            % for le_lps_write.pl and the tests
+    lps_expand_defaults/2        % +Terms, -Terms   (defaults/1 made explicit)
   ]).
 
 :- use_module(library(lists)).
@@ -152,21 +153,37 @@ le_grammar:parse_node_extension(Tokens, Children, Templates, VMIn, VMOut, Logic)
 %   form (a constraint on an EVM twin's uint256 maximum came out that way).
 %   A line that is itself an instance of a template (not merely of the
 %   generic "is" form) keeps its `to N`.
-template_to_number(to(N), Tokens, Templates, VMIn) :-
+%   The same holds for `… from 5` (`is different from 5`, le_not_equal_to/2)
+%   and `… at 5`.
+template_to_number(Suffix, Tokens, Templates, VMIn) :-
+	memberchk(Suffix, [to(N), from(N), at(N)]),
 	integer(N),
 	\+ \+ ( le_grammar:parse_literal(Tokens, Templates, VMIn, _, Lit, _, true),
 	        \+ functor(Lit, le_is, 2) ).
 
 inner_ctx(lps_from_to(_, A, B), _, from_to(A, B)) :- !.
+inner_ctx(lps_from(_, T), _, from_to(T, _)) :- !.
 inner_ctx(lps_at(_, T), _, at(T)) :- !.
 inner_ctx(lps_to(_, T), _, from_to(_, T)) :- !.
 inner_ctx(_, Ctx, Ctx).
 
 wrap_time(at(T),         G, lps_at(G, T)).
 wrap_time(from_to(A, B), G, lps_from_to(G, A, B)).
+wrap_time(from(T),       G, lps_from(G, T)).
 wrap_time(to(T),         G, lps_to(G, T)).
 
 %!  le_grammar:second_pass_item_extension(+Templates, +Item, -NewItem, +M) is semidet.
+
+%   A labelled law or constraint: its label is its id (`rule transfer_credit:`).
+le_grammar:second_pass_item_extension(Templates, lps_labelled(Label, Item),
+				      lps(Kind, Payload, Start, End, Label), M) :-
+	le_grammar:second_pass_item_extension(Templates, Item, lps(Kind, Payload, Start, End, _), M).
+
+%   `this law replaces law <label> of <base>.` — kept as it is for the loader,
+%   which gives the next law (constraint) of the knowledge base the label it
+%   replaces (le_kbs:process_item/2).
+le_grammar:second_pass_item_extension(_, lps_replaces(Kind, Label, Base, Start, End),
+				      lps_replaces(Kind, Label, Base, Start, End), _).
 
 le_grammar:second_pass_item_extension(Templates, lps_rule(Kind, AnteToks, ConsToks, Indent, Start, End),
 				      lps(Kind, r(Ante, Cons), Start, End, ID), _M) :-
@@ -221,6 +238,22 @@ le_grammar:second_pass_item_extension(Templates, fact(Head, Start, End),
 	item_id(Start, ID),
 	le_grammar:parse_literal(Core, Templates, VM0, _, Event, _, true).
 
+%   The short forms of an observation of an atomic event or action: `alice
+%   transfers 5 to bob from 1`, or `… at 1` (the Event Calculus reading),
+%   both `from 1 to 2`. `at T` on a FLUENT is a timed fact (next clause).
+le_grammar:second_pass_item_extension(Templates, fact(Head, Start, End),
+				      clause(lps_observe(Event, T1, T2), true, Start, End, ID), _M) :-
+	le_grammar:lps_target,
+	(   lps_split_time(Head, Core, from(T1), [], VM0)
+	;   lps_split_time(Head, Core, at(T1), [], VM0)
+	),
+	integer(T1), Core \== [],
+	le_grammar:parse_literal(Core, Templates, VM0, _, Event, _, true),
+	callable(Event), functor(Event, F, N),
+	le_grammar:lps_section_role(F/N, Role), Role \== fluent, !,
+	T2 is T1 + 1,
+	item_id(Start, ID).
+
 %   A fact with `at T` is a timed fact: an intensional fluent with no body.
 le_grammar:second_pass_item_extension(Templates, fact(Head, Start, End),
 				      lps(head_rule, h(WHead, true), Start, End, ID), _M) :-
@@ -259,6 +292,13 @@ lps_split_time(Tokens, Core, from_to(T1, T2), VMIn, VMOut) :-
 	time_term(T1Toks, VMIn, VM1, T1),
 	time_term(T2Toks, VM1, VMOut, T2),
 	Core = Before.
+%   `… from T` with no `to`: the event starts at T and its end is not named
+%   (an atomic event or action ends at T + 1, which the engine enforces).
+%   Tried before `to T`, which would otherwise read `to a recipient from a
+%   time` as the prospective form of a template that ends in `to`.
+lps_split_time(Tokens, Core, from(T), VMIn, VMOut) :-
+	last_split(Tokens, lps_from, Core, TToks),
+	time_term(TToks, VMIn, VMOut, T).
 lps_split_time(Tokens, Core, at(T), VMIn, VMOut) :-
 	last_split(Tokens, lps_at, Core, TToks),
 	time_term(TToks, VMIn, VMOut, T).
@@ -353,9 +393,16 @@ le_lps_text(LEText, Text, Provenance, Issues) :-
 	).
 
 %!  le_lps_file(+Path, -InternalText, -Provenance, -Issues) is det.
+%   The file's directory is the base its includes and bases (`extends`)
+%   resolve against.
 le_lps_file(Path, Text, Provenance, Issues) :-
 	read_file_to_string(Path, LEText, [encoding(utf8)]),
-	le_lps_text(LEText, Text, Provenance, Issues).
+	absolute_file_name(Path, Abs), file_directory_name(Abs, Dir),
+	(   catch(le_kbs:load_text(LEText, Dir, KB), E, (print_message(error, E), fail))
+	->  le_lps_module(KB, LEText, Text, Provenance, Issues)
+	;   Text = "", Provenance = [],
+	    Issues = [le_lps_issue(error, parse_error, 'the document did not parse', 0, 0)]
+	).
 
 %!  le_lps_module(+KB, +LEText, -Text, -Provenance, -Issues) is det.
 %
@@ -365,7 +412,10 @@ le_lps_file(Path, Text, Provenance, Issues) :-
 %   the contract allows).
 le_lps_module(KB, LEText, Text, Provenance, Issues) :-
 	le_kbs:ensure_kb_language(KB),
-	with_kb(KB, emit_terms(KB, Entries0, Issues0)),
+	with_kb(KB, emit_terms(KB, Entries0, Issues00)),
+	default_issues(KB, Entries0, DefaultIssues),
+	extends_issues(KB, Entries0, ExtendsIssues),
+	append([Issues00, DefaultIssues, ExtendsIssues], Issues0),
 	kb_issues(KB, KBIssues),
 	append(KBIssues, Issues0, Issues1),
 	sort(0, @<, Issues1, Issues2),
@@ -444,6 +494,7 @@ emit_terms(KB, Entries, Issues) :-
 %   them: settings, declarations, initial state, then everything else.
 emit_family(KB, Es, []) :- settings(KB, Es).
 emit_family(KB, Es, []) :- declarations(KB, Es).
+emit_family(KB, Es, Is) :- defaults_declaration(KB, Es, Is).
 emit_family(KB, Es, []) :- planning_directive(KB, Es).
 emit_family(KB, Es, Is) :- initial_states(KB, Es, Is).
 emit_family(KB, Es, Is) :- observations(KB, Es, Is).
@@ -457,7 +508,103 @@ emit_family(KB, Es, Is) :- goals(KB, Es, Is).
 item(KB, Kind, Payload, Start) :-
 	current_predicate(KB:le_lps_item/3),
 	KB:le_lps_item(Kind, Payload, ID),
-	( item_start(KB, ID, S) -> Start = S ; Start = none ).
+	( item_start(KB, ID, S) -> Start = S ; Start = none ),
+	\+ replaced_item(KB, ID, Start).
+
+		 /*******************************
+		 *   extends: bases and child   *
+		 *******************************/
+
+%   A knowledge base that extends others (`the knowledge base my token extends
+%   erc20, pausable.`, docs/le_lps_surface.md §1.1) has their laws and
+%   constraints as its own: the loader read them in (le_kbs:fetch_base/4), each
+%   keeping its file's positions, so explanations cite the base. What is left
+%   here is replacement: a labelled law or constraint of a base is left out
+%   when the child says `this law replaces law <label> of <base>.`.
+
+%!  item_origin(+Start, -Origin) is det.
+%
+%   `main` for a sentence of the document itself, else the resource (its
+%   canonical id) whose positions Start is among.
+item_origin(Start, Origin) :-
+	(   integer(Start), le_grammar:resource_offset_unit(Unit), Start >= Unit
+	->  Base is (Start // Unit) * Unit,
+	    ( le_kbs:le_resource_base(Base, Id) -> Origin = Id ; Origin = unknown )
+	;   Origin = main
+	).
+
+%   The base a replacement names: the resource as written in `extends`, or
+%   its knowledge base's name.
+base_named(KB, Name, Id) :-
+	current_predicate(KB:le_kb_base/4),
+	KB:le_kb_base(_, Res, Id, BaseName),
+	( Name == Res ; Name == BaseName ; atom_string(Name, S), ( atom_string(Res, S) ; atom_string(BaseName, S) ) ), !.
+
+replaced_item(KB, ID, Start) :-
+	current_predicate(KB:le_lps_replaces/3),
+	KB:le_lps_replaces(_, _-Label, BaseName-_),
+	Label == ID,
+	item_origin(Start, Origin), Origin \== main,
+	base_named(KB, BaseName, Origin), !.
+
+%!  extends_issues(+KB, +Entries, -Issues) is det.
+%
+%   Loud about what a child changes in its bases: each replacement is a note
+%   (the ledger of a translation lists them too), a replacement that names
+%   nothing is an error, and a law of the child that changes the same entry
+%   on the same action as a law of a base, unlabelled, is an error — the two
+%   would both apply, which is rarely what a child that restates a law means.
+extends_issues(KB, Entries, Issues) :-
+	(   current_predicate(KB:le_kb_base/4), KB:le_kb_base(_, _, _, _)
+	->  findall(I, extends_issue(KB, Entries, I), Issues)
+	;   Issues = []
+	).
+
+extends_issue(KB, _, le_lps_issue(Sev, Type, Desc, Start, 0)) :-
+	current_predicate(KB:le_lps_replaces/3),
+	KB:le_lps_replaces(ChildID, Kind-Label, BaseName-_),
+	( item_start(KB, ChildID, Start) -> true ; Start = none ),
+	(   base_named(KB, BaseName, Id),
+	    KB:le_lps_item(_, _, Label), item_start(KB, Label, LS), item_origin(LS, Id)
+	->  Sev = warning, Type = lps_replaces,
+	    le_i18n:le_msg(lps_replaces_desc, [kind-Kind, label-Label, base-BaseName], Desc)
+	;   Sev = error, Type = lps_replaces_unknown,
+	    le_i18n:le_msg(lps_replaces_unknown_desc, [kind-Kind, label-Label, base-BaseName], Desc)
+	).
+extends_issue(KB, Entries, le_lps_issue(error, lps_extends_clash, Desc, CS, 0)) :-
+	member(e(CT, CS), Entries), item_origin(CS, main),
+	law_signature(CT, Sig),
+	member(e(BT, BS), Entries), item_origin(BS, Id), Id \== main,
+	KB:le_kb_base(_, _, Id, BaseName),
+	law_signature(BT, Sig),
+	\+ ( current_predicate(KB:le_lps_replaces/3), KB:le_lps_replaces(_, _, _),
+	      item_id_at(KB, CS, CID), KB:le_lps_replaces(CID, _, _) ),
+	lps_law_words(CT, Words),
+	le_i18n:le_msg(lps_extends_clash_desc, [law-Words, base-BaseName], Desc).
+
+item_id_at(KB, Start, ID) :-
+	KB:le_source_info(_, Start, _, ID), atom(ID), !.
+
+%   What a law changes: its kind, its action, its fluent, and which of the
+%   action's arguments are the fluent's keys (or which constants).
+law_signature(T, sig(K, EF/EN, FF/FN, Keys)) :-
+	T =.. [K, happens(Ev, _, _), Fl|_], memberchk(K, [initiated, terminated, updated]),
+	callable(Ev), compound(Fl),
+	functor(Ev, EF, EN), functor(Fl, FF, FN),
+	Fl =.. [_|FAs], ( FN > 0 -> append(KeyArgs, [_], FAs) ; KeyArgs = [] ),
+	Ev =.. [_|EAs],
+	maplist(key_place(EAs), KeyArgs, Keys).
+
+key_place(EAs, K, P) :-
+	(   var(K), nth1(I, EAs, A), A == K -> P = arg(I)
+	;   atomic(K) -> P = const(K)
+	;   P = other
+	).
+
+lps_law_words(T, Words) :-
+	T =.. [K, happens(Ev, _, _), Fl|_],
+	functor(Ev, EF, _), functor(Fl, FF, _),
+	format(atom(Words), '~w ~w on ~w', [K, FF, EF]).
 
 item_start(KB, ID, Start) :-
 	current_predicate(KB:le_source_info/4),
@@ -490,6 +637,90 @@ role_terms(KB, Role, Terms) :-
 		Terms0),
 	sort(Terms0, Terms).
 
+%!  defaults_declaration(+KB, -Entries, -Issues) is det.
+%
+%   `; <value> by default` on fluents (docs/le_lps_surface.md §2), as one
+%   `defaults([balance(_, 0), owner('the zero address')])` beside fluents/1:
+%   each term the fluent's most general term with its value place holding
+%   the default. An LPS2 declaration (upstream LPS has none): the engine reads
+%   a fluent whose key is bound and has no stored entry as holding it. A
+%   default on anything but a fluent is reported and left out.
+defaults_declaration(KB, Es, Is) :-
+	findall(D-Ok,
+		( current_predicate(KB:le_lps_default/2),
+		  KB:le_lps_default(F0/N, V),
+		  lps_functor(KB, F0/N, F),
+		  functor(D, F, N), arg(N, D, V),
+		  ( current_predicate(KB:le_lps_role/2), KB:le_lps_role(F0/N, fluent) -> Ok = true ; Ok = false ) ),
+		Pairs),
+	findall(D, member(D-true, Pairs), Ds0),
+	sort(Ds0, Ds),
+	( Ds == [] -> Es = [] ; Es = [e(defaults(Ds), none)] ),
+	findall(le_lps_issue(warning, default_not_lps, Desc, none, 0),
+		( member(_-false, Pairs), le_i18n:le_msg(default_not_lps_desc, [], Desc) ),
+		Is).
+
+%   The default of a fluent term, when it has one: Keys-Default, Keys the
+%   term with its value place free.
+fluent_default(KB, Fl, Key, Default) :-
+	compound(Fl), functor(Fl, F, N),
+	current_predicate(KB:le_lps_default/2),
+	KB:le_lps_default(F0/N, Default),
+	lps_functor(KB, F0/N, F), !,
+	functor(Key, F, N),
+	Fl =.. [_|As], Key =.. [_|Ks], append(KAs, [_], As), append(KAs, [_], Ks).
+
+%!  default_issues(+KB, +Entries, -Issues) is det.
+%
+%   What a default makes suspicious (docs/le_lps_surface.md §2):
+%     - `it is not the case that the balance of X is a thing` — a key always
+%       holds a value, its default at least, so the test never succeeds;
+%     - a count over a defaulted fluent counts the stored entries only;
+%     - an initiation of a defaulted fluent with no termination in the same
+%       action: one key could then hold two values.
+default_issues(KB, Entries, Issues) :-
+	(   current_predicate(KB:le_lps_default/2), KB:le_lps_default(_, _)
+	->  findall(Issue, ( member(e(Term, Start), Entries), default_issue(KB, Entries, Term, Start, Issue) ), Issues0),
+	    sort(Issues0, Issues)
+	;   Issues = []
+	).
+
+default_issue(KB, _, Term, Start, le_lps_issue(warning, lps_default_absence, Desc, Start, 0)) :-
+	sub_term(S, Term), compound(S), S = holds(not(Fl), _),
+	fluent_default(KB, Fl, _, _),
+	arg_last(Fl, V), var(V), once_in_term(V, Term),
+	fluent_label(KB, Fl, Label),
+	le_i18n:le_msg(lps_default_absence_desc, [fluent-Label], Desc).
+default_issue(KB, _, Term, Start, le_lps_issue(warning, lps_default_count, Desc, Start, 0)) :-
+	sub_term(S, Term), compound(S), S = holds(findall(_, Goals, L), _),
+	is_list(Goals), member(holds(Fl, _), Goals), fluent_default(KB, Fl, _, _),
+	sub_term(C, Term), compound(C), C = length(L2, _), L2 == L,
+	fluent_label(KB, Fl, Label),
+	le_i18n:le_msg(lps_default_count_desc, [fluent-Label], Desc).
+default_issue(KB, Entries, initiated(happens(Ev, _, _), Fl, _), Start,
+	      le_lps_issue(warning, lps_default_two_values, Desc, Start, 0)) :-
+	fluent_default(KB, Fl, _, _),
+	functor(Ev, EF, EN), functor(Fl, FF, FN),
+	\+ ( member(e(terminated(happens(Ev2, _, _), Fl2, _), _), Entries),
+	      functor(Ev2, EF, EN), functor(Fl2, FF, FN) ),
+	fluent_label(KB, Fl, Label),
+	le_i18n:le_msg(lps_default_two_values_desc, [fluent-Label], Desc).
+
+arg_last(T, V) :- functor(T, _, N), N > 0, arg(N, T, V).
+
+once_in_term(V, T) :- aggregate_all(count, ( sub_term(S, T), S == V ), 1).
+
+%   A fluent's template words, for a message.
+fluent_label(KB, Fl, Label) :-
+	functor(Fl, F, N),
+	(   ( current_predicate(KB:le_lps_functor/2), KB:le_lps_functor(F0/N, F) -> true ; F0 = F ),
+	    current_predicate(KB:le_dict/1), KB:le_dict(D), D =.. [dict, [F0|As], _, WV|_],
+	    length(As, N)
+	->  findall(W, ( member(X, WV), ( var(X) -> W = '...' ; W = X ) ), Ws),
+	    atomic_list_concat(Ws, ' ', Label)
+	;   format(atom(Label), '~w', [F])
+	).
+
 %   `; known as f`, or LE2's derived functor when the author did not say.
 lps_functor(KB, F0/N, F) :-
 	(   current_predicate(KB:le_lps_functor/2),
@@ -506,7 +737,7 @@ planning_directive(_, []).
 initial_states(KB, Es, Is) :-
 	findall(E-I,
 		( item(KB, initially, Body, Start),
-		  initial_state_entry(KB, Body, Start, E, I) ),
+		  initial_state_entry(KB, Body, Start, E, I0), at_start(Start, I0, I) ),
 		Pairs),
 	unzip(Pairs, Es, Is).
 
@@ -573,7 +804,7 @@ plain_goal(G0, G) :- strip_le_at(G0, G1), rename(G1, G).
 head_rules(KB, Es, Is) :-
 	findall(E-I,
 		( item(KB, head_rule, h(WHead, Body), Start),
-		  head_rule_entry(KB, WHead, Body, Start, E, I) ),
+		  head_rule_entry(KB, WHead, Body, Start, E, I0), at_start(Start, I0, I) ),
 		Pairs),
 	unzip(Pairs, Es, Is).
 
@@ -585,6 +816,10 @@ head_rule_entry(KB, lps_at(F0, T), Body, Start, [e(l_int(holds(F, T), Goals), St
 	rename(F0, F),
 	body_goals(KB, Body, at(T), Goals, Is).
 head_rule_entry(KB, lps_from_to(E0, T1, T2), Body, Start,
+		[e(l_events(happens(E, T1, T2), Goals), Start)], Is) :- !,
+	rename(E0, E),
+	body_goals(KB, Body, from_to(T1, T2), Goals, Is).
+head_rule_entry(KB, lps_from(E0, T1), Body, Start,
 		[e(l_events(happens(E, T1, T2), Goals), Start)], Is) :- !,
 	rename(E0, E),
 	body_goals(KB, Body, from_to(T1, T2), Goals, Is).
@@ -604,7 +839,7 @@ body_goals(KB, Body, Ctx, Goals, Issues) :-
 causal_laws(KB, Es, Is) :-
 	findall(E-I,
 		( item(KB, when, r(Ante, Cons), Start),
-		  causal_entry(KB, Ante, Cons, Start, E, I) ),
+		  causal_entry(KB, Ante, Cons, Start, E, I0), at_start(Start, I0, I) ),
 		Pairs),
 	unzip(Pairs, Es, Is).
 
@@ -648,7 +883,7 @@ causal_law(KB, Trigger, Conds, C, Law) :-
 reactive_rules(KB, Es, Is) :-
 	findall(E-I,
 		( item(KB, if, r(Ante, Cons), Start),
-		  reactive_entry(KB, Ante, Cons, Start, E, I) ),
+		  reactive_entry(KB, Ante, Cons, Start, E, I0), at_start(Start, I0, I) ),
 		Pairs),
 	unzip(Pairs, Es, Is).
 
@@ -662,7 +897,7 @@ reactive_entry(KB, Ante, Cons, Start, [e(reactive_rule(A, C), Start)], Issues) :
 denials(KB, Es, Is) :-
 	findall(E-I,
 		( item(KB, denial, Body, Start),
-		  denial_entry(KB, Body, Start, E, I) ),
+		  denial_entry(KB, Body, Start, E, I0), at_start(Start, I0, I) ),
 		Pairs),
 	unzip(Pairs, Es, Is).
 
@@ -673,7 +908,7 @@ denial_entry(KB, Body, Start, [e(d_pre(Goals), Start)], Issues) :-
 goals(KB, Es, Is) :-
 	findall(E-I,
 		( item(KB, goal, Body, Start),
-		  goal_entry(KB, Body, Start, E, I) ),
+		  goal_entry(KB, Body, Start, E, I0), at_start(Start, I0, I) ),
 		Pairs),
 	unzip(Pairs, Es, Is).
 
@@ -685,6 +920,13 @@ goal_entry(KB, Body, Start, [e(achieve(Fluents), Start)], Issues) :-
 unzip(Pairs, Es, Is) :-
 	pairs_keys_values(Pairs, EL, IL),
 	append(EL, Es), append(IL, Is).
+
+%   An issue raised while lowering a goal (which has no position of its own)
+%   is placed at the sentence it came from.
+at_start(Start, Is0, Is) :- maplist(issue_at(Start), Is0, Is).
+
+issue_at(Start, le_lps_issue(S, T, M, none, C), le_lps_issue(S, T, M, Start, C)) :- !.
+issue_at(_, I, I).
 
 
 		 /*******************************
@@ -705,6 +947,16 @@ lower(_, true, _, true, []) :- !.
 lower(KB, lps_at(G, T), _, Out, Is) :- !, lower(KB, G, at(T), Out, Is).
 lower(KB, lps_from_to(G, A, B), _, Out, Is) :- !, lower(KB, G, from_to(A, B), Out, Is).
 lower(KB, lps_to(G, T), _, Out, Is) :- !, lower(KB, G, from_to(_, T), Out, Is).
+%   `… from T` names an event's start only. On a fluent it means nothing a
+%   state can say (a fluent holds AT a time): read as `at T`, and said so.
+lower(KB, lps_from(G, T), _, Out, Is) :- !,
+	lower(KB, G, from_to(T, _), Out0, Is0),
+	(   Out0 = holds(F, _)
+	->  Out = holds(F, T),
+	    le_i18n:le_msg(lps_from_on_fluent_desc, [], Desc),
+	    Is = [le_lps_issue(warning, lps_from_on_fluent, Desc, none, 0)|Is0]
+	;   Out = Out0, Is = Is0
+	).
 
 %   `initiate <fluent> from T1 to T2`: the suffix is parsed INSIDE the
 %   initiate (it is written after the fluent), so its times are the effect's,
@@ -856,6 +1108,92 @@ conjuncts(','(A, B), Gs) :- !, conjuncts(A, As), conjuncts(B, Bs), append(As, Bs
 conjuncts(le_at(G, _, _), Gs) :- !, conjuncts(G, Gs).
 conjuncts(G, [G]).
 
+
+		 /*******************************
+		 *   defaults, made explicit    *
+		 *******************************/
+
+%!  lps_expand_defaults(+Terms, -Expanded) is det.
+%
+%   The same program with its fluent defaults (`defaults/1`) made explicit,
+%   for a reader that has none — upstream LPS, or the legal view
+%   (le_lps_legal.pl), whose state is a scenario of stated facts: every
+%   read of a defaulted fluent in a constraint or a law's conditions becomes
+%   two variants, the entry stored (its value) or absent (the default in its
+%   place), and every update of one is preceded by a law that stores the
+%   default when the entry is absent. That is the shape the Solidity
+%   translator wrote before defaults existed (E13); defaults/1 is dropped.
+lps_expand_defaults(Terms, Expanded) :-
+	(   memberchk(defaults(Ds), Terms), Ds \== []
+	->  findall(X, ( member(T, Terms), T \= defaults(_), expand_term_defaults(Ds, T, X) ), Expanded)
+	;   exclude(==(defaults([])), Terms, Expanded)
+	).
+
+expand_term_defaults(Ds, d_pre(Cs0), d_pre(Cs)) :- !,
+	copy_term(Cs0, Cs1),
+	expand_reads(Ds, Cs1, Cs).
+expand_term_defaults(Ds, T0, T) :-
+	T0 =.. [K, Ev, F, Cs0], memberchk(K, [initiated, terminated]), !,
+	copy_term(Ev-F-Cs0, Ev1-F1-Cs1),
+	expand_reads(Ds, Cs1, Cs),
+	T =.. [K, Ev1, F1, Cs].
+expand_term_defaults(Ds, updated(Ev0, F0, Ch0, Cs0), T) :- !,
+	copy_term(Ev0-F0-Ch0-Cs0, Ev-F-Ch-Cs1),
+	expand_reads(Ds, Cs1, Cs),
+	(   materialise_default(Ds, Ev, F, Ch, Cs, T)
+	;   T = updated(Ev, F, Ch, Cs)
+	).
+expand_term_defaults(_, T, T).
+
+%   The law that stores the default of an entry an update is about to read,
+%   when it is absent — unless the conditions already read the entry (it is
+%   there).
+materialise_default(Ds, Ev, F, Ch, Cs, initiated(Ev, KeyD, CsD)) :-
+	default_of(Ds, F, Key, D),
+	Ev = happens(_, T1, _),
+	\+ ( member(holds(G, T), Cs), T == T1, G \= not(_), same_key(Ds, G, Key) ),
+	Key =.. [Fn|KAs], append(Ks, [_], KAs), append(Ks, [D], DAs), KeyD =.. [Fn|DAs],
+	exclude(is_update_goal(Ch), Cs, Cs0),
+	(   member(holds(not(G3), T3), Cs0), T3 == T1, same_key(Ds, G3, Key)
+	->  CsD = Cs0
+	;   CsD = [holds(not(Key), T1)|Cs0]
+	).
+
+%   Two terms of one defaulted fluent with the same keys (the same variables).
+same_key(Ds, G, Key) :-
+	default_of(Ds, G, KG, _),
+	KG =.. [F|A1], Key =.. [F|A2],
+	append(K1, [_], A1), append(K2, [_], A2), K1 == K2.
+
+%   Each read of a defaulted fluent, stored or absent (nondeterministic:
+%   one solution per variant). A read of a given value that is not the
+%   default has no absent variant, and a term that tests a defaulted
+%   entry's absence has none at all.
+expand_reads(_, [], []).
+expand_reads(Ds, [G|_], _) :-
+	%  a test of a defaulted entry's absence never succeeds: no variant
+	G = holds(not(F), _), default_of(Ds, F, _, _),
+	functor(F, _, N), arg(N, F, V), var(V), !,
+	fail.
+expand_reads(Ds, [G|Gs], Out) :-
+	(   G = holds(F, T), default_of(Ds, F, Key, D)
+	->  (   Out = [G|Rest]
+	    ;   functor(F, _, N), arg(N, F, V),
+		( var(V) ; V == D ), V = D,
+		Out = [holds(not(Key), T)|Rest]
+	    )
+	;   Out = [G|Rest]
+	),
+	expand_reads(Ds, Gs, Rest).
+
+%   F is an instance of a defaulted fluent: Key its keys with the value free.
+default_of(Ds, F, Key, D) :-
+	compound(F), F \= not(_), F \= findall(_, _, _),
+	functor(F, Fn, N), member(D0, Ds), functor(D0, Fn, N), !,
+	arg(N, D0, D),
+	F =.. [Fn|As], append(Ks, [_], As), append(Ks, [_], KAs), Key =.. [Fn|KAs].
+
+is_update_goal(_-New, (X is _)) :- X == New.
 
 		 /*******************************
 		 *   the current KB, for rename *

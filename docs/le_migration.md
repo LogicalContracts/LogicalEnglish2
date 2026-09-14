@@ -84,6 +84,7 @@ program(Header, Items)
 | `language(Lang)` | the program's language (`en`, `pt`, `es`, `fr`, `it`; default `en`) |
 | `comment(Text)` | a comment block at the top (attribution, source, licence) |
 | `includes([Resource, ...])` | `the knowledge base N includes these resources:` |
+| `extends([Base, ...])` | `the knowledge base N extends Base, ....` (target `lps`, le_lps_surface.md §1.1) |
 | `services([service(Name, Address, Kind), ...])` | `... includes these services:` |
 | `provenance_required` | `scenario facts require provenance.` |
 | `extensions(auto\|true\|false)` | whether nested forms may use the InsurLE `all of`/`either` blocks (default: when `le_extensions` is loaded) |
@@ -93,7 +94,8 @@ program(Header, Items)
 
 | Item | Written as |
 |---|---|
-| `template(F, Text, Additions)` | a line of `the templates are:`. `F` is the translator's name for the predicate (its literals use it, with as many arguments as `Text` has places); LE derives its own functor from the words, and the two never need to agree. `Text` is the declaration, `"*a person* is born in *a place* on *a date*"`. Additions: `undefined`, `assumable`, `judged`, `prepositional`, `opposite(Text)`, `synonym(Text)`, `via_service(S)`, `known_as(F)`, `defines_global(G)`, `included` (declared by an included resource: known for writing, not written) |
+| `template(F, Text, Additions)` | a line of `the templates are:`. `F` is the translator's name for the predicate (its literals use it, with as many arguments as `Text` has places); LE derives its own functor from the words, and the two never need to agree. `Text` is the declaration, `"*a person* is born in *a place* on *a date*"`. Additions: `undefined`, `assumable`, `judged`, `prepositional`, `opposite(Text)`, `synonym(Text)`, `via_service(S)`, `known_as(F)`, `default(V)` (a fluent's `; V by default`), `defines_global(G)`, `included` (declared by an included resource or a base: known for writing, not written) |
+| `constant(F, Name, Value)` | a line of `the constants are:` (`Name is Value.`, le_summary.md §2.2); `F` is the functor of its template `the value of Name is *a type*` (`the_value_of_<name words>_is`), whose one-place goal a body uses where the value is read — the writer writes the name there |
 | `fluent/event/action(F, Text, Additions)` | the LPS declaration sections |
 | `rule(Head, Body, Options)` | a rule. Options: `label(L)` (`rule L:`), `provenance(P)` (with a label: `rule L with provenance ...:`), `numbered(true)` (a numbered outline, §15.5), `comment(Text)` |
 | `fact(Head, Options)` | a fact; Options `provenance(P)` (trailers), `ontology` (in `the ontology is:`) |

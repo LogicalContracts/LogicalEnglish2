@@ -19,6 +19,11 @@ export const keywords: Record<string, KeywordTable> = {
         "includes"
       ]
     ],
+    "kb_extends": [
+      [
+        "extends"
+      ]
+    ],
     "contract_open": [
       [
         "the",
@@ -98,6 +103,20 @@ export const keywords: Record<string, KeywordTable> = {
         "are"
       ]
     ],
+    "constants": [
+      [
+        "the",
+        "constants",
+        "are"
+      ]
+    ],
+    "constant_value_of": [
+      [
+        "the",
+        "value",
+        "of"
+      ]
+    ],
     "meta_target": [
       [
         "the",
@@ -136,6 +155,11 @@ export const keywords: Record<string, KeywordTable> = {
       ]
     ],
     "guard": [
+      [
+        "the",
+        "constants",
+        "are"
+      ],
       [
         "the",
         "predicates"
@@ -371,6 +395,12 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "known",
         "as"
+      ]
+    ],
+    "by_default": [
+      [
+        "by",
+        "default"
       ]
     ],
     "defines_global": [
@@ -899,6 +929,27 @@ export const keywords: Record<string, KeywordTable> = {
         "cycle",
         "time",
         "is"
+      ]
+    ],
+    "lps_this_law_replaces": [
+      [
+        "this",
+        "law",
+        "replaces",
+        "law"
+      ]
+    ],
+    "lps_this_constraint_replaces": [
+      [
+        "this",
+        "constraint",
+        "replaces",
+        "constraint"
+      ]
+    ],
+    "lps_of": [
+      [
+        "of"
       ]
     ],
     "provenance_required": [
@@ -1455,6 +1506,11 @@ export const keywords: Record<string, KeywordTable> = {
         "inclui"
       ]
     ],
+    "kb_extends": [
+      [
+        "estende"
+      ]
+    ],
     "contract_open": [
       [
         "o",
@@ -1534,6 +1590,20 @@ export const keywords: Record<string, KeywordTable> = {
         "são"
       ]
     ],
+    "constants": [
+      [
+        "as",
+        "constantes",
+        "são"
+      ]
+    ],
+    "constant_value_of": [
+      [
+        "o",
+        "valor",
+        "de"
+      ]
+    ],
     "meta_target": [
       [
         "a",
@@ -1589,6 +1659,11 @@ export const keywords: Record<string, KeywordTable> = {
         "os",
         "eventos",
         "prolog"
+      ],
+      [
+        "as",
+        "constantes",
+        "são"
       ],
       [
         "a",
@@ -1865,6 +1940,20 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "conhecido",
         "como"
+      ]
+    ],
+    "by_default": [
+      [
+        "por",
+        "omissão"
+      ],
+      [
+        "por",
+        "defeito"
+      ],
+      [
+        "por",
+        "padrão"
       ]
     ],
     "defines_global": [
@@ -2554,6 +2643,29 @@ export const keywords: Record<string, KeywordTable> = {
         "é"
       ]
     ],
+    "lps_this_law_replaces": [
+      [
+        "esta",
+        "lei",
+        "substitui",
+        "a",
+        "lei"
+      ]
+    ],
+    "lps_this_constraint_replaces": [
+      [
+        "esta",
+        "restrição",
+        "substitui",
+        "a",
+        "restrição"
+      ]
+    ],
+    "lps_of": [
+      [
+        "de"
+      ]
+    ],
     "provenance_required": [
       [
         "os",
@@ -3205,6 +3317,11 @@ export const keywords: Record<string, KeywordTable> = {
         "incluye"
       ]
     ],
+    "kb_extends": [
+      [
+        "extiende"
+      ]
+    ],
     "contract_open": [
       [
         "el",
@@ -3284,6 +3401,20 @@ export const keywords: Record<string, KeywordTable> = {
         "son"
       ]
     ],
+    "constants": [
+      [
+        "las",
+        "constantes",
+        "son"
+      ]
+    ],
+    "constant_value_of": [
+      [
+        "el",
+        "valor",
+        "de"
+      ]
+    ],
     "meta_target": [
       [
         "el",
@@ -3347,6 +3478,11 @@ export const keywords: Record<string, KeywordTable> = {
         "los",
         "eventos",
         "prolog"
+      ],
+      [
+        "las",
+        "constantes",
+        "son"
       ],
       [
         "los",
@@ -3620,6 +3756,12 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "conocido",
         "como"
+      ]
+    ],
+    "by_default": [
+      [
+        "por",
+        "defecto"
       ]
     ],
     "defines_global": [
@@ -4305,6 +4447,29 @@ export const keywords: Record<string, KeywordTable> = {
         "es"
       ]
     ],
+    "lps_this_law_replaces": [
+      [
+        "esta",
+        "ley",
+        "sustituye",
+        "la",
+        "ley"
+      ]
+    ],
+    "lps_this_constraint_replaces": [
+      [
+        "esta",
+        "restricción",
+        "sustituye",
+        "la",
+        "restricción"
+      ]
+    ],
+    "lps_of": [
+      [
+        "de"
+      ]
+    ],
     "provenance_required": [
       [
         "los",
@@ -4887,6 +5052,11 @@ export const keywords: Record<string, KeywordTable> = {
         "inclut"
       ]
     ],
+    "kb_extends": [
+      [
+        "étend"
+      ]
+    ],
     "contract_open": [
       [
         "le",
@@ -4971,6 +5141,20 @@ export const keywords: Record<string, KeywordTable> = {
         "sont"
       ]
     ],
+    "constants": [
+      [
+        "les",
+        "constantes",
+        "sont"
+      ]
+    ],
+    "constant_value_of": [
+      [
+        "la",
+        "valeur",
+        "de"
+      ]
+    ],
     "meta_target": [
       [
         "la",
@@ -5023,6 +5207,11 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "les",
         "événements",
+        "sont"
+      ],
+      [
+        "les",
+        "constantes",
         "sont"
       ],
       [
@@ -5303,6 +5492,12 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "connu",
         "comme"
+      ]
+    ],
+    "by_default": [
+      [
+        "par",
+        "défaut"
       ]
     ],
     "defines_global": [
@@ -5951,6 +6146,29 @@ export const keywords: Record<string, KeywordTable> = {
         "est"
       ]
     ],
+    "lps_this_law_replaces": [
+      [
+        "cette",
+        "loi",
+        "remplace",
+        "la",
+        "loi"
+      ]
+    ],
+    "lps_this_constraint_replaces": [
+      [
+        "cette",
+        "contrainte",
+        "remplace",
+        "la",
+        "contrainte"
+      ]
+    ],
+    "lps_of": [
+      [
+        "de"
+      ]
+    ],
     "provenance_required": [
       [
         "les",
@@ -6537,6 +6755,11 @@ export const keywords: Record<string, KeywordTable> = {
         "include"
       ]
     ],
+    "kb_extends": [
+      [
+        "estende"
+      ]
+    ],
     "contract_open": [
       [
         "il",
@@ -6616,6 +6839,20 @@ export const keywords: Record<string, KeywordTable> = {
         "sono"
       ]
     ],
+    "constants": [
+      [
+        "le",
+        "costanti",
+        "sono"
+      ]
+    ],
+    "constant_value_of": [
+      [
+        "il",
+        "valore",
+        "di"
+      ]
+    ],
     "meta_target": [
       [
         "il",
@@ -6672,6 +6909,11 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "i",
         "predicati",
+        "sono"
+      ],
+      [
+        "le",
+        "costanti",
         "sono"
       ],
       [
@@ -6948,6 +7190,17 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "noto",
         "come"
+      ]
+    ],
+    "by_default": [
+      [
+        "per",
+        "impostazione",
+        "predefinita"
+      ],
+      [
+        "di",
+        "default"
       ]
     ],
     "defines_global": [
@@ -7675,6 +7928,29 @@ export const keywords: Record<string, KeywordTable> = {
         "è"
       ]
     ],
+    "lps_this_law_replaces": [
+      [
+        "questa",
+        "legge",
+        "sostituisce",
+        "la",
+        "legge"
+      ]
+    ],
+    "lps_this_constraint_replaces": [
+      [
+        "questo",
+        "vincolo",
+        "sostituisce",
+        "il",
+        "vincolo"
+      ]
+    ],
+    "lps_of": [
+      [
+        "di"
+      ]
+    ],
     "provenance_required": [
       [
         "i",
@@ -8244,6 +8520,7 @@ export const keywords: Record<string, KeywordTable> = {
 export const keywordCategories: Record<string, string> = {
   "kb_open": "section",
   "kb_include": "section",
+  "kb_extends": "section",
   "contract_open": "section",
   "contract_states": "section",
   "resources_include": "section",
@@ -8256,6 +8533,8 @@ export const keywordCategories: Record<string, string> = {
   "events": "section",
   "actions": "section",
   "prolog_events": "section",
+  "constants": "section",
+  "constant_value_of": "constant",
   "meta_target": "section",
   "marker": "section",
   "marker_is": "section",
@@ -8287,6 +8566,7 @@ export const keywordCategories: Record<string, string> = {
   "it_is": "unknown",
   "whether": "unknown",
   "known_as": "template_addition",
+  "by_default": "template_addition",
   "defines_global": "template_addition",
   "opposite": "template_addition",
   "synonym": "template_addition",
@@ -8339,6 +8619,9 @@ export const keywordCategories: Record<string, string> = {
   "lps_max_time": "lps",
   "lps_max_real_time": "lps",
   "lps_min_cycle_time": "lps",
+  "lps_this_law_replaces": "lps",
+  "lps_this_constraint_replaces": "lps",
+  "lps_of": "lps",
   "provenance_required": "section",
   "judged": "template_addition",
   "according_to": "provenance",

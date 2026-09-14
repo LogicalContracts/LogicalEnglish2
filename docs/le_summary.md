@@ -9,6 +9,7 @@ This document provides a summary of the Logical English constructs supported by 
   - [2. Templates](#2-templates)
     - [Template additions (after `;`)](#template-additions-after-)
     - [2.1 Prepositional templates](#21-prepositional-templates)
+    - [2.2 Named constants: `the constants are:`](#22-named-constants-the-constants-are)
   - [3. Rules and Facts](#3-rules-and-facts)
     - [3.1 Rule Sections](#31-rule-sections)
     - [3.2 Query bodies](#32-query-bodies)
@@ -54,6 +55,8 @@ Sections define the context of the code. Each section header ends with a colon `
   negation (`it is not the case that …`) and `for all cases in which …` (see §3.2).
 - **Ontology:** `the ontology is:` (Used for taxonomy and class hierarchies)
 - **Templates:** `the predicates are:` or `the templates are:` (Used to define NL patterns)
+- **Constants:** `the constants are:` (named values, one per line: `the fee is 5.` — §2.2)
+- **Bases (LPS target):** `the knowledge base <name> extends <base>, <base>.` — the bases' templates, laws and constraints, without their instance (`le_lps_surface.md` §1.1)
 - **Dynamics:** `the fluents are:` or `the events are:` (For temporal reasoning)
 - **Meta:** `the target language is: prolog.` (Required for Prolog generation)
 
@@ -82,6 +85,7 @@ A template definition can be followed by one or more additions, each introduced 
   - A **`defined_scenario_element` warning** is raised if a fact or rule head with this template is found in the knowledge base.
   - Example: `*a person* has passed the test; undefined.`
 - `; via service <name>` — the template is answered at run time by a declared service (§17.6).
+- `; <value> by default` — **LPS target, fluents only** (`le_lps_surface.md` §2): the value the template's last place holds for a key no fact is stored for (`the balance of *an account* is *an amount*; 0 by default`, `…; the zero address by default`). A default on any other template is reported (`default_not_lps`).
 - `; judged` — marks an **open-textured** predicate whose instances are *decided*, not derived (synonyms `; open textured`, `; evaluative`). Solved like `; assumable`, except that once an outcome (the last argument) is recorded for a question no other outcome is assumed; a rule concluding it is an error, and its open instances render as *judgment needed*. See §17.1.
 
 ### 2.1 Prepositional templates
@@ -103,6 +107,26 @@ A prepositional template is a binary template that **starts with an argument** a
   ```
   The prepositional templates' goals become **additional conditions** in the Prolog body (for both rule heads and rule bodies).
 - **Standalone usage** is still allowed: writing the leading argument explicitly (e.g. `the payment under this policy`) matches the template directly.
+
+### 2.2 Named constants: `the constants are:`
+A section of named values, one line each, `<name> is <value>.`:
+```le
+the constants are:
+    the tax free allowance is 12570.
+    the unlimited allowance is 115792089237316195423570985008687907853269984665640564039457584007913129639935.
+```
+Each line is short for a template with a global name and one fact — `the value
+of the tax free allowance is *a number*; defines global the tax free
+allowance.` and `the value of the tax free allowance is 12570.` — so the name
+is a global (§6.0) wherever a rule, scenario or query uses it: `a person pays
+tax if the person earns an income and the income > the tax free allowance.`
+An explanation shows the value as a reason. The value's type is taken from the
+literal (a number, a text, or a name); the name may contain `is` (the value is
+after the last one). The verifier reports a constant nothing uses
+(`unused_constant`); `le_writer.pl` writes the section back (IR item
+`constant(F, Name, Value)`). Like any global, a name is not an arithmetic
+operand: compare with it, or read it into a variable first (`the value of the
+tax free allowance is an allowance A`).
 
 ## 3. Rules and Facts
 - **Fact:** A simple statement ending in a period.
