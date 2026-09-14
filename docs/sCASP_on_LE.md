@@ -150,8 +150,11 @@ The emitter (`lower_body/5`, `lower_leaf/3`) translates each construct:
 | Rule `H if B` | `H :- B.` (a `;` in the body is DNF-expanded, see below) |
 | `and` / `or` | `,` / `;` — the `;` is then lifted to separate clauses |
 | `it is not the case that G`, `unless C` | `not G` (default negation; De Morgan-normalised, see §7) |
-| `; opposite: T` | classical negation `-p(…)` + global constraint `false :- p(X), -p(X).` (`opposite_constraints/2`) |
-| `; assumable` / `; unknown` | `#abducible p(…).` — assumption sets returned per model (`abducible_directive/2`) |
+| `; opposite: T` | classical negation `-p(…)`: every rule, fact and condition of the opposite form is written as `-p(…)`, its wording as `#pred -p(…) :: '…'`, and the global constraint `false :- p(X), -p(X).` links the two (`opposite_map/2`, `to_classical/2`, `opposite_constraints/2`) |
+| `; assumable` / `; unknown` | `#abducible p(…).` — assumption sets returned per model (`abducible_directive/2`); a scenario element (`; undefined`) is not abducible |
+| `for all cases in which C it is the case that G` | the negation of a helper that looks for a counterexample (Lloyd–Topor): `not le_forall_K(Shared)` and `le_forall_K(Shared) :- C, not G.` — s(CASP)'s own `forall/2` quantifies one variable and it has no `call/1` |
+| The ontology section's `is_a/2` clauses | clauses of the unit, like any other |
+| Decision tables, service conditions, a condition with no template | an issue each (untranslatable), never a raw LE record in the output |
 | Every user template | a `#pred` directive carrying the LE sentence with typed `@`-placeholders (`pred_directive/2`) — powers s(CASP)'s own `--human` output and cross-checks our normaliser |
 | Comparisons `>`, `>=`, `<`, `=<` | **CLP(ℚ) constraints** `#>`, `#>=`, `#<`, `#=<` |
 | Equality / assignment (`is`, `=`) on numbers | `#=` (relational); on non-numbers, plain `=` |
@@ -401,3 +404,24 @@ temp-file consult, which would be replaced by an in-memory load in that setting.
 | Engine selector, "See s(CASP)", Trace gating, world badge | `editor/src/client.ts`, `editor/src/explanation-view.ts`, `editor/src/i18n.ts` |
 | Issue messages (i18n) | `i18n/messages.csv` — `scasp_*`, `non_stratified_desc` |
 | Tests | `testing/test_scasp.pl`, `editor/tests/scasp-engine.spec.ts` |
+
+## 13. Reading s(CASP) back (September 2026)
+
+The migration reader `le_writer:prolog_file_to_ir/3` is this target read
+backwards (InsurLE2/docs/MiggratingFromOtherSystems.md §5.7, Phase 2c):
+`#pred` gives the templates (`@(X:type)` names the place), `-p` the opposite
+form, `#abducible` the `; unknown` addition, a `le_forall_K` helper the
+universal again, `#>`/`#=`… comparisons and assignments, a denial a query the
+scenarios expect to have no answer (convention N1), `?-` a query. The gate
+`testing/scasp_roundtrip.pl` runs LE → s(CASP) → LE → s(CASP) over the core
+corpus: on 14 September 2026, 83 of the 88 programs the target can emit give
+back the same s(CASP) program (clauses, abducibles, opposite constraints and
+`#pred` wordings, up to variable names); the five that differ are a program
+with two templates sharing a predicate with different types, a vacuous
+universal, a partially instantiated unknown, the ontology-rule case of
+`le_writer_roundtrip.pl`'s exclusions and a deliberately broken program.
+Building the gate found and fixed four defects of this target: universals
+were written as Prolog's `forall/2`, which s(CASP) rejects; opposite forms
+were separate predicates with vacuous constraints, not `-p`; scenario
+elements were abducible; and LE's records (the ontology record, flip
+expectations, services) were written into the unit as facts.

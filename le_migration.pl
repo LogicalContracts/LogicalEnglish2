@@ -89,6 +89,7 @@ test_scenario(test(Id, Doc, Loc, Facts, Expects), scenario(Name, Lines, Opts)) :
 
 test_fact_line(fact(L, P), fact(L, P)) :- !.
 test_fact_line(unknown(L), unknown(L)) :- !.
+test_fact_line(rule(H, B), rule(H, B)) :- !.      % a rule of the scenario
 test_fact_line(comment(C), comment(C)) :- !.
 test_fact_line(L, fact(L)).
 

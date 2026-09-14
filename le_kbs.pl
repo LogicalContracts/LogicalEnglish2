@@ -2387,7 +2387,13 @@ render_list_element(KBmodule, E, A) :-
 % In a (flat) query instance, a token bound to a list value is rendered as a
 % single bracketed atom so flatten/2 in query/5 keeps its brackets.
 bracket_list_token(KBmodule, Token, Out) :-
-    ( is_list(Token) -> render_list_value(KBmodule, Token, Out) ; Out = Token ).
+    (   is_list(Token) -> render_list_value(KBmodule, Token, Out)
+    %   a sentence as a value (`says that *a sentence*`) shows as its words
+    ;   compound(Token), Token \= var(_, _), Token \= date(_), Token \= date(_, _, _),
+        catch(maybe_transform_value(KBmodule, Token, Out0), _, fail), Out0 \== Token
+    ->  Out = Out0
+    ;   Out = Token
+    ).
 
 extract_name(var(Name, _), Name) :- !.
 extract_name(V, V).

@@ -202,6 +202,22 @@ scenario facts, expectations, queries and table rows up to variable names
 file). `testing/test_le_writer.pl` runs a sample of it, the IR forms one by
 one, and the Prolog path.
 
+**s(CASP), in detail (Phase 2c).** The reader is LE's s(CASP) target read
+backwards (`docs/sCASP_on_LE.md` §4, §13): `-p(X)` is p's opposite form
+(`; opposite:`, its wording from `#pred -p(X) :: …` or made from p's);
+`#abducible` (or the target's `le_unknown/1` records) `; unknown`; `:- B.` and
+`false :- B.` denials become queries `denial_<n>` that the scenarios expect to
+have no answer (convention N1 — LE has no timeless constraint); `#>`, `#>=`,
+`#<`, `#=<`, `#<>` comparisons and `#=` an assignment; `?- Q.` queries
+`query_<n>`; the target's `le_forall_K` helpers fold back into universals;
+several `#pred` wordings of one predicate are its synonyms; `is_a/2` is LE's
+own form; a clause that takes a list apart (`[H|T]`) is a residue block; a
+template whose words would read as one of LE's own forms (`X is Y`, `X is in
+Y`) changes a word. Option `language(L)` writes in the program's language.
+The target is `scasp` when the source has abducibles, classical negation or
+denials. The round trip `testing/scasp_roundtrip.pl` (83 of 88 programs
+exact) and `testing/test_scasp_reader.pl` test it.
+
 **Plain Prolog and s(CASP) (§5.7).** `prolog_file_to_ir/3` reads a Prolog file
 (or an s(CASP) file: `#pred p(X) :: '@(X) is ...'` annotations give the
 wording) and verbalises the rest naively: `parent(X, Y)` becomes `*a person*
@@ -220,6 +236,8 @@ Meta   = [source(System), artifacts([...]), translator(Name), program(Name),
 Ledger = [entry(Element, Kind, Verdict, Mapping, InProgram, Note), ...]
           Verdict: encoded | approximated | residue
 Tests  = [test(Id, Document, Locator, Facts, Expectations), ...]
+          Facts: literals, fact(L, Provenance), unknown(L), rule(H, B) (a
+          rule of the scenario), comment(Text)
 
 write_migration(+Migration, +Dir, +Base, -Report).
     % writes Dir/Base.le, runs its source tests, writes Base.ledger.md
