@@ -12990,11 +12990,12 @@ async function mountView(root, ctx) {
   if (V.interview) {
     const box = el("div", "lv-interview");
     root.appendChild(box);
-    const valuesOf = (label) => {
+    const valuesOf = (label, place) => {
       const d = templateDefs.find((x) => x.label === label);
-      return d && Array.isArray(d.values) ? [].concat(...d.values.map((v) => Array.isArray(v) ? v : [])).map(String) : [];
+      const v = d && Array.isArray(d.values) ? d.values[place] : null;
+      return Array.isArray(v) ? v.map(String) : [];
     };
-    const openOf = (label, instance) => {
+    const openAt = (label, instance) => {
       const m = matchFact(instance, [label]);
       if (!m)
         return null;
@@ -13002,28 +13003,28 @@ async function mountView(root, ctx) {
       for (let i = segs.length - 1; i >= 0; i--) {
         const v = String(m.values[i] || "").trim();
         if (/^(a|an)\s+\S/i.test(v) && v.toLowerCase() === segs[i].replace(/\*/g, "").toLowerCase())
-          return v;
+          return { open: v, place: i };
       }
       return null;
     };
     const qs = [];
     for (const q of V.questions || []) {
       const said = String(q.words || q.instance);
-      const open = openOf(q.label, said);
-      qs.push({ instance: said, text: q.text, label: q.label, open, values: open ? valuesOf(q.label) : [], own: true });
+      const at = openAt(q.label, said);
+      qs.push({ instance: said, text: q.text, label: q.label, open: at ? at.open : null, values: at ? valuesOf(q.label, at.place) : [], own: true });
     }
     for (const g of V.groups || [])
       for (const f of g.facts || []) {
         const said = String(f.words || f.instance);
         if (qs.some((q) => norm(q.instance) === norm(said) || norm(q.instance) === norm(f.instance)))
           continue;
-        const open = openOf(f.label, said);
+        const at = openAt(f.label, said);
         qs.push({
           instance: said,
-          text: open ? said : `${said}?`,
+          text: at ? said : `${said}?`,
           label: f.label,
-          open,
-          values: open ? valuesOf(f.label) : []
+          open: at ? at.open : null,
+          values: at ? valuesOf(f.label, at.place) : []
         });
       }
     const answers = /* @__PURE__ */ new Map();

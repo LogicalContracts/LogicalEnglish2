@@ -1140,26 +1140,28 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
         const box = el('div', 'lv-interview');
         root.appendChild(box);
         type Q = { instance: string; text: string; label: string; open: string | null; values: string[]; own?: boolean };
-        const valuesOf = (label: string): string[] => {
+        // the values the rules read in one place of a template (not in its other places)
+        const valuesOf = (label: string, place: number): string[] => {
             const d = templateDefs.find(x => x.label === label);
-            return d && Array.isArray(d.values) ? ([] as string[]).concat(...d.values.map((v: any) => Array.isArray(v) ? v : [])).map(String) : [];
+            const v = d && Array.isArray(d.values) ? d.values[place] : null;
+            return Array.isArray(v) ? v.map(String) : [];
         };
         // the open value of an instance: an indefinite phrase where its label has a placeholder
-        const openOf = (label: string, instance: string): string | null => {
+        const openAt = (label: string, instance: string): { open: string; place: number } | null => {
             const m = matchFact(instance, [label]);
             if (!m) return null;
             const segs = label.match(/\*[^*]+\*/g) || [];
             for (let i = segs.length - 1; i >= 0; i--) {
                 const v = String(m.values[i] || '').trim();
-                if (/^(a|an)\s+\S/i.test(v) && v.toLowerCase() === segs[i].replace(/\*/g, '').toLowerCase()) return v;
+                if (/^(a|an)\s+\S/i.test(v) && v.toLowerCase() === segs[i].replace(/\*/g, '').toLowerCase()) return { open: v, place: i };
             }
             return null;
         };
         const qs: Q[] = [];
         for (const q of V.questions || []) {
             const said = String(q.words || q.instance);
-            const open = openOf(q.label, said);
-            qs.push({ instance: said, text: q.text, label: q.label, open, values: open ? valuesOf(q.label) : [], own: true });
+            const at = openAt(q.label, said);
+            qs.push({ instance: said, text: q.text, label: q.label, open: at ? at.open : null, values: at ? valuesOf(q.label, at.place) : [], own: true });
         }
         for (const g of V.groups || []) for (const f of g.facts || []) {
             // the fact as the view writes it: its definite phrases stay ("the
@@ -1167,9 +1169,9 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
             // to ask for
             const said = String(f.words || f.instance);
             if (qs.some(q => norm(q.instance) === norm(said) || norm(q.instance) === norm(f.instance))) continue;
-            const open = openOf(f.label, said);
-            qs.push({ instance: said, text: open ? said : `${said}?`,
-                      label: f.label, open, values: open ? valuesOf(f.label) : [] });
+            const at = openAt(f.label, said);
+            qs.push({ instance: said, text: at ? said : `${said}?`,
+                      label: f.label, open: at ? at.open : null, values: at ? valuesOf(f.label, at.place) : [] });
         }
         type A = { kind: 'yes' | 'no' | 'unsure' | 'value'; value?: string };
         const answers = new Map<string, A>();
