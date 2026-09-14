@@ -111,12 +111,16 @@ Loads the LE document, applies the named scenario, and returns an explanation fo
 | `document` | string | Full LE source text |
 | `theQuery` | string | Name of the query to run, e.g. `"one"` |
 | `scenario` | string | Name of the scenario to use, e.g. `"alice"` |
+| `source` | string | (Optional) the example the document came from, e.g. `"abduction/loan_approval"`, so its relative include resources resolve against that example's folder — as for `load` |
+| `base` | string | (Optional) the base URL of a document fetched from a URL, for its relative includes |
 
 **Response**
 
 ```json
 { "answer": <explanation term> }
 ```
+
+An unknown scenario replies `{"error": "Scenario not found"}`.
 
 **curl example**
 

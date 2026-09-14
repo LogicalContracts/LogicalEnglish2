@@ -1115,12 +1115,21 @@ handle_is_a_hierarchy(Dict, Response) :-
 
 row_to_dict(row(Short, Provider, APIModel), _{short: Short, provider: Provider, api_model: APIModel}).
 
-handle_answer(Dict, Response) :-
+%   The knowledge base of an `answer`/`explain` request's `document`, loaded
+%   as `load` loads the editor's text (relative includes resolve against the
+%   request's `source` or `base`, load_base_of/2), and its scenario name as
+%   the atom setScenarion/2 looks up.
+document_kb_and_scenario(Dict, KB, Scenario) :-
     get_dict(document, Dict, Doc),
+    load_base_of(Dict, Base),
+    le_kbs:load_text(Doc, Base, KB),
+    get_dict(scenario, Dict, ScenarioStr),
+    atom_string(Scenario, ScenarioStr).
+
+handle_answer(Dict, Response) :-
     get_dict(theQuery, Dict, Query),
-    get_dict(scenario, Dict, Scenario),
     ( get_dict(hideRepeated, Dict, false) -> set_show_repeated_explanations(true) ; set_show_repeated_explanations(false) ),
-    load_le_text(Doc, KB),
+    document_kb_and_scenario(Dict, KB, Scenario),
     setup_call_cleanup(
         createSession(KB, SM),
         (   setScenarion(SM, Scenario) ->
@@ -1131,11 +1140,9 @@ handle_answer(Dict, Response) :-
     ).
 
 handle_explain(Dict, Response) :-
-    get_dict(document, Dict, Doc),
     get_dict(theQuery, Dict, Query),
-    get_dict(scenario, Dict, Scenario),
     ( get_dict(hideRepeated, Dict, false) -> set_show_repeated_explanations(true) ; set_show_repeated_explanations(false) ),
-    load_le_text(Doc, KB),
+    document_kb_and_scenario(Dict, KB, Scenario),
     setup_call_cleanup(
         createSession(KB, SM),
         ( setScenarion(SM, Scenario) ->
