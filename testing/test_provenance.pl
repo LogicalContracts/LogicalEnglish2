@@ -221,6 +221,22 @@ test(custom_facts_carry_provenance) :-
     once(parse_custom_facts(KB, "the burst pipe is accidental, according to the ombudsman.", Terms)),
     memberchk(le_provenance(is_accidental('the burst pipe'), 'the ombudsman', none, none, none), Terms).
 
+% A section word inside a custom fact ("the contract", "scenario") is
+% vocabulary: only at the start of a line does it open a section.
+test(custom_fact_with_a_section_word_inside) :-
+    load_text("the target language is: prolog.
+
+the templates are:
+    the value of the contract price is *a price*.
+    *a claim* is part of a scenario of *a kind*.
+
+the knowledge base prices includes:
+
+the price is known if the value of the contract price is a price.
+", KB),
+    once(parse_custom_facts(KB, "the value of the contract price is 1000000.\nclaim one is part of a scenario of loss.", Terms)),
+    Terms == [the_value_of_the_contract_price_is(1000000), is_part_of_a_scenario_of('claim one', loss)].
+
 % A judged template with two or more arguments: the last is the outcome. Once
 % an outcome is recorded for a question, no other outcome of it is assumed;
 % a question with nothing recorded stays open (a judgment needed).

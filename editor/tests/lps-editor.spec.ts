@@ -81,9 +81,13 @@ test.describe('Logical English -> LPS', () => {
 
     test('an LE error is reported at the .le line it came from', async ({ page }) => {
         await page.goto(page_url);
-        // `the goal is that ...` with no planning support is an LPS-side
-        // diagnostic; what matters is that it lands on a line of THIS document,
-        // not of the internal text LE2 generated (docs/le_lps_interface.md §4).
+        // A program with no reactive rule draws an LPS-side warning
+        // (no_reactive_rules); what matters is that it lands on a line of THIS
+        // document, not of the internal text LE2 generated
+        // (docs/le_lps_interface.md §4). (A goal is no longer an example: LE2
+        // declares the planning mode it needs, and LPS2 plans.)
+        // Monaco arrives by its AMD loader: wait for the page's model.
+        await page.waitForFunction(() => ((window as any).monaco?.editor.getModels() || []).length > 0, null, { timeout: 30000 });
         await page.evaluate(() => {
             const ed = (window as any).monaco.editor.getModels()[0];
             ed.setValue([
@@ -92,13 +96,11 @@ test.describe('Logical English -> LPS', () => {
                 'the maximum time is 3.',
                 '',
                 'the fluents are:',
-                '    it is dark; known as dark.',
+                '    the lamp is lit; known as lit.',
                 '',
                 'the knowledge base w includes:',
                 '',
-                'initially it is dark.',
-                '',
-                'the goal is that it is dark.',
+                'initially the lamp is lit.',
                 ''
             ].join('\n'));
         });

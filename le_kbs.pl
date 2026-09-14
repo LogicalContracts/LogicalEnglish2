@@ -2614,7 +2614,16 @@ kbSummary(KB, Summary) :-
 parse_custom_facts(KB, Text, Terms) :-
     tokenizer:tokenize_lang(Text, Tokens),
     le_grammar:set_token_pos(0),
-    ( phrase(le_grammar:kb_items(Items), Tokens) -> true ; Items = [] ),
+    % The facts' own line starts: without them every token may open a
+    % section, and a sentence with a section word inside ("the value of the
+    % contract price is 1000000") parsed to nothing.
+    findall(O, le_grammar:line_start_offset(O), SavedStarts),
+    (   setup_call_cleanup(le_grammar:record_line_starts(Tokens),
+                           phrase(le_grammar:kb_items(Items), Tokens),
+                           le_grammar:restore_line_starts(SavedStarts))
+    ->  true
+    ;   Items = []
+    ),
     findall(D, KB:le_dict(D), Dicts),
     le_grammar:prepare_templates(Dicts, Templates),
     % Custom facts ARE scenario facts: use the scenario second pass so a definite
