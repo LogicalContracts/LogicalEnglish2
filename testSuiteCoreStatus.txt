@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      core (this repository alone; extension-dependent trees excluded)
 Command:    testing/run_tests.sh le   (or: runTests)
 Sibling:    testSuiteStatus.txt — all (core + trees requiring the proprietary le_extensions.pl)
-Generated:  2026-09-14 08:07:11 UTC
+Generated:  2026-09-14 17:25:37 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 115
-Total tests:     400
-Passed:          400
+Files processed: 119
+Total tests:     431
+Passed:          431
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -110,6 +110,10 @@ Detailed File Summary:
   [PASS] examples/moreExamples/testing/tea_party3.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/template_folding.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/trace_sample.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/LogicalThinkingInAgeOfAI/heart_failure.le: 12 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/LogicalThinkingInAgeOfAI/heart_failure_what_if.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/LogicalThinkingInAgeOfAI/provocation_transposed.le: 8 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/LogicalThinkingInAgeOfAI/standard_for_judgment.le: 8 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/abduction/diagnosis.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/abduction/grass_is_wet.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/abduction/loan_approval.le: 1 Pass, 0 Fail, 0 Error

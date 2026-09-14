@@ -1,0 +1,91 @@
+% Logical Thinking in the Age of AI, slide 6 (continued): "Within the Medical
+% Realm" - PROBLEM SOLVING: what would have to be true for a treatment to be
+% the right one?
+%
+% Section 3.1 and Fig. 1 of Chen et al., https://arxiv.org/pdf/1610.08115,
+% with two more sentences of the ACCF/AHA guideline:
+%  - Combination of hydralazine & isosorbide dinitrate is recommended to
+%    reduce morbidity & mortality for patients self-described as African
+%    Americans with NYHA class III-IV HFrEF receiving optimal therapy with ACE
+%    inhibitors & beta blockers, unless contraindicated.
+%  - Combination of hydralazine & isosorbide dinitrate should not be used for
+%    the treatment of HFrEF in patients who have no prior use of standard
+%    neurohormonal antagonist therapy.
+%
+% "Suppose we have an African American patient who is suffering from NYHA
+% class III HFrEF, but that is all we know about the patient." Is the
+% combination recommended? Not a yes or a no, but a CONDITIONAL answer: yes,
+% if the patient has received standard neurohormonal antagonist therapy - a
+% precise description of the solution, including what is still to be checked.
+% The template below is assumable (abducible): when nothing says whether it
+% holds, the reasoner may assume it, and reports the assumption with the
+% answer (scenario what_we_know). The paper's s(ASP) answer set (Fig. 1):
+%   { accf stage(c), hf with reduced ef,
+%     history(standard neurohormonal antagonist therapy), nyha class(3),
+%     nyha class 3 to 4, race(african american),
+%     recommendation(hydralazine and isosorbide dinitrate,class 1),
+%     not contraindication(hydralazine and isosorbide dinitrate) }
+%
+% The rest of the guideline comes from heart_failure.le, included as a
+% resource.
+
+the target language is: prolog.
+
+the knowledge base heart_failure_what_if includes these resources:
+    heart_failure.
+
+the templates are:
+    *a patient* identifies as African American; undefined.
+    *a patient* has received standard neurohormonal antagonist therapy; assumable.
+
+the knowledge base heart_failure_what_if includes:
+
+% The paper, like the guideline's second sentence, reads "receiving optimal
+% therapy with ACE inhibitors and beta blockers" as having received standard
+% neurohormonal antagonist therapy.
+a patient has an indication for hydralazine plus isosorbide dinitrate with class 1
+    if the patient identifies as African American
+    and the patient has heart failure with reduced ejection fraction
+    and the NYHA class of the patient is a number N
+    and N >= 3
+    and the patient has received standard neurohormonal antagonist therapy.
+
+a patient has a contraindication to hydralazine plus isosorbide dinitrate
+    if the patient has heart failure with reduced ejection fraction
+    and it is not the case that
+        the patient has received standard neurohormonal antagonist therapy.
+
+% All we know about Dan.
+scenario what_we_know is:
+    Dan identifies as African American.
+    Dan is in stage C.
+    the NYHA class of Dan is 3.
+    the ejection fraction of Dan is 30.
+    combination expects answers [
+        "the guideline recommends hydralazine plus isosorbide dinitrate with class 1 for Dan"]
+        and unknowns ["Dan has received standard neurohormonal antagonist therapy"].
+
+% Once the record shows the therapy, the answer is unconditional.
+scenario after_checking is:
+    Dan identifies as African American.
+    Dan is in stage C.
+    the NYHA class of Dan is 3.
+    the ejection fraction of Dan is 30.
+    Dan has received standard neurohormonal antagonist therapy.
+    combination expects answers [
+        "the guideline recommends hydralazine plus isosorbide dinitrate with class 1 for Dan"]
+        and unknowns [].
+
+% NYHA class 2: the combination is not indicated, whatever is assumed.
+scenario nyha_class_2 is:
+    Dan identifies as African American.
+    Dan is in stage C.
+    the NYHA class of Dan is 2.
+    the ejection fraction of Dan is 30.
+    combination expects answers [].
+
+query combination is:
+    the guideline recommends hydralazine plus isosorbide dinitrate with which class for which patient.
+
+query treatments is:
+    the guideline recommends which treatment with which class for which patient.

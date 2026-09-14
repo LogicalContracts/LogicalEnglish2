@@ -1,0 +1,99 @@
+% Logical Thinking in the Age of AI, slide 7: "Within the Ethical Realm" -
+% CONSTRUCTION AND DEFENSE OF ARGUMENTS: what is the reasoning behind this?
+%
+%   Leniency is in order towards a rapist who felt provoked into raping by the
+%   victim's (devoid of actual aggression) attitude (e.g. seductive attire,
+%   being in the "wrong" place, ...)
+%
+% To write the argument as rules we have to say what it rests on. Its
+% conclusion needs a reason (the offender is less to blame), and that reason
+% needs a premise the slogan never states: the victim shares the
+% responsibility for the crime, because the victim's attitude provoked it -
+% although the attitude involved no actual aggression.
+%
+% None of these rules mentions rape. The conditions are about an offender, a
+% victim and the victim's attitude, so the argument transposes by itself:
+% change three words in the facts (rapist -> murderer, raping -> killing,
+% seductive attire -> defiant attire) and the same rules conclude
+%
+%   Leniency is in order towards a murderer who felt provoked into killing by
+%   the victim's (devoid of actual aggression) attitude (e.g. defiant attire, ...)
+%
+% which nobody accepts. Scenarios rape_case and murder_case run query
+% leniency on the two cases; the explanations are the same tree, word for
+% word, but for those three words. Query hidden_premise shows the premise
+% doing the work: which victim is held to share the responsibility.
+% standard_for_judgment.le (slide 8) takes the argument one step further.
+
+the target language is: prolog.
+
+the templates are:
+    leniency is in order towards *a person* for *a crime*.
+    *a person* is less to blame for *a crime*.
+    *a victim* shares the responsibility for *a crime*.
+    *a person* committed *a crime* against *a victim*; undefined.
+    *a person* felt provoked into *a crime* by *an attitude* of *a victim*; undefined.
+    *an attitude* is devoid of actual aggression; undefined.
+
+the knowledge base provocation_transposed includes:
+
+% The argument, as stated ...
+leniency is in order towards a person for a crime
+    if the person is less to blame for the crime.
+
+% ... rests on two premises that it does not state:
+% (1) an offender who shares the responsibility for a crime with the victim
+%     is less to blame for it;
+a person is less to blame for a crime
+    if the person committed the crime against a victim
+    and the victim shares the responsibility for the crime.
+
+% (2) a victim whose attitude provoked the offender shares the responsibility
+%     for the crime, even when the attitude involved no actual aggression.
+a victim shares the responsibility for a crime
+    if a person committed the crime against the victim
+    and the person felt provoked into the crime by an attitude of the victim
+    and the attitude is devoid of actual aggression.
+
+% The case of the argument.
+scenario rape_case is:
+    Ron committed rape against Vicky.
+    Ron felt provoked into rape by seductive attire of Vicky.
+    seductive attire is devoid of actual aggression.
+    leniency expects answers ["leniency is in order towards Ron for rape"].
+    hidden_premise expects answers ["Vicky shares the responsibility for rape"].
+
+% The same case, transposed.
+scenario murder_case is:
+    Mark committed murder against Wendy.
+    Mark felt provoked into murder by defiant attire of Wendy.
+    defiant attire is devoid of actual aggression.
+    leniency expects answers ["leniency is in order towards Mark for murder"].
+    hidden_premise expects answers ["Wendy shares the responsibility for murder"].
+
+% Both cases side by side: one argument, two conclusions.
+scenario both_cases is:
+    Ron committed rape against Vicky.
+    Ron felt provoked into rape by seductive attire of Vicky.
+    seductive attire is devoid of actual aggression.
+    Mark committed murder against Wendy.
+    Mark felt provoked into murder by defiant attire of Wendy.
+    defiant attire is devoid of actual aggression.
+    leniency expects answers [
+        "leniency is in order towards Ron for rape",
+        "leniency is in order towards Mark for murder"].
+    hidden_premise expects answers [
+        "Vicky shares the responsibility for rape",
+        "Wendy shares the responsibility for murder"].
+
+% Without the provocation the argument has nothing to stand on.
+scenario no_provocation is:
+    Ron committed rape against Vicky.
+    leniency expects answers [].
+    hidden_premise expects answers [].
+
+query leniency is:
+    leniency is in order towards which person for which crime.
+
+query hidden_premise is:
+    which victim shares the responsibility for which crime.
