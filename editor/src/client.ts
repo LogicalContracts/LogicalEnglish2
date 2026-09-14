@@ -1298,6 +1298,110 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     }
     document.getElementById('menu-show-original')?.addEventListener('click', () => showOriginals(activeDoc));
 
+    // File > Export to Another System: the program written in another
+    // system's format by an exporter the server has for it (le_import.pl,
+    // exporter/6 — a Miniscript policy, LegalRuleML, Daml, ...). Only the
+    // exporters that can write this program are offered; the result is shown
+    // to copy or save, with the exporter's notes (what did not carry over)
+    // and its links (a public sandbox the result opens in).
+    const leRequest = async (operation: string, doc: any, extra: any = {}) => {
+        const r = await fetch('/leapi', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: 'myToken123', operation, le: doc.model.getValue(),
+                                   source: doc.example || '', base: doc.baseUrl || '', ...extra })
+        });
+        return r.json();
+    };
+    const overlayBox = (id: string, title: string) => {
+        document.getElementById(id)?.remove();
+        const overlay = document.createElement('div');
+        overlay.id = id;
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:3000;display:flex;align-items:center;justify-content:center';
+        const box = document.createElement('div');
+        box.style.cssText = 'background:var(--menu-bg,#eee);color:inherit;border-radius:6px;padding:12px 16px;width:min(900px,92vw);max-height:86vh;overflow:auto;font-size:13px;position:relative';
+        const h = document.createElement('h3');
+        h.textContent = title;
+        h.style.marginTop = '0';
+        box.appendChild(h);
+        const close = document.createElement('span');
+        close.textContent = '×';
+        close.title = t('Close');
+        close.style.cssText = 'position:absolute;top:6px;right:12px;cursor:pointer;font-size:18px';
+        close.onclick = () => overlay.remove();
+        box.appendChild(close);
+        overlay.appendChild(box);
+        overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+        document.body.appendChild(overlay);
+        return { overlay, box };
+    };
+    const showExported = (data: any) => {
+        const { box } = overlayBox('export-result', `${t('Exported as')} ${data.exporter}`);
+        for (const n of (data.notes || []) as string[]) {
+            const p = document.createElement('div');
+            p.textContent = '• ' + n;
+            p.style.margin = '2px 0';
+            box.appendChild(p);
+        }
+        const bar = document.createElement('div');
+        bar.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;margin:8px 0';
+        const button = (label: string, tip: string, act: () => void) => {
+            const b = document.createElement('button');
+            b.textContent = label; b.title = tip; b.onclick = act;
+            bar.appendChild(b);
+            return b;
+        };
+        button(t('Copy'), t('Copy the exported text to the clipboard'), () => navigator.clipboard.writeText(data.document));
+        button(t('Save…'), t('Save the exported text as a file'), () => {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([data.document], { type: 'text/plain' }));
+            a.download = data.fileName || 'exported.txt';
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        });
+        for (const l of (data.links || []) as { title: string, url: string }[]) {
+            const b = button(l.title, `${t('Open in a new tab')}: ${l.url.slice(0, 120)}`, () => window.open(l.url, '_blank', 'noopener'));
+            b.className = 'export-link';
+        }
+        box.appendChild(bar);
+        const pre = document.createElement('pre');
+        pre.id = 'export-text';
+        pre.textContent = data.document;
+        pre.style.cssText = 'white-space:pre-wrap;word-break:break-all;font-size:12px;background:rgba(128,128,128,.12);padding:8px;border-radius:4px;max-height:60vh;overflow:auto';
+        box.appendChild(pre);
+    };
+    const runExport = async (doc: any, id: string) => {
+        document.body.style.cursor = 'progress';
+        try {
+            const data = await leRequest('exportForeign', doc, { exporter: id });
+            if (data.error || typeof data.document !== 'string') { alert(`${t('Could not export')}: ${data.error || t('no answer from the server')}`); return; }
+            showExported(data);
+        } catch (err: any) {
+            alert(`${t('Could not export')}: ${err.message}`);
+        } finally { document.body.style.cursor = ''; }
+    };
+    async function exportToAnotherSystem(doc: any) {
+        let formats: { id: string, title: string, extension: string }[] = [];
+        document.body.style.cursor = 'progress';
+        try { formats = (await leRequest('exportFormats', doc)).formats || []; } catch { formats = []; }
+        finally { document.body.style.cursor = ''; }
+        if (formats.length === 0) {
+            alert(t('No exporter on this server can write this program in another system\'s format.'));
+            return;
+        }
+        if (formats.length === 1) { await runExport(doc, formats[0].id); return; }
+        const { overlay, box } = overlayBox('export-list', t('Export this program as'));
+        for (const f of formats) {
+            const row = document.createElement('div');
+            row.textContent = `${f.title} (.${f.extension})`;
+            row.style.cssText = 'cursor:pointer;padding:4px;';
+            row.onmouseenter = () => { row.style.background = 'rgba(128,128,128,.25)'; };
+            row.onmouseleave = () => { row.style.background = ''; };
+            row.onclick = () => { overlay.remove(); runExport(doc, f.id); };
+            box.appendChild(row);
+        }
+    }
+    document.getElementById('menu-export')?.addEventListener('click', () => exportToAnotherSystem(activeDoc));
+
     fileInput?.addEventListener('change', (e) => {
         const file = (e.target as HTMLInputElement).files?.[0];
         if (!file) return;

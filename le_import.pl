@@ -35,9 +35,38 @@
     When no translator accepts a text file, or the one that claimed it
     fails outright, the result is still a program: the file's text as a TODO
     comment, with the reason.
+
+    ## The other way: exporting a program to another system
+
+    File ▸ Export to Another System… (and the LPS2 IDE's Misc menu) writes a
+    loaded program in another system's format. An exporter registers itself
+    with one clause of exporter/6:
+
+        le_import:exporter(Id, Title, Extension, File, Export, Applies)
+
+      - Id, Title    as for importers (`legalruleml`, "LegalRuleML (OASIS)")
+      - Extension    the extension of the file it writes, no dot (`xml`)
+      - File         the Prolog file defining Export and Applies, loaded on
+                     first use
+      - Export       Module:Name, call(Export, +KB, +Options,
+                     -exported(FileName, Text, Notes, Links)): KB is the
+                     loaded knowledge base module (le_kbs:load_text/3), so
+                     the exporter reads it through le_writer:kb_to_ir/2 or
+                     the LPS translation, never the text; Options holds
+                     text(Doc) and base(Dir); Notes is a list of strings
+                     (what did not carry over, and why); Links a list of
+                     link(Title, Url) — a public sandbox or playground the
+                     result can be opened in.
+      - Applies      Module:Name, call(Applies, +KB) succeeds when the
+                     program is one this exporter can write (the menus list
+                     only those).
+
+    What an exporter cannot express it says in Notes (and, where the target
+    has comments, in the text itself) — never silently.
 */
 
-:- module(le_import, [import_upload/4, import_formats/1, imported_dir/1]).
+:- module(le_import, [import_upload/4, import_formats/1, imported_dir/1,
+                      export_formats/2, export_kb/4]).
 
 :- use_module(library(lists)).
 :- use_module(library(apply)).
@@ -48,6 +77,8 @@
 
 :- multifile importer/6.
 :- dynamic importer/6.
+:- multifile exporter/6.
+:- dynamic exporter/6.
 
 %!  imported_dir(-Dir) is det.
 %
@@ -339,3 +370,49 @@ fallback(Id, OutDir, Stem, Input, Title, Why, Reply) :-
     setup_call_cleanup(open(LEFile, write, S, [encoding(utf8)]), write(S, Text), close(S)),
     to_string(Why, WhyS),
     imported_reply(Id, OutDir, LEFile, Title, [WhyS], Reply).
+
+		 /*******************************
+		 *           EXPORTING          *
+		 *******************************/
+
+%!  export_formats(+KB, -Formats:list(dict)) is det.
+%
+%   The exporters that can write the loaded program KB: `{id, title,
+%   extension}`.
+export_formats(KB, Formats) :-
+    findall(_{id: Id, title: Title, extension: Ext},
+            ( exporter(Id, Title, Ext, File, _, Applies),
+              load_exporter(File),
+              catch(call(Applies, KB), _, fail) ),
+            Formats).
+
+%!  export_kb(+Id, +KB, +Options, -Reply:dict) is det.
+%
+%   Reply: `document` (the text written), `fileName`, `exporter` (its
+%   title), `notes`, `links` (`{title, url}`); or `error`.
+export_kb(Id0, KB, Options, Reply) :-
+    atom_string(Id, Id0),
+    (   exporter(Id, Title, _Ext, File, Export, _)
+    ->  load_exporter(File),
+        catch(( call(Export, KB, Options, exported(Name, Text, Notes, Links)) -> Outcome = ok
+              ; Outcome = failed("the exporter failed") ),
+              E, ( error_text(E, Msg0), Outcome = failed(Msg0) )),
+        (   Outcome == ok
+        ->  maplist(to_string, Notes, NoteStrs),
+            findall(_{title: LT, url: LU},
+                    ( member(link(LT0, LU0), Links), to_string(LT0, LT), to_string(LU0, LU) ),
+                    LinkDicts),
+            to_string(Text, TextS), to_string(Name, NameS),
+            Reply = _{document: TextS, fileName: NameS, exporter: Title,
+                      notes: NoteStrs, links: LinkDicts}
+        ;   Outcome = failed(Msg),
+            to_string(Msg, MsgS),
+            Reply = _{error: MsgS}
+        )
+    ;   le_i18n:le_msg(export_no_exporter, [id-Id], M),
+        Reply = _{error: M}
+    ).
+
+load_exporter(File) :-
+    exists_file(File),
+    catch(load_files(File, [if(not_loaded)]), E, ( print_message(warning, E), fail )).

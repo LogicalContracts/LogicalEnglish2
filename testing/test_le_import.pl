@@ -55,6 +55,22 @@ import_arrows(Input0, OutDir, imported(LEFile, Notes)) :-
         close(S)),
     Notes = ["arrows read"].
 
+%   The made-up exporter: a program with `*a thing* is ready` rules written
+%   back as arrows (the importer's own format), with a link.
+:- multifile le_import:exporter/6.
+le_import:exporter(arrows, "Arrow rules (test)", arrows, File,
+                   test_le_import:export_arrows, test_le_import:applies_arrows) :-
+    this_file(File).
+
+applies_arrows(KB) :- catch(current_predicate(KB:is_ready/1), _, fail).
+
+export_arrows(KB, _Options, exported('rules.arrows', Text, ["arrows written"], [link("A sandbox", "https://example.org/#x")])) :-
+    findall(L, ( catch(clause(KB:is_ready(B), Body), _, fail),
+                 strip_ready(Body, A), format(string(L), "~w => ~w", [A, B]) ), Ls),
+    atomic_list_concat(Ls, '\n', Text).
+
+strip_ready(Body, A) :- sub_term(is_ready(A0), Body), !, A = A0.
+
 zip_of(Zip, Members) :-
     setup_call_cleanup(zip_open(Zip, write, Z, []),
         forall(member(Name-Content, Members),
@@ -161,5 +177,25 @@ test(originals_of_an_archive) :-
 test(no_originals_for_a_program_not_converted) :-
     classic_web_api:handle_originals(_{source: "moreExamples/citizenship"}, O),
     O.files == [].
+
+%   The way back: only the exporters that can write a program are offered,
+%   and an export returns the text, the notes and the links.
+test(export_way_back) :-
+    le_kbs:load_text("the target language is: prolog.\n\nthe templates are:\n    *a thing* is ready.\n\nthe knowledge base t includes:\n\nb is ready if\n    a is ready.\n", KB),
+    export_formats(KB, Fs),
+    assertion(( member(F, Fs), get_dict(id, F, arrows) )),
+    export_kb(arrows, KB, [], R),
+    assertion(R.document == "a => b"),
+    assertion(R.notes == ["arrows written"]),
+    R.links = [L],
+    assertion(L.title == "A sandbox"),
+    assertion(L.url == "https://example.org/#x"),
+    export_kb(nobody, KB, [], R2),
+    assertion(get_dict(error, R2, _)).
+
+test(export_not_offered_when_it_does_not_apply) :-
+    le_kbs:load_text("the target language is: prolog.\n\nthe templates are:\n    *a thing* is green.\n\nthe knowledge base u includes:\n\nb is green.\n", KB),
+    export_formats(KB, Fs),
+    assertion(\+ ( member(F, Fs), get_dict(id, F, arrows) )).
 
 :- end_tests(le_import).

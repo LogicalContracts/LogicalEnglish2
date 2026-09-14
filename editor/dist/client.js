@@ -9057,7 +9057,17 @@ var uiCatalog = {
     "No original is kept for this program: it was not converted from another system's files (there is no sources folder beside it).": "N\xE3o h\xE1 original guardado para este programa: n\xE3o foi convertido a partir de ficheiros de outro sistema (n\xE3o h\xE1 pasta sources ao lado dele).",
     "The original files this program was converted from": "Os ficheiros originais de onde este programa foi convertido",
     "Open it in the source viewer": "Abri-lo no visualizador de fontes",
-    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "A vista jur\xEDdica \xE9 tirada de um programa LPS: este documento n\xE3o declara a linguagem alvo lps (ou n\xE3o carrega)."
+    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "A vista jur\xEDdica \xE9 tirada de um programa LPS: este documento n\xE3o declara a linguagem alvo lps (ou n\xE3o carrega).",
+    "Export to Another System\u2026": "Exportar para outro sistema\u2026",
+    "Write this program in another system's format \u2014 deterministically, no LLM \u2014 with an exporter the server has for it (for instance a Bitcoin spending policy as a Miniscript policy): the result is shown to copy or save, with links to a public sandbox where there is one": "Escrever este programa no formato de outro sistema \u2014 de forma determin\xEDstica, sem LLM \u2014 com um exportador que o servidor tenha para ele (por exemplo uma pol\xEDtica de gasto Bitcoin como pol\xEDtica Miniscript): o resultado \xE9 mostrado para copiar ou guardar, com liga\xE7\xF5es para uma sandbox p\xFAblica quando existe",
+    "Exported as": "Exportado como",
+    "Copy the exported text to the clipboard": "Copiar o texto exportado para a \xE1rea de transfer\xEAncia",
+    "Save\u2026": "Guardar\u2026",
+    "Save the exported text as a file": "Guardar o texto exportado num ficheiro",
+    "Open in a new tab": "Abrir num novo separador",
+    "Could not export": "N\xE3o foi poss\xEDvel exportar",
+    "No exporter on this server can write this program in another system's format.": "Nenhum exportador deste servidor consegue escrever este programa no formato de outro sistema.",
+    "Export this program as": "Exportar este programa como"
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -9603,7 +9613,17 @@ var uiCatalog = {
     "No original is kept for this program: it was not converted from another system's files (there is no sources folder beside it).": "No se guarda ning\xFAn original para este programa: no se convirti\xF3 a partir de archivos de otro sistema (no hay carpeta sources junto a \xE9l).",
     "The original files this program was converted from": "Los archivos originales de los que se convirti\xF3 este programa",
     "Open it in the source viewer": "Abrirlo en el visor de fuentes",
-    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vista jur\xEDdica se obtiene de un programa LPS: este documento no declara el lenguaje objetivo lps (o no se carga)."
+    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vista jur\xEDdica se obtiene de un programa LPS: este documento no declara el lenguaje objetivo lps (o no se carga).",
+    "Export to Another System\u2026": "Exportar a otro sistema\u2026",
+    "Write this program in another system's format \u2014 deterministically, no LLM \u2014 with an exporter the server has for it (for instance a Bitcoin spending policy as a Miniscript policy): the result is shown to copy or save, with links to a public sandbox where there is one": "Escribir este programa en el formato de otro sistema \u2014 de forma determinista, sin LLM \u2014 con un exportador que el servidor tenga para \xE9l (por ejemplo una pol\xEDtica de gasto de Bitcoin como pol\xEDtica Miniscript): el resultado se muestra para copiar o guardar, con enlaces a un sandbox p\xFAblico cuando lo hay",
+    "Exported as": "Exportado como",
+    "Copy the exported text to the clipboard": "Copiar el texto exportado al portapapeles",
+    "Save\u2026": "Guardar\u2026",
+    "Save the exported text as a file": "Guardar el texto exportado como archivo",
+    "Open in a new tab": "Abrir en una pesta\xF1a nueva",
+    "Could not export": "No se pudo exportar",
+    "No exporter on this server can write this program in another system's format.": "Ning\xFAn exportador de este servidor puede escribir este programa en el formato de otro sistema.",
+    "Export this program as": "Exportar este programa como"
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -10149,7 +10169,17 @@ var uiCatalog = {
     "No original is kept for this program: it was not converted from another system's files (there is no sources folder beside it).": "Aucun original n'est conserv\xE9 pour ce programme : il n'a pas \xE9t\xE9 converti depuis les fichiers d'un autre syst\xE8me (il n'y a pas de dossier sources \xE0 c\xF4t\xE9).",
     "The original files this program was converted from": "Les fichiers originaux d'o\xF9 ce programme a \xE9t\xE9 converti",
     "Open it in the source viewer": "L'ouvrir dans la visionneuse de sources",
-    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vue juridique se tire d'un programme LPS : ce document ne d\xE9clare pas le langage cible lps (ou ne se charge pas)."
+    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vue juridique se tire d'un programme LPS : ce document ne d\xE9clare pas le langage cible lps (ou ne se charge pas).",
+    "Export to Another System\u2026": "Exporter vers un autre syst\xE8me\u2026",
+    "Write this program in another system's format \u2014 deterministically, no LLM \u2014 with an exporter the server has for it (for instance a Bitcoin spending policy as a Miniscript policy): the result is shown to copy or save, with links to a public sandbox where there is one": "\xC9crire ce programme dans le format d'un autre syst\xE8me \u2014 de fa\xE7on d\xE9terministe, sans LLM \u2014 avec un exportateur que le serveur poss\xE8de pour lui (par exemple une politique de d\xE9pense Bitcoin en politique Miniscript) : le r\xE9sultat s'affiche pour \xEAtre copi\xE9 ou enregistr\xE9, avec des liens vers un bac \xE0 sable public s'il en existe un",
+    "Exported as": "Export\xE9 en",
+    "Copy the exported text to the clipboard": "Copier le texte export\xE9 dans le presse-papiers",
+    "Save\u2026": "Enregistrer\u2026",
+    "Save the exported text as a file": "Enregistrer le texte export\xE9 dans un fichier",
+    "Open in a new tab": "Ouvrir dans un nouvel onglet",
+    "Could not export": "Impossible d'exporter",
+    "No exporter on this server can write this program in another system's format.": "Aucun exportateur de ce serveur ne sait \xE9crire ce programme dans le format d'un autre syst\xE8me.",
+    "Export this program as": "Exporter ce programme en"
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -10695,7 +10725,17 @@ var uiCatalog = {
     "No original is kept for this program: it was not converted from another system's files (there is no sources folder beside it).": "Nessun originale \xE8 conservato per questo programma: non \xE8 stato convertito dai file di un altro sistema (non c'\xE8 una cartella sources accanto).",
     "The original files this program was converted from": "I file originali da cui questo programma \xE8 stato convertito",
     "Open it in the source viewer": "Aprirlo nel visualizzatore delle fonti",
-    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vista giuridica si ricava da un programma LPS: questo documento non dichiara il linguaggio obiettivo lps (o non si carica)."
+    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vista giuridica si ricava da un programma LPS: questo documento non dichiara il linguaggio obiettivo lps (o non si carica).",
+    "Export to Another System\u2026": "Esporta verso un altro sistema\u2026",
+    "Write this program in another system's format \u2014 deterministically, no LLM \u2014 with an exporter the server has for it (for instance a Bitcoin spending policy as a Miniscript policy): the result is shown to copy or save, with links to a public sandbox where there is one": "Scrivere questo programma nel formato di un altro sistema \u2014 in modo deterministico, senza LLM \u2014 con un esportatore che il server ha per esso (per esempio una politica di spesa Bitcoin come politica Miniscript): il risultato \xE8 mostrato per essere copiato o salvato, con collegamenti a una sandbox pubblica quando esiste",
+    "Exported as": "Esportato come",
+    "Copy the exported text to the clipboard": "Copiare il testo esportato negli appunti",
+    "Save\u2026": "Salva\u2026",
+    "Save the exported text as a file": "Salvare il testo esportato in un file",
+    "Open in a new tab": "Apri in una nuova scheda",
+    "Could not export": "Impossibile esportare",
+    "No exporter on this server can write this program in another system's format.": "Nessun esportatore di questo server sa scrivere questo programma nel formato di un altro sistema.",
+    "Export this program as": "Esporta questo programma come"
   }
 };
 var languages = [
@@ -15014,6 +15054,135 @@ async function start() {
     document.body.appendChild(overlay);
   }
   document.getElementById("menu-show-original")?.addEventListener("click", () => showOriginals(activeDoc));
+  const leRequest = async (operation, doc, extra = {}) => {
+    const r = await fetch("/leapi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token: "myToken123",
+        operation,
+        le: doc.model.getValue(),
+        source: doc.example || "",
+        base: doc.baseUrl || "",
+        ...extra
+      })
+    });
+    return r.json();
+  };
+  const overlayBox = (id, title) => {
+    document.getElementById(id)?.remove();
+    const overlay = document.createElement("div");
+    overlay.id = id;
+    overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:3000;display:flex;align-items:center;justify-content:center";
+    const box = document.createElement("div");
+    box.style.cssText = "background:var(--menu-bg,#eee);color:inherit;border-radius:6px;padding:12px 16px;width:min(900px,92vw);max-height:86vh;overflow:auto;font-size:13px;position:relative";
+    const h = document.createElement("h3");
+    h.textContent = title;
+    h.style.marginTop = "0";
+    box.appendChild(h);
+    const close = document.createElement("span");
+    close.textContent = "\xD7";
+    close.title = t("Close");
+    close.style.cssText = "position:absolute;top:6px;right:12px;cursor:pointer;font-size:18px";
+    close.onclick = () => overlay.remove();
+    box.appendChild(close);
+    overlay.appendChild(box);
+    overlay.onclick = (e) => {
+      if (e.target === overlay)
+        overlay.remove();
+    };
+    document.body.appendChild(overlay);
+    return { overlay, box };
+  };
+  const showExported = (data) => {
+    const { box } = overlayBox("export-result", `${t("Exported as")} ${data.exporter}`);
+    for (const n of data.notes || []) {
+      const p = document.createElement("div");
+      p.textContent = "\u2022 " + n;
+      p.style.margin = "2px 0";
+      box.appendChild(p);
+    }
+    const bar = document.createElement("div");
+    bar.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;margin:8px 0";
+    const button = (label, tip, act) => {
+      const b = document.createElement("button");
+      b.textContent = label;
+      b.title = tip;
+      b.onclick = act;
+      bar.appendChild(b);
+      return b;
+    };
+    button(t("Copy"), t("Copy the exported text to the clipboard"), () => navigator.clipboard.writeText(data.document));
+    button(t("Save\u2026"), t("Save the exported text as a file"), () => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([data.document], { type: "text/plain" }));
+      a.download = data.fileName || "exported.txt";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1e3);
+    });
+    for (const l of data.links || []) {
+      const b = button(l.title, `${t("Open in a new tab")}: ${l.url.slice(0, 120)}`, () => window.open(l.url, "_blank", "noopener"));
+      b.className = "export-link";
+    }
+    box.appendChild(bar);
+    const pre = document.createElement("pre");
+    pre.id = "export-text";
+    pre.textContent = data.document;
+    pre.style.cssText = "white-space:pre-wrap;word-break:break-all;font-size:12px;background:rgba(128,128,128,.12);padding:8px;border-radius:4px;max-height:60vh;overflow:auto";
+    box.appendChild(pre);
+  };
+  const runExport = async (doc, id) => {
+    document.body.style.cursor = "progress";
+    try {
+      const data = await leRequest("exportForeign", doc, { exporter: id });
+      if (data.error || typeof data.document !== "string") {
+        alert(`${t("Could not export")}: ${data.error || t("no answer from the server")}`);
+        return;
+      }
+      showExported(data);
+    } catch (err) {
+      alert(`${t("Could not export")}: ${err.message}`);
+    } finally {
+      document.body.style.cursor = "";
+    }
+  };
+  async function exportToAnotherSystem(doc) {
+    let formats = [];
+    document.body.style.cursor = "progress";
+    try {
+      formats = (await leRequest("exportFormats", doc)).formats || [];
+    } catch {
+      formats = [];
+    } finally {
+      document.body.style.cursor = "";
+    }
+    if (formats.length === 0) {
+      alert(t("No exporter on this server can write this program in another system's format."));
+      return;
+    }
+    if (formats.length === 1) {
+      await runExport(doc, formats[0].id);
+      return;
+    }
+    const { overlay, box } = overlayBox("export-list", t("Export this program as"));
+    for (const f of formats) {
+      const row = document.createElement("div");
+      row.textContent = `${f.title} (.${f.extension})`;
+      row.style.cssText = "cursor:pointer;padding:4px;";
+      row.onmouseenter = () => {
+        row.style.background = "rgba(128,128,128,.25)";
+      };
+      row.onmouseleave = () => {
+        row.style.background = "";
+      };
+      row.onclick = () => {
+        overlay.remove();
+        runExport(doc, f.id);
+      };
+      box.appendChild(row);
+    }
+  }
+  document.getElementById("menu-export")?.addEventListener("click", () => exportToAnotherSystem(activeDoc));
   fileInput?.addEventListener("change", (e) => {
     const file = e.target.files?.[0];
     if (!file)
