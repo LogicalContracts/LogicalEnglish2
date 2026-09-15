@@ -92,6 +92,9 @@ becomes **alice** everywhere in the rule.
   as the cards you connect give them their inputs. Connect *"the rent of ann is
   800"* and the rule's head becomes *"the help for ann is 400"*. If the result
   is false — a rent of 1200 under *"the rent =< 1000"* — the connection clashes.
+  A condition with alternatives (*"N >= 3 or N = 2 and the patient is
+  flagged"*) keeps its socket, for the alternative a card proves; when the
+  computed one holds (a class of 3), it needs nothing connected.
 
 **Teaching point:** a proof is not a single step. It is a *tree* — the query at the
 root, rules in the middle, and facts at the leaves. The student's job is to grow
@@ -148,6 +151,15 @@ it is not the case that bob smokes
     alice smokes                     (fails)
       a creature is a parent of alice  (fails — there is none)
 ```
+
+A failure can itself contain a proof. In
+`examples/moreExamples/LogicalThinkingInAgeOfAI/heart_failure.le` (scenario
+`high_creatinine`, query `withheld`), "the guideline recommends aldosterone
+antagonists for Frank" fails because its condition *"it is not the case that
+Frank has a contraindication to aldosterone antagonists"* fails — and that
+negation fails because the contraindication **holds**. So under that condition
+of the failing card goes the ordinary, green proof of Frank's contraindication:
+each negation flips the polarity.
 
 **Teaching point:** "true" and "false" are proved differently. A positive proof
 needs **one** way to succeed; a negation needs **every** way to **fail**. Failing

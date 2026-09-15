@@ -2387,7 +2387,12 @@ async function initExplanationDrill() {
   let sessionLoad = null;
   function startSessionLoad() {
     if (!sessionLoad) {
-      sessionLoad = (source ? leapi({ operation: "load", le: source }) : Promise.resolve(null)).then((r) => {
+      sessionLoad = (source ? leapi({
+        operation: "load",
+        le: source,
+        source: ls.sourceExample || "",
+        base: ls.sourceBase || ""
+      }) : Promise.resolve(null)).then((r) => {
         if (r && r.sessionModule)
           sessionModule = r.sessionModule;
       }).catch(() => {

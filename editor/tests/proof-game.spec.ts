@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Capture the sessionModule of a getGameData POST (works for both the editor page
 // and the game popup).
@@ -311,5 +313,65 @@ test.describe('Proof Game — built-in conditions', () => {
             return !!q && q.complete;
         }), { timeout: 30000 }).toBe(true);
         await expect(popup.locator('.rule-node', { hasText: 'the help for ann is 400' })).toBeVisible();
+    });
+});
+
+// examples/moreExamples/LogicalThinkingInAgeOfAI/heart_failure.le, as reported:
+// after the editor had run the query, the cards' ids named other facts in the
+// game's own session, so nothing bound; the negated conjunction ("… should not
+// be prescribed without a second treatment … and …") got no proof; an "or"
+// holding by a comparison ("N >= 3 or …") had a socket nothing could fill; and
+// a negation failing because what it negates holds got a FAIL, not that proof.
+const HEART_FAILURE = fs.readFileSync(
+    path.join(__dirname, '../../examples/moreExamples/LogicalThinkingInAgeOfAI/heart_failure.le'), 'utf8');
+
+async function showProofCompletes(popup: any, answer: number) {
+    popup.on('dialog', (d: any) => d.accept());
+    if (answer > 0) {
+        await popup.selectOption('#answer-select', String(answer));
+        await popup.waitForTimeout(1500);
+    }
+    await popup.click('#btn-show');
+    await expect.poll(async () => popup.evaluate(() => {
+        const nodes = (window as any).__pgTest.nodes();
+        return nodes.some((n: any) => n.kind === 'QueryNode' && n.complete) && !nodes.some((n: any) => n.clash);
+    }), { timeout: 30000 }).toBe(true);
+}
+
+test.describe('Proof Game — heart failure guideline', () => {
+    test('Show Proof binds and completes after the editor ran the query', async ({ page }) => {
+        test.setTimeout(120000);
+        await page.goto('index.html?text=' + encodeURIComponent(HEART_FAILURE));
+        await page.waitForTimeout(800);
+        await page.locator('#scenario-select').hover();
+        await expect.poll(async () => page.locator('#scenario-select option').count(), { timeout: 20000 }).toBeGreaterThan(1);
+        await page.selectOption('#scenario-select', 'fluid_retention_without_diuretics');
+        await page.selectOption('#query-select', 'treatments');
+        await page.click('#btn-query');
+        await expect(page.locator('#answers-list > *').first()).toBeVisible({ timeout: 30000 });
+        await page.evaluate(() => localStorage.setItem('le_pg_test', '1'));
+        const [popup] = await Promise.all([page.waitForEvent('popup'), page.click('#btn-proof-game')]);
+        await popup.waitForLoadState();
+        await expect.poll(async () => popup.evaluate(() => !!(window as any).__pgTest), { timeout: 30000 }).toBe(true);
+        await showProofCompletes(popup, 0);
+        await expect(popup.locator('.rule-node', { hasText: 'Dave has heart failure with reduced ejection fraction' }).first()).toBeVisible();
+        // the third condition of the top rule is proved too: a FAIL on its socket
+        const third = await popup.evaluate(() => {
+            const t = (window as any).__pgTest;
+            const top = t.nodes().find((n: any) => n.kind === 'RuleNode' && n.head === 'the guideline recommends a treatment with a class for a patient'
+                && t.connections().some((c: any) => c.source === n.id && c.targetInput === 'in'));
+            return t.connections().filter((c: any) => c.target === top.id && c.targetInput === 'in-2').length;
+        });
+        expect(third).toBe(1);
+    });
+
+    test('an "or" holding by a comparison, and a negation failing because its goal holds', async ({ page }) => {
+        test.setTimeout(120000);
+        const ann = await openGame(page, HEART_FAILURE, 'paper_patient', 'treatments');
+        await showProofCompletes(ann, 2);       // aldosterone antagonists: NYHA class 3 >= 3
+        await ann.close();
+        const frank = await openGame(page, HEART_FAILURE, 'high_creatinine', 'withheld');
+        await showProofCompletes(frank, 0);     // his contraindication, proved
+        await expect(frank.locator('.rule-node', { hasText: 'Frank has a contraindication to aldosterone antagonists' }).first()).toBeVisible();
     });
 });

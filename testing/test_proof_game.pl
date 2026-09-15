@@ -558,3 +558,125 @@ test(unbound_inputs_wait) :-
     assertion(Response.status == "ok").
 
 :- end_tests(proof_game_builtins).
+
+% --- Card ids follow the source --------------------------------------------
+% The game draws its cards from the editor's session and unifies them in its
+% own session, by id. The ids used to follow current_predicate/1's
+% enumeration, which differs between two sessions of one program once a query
+% has run in one of them: "fact_24" named one fact on the cards and another on
+% the server, so every link clashed or bound nothing (heart_failure.le, in
+% examples/moreExamples/LogicalThinkingInAgeOfAI). They are now numbered in
+% source order: rules first, then facts.
+
+card_number(Card, Start-N) :-
+    get_dict(start, Card, Start),
+    get_dict(id, Card, Id),
+    atomic_list_concat(Parts, '_', Id),
+    last(Parts, NA), atom_number(NA, N).
+
+numbered_in_source_order(Cards) :-
+    maplist(card_number, Cards, Pairs),
+    transpose_pairs(Pairs, ByNumber),          % Number-Start, sorted by number
+    pairs_values(ByNumber, Starts),
+    msort(Starts, Starts).
+
+:- begin_tests(proof_game_card_ids).
+
+test(card_ids_follow_the_source) :-
+    le_kbs:load('examples/moreExamples/LogicalThinkingInAgeOfAI/heart_failure.le', KB, [skip_tests]),
+    le_kbs:createSession(KB, SM),
+    le_kbs:setScenarion(SM, fluid_retention_without_diuretics),
+    KB:query_info(treatments, Goal, _),
+    le_proof_game:extract_rules_and_facts(KB, SM, Goal, Rules, Facts, _),
+    le_kbs:destroySession(SM),
+    assertion(numbered_in_source_order(Rules)),
+    assertion(numbered_in_source_order(Facts)).
+
+:- end_tests(proof_game_card_ids).
+
+% --- A disjunction that holds by computation --------------------------------
+% "N >= 3 or N = 2 and the patient is flagged": when the class is 3 the
+% condition holds through the comparison, which no card proves - its socket
+% could never be filled and the proof never completed. The server reports
+% such a condition (bodyHolds) once the links bind its inputs, marks the
+% disjunctions (bodyOr), and gives them the span of their parts as a range.
+
+disjunction_program("
+the target language is: prolog.
+
+the templates are:
+    *a patient* is treated.
+    the class of *a patient* is *a number*.
+    *a patient* is flagged.
+
+the knowledge base disjunction includes:
+    a patient is treated
+        if the class of the patient is a number N
+        and N >= 3
+            or N = 2
+                and the patient is flagged.
+
+scenario s is:
+    the class of ann is 3.
+    the class of bob is 2.
+
+query one is:
+    which patient is treated.
+").
+
+disjunction_session(KB, SM, Rule, Facts) :-
+    disjunction_program(Text),
+    le_kbs:load_text(Text, KB),
+    le_kbs:createSession(KB, SM),
+    le_kbs:setScenarion(SM, s),
+    KB:query_info(one, Goal, _),
+    le_proof_game:extract_rules_and_facts(KB, SM, Goal, [Rule], Facts, _).
+
+disjunction_holds(FactText, Holds) :-
+    disjunction_session(KB, SM, Rule, Facts),
+    fact_id_for_text(Facts, FactText, FId),
+    Nodes = [ _{instanceId:"r", templateId:Rule.id}, _{instanceId:"f", templateId:FId} ],
+    le_proof_game:unify_game_nodes(KB, SM, Nodes, [_{child:"f", parent:"r", bodyIndex:0}], Response),
+    le_kbs:destroySession(SM),
+    assertion(Response.status == "ok"),
+    once(( member(N, Response.nodes), N.instanceId == r )),
+    Holds = N.bodyHolds.
+
+:- begin_tests(proof_game_disjunction).
+
+test(disjunction_is_marked_and_spans_its_parts) :-
+    disjunction_session(_, SM, Rule, _),
+    le_kbs:destroySession(SM),
+    assertion(Rule.bodyOr == [1]),
+    nth0(1, Rule.bodyRanges, R),
+    assertion(R.start > 0),
+    assertion(R.end > R.start).
+
+test(holds_by_computation) :-
+    disjunction_holds("the class of ann is 3", Holds),
+    assertion(Holds == [1]).
+
+test(needs_a_card_otherwise) :-
+    disjunction_holds("the class of bob is 2", Holds),
+    assertion(Holds == []).
+
+:- end_tests(proof_game_disjunction).
+
+% --- "is a" facts the program writes are cards -------------------------------
+% "a standard is acceptable if the standard is a standard and ..." asks for an
+% is_a/2 fact, but is_a/2 is one of the engine's predicates, so the facts the
+% program writes ("the provocation standard is a standard") never became
+% cards and that condition's socket could not be filled.
+
+:- begin_tests(proof_game_is_a_cards).
+
+test(written_is_a_facts_are_cards) :-
+    le_kbs:load('examples/moreExamples/LogicalThinkingInAgeOfAI/standard_for_judgment.le', KB, [skip_tests]),
+    le_kbs:createSession(KB, SM),
+    le_kbs:setScenarion(SM, rape_case_alone),
+    KB:query_info(acceptable, Goal, _),
+    le_proof_game:extract_rules_and_facts(KB, SM, Goal, _Rules, Facts, _),
+    le_kbs:destroySession(SM),
+    assertion(fact_id_for_text(Facts, "the provocation standard is a standard", _)).
+
+:- end_tests(proof_game_is_a_cards).

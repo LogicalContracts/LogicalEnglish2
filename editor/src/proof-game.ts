@@ -64,6 +64,89 @@ function rulesProving(literal: string, rules: any[]): any[] {
     });
 }
 
+// How a failure explanation is laid out on the board. A socket receiving the
+// failure of a goal holds a FAIL (nothing could prove the goal) and/or one
+// failing-mode card per rule that tried to, each carrying the plan of the
+// condition(s) it failed on. Show Proof builds this plan (buildFailure) and the
+// completion check validates against it (failureGoalMatches), so the two can
+// never disagree about what a finished failure looks like.
+interface FailRulePlan { ruleId: string; conds: Map<number, FailPlan>; }
+// `proof`: the failed condition is a negation, which fails because what it
+// negates HOLDS - shown by that goal's proof (an explanation success node).
+interface FailPlan { fail: boolean; rules: FailRulePlan[]; proof?: any; }
+
+function mergeFailPlan(into: FailPlan, other: FailPlan) {
+    into.fail = into.fail || other.fail;
+    into.rules.push(...other.rules);
+}
+
+function failurePlan(expFail: any, rules: any[]): FailPlan {
+    const plan: FailPlan = { fail: false, rules: [] };
+    const failChildren = (expFail?.children || []).filter((c: any) => c.type === 'failure');
+    // A failure node without a source range is structural: a negated
+    // CONJUNCTION ("it is not the case that A and B") fails because a conjunct
+    // does, and its failure children are those conjuncts. A card proving a
+    // conjunct satisfies the negation (unify_condition/2 in le_proof_game.pl),
+    // so each goes on the same socket. Read as a goal instead, its text matched
+    // loose head templates ("* has a contraindication to *" matches any
+    // sentence ending that way) and nothing at all was wired.
+    if (typeof expFail?.start !== 'number') {
+        if (failChildren.length === 0) return { fail: true, rules: [] };
+        failChildren.forEach((c: any) => mergeFailPlan(plan, failurePlan(c, rules)));
+        return plan;
+    }
+    const provRules = rulesProving(expFail.literal, rules);
+    if (provRules.length === 0 || failChildren.length === 0) return { fail: true, rules: [] };
+    const disjunctCards = new Map<string, FailRulePlan>();
+    for (const ch of failChildren) {
+        // A negated prepositional chain — "it is not the case that we will not
+        // make the payment under this policy in respect of the claim" — fails
+        // through a child that is the chain's MAIN literal, carrying the range of
+        // the first rule that could prove it. A child whose literal a rule HEAD
+        // proves is the same goal one step down: it belongs on the same socket,
+        // not inside a rule instance (which would wire the rule into itself).
+        const sameGoal = provRules.some((r: any) => {
+            const re = templateToRegex(getPredicateTemplate(r.headTokens));
+            return re && re.test(ch.literal || '');
+        });
+        if (sameGoal) { mergeFailPlan(plan, failurePlan(ch, rules)); continue; }
+        // Each other child is the failed body condition of one proving rule,
+        // identified by its range: one card per child ...
+        let rule = provRules.find((r: any) => (r.bodyRanges || []).some((br: any) => br.start === ch.start && br.end === ch.end));
+        if (rule) {
+            const idx = rule.bodyRanges.findIndex((br: any) => br.start === ch.start && br.end === ch.end);
+            // A card that fails at a computed condition ("4.9 is greater than or
+            // equal to 5.0") needs nothing below it: that condition has no socket.
+            const computed = (rule.bodyTypeCheck || []).includes(idx);
+            // A negation ("it is not the case that Frank has a contraindication
+            // to ...") fails because the goal it negates holds: its explanation
+            // is that goal's proof. A FAIL there would say the opposite.
+            const holds = (rule.bodyNaf || []).includes(idx)
+                ? (ch.children || []).find((c: any) => c.type === 'success') : null;
+            plan.rules.push({ ruleId: rule.id, conds: computed ? new Map()
+                : new Map([[idx, holds ? { fail: false, rules: [], proof: holds } : failurePlan(ch, rules)]]) });
+            continue;
+        }
+        // ... except the disjuncts of an "A or B" condition, whose ranges lie
+        // inside it: the condition fails when each of them does, so they share
+        // the one card and its one socket.
+        const within = (br: any) => br.end > br.start && br.start <= ch.start && ch.end <= br.end;
+        rule = provRules.find((r: any) => (r.bodyRanges || []).some(within));
+        if (!rule) continue;
+        const idx = rule.bodyRanges.findIndex(within);
+        const key = `${rule.id}/${idx}`;
+        let card = disjunctCards.get(key);
+        if (!card) {
+            card = { ruleId: rule.id, conds: new Map([[idx, { fail: false, rules: [] }]]) };
+            disjunctCards.set(key, card);
+            plan.rules.push(card);
+        }
+        mergeFailPlan(card.conds.get(idx)!, failurePlan(ch, rules));
+    }
+    if (!plan.fail && plan.rules.length === 0) plan.fail = true;
+    return plan;
+}
+
 // The first rule whose head predicate would prove `literal`. Used where a single
 // representative rule is enough (e.g. keying an explanation node).
 function ruleProving(literal: string, rules: any[]): any {
@@ -82,7 +165,7 @@ function expNodeKey(expNode: any, rules: any[], facts: any[]): string | null {
         const f = facts.find(x => x.start === expNode.start && x.end === expNode.end);
         if (f) return 'fact:' + f.id;
     }
-    if (expNode.type === 'failure') {
+    if (expNode.type === 'failure' && typeof expNode.start === 'number') {
         const r = ruleProving(expNode.literal, rules);
         if (r) return 'rule:' + r.id;
     }
@@ -242,6 +325,8 @@ class RuleNode extends ClassicPreset.Node {
     // Used to reject a "not the case" link whose connected failing rule denotes a
     // different goal than this rule's bindings actually negate.
     public bodyNafInner: any[] = [];
+    public bodyHolds: number[] = [];
+    public bodyOr: number[];
 
     constructor(public rule: any, sourceLoc?: { start: number, end: number }) {
         super('');
@@ -253,6 +338,7 @@ class RuleNode extends ClassicPreset.Node {
         this.bodyForall = Array.isArray(rule.bodyForall) ? rule.bodyForall : [];
         this.bodyRanges = Array.isArray(rule.bodyRanges) ? rule.bodyRanges : [];
         this.bodyTypeCheck = Array.isArray(rule.bodyTypeCheck) ? rule.bodyTypeCheck : [];
+        this.bodyOr = Array.isArray(rule.bodyOr) ? rule.bodyOr : [];
         this.forallIndexSet = new Set(this.bodyForall.map((m: any) => m.index));
         this.sourceLoc = sourceLoc;
         const socket = new ClassicPreset.Socket('socket');
@@ -465,7 +551,8 @@ function CustomNode(props: any) {
                         border: isAdultMode ? (isNaf ? '1px dashed #e57373' : '1px solid #444') : 'none'
                     },
                     title: !isAdultMode ? condText
-                        : (isTypeGuard ? 'checked automatically: nothing to connect'
+                        : (isTypeGuard || (Array.isArray(data.bodyHolds) && data.bodyHolds.includes(i))
+                            ? 'checked automatically: nothing to connect'
                         : (isNaf ? 'negation: connect the rule that would prove it, or a FAIL node' : ''))
                 },
                     isAdultMode ? condText : '',
@@ -767,7 +854,12 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             sessionModule = gameData.sessionModule || null;
             return !!sessionModule;
         }
-        const r = await leapi({ token: 'myToken123', operation: 'load', le: source });
+        // The example it came from and its base URL resolve its included
+        // resources; without them a program including another had none of the
+        // other's rules here, and every link was "Unknown node template".
+        const r = await leapi({ token: 'myToken123', operation: 'load', le: source,
+                                source: (gameData as any).sourceExample || '',
+                                base: (gameData as any).sourceBase || '' });
         if (!(r && r.sessionModule)) return false;
         sessionModule = r.sessionModule;
         gameData.sessionModule = sessionModule;
@@ -1017,64 +1109,54 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             connections.filter(c => c.target === nodeId).forEach(c => markFragment(c.source));
         }
 
-        // Structural validation of a failure subtree against the explanation spine.
-        // A goal fails only when EVERY rule whose head matches it fails, so the
-        // sources feeding the socket must, together, cover all those rules: each
-        // connected node is the rule proving the goal (in failing mode) with its one
-        // failing condition connected, recursing down to a FAIL leaf. A leaf failure
-        // (no rule could prove it) is represented by a single FAIL node.
+        // Structural validation of a failure subtree against the explanation spine:
+        // the sources feeding the socket must be exactly what failurePlan lays out
+        // there — the FAIL it calls for, and one failing-mode card per rule it
+        // lists, each with its own failed condition(s) validated in turn. A goal
+        // fails only when EVERY rule that tried to prove it fails, so all of them
+        // are required.
         function failureGoalMatches(sourceNodeIds: string[], expFail: any): boolean {
             if (!expFail) return false;
-            const provRules = rulesProving(expFail.literal, gameData.rules || []);
-            const failChildren = (expFail.children || []).filter((c: any) => c.type === 'failure');
-            // Leaf failure: a single FAIL node represents it. The test must be the
-            // SAME one buildFailure uses to place that FAIL — nothing could prove
-            // the goal, OR nothing below it failed. Checking only provRules made
-            // the validator reject a leaf the builder had just created, because
-            // rulesProving matches on rendered text and a long literal can
-            // accidentally match a loose head template ("*a payment* under *a
-            // policy*" matches any sentence containing " under ").
-            if (provRules.length === 0 || failChildren.length === 0) {
+            return planMatches(sourceNodeIds, failurePlan(expFail, gameData.rules || []));
+        }
+
+        function planMatches(sourceNodeIds: string[], plan: FailPlan): boolean {
+            if (plan.proof) {   // the negated goal holds: its proof, complete
                 return sourceNodeIds.length === 1
-                    && (editor.getNode(sourceNodeIds[0]) instanceof FailNode);
+                    && !(editor.getNode(sourceNodeIds[0]) instanceof FailNode)
+                    && isComplete(sourceNodeIds[0]);
             }
-            // A negated prepositional chain ("it is not the case that we will not
-            // make the payment under this policy in respect of the claim") fails
-            // through a child that is the chain's MAIN literal — the same goal
-            // restated, which the builder wires on the SAME socket. Validate
-            // against that child, or this would demand a rule instance where the
-            // proof correctly has none. Must mirror buildFailure exactly.
-            const sameGoalChild = failChildren.find((c: any) => provRules.some((r: any) => {
-                const re = templateToRegex(getPredicateTemplate(r.headTokens));
-                return re && re.test(c.literal || '');
-            }));
-            if (sameGoalChild) return failureGoalMatches(sourceNodeIds, sameGoalChild);
-            const covered = new Set<string>();
-            for (const sourceId of sourceNodeIds) {
-                const node = editor.getNode(sourceId) as any;
+            const fails = sourceNodeIds.filter(id => editor.getNode(id) instanceof FailNode);
+            const cards = sourceNodeIds.filter(id => !(editor.getNode(id) instanceof FailNode));
+            if (fails.length !== (plan.fail ? 1 : 0)) return false;
+            if (cards.length !== plan.rules.length) return false;
+            // Pair each card with a distinct rule of the plan (the same rule may be
+            // listed more than once, failing for different bindings).
+            const taken = new Set<number>();
+            const assign = (k: number): boolean => {
+                if (k === cards.length) return true;
+                const node = editor.getNode(cards[k]) as any;
                 if (!(node instanceof RuleNode)) return false;
-                const rule = provRules.find((r: any) => r.id === node.templateId);
-                if (!rule) return false;   // a rule whose head is not this goal
-                // The failing body condition of THIS rule: the failure child whose
-                // range matches one of the rule's body-condition ranges.
-                let matched = false;
-                for (const ch of failChildren) {
-                    const idx = (node.bodyRanges || []).findIndex(
-                        (r: any) => r.start === ch.start && r.end === ch.end);
-                    if (idx < 0) continue;
-                    const subSources = connections
-                        .filter(c => c.target === node.id && c.targetInput === `in-${idx}`)
-                        .map(c => c.source);
-                    if (subSources.length === 0) return false;
-                    if (!failureGoalMatches(subSources, ch)) return false;
-                    matched = true;
-                    break;
+                for (let j = 0; j < plan.rules.length; j++) {
+                    const rp = plan.rules[j];
+                    if (taken.has(j) || rp.ruleId !== node.templateId || !cardMatches(node, rp)) continue;
+                    taken.add(j);
+                    if (assign(k + 1)) return true;
+                    taken.delete(j);
                 }
-                if (!matched) return false;
-                covered.add(node.templateId);
+                return false;
+            };
+            return assign(0);
+        }
+
+        function cardMatches(node: any, rp: FailRulePlan): boolean {
+            for (const [idx, sub] of rp.conds) {
+                const subSources = connections
+                    .filter(c => c.target === node.id && c.targetInput === `in-${idx}`)
+                    .map(c => c.source);
+                if (!planMatches(subSources, sub)) return false;
             }
-            // Every rule that could prove the goal must be shown failing.
-            return provRules.every((r: any) => covered.has(r.id));
+            return true;
         }
 
         function isComplete(nodeId: string): boolean {
@@ -1178,6 +1260,10 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                         conns.forEach(c => markFragment(c.source));
                     } else {
                         const conn = connections.find(c => c.target === nodeId && c.targetInput === `in-${i}`);
+                        // A disjunction that holds by computation ("N >= 3 or ...",
+                        // once N is bound): nothing to connect (bodyHolds, from
+                        // the server's unification round).
+                        if (!conn && Array.isArray(node.bodyHolds) && node.bodyHolds.includes(i)) continue;
                         if (!conn) return false;
                         if (!isComplete(conn.source)) return false;
                     }
@@ -1208,7 +1294,8 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
     // True if `targetInput` of `targetNode` is a negation ("it is not the case
     // that ...") socket.
     function isNafSocket(targetNode: any, targetInput: string): boolean {
-        if (!(targetNode instanceof RuleNode) || typeof targetInput !== 'string') return false;
+        const conjunctiveQuery = targetNode instanceof QueryNode && !!targetNode.rule;
+        if (!(targetNode instanceof RuleNode || conjunctiveQuery) || typeof targetInput !== 'string') return false;
         const parts = targetInput.split('-');
         return parts.length === 2 && targetNode.bodyNaf.includes(parseInt(parts[1]));
     }
@@ -1247,19 +1334,26 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
 
     // Nodes in a failure subtree: a node whose output reaches a negation socket,
     // directly or through other failing nodes.
+    // Polarity flips at each negation socket: a card under a negation of a card
+    // that holds is failing, and so is everything below it - except under a
+    // negation of a FAILING card, which fails because what it negates holds:
+    // that is a proof again.
     function computeFailing(): Set<string> {
         const conns = editor.getConnections();
+        const memo = new Map<string, boolean>();
+        const visiting = new Set<string>();
+        const failingNode = (id: string): boolean => {
+            if (memo.has(id)) return memo.get(id)!;
+            if (visiting.has(id)) return false;
+            visiting.add(id);
+            const up = conns.find(c => c.source === id);
+            const f = up ? failingNode(up.target) !== isNafSocket(editor.getNode(up.target), up.targetInput) : false;
+            visiting.delete(id);
+            memo.set(id, f);
+            return f;
+        };
         const failing = new Set<string>();
-        for (const c of conns) {
-            if (isNafSocket(editor.getNode(c.target), c.targetInput)) failing.add(c.source);
-        }
-        let changed = true;
-        while (changed) {
-            changed = false;
-            for (const c of conns) {
-                if (failing.has(c.target) && !failing.has(c.source)) { failing.add(c.source); changed = true; }
-            }
-        }
+        for (const n of editor.getNodes()) if (failingNode(n.id)) failing.add(n.id);
         return failing;
     }
 
@@ -1268,6 +1362,7 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
     // each negation socket's failure subtree and label the rules along it.
     function updateFailingLabels() {
         const conns = editor.getConnections();
+        const failingNow = computeFailing();
         editor.getNodes().forEach(n => {
             if ((n as any).boundHead || (n as any).boundBody) {
                 (n as any).boundHead = null;
@@ -1294,17 +1389,33 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             // matches one of the rule's body ranges — not merely the first failure
             // child, which may belong to a sibling rule when a goal fails via several
             // rules (e.g. "r if u" and "r if w" both feed the failure of r).
-            const expChild = (expFail.children || []).filter((c: any) => c.type === 'failure')
+            const failKids = (expFail.children || []).filter((c: any) => c.type === 'failure');
+            const expChild = failKids
                 .find((c: any) => (node.bodyRanges || []).some((r: any) => r.start === c.start && r.end === c.end));
-            if (!expChild) return;
-            const idx = (node.bodyRanges || []).findIndex((r: any) => r.start === expChild.start && r.end === expChild.end);
-            // A condition may itself fail via several rules, so label every link.
-            conns.filter(c => c.target === node.id && c.targetInput === `in-${idx}`)
-                .forEach(c => assign(c.source, expChild));
+            if (expChild) {
+                const idx = (node.bodyRanges || []).findIndex((r: any) => r.start === expChild.start && r.end === expChild.end);
+                // Under a failed negation hangs a proof, bound by unification.
+                if ((node.bodyNaf || []).includes(idx)) return;
+                // A condition may itself fail via several rules, so label every link.
+                conns.filter(c => c.target === node.id && c.targetInput === `in-${idx}`)
+                    .forEach(c => assign(c.source, expChild));
+                return;
+            }
+            // The disjuncts of an "A or B" condition (ranges inside it) share its
+            // socket: label each link with the disjunct its rule proves.
+            for (const ch of failKids) {
+                const idx = (node.bodyRanges || []).findIndex((r: any) =>
+                    r.end > r.start && r.start <= ch.start && ch.end <= r.end);
+                if (idx < 0) continue;
+                const provers = new Set(rulesProving(ch.literal, gameData.rules || []).map((r: any) => r.id));
+                conns.filter(c => c.target === node.id && c.targetInput === `in-${idx}`
+                        && provers.has((editor.getNode(c.source) as any)?.templateId))
+                    .forEach(c => assign(c.source, ch));
+            }
         };
         for (const c of conns) {
             const target = editor.getNode(c.target) as any;
-            if (target instanceof RuleNode && isNafSocket(target, c.targetInput)) {
+            if (isNafSocket(target, c.targetInput) && !failingNow.has(c.target)) {
                 const i = parseInt(c.targetInput.split('-')[1]);
                 const range = target.bodyRanges[i];
                 const spine = range ? expFailureSpineFor(range.start, range.end) : null;
@@ -1479,6 +1590,7 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                                 node.rule.bodyForall = nodeData.bodyForall;
                             }
                             node.bodyNafInner = Array.isArray(nodeData.bodyNafInner) ? nodeData.bodyNafInner : [];
+                            node.bodyHolds = Array.isArray(nodeData.bodyHolds) ? nodeData.bodyHolds : [];
                         } else if (node instanceof FactNode) {
                             node.tokens = nodeData.headTokens;
                         } else if (node instanceof QueryNode) {
@@ -1934,50 +2046,26 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         }
 
         // Build a failure subtree from an explanation [failure] node into
-        // (parentNodeId, inputKey). A goal fails only when EVERY rule whose head
-        // matches it fails, so wire ONE failing-mode instance per such rule into the
-        // socket (the negation socket admits several links), and recurse into the
-        // body condition that failed for that rule — down to a FAIL leaf. A leaf
-        // failure (nothing could prove the goal) is a single FAIL node.
+        // (parentNodeId, inputKey), as failurePlan lays it out: a FAIL where
+        // nothing could prove the goal, and one failing-mode card per rule that
+        // tried (the negation socket admits several links), each with the
+        // condition it failed on built in turn — down to FAIL leaves.
         async function buildFailure(expFail: any, parentNodeId: string, inputKey: string) {
-            if (!expFail || !hasInput(parentNodeId, inputKey)) return;
-            const provRules = rulesProving(expFail.literal, gameData.rules || []);
-            const failChildren = (expFail.children || []).filter((c: any) => c.type === 'failure');
-            if (provRules.length === 0 || failChildren.length === 0) {
-                await addFailLeaf(parentNodeId, inputKey);
-                return;
-            }
-            // Each failure child is the failing body condition of one proving rule
-            // (identified by which rule's body-condition range it matches).
-            for (const expChild of failChildren) {
-                // ... EXCEPT when the child is the same goal restated. A negated
-                // prepositional chain — "it is not the case that we will not make
-                // the payment under this policy in respect of the claim" — fails
-                // through a child that is the chain's MAIN literal ("we will not
-                // make the payment"), carrying the range of the first rule that
-                // could prove it. Range-matching read that as a body condition of
-                // that rule and wired the rule into ITSELF, one bogus nesting
-                // level that could never unify. A child whose literal a rule HEAD
-                // proves is the same goal one step down, so it belongs on the same
-                // socket, not inside a rule instance.
-                const sameGoal = provRules.some((r: any) => {
-                    const re = templateToRegex(getPredicateTemplate(r.headTokens));
-                    return re && re.test(expChild.literal || '');
-                });
-                if (sameGoal) {
-                    await buildFailure(expChild, parentNodeId, inputKey);
-                    continue;
-                }
-                const rule = provRules.find((r: any) =>
-                    (r.bodyRanges || []).some((br: any) => br.start === expChild.start && br.end === expChild.end));
-                if (!rule) continue;
-                const inst = await acquireRuleInstance(rule.id);
+            if (!expFail) return;
+            await buildPlan(failurePlan(expFail, gameData.rules || []), parentNodeId, inputKey);
+        }
+
+        async function buildPlan(plan: FailPlan, parentNodeId: string, inputKey: string) {
+            if (!hasInput(parentNodeId, inputKey)) return;
+            if (plan.proof) await connectNode(plan.proof, parentNodeId, inputKey);
+            if (plan.fail) await addFailLeaf(parentNodeId, inputKey);
+            for (const rp of plan.rules) {
+                const inst = await acquireRuleInstance(rp.ruleId);
                 if (!inst) continue;
                 usedNodes.add(inst.id);
                 await editor.addConnection(new ClassicPreset.Connection(
                     inst, 'out', editor.getNode(parentNodeId) as any, inputKey));
-                const idx = (inst.bodyRanges || []).findIndex((r: any) => r.start === expChild.start && r.end === expChild.end);
-                if (idx >= 0) await buildFailure(expChild, inst.id, `in-${idx}`);
+                for (const [idx, sub] of rp.conds) await buildPlan(sub, inst.id, `in-${idx}`);
             }
         }
 
@@ -1985,8 +2073,21 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         // line up with the body conditions), handling "for all cases" and negation.
         async function connectRuleBody(expNode: any, ruleNode: any) {
             const children = expNode.children || [];
-            for (let i = 0; i < children.length; i++) {
-                await connectCondition(children[i], ruleNode, i);
+            const n = ruleNode.rule?.body ? ruleNode.rule.body.length : children.length;
+            // One child per condition, in order - except that a disjunction is
+            // explained by the conditions of the branch that held, one child
+            // each ("2 = 2", "Frank has elevated natriuretic peptide levels"):
+            // the surplus children are the disjunction's, and the card among
+            // them goes on its one socket.
+            let surplus = children.length - n;
+            for (let i = 0, k = 0; k < children.length; i++) {
+                let take = 1;
+                if (surplus > 0 && (ruleNode.bodyOr || []).includes(i)) { take += surplus; surplus = 0; }
+                for (const child of children.slice(k, k + take)) {
+                    if (take > 1 && editor.getConnections().some(c => c.target === ruleNode.id && c.targetInput === `in-${i}`)) break;
+                    await connectCondition(child, ruleNode, i);
+                }
+                k += take;
             }
         }
 
@@ -2116,7 +2217,8 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                 updateUnification,
                 nodes: () => editor.getNodes().map((n: any) => ({
                     id: n.id, kind: n.constructor.name, label: n.label ?? '', complete: !!n.complete,
-                    assumed: !!n.assumed, clash: !!n.clash,
+                    assumed: !!n.assumed, clash: !!n.clash, failing: !!n.failing,
+                    boundHead: n.boundHead ?? null, bodyNafInner: n.bodyNafInner ?? [],
                     templateId: n.templateId, inputs: Object.keys(n.inputs || {}),
                     start: n.sourceLoc?.start, end: n.sourceLoc?.end,
                     head: n.rule?.head,

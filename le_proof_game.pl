@@ -30,6 +30,17 @@ own_clauses(M, Head) :-
     \+ predicate_property(M:Head, imported_from(_)),
     predicate_property(M:Head, dynamic).
 
+%!  card_predicate(+PI) is semidet.
+%
+%   The predicates whose clauses become cards: the program's own, and the "is
+%   a" facts and rules it writes ("the provocation standard is a standard"),
+%   which a condition may ask for ("if the standard is a standard") - is_a/2
+%   is otherwise one of the engine's predicates, and such a condition had a
+%   socket no card could fill. Only clauses with a source range of their own
+%   become cards (see extract_rules_and_facts/6).
+card_predicate(is_a/2) :- !.
+card_predicate(PI) :- \+ le_kbs:is_system_predicate(PI).
+
 %!  extract_rules_and_facts(+KB, +SM, +Query, -Rules, -Facts, -QueryTokens) is det.
 extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
     ( SM \== none -> dynamic(SM:game_node_term/3), retractall(SM:game_node_term(_,_,_)) ; true ),
@@ -37,9 +48,17 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
     ( CounterM \== le_proof_game -> dynamic(CounterM:game_node_counter/1) ; true ),
     retractall(CounterM:game_node_counter(_)),
     assertz(CounterM:game_node_counter(0)),
-    findall(RuleDict, (
+    % The cards are numbered in SOURCE order, not in the order the modules'
+    % predicates happen to be enumerated. The client draws its cards from the
+    % editor's session and then unifies them in the game's own session (see
+    % proof-game.ts, establishSession), by id: current_predicate/1 enumerates
+    % in an order that differs between two sessions of the same program (it
+    % did as soon as the editor had run a query), so "fact_24" named one fact
+    % on the cards and another on the server, and every link clashed or bound
+    % nothing.
+    findall(Key-src(Head, Body, Start, End, ID), (
         (   current_predicate(KB:F/N),
-            \+ le_kbs:is_system_predicate(F/N),
+            card_predicate(F/N),
             functor(Head, F, N),
             own_clauses(KB, Head),
             clause(KB:Head, Body, Ref),
@@ -51,7 +70,7 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
             % scenario rule never became a card, leaving its proofs unplayable.
             SM \== none,
             current_predicate(SM:F/N),
-            \+ le_kbs:is_system_predicate(F/N),
+            card_predicate(F/N),
             functor(Head, F, N),
             own_clauses(SM, Head),
             clause(SM:Head, Body, Ref),
@@ -59,6 +78,11 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
             ID == session_fact
         ),
         Body \== true,
+        source_order_key(Start, End, Head-Body, Key)
+    ), KeyedRules),
+    keysort(KeyedRules, SortedRules),
+    findall(RuleDict, (
+        member(_-src(Head, Body, Start, End, ID), SortedRules),
         comma_list(Body, BodyList),
         flatten_body(BodyList, FlatBodyList),
         next_game_node_id(SM, rule, NodeId),
@@ -75,6 +99,10 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         literal_to_game(KB, Head, VarIds, NameMap, [], Seen1, HeadLE, HeadTokens),
         body_list_to_game(KB, FlatBodyList, VarIds, NameMap, Seen1, _SeenN, BodyLEs, BodyTokensList),
         findall(I, (nth0(I, FlatBodyList, Cond), is_naf_condition(Cond)), NafIndices),
+        % The disjunctions ("A or B"): explained by the conditions of the
+        % branch that held, one explanation child each, so Show Proof must not
+        % read their children one per body condition.
+        findall(I, (nth0(I, FlatBodyList, Cond), strip_le_at(Cond, or(_, _))), OrIndices),
         % Type guards and built-in conditions are checked by the engine, not
         % played: they get no socket and count as satisfied (see is_type_guard/1,
         % is_engine_condition/1; a built-in is evaluated when its inputs are
@@ -100,13 +128,13 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         RuleDict = _{ id: NodeId, head: HeadLE, headTokens: HeadTokens,
                       body: BodyLEs, bodyTokens: BodyTokensList,
                       bodyNaf: NafIndices, bodyForall: ForallMeta,
-                      bodyTypeCheck: TypeCheckIndices,
+                      bodyTypeCheck: TypeCheckIndices, bodyOr: OrIndices,
                       bodyRanges: BodyRanges,
                       start: Start, end: End }
     ), Rules),
-    findall(FactDict, (
+    findall(Key-src(Head, Kind, Start, End), (
         (   current_predicate(KB:F/N),
-            \+ le_kbs:is_system_predicate(F/N),
+            card_predicate(F/N),
             functor(Head, F, N),
             own_clauses(KB, Head),
             clause(KB:Head, true, Ref),
@@ -115,7 +143,7 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
             Kind = fact
         ;   SM \== none,
             current_predicate(SM:F/N),
-            \+ le_kbs:is_system_predicate(F/N),
+            card_predicate(F/N),
             functor(Head, F, N),
             own_clauses(SM, Head),
             clause(SM:Head, true, Ref),
@@ -134,6 +162,11 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
             M:le_source_info(Ref, Start, End, _AnyID),
             Kind = assumption
         ),
+        source_order_key(Start, End, Kind-Head, Key)
+    ), KeyedFacts),
+    keysort(KeyedFacts, SortedFacts),
+    findall(FactDict, (
+        member(_-src(Head, Kind, Start, End), SortedFacts),
         next_game_node_id(SM, Kind, NodeId),
         game_var_ids(Head, VarIds),
         literal_to_game(KB, Head, VarIds, [], [], _Seen, FactLE, FactTokens),
@@ -153,6 +186,16 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         game_var_ids(Query, QVarIds2),
         literal_to_game(KB, Query, QVarIds2, [], [], _Seen2, _QueryLE, QueryTokens)
     ; QueryTokens = [_{kind: "word", text: Query}] ).
+
+%!  source_order_key(+Start, +End, +Clause, -Key) is det.
+%
+%   Sorts a card by where it is written; two clauses of one sentence (the same
+%   range) by their text, variables numbered, so the order never depends on
+%   the session.
+source_order_key(Start, End, Clause, k(Start, End, Text)) :-
+    copy_term(Clause, Copy),
+    numbervars(Copy, 0, _, [attvar(bind)]),
+    format(string(Text), "~q", [Copy]).
 
 %!  query_conjuncts(+Query, -Conjuncts:list) is det.
 %
@@ -349,6 +392,14 @@ body_ranges(BodyList, Ranges) :-
         ), Ranges).
 
 le_at_range(le_at(_, S, E), S, E) :- !.
+% A condition compiled without a range of its own - a disjunction, "A or B" -
+% spans its parts, so a failure explanation of one of its disjuncts can be
+% traced to it (buildFailure in proof-game.ts matches by containment).
+le_at_range(Cond, S, E) :-
+    findall(S0-E0, ( sub_term(Sub, Cond), nonvar(Sub), Sub = le_at(_, S0, E0), integer(S0) ), Spans),
+    Spans \== [], !,
+    pairs_keys_values(Spans, Ss, Es),
+    min_list(Ss, S), max_list(Es, E).
 le_at_range(_, 0, 0).
 
 % naf_inner_range(+Cond, -S, -E): the source range of the negated goal G in an
@@ -465,10 +516,34 @@ render_instances(KB, [inst(IId, _Kind, Head, Body, NameMap)|Insts], [Result|Resu
     % client can reject a negation link whose connected failing rule denotes a
     % different goal than the one this rule's bindings actually negate.
     naf_inner_list(KB, Body, NafInner),
+    body_holds(Body, Holds),
     Result = _{ instanceId: IId, head: HeadLE, headTokens: HeadTokens,
                 body: BodyLEs, bodyTokens: BodyTokensList,
-                bodyForall: ForallMeta, bodyNafInner: NafInner },
+                bodyForall: ForallMeta, bodyNafInner: NafInner,
+                bodyHolds: Holds },
     render_instances(KB, Insts, Results).
+
+% body_holds(+Body, -Indices): the disjunctions ("A or B") of a card that hold
+% by computation alone, under the bindings its links made: a branch made only
+% of built-in conditions (comparisons, arithmetic) evaluates true. No card
+% proves such a branch - "N >= 3" in "N >= 3 or N = 2 and ..." - so, when it
+% is the branch that holds, the condition's socket could never be filled and
+% the proof never completed.
+body_holds(Body, Indices) :-
+    findall(I, ( nth0(I, Body, Cond),
+                 strip_le_at(Cond, or(_, _)),
+                 \+ \+ computed_branch_holds(Cond) ), Indices).
+
+computed_branch_holds(Cond) :-
+    strip_le_at(Cond, C),
+    (   C = or(A, B)
+    ->  ( computed_branch_holds(A) -> true ; computed_branch_holds(B) )
+    ;   C = and(A, B)
+    ->  computed_branch_holds(A), computed_branch_holds(B)
+    ;   evaluable_condition(C),
+        engine_condition_ready(C),
+        catch(reasoner:call_reasoner_built_in(C, user), _, fail)
+    ).
 
 % naf_inner_list(+KB, +Body, -NafInner): for each negation-as-failure body
 % condition, a dict with its index, the canonical rendering of its (possibly
