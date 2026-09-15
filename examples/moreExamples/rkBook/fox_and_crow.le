@@ -3,8 +3,9 @@
 %         ("The fox's goal and beliefs").
 % Last verification: no open issues flagged (no errors/warnings; all tests pass).
 %
-% The fox's beliefs are plain Head-if-Body conditionals; the concrete actors
-% live in the scenario. The book writes the crow's initial possession and the
+% The fox's beliefs are plain Head-if-Body conditionals. The general ones range
+% over any animal; the one about where the fox stands names the fox and the
+% crow, as the book's "I" and "the crow" do. The book writes the crow's initial possession and the
 % fox's achieved possession with the same word "has"; to keep the rules free of
 % recursion we use "holds" for the primitive (initial) possession that the crow
 % starts with, and "has" for the possession the fox reasons towards.
@@ -30,13 +31,14 @@ an animal has an object
     if the animal is near the object
     and the animal picks up the object.
 
-% The book's belief is "I am near the cheese if the crow has the cheese and the
-% crow sings"; "I" (the fox) is the agent who makes the crow sing, so the
-% subject is bound here to the animal that praises the singer.
-an animal is near an object
-    if a second animal holds the object
-    and the second animal sings
-    and the animal praises the second animal.
+% "I am near the cheese if the crow has the cheese and the crow sings." This is
+% the fox's belief about itself: it holds because the fox stands under the
+% crow's branch, so whatever the singing crow drops lands by the fox. It does
+% not generalize to any animal (e.g. to whoever praises the crow), so "I" and
+% "the crow" stay the fox and the crow.
+fox is near an object
+    if crow holds the object
+    and crow sings.
 
 % "the crow sings if I praise the crow."
 an animal sings
@@ -47,6 +49,14 @@ scenario story is:
     fox praises crow.
     fox picks up cheese.
     possession expects answers ["crow has cheese", "fox has cheese"].
+
+% Praising the crow does not bring a bystander near the cheese: the crow sings
+% and drops it by the fox, not by the wolf.
+scenario bystander is:
+    crow holds cheese.
+    wolf praises crow.
+    wolf picks up cheese.
+    possession expects answers ["crow has cheese"].
 
 query possession is:
     which animal has which object.

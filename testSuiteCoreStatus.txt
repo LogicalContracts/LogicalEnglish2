@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      core (this repository alone; extension-dependent trees excluded)
 Command:    testing/run_tests.sh le   (or: runTests)
 Sibling:    testSuiteStatus.txt — all (core + trees requiring the proprietary le_extensions.pl)
-Generated:  2026-09-15 08:44:45 UTC
+Generated:  2026-09-15 10:46:49 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
 Files processed: 119
-Total tests:     449
-Passed:          449
+Total tests:     450
+Passed:          450
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -64,7 +64,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/rkBook/bna_citizenship_1_1.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rkBook/cause_and_effect.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rkBook/equation_solving_goal.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/fox_and_crow.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/fox_and_crow.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rkBook/genesis_ancestors.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rkBook/grass_wet_abduction.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rkBook/housing_benefit.le: 1 Pass, 0 Fail, 0 Error
