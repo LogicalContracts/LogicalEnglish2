@@ -160,7 +160,7 @@ write_section(KB, Header, Terms) :-
 write_template(KB, Term) :-
 	functor(Term, F, N),
 	(   template_words(KB, F/N, Derived/N, Words)
-	->  atomic_list_concat(Words, ' ', Line),
+	->  words_text(Words, Line),
 	    ( Derived == F -> Known = '' ; format(atom(Known), '; known as ~w', [F]) ),
 	    (   nb_current(le_lps_write_defaults, Ds), is_list(Ds),
 		member(D, Ds), functor(D, F, N)
@@ -602,6 +602,7 @@ conclusion(KB, Ns, G, S) :- condition(KB, Ns, G, S).
 expr_text(Ns, T, S) :- var(T), !, name_of(Ns, T, S).
 expr_text(_, T, S) :- number(T), !, format(atom(S), '~w', [T]).
 expr_text(Ns, T, S) :- arith(T), !, expr_operand(Ns, T, S).
+expr_text(_, T, S) :- string(T), !, format(atom(S), '"~w"', [T]).    % a string stays one
 expr_text(_, T, S) :- format(atom(S), '~w', [T]).
 
 arith(T) :- compound(T), T =.. [Op, _, _], memberchk(Op, [+, -, *, /, //, mod]).
@@ -661,7 +662,7 @@ render(KB, Names, Goal0, S) :-
 	    DArgs = Texts
 	->  maplist(token_text, WV1, Words),
 	    exclude(==(''), Words, Words1),
-	    atomic_list_concat(Words1, ' ', S0),
+	    words_text(Words1, S0),
 	    ( S0 == '' -> format(atom(S), '~q', [Goal1]) ; S = S0 ),
 	    WV = WV                                   % keep the first lookup honest
 	;   format(atom(S), '~q', [Goal1])
@@ -679,12 +680,22 @@ arg_text(Ns, A, T) :- var(A), !, name_of(Ns, A, T).
 arg_text(_, A, T) :- string(A), !, format(atom(T), '"~w"', [A]).   % a string stays one
 arg_text(_, A, T) :-                   % a constant LE would read as a word of its own (`a`)
 	atom(A), lone_keyword(A), !, format(atom(T), '"~w"', [A]).
+arg_text(_, A, T) :- format(atom(T), '~w', [A]).
 
 lone_keyword(A) :-
 	(   le_i18n:class_member(article_narrow, A) ; le_i18n:class_member(definite_article, A)
 	;   le_i18n:class_member(reserved, A)
 	), !.
-arg_text(_, A, T) :- format(atom(T), '~w', [A]).
+
+%   A template's words, a punctuation mark after the word before it
+%   (`a thing, a second thing`, not `a thing , a second thing`).
+words_text(Ws, S) :- foldl(word_join, Ws, '', S).
+
+word_join(W, '', W) :- !.
+word_join(W, Acc, S) :-
+	(   memberchk(W, [',', ';', ':']) -> atom_concat(Acc, W, S)
+	;   atomic_list_concat([Acc, ' ', W], S)
+	).
 
 token_text(W, W) :- atomic(W), !.
 token_text(_, '').
