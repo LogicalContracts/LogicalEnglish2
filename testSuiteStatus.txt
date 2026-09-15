@@ -5,13 +5,13 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      all (core + trees requiring the proprietary le_extensions.pl)
 Command:    testing/run_tests.sh le --with-extensions   (or: runAllTests)
 Sibling:    testSuiteCoreStatus.txt — core (this repository alone; extension-dependent trees excluded)
-Generated:  2026-09-14 23:57:39 UTC
+Generated:  2026-09-15 03:09:40 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 731
+Files processed: 775
 Total tests:     8135
 Passed:          8135
 Failed:          0
@@ -385,6 +385,28 @@ Detailed File Summary:
   [NONE] examples/moreExamples/InsurLE2/migration/solidity/vault/vault.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/solidity/vault/vault_oracle.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/solidity/vault/vault_view.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/token/token.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/token/token_token_test_1.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/token/token_token_test_2.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/token/token_token_test_3.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/contact/contact.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/skeleton/skeleton.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/locking/locking.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/compose/compose.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/compose/compose_test_asset.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/compose/compose_test_issuance.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/compose/compose_test_merge.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/compose/compose_test_split.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/compose/compose_test_trade.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/compose/compose_trade_setup.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/multiparty/multiparty.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/simple_iou/simple_iou.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/restrictions/restrictions.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/quickstart/quickstart.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/quickstart/quickstart_trade_test.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/coin_issuance/coin_issuance.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/parties/parties.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/migration/daml/parties/parties_iou_test.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/epilog/hunter/hunter.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/epilog/blocks/blocks.le: 6 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/epilog/cram/cram.le: 0 Pass, 0 Fail, 0 Error
@@ -695,6 +717,28 @@ Detailed File Summary:
   [NONE] examples/moreExamples/insureLE2/migration/solidity/vault/vault.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/solidity/vault/vault_oracle.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/solidity/vault/vault_view.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/token/token.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/token/token_token_test_1.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/token/token_token_test_2.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/token/token_token_test_3.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/contact/contact.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/skeleton/skeleton.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/locking/locking.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/compose/compose.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/compose/compose_test_asset.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/compose/compose_test_issuance.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/compose/compose_test_merge.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/compose/compose_test_split.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/compose/compose_test_trade.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/compose/compose_trade_setup.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/multiparty/multiparty.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/simple_iou/simple_iou.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/restrictions/restrictions.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/quickstart/quickstart.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/quickstart/quickstart_trade_test.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/coin_issuance/coin_issuance.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/parties/parties.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/migration/daml/parties/parties_iou_test.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/epilog/hunter/hunter.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/epilog/blocks/blocks.le: 6 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/epilog/cram/cram.le: 0 Pass, 0 Fail, 0 Error
