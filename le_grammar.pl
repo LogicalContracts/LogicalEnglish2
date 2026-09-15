@@ -1047,6 +1047,15 @@ kb_item(lps_denial(Body, Indent, Start, End)) -->
     any_indent(Indent), kw_start(lps_must_not, Start), !,
     body(Body, End).
 
+% The same sentence in a Prolog or s(CASP) program: a constraint on what a
+% proof may assume. An answer whose assumptions (`; unknown` templates),
+% together with the facts and rules, make the conditions true is no answer
+% (reasoner:consistent_assumptions/4; le_summary.md §3.3).
+kb_item(denial(Body, Indent, Start, End)) -->
+    { \+ lps_target },
+    any_indent(Indent), kw_start(lps_must_not, Start), !,
+    body(Body, End).
+
 % "initially <fluents>." — the initial state.
 kb_item(lps_initially(Body, Indent, Start, End)) -->
     { lps_target },
@@ -2838,6 +2847,18 @@ store_rule_var_names(ActualID, Head, Body, VM) :-
     ->  dynamic(M:le_var_names/2),
         assertz(M:le_var_names(ActualID, Pairs))
     ;   true
+    ).
+
+% An integrity constraint: le_constraint(ID) :- Conditions, where ID names the
+% constraint by its source position (the reasoner cites it by its clause).
+second_pass_item(Templates, denial(BodyTokens, Indent, Start, End), clause(le_constraint(ActualID), NewBody, Start, End, ActualID), _M) :-
+    format(atom(ActualID), 'constraint_~w', [Start]),
+    (   parse_body(BodyTokens, Indent, Templates, [], VMOut, Body0) ->
+        collect_extra_goals(VMOut, ExtraGoals0),
+        order_extra_goals_by_source(ExtraGoals0, ExtraGoals),
+        ( ExtraGoals == [] -> NewBody = Body0 ; append(ExtraGoals, [Body0], AllGoals), list_to_conj(AllGoals, NewBody) ),
+        store_rule_var_names(ActualID, le_constraint(ActualID), NewBody, VMOut)
+    ;   NewBody = fail      % its conditions did not parse, which is reported
     ).
 
 % Section markers carry no logic; keep them as-is so KB processing can pick up

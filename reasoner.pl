@@ -7,13 +7,15 @@
 */
 
 :- module(reasoner, [i/4, explain/4, is_built_in/1, solve/8, goal_attempt/4, goal_attempt/5, with_saved_reasoner_state/1,
-                     hide_repeated_explanations/0, set_show_repeated_explanations/1]).
+                     hide_repeated_explanations/0, set_show_repeated_explanations/1,
+                     consistent_assumptions/3, consistent_assumptions/4, case_breaks_constraint/5, rejected_assumption_sets/1, clear_rejected_assumptions/0]).
 
 :- use_module(library(time)).
 :- use_module(library(pairs)).
 
 :- dynamic equal_to/2.
 :- thread_local called/3, called_clause/3, counter/1, success_in_not/2, succeeded/1, solved_binding/2.
+:- thread_local checking_assumptions/1, rejected_assumptions/2.
 
 % When set (the default), repeated sub-explanations are collapsed; the client can
 % turn this off per query so the full tree is built and shown. Tracked per worker
@@ -52,7 +54,8 @@ i(Goal, SessionModule, Unknowns, Whys) :-
             % One assumption reached through several branches of the proof (the
             % same unclassified receipt feeding two sums, say) is one assumption
             % to the caller, and reads as one line in a list of what is missing.
-            remove_variant_duplicates(Unknowns0, Unknowns)
+            remove_variant_duplicates(Unknowns0, Unknowns1),
+            consistent_assumptions(Unknowns1, Unknowns, SessionModule, KBmodule)
         ),
         le_kbs:clear_kb_module
     ).
@@ -71,12 +74,18 @@ explain(Goal, SessionModule, Unknowns, Whys) :-
     ( SessionModule:le_kb_module_fact(KBmodule) ->  true; KBmodule = none),
     setup_call_cleanup(
         le_kbs:set_kb_module(KBmodule),
-        (   solve(Goal, SessionModule, KBmodule, [], 0, 0, Unknowns0, Whys),
+        (   case_breaks_constraint(SessionModule, KBmodule, CID, CRef, CWhys) ->
+            % The facts break a constraint: the explanation is that proof.
+            Unknowns = [],
+            Whys = [failure(Goal, [success(le_constraint_broken(CID), CRef, CWhys)])]
+        ;   solve(Goal, SessionModule, KBmodule, [], 0, 0, Unknowns0, Whys),
             \+ (
                 member(U, Unknowns0),
                 solve(U, SessionModule, KBmodule, [], 0, none, [], _)
-            ) ->
-            remove_variant_duplicates(Unknowns0, Unknowns)
+            ),
+            remove_variant_duplicates(Unknowns0, Unknowns1),
+            consistent_assumptions(Unknowns1, Unknowns2, SessionModule, KBmodule) ->
+            Unknowns = Unknowns2
             ;
             Unknowns = [],
             findall(W, (called(0, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Whys)
@@ -389,6 +398,10 @@ solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
                    )
             ;   solve_rule_body(Body, SM, KM, [G|Anc], D1, MyID, Ref, Us, WhysBody)
             )
+        ; checking_assumptions(Assumed) ->
+          % Checking a constraint (consistent_assumptions/4): what the answer
+          % assumed holds, and nothing more may be assumed.
+          member(G, Assumed), Us = [], WhysBody = [], Ref = unknown
         ; get_clause(le_unknown(G), SM, KM, UnkBody, _UnkRef),
           \+ SM:le_neg(le_unknown(G)),
           \+ member(le_unknown(G), Anc),
@@ -575,6 +588,136 @@ remove_variant_duplicates([], []).
 remove_variant_duplicates([U|Us0], [U|Us]) :-
     exclude(=@=(U), Us0, Rest),
     remove_variant_duplicates(Rest, Us).
+
+%!  consistent_assumptions(+Us0:list, -Us:list, +SM, +KM) is semidet.
+%
+%   The consistency condition of abductive logic programming, checked on each
+%   answer as it is found: the case, with the assumptions Us0 of the answer
+%   taken as true, must break no integrity constraint of the program (`it
+%   must not be true that …`, le_constraint/1 clauses) — a constraint being
+%   broken when its conditions have a proof that assumes nothing more.
+%
+%   A broken constraint can sometimes be kept by assuming more: when its proof
+%   needs `it is not the case that G` and G could be assumed (an `; unknown`
+%   template), G is assumed too and every constraint checked again — as an
+%   abductive proof procedure (and s(CASP)) does. Us is then Us0 followed by
+%   what was added. Otherwise the answer is rejected; the rejection is
+%   remembered (rejected_assumptions/2) so that a caller can say why. When the
+%   answer assumed nothing, the facts themselves break the constraint: the
+%   case is inconsistent, and nothing follows from it
+%   (case_breaks_constraint/5).
+%
+%   The variables of Us0 are existential (something is assumed of some
+%   value): they are frozen to fresh constants for the check.
+consistent_assumptions(Us0, Us, SM, KM) :-
+    (   \+ has_constraints(SM, KM)
+    ->  Us = Us0
+    ;   copy_term(Us0, Frozen0),
+        term_variables(Us0, Vs),
+        numbervars(Frozen0, 0, NV, [functor_name('$le_assumed')]),
+        repair_assumptions(Frozen0, SM, KM, NV, 0, Frozen, Outcome),
+        (   Outcome == ok
+        ->  append(Frozen0, Added0, Frozen),
+            unfreeze(Added0, Vs, Added),
+            append(Us0, Added, Us)
+        ;   Outcome = broken(ID, _, _),
+            assertz(rejected_assumptions(Us0, ID)),
+            fail
+        )
+    ).
+
+%!  consistent_assumptions(+Us, +SM, +KM) is semidet.
+%
+%   As consistent_assumptions/4, when adding assumptions is not wanted: Us
+%   must keep every constraint as it is.
+consistent_assumptions(Us, SM, KM) :-
+    consistent_assumptions(Us, Us1, SM, KM),
+    length(Us, N), length(Us1, N).
+
+%!  case_breaks_constraint(+SM, +KM, -ID, -Ref, -Whys) is semidet.
+%
+%   True when the case is inconsistent: its facts break an integrity
+%   constraint, and no assumption mends it. ID and Ref name the constraint,
+%   Whys proves its conditions. i/4 answers nothing from such a case (every
+%   answer fails consistent_assumptions/4); explain/4 gives this proof as the
+%   reason.
+case_breaks_constraint(SM, KM, ID, Ref, Whys) :-
+    has_constraints(SM, KM),
+    repair_assumptions([], SM, KM, 0, 0, _, broken(ID, Ref, Whys)).
+
+has_constraints(SM, KM) :-
+    catch(get_clause(le_constraint(_), SM, KM, _, _), _, fail), !.
+
+%   At most this many assumptions are added to keep the constraints.
+max_added_assumptions(20).
+
+repair_assumptions(As, SM, KM, NV, N, Out, Outcome) :-
+    (   with_saved_reasoner_state(broken_constraint(As, SM, KM, ID, Ref, Whys))
+    ->  (   max_added_assumptions(Max), N < Max,
+            repair_candidate(Whys, SM, KM, G0),
+            copy_term(G0, G),
+            numbervars(G, NV, NV1, [functor_name('$le_assumed')]),
+            \+ ( member(A, As), A =@= G )
+        ->  append(As, [G], As1),
+            N1 is N + 1,
+            repair_assumptions(As1, SM, KM, NV1, N1, Out, Outcome)
+        ;   Out = As, Outcome = broken(ID, Ref, Whys)
+        )
+    ;   Out = As, Outcome = ok
+    ).
+
+broken_constraint(Assumed, SM, KM, ID, Ref, Whys) :-
+    setup_call_cleanup(
+        assertz(checking_assumptions(Assumed)),
+        (   catch(get_clause(le_constraint(ID), SM, KM, Body, Ref), _, fail),
+            solve(Body, SM, KM, [], 0, none, [], Whys)
+        ),
+        retractall(checking_assumptions(_))), !.
+
+%   A negation the broken proof needed, of something that could be assumed:
+%   assuming it breaks that proof.
+repair_candidate(Whys, SM, KM, G) :-
+    sub_term(S, Whys), compound(S), S = success(not(G0), _, _),   % negation, or its range
+    strip_positions_goal(G0, G),
+    callable(G), G \= (_, _), G \= (_ ; _), G \= not(_),
+    \+ \+ catch(get_clause(le_unknown(G), SM, KM, _, _), _, fail),
+    \+ SM:le_neg(le_unknown(G)).
+
+strip_positions_goal(le_at(G0, _, _), G) :- !, strip_positions_goal(G0, G).
+strip_positions_goal(G, G).
+
+%   Frozen assumptions back to terms of the answer: '$le_assumed'(I) is the
+%   I-th variable of the answer's assumptions, or a new variable past them.
+unfreeze(Terms, Vs, Out) :-
+    length(Vs, NVs),
+    unfreeze_(Terms, Vs, NVs, _Extra, Out).
+
+unfreeze_(T, Vs, NVs, Extra, V) :-
+    compound(T), T = '$le_assumed'(I), integer(I), !,
+    (   I < NVs
+    ->  nth0(I, Vs, V)
+    ;   K is I - NVs, extra_var(K, Extra, V)
+    ).
+unfreeze_(T, Vs, NVs, Extra, O) :-
+    compound(T), !,
+    T =.. [F|As], unfreeze_list(As, Vs, NVs, Extra, Bs), O =.. [F|Bs].
+unfreeze_(T, _, _, _, T).
+
+unfreeze_list([], _, _, _, []).
+unfreeze_list([A|As], Vs, NVs, Extra, [B|Bs]) :-
+    unfreeze_(A, Vs, NVs, Extra, B),
+    unfreeze_list(As, Vs, NVs, Extra, Bs).
+
+extra_var(K, Extra, V) :- memberchk(K-V, Extra), !.
+
+%!  rejected_assumption_sets(-Sets:list) is det.
+%
+%   The assumption sets consistent_assumptions/3 rejected since the last
+%   clear_rejected_assumptions/0 in this thread, as Us-ConstraintID pairs.
+rejected_assumption_sets(Sets) :-
+    findall(Us-ID, rejected_assumptions(Us, ID), Sets).
+
+clear_rejected_assumptions :- retractall(rejected_assumptions(_, _)).
 
 %!  definitely_provable(+Goal, +SM, +KM, +D) is semidet.
 %

@@ -410,19 +410,30 @@ le_lps_file(Path, Text, Provenance, Issues) :-
 %   (used only to turn character offsets into line and column, and may be the
 %   empty string, in which case the provenance list comes back empty — which
 %   the contract allows).
+%
+%   **An error refuses the translation.** When any issue is an error — the
+%   document's own, or a construct with no LPS reading (not_lps_issues/3) —
+%   Text is "" and Provenance [], and the issues say why: an LPS program that
+%   means something else than its document would be worse than none. This is
+%   what the M8c gate (testing/lps_test.pl) always took "did not translate" to
+%   mean; now every caller gets it.
 le_lps_module(KB, LEText, Text, Provenance, Issues) :-
 	le_kbs:ensure_kb_language(KB),
 	with_kb(KB, emit_terms(KB, Entries0, Issues00)),
 	default_issues(KB, Entries0, DefaultIssues),
 	extends_issues(KB, Entries0, ExtendsIssues),
-	append([Issues00, DefaultIssues, ExtendsIssues], Issues0),
+	with_kb(KB, not_lps_issues(KB, Entries0, NotLPSIssues)),
+	append([Issues00, DefaultIssues, ExtendsIssues, NotLPSIssues], Issues0),
 	kb_issues(KB, KBIssues),
 	append(KBIssues, Issues0, Issues1),
 	sort(0, @<, Issues1, Issues2),
-	number_entries(Entries0, 0, Entries),
-	terms_text(Entries, Text),
-	provenance_of(Entries, LEText, Provenance),
-	maplist(locate_issue(LEText), Issues2, Issues).
+	maplist(locate_issue(LEText), Issues2, Issues),
+	(   memberchk(le_lps_issue(error, _, _, _, _), Issues)
+	->  Text = "", Provenance = []
+	;   number_entries(Entries0, 0, Entries),
+	    terms_text(Entries, Text),
+	    provenance_of(Entries, LEText, Provenance)
+	).
 
 %   An entry is e(Term, Start) — Start being the character offset of the
 %   sentence it came from, or `none` for a term the emitter generated on its
@@ -1108,6 +1119,88 @@ conjuncts(and(A, B), Gs) :- !, conjuncts(A, As), conjuncts(B, Bs), append(As, Bs
 conjuncts(','(A, B), Gs) :- !, conjuncts(A, As), conjuncts(B, Bs), append(As, Bs, Gs).
 conjuncts(le_at(G, _, _), Gs) :- !, conjuncts(G, Gs).
 conjuncts(G, [G]).
+
+
+		 /*******************************
+		 *   what LPS cannot express    *
+		 *******************************/
+
+%!  not_lps_issues(+KB, +Entries, -Issues) is det.
+%
+%   The check before the LPS text is written: a goal of the emitted program
+%   that LPS has no reading for is an error at its sentence. The emitter
+%   lowers what LPS can run (comparisons, arithmetic, membership,
+%   aggregates) and passes anything else through as a timeless goal, which
+%   LPS2 would then call as a relation of the program — so what is left of
+%   LE's own vocabulary has to be caught here, or the program would silently
+%   mean something else:
+%     - `for all cases in which … it is the case that …`, and any sentence
+%       the emitter could not lower (its le_at/lps_at wrappers are left);
+%     - LE's built-ins with no LPS counterpart (date arithmetic, decision
+%       tables, `the minimum of`, …: an `le_` goal still standing);
+%     - a condition on an assumable (`; unknown`) or judged template: LPS
+%       makes no assumptions, so the condition would simply fail;
+%     - a condition answered by a service (`; via service`): LPS has none.
+not_lps_issues(KB, Entries, Issues) :-
+	findall(le_lps_issue(error, not_lps, Desc, Start, 0),
+		( member(e(Term, Start), Entries),
+		  term_goal(Term, G),
+		  not_lps_goal(KB, G, What),
+		  le_i18n:le_msg(not_lps_desc, [what-What], Desc) ),
+		Issues0),
+	list_to_set(Issues0, Issues).
+
+%   The goals of an emitted term, wherever LPS evaluates one.
+term_goal(reactive_rule(A, C), G) :- ( body_goal(A, G) ; body_goal(C, G) ).
+term_goal(l_int(_, B), G) :- body_goal(B, G).
+term_goal(l_events(_, B), G) :- body_goal(B, G).
+term_goal(l_timeless(_, B), G) :- body_goal(B, G).
+term_goal(initiated(_, _, B), G) :- body_goal(B, G).
+term_goal(terminated(_, _, B), G) :- body_goal(B, G).
+term_goal(updated(_, _, _, B), G) :- body_goal(B, G).
+term_goal(d_pre(B), G) :- body_goal(B, G).
+
+body_goal(V, _) :- var(V), !, fail.
+body_goal(L, G) :- is_list(L), !, member(X, L), body_goal(X, G).
+body_goal((A, B), G) :- !, ( body_goal(A, G) ; body_goal(B, G) ).
+body_goal((A ; B), G) :- !, ( body_goal(A, G) ; body_goal(B, G) ).
+body_goal(not(A), G) :- !, body_goal(A, G).
+body_goal(\+(A), G) :- !, body_goal(A, G).
+body_goal(holds(findall(_, A, _), _), G) :- !, body_goal(A, G).
+body_goal(holds(not(F), T), G) :- !, body_goal(holds(F, T), G).
+body_goal(goals(L), G) :- !, body_goal(L, G).
+body_goal(X, X).
+
+%   What a goal is that LPS cannot evaluate, in words (i18n keys).
+not_lps_goal(_, G, What) :-
+	compound(G), functor(G, F, N),
+	memberchk(F/N, [le_at/3, lps_at/2, lps_from_to/3, lps_from/2, lps_to/2,
+			 lps_initiate/1, lps_terminate/1, forall/2, for_all_cases/1]), !,
+	(   ( F == forall ; F == for_all_cases ; sub_term(X, G), compound(X), functor(X, forall, 2) )
+	->  le_i18n:le_msg(not_lps_universal, [], What)
+	;   le_i18n:le_msg(not_lps_unlowered, [], What)
+	).
+not_lps_goal(_, G, What) :-
+	compound(G), G =.. [Op, [each|_], _, _],
+	memberchk(Op, [count, sum, average, min, max]), !,
+	le_i18n:le_msg(not_lps_unlowered, [], What).
+not_lps_goal(_, G, What) :-
+	callable(G), functor(G, F, N), sub_atom(F, 0, _, _, le_), !,
+	(   catch(le_kbs:builtin_goal_string(G, Name0), _, fail) -> Name = Name0
+	;   format(string(Name), "~w/~w", [F, N])
+	),
+	le_i18n:le_msg(not_lps_builtin, [name-Name], What).
+not_lps_goal(KB, G, What) :-
+	callable(G), functor(G, F, N),
+	current_predicate(KB:le_unknown/1),
+	once(( clause(KB:le_unknown(U), _), callable(U), functor(U, UF, N),
+	       ( UF == F ; functor(G1, UF, N), rename(G1, G2), functor(G2, F, N) ) )), !,
+	le_i18n:le_msg(not_lps_assumable, [], What).
+not_lps_goal(KB, G, What) :-
+	callable(G), functor(G, F, N),
+	current_predicate(KB:le_service_template/2),
+	KB:le_service_template(F/N, Name), !,
+	le_i18n:le_msg(not_lps_service, [name-Name], What).
 
 
 		 /*******************************

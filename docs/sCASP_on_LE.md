@@ -152,6 +152,7 @@ The emitter (`lower_body/5`, `lower_leaf/3`) translates each construct:
 | `it is not the case that G`, `unless C` | `not G` (default negation; De Morgan-normalised, see §7) |
 | `; opposite: T` | classical negation `-p(…)`: every rule, fact and condition of the opposite form is written as `-p(…)`, its wording as `#pred -p(…) :: '…'`, and the global constraint `false :- p(X), -p(X).` links the two (`opposite_map/2`, `to_classical/2`, `opposite_constraints/2`) |
 | `; assumable` / `; unknown` | `#abducible p(…).` — assumption sets returned per model (`abducible_directive/2`); a scenario element (`; undefined`) is not abducible |
+| `it must not be true that …` (§3.3 of le_summary.md) | the global constraint `false :- Conditions.` (`kb_constraint_clauses/2`): every model, and so every set of abducibles, must satisfy it — the consistency condition the Prolog reasoner also applies to its assumptions (`reasoner:consistent_assumptions/4`) |
 | `for all cases in which C it is the case that G` | the negation of a helper that looks for a counterexample (Lloyd–Topor): `not le_forall_K(Shared)` and `le_forall_K(Shared) :- C, not G.` — s(CASP)'s own `forall/2` quantifies one variable and it has no `call/1` |
 | The ontology section's `is_a/2` clauses | clauses of the unit, like any other |
 | Decision tables, service conditions, a condition with no template | an issue each (untranslatable), never a raw LE record in the output |
@@ -287,27 +288,38 @@ letting it escape as an HTTP 500.
 ## 8. Unsupported constructs → issues (errors)
 
 Where an LE extended construct has no s(CASP) equivalent, the emitter does **not**
-fail silently: it emits an `le_scasp_issue(Kind, RuleID, Message)` and (where it
-must) substitutes `true` for the leaf so the rest of the program still runs. The
-issues are shown next to the "See s(CASP)" output and query results. **All
+fail silently: it emits an `le_scasp_issue(Kind, RuleID, Message)` (RuleID the
+rule the construct is in). Such a program is **refused**: "See s(CASP)" shows no
+program but the list of problems, each with its line, and the s(CASP) engine
+does not run it (`scaspQuery` answers an error with the same list) — the
+emitter's internal text (`le_scasp_program_text/3`, which substitutes `true`
+for the leaf, widening the rule) would mean something else than the Logical
+English. `le_scasp_check/3` makes the list; `le_scasp_blocking_issue/1` says
+which issues block (all but the engine's own: pack absent, timeout, a construct
+it rejects while running). Other converters refuse the same way
+(`docs/le_migration.md`, "Exporting: the check before the text"). **All
 messages come from the i18n dictionaries** (`i18n/messages.csv`, keys `scasp_*`),
 never hardcoded, so they appear in the active language; the handlers call
 `ensure_kb_language/1` first so the language matches the program.
 
 | LE construct | Issue key | Handling |
 |---|---|---|
-| Aggregates (`sum/count/… of each`) | `scasp_aggregate` | not supported — use the Prolog engine |
-| `prolog <goal>` / `.pl` resources | `scasp_prolog_goal` | Prolog-only |
-| `for all cases …` (universal) | `scasp_universal` | not translated |
-| Date arithmetic (`… days after …`) | `scasp_date_arithmetic` | not supported |
-| `is in` (list membership) | `scasp_list_membership` | not translated |
-| non-numeric `is different from` | `scasp_term_disequality` | not translated |
-| `is known` | `scasp_unsupported_known` | only approximated |
-| double negation | `scasp_double_negation` | can't be expressed (§7) |
-| any other untranslatable rule | `scasp_untranslatable_rule` | rule skipped |
+| Aggregates (`sum/count/… of each`) | `scasp_aggregate` | refused — use the Prolog engine |
+| `prolog <goal>` / `.pl` resources | `scasp_prolog_goal` | refused (Prolog-only) |
+| `for all cases …` (universal) | `scasp_universal` | refused (the ordinary universal is lowered, Lloyd-Topor) |
+| Date arithmetic (`… days after …`) | `scasp_date_arithmetic` | refused |
+| `is in` (list membership) | `scasp_list_membership` | refused |
+| `is known` | `scasp_unsupported_known` | refused |
+| double negation | `scasp_double_negation` | refused: can't be expressed (§7) |
+| any other untranslatable rule | `scasp_untranslatable_rule` | refused |
 | query timeout | `scasp_timeout` | partial answers returned |
 | residual illegal construct | `scasp_unsupported_construct` | e.g. an "or" the emitter couldn't lift |
 | pack absent | `scasp_engine_not_installed` | whole engine unavailable |
+
+A non-numeric `is different from` is s(CASP)'s constructive disequality `X \= Y`.
+Caveat (s(CASP) 1.1.4): with abducibles, a *non-ground* global constraint using
+it can be answered unsoundly (a model abduces what the constraint forbids);
+ground ones are sound.
 
 The consistent advice in these messages is *"run this query with the Prolog
 engine"* — the two engines are complementary, not competing.

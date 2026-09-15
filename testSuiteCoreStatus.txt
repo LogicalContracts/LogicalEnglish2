@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      core (this repository alone; extension-dependent trees excluded)
 Command:    testing/run_tests.sh le   (or: runTests)
 Sibling:    testSuiteStatus.txt — all (core + trees requiring the proprietary le_extensions.pl)
-Generated:  2026-09-15 10:46:49 UTC
+Generated:  2026-09-15 16:56:33 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 119
-Total tests:     450
-Passed:          450
+Files processed: 120
+Total tests:     456
+Passed:          456
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -22,6 +22,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/AItest.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/alice.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/alice_propositional.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/assumption_constraints.le: 5 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/augmentedsem.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/cgt_assets.le: 21 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship.le: 4 Pass, 0 Fail, 0 Error
@@ -130,7 +131,7 @@ Detailed File Summary:
   [NONE] examples/RulesRus/semantic_llm.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/RulesRus/semantic_match.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/cidadania.le: 4 Pass, 0 Fail, 0 Error
-  [PASS] examples/pt/desconhecidos.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/pt/desconhecidos.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/despesas.le: 6 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/dobragem.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/es/angeldelsol.le: 2 Pass, 0 Fail, 0 Error

@@ -32,6 +32,7 @@ Every construct here has a written mapping to the internal term set of
   - [5. The prospective form](#5-the-prospective-form)
   - [6. The programs](#6-the-programs)
   - [7. What is out of scope, and why](#7-what-is-out-of-scope-and-why)
+  - [8. What has no LPS reading is refused](#8-what-has-no-lps-reading-is-refused)
 
 ---
 
@@ -277,10 +278,23 @@ time`, `the second time`) and occasionally an integer.
 
 A template instance with no suffix is timed by its context: inside a `when …
 then …` the trigger's times are used, inside `it must not be true that …` the
-event's start for every condition, and inside `initially` there is no time at
-all. So a law or a constraint whose conditions all read the state at the
-start of its one event needs no times, and that is how the writer
-(`le_lps_write.pl`) writes one:
+event's start for every condition, inside an `if … then …` reactive rule one
+time for all the conditions, at which every consequent starts, and inside
+`initially` there is no time at all. So a law or a constraint whose
+conditions all read the state at the start of its one event needs no times,
+nor does a reactive rule whose conditions read one state and whose actions
+follow from it:
+
+```
+    if there is a fire in a room
+        and it is not the case that an alarm is on
+    then an alarm goes on.
+```
+
+is exactly `reactive_rule([holds(fire(R),T1), holds(not(alarm),T1)],
+[happens(alarm_goes_on,T1,T2)])` — the action is attempted from the state
+the conditions read, as `… from the time` would say. That is how the writer
+(`le_lps_write.pl`) writes all three; a constraint, for instance:
 
 ```
     it must not be true that
@@ -634,3 +648,29 @@ program:
 The companion-file rule is: `foo.le` and `foo.lps` compile together, `.le`
 first, and the `.lps` half is ordinary LPS external syntax with an ordinary
 `.lps` editor mode. Nothing is smuggled through the English.
+
+## 8. What has no LPS reading is refused
+
+A document is translated to LPS whole, or not at all. When any issue is an
+error — the document's own, or a construct with no LPS reading —
+`le_lps_module/5` (and so `getLps`, LPS2's `le_compile`, Deploy as Solidity
+and the exporters that read the LPS translation) writes **no LPS text**, and
+the issues say why, each at its sentence. An LPS program that means
+something else than its document would be worse than none.
+
+The emitter lowers what LPS runs — comparisons, arithmetic, membership,
+aggregates (§4) — and passes any other goal through as a timeless one, which
+LPS2 would call as a relation of the program. What is left of Logical
+English's own vocabulary is therefore caught before the text is written, as
+the error `not_lps` (`not_lps_issues/3`):
+
+- `for all cases in which … it is the case that …` (a universal), and any
+  condition the emitter could not lower;
+- LE's built-ins with no LPS counterpart: date arithmetic (`… days after …`),
+  decision tables, `the minimum of …` — an `le_` goal still standing;
+- a condition on an assumable (`; unknown`) or judged template: LPS makes no
+  assumptions, so the condition would simply fail;
+- a condition answered by a service (`; via service`).
+
+The other conversions of a program into another language refuse the same way
+(docs/le_migration.md, "Exporting: the check before the text").

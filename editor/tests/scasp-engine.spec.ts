@@ -141,4 +141,41 @@ query approval is:
         await page.selectOption('#engine-select', 'prolog');
         await expect.poll(() => new URL(page.url()).searchParams.get('engine')).toBeNull();
     });
+
+    // A construct with no s(CASP) lowering (an aggregate) is not written as
+    // `true`: See s(CASP) and the s(CASP) engine refuse the program, and
+    // say where.
+    test('a program s(CASP) cannot state is refused, with its line', async ({ page }) => {
+        test.setTimeout(60000);
+        const AGG = `the target language is: prolog.
+the templates are:
+    *a person* owes *an amount*.
+    *a person* has a debt of *an amount*.
+the knowledge base t includes:
+a person has a debt of a total if
+    the total is the sum of each amount such that
+        the person owes the amount.
+scenario s is:
+    alice owes 3.
+query debt is:
+    which person has a debt of which amount.`;
+        await page.goto('index.html?text=' + encodeURIComponent(AGG));
+        await page.waitForSelector('.monaco-editor', { timeout: 30000 });
+        await page.locator('#scenario-select').hover();          // triggers the module load
+        await expect.poll(() => page.locator('#query-select option').count(), { timeout: 30000 }).toBeGreaterThan(1);
+        await page.evaluate(async () => {
+            const ed = (window as any).monaco.editor.getEditors()[0];
+            await ed.getAction('see-scasp').run(ed);
+        });
+        await expect(page.locator('#export-refused')).toBeVisible({ timeout: 30000 });
+        await expect(page.locator('#export-refused')).toContainText('s(CASP)');
+        await expect(page.locator('#export-problems .export-problem-line').first()).toHaveText('line 6');
+        await page.locator('#export-refused span', { hasText: '×' }).click();
+        await page.selectOption('#scenario-select', 's');
+        await page.selectOption('#query-select', 'debt');
+        await page.selectOption('#engine-select', 'scasp');
+        await page.click('#btn-query');
+        await expect(page.locator('#export-refused')).toBeVisible({ timeout: 30000 });
+        await expect(page.locator('#answers-list')).toContainText('nothing was written');
+    });
 });

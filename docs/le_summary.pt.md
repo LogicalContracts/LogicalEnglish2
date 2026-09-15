@@ -18,7 +18,7 @@ Cada cabeçalho de secção termina com dois pontos `:`.
   com `e`, `ou`, negação (`não é o caso que …`) e `para todos os casos em que …` (ver §3.2).
 - **Ontologia:** `a ontologia é:` (taxonomia e hierarquias de classes)
 - **Modelos:** `os predicados são:` ou `os modelos são:` (padrões de linguagem natural)
-- **Dinâmica:** `os fluentes são:` ou `os eventos são:` (raciocínio temporal)
+- **Dinâmica:** `os fluentes são:` ou `os eventos são:` (raciocínio temporal). No alvo lps uma frase só precisa de tempos onde relaciona dois momentos: uma regra reativa `se … então …` sem tempos lê as suas condições num só momento e começa a sua ação nesse momento, e uma lei causal `quando … então …` também dispensa tempos (`le_lps_surface.md` §3.1)
 - **Meta:** `a linguagem alvo é: prolog.` (obrigatório; declara a linguagem do programa)
 
 ## 2. Modelos
@@ -114,6 +114,29 @@ regra**:
           é o caso que
           a pessoa é feliz.
   ```
+
+### 3.3 Restrições de integridade: `não pode ser verdade que …`
+Uma **restrição de integridade** diz que certas condições nunca podem ser
+verdadeiras em conjunto; escreve-se como o corpo de uma regra sem cabeça, e é a
+mesma frase em todas as linguagens alvo:
+```le
+não pode ser verdade que
+    uma pessoa sabe que um número vai sair na lotaria
+    e a pessoa está falida.
+```
+- **Alvo prolog** — a restrição limita o que uma resposta **assume** (os modelos
+  `; desconhecido`), como na programação em lógica abdutiva: uma resposta obtida
+  assumindo algo só é aceite se o caso, com essas suposições, não satisfizer as
+  condições de nenhuma restrição (o que não é dito nem assumido é falso durante
+  a verificação). Uma restrição violada por causa da negação de algo assumível é
+  mantida **assumindo também isso**; senão a resposta é rejeitada. Um caso cujos
+  **factos** violam uma restrição é **inconsistente**: nenhuma consulta tem
+  resposta, e a explicação mostra a restrição e a prova das suas condições.
+- **Alvo scasp** — cada restrição é a restrição global `false :- Condições.`
+- **Alvo lps** — a mesma frase é uma restrição sobre ações e estados (`d_pre/1`).
+
+Ver `examples/pt/desconhecidos.le` e, em inglês, §3.3 de `le_summary.md` e
+`examples/moreExamples/assumption_constraints.le`.
 
 ## 4. Operadores lógicos
 - **E:** `e` (ou nova linha com a mesma indentação)

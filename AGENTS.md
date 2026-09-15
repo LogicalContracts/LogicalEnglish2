@@ -6,6 +6,7 @@ Translators from other systems into LE (migrations) share `le_writer.pl` (Migrat
 text), `le_migration.pl` (ledger, source tests as scenarios) and `lib/` (shared LE libraries);
 see `docs/le_migration.md`.
 Ignore docs/vibeCodingNotes.md, it contains the user's private notes.
+If /lps2 exists, it contains the Logic Production Systems repository, which depends on ours.
 
 ## Build, Lint, and Test
 In what follows, SWIPL refers to the `./myswipl.sh` wrapper at the repo root. It

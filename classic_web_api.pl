@@ -41,11 +41,16 @@
 :- use_module(llm/mcp, [handle_mcp/1, handle_rest_list_examples/1, handle_rest_query/1, handle_rest_verify/1, handle_rest_example_details/1]).
 :- use_module(le_users).
 :- use_module(restricted_paths).
+:- use_module(le_telemetry).
 
 :- dynamic build_info/1.
 
 :- http_handler(root(leapi), handle_leapi, [method(post)]).
 :- http_handler(root(build_info), handle_build_info, [method(get)]).
+% Error reports and analytics, when the environment configures them
+% (le_telemetry.pl, docs/telemetry.md): every page loads /telemetry.js.
+:- http_handler(root('telemetry.js'), handle_telemetry_js, [method(get)]).
+:- http_handler(root(telemetry_test), handle_telemetry_test, [method(get)]).
 % Stub services for tests of programs that declare services (le_services.pl):
 % POST a service request to /test_services/matcher or /test_services/judge.
 :- http_handler(root(test_services), handle_test_services, [prefix, method(post)]).
@@ -131,6 +136,19 @@ handle_build_info(_Request) :-
     build_info(Info),
     reply_json_dict(_{build_info: Info}).
 
+%   The pages' telemetry script: a no-op unless Sentry or PostHog is
+%   configured; the feedback form's words in the cookie's UI language.
+handle_telemetry_js(Request) :-
+    set_cookie_language(Request),
+    le_telemetry:telemetry_js(JS),
+    format('Content-type: application/javascript; charset=UTF-8~n'),
+    format('Cache-Control: no-cache~n~n'),
+    write(JS).
+
+handle_telemetry_test(_Request) :-
+    le_telemetry:telemetry_test(Reply),
+    reply_json_dict(Reply).
+
 :- multifile prolog:message//1.
 prolog:message(le_api_error(Op, Msg)) -->
     [ 'LE API Operation failed: ~w - ~w' - [Op, Msg] ].
@@ -177,13 +195,18 @@ handle_leapi(Request) :-
     (   validate_token(Dict) ->  
             get_dict(operation, Dict, Op),
             print_message(informational, le_api_info(Op)),
-            (   catch(handle_operation(Dict, Response0), E, (print_message(error, E), fail)) ->  
-                    print_message(informational, le_api_info(success(Op))),
-                    % Ranges inside included resources carry their resource.
-                    le_kbs:annotate_resource_ranges(Response0, Response),
-                    reply_json_dict(Response)
-                ; print_message(error, le_api_error(Op, "Operation failed")),
-                  reply_json_dict(_{error: "Operation failed or internal error"}, [status(500)])
+            catch(( handle_operation(Dict, Response0) -> Outcome = done ; Outcome = failed ),
+                  E, ( print_message(error, E), Outcome = caught(E) )),
+            (   Outcome == done
+            ->  print_message(informational, le_api_info(success(Op))),
+                % Ranges inside included resources carry their resource.
+                le_kbs:annotate_resource_ranges(Response0, Response),
+                reply_json_dict(Response)
+            ;   % To Sentry, when the server is configured for it (le_telemetry.pl).
+                ( Outcome = caught(Ball) -> Report = Ball ; Report = failed ),
+                le_telemetry:telemetry_report(Report, [operation(Op)]),
+                print_message(error, le_api_error(Op, "Operation failed")),
+                reply_json_dict(_{error: "Operation failed or internal error"}, [status(500)])
             )
         ; print_message(warning, le_api_info("Invalid token")),
           reply_json_dict(_{error: "Invalid token"}, [status(403)])
@@ -332,6 +355,7 @@ handle_landing_page(Request) :-
     uit('Run All Tests', RunAllTests),
     reply_html_page(
         [title('Logical English 2.0'),
+         script([src('/telemetry.js')], []),
          % Collapsible example folders: open/closed state per folder is remembered
          % in LocalStorage; ?expand=all opens everything (script embedded below).
          style('li.le-folder-item { list-style: none; } \c
@@ -435,7 +459,7 @@ handle_login(Request) :-
             uit('Invalid email or password.', InvalidCreds),
             uit('Try again', TryAgain),
             reply_html_page(
-                [title(LoginFailed)],
+                [title(LoginFailed), script([src('/telemetry.js')], [])],
                 [h1(LoginFailed), p(InvalidCreds), a(href('/login'), TryAgain)]
             )
         )
@@ -444,7 +468,7 @@ handle_login(Request) :-
         uit('Email: ', EmailLbl),
         uit('Password: ', PasswordLbl),
         reply_html_page(
-            [title(LoginTxt)],
+            [title(LoginTxt), script([src('/telemetry.js')], [])],
             [
                 h1(LoginTxt),
                 form([action('/login'), method('post')], [
@@ -634,6 +658,7 @@ multilingual_picker_page :-
     ui_lang_pref_script('', PrefScript),
     reply_html_page(
         [title('Logical English — Multilingual'),
+         script([src('/telemetry.js')], []),
          script([type('text/javascript')], PrefScript)],
         [
             h1('Logical English — Multilingual'),
@@ -731,6 +756,7 @@ multilingual_landing_page(Lang, LangDir) :-
     ], Body),
     reply_html_page(
         [title(Title),
+         script([src('/telemetry.js')], []),
          style('li.le-folder-item { list-style: none; } \c
                 details.le-folder > summary { cursor: pointer; }'),
          script([type('text/javascript')], FolderScript),
@@ -2716,8 +2742,24 @@ handle_get_scasp(Dict, Response) :-
           le_i18n:le_msg(scasp_engine_not_installed, [], M), Response = _{error: M}
       ; le_scasp:le_scasp_program_text(KB, Text, Issues),
         maplist(scasp_issue_json, Issues, JIssues),
-        Response = _{scasp: Text, issues: JIssues}
+        scasp_refusal(KB, Dict, Issues, Refusal),
+        (   Refusal == none
+        ->  Response = _{scasp: Text, issues: JIssues}
+        ;   Response = Refusal.put(issues, JIssues)
+        )
       )
+    ).
+
+%   A program s(CASP) cannot state faithfully (a construct with no s(CASP)
+%   lowering, le_scasp:le_scasp_check/3) is neither shown as s(CASP) nor run
+%   by it: the reply is the refusal, `error` and `problems` with their lines
+%   (in the document the request sends as `le`, the one the session loaded).
+scasp_refusal(KB, Dict, Issues, Refusal) :-
+    le_scasp:le_scasp_check(KB, Issues, Problems),
+    (   Problems == []
+    ->  Refusal = none
+    ;   ( get_dict(le, Dict, Doc), string(Doc) -> Opts = [text(Doc)] ; Opts = [] ),
+        le_import:export_refusal("s(CASP)", Problems, Opts, Refusal)
     ).
 
 scasp_issue_json(le_scasp_issue(Kind, ID, Msg), _{kind: KindS, ruleId: IDS, message: MsgS}) :-
@@ -2736,6 +2778,11 @@ handle_scasp_query(Dict, Response) :-
     ; le_kbs:ensure_kb_language(KB),
       ( \+ le_scasp:le_scasp_available ->
         le_i18n:le_msg(scasp_engine_not_installed, [], M), Response = _{error: M}
+      ; le_scasp:le_scasp_program_text(KB, _, PIssues),
+        scasp_refusal(KB, Dict, PIssues, Refusal),
+        Refusal \== none
+      ->  maplist(scasp_issue_json, PIssues, JPIssues),
+          Response = Refusal.put(issues, JPIssues)
       ; scasp_query_goal(KB, Dict, Goal, GoalErr),
       ( nonvar(GoalErr) -> Response = _{error: GoalErr}
       ; scasp_scenario_name(Dict, ScenarioName),

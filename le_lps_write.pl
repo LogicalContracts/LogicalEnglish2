@@ -40,6 +40,8 @@
 
 :- module(le_lps_write, [
     le_lps_document/3,           % +KBModule, +InternalTerms, -LEText
+    le_lps_document/4,           % +KBModule, +InternalTerms, -LEText, +Options
+    le_lps_check/3,              % +KBModule, +InternalTerms, -Problems
     le_lps_dump/2,               % +KBModule, -LEText
     le_lps_sentence/3            % +KBModule, +InternalTerm, -Sentence
   ]).
@@ -73,12 +75,32 @@ read_all(In, Terms) :-
 	( T == end_of_file -> Terms = [] ; Terms = [T|Rest], read_all(In, Rest) ).
 
 %!  le_lps_document(+KB, +Terms, -Text) is det.
+%!  le_lps_document(+KB, +Terms, -Text, +Options) is det.
+%
+%   The whole program as Logical English. A term with no Logical English
+%   form (le_lps_check/3) refuses the translation: it throws
+%   le_lps_not_expressible(Problems), rather than write a document that
+%   means something else than its program. With residue(true) in Options —
+%   a translator INTO Logical English, whose contract is to keep what it
+%   cannot translate as a comment (le_import.pl) — such a term is written as
+%   a `% not expressible in Logical English:` comment instead.
 le_lps_document(KB, Terms, Text) :-
+	le_lps_document(KB, Terms, Text, []).
+
+le_lps_document(KB, Terms, Text, Options) :-
+	(   memberchk(residue(true), Options)
+	->  true
+	;   le_lps_check(KB, Terms, Problems), Problems \== []
+	->  throw(le_lps_not_expressible(Problems))
+	;   true
+	),
 	%  the fluents' defaults (`defaults/1`), for their declaration lines
 	( memberchk(defaults(Ds), Terms) -> true ; Ds = [] ),
 	b_setval(le_lps_write_defaults, Ds),
 	partition_terms(Terms, P),
-	with_output_to(string(Text), write_document(KB, P)).
+	setup_call_cleanup(nb_setval(le_lps_write_whole, true),
+			   with_output_to(string(Text), write_document(KB, P)),
+			   nb_setval(le_lps_write_whole, false)).
 
 %   p(Settings, Fluents, Events, Actions, PrologEvents, Body, Observations)
 partition_terms(Terms, p(S, F, E, A, PE, Body, Obs)) :-
@@ -256,6 +278,38 @@ write_scenario(KB, Obs) :-
 le_lps_sentence(KB, Term, Sentence) :-
 	with_output_to(string(Sentence), write_sentence(KB, Term)).
 
+%!  le_lps_check(+KB, +Terms, -Problems) is det.
+%
+%   The check before an LPS program is written as Logical English: every
+%   term of its body must have a sentence. Problems: problem(none, Message)
+%   for each that has none (le_import:export_refusal/4's shape).
+le_lps_check(KB, Terms, Problems) :-
+	( memberchk(defaults(Ds), Terms) -> true ; Ds = [] ),
+	b_setval(le_lps_write_defaults, Ds),
+	partition_terms(Terms, p(_, _, _, _, _, Body, _)),
+	findall(problem(none, Msg),
+		( member(T, Body), \+ has_sentence(KB, T),
+		  format(string(TS), "~q", [T]),
+		  le_i18n:le_msg(lps_not_expressible_in_le, [term-TS], Msg) ),
+		Problems).
+
+has_sentence(KB, Term0) :-
+	nb_setval(le_lps_write_raw, []),
+	(   \+ \+ ( copy_term(Term0, Term),
+		    shorten_times(Term),
+		    naming(KB, Term, Names0),
+		    global_names(KB, Term, Names0, Names),
+		    sentence(KB, Names, Term, _) )
+	->  nb_getval(le_lps_write_raw, Raw)
+	;   Raw = [none]
+	),
+	nb_setval(le_lps_write_raw, none),
+	Raw == [].
+
+write_sentence(KB, Term0) :-
+	nb_current(le_lps_write_whole, true),         % a whole document: a term
+	\+ has_sentence(KB, Term0), !,                % with no sentence is residue
+	format('% not expressible in Logical English: ~q~n~n', [Term0]).
 write_sentence(KB, Term0) :-
 	copy_term(Term0, Term),
 	shorten_times(Term),
@@ -326,6 +380,29 @@ elided_times(d_pre(Cs)) :-
 	once(member(holds(_, T), Cs)), var(T),
 	only_state_time(Cs, T), !,
 	T = lps_now.
+%   A reactive rule whose conditions all read one state and whose
+%   consequents all start at that time, their ends named nowhere: `if there
+%   is a fire in a room and it is not the case that an alarm is on then an
+%   alarm goes on.` — LE-for-LPS reads the conditions at one time and starts
+%   the consequents at it, which is this very term.
+elided_times(reactive_rule(Ante, Cons)) :-
+	Cons = [_|_],
+	\+ ( member(G, Ante), nonvar(G), G = happens(_, _, _) ),
+	reactive_start(Ante, Cons, T), var(T),
+	only_state_time(Ante, T),
+	maplist(untimed_consequent(T), Cons, Ends),
+	\+ ( member(E, Ends), occurs_var(E, Ante) ),
+	forall(member(E, Ends), once_in(E, reactive_rule(Ante, Cons))), !,
+	T = lps_now,
+	maplist(=(lps_now), Ends).
+
+reactive_start(Ante, _, T) :- member(G, Ante), nonvar(G), G = holds(_, T), !.
+reactive_start(_, [C|_], T) :- nonvar(C), C = happens(_, T, _).
+
+untimed_consequent(T, C, End) :-
+	nonvar(C), C = happens(E, S, End),
+	S == T, var(End), End \== T,
+	\+ occurs_var(T, E), \+ occurs_var(End, E).
 
 causal_trigger(initiated(Tr, F, Cs), Tr, F-Cs).
 causal_trigger(terminated(Tr, F, Cs), Tr, F-Cs).
@@ -665,7 +742,19 @@ render(KB, Names, Goal0, S) :-
 	    words_text(Words1, S0),
 	    ( S0 == '' -> format(atom(S), '~q', [Goal1]) ; S = S0 ),
 	    WV = WV                                   % keep the first lookup honest
-	;   format(atom(S), '~q', [Goal1])
+	;   format(atom(S), '~q', [Goal1]),
+	    raw_goal(Goal1)
+	).
+
+%   A goal written as Prolog because no template says it in English: fine
+%   for Prolog's own built-ins (LE reads them), but anything else is not
+%   Logical English — le_lps_check/3 counts those (while it runs, the list
+%   `le_lps_write_raw` collects them).
+raw_goal(G) :-
+	(   nb_current(le_lps_write_raw, L), is_list(L),
+	    \+ catch(predicate_property(system:G, built_in), _, fail)
+	->  nb_setval(le_lps_write_raw, [G|L])
+	;   true
 	).
 
 %   A FRESH copy of the template: its argument variables and the same
@@ -789,8 +878,11 @@ arg_type(NTs, I, Type) :-
 %   Descending INTO a fluent matters for one construct: an aggregate is a
 %   findall inside holds/2, and the element and the goals it quantifies are
 %   where the types of its variables live.
-sub_literal(holds(F, T), Out) :- !, ( Out = F ; Out = time_slot(T) ; aggregate_inside(F, Out) ).
+%   (the negation first: a variable seen only under `not` is typed by the
+%   negated fluent's place too — `it is not the case that there is a fire in
+%   a room`, not `… in a thing`)
 sub_literal(holds(not(F), T), Out) :- !, ( Out = F ; Out = time_slot(T) ).
+sub_literal(holds(F, T), Out) :- !, ( Out = F ; Out = time_slot(T) ; aggregate_inside(F, Out) ).
 sub_literal(happens(E, T1, T2), Out) :- !,
 	( Out = E ; Out = time_slot(T1) ; Out = time_slot(T2) ).
 sub_literal(T, Out) :-

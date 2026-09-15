@@ -59,6 +59,22 @@ test(times_elided) :-
     assertion(\+ has(Text, "time")),
     assertion(reads_back(Text, T)).
 
+%   A reactive rule whose conditions all read one state and whose
+%   consequents start at that time needs no times either, and reads back as
+%   the same term; one that relates two moments keeps them. (A variable seen
+%   first under a negation is named from the negated fluent's place.)
+test(reactive_times_elided) :-
+    T = reactive_rule([holds(balance(S, B), T1), holds(not(balance(R, 0)), T1), B > 10],
+                      [happens(transfer(S, 5, R), T1, _)]),
+    sentence(T, Text),
+    assertion(has(Text, "if the balance of an account is an amount\n    and it is not the case that the balance of a second account is 0\n")),
+    assertion(has(Text, "then the account transfers 5 to the second account.")),
+    assertion(\+ has(Text, "time")),
+    assertion(reads_back(Text, T)),
+    sentence(reactive_rule([holds(balance(S2, B2), T2)], [happens(transfer(S2, B2, S2), T3, _)]), Text2),
+    assertion(has(Text2, "from a second time")),
+    T2 = T2, T3 = T3.
+
 %   An event whose end is named nowhere else is written `from T`, one whose
 %   start is named nowhere else `to T`.
 test(open_event_ends) :-

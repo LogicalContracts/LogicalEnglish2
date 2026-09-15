@@ -71,6 +71,18 @@ export_arrows(KB, _Options, exported('rules.arrows', Text, ["arrows written"], [
 
 strip_ready(Body, A) :- sub_term(is_ready(A0), Body), !, A = A0.
 
+%   Its check (le_import:export_check/2): arrows say only `A => B`, so a
+%   rule with any other condition cannot be written — each such condition
+%   is a problem, where it stands.
+:- multifile le_import:export_check/2.
+le_import:export_check(arrows, test_le_import:check_arrows).
+
+check_arrows(KB, _Options, Problems) :-
+    findall(problem(at(S, E), "arrows have no form for this condition"),
+            ( catch(clause(KB:is_ready(_), Body), _, fail),
+              sub_term(X, Body), compound(X), X = le_at(G, S, E), \+ G = is_ready(_) ),
+            Problems).
+
 zip_of(Zip, Members) :-
     setup_call_cleanup(zip_open(Zip, write, Z, []),
         forall(member(Name-Content, Members),
@@ -192,6 +204,56 @@ test(export_way_back) :-
     assertion(L.url == "https://example.org/#x"),
     export_kb(nobody, KB, [], R2),
     assertion(get_dict(error, R2, _)).
+
+%   A program with something the target cannot say is refused before
+%   anything is written: the reply is the error and the problems, each with
+%   its line and the program's words there — and no document.
+test(export_refused_before_writing) :-
+    Doc = "the target language is: prolog.\n\nthe templates are:\n    *a thing* is ready.\n\nthe knowledge base t includes:\n\nb is ready if\n    a is ready\n    and 3 > 2.\n",
+    le_kbs:load_text(Doc, KB),
+    export_formats(KB, Fs),
+    assertion(( member(F, Fs), get_dict(id, F, arrows) )),     % offered, and then refused
+    export_kb(arrows, KB, [text(Doc)], R),
+    assertion(\+ get_dict(document, R, _)),
+    assertion(sub_string(R.error, _, _, _, "Arrow rules (test)")),
+    assertion(R.exporter == "Arrow rules (test)"),
+    R.problems = [P],
+    assertion(P.line == 10),
+    assertion(P.text == "3 > 2"),
+    assertion(P.message == "arrows have no form for this condition").
+
+%   Without the program's text there is no line to give: the problem stays.
+test(export_refused_without_text) :-
+    le_kbs:load_text("the target language is: prolog.\n\nthe templates are:\n    *a thing* is ready.\n\nthe knowledge base t includes:\n\nb is ready if\n    a is ready\n    and 3 > 2.\n", KB),
+    export_kb(arrows, KB, [], R),
+    R.problems = [P],
+    assertion(P.line == null).
+
+%   The shared shape of a refusal, for any converter (See s(CASP), ...):
+%   problems in the order of their lines, those with no line last, no
+%   repeats.
+test(refusal_shape) :-
+    Doc = "one\ntwo\nthree\n",
+    export_refusal("X", [problem(none, "c"), problem(line(3), "b"), problem(at(4, 7), "a"), problem(line(3), "b")],
+                   [text(Doc)], R),
+    assertion(R.exporter == "X"),
+    findall(L-M, ( member(P, R.problems), L = P.line, M = P.message ), LMs),
+    assertion(LMs == [2-"a", 3-"b", null-"c"]),
+    R.problems = [P1|_],
+    assertion(P1.text == "two").
+
+%   LE's integrity constraints are not in the Migration IR: an exporter
+%   whose target has none asks for them by name, so it cannot drop them.
+test(constraints_are_problems_for_a_target_without_them) :-
+    Doc = "the target language is: prolog.\n\nthe templates are:\n    *a thing* is ready.\n    *a thing* is late.\n\nthe knowledge base t includes:\n\nit must not be true that\n    a thing is ready\n    and the thing is late.\n",
+    le_kbs:load_text(Doc, KB),
+    kb_constraint_problems(KB, "Arrows", Ps),
+    Ps = [problem(at(S, _), M)],
+    assertion(sub_string(M, _, _, _, "Arrows has no form for it")),
+    export_refusal("Arrows", Ps, [text(Doc)], R),
+    R.problems = [P],
+    assertion(P.line == 9),
+    assertion(integer(S)).
 
 test(export_not_offered_when_it_does_not_apply) :-
     le_kbs:load_text("the target language is: prolog.\n\nthe templates are:\n    *a thing* is green.\n\nthe knowledge base u includes:\n\nb is green.\n", KB),

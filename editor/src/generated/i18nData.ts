@@ -9251,7 +9251,16 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Open in a new tab": "Abrir num novo separador",
     "Could not export": "Não foi possível exportar",
     "No exporter on this server can write this program in another system's format.": "Nenhum exportador deste servidor consegue escrever este programa no formato de outro sistema.",
-    "Export this program as": "Exportar este programa como"
+    "Export this program as": "Exportar este programa como",
+    "Not translated to": "Não traduzido para",
+    "Go to this line": "Ir para esta linha",
+    "Feedback": "Comentários",
+    "Report a problem or send feedback": "Comunicar um problema ou enviar comentários",
+    "Description": "Descrição",
+    "What happened? What did you expect?": "O que aconteceu? O que esperava?",
+    "Email": "Email",
+    "Thank you for your feedback!": "Obrigado pelos seus comentários!",
+    "(required)": "(obrigatório)"
   },
   "es": {
     "+ Add": "+ Añadir",
@@ -9807,7 +9816,16 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Open in a new tab": "Abrir en una pestaña nueva",
     "Could not export": "No se pudo exportar",
     "No exporter on this server can write this program in another system's format.": "Ningún exportador de este servidor puede escribir este programa en el formato de otro sistema.",
-    "Export this program as": "Exportar este programa como"
+    "Export this program as": "Exportar este programa como",
+    "Not translated to": "No traducido a",
+    "Go to this line": "Ir a esta línea",
+    "Feedback": "Comentarios",
+    "Report a problem or send feedback": "Informar de un problema o enviar comentarios",
+    "Description": "Descripción",
+    "What happened? What did you expect?": "¿Qué ocurrió? ¿Qué esperaba?",
+    "Email": "Correo electrónico",
+    "Thank you for your feedback!": "¡Gracias por sus comentarios!",
+    "(required)": "(obligatorio)"
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -10363,7 +10381,16 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Open in a new tab": "Ouvrir dans un nouvel onglet",
     "Could not export": "Impossible d'exporter",
     "No exporter on this server can write this program in another system's format.": "Aucun exportateur de ce serveur ne sait écrire ce programme dans le format d'un autre système.",
-    "Export this program as": "Exporter ce programme en"
+    "Export this program as": "Exporter ce programme en",
+    "Not translated to": "Non traduit en",
+    "Go to this line": "Aller à cette ligne",
+    "Feedback": "Commentaires",
+    "Report a problem or send feedback": "Signaler un problème ou envoyer un commentaire",
+    "Description": "Description",
+    "What happened? What did you expect?": "Que s'est-il passé ? Qu'attendiez-vous ?",
+    "Email": "E-mail",
+    "Thank you for your feedback!": "Merci pour votre commentaire !",
+    "(required)": "(obligatoire)"
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -10919,7 +10946,16 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Open in a new tab": "Apri in una nuova scheda",
     "Could not export": "Impossibile esportare",
     "No exporter on this server can write this program in another system's format.": "Nessun esportatore di questo server sa scrivere questo programma nel formato di un altro sistema.",
-    "Export this program as": "Esporta questo programma come"
+    "Export this program as": "Esporta questo programma come",
+    "Not translated to": "Non tradotto in",
+    "Go to this line": "Vai a questa riga",
+    "Feedback": "Feedback",
+    "Report a problem or send feedback": "Segnala un problema o invia un commento",
+    "Description": "Descrizione",
+    "What happened? What did you expect?": "Che cosa è successo? Che cosa si aspettava?",
+    "Email": "Email",
+    "Thank you for your feedback!": "Grazie per il suo commento!",
+    "(required)": "(obbligatorio)"
   }
 } as const;
 

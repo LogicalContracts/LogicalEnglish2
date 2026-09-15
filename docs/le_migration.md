@@ -75,10 +75,14 @@ another system's format. An exporter registers itself with one clause:
 
 ```prolog
 le_import:exporter(Id, Title, Extension, File, Module:Export, Module:Applies).
-%   call(Applies, +KB)                      % can it write this program?
-%   call(Export, +KB, +Options, -exported(FileName, Text, Notes, Links))
+%   call(Applies, +KB)                      % is it a program of this kind?
+%   call(Export, +KB, +Options, -Result)    % exported(FileName, Text, Notes, Links)
+%                                           % or refused(Problems)
 %       Options: text(Doc), base(Dir); Links: [link(Title, Url)] — a public
 %       sandbox or playground the result opens in
+le_import:export_check(Id, Module:Check).
+%   call(Check, +KB, +Options, -Problems)   % [problem(Where, Message)], Where
+%                                           % at(Start, End) | line(N) | none
 ```
 
 KB is the loaded knowledge base, so an exporter reads the program through
@@ -86,10 +90,46 @@ KB is the loaded knowledge base, so an exporter reads the program through
 `exportFormats` (the exporters that apply to a program) and `exportForeign`
 (the text, notes and links); the editor lists only the exporters that apply,
 and shows the result to copy or save, with its notes and a button per link.
-What an exporter cannot express it says in Notes — never silently. Tests:
-`testing/test_le_import.pl` (a made-up exporter), `editor/tests/
-import-foreign.spec.ts` (both ways). The InsurLE exporters are registered
-in `InsurLE2/migration/le_importers.pl` beside the importers.
+Tests: `testing/test_le_import.pl` (a made-up exporter with a check),
+`editor/tests/import-foreign.spec.ts` (both ways, and a refusal). The
+InsurLE exporters and their checks are registered in
+`InsurLE2/migration/le_importers.pl` beside the importers.
+
+**Exporting: the check before the text.** What an exporter cannot express
+is never dropped silently, and there are two kinds of it. A *problem* loses
+meaning — a rule, fact, condition or declaration the target has no faithful
+form for — and the program is **refused**: nothing is written, and the
+reply (`le_import:export_refusal/4`) is `{error, exporter, problems}`, each
+problem `{line, message, text}` (the line and the program's own words
+there). The editor shows the list, each line a link to it (`#export-refused`);
+the LPS2 IDE the same in its dialog. A *note* loses no meaning (comments,
+queries and expected answers, layout, a key named after its role) and
+travels with the written text. `export_kb/4` runs the exporter's
+`export_check` before `Export` (and passes `checked(true)` so it need not
+check again); an `Export` that meets a problem only while translating
+answers `refused(Problems)`. `Applies` and the check are two things on
+purpose: Applies decides what the menu offers (a program of the kind), the
+check whether this one can be written — an offered exporter may refuse, and
+its list says what to change. LE's integrity constraints (`it must not be
+true that …`) are not in the Migration IR: an exporter to a target without
+constraints asks `le_import:kb_constraint_problems/3` for them.
+
+Every other conversion of an LE or LPS program into another language
+refuses the same way, with the same reply:
+
+| conversion | where | the check |
+|---|---|---|
+| LE → Miniscript, LegalRuleML, Daml | `InsurLE2/migration/{miniscript,legalruleml,daml}` | `check_miniscript/3`, `check_lrml/3`, `check_daml/3` |
+| LE → s(CASP) (See s(CASP), the s(CASP) engine) | `le_scasp.pl` | `le_scasp_check/3`: an emitter issue that loses meaning (docs/sCASP_on_LE.md §8) |
+| LE for LPS → LPS (`getLps`, LPS2's `le_compile`, Deploy as Solidity, the LPS exporters) | `le_lps.pl` | any error issue, including `not_lps` (docs/le_lps_surface.md §8): no LPS text |
+| LPS → Solidity | LPS2 `lps_solidity.pl` | `lps_to_solidity/3`'s refusal (reactive rules, Prolog, enumeration, …) |
+| LPS → LE (a document) | `le_lps_write.pl` | `le_lps_check/3`; `residue(true)` (a translator into LE) writes a comment instead |
+
+Out of scope, and why: LE → Prolog is LE's own compilation, not a
+translation; the Mermaid export is a diagram of the program, not a program;
+Deploy as WASM bundles the same LPS program with its engine; the legal view
+(`le_lps_legal.pl`) is an explanatory reading of a run, not a program meant
+to be equivalent; PDDL, Inform 7 and DRL are read into LPS, never written.
 
 ## 1. The Migration IR
 
@@ -123,6 +163,7 @@ program(Header, Items)
 | `fluent/event/action(F, Text, Additions)` | the LPS declaration sections |
 | `rule(Head, Body, Options)` | a rule. Options: `label(L)` (`rule L:`), `provenance(P)` (with a label: `rule L with provenance ...:`), `numbered(true)` (a numbered outline, §15.5), `comment(Text)` |
 | `fact(Head, Options)` | a fact; Options `provenance(P)` (trailers), `ontology` (in `the ontology is:`) |
+| `constraint(Body, Options)` | an integrity constraint, `it must not be true that` and the conditions (le_summary.md §3.3); Options `comment(Text)` |
 | `table(Name, Options, Columns, Rows)` | a decision table (§17.3). Options: `policy(first\|unique\|all)`, `loaded_from(File)`, `provenance(P)`. Cells: a constant, `any`, `or_list([...])`, `cond(E)` with `E` built from `Op-Value` (`(>=)-1`) and `and/2`, `or/2`, `quote(Text)` (a citation column), `raw(Text)` |
 | `section(Name)` | `section Name is:` |
 | `residue(Id, Options)` | a residue block (§4): Options `title(T)`, `locator(L)`, `source(Language, Code)`, `note(Text)`, `placeholder(LE)`, `concludes([F, ...])` (what the block must conclude — the expectations that depend on it are pending, §3) |
@@ -207,8 +248,11 @@ one, and the Prolog path.
 backwards (`docs/sCASP_on_LE.md` §4, §13): `-p(X)` is p's opposite form
 (`; opposite:`, its wording from `#pred -p(X) :: …` or made from p's);
 `#abducible` (or the target's `le_unknown/1` records) `; unknown`; `:- B.` and
-`false :- B.` denials become queries `denial_<n>` that the scenarios expect to
-have no answer (convention N1 — LE has no timeless constraint); `#>`, `#>=`,
+`false :- B.` denials become integrity constraints, `it must not be true that
+B` (le_summary.md §3.3: as in s(CASP), a case whose facts meet them answers
+nothing, and no answer may assume what would meet them — before LE had
+timeless constraints they were queries `denial_<n>` the scenarios expected to
+have no answer, convention N1); `#>`, `#>=`,
 `#<`, `#=<`, `#<>` comparisons and `#=` an assignment; `?- Q.` queries
 `query_<n>`; the target's `le_forall_K` helpers fold back into universals;
 several `#pred` wordings of one predicate are its synonyms; `is_a/2` is LE's
