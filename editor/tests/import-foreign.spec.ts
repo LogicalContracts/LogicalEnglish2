@@ -83,6 +83,11 @@ test.describe('Opening another system\'s file', () => {
         await expect.poll(() => editorText(page), { timeout: 60000 }).toContain('the coin can be spent');
         await page.locator('#import-report span').click();
         await page.evaluate(() => (document.getElementById('menu-export') as HTMLElement).click());
+        // Other exporters (LegalRuleML) can write it too: pick Miniscript.
+        await expect(page.locator('#export-list, #export-result').first()).toBeVisible({ timeout: 60000 });
+        if (await page.locator('#export-list').count()) {
+            await page.locator('#export-list div', { hasText: /^Bitcoin Miniscript policy/ }).click();
+        }
         await expect(page.locator('#export-result')).toBeVisible({ timeout: 60000 });
         await expect(page.locator('#export-text')).toContainText('or(pk(key_a),and(pk(key_b),older(144)))');
         await expect(page.locator('#export-result .export-link')).toHaveText('Try it in Minsc');
