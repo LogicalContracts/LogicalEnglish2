@@ -1,5 +1,6 @@
 % Exemplo em Português Lógico: abdução (modelos assumíveis), respostas com
-% desconhecidos, sinónimos de modelos e regras com "a menos que".
+% desconhecidos, sinónimos de modelos, regras com "a menos que" e uma
+% restrição de integridade sobre o que se assume.
 a linguagem alvo é: prolog.
 
 os modelos são:
@@ -19,6 +20,12 @@ uma pessoa pode celebrar
 se a pessoa fica rica
    a menos que a pessoa está falida.
 
+% Uma restrição de integridade: nenhuma resposta pode assumir o que a torna
+% verdadeira. Quem está falido não pode ser suposto saber o número que sai.
+não pode ser verdade que
+    uma pessoa sabe que um número vai sair na lotaria
+    e a pessoa está falida.
+
 cenário um é:
     alice aposta em 42 a tempo.
     bob joga 7 a tempo.
@@ -30,6 +37,12 @@ cenário dois é:
     alice aposta em 42 a tempo.
     alice está falida.
     festas espera respostas [] e desconhecidos [].
+
+cenário três é:
+    alice aposta em 42 a tempo.
+    alice está falida.
+    bob aposta em 7 a tempo.
+    ricos espera respostas ["bob fica rica"] e desconhecidos ["bob sabe que 7 vai sair na lotaria"].
 
 consulta ricos é:
     qual pessoa fica rica.

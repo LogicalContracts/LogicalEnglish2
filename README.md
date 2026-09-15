@@ -43,6 +43,7 @@ You can configure the deployment using the following environment variables:
 - `GEMINI_API_KEY`, `GOOGLE_API_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`: API key for Google Gemini models.
 - `GROQ_API_KEY`: API key for Groq models.
 - `TOGETHER_API_KEY`, `TOGETHERAI_API_KEY`: API key for Together AI models.
+- `LE_SENTRY_DSN`, `LE_POSTHOG_KEY` (and `LE_SENTRY_ENVIRONMENT`, `LE_SENTRY_RELEASE`, `LE_POSTHOG_HOST`, `LE_POSTHOG_PERSISTENCE`): error reports to Sentry, with a feedback form, and analytics to PostHog; off unless set. See [docs/telemetry.md](./docs/telemetry.md).
 
 ### Local Installation (SWI-Prolog)
 To run Logical English 2.0 on your local machine:

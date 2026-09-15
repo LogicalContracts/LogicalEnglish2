@@ -456,11 +456,15 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                         body: JSON.stringify({
                             token: 'myToken123',
                             operation: 'getScasp',
-                            sessionModule: sessionModule
+                            sessionModule: sessionModule,
+                            le: editor.getValue()
                         })
                     });
                     const data = await response.json();
-                    if (data.scasp !== undefined) {
+                    if (Array.isArray(data.problems)) {
+                        // a program s(CASP) cannot state faithfully: not shown
+                        showRefusal(data);
+                    } else if (data.scasp !== undefined) {
                         // s(CASP) is a whole-program transformation; show the full
                         // generated program plus any compile-time issues.
                         let content = data.scasp;
@@ -1369,10 +1373,52 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         pre.style.cssText = 'white-space:pre-wrap;word-break:break-all;font-size:12px;background:rgba(128,128,128,.12);padding:8px;border-radius:4px;max-height:60vh;overflow:auto';
         box.appendChild(pre);
     };
+    // A translation into another system that was refused (le_import.pl,
+    // export_refusal/4): nothing was written, because the program uses
+    // something the target cannot say. Each problem is listed with its
+    // line, which jumps to it; the program's own words there are quoted.
+    const showRefusal = (data: any) => {
+        const { overlay, box } = overlayBox('export-refused', `${t('Not translated to')} ${data.exporter}`);
+        const p = document.createElement('p');
+        p.textContent = data.error;
+        box.appendChild(p);
+        const list = document.createElement('ul');
+        list.id = 'export-problems';
+        for (const pr of (data.problems || []) as { line: number | null, message: string, text: string | null }[]) {
+            const li = document.createElement('li');
+            li.style.margin = '4px 0';
+            if (pr.line) {
+                const a = document.createElement('a');
+                a.href = '#';
+                a.className = 'export-problem-line';
+                a.textContent = `${t('line')} ${pr.line}`;
+                a.title = t('Go to this line');
+                a.onclick = (e) => {
+                    e.preventDefault();
+                    overlay.remove();
+                    editor.revealLineInCenter(pr.line!);
+                    editor.setPosition({ lineNumber: pr.line!, column: 1 });
+                    editor.focus();
+                };
+                li.appendChild(a);
+                li.appendChild(document.createTextNode(' — '));
+            }
+            li.appendChild(document.createTextNode(pr.message));
+            if (pr.text) {
+                const q = document.createElement('pre');
+                q.textContent = pr.text;
+                q.style.cssText = 'white-space:pre-wrap;font-size:12px;margin:2px 0 0;background:rgba(128,128,128,.12);padding:2px 6px;border-radius:3px';
+                li.appendChild(q);
+            }
+            list.appendChild(li);
+        }
+        box.appendChild(list);
+    };
     const runExport = async (doc: any, id: string) => {
         document.body.style.cursor = 'progress';
         try {
             const data = await leRequest('exportForeign', doc, { exporter: id });
+            if (Array.isArray(data.problems)) { showRefusal(data); return; }
             if (data.error || typeof data.document !== 'string') { alert(`${t('Could not export')}: ${data.error || t('no answer from the server')}`); return; }
             showExported(data);
         } catch (err: any) {
@@ -3032,6 +3078,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                         token: 'myToken123',
                         operation: 'scaspQuery',
                         sessionModule: sessionModule,
+                        le: editor.getValue(),
                         query: query,
                         scenario: scenario,
                         customScenario: customScenario,
@@ -3061,6 +3108,17 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                     querySelect.value = query;
                     res = await runAnsweringQuery();
                 }
+            }
+            // s(CASP) refuses a program it cannot state faithfully (a construct
+            // with no s(CASP) lowering): say what, rather than show no answers.
+            if (engine === 'scasp' && res && Array.isArray(res.problems)) {
+                answersEl.innerHTML = '';
+                const note = document.createElement('div');
+                note.style.color = '#b00';
+                note.textContent = res.error;
+                answersEl.appendChild(note);
+                showRefusal(res);
+                return;
             }
 
             // Which answer to auto-select: the one asked for by `answer` (if in

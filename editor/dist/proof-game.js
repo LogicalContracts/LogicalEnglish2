@@ -117445,7 +117445,16 @@ var uiCatalog = {
     "Open in a new tab": "Abrir num novo separador",
     "Could not export": "N\xE3o foi poss\xEDvel exportar",
     "No exporter on this server can write this program in another system's format.": "Nenhum exportador deste servidor consegue escrever este programa no formato de outro sistema.",
-    "Export this program as": "Exportar este programa como"
+    "Export this program as": "Exportar este programa como",
+    "Not translated to": "N\xE3o traduzido para",
+    "Go to this line": "Ir para esta linha",
+    "Feedback": "Coment\xE1rios",
+    "Report a problem or send feedback": "Comunicar um problema ou enviar coment\xE1rios",
+    "Description": "Descri\xE7\xE3o",
+    "What happened? What did you expect?": "O que aconteceu? O que esperava?",
+    "Email": "Email",
+    "Thank you for your feedback!": "Obrigado pelos seus coment\xE1rios!",
+    "(required)": "(obrigat\xF3rio)"
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -118001,7 +118010,16 @@ var uiCatalog = {
     "Open in a new tab": "Abrir en una pesta\xF1a nueva",
     "Could not export": "No se pudo exportar",
     "No exporter on this server can write this program in another system's format.": "Ning\xFAn exportador de este servidor puede escribir este programa en el formato de otro sistema.",
-    "Export this program as": "Exportar este programa como"
+    "Export this program as": "Exportar este programa como",
+    "Not translated to": "No traducido a",
+    "Go to this line": "Ir a esta l\xEDnea",
+    "Feedback": "Comentarios",
+    "Report a problem or send feedback": "Informar de un problema o enviar comentarios",
+    "Description": "Descripci\xF3n",
+    "What happened? What did you expect?": "\xBFQu\xE9 ocurri\xF3? \xBFQu\xE9 esperaba?",
+    "Email": "Correo electr\xF3nico",
+    "Thank you for your feedback!": "\xA1Gracias por sus comentarios!",
+    "(required)": "(obligatorio)"
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -118557,7 +118575,16 @@ var uiCatalog = {
     "Open in a new tab": "Ouvrir dans un nouvel onglet",
     "Could not export": "Impossible d'exporter",
     "No exporter on this server can write this program in another system's format.": "Aucun exportateur de ce serveur ne sait \xE9crire ce programme dans le format d'un autre syst\xE8me.",
-    "Export this program as": "Exporter ce programme en"
+    "Export this program as": "Exporter ce programme en",
+    "Not translated to": "Non traduit en",
+    "Go to this line": "Aller \xE0 cette ligne",
+    "Feedback": "Commentaires",
+    "Report a problem or send feedback": "Signaler un probl\xE8me ou envoyer un commentaire",
+    "Description": "Description",
+    "What happened? What did you expect?": "Que s'est-il pass\xE9 ? Qu'attendiez-vous ?",
+    "Email": "E-mail",
+    "Thank you for your feedback!": "Merci pour votre commentaire !",
+    "(required)": "(obligatoire)"
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -119113,7 +119140,16 @@ var uiCatalog = {
     "Open in a new tab": "Apri in una nuova scheda",
     "Could not export": "Impossibile esportare",
     "No exporter on this server can write this program in another system's format.": "Nessun esportatore di questo server sa scrivere questo programma nel formato di un altro sistema.",
-    "Export this program as": "Esporta questo programma come"
+    "Export this program as": "Esporta questo programma come",
+    "Not translated to": "Non tradotto in",
+    "Go to this line": "Vai a questa riga",
+    "Feedback": "Feedback",
+    "Report a problem or send feedback": "Segnala un problema o invia un commento",
+    "Description": "Descrizione",
+    "What happened? What did you expect?": "Che cosa \xE8 successo? Che cosa si aspettava?",
+    "Email": "Email",
+    "Thank you for your feedback!": "Grazie per il suo commento!",
+    "(required)": "(obbligatorio)"
   }
 };
 var languages = [

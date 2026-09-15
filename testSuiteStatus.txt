@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      all (core + trees requiring the proprietary le_extensions.pl)
 Command:    testing/run_tests.sh le --with-extensions   (or: runAllTests)
 Sibling:    testSuiteCoreStatus.txt — core (this repository alone; extension-dependent trees excluded)
-Generated:  2026-09-15 03:09:40 UTC
+Generated:  2026-09-15 17:13:40 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 775
-Total tests:     8135
-Passed:          8135
+Files processed: 776
+Total tests:     8162
+Passed:          8162
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -22,6 +22,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/AItest.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/alice.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/alice_propositional.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/assumption_constraints.le: 5 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/augmentedsem.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/cgt_assets.le: 21 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship.le: 4 Pass, 0 Fail, 0 Error
@@ -64,7 +65,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/rkBook/bna_citizenship_1_1.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rkBook/cause_and_effect.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rkBook/equation_solving_goal.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/fox_and_crow.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/fox_and_crow.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rkBook/genesis_ancestors.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rkBook/grass_wet_abduction.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rkBook/housing_benefit.le: 1 Pass, 0 Fail, 0 Error
@@ -292,7 +293,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/InsurLE2/migration/blawx/beard_tax/beard_tax.le: 13 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/blawx/covid_test/covid_test.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/blawx/rps/rps.le: 11 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/InsurLE2/migration/blawx/logical_constraints/logical_constraints.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/migration/blawx/logical_constraints/logical_constraints.le: 1 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/InsurLE2/migration/blawx/list_demo/list_demo.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/blawx/net30/net30.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/blawx/wills/wills.le: 10 Pass, 0 Fail, 0 Error
@@ -438,7 +439,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/InsurLE2/migration/socotra/commercial_general_liability/commercial_general_liability.le: 80 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/socotra/errors_omissions/errors_omissions.le: 80 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/InsurLE2/migration/socotra/travel_multi_trip/travel_multi_trip.le: 20 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/LogicalThinkingInAgeOfAI/heart_failure.le: 12 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/LogicalThinkingInAgeOfAI/heart_failure.le: 30 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/LogicalThinkingInAgeOfAI/heart_failure_what_if.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/LogicalThinkingInAgeOfAI/provocation_transposed.le: 8 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/LogicalThinkingInAgeOfAI/standard_for_judgment.le: 8 Pass, 0 Fail, 0 Error
@@ -624,7 +625,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/insureLE2/migration/blawx/beard_tax/beard_tax.le: 13 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/blawx/covid_test/covid_test.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/blawx/rps/rps.le: 11 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/migration/blawx/logical_constraints/logical_constraints.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/migration/blawx/logical_constraints/logical_constraints.le: 1 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/migration/blawx/list_demo/list_demo.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/blawx/net30/net30.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/migration/blawx/wills/wills.le: 10 Pass, 0 Fail, 0 Error
@@ -786,7 +787,7 @@ Detailed File Summary:
   [NONE] examples/RulesRus/semantic_llm.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/RulesRus/semantic_match.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/cidadania.le: 4 Pass, 0 Fail, 0 Error
-  [PASS] examples/pt/desconhecidos.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/pt/desconhecidos.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/despesas.le: 6 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/dobragem.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/es/angeldelsol.le: 2 Pass, 0 Fail, 0 Error

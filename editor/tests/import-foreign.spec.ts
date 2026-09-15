@@ -72,6 +72,33 @@ test.describe('Opening another system\'s file', () => {
         expect(await message).toContain('No exporter on this server can write this program');
     });
 
+    // A program the exporter is offered for but cannot write faithfully is
+    // refused: nothing is written, and each problem links to its line.
+    test('a program with something the target cannot say is refused, with its lines', async ({ page, request }) => {
+        const PROG = 'the target language is: prolog.\n\nthe templates are:\n    *a person* owes *an amount*.\n    *a person* has a debt of *an amount*.\n\nthe knowledge base t includes:\n\na person has a debt of a total if\n    the total is the sum of each amount such that\n        the person owes the amount.\n';
+        const formats = await (await request.post('/leapi', {
+            data: { token: 'myToken123', operation: 'exportFormats', le: PROG } })).json();
+        test.skip(!(formats.formats || []).some((f: any) => f.id === 'legalruleml'),
+                  'no LegalRuleML exporter on this server (the InsurLE extensions are not installed)');
+        await page.goto('index.html');
+        await page.waitForSelector('.monaco-editor', { timeout: 30000 });
+        await page.evaluate((p: string) => (window as any).monaco.editor.getModels()[0].setValue(p), PROG);
+        await page.evaluate(() => (document.getElementById('menu-export') as HTMLElement).click());
+        if (await page.locator('#export-list').count()) {
+            await page.locator('#export-list div', { hasText: /^LegalRuleML/ }).click();
+        }
+        await expect(page.locator('#export-refused')).toBeVisible({ timeout: 60000 });
+        await expect(page.locator('#export-result')).toHaveCount(0);
+        await expect(page.locator('#export-refused')).toContainText('nothing was written');
+        const line = page.locator('#export-problems .export-problem-line').first();
+        await expect(line).toHaveText('line 10');
+        await expect(page.locator('#export-problems li').first()).toContainText('the total is the sum of each amount such that');
+        await line.click();
+        await expect(page.locator('#export-refused')).toHaveCount(0);
+        const at = await page.evaluate(() => (window as any).monaco.editor.getEditors()[0].getPosition().lineNumber);
+        expect(at).toBe(10);
+    });
+
     test('a translated policy exports back as a policy', async ({ page, request }) => {
         const formats = await (await request.post('/leapi', {
             data: { token: 'myToken123', operation: 'importFormats' } })).json();

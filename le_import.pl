@@ -48,25 +48,66 @@
       - Extension    the extension of the file it writes, no dot (`xml`)
       - File         the Prolog file defining Export and Applies, loaded on
                      first use
-      - Export       Module:Name, call(Export, +KB, +Options,
-                     -exported(FileName, Text, Notes, Links)): KB is the
-                     loaded knowledge base module (le_kbs:load_text/3), so
-                     the exporter reads it through le_writer:kb_to_ir/2 or
-                     the LPS translation, never the text; Options holds
-                     text(Doc) and base(Dir); Notes is a list of strings
-                     (what did not carry over, and why); Links a list of
+      - Export       Module:Name, call(Export, +KB, +Options, -Result):
+                     Result is exported(FileName, Text, Notes, Links), or
+                     refused(Problems) (below); KB is the loaded knowledge
+                     base module (le_kbs:load_text/3), so the exporter reads
+                     it through le_writer:kb_to_ir/2 or the LPS translation,
+                     never the text; Options holds text(Doc) and base(Dir);
+                     Notes is a list of strings (what did not carry over
+                     without loss of meaning, and why); Links a list of
                      link(Title, Url) — a public sandbox or playground the
                      result can be opened in.
       - Applies      Module:Name, call(Applies, +KB) succeeds when the
                      program is one this exporter can write (the menus list
                      only those).
 
-    What an exporter cannot express it says in Notes (and, where the target
-    has comments, in the text itself) — never silently.
+    What an exporter cannot express it says — never silently. There are two
+    kinds of it, and they are treated differently:
+
+      - a PROBLEM loses meaning: a rule, fact, condition or declaration the
+        target has no faithful form for (an aggregate in LegalRuleML, a
+        reactive rule in Daml, a condition outside Miniscript's vocabulary).
+        A program with a problem is REFUSED: nothing is written, and the
+        reply lists every problem with the line it comes from, so that the
+        user can change the program or choose another target. A translation
+        that silently means something else than its program would be worse
+        than none;
+      - a NOTE loses no meaning: comments, explanation texts, queries and
+        expected answers (tests, not the program), layout, a key named after
+        its role. Notes travel with the written text.
+
+    The check comes before the text. An exporter registers it with one
+    clause of export_check/2 (optional, but every exporter that can meet a
+    problem should have one):
+
+        le_import:export_check(Id, Check)
+
+      - Check        Module:Name, called as call(Check, +KB, +Options,
+                     -Problems), in the exporter's File (loaded first);
+                     Problems is a list of problem(Where, Message): Where is
+                     `at(Start, End)` (character offsets in the program's
+                     text, as le_at/3 carries them), `line(N)`, or `none`;
+                     Message a string. [] lets the export go ahead.
+
+    export_kb/4 runs the check before Export, and calls Export with
+    checked(true) added to Options when it passed (so that an exporter whose
+    Export also checks, for its direct callers, need not check twice).
+    Export may still answer `refused(Problems)` instead of `exported(...)`:
+    a problem found only while translating. Either way the reply is the
+    refusal, `error` plus `problems`, and no `document`.
+
+    Applies and the check are deliberately two things: Applies says the
+    program is of the kind the exporter writes (a spending policy, an LE
+    for LPS program), so the menus offer it; the check says whether this
+    program of that kind uses something the target cannot say. An offered
+    exporter can therefore refuse — and the refusal is the useful answer,
+    since it says what to change.
 */
 
 :- module(le_import, [import_upload/4, import_formats/1, imported_dir/1,
-                      export_formats/2, export_kb/4]).
+                      export_formats/2, export_kb/4, export_refusal/4,
+                      kb_constraint_problems/3]).
 
 :- use_module(library(lists)).
 :- use_module(library(apply)).
@@ -79,6 +120,8 @@
 :- dynamic importer/6.
 :- multifile exporter/6.
 :- dynamic exporter/6.
+:- multifile export_check/2.
+:- dynamic export_check/2.
 
 %!  imported_dir(-Dir) is det.
 %
@@ -389,14 +432,30 @@ export_formats(KB, Formats) :-
 %!  export_kb(+Id, +KB, +Options, -Reply:dict) is det.
 %
 %   Reply: `document` (the text written), `fileName`, `exporter` (its
-%   title), `notes`, `links` (`{title, url}`); or `error`.
+%   title), `notes`, `links` (`{title, url}`); or `error` — and, when the
+%   program was refused, `exporter` and `problems` (`{line, message,
+%   text}`: line null when the program cannot say where; text the
+%   program's own words there, when known).
 export_kb(Id0, KB, Options, Reply) :-
     atom_string(Id, Id0),
     (   exporter(Id, Title, _Ext, File, Export, _)
     ->  load_exporter(File),
-        catch(( call(Export, KB, Options, exported(Name, Text, Notes, Links)) -> Outcome = ok
-              ; Outcome = failed("the exporter failed") ),
-              E, ( error_text(E, Msg0), Outcome = failed(Msg0) )),
+        (   export_check(Id, Check)
+        ->  catch(( call(Check, KB, Options, Problems0) -> true
+                  ; Problems0 = [problem(none, "the exporter's check failed")] ),
+                  E0, ( error_text(E0, M0), Problems0 = [problem(none, M0)] ))
+        ;   Problems0 = []
+        ),
+        (   Problems0 \== []
+        ->  Outcome = refused(Problems0)
+        ;   Options1 = [checked(true)|Options],
+            catch(( call(Export, KB, Options1, R) ->
+                    ( R = exported(Name, Text, Notes, Links) -> Outcome = ok
+                    ; R = refused(Ps) -> Outcome = refused(Ps)
+                    ; Outcome = failed("the exporter failed") )
+                  ; Outcome = failed("the exporter failed") ),
+                  E, ( error_text(E, Msg0), Outcome = failed(Msg0) ))
+        ),
         (   Outcome == ok
         ->  maplist(to_string, Notes, NoteStrs),
             findall(_{title: LT, url: LU},
@@ -405,6 +464,8 @@ export_kb(Id0, KB, Options, Reply) :-
             to_string(Text, TextS), to_string(Name, NameS),
             Reply = _{document: TextS, fileName: NameS, exporter: Title,
                       notes: NoteStrs, links: LinkDicts}
+        ;   Outcome = refused(Problems)
+        ->  export_refusal(Title, Problems, Options, Reply)
         ;   Outcome = failed(Msg),
             to_string(Msg, MsgS),
             Reply = _{error: MsgS}
@@ -412,6 +473,67 @@ export_kb(Id0, KB, Options, Reply) :-
     ;   le_i18n:le_msg(export_no_exporter, [id-Id], M),
         Reply = _{error: M}
     ).
+
+%!  export_refusal(+Target, +Problems, +Options, -Reply:dict) is det.
+%
+%   The reply of a refused translation, shared by every converter of an LE
+%   or LPS program into another system (the exporters here, See s(CASP),
+%   LE to LPS): `error` (one sentence naming the target and how many
+%   problems), `exporter` (Target) and `problems`, each `{line, message,
+%   text}`, in the order of the program's lines, those with no line last.
+%   Options' text(Doc) turns character offsets into lines.
+export_refusal(Target, Problems0, Options, Reply) :-
+    ( memberchk(text(Doc0), Options), ( string(Doc0) ; atom(Doc0) ) -> to_string(Doc0, Doc) ; Doc = "" ),
+    list_to_set(Problems0, Problems1),
+    maplist(problem_dict(Doc), Problems1, Dicts1),
+    predsort(problem_order, Dicts1, Dicts),
+    length(Dicts, N),
+    to_string(Target, TargetS),
+    le_i18n:le_msg(export_refused, [target-TargetS, n-N], Msg),
+    Reply = _{error: Msg, exporter: TargetS, problems: Dicts}.
+
+%!  kb_constraint_problems(+KB, +Target, -Problems) is det.
+%
+%   A problem for each integrity constraint of the program (`it must not be
+%   true that …`, le_constraint/1 clauses: docs/le_summary.md), for an
+%   exporter whose target has no constraints: the Migration IR does not
+%   carry them (they are LE's own predicate), so an exporter that reads only
+%   the IR would drop them without a word.
+kb_constraint_problems(KB, Target, Problems) :-
+    findall(problem(at(S, E), Msg),
+            ( current_predicate(KB:le_constraint/1),
+              clause(KB:le_constraint(_), _, Ref),
+              ( catch(KB:le_source_info(Ref, S, E, _), _, fail) -> true ; S = none, E = none ),
+              le_i18n:le_msg(export_constraint_problem, [target-Target], Msg) ),
+            Problems).
+
+problem_dict(Doc, problem(Where, Msg0), _{line: Line, message: Msg, text: Text}) :- !,
+    to_string(Msg0, Msg),
+    where_line(Where, Doc, Line, Text).
+problem_dict(Doc, Msg, D) :- problem_dict(Doc, problem(none, Msg), D).
+
+where_line(line(L), Doc, L, Text) :- integer(L), !, line_text(Doc, L, Text).
+where_line(at(S, E), Doc, Line, Text) :-
+    integer(S), string_length(Doc, Len), S < Len, !,
+    sub_string(Doc, 0, S, _, Before),
+    split_string(Before, "\n", "", Parts), length(Parts, Line),
+    (   integer(E), E > S, E =< Len
+    ->  L is E - S, sub_string(Doc, S, L, _, T0), normalize_space(string(Text), T0)
+    ;   line_text(Doc, Line, Text)
+    ).
+where_line(_, _, null, null).
+
+line_text(Doc, L, Text) :-
+    split_string(Doc, "\n", "", Lines),
+    (   nth1(L, Lines, T0) -> normalize_space(string(Text), T0) ; Text = null ).
+
+problem_order(O, A, B) :-
+    line_key(A.line, KA), line_key(B.line, KB),
+    compare(O0, KA-A.message, KB-B.message),
+    ( O0 == (=) -> O = (<) ; O = O0 ).
+
+line_key(null, 1.0Inf) :- !.
+line_key(L, L).
 
 load_exporter(File) :-
     exists_file(File),

@@ -2091,6 +2091,11 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
             le_i18n:le_msg(inadmissible_evidence, [fact-FactS, source-SourceI, scope-ScopeI], Msg)
         ),
         WordsAndVars = [Msg]
+    ;   Head = le_constraint_broken(_) ->
+        % The facts of the case break an integrity constraint (reasoner:
+        % case_breaks_constraint/5): the node's children prove its conditions.
+        le_i18n:le_msg(constraint_broken, [], Msg),
+        WordsAndVars = [Msg]
     ;   Head = le_table_row(Table, RowId) ->
         % How an explanation cites the row of a decision table that answered.
         table_row_words(Table, RowId, WordsAndVars)
@@ -2709,6 +2714,9 @@ is_system_predicate(sessionClause/1).
 is_system_predicate(is_a/2).
 is_system_predicate(le_type/1).
 is_system_predicate(le_unknown/1).
+% `it must not be true that …` in a Prolog or s(CASP) program: a constraint on
+% what a proof may assume (reasoner:consistent_assumptions/3).
+is_system_predicate(le_constraint/1).
 % Per-rule map of explicit source variable identifiers (e.g. X, Y), keyed by
 % rule ID, recorded at parse time so the Proof Game can show variable names.
 is_system_predicate(le_var_names/2).

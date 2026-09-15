@@ -13,6 +13,7 @@ This document provides a summary of the Logical English constructs supported by 
   - [3. Rules and Facts](#3-rules-and-facts)
     - [3.1 Rule Sections](#31-rule-sections)
     - [3.2 Query bodies](#32-query-bodies)
+    - [3.3 Integrity constraints: `it must not be true that …`](#33-integrity-constraints-it-must-not-be-true-that-)
   - [4. Logical Operators](#4-logical-operators)
   - [5. Aggregates](#5-aggregates)
   - [6. Variables and Constants](#6-variables-and-constants)
@@ -57,7 +58,7 @@ Sections define the context of the code. Each section header ends with a colon `
 - **Templates:** `the predicates are:` or `the templates are:` (Used to define NL patterns)
 - **Constants:** `the constants are:` (named values, one per line: `the fee is 5.` — §2.2)
 - **Bases (LPS target):** `the knowledge base <name> extends <base>, <base>.` — the bases' templates, laws and constraints, without their instance (`le_lps_surface.md` §1.1)
-- **Dynamics:** `the fluents are:` or `the events are:` (For temporal reasoning)
+- **Dynamics:** `the fluents are:` or `the events are:` (For temporal reasoning). In the LPS target a sentence needs times only where it relates two moments: `if there is a fire in a room and it is not the case that an alarm is on then an alarm goes on.` reads its conditions at one time and starts its action at it, and `when an alarm goes on then an alarm is on.` needs none either (`le_lps_surface.md` §3.1)
 - **Meta:** `the target language is: prolog.` (Required for Prolog generation)
 
 ## 2. Templates
@@ -79,7 +80,7 @@ A template definition can be followed by one or more additions, each introduced 
   - **Restriction:** a template with a synonym **cannot carry any other addition** (`defines global`, `opposite`, `prepositional`, `unknown`, `undefined`); doing so raises a `synonym_with_other_additions` error.
 - `; defines global <name>; defines global <name2>...` — declares a global abbreviation.
 - `; prepositional` — marks a **prepositional** template (see §2.1). The synonym `; composite` is accepted and means the same thing.
-- `; unknown` — marks the template as **assumable** (abducible): matching goals that cannot be proven are assumed true and reported as unknowns. The synonyms `; assumed` and `; assumable` are accepted and mean the same thing.
+- `; unknown` — marks the template as **assumable** (abducible): matching goals that cannot be proven are assumed true and reported as unknowns, as far as the integrity constraints allow (§3.3). The synonyms `; assumed` and `; assumable` are accepted and mean the same thing.
 - `; undefined` — marks the template as a **scenario element**: its facts are expected to appear only in scenarios, never as facts or rule heads in the knowledge base. The synonym `; scenario element` (two words) is also accepted. Effect on verification:
   - The `undefined_predicate` warning is **suppressed** for this template (even though no KB clause exists for it).
   - A **`defined_scenario_element` warning** is raised if a fact or rule head with this template is found in the knowledge base.
@@ -205,6 +206,50 @@ from the query's goal with its bindings, e.g. `"bob is happy and bob is healthy"
 > `for all cases` must be on their own nested lines. A single physical line such as
 > `… and it is not the case that the person is sad` does **not** split the negation
 > (the same limitation rule bodies have); put the negated goal on the next line.
+
+### 3.3 Integrity constraints: `it must not be true that …`
+An **integrity constraint** (a *denial*) says that some conditions must never
+hold together. It is written like a rule body with no head, in the knowledge
+base, and is the same sentence in every target language:
+```le
+it must not be true that
+    a person is resident in a country
+    and the person is resident in a second country
+    and the country is different from the second country.
+```
+- **Prolog target** — the constraint checks what an answer **assumes** (the
+  `; unknown` templates of §2, *abducibles*), as abductive logic programming
+  does. Each answer found by assuming something is kept only if the case, with
+  those assumptions taken as true and nothing else assumed, meets no
+  constraint's conditions. What is neither stated nor assumed is false while a
+  constraint is checked, so a constraint may use `it is not the case that`.
+  - A constraint broken because of a negation of something assumable is
+    **kept by assuming more**: with `it must not be true that a person is married
+    to a second person and it is not the case that the second person is married
+    to the person`, assuming that dan is married to erin also assumes that erin
+    is married to dan, and the answer lists both unknowns.
+  - Otherwise the answer is **rejected**. With the constraint above, assuming that
+    alice (who lives in Spain) is resident in France is not allowed, so she is
+    not answered as paying tax there.
+  - A case whose **facts** break a constraint on their own (and no assumption
+    mends it) is **inconsistent: nothing follows from it**, every query has no
+    answer, and the explanation of the empty answer is the constraint and the
+    proof of its conditions ("the case breaks a constraint …").
+  - Ordinary `if` rules, queries and definite answers of consistent cases are
+    unaffected; a program with no constraints behaves exactly as before.
+- **s(CASP) target** — each constraint is written as a global constraint
+  `false :- Conditions.`, which every model, and so every set of abducibles
+  (`#abducible`), must satisfy. (s(CASP) 1.1.4 is unsound for a *non-ground*
+  constraint using `is different from` together with abducibles; ground
+  constraints are handled correctly.)
+- **LPS target** — the same sentence is an LPS constraint on actions and states
+  (`d_pre/1`, `le_lps_surface.md` §3.7): actions and events are LPS's
+  abducibles, and the reactive engine and the planner never choose an action
+  that would break one.
+
+See `examples/moreExamples/assumption_constraints.le`. Translators from s(CASP)
+and Prolog (`le_writer:prolog_to_ir/3`) read a denial `:- Body.` / `false :-
+Body.` as such a constraint.
 
 ## 4. Logical Operators
 - **And:** `and` (or new line with same indentation)

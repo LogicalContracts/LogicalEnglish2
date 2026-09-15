@@ -556,6 +556,7 @@ kb_item(raw(_)).
 kb_item(residue(_, _)).
 kb_item(document(_, _)).
 kb_item(lps(_)).
+kb_item(constraint(_, _)).
 
 write_kb_item(Ctx, rule(H, B)) :- !, write_kb_item(Ctx, rule(H, B, [])).
 write_kb_item(Ctx, rule(H, B, Opts)) :- !,
@@ -573,6 +574,10 @@ write_kb_item(_, raw(T)) :- !, format("~w~n~n", [T]).
 write_kb_item(_, residue(Id, Opts)) :- !, write_residue(Id, Opts).
 write_kb_item(_, document(Name, Opts)) :- !, write_document_facts(Name, Opts).
 write_kb_item(Ctx, lps(Term)) :- !, write_lps_term(Ctx, Term).
+write_kb_item(Ctx, constraint(B, Opts)) :- !,
+    catch(write_constraint(Ctx, B, Opts), E,
+          ( message_to_codes(E, S), note(error, rule_not_written, "a constraint could not be written: ~s"-[S]),
+            format("% a constraint the writer could not express (see the ledger)~n~n") )).
 
 message_to_codes(E, S) :- catch(message_to_codes_(E, S), _, format(codes(S), '~q', [E])).
 message_to_codes_(E, S) :- format(codes(S), '~q', [E]).
@@ -647,6 +652,23 @@ write_rule(Ctx, Head, Body0, Opts) :-
         ),
         nl
     ).
+
+%   An integrity constraint of a timeless program (le_summary.md §3.3):
+%   `it must not be true that` and its conditions, named as a rule's body is.
+write_constraint(Ctx, Body0, Opts) :-
+    strip_at(Body0, Body1),
+    type_hints(Body1, Hints0),
+    simplify_body(Body1, Body),
+    forall(member(comment(C), Opts), write_comment_block(0, C)),
+    copy_term(Body-Hints0, B1-Hints),
+    name_globals(Ctx, B1, B2), simplify_body(B2, B),
+    b_setval(le_writer_hints, Hints),
+    clause_naming(Ctx, rule, true, B, St),
+    body_nodes(Ctx, St, B, Nodes),
+    kw(lps_must_not, MustNot),
+    format("~w~n", [MustNot]),
+    write_nodes(Nodes, 4, last),
+    nl.
 
 %   The goal LE inserts where a global name (`; defines global`, a named
 %   constant) is used: the name is written instead, where its value is read.
@@ -2070,7 +2092,7 @@ ir_test(E, E).
 kb_clauses(KB, Items) :-
     findall(Start-Item,
             ( current_predicate(KB:F/N),
-              ( \+ le_kbs:is_system_predicate(F/N) ; F/N == is_a/2 ),
+              ( \+ le_kbs:is_system_predicate(F/N) ; F/N == is_a/2 ; F/N == le_constraint/1 ),
               \+ memberchk(F/N, [le_target_language/1, le_lang/1, le_kb_module_fact/1,
                                  le_program_base/1, le_tests_skipped/0, le_dict_fa/3]),
               functor(H, F, N),
@@ -2085,6 +2107,7 @@ kb_clauses(KB, Items) :-
     keysort(Pairs0, Pairs),
     sections_in(KB, Pairs, Items).
 
+clause_item(_, le_constraint(_), B, _, _, constraint(B, [])) :- !.
 clause_item(KB, H, true, _, Start, fact(H, Opts)) :- !,
     fact_opts(KB, Start, Opts).
 clause_item(KB, H, B, ID, _, rule(H, B, Opts)) :-
@@ -2242,10 +2265,10 @@ pop_scasp_ops.
 %                                from p's; LE's `false :- p(X), -p(X).` is
 %                                that link and is not repeated
 %     #abducible p(X)            `; assumable`
-%     :- B.  /  false :- B.      a denial: LE has no timeless constraint, so
-%                                by convention (N1) it is a query named
-%                                denial_<n> that the program's scenarios
-%                                expect to have no answer
+%     :- B.  /  false :- B.      a denial: an integrity constraint, `it must
+%                                not be true that B` (le_summary.md §3.3),
+%                                which, as in s(CASP), no case and no set of
+%                                assumptions may meet
 %     X #> Y, #>=, #<, #=<,      comparisons; X #= E with E arithmetic is an
 %     #=, #<>                    assignment
 %     ?- Q.                      a query (query_<n>)
@@ -2389,19 +2412,20 @@ negations_to_opposites(T, _, T).
 negations_list([], _, []).
 negations_list([A|As], Map, [B|Bs]) :- negations_to_opposites(A, Map, B), negations_list(As, Map, Bs).
 
-%   Denials, by the N1 convention: a query per denial, named denial_<n>.
-%   LE's own link between a predicate and its opposite is skipped.
+%   Denials: LE's integrity constraints, `it must not be true that …`, each
+%   with a comment citing the source's (it used to be a query named
+%   denial_<n> that every scenario expected to have no answer — convention
+%   N1 — before LE had timeless constraints). LE's own link between a
+%   predicate and its opposite is skipped.
 denials(Terms, Map, Items) :-
     findall(B, ( member(C-_, Terms), ( C = (:- B0) ; C = (false :- B0) ),
                  \+ directive_body(B0), \+ opposite_link(B0), B = B0 ), Bs),
     length(Bs, N), ( N =:= 0 -> Is = [] ; numlist(1, N, Is) ),
-    findall([comment(Cm), query(QN, G)],
+    findall(constraint(G, [comment(Cm)]),
             ( nth1(I, Bs, B), member(I, Is),
-              format(atom(QN), 'denial_~w', [I]),
               prolog_body(B, G0), left_assoc(G0, G1), negations_to_opposites(G1, Map, G),
-              format(string(Cm), "A constraint of the source (~w): no case may meet these conditions, so every scenario expects no answer to the query ~w.", [I, QN]) ),
-            Pairs),
-    append(Pairs, Items).
+              format(string(Cm), "Constraint ~w of the source: no case, and nothing assumed, may meet these conditions.", [I]) ),
+            Items).
 
 directive_body(B) :- var(B), !, fail.
 directive_body(B) :- functor(B, F, _),

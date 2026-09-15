@@ -16,13 +16,17 @@
       - Every user template becomes a `#pred` directive carrying its LE sentence,
         so s(CASP)'s own --human output reads in the program's domain language
         and cross-checks our normaliser.
-      - Constructs s(CASP) cannot run (aggregates, `prolog` goals, universals,
-        date arithmetic) are reported as le_scasp_issue/3 terms; such a program
-        is Prolog-only.
+      - Constructs s(CASP) cannot run (aggregates, `prolog` goals, list
+        membership, date arithmetic) are reported as le_scasp_issue/3 terms;
+        such a program is Prolog-only: le_scasp_check/3 turns them into the
+        problems for which See s(CASP) and the s(CASP) engine refuse it,
+        rather than show or run a program that means something else.
 */
 :- module(le_scasp, [
     le_scasp_available/0,
     le_scasp_program_text/3,     % +KBModule, -Text, -Issues
+    le_scasp_check/3,            % +KBModule, +Issues, -Problems
+    le_scasp_blocking_issue/1,   % +Issue
     le_scasp_query/6,            % +KBModule, +ScenarioName, +Goal, +Options, -Answers, -Issues
     le_scasp_tree_json/4,        % +KBModule, +Tree, +Options, -JSON
     le_scasp_stratification/2,   % +KBModule, -NegativeCycles
@@ -106,8 +110,11 @@ le_scasp_program_text(KBModule, Text, Issues) :-
     sort(Abds0, Abds),
     emit_rules(KBModule, Rules, RuleLines, RuleIssues),
     emit_facts(KBModule, Facts, FactLines, FactIssues),
-    opposite_constraints(KBModule, OppLines),
-    append(RuleIssues, FactIssues, Issues),
+    kb_constraint_clauses(KBModule, Constraints),
+    emit_rules(KBModule, Constraints, ConstraintLines, ConstraintIssues),
+    opposite_constraints(KBModule, OppLines0),
+    append(ConstraintLines, OppLines0, OppLines),
+    append([RuleIssues, FactIssues, ConstraintIssues], Issues),
     with_output_to(string(Text),
         ( format("% s(CASP) program generated from Logical English KB ~w~n~n", [KBModule]),
           forall(member(L, Preds),  format("~w~n", [L])),
@@ -129,6 +136,17 @@ kb_rule_clauses(KB, Rules) :-
               clause(KB:Head, Body, Ref),
               Body \== true,
               user_predicate(KB, Head)
+            ),
+            Rules).
+
+% kb_constraint_clauses(+KB, -Rules): the program's integrity constraints (`it
+% must not be true that …`, le_constraint/1) as rules with the head `false` —
+% s(CASP)'s global constraints, which every model, and so every set of
+% abducibles it assumes, must satisfy.
+kb_constraint_clauses(KB, Rules) :-
+    findall(rule(ID, S, E, false, Body),
+            ( KB:le_source_info(Ref, S, E, ID),
+              clause(KB:le_constraint(_), Body, Ref)
             ),
             Rules).
 
@@ -154,6 +172,7 @@ user_predicate(KB, Head) :-
 
 % Functors that are LE plumbing / builtins, never emitted as domain predicates.
 le_builtin_functor(le_at).
+le_builtin_functor(le_constraint).
 le_builtin_functor(le_is).
 le_builtin_functor(le_assign).
 le_builtin_functor(le_ge).
@@ -320,7 +339,7 @@ emit_rules(KB, [rule(ID,_S,_E,Head,Body)|T], Lines, Issues) :-
             findall(AL, ( member((AH :- AB), AuxInOrder), body_to_dnf(AB, ACs),
                           member(AC, ACs), clause_line(AH, AC, AL) ), AuxLines),
             append(RLines0, AuxLines, RLines),
-            Lines0 = RLines, Issues0 = BIssues
+            Lines0 = RLines, maplist(issue_of_rule(ID), BIssues, Issues0)
         ; Err = le_scasp_untranslatable(Key) ->
             % A construct we recognise but cannot express in s(CASP) (e.g. double
             % negation): report a targeted issue rather than crashing the runner.
@@ -334,6 +353,44 @@ emit_rules(KB, [rule(ID,_S,_E,Head,Body)|T], Lines, Issues) :-
     emit_rules(KB, T, LT, IT),
     append(Lines0, LT, Lines),
     append(Issues0, IT, Issues).
+
+%   A leaf's issue names the rule it is in (lower_leaf/3 does not know it).
+issue_of_rule(ID, le_scasp_issue(K, unknown, M), le_scasp_issue(K, ID, M)) :- !.
+issue_of_rule(_, I, I).
+
+		 /*******************************
+		 *    REFUSING TO EMIT (check)  *
+		 *******************************/
+
+%!  le_scasp_blocking_issue(+Issue) is semidet.
+%
+%   An emitter issue that loses meaning: the rule it is in is left out, or a
+%   condition of it is (a construct with no s(CASP) lowering is written as
+%   `true`, which WIDENS the rule). A program with one is not shown as
+%   s(CASP) nor run by it (See s(CASP), the s(CASP) engine): an s(CASP)
+%   program that means something else than its Logical English would be
+%   worse than none. The engine's own conditions (not installed, a time
+%   limit, a construct it rejects while running) are not the program's.
+le_scasp_blocking_issue(le_scasp_issue(Kind, _, _)) :-
+    \+ memberchk(Kind, [no_pack, timeout, unsupported_construct]).
+
+%!  le_scasp_check(+KB, +Issues, -Problems) is det.
+%
+%   The blocking issues among Issues (le_scasp_program_text/3's), as
+%   problem(Where, Message) for le_import:export_refusal/4: Where the
+%   offsets of the rule the issue is in (at(Start, End)), or none.
+le_scasp_check(KB, Issues, Problems) :-
+    findall(problem(Where, Msg),
+            ( member(I, Issues), le_scasp_blocking_issue(I),
+              I = le_scasp_issue(_, ID, Msg0),
+              ( string(Msg0) -> Msg = Msg0 ; format(string(Msg), "~w", [Msg0]) ),
+              (   ID \== unknown, current_predicate(KB:le_source_info/4),
+                  once(KB:le_source_info(_, S, E, ID)), integer(S)
+              ->  Where = at(S, E)
+              ;   Where = none
+              ) ),
+            Problems0),
+    list_to_set(Problems0, Problems).
 
 clause_line(Head, ConjList, Line) :-
     ( ConjList == [] -> Body = true ; list_to_conj(ConjList, Body) ),
@@ -451,7 +508,11 @@ lower_leaf(le_lt(X,Y), (X #< Y),  []) :- !.
 lower_leaf(le_equal_to(X,Y), (X #= Y), []) :- number_ish(X,Y), !.
 lower_leaf(le_equal_to(X,Y), (X = Y), []) :- !.
 lower_leaf(le_not_equal_to(X,Y), (X #<> Y), []) :- number_ish(X,Y), !.
-lower_leaf(le_not_equal_to(_,_), true, [I]) :- scasp_issue(term_disequality, unknown, scasp_term_disequality, [], I), !.
+%   A non-numeric disequality is s(CASP)'s constructive one (`X \= Y`: a
+%   constraint on X when it is unbound). With abducibles, s(CASP) 1.1.4
+%   answers a NON-ground global constraint that uses it unsoundly (a model
+%   can abduce what the constraint forbids); ground ones are sound.
+lower_leaf(le_not_equal_to(X,Y), (X \= Y), []) :- !.
 lower_leaf(le_is(X,Y), (X #= Y), []) :- arithmetic_term(Y), !.
 lower_leaf(le_is(X,Y), (X = Y), []) :- !.
 lower_leaf(le_assign(X,Y), (X #= Y), []) :- arithmetic_term(Y), !.
@@ -502,10 +563,13 @@ arith_op(abs,1). arith_op(min,2). arith_op(max,2). arith_op(mod,2).
 %   facts directly instead of by name.
 le_scasp_query(KBModule, ScenarioName, Goal, Options, Answers, Issues) :-
     le_scasp_available,
+    le_scasp_program_text(KBModule, ProgText, PIssues),
+    %  a program s(CASP) cannot state faithfully is not run by it: the next
+    %  clause answers nothing, with the issues that say why
+    \+ ( member(PI, PIssues), le_scasp_blocking_issue(PI) ),
     !,
     option(time_limit(TL), Options, 10),
     option(max_models(Max), Options, 25),
-    le_scasp_program_text(KBModule, ProgText, PIssues),
     scenario_facts(KBModule, ScenarioName, Options, Facts0),
     %  an opposite form is -p in the unit (its variables shared, so the
     %  answers bind the caller's goal); a query's goal carries the source
@@ -517,6 +581,9 @@ le_scasp_query(KBModule, ScenarioName, Goal, Options, Answers, Issues) :-
         run_models(Unit, SGoal, TL, Max, Answers, RIssues),
         cleanup_scasp_unit(Unit, File)),
     append(PIssues, RIssues, Issues).
+le_scasp_query(KBModule, _, _, _, [], Issues) :-
+    le_scasp_available, !,
+    le_scasp_program_text(KBModule, _, Issues).
 le_scasp_query(_, _, _, _, [], [I]) :- scasp_issue(no_pack, unknown, scasp_engine_not_installed, [], I).
 
 strip_positions(V, V) :- var(V), !.

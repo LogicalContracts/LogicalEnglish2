@@ -982,6 +982,13 @@ template_consumed(KB, F, A) :-
     ( find_in_body(Body, Literal) ; Literal = H ),
     compound(Literal), arg(_, Literal, Sentence),
     contains_literal(Sentence, F, A), !.
+%   An integrity constraint (`it must not be true that …`, le_constraint/1,
+%   a system predicate) reads what its conditions mention.
+template_consumed(KB, F, A) :-
+    current_predicate(KB:le_constraint/1),
+    clause(KB:le_constraint(_), Body),
+    find_in_body(Body, Literal),
+    functor(Literal, F, A), !.
 %   An LPS program's rules are le_lps_item/3 payloads, not clauses, and the
 %   payload nests head and body together — so any mention counts, rather than
 %   reporting every fact template of a perfectly ordinary LPS program.
@@ -1213,7 +1220,13 @@ count_rules(KB, Count) :-
         KB:clause(Head, Body),
         Body \== true
     ), L),
-    length(L, Count).
+    %  an integrity constraint is a rule of the program too
+    (   current_predicate(KB:le_constraint/1)
+    ->  aggregate_all(count, clause(KB:le_constraint(_), _), NC)
+    ;   NC = 0
+    ),
+    length(L, NR),
+    Count is NR + NC.
 
 count_facts(KB, Count) :-
     findall(1, (

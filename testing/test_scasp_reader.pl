@@ -47,9 +47,9 @@ test(abducibles_are_assumable) :-
     scasp_ir("#abducible rain.\nwet :- rain.\n", program(_, Items)),
     assertion(( member(template(rain/0, _, Adds), Items), memberchk(assumable, Adds) )).
 
-test(denials_are_queries_expecting_no_answer) :-
+test(denials_are_constraints) :-
     scasp_ir("p(a).\nq(a).\n:- p(X), q(X).\n", program(_, Items)),
-    assertion(memberchk(query(denial_1, _), Items)).
+    assertion(( member(constraint(B, _), Items), B = and(p(X), q(Y)), X == Y )).
 
 test(clp_comparisons) :-
     scasp_ir("big(X) :- size(X, S), S #> 10.\nsize(a, 20).\n", program(_, Items)),

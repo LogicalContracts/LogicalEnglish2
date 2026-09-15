@@ -1,0 +1,100 @@
+the templates are:
+    *a person* is resident in *a country*; unknown.
+    *a person* pays tax in *a country*.
+    *a person* works in *a country*.
+    *a person* lives in *a country*.
+    *a person* is married to *a second person*; unknown.
+    *a person* is a joint filer with *a second person*.
+    *a person* files jointly.
+
+the knowledge base assumption_constraints includes:
+
+% Where it is not known where a person is resident, it may be assumed
+% (the template is `; unknown`) — but only as far as the constraints allow.
+
+a person pays tax in a country if
+    the person works in the country
+    and the person is resident in the country.
+
+a person is resident in a country if
+    the person lives in the country.
+
+% An integrity constraint: no answer may rest on an assumption that makes
+% its conditions true. Alice lives in Spain, so assuming that she is also
+% resident in France would break it: she is not answered as paying tax there.
+it must not be true that
+    a person is resident in a country
+    and the person is resident in a second country
+    and the country is different from the second country.
+
+a person files jointly if
+    the person is a joint filer with a second person
+    and the person is married to the second person.
+
+% A constraint with a negation can be kept by assuming more: to assume that
+% one person is married to another is to assume the other way round too.
+it must not be true that
+    a person is married to a second person
+    and it is not the case that
+        the second person is married to the person.
+
+it must not be true that
+    a person is married to a second person
+    and the person is married to a third person
+    and the second person is different from the third person.
+
+scenario commuters is:
+    alice works in france.
+    alice works in spain.
+    alice lives in spain.
+    bob works in france.
+    commuters expects answers [
+        "alice pays tax in spain",
+        "bob pays tax in france"
+    ] and unknowns [
+        "bob is resident in france"
+    ].
+
+% The facts break the first constraint on their own (carol lives in two
+% countries, so she is resident in both): the case is inconsistent, and
+% nothing follows from it — as in s(CASP) and abductive logic programming.
+% The explanation of an empty answer shows the constraint and why it holds.
+scenario two homes is:
+    carol works in italy.
+    carol lives in italy.
+    carol lives in greece.
+    commuters expects answers [] and unknowns [].
+
+% Dan files jointly if he is married to erin, which is assumed, and so is
+% what the first marriage constraint then needs: that erin is married to dan.
+scenario one sided is:
+    dan is a joint filer with erin.
+    filers expects answers [
+        "dan files jointly"
+    ] and unknowns [
+        "dan is married to erin",
+        "erin is married to dan"
+    ].
+
+% Erin is married to fred: assuming that she is married to dan as well breaks
+% the second constraint, and no assumption can mend that.
+scenario taken is:
+    dan is a joint filer with erin.
+    erin is married to fred.
+    fred is married to erin.
+    filers expects answers [] and unknowns [].
+
+scenario both sides is:
+    dan is a joint filer with erin.
+    erin is married to dan.
+    filers expects answers [
+        "dan files jointly"
+    ] and unknowns [
+        "dan is married to erin"
+    ].
+
+query commuters is:
+    which person pays tax in which country.
+
+query filers is:
+    which person files jointly.
