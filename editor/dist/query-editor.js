@@ -9057,7 +9057,17 @@ var uiCatalog = {
     "No original is kept for this program: it was not converted from another system's files (there is no sources folder beside it).": "N\xE3o h\xE1 original guardado para este programa: n\xE3o foi convertido a partir de ficheiros de outro sistema (n\xE3o h\xE1 pasta sources ao lado dele).",
     "The original files this program was converted from": "Os ficheiros originais de onde este programa foi convertido",
     "Open it in the source viewer": "Abri-lo no visualizador de fontes",
-    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "A vista jur\xEDdica \xE9 tirada de um programa LPS: este documento n\xE3o declara a linguagem alvo lps (ou n\xE3o carrega)."
+    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "A vista jur\xEDdica \xE9 tirada de um programa LPS: este documento n\xE3o declara a linguagem alvo lps (ou n\xE3o carrega).",
+    "Export to Another System\u2026": "Exportar para outro sistema\u2026",
+    "Write this program in another system's format \u2014 deterministically, no LLM \u2014 with an exporter the server has for it (for instance a Bitcoin spending policy as a Miniscript policy): the result is shown to copy or save, with links to a public sandbox where there is one": "Escrever este programa no formato de outro sistema \u2014 de forma determin\xEDstica, sem LLM \u2014 com um exportador que o servidor tenha para ele (por exemplo uma pol\xEDtica de gasto Bitcoin como pol\xEDtica Miniscript): o resultado \xE9 mostrado para copiar ou guardar, com liga\xE7\xF5es para uma sandbox p\xFAblica quando existe",
+    "Exported as": "Exportado como",
+    "Copy the exported text to the clipboard": "Copiar o texto exportado para a \xE1rea de transfer\xEAncia",
+    "Save\u2026": "Guardar\u2026",
+    "Save the exported text as a file": "Guardar o texto exportado num ficheiro",
+    "Open in a new tab": "Abrir num novo separador",
+    "Could not export": "N\xE3o foi poss\xEDvel exportar",
+    "No exporter on this server can write this program in another system's format.": "Nenhum exportador deste servidor consegue escrever este programa no formato de outro sistema.",
+    "Export this program as": "Exportar este programa como"
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -9603,7 +9613,17 @@ var uiCatalog = {
     "No original is kept for this program: it was not converted from another system's files (there is no sources folder beside it).": "No se guarda ning\xFAn original para este programa: no se convirti\xF3 a partir de archivos de otro sistema (no hay carpeta sources junto a \xE9l).",
     "The original files this program was converted from": "Los archivos originales de los que se convirti\xF3 este programa",
     "Open it in the source viewer": "Abrirlo en el visor de fuentes",
-    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vista jur\xEDdica se obtiene de un programa LPS: este documento no declara el lenguaje objetivo lps (o no se carga)."
+    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vista jur\xEDdica se obtiene de un programa LPS: este documento no declara el lenguaje objetivo lps (o no se carga).",
+    "Export to Another System\u2026": "Exportar a otro sistema\u2026",
+    "Write this program in another system's format \u2014 deterministically, no LLM \u2014 with an exporter the server has for it (for instance a Bitcoin spending policy as a Miniscript policy): the result is shown to copy or save, with links to a public sandbox where there is one": "Escribir este programa en el formato de otro sistema \u2014 de forma determinista, sin LLM \u2014 con un exportador que el servidor tenga para \xE9l (por ejemplo una pol\xEDtica de gasto de Bitcoin como pol\xEDtica Miniscript): el resultado se muestra para copiar o guardar, con enlaces a un sandbox p\xFAblico cuando lo hay",
+    "Exported as": "Exportado como",
+    "Copy the exported text to the clipboard": "Copiar el texto exportado al portapapeles",
+    "Save\u2026": "Guardar\u2026",
+    "Save the exported text as a file": "Guardar el texto exportado como archivo",
+    "Open in a new tab": "Abrir en una pesta\xF1a nueva",
+    "Could not export": "No se pudo exportar",
+    "No exporter on this server can write this program in another system's format.": "Ning\xFAn exportador de este servidor puede escribir este programa en el formato de otro sistema.",
+    "Export this program as": "Exportar este programa como"
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -10149,7 +10169,17 @@ var uiCatalog = {
     "No original is kept for this program: it was not converted from another system's files (there is no sources folder beside it).": "Aucun original n'est conserv\xE9 pour ce programme : il n'a pas \xE9t\xE9 converti depuis les fichiers d'un autre syst\xE8me (il n'y a pas de dossier sources \xE0 c\xF4t\xE9).",
     "The original files this program was converted from": "Les fichiers originaux d'o\xF9 ce programme a \xE9t\xE9 converti",
     "Open it in the source viewer": "L'ouvrir dans la visionneuse de sources",
-    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vue juridique se tire d'un programme LPS : ce document ne d\xE9clare pas le langage cible lps (ou ne se charge pas)."
+    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vue juridique se tire d'un programme LPS : ce document ne d\xE9clare pas le langage cible lps (ou ne se charge pas).",
+    "Export to Another System\u2026": "Exporter vers un autre syst\xE8me\u2026",
+    "Write this program in another system's format \u2014 deterministically, no LLM \u2014 with an exporter the server has for it (for instance a Bitcoin spending policy as a Miniscript policy): the result is shown to copy or save, with links to a public sandbox where there is one": "\xC9crire ce programme dans le format d'un autre syst\xE8me \u2014 de fa\xE7on d\xE9terministe, sans LLM \u2014 avec un exportateur que le serveur poss\xE8de pour lui (par exemple une politique de d\xE9pense Bitcoin en politique Miniscript) : le r\xE9sultat s'affiche pour \xEAtre copi\xE9 ou enregistr\xE9, avec des liens vers un bac \xE0 sable public s'il en existe un",
+    "Exported as": "Export\xE9 en",
+    "Copy the exported text to the clipboard": "Copier le texte export\xE9 dans le presse-papiers",
+    "Save\u2026": "Enregistrer\u2026",
+    "Save the exported text as a file": "Enregistrer le texte export\xE9 dans un fichier",
+    "Open in a new tab": "Ouvrir dans un nouvel onglet",
+    "Could not export": "Impossible d'exporter",
+    "No exporter on this server can write this program in another system's format.": "Aucun exportateur de ce serveur ne sait \xE9crire ce programme dans le format d'un autre syst\xE8me.",
+    "Export this program as": "Exporter ce programme en"
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -10695,7 +10725,17 @@ var uiCatalog = {
     "No original is kept for this program: it was not converted from another system's files (there is no sources folder beside it).": "Nessun originale \xE8 conservato per questo programma: non \xE8 stato convertito dai file di un altro sistema (non c'\xE8 una cartella sources accanto).",
     "The original files this program was converted from": "I file originali da cui questo programma \xE8 stato convertito",
     "Open it in the source viewer": "Aprirlo nel visualizzatore delle fonti",
-    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vista giuridica si ricava da un programma LPS: questo documento non dichiara il linguaggio obiettivo lps (o non si carica)."
+    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vista giuridica si ricava da un programma LPS: questo documento non dichiara il linguaggio obiettivo lps (o non si carica).",
+    "Export to Another System\u2026": "Esporta verso un altro sistema\u2026",
+    "Write this program in another system's format \u2014 deterministically, no LLM \u2014 with an exporter the server has for it (for instance a Bitcoin spending policy as a Miniscript policy): the result is shown to copy or save, with links to a public sandbox where there is one": "Scrivere questo programma nel formato di un altro sistema \u2014 in modo deterministico, senza LLM \u2014 con un esportatore che il server ha per esso (per esempio una politica di spesa Bitcoin come politica Miniscript): il risultato \xE8 mostrato per essere copiato o salvato, con collegamenti a una sandbox pubblica quando esiste",
+    "Exported as": "Esportato come",
+    "Copy the exported text to the clipboard": "Copiare il testo esportato negli appunti",
+    "Save\u2026": "Salva\u2026",
+    "Save the exported text as a file": "Salvare il testo esportato in un file",
+    "Open in a new tab": "Apri in una nuova scheda",
+    "Could not export": "Impossibile esportare",
+    "No exporter on this server can write this program in another system's format.": "Nessun esportatore di questo server sa scrivere questo programma nel formato di un altro sistema.",
+    "Export this program as": "Esporta questo programma come"
   }
 };
 var languages = [

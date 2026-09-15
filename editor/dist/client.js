@@ -13431,6 +13431,14 @@ var ExplanationView = class {
           badge.style.cssText = "font-size:10px;text-transform:uppercase;opacity:0.65;margin-right:6px;";
           item.appendChild(badge);
           item.appendChild(document.createTextNode(result.answer));
+          const assumed = Array.isArray(result.assumptions) ? result.assumptions : [];
+          if (assumed.length > 0) {
+            const a = document.createElement("div");
+            a.className = "world-assumptions";
+            a.textContent = `${t("assuming")} ${assumed.join("; ")}`;
+            a.style.cssText = "font-size:11px;opacity:0.75;margin-top:2px;";
+            item.appendChild(a);
+          }
         } else {
           item.textContent = result.answer;
         }
