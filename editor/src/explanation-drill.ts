@@ -9,6 +9,8 @@ import { t, applyI18nDom, installLeApiLang } from './i18n';
 
 interface DrillData {
     source?: string;        // the program, so the window loads its own session
+    sourceExample?: string; // ... its example and base URL, to resolve its includes
+    sourceBase?: string;
     sessionModule?: string; // legacy fallback
     kbName?: string;
     why?: any;
@@ -51,7 +53,9 @@ export async function initExplanationDrill() {
     let sessionLoad: Promise<void> | null = null;
     function startSessionLoad(): Promise<void> {
         if (!sessionLoad) {
-            sessionLoad = (source ? leapi({ operation: 'load', le: source }) : Promise.resolve(null))
+            sessionLoad = (source ? leapi({ operation: 'load', le: source,
+                                            source: ls.sourceExample || '', base: ls.sourceBase || '' })
+                                  : Promise.resolve(null))
                 .then((r: any) => { if (r && r.sessionModule) sessionModule = r.sessionModule; })
                 .catch(() => { /* reported on the next drill call */ });
         }

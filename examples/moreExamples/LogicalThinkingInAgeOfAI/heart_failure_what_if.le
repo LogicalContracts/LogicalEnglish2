@@ -58,7 +58,7 @@ a patient has a contraindication to hydralazine plus isosorbide dinitrate
 % All we know about Dan.
 scenario what_we_know is:
     Dan identifies as African American.
-    Dan is in stage C.
+    Dan is in stage "C".
     the NYHA class of Dan is 3.
     the ejection fraction of Dan is 30.
     combination expects answers [
@@ -68,7 +68,7 @@ scenario what_we_know is:
 % Once the record shows the therapy, the answer is unconditional.
 scenario after_checking is:
     Dan identifies as African American.
-    Dan is in stage C.
+    Dan is in stage "C".
     the NYHA class of Dan is 3.
     the ejection fraction of Dan is 30.
     Dan has received standard neurohormonal antagonist therapy.
@@ -79,7 +79,7 @@ scenario after_checking is:
 % NYHA class 2: the combination is not indicated, whatever is assumed.
 scenario nyha_class_2 is:
     Dan identifies as African American.
-    Dan is in stage C.
+    Dan is in stage "C".
     the NYHA class of Dan is 2.
     the ejection fraction of Dan is 30.
     combination expects answers [].

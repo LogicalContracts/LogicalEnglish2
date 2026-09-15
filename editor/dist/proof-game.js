@@ -126676,6 +126676,58 @@ function rulesProving(literal, rules) {
     return re2 && re2.test(literal);
   });
 }
+function mergeFailPlan(into, other) {
+  into.fail = into.fail || other.fail;
+  into.rules.push(...other.rules);
+}
+function failurePlan(expFail, rules) {
+  const plan = { fail: false, rules: [] };
+  const failChildren = (expFail?.children || []).filter((c2) => c2.type === "failure");
+  if (typeof expFail?.start !== "number") {
+    if (failChildren.length === 0)
+      return { fail: true, rules: [] };
+    failChildren.forEach((c2) => mergeFailPlan(plan, failurePlan(c2, rules)));
+    return plan;
+  }
+  const provRules = rulesProving(expFail.literal, rules);
+  if (provRules.length === 0 || failChildren.length === 0)
+    return { fail: true, rules: [] };
+  const disjunctCards = /* @__PURE__ */ new Map();
+  for (const ch of failChildren) {
+    const sameGoal = provRules.some((r2) => {
+      const re2 = templateToRegex(getPredicateTemplate(r2.headTokens));
+      return re2 && re2.test(ch.literal || "");
+    });
+    if (sameGoal) {
+      mergeFailPlan(plan, failurePlan(ch, rules));
+      continue;
+    }
+    let rule = provRules.find((r2) => (r2.bodyRanges || []).some((br) => br.start === ch.start && br.end === ch.end));
+    if (rule) {
+      const idx2 = rule.bodyRanges.findIndex((br) => br.start === ch.start && br.end === ch.end);
+      const computed = (rule.bodyTypeCheck || []).includes(idx2);
+      const holds = (rule.bodyNaf || []).includes(idx2) ? (ch.children || []).find((c2) => c2.type === "success") : null;
+      plan.rules.push({ ruleId: rule.id, conds: computed ? /* @__PURE__ */ new Map() : /* @__PURE__ */ new Map([[idx2, holds ? { fail: false, rules: [], proof: holds } : failurePlan(ch, rules)]]) });
+      continue;
+    }
+    const within = (br) => br.end > br.start && br.start <= ch.start && ch.end <= br.end;
+    rule = provRules.find((r2) => (r2.bodyRanges || []).some(within));
+    if (!rule)
+      continue;
+    const idx = rule.bodyRanges.findIndex(within);
+    const key = `${rule.id}/${idx}`;
+    let card = disjunctCards.get(key);
+    if (!card) {
+      card = { ruleId: rule.id, conds: /* @__PURE__ */ new Map([[idx, { fail: false, rules: [] }]]) };
+      disjunctCards.set(key, card);
+      plan.rules.push(card);
+    }
+    mergeFailPlan(card.conds.get(idx), failurePlan(ch, rules));
+  }
+  if (!plan.fail && plan.rules.length === 0)
+    plan.fail = true;
+  return plan;
+}
 function ruleProving(literal, rules) {
   return rulesProving(literal, rules)[0] || null;
 }
@@ -126690,7 +126742,7 @@ function expNodeKey(expNode, rules, facts) {
     if (f2)
       return "fact:" + f2.id;
   }
-  if (expNode.type === "failure") {
+  if (expNode.type === "failure" && typeof expNode.start === "number") {
     const r2 = ruleProving(expNode.literal, rules);
     if (r2)
       return "rule:" + r2.id;
@@ -126833,6 +126885,7 @@ var RuleNode = class extends classic.Node {
     this.bodyForall = Array.isArray(rule.bodyForall) ? rule.bodyForall : [];
     this.bodyRanges = Array.isArray(rule.bodyRanges) ? rule.bodyRanges : [];
     this.bodyTypeCheck = Array.isArray(rule.bodyTypeCheck) ? rule.bodyTypeCheck : [];
+    this.bodyOr = Array.isArray(rule.bodyOr) ? rule.bodyOr : [];
     this.forallIndexSet = new Set(this.bodyForall.map((m2) => m2.index));
     this.sourceLoc = sourceLoc;
     const socket = new classic.Socket("socket");
@@ -126880,6 +126933,8 @@ var RuleNode = class extends classic.Node {
   // Used to reject a "not the case" link whose connected failing rule denotes a
   // different goal than this rule's bindings actually negate.
   bodyNafInner = [];
+  bodyHolds = [];
+  bodyOr;
   type;
   forallMeta(i2) {
     return this.bodyForall.find((m2) => m2.index === i2);
@@ -127065,7 +127120,7 @@ function CustomNode(props) {
               boxShadow: "0 4px 6px rgba(0,0,0,0.3)",
               border: isAdultMode ? isNaf ? "1px dashed #e57373" : "1px solid #444" : "none"
             },
-            title: !isAdultMode ? condText : isTypeGuard ? "checked automatically: nothing to connect" : isNaf ? "negation: connect the rule that would prove it, or a FAIL node" : ""
+            title: !isAdultMode ? condText : isTypeGuard || Array.isArray(data.bodyHolds) && data.bodyHolds.includes(i2) ? "checked automatically: nothing to connect" : isNaf ? "negation: connect the rule that would prove it, or a FAIL node" : ""
           },
           isAdultMode ? condText : "",
           !isTypeGuard && React2.createElement("div", {
@@ -127352,7 +127407,13 @@ async function initProofGame(container, gameData) {
       sessionModule = gameData.sessionModule || null;
       return !!sessionModule;
     }
-    const r2 = await leapi({ token: "myToken123", operation: "load", le: source });
+    const r2 = await leapi({
+      token: "myToken123",
+      operation: "load",
+      le: source,
+      source: gameData.sourceExample || "",
+      base: gameData.sourceBase || ""
+    });
     if (!(r2 && r2.sessionModule))
       return false;
     sessionModule = r2.sessionModule;
@@ -127571,45 +127632,45 @@ async function initProofGame(container, gameData) {
     function failureGoalMatches(sourceNodeIds, expFail) {
       if (!expFail)
         return false;
-      const provRules = rulesProving(expFail.literal, gameData.rules || []);
-      const failChildren = (expFail.children || []).filter((c2) => c2.type === "failure");
-      if (provRules.length === 0 || failChildren.length === 0) {
-        return sourceNodeIds.length === 1 && editor.getNode(sourceNodeIds[0]) instanceof FailNode;
+      return planMatches(sourceNodeIds, failurePlan(expFail, gameData.rules || []));
+    }
+    function planMatches(sourceNodeIds, plan) {
+      if (plan.proof) {
+        return sourceNodeIds.length === 1 && !(editor.getNode(sourceNodeIds[0]) instanceof FailNode) && isComplete(sourceNodeIds[0]);
       }
-      const sameGoalChild = failChildren.find((c2) => provRules.some((r2) => {
-        const re2 = templateToRegex(getPredicateTemplate(r2.headTokens));
-        return re2 && re2.test(c2.literal || "");
-      }));
-      if (sameGoalChild)
-        return failureGoalMatches(sourceNodeIds, sameGoalChild);
-      const covered = /* @__PURE__ */ new Set();
-      for (const sourceId of sourceNodeIds) {
-        const node2 = editor.getNode(sourceId);
+      const fails = sourceNodeIds.filter((id) => editor.getNode(id) instanceof FailNode);
+      const cards = sourceNodeIds.filter((id) => !(editor.getNode(id) instanceof FailNode));
+      if (fails.length !== (plan.fail ? 1 : 0))
+        return false;
+      if (cards.length !== plan.rules.length)
+        return false;
+      const taken = /* @__PURE__ */ new Set();
+      const assign2 = (k2) => {
+        if (k2 === cards.length)
+          return true;
+        const node2 = editor.getNode(cards[k2]);
         if (!(node2 instanceof RuleNode))
           return false;
-        const rule = provRules.find((r2) => r2.id === node2.templateId);
-        if (!rule)
-          return false;
-        let matched = false;
-        for (const ch of failChildren) {
-          const idx = (node2.bodyRanges || []).findIndex(
-            (r2) => r2.start === ch.start && r2.end === ch.end
-          );
-          if (idx < 0)
+        for (let j2 = 0; j2 < plan.rules.length; j2++) {
+          const rp = plan.rules[j2];
+          if (taken.has(j2) || rp.ruleId !== node2.templateId || !cardMatches(node2, rp))
             continue;
-          const subSources = connections.filter((c2) => c2.target === node2.id && c2.targetInput === `in-${idx}`).map((c2) => c2.source);
-          if (subSources.length === 0)
-            return false;
-          if (!failureGoalMatches(subSources, ch))
-            return false;
-          matched = true;
-          break;
+          taken.add(j2);
+          if (assign2(k2 + 1))
+            return true;
+          taken.delete(j2);
         }
-        if (!matched)
+        return false;
+      };
+      return assign2(0);
+    }
+    function cardMatches(node2, rp) {
+      for (const [idx, sub] of rp.conds) {
+        const subSources = connections.filter((c2) => c2.target === node2.id && c2.targetInput === `in-${idx}`).map((c2) => c2.source);
+        if (!planMatches(subSources, sub))
           return false;
-        covered.add(node2.templateId);
       }
-      return provRules.every((r2) => covered.has(r2.id));
+      return true;
     }
     function isComplete(nodeId) {
       const cached = completeCache.get(nodeId);
@@ -127691,6 +127752,8 @@ async function initProofGame(container, gameData) {
             conns.forEach((c2) => markFragment(c2.source));
           } else {
             const conn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}`);
+            if (!conn && Array.isArray(node2.bodyHolds) && node2.bodyHolds.includes(i2))
+              continue;
             if (!conn)
               return false;
             if (!isComplete(conn.source))
@@ -127716,7 +127779,8 @@ async function initProofGame(container, gameData) {
     return complete;
   }
   function isNafSocket(targetNode, targetInput) {
-    if (!(targetNode instanceof RuleNode) || typeof targetInput !== "string")
+    const conjunctiveQuery = targetNode instanceof QueryNode && !!targetNode.rule;
+    if (!(targetNode instanceof RuleNode || conjunctiveQuery) || typeof targetInput !== "string")
       return false;
     const parts = targetInput.split("-");
     return parts.length === 2 && targetNode.bodyNaf.includes(parseInt(parts[1]));
@@ -127752,25 +127816,29 @@ async function initProofGame(container, gameData) {
   }
   function computeFailing() {
     const conns = editor.getConnections();
+    const memo = /* @__PURE__ */ new Map();
+    const visiting = /* @__PURE__ */ new Set();
+    const failingNode = (id) => {
+      if (memo.has(id))
+        return memo.get(id);
+      if (visiting.has(id))
+        return false;
+      visiting.add(id);
+      const up = conns.find((c2) => c2.source === id);
+      const f2 = up ? failingNode(up.target) !== isNafSocket(editor.getNode(up.target), up.targetInput) : false;
+      visiting.delete(id);
+      memo.set(id, f2);
+      return f2;
+    };
     const failing = /* @__PURE__ */ new Set();
-    for (const c2 of conns) {
-      if (isNafSocket(editor.getNode(c2.target), c2.targetInput))
-        failing.add(c2.source);
-    }
-    let changed = true;
-    while (changed) {
-      changed = false;
-      for (const c2 of conns) {
-        if (failing.has(c2.target) && !failing.has(c2.source)) {
-          failing.add(c2.source);
-          changed = true;
-        }
-      }
-    }
+    for (const n2 of editor.getNodes())
+      if (failingNode(n2.id))
+        failing.add(n2.id);
     return failing;
   }
   function updateFailingLabels() {
     const conns = editor.getConnections();
+    const failingNow = computeFailing();
     editor.getNodes().forEach((n2) => {
       if (n2.boundHead || n2.boundBody) {
         n2.boundHead = null;
@@ -127793,15 +127861,26 @@ async function initProofGame(container, gameData) {
       });
       node2.boundBody = boundBody;
       area.update("node", node2.id);
-      const expChild = (expFail.children || []).filter((c2) => c2.type === "failure").find((c2) => (node2.bodyRanges || []).some((r2) => r2.start === c2.start && r2.end === c2.end));
-      if (!expChild)
+      const failKids = (expFail.children || []).filter((c2) => c2.type === "failure");
+      const expChild = failKids.find((c2) => (node2.bodyRanges || []).some((r2) => r2.start === c2.start && r2.end === c2.end));
+      if (expChild) {
+        const idx = (node2.bodyRanges || []).findIndex((r2) => r2.start === expChild.start && r2.end === expChild.end);
+        if ((node2.bodyNaf || []).includes(idx))
+          return;
+        conns.filter((c2) => c2.target === node2.id && c2.targetInput === `in-${idx}`).forEach((c2) => assign2(c2.source, expChild));
         return;
-      const idx = (node2.bodyRanges || []).findIndex((r2) => r2.start === expChild.start && r2.end === expChild.end);
-      conns.filter((c2) => c2.target === node2.id && c2.targetInput === `in-${idx}`).forEach((c2) => assign2(c2.source, expChild));
+      }
+      for (const ch of failKids) {
+        const idx = (node2.bodyRanges || []).findIndex((r2) => r2.end > r2.start && r2.start <= ch.start && ch.end <= r2.end);
+        if (idx < 0)
+          continue;
+        const provers = new Set(rulesProving(ch.literal, gameData.rules || []).map((r2) => r2.id));
+        conns.filter((c2) => c2.target === node2.id && c2.targetInput === `in-${idx}` && provers.has(editor.getNode(c2.source)?.templateId)).forEach((c2) => assign2(c2.source, ch));
+      }
     };
     for (const c2 of conns) {
       const target = editor.getNode(c2.target);
-      if (target instanceof RuleNode && isNafSocket(target, c2.targetInput)) {
+      if (isNafSocket(target, c2.targetInput) && !failingNow.has(c2.target)) {
         const i2 = parseInt(c2.targetInput.split("-")[1]);
         const range = target.bodyRanges[i2];
         const spine = range ? expFailureSpineFor(range.start, range.end) : null;
@@ -127923,6 +128002,7 @@ async function initProofGame(container, gameData) {
                 node2.rule.bodyForall = nodeData.bodyForall;
               }
               node2.bodyNafInner = Array.isArray(nodeData.bodyNafInner) ? nodeData.bodyNafInner : [];
+              node2.bodyHolds = Array.isArray(nodeData.bodyHolds) ? nodeData.bodyHolds : [];
             } else if (node2 instanceof FactNode) {
               node2.tokens = nodeData.headTokens;
             } else if (node2 instanceof QueryNode) {
@@ -128292,27 +128372,19 @@ async function initProofGame(container, gameData) {
       await connectRuleBody(expNode, inst);
     }
     async function buildFailure(expFail, parentNodeId, inputKey) {
-      if (!expFail || !hasInput(parentNodeId, inputKey))
+      if (!expFail)
         return;
-      const provRules = rulesProving(expFail.literal, gameData.rules || []);
-      const failChildren = (expFail.children || []).filter((c2) => c2.type === "failure");
-      if (provRules.length === 0 || failChildren.length === 0) {
+      await buildPlan(failurePlan(expFail, gameData.rules || []), parentNodeId, inputKey);
+    }
+    async function buildPlan(plan, parentNodeId, inputKey) {
+      if (!hasInput(parentNodeId, inputKey))
+        return;
+      if (plan.proof)
+        await connectNode(plan.proof, parentNodeId, inputKey);
+      if (plan.fail)
         await addFailLeaf(parentNodeId, inputKey);
-        return;
-      }
-      for (const expChild of failChildren) {
-        const sameGoal = provRules.some((r2) => {
-          const re2 = templateToRegex(getPredicateTemplate(r2.headTokens));
-          return re2 && re2.test(expChild.literal || "");
-        });
-        if (sameGoal) {
-          await buildFailure(expChild, parentNodeId, inputKey);
-          continue;
-        }
-        const rule = provRules.find((r2) => (r2.bodyRanges || []).some((br) => br.start === expChild.start && br.end === expChild.end));
-        if (!rule)
-          continue;
-        const inst = await acquireRuleInstance(rule.id);
+      for (const rp of plan.rules) {
+        const inst = await acquireRuleInstance(rp.ruleId);
         if (!inst)
           continue;
         usedNodes.add(inst.id);
@@ -128322,15 +128394,26 @@ async function initProofGame(container, gameData) {
           editor.getNode(parentNodeId),
           inputKey
         ));
-        const idx = (inst.bodyRanges || []).findIndex((r2) => r2.start === expChild.start && r2.end === expChild.end);
-        if (idx >= 0)
-          await buildFailure(expChild, inst.id, `in-${idx}`);
+        for (const [idx, sub] of rp.conds)
+          await buildPlan(sub, inst.id, `in-${idx}`);
       }
     }
     async function connectRuleBody(expNode, ruleNode) {
       const children = expNode.children || [];
-      for (let i2 = 0; i2 < children.length; i2++) {
-        await connectCondition(children[i2], ruleNode, i2);
+      const n2 = ruleNode.rule?.body ? ruleNode.rule.body.length : children.length;
+      let surplus = children.length - n2;
+      for (let i2 = 0, k2 = 0; k2 < children.length; i2++) {
+        let take = 1;
+        if (surplus > 0 && (ruleNode.bodyOr || []).includes(i2)) {
+          take += surplus;
+          surplus = 0;
+        }
+        for (const child of children.slice(k2, k2 + take)) {
+          if (take > 1 && editor.getConnections().some((c2) => c2.target === ruleNode.id && c2.targetInput === `in-${i2}`))
+            break;
+          await connectCondition(child, ruleNode, i2);
+        }
+        k2 += take;
       }
     }
     async function connectQueryCondition(expNode, queryNode2, i2) {
@@ -128437,6 +128520,9 @@ async function initProofGame(container, gameData) {
           complete: !!n2.complete,
           assumed: !!n2.assumed,
           clash: !!n2.clash,
+          failing: !!n2.failing,
+          boundHead: n2.boundHead ?? null,
+          bodyNafInner: n2.bodyNafInner ?? [],
           templateId: n2.templateId,
           inputs: Object.keys(n2.inputs || {}),
           start: n2.sourceLoc?.start,

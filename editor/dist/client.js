@@ -16341,7 +16341,14 @@ async function start() {
         showModal("Load the module and run a query first.", "Explanation Drill");
         return;
       }
-      localStorage.setItem("le_explanation_drill_data", JSON.stringify({ source: programText(), sessionModule, kbName: lastKb, why }));
+      localStorage.setItem("le_explanation_drill_data", JSON.stringify({
+        source: programText(),
+        sourceExample: panelDoc.example || "",
+        sourceBase: panelDoc.baseUrl || "",
+        sessionModule,
+        kbName: lastKb,
+        why
+      }));
       const currentTheme = document.body.className.includes("light-theme") ? "light-theme" : document.body.className.includes("hc-theme") ? "hc-theme" : "";
       window.open(`explanation-drill.html?theme=${currentTheme}&v=${Date.now()}`, "_blank");
     },
@@ -16869,6 +16876,8 @@ async function start() {
           largerImportantReasons
         };
         res.gameData.source = text;
+        res.gameData.sourceExample = panelDoc.example || "";
+        res.gameData.sourceBase = panelDoc.baseUrl || "";
         localStorage.setItem("le_proof_game_data", JSON.stringify(res.gameData));
         const currentTheme = document.body.className.includes("light-theme") ? "light-theme" : document.body.className.includes("hc-theme") ? "hc-theme" : "";
         window.open(`proof-game.html?theme=${currentTheme}&v=${Date.now()}`, "_blank");

@@ -8,7 +8,7 @@ core `runTests` suite, which scans this directory.
 
 | Slide | Program | What it shows |
 |---|---|---|
-| 5, Medical: *Decision making: which treatment is correct according to this guideline?* | `heart_failure.le` | The three guideline sentences on the slide, plus the few rules they rely on (ACE inhibitors, beta blockers, aldosterone antagonists, sodium restriction, HFrEF). Query `treatments` gives the guideline's recommendations for a patient. Query `withheld` gives the treatments that are indicated but not recommended, and the explanation says why. |
+| 5, Medical: *Decision making: which treatment is correct according to this guideline?* | `heart_failure.le` | The three guideline sentences on the slide, plus the few rules they rely on (ACE inhibitors, beta blockers, aldosterone antagonists, sodium restriction, HFrEF). Query `treatments` gives the guideline's recommendations for a patient: one treatment plan, all of them to be given. Queries `alternatives` and `additions` say how they relate: ARBs replace ACE inhibitors for a patient who cannot tolerate them (sentence 1), diuretics are added to ACE inhibitors, beta blockers and aldosterone antagonists (sentence 2). Query `conflicts` checks that no patient is recommended both a treatment and its alternative. Query `withheld` gives the treatments that are indicated but not recommended, and the explanation says why. |
 | 6, Medical: *Problem solving: a precise description of a solution* | `heart_failure.le`, scenario `paper_patient` | The patient of the paper (Fig. 2). The explanation of "the guideline recommends ACE inhibitors with class 1 for Ann" is the English counterpart of the answer set on the slide (the paper's Fig. 3): stage C, HFrEF, no contraindication, no history of angioedema, not pregnant. |
 | 6 (continued) | `heart_failure_what_if.le` | The paper's abductive query (Fig. 1): "an African American patient with NYHA class III HFrEF, but that is all we know". The answer is conditional: the combination of hydralazine and isosorbide dinitrate is recommended *if* the patient has received standard neurohormonal antagonist therapy. That condition is reported as an unknown, i.e. what is still to be checked. |
 | 7, Ethical: *Construction and defense of arguments: what is the reasoning behind this?* | `provocation_transposed.le` | The rapist argument, written as rules. Writing it out exposes the unstated premise that does the work: "the victim shares the responsibility for the crime". No rule mentions rape, so the argument transposes by itself. In scenario `both_cases`, the same rules grant leniency to the murderer, and the two explanations are the same tree apart from the three words the slide changes. |
@@ -40,9 +40,20 @@ the guideline recommends a treatment with a class for a patient
         the treatment should not be prescribed without a second treatment for the patient
         and the patient has a contraindication to the second treatment.
 
-a patient has an indication for ARBs with class 1
-    if the patient has heart failure with reduced ejection fraction
-    and the patient is intolerant to ACE inhibitors.
+a patient has an indication for a second treatment with a class
+    if the alternative to a first treatment is the second treatment
+    and the patient has an indication for the first treatment with the class
+    and the patient is intolerant to the first treatment.
+
+a patient should receive a second treatment with a class instead of a first treatment
+    if the alternative to the first treatment is the second treatment
+    and the guideline recommends the second treatment with the class for the patient.
+
+a patient should receive a second treatment with a class in addition to a first treatment
+    if the first treatment should generally be combined with the second treatment
+    and the guideline recommends the first treatment with the class for the patient
+    and it is not the case that
+        the patient has a contraindication to the second treatment.
 
 beta blockers should not be prescribed without diuretics for a patient
     if the patient has a current or recent history of fluid retention.

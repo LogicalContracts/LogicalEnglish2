@@ -2657,7 +2657,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         onOpenDrill: (why: any) => {
             if (!sessionModule) { showModal('Load the module and run a query first.', 'Explanation Drill'); return; }
             // Pass the program so the drill window can run its OWN independent session.
-            localStorage.setItem('le_explanation_drill_data', JSON.stringify({ source: programText(), sessionModule, kbName: lastKb, why }));
+            localStorage.setItem('le_explanation_drill_data', JSON.stringify({ source: programText(), sourceExample: panelDoc.example || '',
+                sourceBase: panelDoc.baseUrl || '', sessionModule, kbName: lastKb, why }));
             const currentTheme = document.body.className.includes('light-theme') ? 'light-theme' :
                                  document.body.className.includes('hc-theme') ? 'hc-theme' : '';
             window.open(`explanation-drill.html?theme=${currentTheme}&v=${Date.now()}`, '_blank');
@@ -3262,6 +3263,10 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 // The program source, so the game window can establish its OWN session
                 // (independent of this editor's) rather than reusing sessionModule.
                 res.gameData.source = text;
+                // ... and where it came from, so that session resolves the
+                // program's included resources as the editor's does.
+                res.gameData.sourceExample = panelDoc.example || '';
+                res.gameData.sourceBase = panelDoc.baseUrl || '';
                 localStorage.setItem('le_proof_game_data', JSON.stringify(res.gameData));
                 const currentTheme = document.body.className.includes('light-theme') ? 'light-theme' :
                                      document.body.className.includes('hc-theme') ? 'hc-theme' : '';
