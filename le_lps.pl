@@ -798,6 +798,7 @@ strip_body(Body, Goals) :-
 	conjuncts(Body, Gs),
 	maplist(plain_goal, Gs, Goals).
 
+plain_goal(G0, G) :- strip_le_at(G0, not(N0)), !, plain_goal(N0, N), G = not(N).
 plain_goal(G0, G) :- strip_le_at(G0, G1), builtin(G1, G2), !, G = G2.
 plain_goal(G0, G) :- strip_le_at(G0, G1), rename(G1, G).
 

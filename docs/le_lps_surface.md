@@ -345,7 +345,17 @@ consequent says how the state changes.
 
 Three consequent forms, then: a fluent (initiates), a negated fluent
 (terminates), and `the <fluent> that is <var> becomes <expression>` (updates).
-Several may be joined with `and`, giving several laws from one sentence.
+Several may be joined with `and`, giving several laws from one sentence —
+a negated effect first as well as last:
+
+```
+    when a person presses a button
+    then it is not the case that the button is lit
+        and the button is dark.
+```
+
+The writer (`le_lps_write.pl`, `effects/3`) joins the effects of one event
+under the same conditions so, additions first.
 
 ### 3.5 `if … then …` — reactive rules
 

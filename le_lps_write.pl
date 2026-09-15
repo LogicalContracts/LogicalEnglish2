@@ -330,6 +330,7 @@ elided_times(d_pre(Cs)) :-
 causal_trigger(initiated(Tr, F, Cs), Tr, F-Cs).
 causal_trigger(terminated(Tr, F, Cs), Tr, F-Cs).
 causal_trigger(updated(Tr, F, Ch, Cs), Tr, F-Ch-Cs).
+causal_trigger(effects(Tr, Cs, Es), Tr, Es-Cs).
 
 %   T occurs in Goals only as the time of a holds/2 (also inside an
 %   aggregate's findall), and at least nowhere else.
@@ -406,6 +407,19 @@ sentence(KB, Ns, terminated(Trigger, F, Conds), Text) :- !,
 	render(KB, Ns, F, S),
 	format(atom(Text), '~w\nthen it is not the case that ~w.', [Head, S]).
 
+%   Several effects of one event under the same conditions, one sentence
+%   (docs/le_lps_surface.md §3.4: "several may be joined with `and`"; read
+%   back, one law per effect): `effects(Trigger, Conds, [initiated(F),
+%   terminated(G), ...])`, a writer's form, not an LPS term. The additions
+%   come first.
+sentence(KB, Ns, effects(Trigger, Conds, Effects), Text) :- !,
+	causal(KB, Ns, Trigger, Conds, Head),
+	partition([E]>>(E = initiated(_)), Effects, Adds, Dels),
+	append(Adds, Dels, Es),
+	maplist(effect_text(KB, Ns), Es, Ss),
+	join(Ss, '\n    and ', Body),
+	format(atom(Text), '~w\nthen ~w.', [Head, Body]).
+
 sentence(KB, Ns, updated(Trigger, Fluent, Old-New, Conds), Text) :- !,
 	%  The `New is Expr` goal the compiler added is the update's right-hand
 	%  side; it is not a condition, and writing it as one would produce a
@@ -448,6 +462,11 @@ sentence(KB, Ns, Fact, Text) :-
 	callable(Fact), Fact \= (_ :- _),
 	render(KB, Ns, Fact, S),
 	format(atom(Text), '~w.', [S]).
+
+effect_text(KB, Ns, initiated(F), S) :- render(KB, Ns, F, S).
+effect_text(KB, Ns, terminated(F), S) :-
+	render(KB, Ns, F, S0),
+	format(atom(S), 'it is not the case that ~w', [S0]).
 
 %   The trigger's times are written out unless shorten_times/1 found the law
 %   needs none: a condition may share one -- upstream evaluates a causal law's

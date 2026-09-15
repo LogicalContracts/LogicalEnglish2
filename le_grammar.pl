@@ -4009,16 +4009,19 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
             Logic0 = forall(CondLogic, ConsLogic),
             tokens_range(Tokens, Start, End),
             Logic = le_at(Logic0, Start, End)
-        ; ( Children == [], inline_naf_goal(Tokens, GoalTokens) ) ->
+        ; ( inline_naf_goal(Tokens, GoalTokens), continuation_lines(Children) ) ->
             % Inline negation: "it is not the case that <goal>" all on one line.
             % Unambiguous because the negation has a single condition (the rest of
-            % the line), so the goal need not be on a nested line.
-            parse_literal(GoalTokens, Templates, VMIn, VMOut, GoalLit, NafInstance),
+            % the line), so the goal need not be on a nested line. Deeper lines
+            % that open with "and"/"or" continue the conjunction after it, as
+            % they do after any literal ("then it is not the case that A
+            % \n    and B", a causal law's effects).
+            parse_literal(GoalTokens, Templates, VMIn, VM1, GoalLit, NafInstance),
             tokens_range(GoalTokens, GStart, GEnd),
             maybe_record_synonym_use(Templates, GoalLit, NafInstance, GStart, GEnd),
             Logic0 = not(le_at(GoalLit, GStart, GEnd)),
             tokens_range(Tokens, Start, End),
-            Logic = le_at(Logic0, Start, End)
+            fold_nodes(le_at(Logic0, Start, End), Children, Templates, VM1, VMOut, Logic)
         ; is_not_the_case(Tokens) ->
             hierarchy_to_logic(Children, Templates, VMIn, VMOut, SubLogic),
             Logic0 = not(SubLogic),
@@ -4209,6 +4212,13 @@ is_not_the_case(Tokens) :-
 inline_naf_goal(Tokens, GoalTokens) :-
     naf_prefix_tokens(Tokens, GoalTokens),
     GoalTokens \== [].
+
+%   Every nested line opens with "and" or "or" (none: the negation's line
+%   stands alone).
+continuation_lines(Children) :-
+    forall(member(node(_, [word(W, _)|_], _), Children),
+           ( le_i18n:class_member(and, W) ; le_i18n:class_member(or, W) )),
+    forall(member(node(_, Ts, _), Children), Ts = [word(_, _)|_]).
 
 naf_prefix_tokens(Tokens, Rest) :-
     le_i18n:kw_synonym_words(not_the_case, Words),   % longest synonyms first
