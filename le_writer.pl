@@ -507,10 +507,33 @@ write_kb(Ctx, KBName, Items) :-
         nl
     ),
     exclude(ontology_fact, Items, Items1),
-    include(kb_item, Items1, KBItems),
+    include(kb_item, Items1, KBItems0),
+    group_effects(KBItems0, KBItems),
     kw(kb_open, KO), kw(kb_include, KI),
     format("~w ~w ~w:~n~n", [KO, KBName, KI]),
     forall(member(I, KBItems), write_kb_item(Ctx, I)).
+
+%   Adjacent causal laws of one event under the same conditions are one
+%   sentence, `then A and it is not the case that B` (le_lps_write's
+%   effects/3): what a source says in one rule — an Epilog operation, a
+%   Drools modify — stays one sentence. LE-for-LPS reads it back as the
+%   same laws.
+group_effects([], []).
+group_effects([lps(L)|Is0], [lps(G)|Is]) :-
+    law_cause(L, Tr, Cs, E), !,
+    adjacent_effects(Is0, Tr-Cs, Es, Is1),
+    ( Es == [] -> G = L ; G = effects(Tr, Cs, [E|Es]) ),
+    group_effects(Is1, Is).
+group_effects([I|Is0], [I|Is]) :- group_effects(Is0, Is).
+
+adjacent_effects([lps(L)|Is0], C, [E|Es], Is) :-
+    law_cause(L, Tr, Cs, E), Tr-Cs =@= C, !,
+    Tr-Cs = C,
+    adjacent_effects(Is0, C, Es, Is).
+adjacent_effects(Is, _, [], Is).
+
+law_cause(initiated(Tr, F, Cs), Tr, Cs, initiated(F)).
+law_cause(terminated(Tr, F, Cs), Tr, Cs, terminated(F)).
 
 %   A fact marked `ontology` goes to the ontology section (`the ontology
 %   is:`), where it came from.
@@ -2248,11 +2271,15 @@ prolog_to_ir_(Terms0, Options, program(Header, Items)) :-
     program_predicates(Terms, Preds),
     maplist(predicate_template(Terms, Annotated, Abducibles, Negated), Preds, Templates),
     opposite_functors(Templates, Negated, OppMap),
+    %  a relation the program defines is its own, even when Prolog has a
+    %  built-in of that name (Epilog's index/1, system:index/1)
+    b_setval(le_writer_defined, Preds),
     findall(Item, ( member(C-Bs, Terms), prolog_clause_item(C, Item0),
                     (   partial_list_clause(C)
                     ->  list_pattern_residue(C, Bs, Item)
                     ;   negations_to_opposites(Item0, OppMap, Item)
                     ) ), Clauses0),
+    b_setval(le_writer_defined, []),
     number_residues(Clauses0, 1, Clauses),
     denials(Terms, OppMap, Denials),
     source_queries(Terms, OppMap, SourceQueries),
@@ -2461,6 +2488,7 @@ left_step(Op, I, Acc, New) :- New =.. [Op, Acc, I].
 prolog_builtin(G) :-
     callable(G), functor(G, F, N),
     \+ memberchk(F/N, [true/0]),
+    \+ ( nb_current(le_writer_defined, Ds), memberchk(F/N, Ds) ),
     functor(H, F, N),
     predicate_property(system:H, defined), !.
 
