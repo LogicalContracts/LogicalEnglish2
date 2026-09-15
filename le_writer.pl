@@ -2717,6 +2717,8 @@ binary_words(Words, relation, S1, S2, All) :-
 unary_words([W], [is, W]) :- adjective_like(W), !.
 unary_words([W], [W]) :- verb_like(W), !.            % `*a thing* flies`
 unary_words([W], [is, Art, W]) :- !, article_for(W, W, Art).
+unary_words([A, N], [is, Art, A, N]) :-                % `*a thing* is a wounded bird`
+    adjective_like(A), \+ adjective_like(N), \+ verb_like(N), !, article_for(A, A, Art).
 unary_words(Words, [is|Words]).
 
 %   A third-person verb (`flies`, `runs`): a word ending in s, not in ss, us

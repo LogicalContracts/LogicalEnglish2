@@ -508,14 +508,21 @@ le_scasp_query(KBModule, ScenarioName, Goal, Options, Answers, Issues) :-
     le_scasp_program_text(KBModule, ProgText, PIssues),
     scenario_facts(KBModule, ScenarioName, Options, Facts0),
     %  an opposite form is -p in the unit (its variables shared, so the
-    %  answers bind the caller's goal)
-    classical_deep(Goal, SGoal), maplist(classical_deep, Facts0, Facts),
+    %  answers bind the caller's goal); a query's goal carries the source
+    %  positions of its conditions (le_at/3), which the unit does not
+    strip_positions(Goal, Goal1),
+    classical_deep(Goal1, SGoal), maplist(classical_deep, Facts0, Facts),
     setup_call_cleanup(
         load_scasp_unit(ProgText, Facts, Unit, File),
         run_models(Unit, SGoal, TL, Max, Answers, RIssues),
         cleanup_scasp_unit(Unit, File)),
     append(PIssues, RIssues, Issues).
 le_scasp_query(_, _, _, _, [], [I]) :- scasp_issue(no_pack, unknown, scasp_engine_not_installed, [], I).
+
+strip_positions(V, V) :- var(V), !.
+strip_positions(le_at(G, _, _), S) :- !, strip_positions(G, S).
+strip_positions(T, S) :- compound(T), !, T =.. [F|As], maplist(strip_positions, As, Bs), S =.. [F|Bs].
+strip_positions(T, T).
 
 % scenario_facts(+KB, +Name, +Options, -Facts): ground fact terms for the scenario.
 scenario_facts(_KB, _Name, Options, Facts) :-
