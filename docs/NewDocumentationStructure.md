@@ -487,14 +487,14 @@ where menus change.
 
 1. **Scope of "user docs" in the public repos.** Should the extensions
    reference (`extensions.md`) stay public (my recommendation: it tells users
-   what the hosted service adds) or move to InsurLE2?
+   what the hosted service adds) or move to InsurLE2? STAY PUBLIC
 2. **Private notes.** Keep `vibeCodingNotes.md` tracked in the public repos
-   (excluded from images and routes), or move them out of git?
+   (excluded from images and routes), or move them out of git? KEEP THEM TRACKED
 3. **RK book PDF, its conversion, and the under-review paper.** Remove them from
-   the public repository? (Recommended; they are also served today.)
+   the public repository? (Recommended; they are also served today.) Remove them
 4. **Home of the LE↔LPS documents.** lps2 (recommended: the surface and the
-   interface are LPS2's) or LE2?
+   interface are LPS2's) or LE2?  lps2
 5. **Public site.** Is a separate documentation site wanted now (Phase 4), or
-   are in-product docs enough for the moment?
+   are in-product docs enough for the moment?  In-product docs are enough for now
 6. **Querying tutorial.** Rewrite on a public example (e.g.
-   `RulesRus/eu261_integration`), or keep it proprietary?
+   `RulesRus/eu261_integration`), or keep it proprietary? Rewrite on public example
