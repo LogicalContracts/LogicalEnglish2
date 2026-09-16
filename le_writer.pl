@@ -5,7 +5,7 @@
     Solidity contracts, plain Prolog — ends with the same step: a set of
     clauses and a template dictionary become an LE document a lawyer can read
     and the LE server can run. This module is that step (extension E1 of
-    InsurLE2/docs/MiggratingFromOtherSystems.md, §4.2 and §7.2). It is
+    InsurLE2/docs/migration/roadmap.md, §4.2 and §7.2). It is
     le_lps_write.pl's idea — render each literal through its template, name
     each variable from the type of the place it first appears in — taken from
     LPS internal terms to the whole of timeless LE: rules with nested

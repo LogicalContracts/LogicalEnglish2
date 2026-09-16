@@ -1,6 +1,6 @@
 /*  lib/temporal.pl — the date arithmetic behind lib/temporal.le
 
-    Extension E3 of InsurLE2/docs/MiggratingFromOtherSystems.md (§7.2): a
+    Extension E3 of InsurLE2/docs/migration/roadmap.md (§7.2): a
     library, not syntax. Dates are LE's own date(Year, Month, Day) terms.
     Pure arithmetic only (days from the civil calendar, no clock).
 
@@ -8,7 +8,7 @@
     names LE gives them (a template's words, its slots left out), with their
     arguments in the order of the slots: LE calls them directly.
 
-    Loaded assert-only as a Prolog resource (docs/le_summary.md §14.1).
+    Loaded assert-only as a Prolog resource (docs/user/reference/language.md §14.1).
 */
 
 %   Days since 1970-01-01 of a civil date (Howard Hinnant's algorithm).

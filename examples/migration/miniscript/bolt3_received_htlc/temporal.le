@@ -1,6 +1,6 @@
 % lib/temporal.le — dates, periods and lock times, as LE templates.
 %
-% Extension E3 of InsurLE2/docs/MiggratingFromOtherSystems.md (§7.2): the
+% Extension E3 of InsurLE2/docs/migration/roadmap.md (§7.2): the
 % temporal and period LIBRARY the migrations share (Oracle Intelligent Advisor
 % rules that quantify over time, effective-dated product versions, Bitcoin
 % timelocks), so that no translator re-derives the same rules. A library, not

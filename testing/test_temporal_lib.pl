@@ -1,6 +1,6 @@
 /** <module> lib/temporal.le — the temporal and period library (E3)
 
-    InsurLE2/docs/MiggratingFromOtherSystems.md §7.2: dates, periods and
+    InsurLE2/docs/migration/roadmap.md §7.2: dates, periods and
     lock times as a library the migrations share, not syntax.
 
     Run with:  swipl -q -g run_tests -t halt testing/test_temporal_lib.pl

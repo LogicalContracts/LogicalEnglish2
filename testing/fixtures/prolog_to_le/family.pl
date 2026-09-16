@@ -1,5 +1,5 @@
 % A plain Prolog program: the test bed of the Prolog -> LE path
-% (InsurLE2/docs/MiggratingFromOtherSystems.md §5.7). Translated by
+% (InsurLE2/docs/migration/roadmap.md §5.7). Translated by
 % le_writer:prolog_file_to_ir/3; its answers must equal Prolog's own.
 
 parent(alice, bob).
