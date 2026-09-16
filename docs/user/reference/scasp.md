@@ -1,6 +1,6 @@
 # s(CASP) on Logical English
 
-*Kind: reference · Audience: users, developers · Status: current (2026-09-15)*
+*Kind: reference · Audience: users, developers · Status: current (2026-09-16)*
 
 Logical English 2 can execute the **same program** under either of two reasoning
 engines:
@@ -47,6 +47,7 @@ companion. The whole backend lives in **`le_scasp.pl`**, with web plumbing in
 - [12. Current status and known limitations](#12-current-status-and-known-limitations)
   - [Forward compatibility (browser)](#forward-compatibility-browser)
 - [13. Code map](#13-code-map)
+- [14. Reading s(CASP) back](#14-reading-scasp-back-september-2026)
 
 ---
 
@@ -154,10 +155,10 @@ The emitter (`lower_body/5`, `lower_leaf/3`) translates each construct:
 | `it is not the case that G`, `unless C` | `not G` (default negation; De Morgan-normalised, see §7) |
 | `; opposite: T` | classical negation `-p(…)`: every rule, fact and condition of the opposite form is written as `-p(…)`, its wording as `#pred -p(…) :: '…'`, and the global constraint `false :- p(X), -p(X).` links the two (`opposite_map/2`, `to_classical/2`, `opposite_constraints/2`) |
 | `; assumable` / `; unknown` | `#abducible p(…).` — assumption sets returned per model (`abducible_directive/2`); a scenario element (`; undefined`) is not abducible |
-| `it must not be true that …` (§3.3 of le_summary.md) | the global constraint `false :- Conditions.` (`kb_constraint_clauses/2`): every model, and so every set of abducibles, must satisfy it — the consistency condition the Prolog reasoner also applies to its assumptions (`reasoner:consistent_assumptions/4`) |
+| `it must not be true that …` ([language.md](language.md) §3.3) | the global constraint `false :- Conditions.` (`kb_constraint_clauses/2`): every model, and so every set of abducibles, must satisfy it — the consistency condition the Prolog reasoner also applies to its assumptions (`reasoner:consistent_assumptions/4`) |
 | `for all cases in which C it is the case that G` | the negation of a helper that looks for a counterexample (Lloyd–Topor): `not le_forall_K(Shared)` and `le_forall_K(Shared) :- C, not G.` — s(CASP)'s own `forall/2` quantifies one variable and it has no `call/1` |
 | The ontology section's `is_a/2` clauses | clauses of the unit, like any other |
-| Decision tables, service conditions, a condition with no template | an issue each (untranslatable), never a raw LE record in the output |
+| Decision tables, service conditions, `according to` in a rule, `the minimum/maximum of`, a sentence used as a condition (`… is the case`), a condition with no template | an issue each (untranslatable, §8), never a raw LE record in the output |
 | Every user template | a `#pred` directive carrying the LE sentence with typed `@`-placeholders (`pred_directive/2`) — powers s(CASP)'s own `--human` output and cross-checks our normaliser |
 | Comparisons `>`, `>=`, `<`, `=<` | **CLP(ℚ) constraints** `#>`, `#>=`, `#<`, `#=<` |
 | Equality / assignment (`is`, `=`) on numbers | `#=` (relational); on non-numbers, plain `=` |
@@ -278,8 +279,9 @@ the negation inward:
 
 This is sound for default negation. **Double negation** cannot be expressed in
 this s(CASP); it throws `le_scasp_untranslatable(scasp_double_negation)`, which
-`emit_rules/4` catches and reports as a targeted issue (the rule is skipped, the
-program runs Prolog-only for that rule) rather than crashing.
+`emit_rules/4` catches and reports as a targeted issue rather than crashing. The
+issue blocks, so the program is refused by the s(CASP) engine (§8) and runs
+only with Prolog.
 
 A safety net in `run_models_recover/3` converts any residual `permission_error` /
 `determinism_error` from s(CASP) into an `unsupported_construct` issue instead of
@@ -313,6 +315,12 @@ never hardcoded, so they appear in the active language; the handlers call
 | `is in` (list membership) | `scasp_list_membership` | refused |
 | `is known` | `scasp_unsupported_known` | refused |
 | double negation | `scasp_double_negation` | refused: can't be expressed (§7) |
+| `the minimum/maximum of` | `scasp_min_max` | refused |
+| Decision tables | `scasp_decision_table` | refused |
+| Service conditions (semantic comparisons, §17.6 of the language reference) | `scasp_service` | refused |
+| `according to` in a rule (source-scoped proof) | `scasp_scoped_proof` | refused |
+| a sentence used as a condition (`… is the case`) | `scasp_meta_call` | refused |
+| a condition with no template | `scasp_missing_template` | refused |
 | any other untranslatable rule | `scasp_untranslatable_rule` | refused |
 | query timeout | `scasp_timeout` | partial answers returned |
 | residual illegal construct | `scasp_unsupported_construct` | e.g. an "or" the emitter couldn't lift |
@@ -382,8 +390,8 @@ the user.
 
 ## 12. Current status and known limitations
 
-WP1–WP7 of the plan are delivered and the full test suite is green (Prolog unit +
-LE examples + Playwright e2e). Remaining polish, none blocking:
+WP1–WP7 of the plan are delivered, with the tests of §10. Remaining polish, none
+blocking:
 
 - **No "Both" side-by-side diff view** in the UI yet (the backend diff exists as
   the differential test harness).
@@ -419,7 +427,7 @@ temp-file consult, which would be replaced by an in-memory load in that setting.
 | Issue messages (i18n) | `i18n/messages.csv` — `scasp_*`, `non_stratified_desc` |
 | Tests | `testing/test_scasp.pl`, `editor/tests/scasp-engine.spec.ts` |
 
-## 13. Reading s(CASP) back (September 2026)
+## 14. Reading s(CASP) back (September 2026)
 
 The migration reader `le_writer:prolog_file_to_ir/3` is this target read
 backwards (InsurLE2/docs/migration/roadmap.md §5.7, Phase 2c):

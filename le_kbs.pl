@@ -3096,7 +3096,7 @@ le_suite(all).
 %   nothing else needs to change.
 extension_dependent_path_fragment('/insurele2/').
 extension_dependent_path_fragment('/insurle2/').
-%  The examples of the extension constructs themselves (le_summary.md §15).
+%  The examples of the extension constructs themselves (docs/user/reference/extensions.md).
 extension_dependent_path_fragment('/language/extensions/').
 %  A twin of another system written with an extension construct: embedded
 %  Prolog goals (s(CASP)'s list built-ins, which core LE has no sentence for).

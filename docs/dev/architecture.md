@@ -1,140 +1,162 @@
-# Logical English 2 Editor — Technical Summary
+# Architecture of LogicalEnglish2
 
-*Kind: developer notes · Audience: developers · Status: stale (May 2026: the client.ts-era editor), to be rewritten*
+*Kind: architecture reference · Audience: developers · Status: current (2026-09-16)*
 
-## Architecture
-
-The editor is a Monaco-based web IDE (`editor/src/`) with:
-- **`client.ts`** — Monaco UI, file management, query panel, LSP client
-- **`server.ts`** — LSP server running in a Web Worker (browser-side)
-- **`le-language.ts`** — Monarch syntax-highlighting rules
-- **`tokenizer.ts`** — Lexical analyser for LE syntax
-
-The back-end is a SWI-Prolog HTTP server (`classic_web_api.pl`) exposing a single POST endpoint `/leapi` that dispatches by `operation` field.
-
----
-
-## Editing
-
-Monaco is initialised with the `le` language definition, providing:
-
-
-- **Syntax highlighting** (`le-language.ts` and `server.ts`):
-    - **Template-Aware Highlighting (Semantic Tokens)**: The LSP server extracts templates from the document and applies context-aware coloring to template instances. Template words are styled as plain text, while arguments (e.g., `an entity`, `ET`) are styled as variables. This ensures that template words (like `for`) are not incorrectly highlighted as logical keywords (like `or`).
-    - **Section Headers**: `the knowledge base`, `scenario`, `query`, `the ontology`, `the predicates`, `the templates`, `the fluents`, `the events`, `the target language` (styled as `keyword.header`)
-    - **Logical Keywords**: `includes`, `if`, `and`, `or`, `either`, `any of`, `all of`, `unless`, `which`, `for all cases in which`, `it is the case that`, `it is not the case that`, `not the case that`, `sum`, `count`, `average`, `min`, `max`, `is a`, `is an`, `such that` (styled as `keyword`)
-    - **Test Keywords**: `expects answers` (styled as `keyword.expects`)
-    - **Variables**: `*variable*` patterns, standalone capitalized IDs (e.g., `ET`, `ATR`), and arguments starting with `a`, `an`, `the`, `each`, or `some` (styled as `variable`)
-    - **Strings**: Double-quoted `"..."` and single-quoted `'...'` strings with escape character support (styled as `string`)
-    - **Numbers**: Integers and decimals (styled as `number`)
-    - **Dates**: `YYYY-MM-DD` format (styled as `number.date`)
-    - **Comments**: Single-line `%` and multi-line `/* ... */` (styled as `comment`)
-    - **Operators**: Comparison operators like `<`, `>`, `<=`, `>=`, `==`, `!=`, `!`, `=` (styled as `operator`)
-    - **Punctuation**: Brackets `[]`, `()`, `{}` and delimiters `.`, `,`, `:`
-
-### Theme Colors
-
-| Language Item | Dark Theme (`le-theme`) | Light Theme (`le-theme-light`) | High Contrast (`hc-black`) |
-| :--- | :--- | :--- | :--- |
-| **Section Headers** | `#569cd6` (Blue, Bold) | `#0000ff` (Blue, Bold) | White (Bold) |
-| **Logical Keywords** | `#c586c0` (Purple) | `#af00db` (Purple) | `#c586c0` (Purple) |
-| **Test Keywords** | `#c586c0` (Purple, Italic) | `#af00db` (Purple, Italic) | White (Italic) |
-| **Variables / Arguments** | `#9cdcfe` (Light Blue) | `#001080` (Dark Blue) | `#9cdcfe` (Cyan) |
-| **Template Words** | `#d4d4d4` (Light Gray) | `#000000` (Black) | White |
-| **Strings** | `#ce9178` (Orange) | `#a31515` (Red) | `#ce9178` (Orange) |
-| **Numbers / Dates** | `#b5cea8` (Light Green) | `#098658` (Green) | `#b5cea8` (Green) |
-| **Comments** | `#6a9955` (Green) | `#008000` (Green) | `#7ca668` (Green) |
-| **Operators / Punctuation** | `#d4d4d4` (Light Gray) | `#000000` (Black) | White |
-
-- **Auto-closing pairs** — `[]`, `()`, `{}`, `""`, `''`, `**`
-- **Code folding** (`textDocument/foldingRange`) — sections delimited by headers (e.g. `the knowledge base`, `scenario`, `query`) and individual rule bodies (head + indented lines)
-- **Completions** (`textDocument/completion`, triggers: space, `*`) — templates extracted from the `the predicates/templates/fluents/events are:` sections, plus system comparison templates, section-header snippets, and logical keywords; the client applies smart overlap detection to avoid duplicate prefix insertion
-- **Hover** (`textDocument/hover`) — returns the token type and value at the cursor
-- **Quick Fixes** — missing template warnings provide a lightbulb action to automatically insert a template hypothesis into the `the templates are:` section.
-
-Content changes are debounced (1 500 ms) before auto-triggering a module reload on the server.
-
-### File Management
-
-The editor supports local and server-side file operations:
-- **New / Open / Save / Save As**: Standard file operations using the File System Access API (with fallback to traditional downloads).
-- **Open from Server**: Browse and load built-in examples from the `examples/moreExamples/` directory.
-- **Build Info**: Hovering over the editor title shows the current server build version.
-
----
-
-## LE Assistant
-
-A built-in chat interface allows users to interact with an LLM-powered agent. The assistant can:
-- Explain Logical English code.
-- Refactor rules or templates.
-- Generate new LE code from natural language descriptions.
-- Update the editor content directly with its suggestions.
-
-Users can configure API keys and select models (OpenAI, Anthropic, Google, etc.) in the **Misc > API Keys...** menu.
-
----
-
-## Navigation
-
-| Feature | Status |
-|---|---|
-| Code folding by section / rule body | Implemented (LSP) |
-| Hover token inspection | Implemented (LSP) |
-| Go-to-definition / document outline | Not implemented |
-| **Click node in explanation tree → highlight source range** | Implemented (client.ts) |
-| **See PROLOG** | Implemented (Context Menu) — shows the Prolog translation of the term at cursor |
-| **Copy URL** | Implemented (Context Menu) — copies a link to the current example and line |
-
-The explanation-tree click handler uses `start`/`end` character offsets stored in each tree node (populated by `le_source/3` facts written during KB loading) to call `editor.setSelection()` and `editor.revealRange()`.
-
----
-
-## Querying
-
-### Load (`operation: "load"`)
-Posts the current editor text to `/leapi`. The server parses the LE, creates a session module, runs the verifier, and returns:
-- `sessionModule` — opaque session identifier
-- `kb` — knowledge-base name
-- `examples` — available scenario names → populates the Scenario dropdown
-- `queries` — list of `{name, le, template}` → populates the Query dropdown
-- `issues` — verifier diagnostics (see above)
-
-### Answer query (`operation: "answeringQuery"`)
-Posts `{sessionModule, query, scenario, customQuery?, customScenario?}`.  
-The server:
-1. Clears the session and loads the chosen scenario facts (or parses `customScenario` text).
-2. Resolves the query (by name or by parsing `customQuery` text).
-3. Calls `query/5` for each answer, returns `{answer, why}` pairs.
-4. On no answers calls `query_explain` for a failure tree.
-
-Results are rendered as a selectable list; clicking an answer shows the full **explanation tree** with collapsible nodes (green = success, red = failure, first two levels expanded by default).
-
-### Other endpoints
-
-| Operation | Purpose |
-|---|---|
-| `list_examples` | Lists `.le` files in `examples/moreExamples/` |
-| `examples` | Returns content of a named example file |
-| `loadFactsAndQuery` | Low-level: injects Prolog facts then calls `reasoner:i/4` directly |
-| `query` | Direct Prolog goal against an arbitrary module |
-| `answer`, `explain` | Legacy single-document load-and-query operations |
-
----
-
-## Front-end / Back-end Communication Flow
+LogicalEnglish2 (LE2) is one SWI-Prolog process that parses, verifies and runs
+Logical English programs and serves everything a browser needs: the editor, a
+JSON API, an MCP server, a debug adapter and a few smaller web apps. The
+editor is TypeScript bundled with esbuild; it has no server of its own.
 
 ```
-User edits document
-  → (1500 ms debounce) POST /leapi {operation:"load", le:"..."}
-  ← {sessionModule, kb, examples, queries, issues}
-  → Monaco markers set; dropdowns populated
-
-User selects scenario + query → clicks Run Query
-  → POST /leapi {operation:"answeringQuery", sessionModule, query, scenario, ...}
-  ← {results:[{answer, why}, ...]}
-  → Results list rendered; click answer → explanation tree rendered
-  → Click tree node → editor.setSelection(start, end)
+browser pages ──POST /leapi {token, operation, …}──►  classic_web_api.pl
+   editor/*.html (Monaco + dist/*.js)                    │
+   web_extras/{executive,contract_assistant,docsview}    ├─ le_kbs ─ le_grammar ─ tokenizer
+                  ──WebSocket /dap──────────────────►     │    ├─ reasoner, le_verifier, …
+LLM agents (opencode, Claude Desktop) ──/mcp──────►       ├─ llm/mcp.pl, le_tools.pl
+                                                          └─ assistants → llm/llm_client.pl → LLM providers
 ```
 
-LSP features (completions, hover, folding) run entirely in the browser via a Web Worker and never hit the server.
+## 1. The Prolog server
+
+Start it with `swipl -g "use_module(classic_web_api), start_api_server(3050)"`
+(the default port is 3050). `start_api_server/1` refuses a port that is
+already in use, loads `build_info.txt`, starts the model-price fetch
+(`llm/llm_prices.pl`) and the session reaper, and runs `http_server/2` with 24
+workers.
+
+### Routes (`classic_web_api.pl`)
+
+| Route | What |
+|---|---|
+| `POST /leapi` | the JSON API: one request dict with `token` and `operation`, dispatched by `handle_operation/2` (42 operations; see [the web API](../user/api/web-api.md)). The token is checked against the constant `"myToken123"`. `?lang=` sets the message language of the request |
+| `/mcp`, `GET /list_examples`, `POST /query`, `/verify`, `/example_details` | the MCP server and its REST equivalents (`llm/mcp.pl`) |
+| `/dap` | WebSocket debug adapter (`dap_server.pl`, see [debugger.md](debugger.md)) |
+| `/editor/…`, `/web_extras/…` | static files, sent with `Cache-Control: no-cache` |
+| `/` | landing page: examples tree, executive view link, documentation list (from `docs/user/nav.json`), a button that runs the example test suite |
+| `/multilingual`, `/executive` | a language picker, or with `?lang=` a landing page for `examples/<lang>/`; the executive view |
+| `/docs/…` | the user documentation, only under `docs/user/` (`public_doc/1`); a document name answers the markdown viewer `web_extras/docsview/viewer.html`; old paths redirect (`doc_moved/2`) |
+| `/source/<example>` | an example's `.le` text, only under the directories listed in `ALLOWED_LE_EXPORTS` and allowed for the user's roles |
+| `/login`, `/logout`, `/whoami` | sessions for users of `le_users.db` (`le_users.pl`); roles gate example trees (`restricted_paths.pl`) |
+| `/telemetry.js`, `/telemetry_test` | Sentry and Cloudflare configuration, off unless configured ([telemetry.md](telemetry.md)) |
+| `POST /test_services/…` | stub services for programs that declare services (`le_services.pl`) |
+| `/build_info` | the build string |
+
+A failing operation is logged, reported to Sentry when configured, and
+answered with HTTP 500.
+
+### Modules
+
+**Language core**
+
+| Module | Role |
+|---|---|
+| `tokenizer.pl` | text to tokens: indentation, words, numbers, dates, strings, comments |
+| `le_grammar.pl` | the DCG and the second pass that turns sentences into Prolog clauses, templates, scenarios, queries |
+| `le_system_templates.pl` | built-in templates (comparisons, arithmetic); word forms from `i18n/system_templates.csv` |
+| `le_i18n.pl` | loads `i18n/*.csv`; keywords, messages and UI strings of the active language; `localized_asset/3` picks `<file>.<lang>.md` when present |
+| `le_kbs.pl` | the main interface: `load/2`, `load_text/2` (each program becomes a KB module), reasoning sessions (`createSession/2`, scenarios, a reaper for sessions idle over 30 min), `query/5`, explanations, the example test runner (`runTests/0`, `runAllTests/0`, the status files), example names and aliases, included resources. Loads `le_extensions.pl` if present |
+| `reasoner.pl` | meta-interpreter: conjunction, disjunction, negation as failure, aggregates, unknowns, success and failure explanation trees; the DAP tracer hooks |
+| `le_verifier.pl` | load-time checks behind the editor's diagnostics (missing templates, undefined or untested predicates, rules without variables, …) |
+| `le_extensions.pl` | **optional, proprietary**: a symlink into InsurLE2. `which`, `unless` in bodies, grouped alternatives, numbered bodies, `prolog` goals, prepositional chaining ([extensions.md](../user/reference/extensions.md)). Also loads InsurLE2's importers and exporters |
+
+**Regulatory constructs** (language reference §17), all loaded by `le_kbs`:
+`le_provenance.pl` (provenance trailers), `le_tables.pl` (decision tables),
+`le_sections.pl` (applicability / question / remedy), `le_services.pl`
+(service-backed templates with a cache), `le_flip.pl` (flip queries),
+`le_views.pl` (view sections), `le_documents.pl` (the text of a cited
+document), `le_why_not.pl` (unmet conditions of a failed query).
+`lib/temporal.le` + `lib/temporal.pl` and `lib/deontic.le` are LE libraries a
+program includes.
+
+**Execution targets and translations**
+
+| Module | Role |
+|---|---|
+| `le_scasp.pl` | emits s(CASP) from a loaded KB and runs it with `library(scasp)` (the `scasp` pack; optional) |
+| `le_lps.pl` | LE for LPS (`the target language is: lps.`) to LPS internal syntax with provenance; LPS2 runs it (`/lpsapi`, a separate server) |
+| `le_lps_legal.pl`, `le_lps_write.pl` | the legal view of an LPS program; LPS internal syntax back to LE |
+| `le_service.pl` | the surface LPS2 loads LE2 through, in-process |
+| `le_writer.pl`, `le_migration.pl` | Migration IR to LE text; migration ledger and source tests as scenarios ([migration.md](migration.md)) |
+| `le_import.pl` | File ▸ Open of other systems' files and Export; registries `importer/6`, `exporter/6`. The translators themselves are in InsurLE2 |
+| `le_graph.pl` | KB graph for Cytoscape ([graph.md](graph.md)) |
+| `le_proof_game.pl` | rules and facts for the Proof Game |
+
+**LLM features** ([assistant.md](assistant.md), [contract-assistant.md](contract-assistant.md))
+
+| Module | Role |
+|---|---|
+| `le_assistant.pl` | LE Assistant, deep mode: runs `opencode` as a background job; job table shared with light mode |
+| `le_assistant_light.pl` | LE Assistant, light mode: in-process agent loop |
+| `le_tools.pl` | `verify` and `query` tools shared by MCP and light mode |
+| `le_contract_assistant.pl` | Contract Assistant: materials to a tested program, as a background job (`contract_*` operations) |
+| `nl_to_le.pl` | "Write it in English…": English to facts or a query body, verified (`nl_to_le` operation) |
+| `le_issue_feedback.pl` | ranks verifier issues for an LLM repair round (Contract Assistant, `nl_to_le`) |
+| `llm/llm_client.pl` | OpenAI-compatible client, model registry `llm_model_entry/4`, API keys from request, flags or environment |
+| `llm/le_llm.pl` | lets an embedder (LPS2) substitute its own client; used by `nl_to_le.pl` |
+| `llm/llm_prices.pl` | LiteLLM price table, for cost estimates |
+| `llm/mcp.pl` | MCP server (tools, prompts, resource `le://docs/syntax` = `docs/user/reference/language.md`) and REST endpoints; see [MCP](../user/api/mcp.md) |
+
+**Server infrastructure**: `classic_web_api.pl`, `dap_server.pl`,
+`le_users.pl`, `restricted_paths.pl`, `le_telemetry.pl`.
+
+## 2. The editor (`editor/`)
+
+Each page is an HTML file that loads one bundle from `editor/dist/`. The
+editor and LPS pages load Monaco 0.45 from cdnjs through its AMD loader.
+
+| Page | Bundle (source) | What |
+|---|---|---|
+| `index.html` | `client.ts` | the editor: documents and tabs, load and diagnostics, queries and explanations, LE Assistant panel, debug panel, menus |
+| — (Web Worker) | `server.ts` | language server: semantic tokens, completions, hover, folding, diagnostics. `client.ts` talks JSON-RPC to it over `postMessage` and registers the Monaco providers itself |
+| `scenario-editor.html`, `query-editor.html`, `scenario-variations.html` | same names | form-based scenario and query building; share `scenario-form.ts`, `nl-input.ts`, `le-templates.ts`, `explanation-view.ts` |
+| `explanation-drill.html`, `bento-box.html` | same names | other readings of an explanation |
+| `proof-game.html` | `proof-game.ts` | the Proof Game (Rete with its React renderer) |
+| `graph.html` | `graph-client.ts` | the KB graph (Cytoscape) |
+| `lps.html` | `lps-view.ts` | LE for LPS: `getLps` on LE2, then compile and run on LPS2 |
+| `hierarchy.html` | inline script | type hierarchy |
+| — | `le-views.ts`, `source-viewer.ts` | bundled separately, imported by the executive view |
+
+Smaller modules: `le-language.ts` and `lps-language.ts` (Monarch),
+`tokenizer.ts` (for the worker), `i18n.ts` (UI string lookup), `editor-tabs.ts`,
+`resource-nav.ts`, `share-url.ts`, `mermaid-export.ts`.
+
+**Build.** `cd editor && npm install && npm run build`. The `build` script
+first runs `scripts/gen-i18n.cjs`, which writes `src/generated/i18nData.ts`
+from `i18n/*.csv`, then runs esbuild once per entry point (ESM). The bundles
+in `editor/dist/` are committed, so a checkout runs without Node. The Docker
+build ignores them (`.dockerignore`) and rebuilds. Build and launch steps are
+in [editor/README.md](../../editor/README.md).
+
+## 3. `web_extras/`
+
+| Directory | What |
+|---|---|
+| `executive/` | the executive view (`/executive`): runs an example without editing, renders a program's views with `editor/dist/le-views.js`. Plain JS |
+| `contract_assistant/` | the Contract Assistant web app, at `/web_extras/contract_assistant/index.html`. Plain JS |
+| `docsview/` | the markdown viewer for `/docs/…` (`marked.min.js`, the `nav.json` sidebar) |
+| `telemetry/` | the page-side telemetry script behind `/telemetry.js` |
+
+## 4. Around the code
+
+- **`i18n/`**: CSV dictionaries (keywords, system templates, messages, UI
+  strings, languages, writer words); the only place for natural-language
+  strings. See [i18n/README.md](../../i18n/README.md).
+- **`examples/`**: example programs by purpose, see
+  [examples/README.md](../../examples/README.md). Trees that need
+  `le_extensions.pl` are excluded from the core test suite by
+  `extension_dependent_path_fragment/1` in `le_kbs.pl`.
+- **`docs/`**: `user/` (published), `dev/`, `project/`; see
+  [docs/README.md](../README.md). The LLM features read
+  `docs/user/reference/language.md` and `AGENTS_LE_template*.md` by path.
+- **`testing/`**: `run_tests.sh` runs the plunit files `testing/test_*.pl`,
+  the LE example suite (`runTests`) and the Playwright suite in `editor/tests/`,
+  which starts its own server on port 3000. `testing/fixtures/` holds the
+  programs the tests load.
+- **Deployment**: `Dockerfile` (base `swipl:latest`, plus Node 20, `opencode-ai`
+  and `mcp-remote`, the `scasp` pack, and an editor build),
+  `buildPush.sh` (builds from a dereferenced copy of the tree, then
+  `fly deploy --local-only`), `fly.toml`.
+- **Sibling repositories**: InsurLE2 (`le_extensions.pl`, importers and
+  exporters, proprietary examples) and lps2 (runs LE-for-LPS programs; loads
+  LE2 as a library through `le_service.pl`; the interface is lps2's
+  `docs/dev/le-lps-interface.md`).

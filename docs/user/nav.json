@@ -13,6 +13,11 @@
           "landing": true
         },
         {
+          "path": "tutorials/querying-a-program",
+          "title": "Querying a program: answers, explanations and what-ifs",
+          "blurb": "A hands-on tutorial on regulatory/eu261_integration: queries, explanation trees, failed queries, Scenario Variations, flips, the Explanation Drill and the executive view."
+        },
+        {
           "path": "tutorials/views",
           "title": "LE Views: screens written in Logical English",
           "blurb": "How a program says how a screen shows it — a caseworker's desk, a citizen's check — with the programs of examples/regulatory."
@@ -29,6 +34,21 @@
           "menu": "Using this editor (manual)",
           "menuTip": "The editor manual: files, queries, scenario/query editors, explanations.",
           "landing": true
+        },
+        {
+          "path": "guide/executive-view",
+          "title": "The executive view",
+          "blurb": "Running a program without its text: choosing a scenario and query, citations and the source viewer, why not, views, shareable links, login."
+        },
+        {
+          "path": "guide/assistants",
+          "title": "The assistants: language models in the editor",
+          "blurb": "What the LE Assistant (Light and Deep), Write it in English and the Contract Assistant do, and the models and API keys they need."
+        },
+        {
+          "path": "guide/import-export",
+          "title": "Importing and exporting: other systems' programs",
+          "blurb": "Opening other systems' files and exporting to them (on installations with the InsurLE extensions, such as the hosted service), refused exports, Show the Original, the migration twins."
         },
         {
           "path": "guide/proof-game",
@@ -57,6 +77,11 @@
           }
         },
         {
+          "path": "reference/extensions",
+          "title": "Logical English extensions",
+          "blurb": "The constructs the hosted service adds: which clauses, unless in rule bodies, grouped alternatives, numbered rule bodies, prolog goals and prepositional chaining."
+        },
+        {
           "path": "reference/scasp",
           "title": "s(CASP): the second engine",
           "blurb": "Running programs with s(CASP): constraint answers, possible worlds, abduction, and what it does not support."
@@ -75,6 +100,11 @@
           "path": "api/web-api",
           "title": "The web API",
           "blurb": "The /leapi operations, MCP and REST, for programs that use Logical English."
+        },
+        {
+          "path": "api/mcp",
+          "title": "Logical English over MCP",
+          "blurb": "Connect Claude, opencode or ChatGPT to Logical English: the MCP server's tools, resources and prompts, and their REST endpoints."
         }
       ]
     }

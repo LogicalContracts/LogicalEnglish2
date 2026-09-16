@@ -689,7 +689,7 @@ global_goal(ctx(Dicts, _, _), G, V, Name) :-
 		 *******************************/
 
 %   A body as the numbered outline of a statute or a Word rule document
-%   (le_summary.md §15.5, InsurLE extensions): `1. ...; and` / `2. either:`
+%   (docs/user/reference/extensions.md §15.5): `1. ...; and` / `2. either:`
 %   / `2.1. ...; or` / `2.2. all of:` / `2.2.1 ...`. Each item ends with the
 %   connective that joins it to the next one at its level, the last item of
 %   a group with the connective of the group, and the last of all with a

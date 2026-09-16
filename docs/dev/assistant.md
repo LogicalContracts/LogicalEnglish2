@@ -1,487 +1,261 @@
 # The LE Assistant
 
-*Kind: design, as built · Audience: developers · Status: current (2026-06)*
-
-The **LE Assistant** is an AI helper embedded in the Logical English (LE) web
-editor. It lets a user type a natural-language request — *"convert this
-regulation into LE"*, *"why does scenario 2 fail?"*, *"add a rule for
-late payments"* — and have an LLM read, write, **verify**, and debug the LE
-program currently open in the editor.
-
-Unlike a bare chat completion, the Assistant runs a full **agentic coding loop**:
-the LLM can edit the program file, call the Logical English engine to verify it
-and run its tests, read the error/warning output, and iterate until the program
-parses cleanly and all tests pass — before reporting back to the user.
-
-This document explains *what it does* and, in detail, *how it works*: the
-architecture of the Prolog backend spawning [`opencode`](https://opencode.ai),
-opencode driving an LLM, the loopback to the Logical English MCP server, and
-every prompt involved.
-
----
-
-## Table of Contents
-
-- [What it does](#what-it-does)
-- [Architecture at a glance](#architecture-at-a-glance)
-- [The components](#the-components)
-- [Request lifecycle (end-to-end)](#request-lifecycle-end-to-end)
-- [The opencode invocation](#the-opencode-invocation)
-- [The MCP loopback](#the-mcp-loopback)
-- [The prompts](#the-prompts)
-  - [1. The system prompt (`AGENTS.md`)](#1-the-system-prompt-agentsmd)
-  - [2. The user command](#2-the-user-command)
-  - [3. The MCP tool descriptions](#3-the-mcp-tool-descriptions)
-  - [4. The required JSON answer](#4-the-required-json-answer)
-- [Model selection and resolution](#model-selection-and-resolution)
-- [Sessions and working directories](#sessions-and-working-directories)
-- [Parsing the assistant's output](#parsing-the-assistants-output)
-- [Configuration files](#configuration-files)
-- [Security considerations](#security-considerations)
-- [Code reference](#code-reference)
-
----
-
-## What it does
-
-From the user's perspective (the **Assistant** panel in `/editor`):
-
-1. The user picks an LLM model (once) under **Misc → API Keys…** and enters or
-   relies on a server-side API key for the chosen provider.
-2. The user types a request and presses **Send**.
-3. A progress indicator shows the live tail of the agent's activity. The user
-   can **Interrupt** at any time.
-4. When the agent finishes, the panel shows a Markdown **explanation** of what
-   was done, and — if the program changed — the editor content is replaced with
-   the **new program text**.
-
-Behind that simple UX, the Assistant:
-
-- Writes the editor content to a temporary `.le` file in a per-conversation
-  working directory.
-- Spawns `opencode` as a background coding agent pointed at that file.
-- Gives the agent a Logical-English-specific **system prompt** plus tools to
-  `verify` and `query` LE programs through the project's own MCP server.
-- Lets the agent loop (edit → verify → read issues → fix) until clean.
-- Captures the agent's final JSON (`explanation` + `new_content`) and returns it
-  to the editor.
-
----
-
-## Architecture at a glance
-
-The whole thing is **self-referential**: the Prolog HTTP server both *launches*
-the coding agent and *serves the verification tools the agent calls back into*.
-
-```
-┌──────────────────────────────────────────────────────────────────────────┐
-│  Browser — LE editor (editor/src/client.ts)                                │
-│   • model picker + API keys (localStorage)                                 │
-│   • Assistant panel: send / poll / interrupt                               │
-└───────────────┬────────────────────────────────────────────────────────--─┘
-                │  POST /leapi   { operation: assistant_command | _status |
-                │                  _interrupt, command, content, session_id, │
-                │                  api_keys, model }
-                ▼
-┌──────────────────────────────────────────────────────────────────────────┐
-│  SWI-Prolog HTTP server  (classic_web_api.pl, default port 3050)           │
-│                                                                            │
-│   /leapi  ──► le_assistant.pl                                              │
-│        handle_assistant_command/2   (spawn job, return job_id)             │
-│        handle_assistant_status/2    (poll stdout/stderr/result)            │
-│        handle_assistant_interrupt/2 (kill the process)                     │
-│                                                                            │
-│   /mcp    ──► llm/mcp.pl   (tools: verify, query, get_example_details …)   │
-└───────┬───────────────────────────────────────────────▲──────────────────┘
-        │ process_create(opencode, …)                    │ MCP over HTTP
-        │ env: API keys, OPENCODE_CONFIG                  │ (npx mcp-remote
-        │ cwd: /tmp/le_assistant/<session>                │  127.0.0.1:3050/mcp)
-        ▼                                                 │
-┌──────────────────────────────────────────────────────-─┴──────────────────┐
-│  opencode  (external CLI coding agent, background OS process)              │
-│   • reads AGENTS.md (system prompt) + myProgram.le (the target file)       │
-│   • agent loop: read → edit → call MCP verify/query → fix → repeat         │
-│   • emits final JSON { explanation, new_content } on stdout                │
-└───────────────┬────────────────────────────────────────────────────────--─┘
-                │  HTTPS chat-completions
-                ▼
-┌──────────────────────────────────────────────────────────────────────────┐
-│  LLM provider  (OpenAI / Anthropic / Google / Groq / Together)             │
-└──────────────────────────────────────────────────────────────────────────┘
-```
-
-Two distinct layers call an LLM in this codebase; the Assistant uses the first:
-
-- **opencode (agentic).** The LE Assistant spawns the `opencode` CLI, which owns
-  the conversation, the tool-calling loop, and the provider HTTP calls. The
-  Prolog backend never talks to the LLM directly for the Assistant.
-- **`llm/llm_client.pl` (direct).** A separate, simpler path that POSTs straight
-  to a provider's chat-completions endpoint. It is **not** used to fulfil
-  assistant commands; the Assistant only borrows its `llm_model/3` table to
-  translate a short model name into a `provider/model` string for opencode.
-
----
-
-## The components
-
-| Component | File | Role |
-|-----------|------|------|
-| Editor client | `editor/src/client.ts` | UI: model picker, send/poll/interrupt, applies `new_content` |
-| Web API router | `classic_web_api.pl` | Maps `/leapi` operations to handlers; mounts `/mcp` |
-| Assistant backend | `le_assistant.pl` | Spawns/monitors `opencode`, manages jobs & sessions |
-| MCP server | `llm/mcp.pl` | Exposes `verify`, `query`, `get_example_details`, … as MCP tools |
-| Model table | `llm/llm_client.pl` | `llm_model/3` short-name → provider/API-model resolution |
-| System prompt template | `AGENTS_LE_template.md` | Rendered to `AGENTS.md` in the work dir; the agent's instructions |
-| opencode config template | `llm/settings/opencode_config.json.template` | MCP registration + provider/permission config for opencode |
-| Static opencode config | `opencode.json` | Project-root opencode config (MCP + permissions) |
-
----
-
-## Request lifecycle (end-to-end)
-
-What happens for a single **Send**, following
-`handle_assistant_command/2` in `le_assistant.pl`:
-
-1. **Parse the request.** Read `command`, `content` (the current editor text),
-   `session_id`, `api_keys`, and `model` from the JSON body. The `session_id` is
-   normalised to start with `ses` (opencode's session-id convention).
-
-2. **Resolve the working directory / session.**
-   - If the incoming `session_id` looks like a real opencode id (>20 chars) and
-     opencode knows it, the existing session's directory is reused (the
-     conversation continues).
-   - Otherwise a per-conversation directory `/tmp/le_assistant/<session_id>` is
-     created, and `get_most_recent_opencode_session/2` tries to discover an
-     existing opencode session for that directory (`opencode session list
-     --format json`).
-
-3. **Write the target file.** The editor content is written to
-   `<workdir>/myProgram.le`. This is the **only** file the agent is allowed to
-   edit.
-
-4. **Resolve the model.** The short model name (e.g. `claude`, `gemini`) is
-   turned into opencode's `provider/model` form via `llm_model/3`, remapping
-   provider aliases (`gemini → google`, `together → togetherai`). See
-   [Model selection](#model-selection-and-resolution).
-
-5. **Build the environment.** `get_opencode_env/3` assembles the child process
-   environment:
-   - Base vars: `PATH`, `HOME`, `USER`, `SHELL`.
-   - API keys from the request `api_keys` dict, else from the server's own
-     environment variables, per provider (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`,
-     `GEMINI_API_KEY`/`GOOGLE_API_KEY`/…, `GROQ_API_KEY`, `TOGETHER_API_KEY`/…).
-   - `OPENCODE_CONFIG` pointing at a rendered config that registers the MCP
-     server (see [MCP loopback](#the-mcp-loopback)).
-   - `TERM=dumb`, `PAGER=cat`, `NO_COLOR=1` to keep output clean.
-   - A special case: a `groq/…` model with an OpenAI key present also exports
-     `GROQ_API_KEY`.
-
-6. **Render the system prompt.** `create_agent_files/2` renders
-   `AGENTS_LE_template.md` into `<workdir>/AGENTS.md`, substituting the project
-   root and target filename. opencode auto-loads `AGENTS.md` as its instructions.
-
-7. **Spawn opencode.** `process_create/3` launches `opencode run …` in the work
-   dir as a **background process**, capturing stdout/stderr pipes. A `job_id` is
-   returned to the client immediately.
-
-8. **Stream output.** Two detached threads (`read_to_db/3`) drain stdout/stderr
-   into `assistant_job_output/3` facts so the client's polling can show live
-   progress. A third thread (`wait_for_job/6`) waits for the process to exit,
-   re-reads `myProgram.le` (the agent may have rewritten it), records the
-   final opencode session id, and marks the job `finished`.
-
-9. **Client polls.** The browser calls `assistant_status` ~once per second
-   (`pollAssistantStatus`). While `running`, it shows the last output line.
-
-10. **Finish.** On `finished`, `handle_assistant_status/2` extracts the final
-    JSON from stdout (`explanation`, `new_content`), strips ANSI codes, and
-    returns them. The editor shows the explanation and, if `new_content`
-    differs, replaces the buffer. The returned `session_id` is stored client-side
-    so the next message continues the same opencode conversation.
-
-> Wire-level request/response shapes for `assistant_command`, `assistant_status`
-> and `assistant_interrupt` are documented in [`docs/user/api/web-api.md`](../user/api/web-api.md).
-
----
-
-## The opencode invocation
-
-The Assistant shells out to the `opencode` binary. The command assembled in
-`handle_assistant_command/2` is, conceptually:
-
-```
-opencode run --dangerously-skip-permissions \
-    [--session <ActualSessionID>] \
-    --file myProgram.le \
-    --agent build \
-    --format default \
-    [--model <provider/model>] \
-    "<the user's command>"
-```
-
-Notes:
-
-- **`run`** is opencode's non-interactive, single-shot agent mode.
-- **`--session`** is added only when a real, existing opencode session id is
-  known, so a follow-up message resumes the same conversation (with full
-  history) instead of starting fresh.
-- **`--file myProgram.le`** attaches the LE program as context.
-- **`--agent build`** selects opencode's coding agent (the one that reads
-  `AGENTS.md` and may edit files and call tools).
-- **`--model`** is omitted when empty, letting opencode use its own default.
-- **`cwd`** is the per-session work dir; **`env`** carries keys + `OPENCODE_CONFIG`.
-
-The process is created with `stdin(null)` and piped stdout/stderr. It runs fully
-detached from the HTTP request that started it — the request returns a `job_id`
-and the work continues in background threads.
-
-`test_opencode_prompt/3` and `test_llm_providers/0` in the same module provide a
-minimal, non-MCP variant of this invocation (`--agent general`) used to smoke-test
-that each provider's key works.
-
----
-
-## The MCP loopback
-
-The agent needs to *actually run* the Logical English engine to verify programs
-and execute queries. It does this through the **Model Context Protocol (MCP)**,
-connecting back to the very same Prolog server that launched it.
-
-- `get_opencode_env/3` sets `OPENCODE_CONFIG` to a JSON config that registers an
-  MCP server named `logical-english`. The config is rendered from
-  `llm/settings/opencode_config.json.template` (with `{{PROJECT_ROOT}}`
-  substituted), or falls back to the static `llm/settings/opencode_config.json`.
-- That config tells opencode to launch the MCP transport:
-
-  ```json
-  "mcp": {
-    "logical-english": {
-      "type": "local",
-      "enabled": true,
-      "command": ["npx", "mcp-remote", "http://127.0.0.1:3050/mcp"]
-    }
-  }
-  ```
-
-  i.e. `npx mcp-remote` bridges opencode's local MCP client to the HTTP MCP
-  endpoint at `http://127.0.0.1:3050/mcp`.
-
-- `/mcp` is handled by `handle_mcp/1` in `llm/mcp.pl` — the **same** server
-  process (`classic_web_api.pl` mounts `http_handler(root(mcp), handle_mcp, [])`).
-
-So the call graph closes a loop: **Prolog server → opencode → LLM →
-(tool call) → mcp-remote → Prolog server (`/mcp`) → LE engine → back to the LLM.**
-
-### Tools the agent can call
-
-Defined in `llm/mcp.pl` (`tools/list` / `call_tool/3`):
-
-| MCP tool | Purpose |
-|----------|---------|
-| `logical-english_verify` | Parse a program (`program_text`), return all `issues` (errors/warnings) **and** run embedded tests, returning `test_results` (pass/fail/error). |
-| `logical-english_query` | Execute a `query` against a program/example, optionally in a named `scenario` and with extra `facts`; returns answers + an explanation tree. |
-| `get_example_details` | Fetch a built-in example's text, templates and scenarios. |
-| `list_examples` | List available example programs with summaries. |
-
-The agent is also allowed standard opencode tools (`read`, `write`, `edit`,
-`glob`, `grep`, `webfetch`, `bash`), but the system prompt restricts file
-writes to the single target file and mandates verification via the MCP tools.
-
-The permission blocks in the opencode configs pre-authorise the relevant
-directories (`/tmp/le_assistant/**`, the project `docs/**` and
-`examples/moreExamples/**`) so the `--dangerously-skip-permissions` run does not
-stall on prompts.
-
----
-
-## The prompts
-
-There are **four** distinct prompt surfaces involved in one assistant turn.
-
-### 1. The system prompt (`AGENTS.md`)
-
-This is the heart of the Assistant's behaviour. `create_agent_files/2` renders
-`AGENTS_LE_template.md` into `<workdir>/AGENTS.md`, which opencode loads
-automatically as the agent's instructions. The template uses `~w` placeholders
-filled (in order) with: project root, project root, target filename ×4.
-
-It establishes:
-
-- **Role & resources.** "You are an expert in Logical English." Points the agent
-  at `docs/user/reference/language.md` for syntax and `examples/moreExamples/` for examples,
-  and forbids fetching syntax docs from the web.
-- **Core principles.** Accuracy, clarity, mandatory verification, and **safety**
-  (only ever modify the provided target file, never other repo files).
-- **Tools & verification.** Enumerates the allowed tools and insists that
-  verification go through the `logical-english_verify` / `logical-english_query`
-  MCP tools rather than ad-hoc shell commands.
-- **How-tos / debugging playbook.** A symptom→action table the agent should
-  follow for each class of LE issue, e.g.:
-  - *Missing template* → generate a template for the sentence.
-  - *Rule without variables* → move concrete data into scenarios.
-  - *Predicate not tested by any query* → ask the user for a query and expected answers.
-  - *Undefined predicate* → add a defining rule or a scenario fact (mine the
-    regulatory text or web search).
-  - *Test failure* → edit the program to fix it.
-  - *time_limit_exceeded* → look for runaway recursion.
-- **Regulatory-text → LE workflow.** A three-step procedure (Analyze → Write →
-  Test/Debug), including writing a `specificationSummary.txt`, the expected
-  macro-structure of an LE program (`the templates are: … the knowledge base …
-  includes: …`), and rules of thumb (rules use variables; scenarios hold
-  concrete facts; queries target rule-head predicates; provide `expected
-  answers`; comparisons use Prolog operators).
-- **The mandatory loop.** "You must not finish until `verify` returns no errors
-  and all tests pass."
-- **The output contract.** The final response **must** be a single JSON object —
-  see [section 4](#4-the-required-json-answer).
-
-### 2. The user command
-
-The literal text the user typed in the Assistant panel is passed as the last
-positional argument to `opencode run`. It is the task for this turn (e.g.
-*"add a rule that a claim is rejected if it is filed late"*). Together with the
-attached `--file myProgram.le`, this is what the agent acts on.
-
-### 3. The MCP tool descriptions
-
-Each MCP tool advertises a `description` in `tools/list` that doubles as prompt
-guidance to the model. The most prescriptive is `query`:
-
-> *"Execute a query. MANDATORY: You MUST call get_example_details first to get
-> the correct templates. Your 'facts' and 'query' strings MUST match those
-> templates EXACTLY, word-for-word, or the query will fail. Do not paraphrase or
-> hallucinate templates."*
-
-`verify` is described as *"Parse and verify a Logical English program, returning
-all issues found."* `llm/mcp.pl` additionally defines MCP **prompts** (e.g.
-`massage_query`) that an MCP client may fetch to coach the model into rewriting a
-user's natural-language question into a template-exact LE query — useful for
-non-agentic MCP clients (Claude Desktop, ChatGPT Actions) using the same server.
-
-### 4. The required JSON answer
-
-The system prompt requires the agent's final stdout to be a single JSON object:
+*Kind: design, as built · Audience: developers · Status: current (2026-09-16)*
+
+The LE Assistant is the chat panel of the editor (tab **LE Assistant**). The
+user types a request ("add a rule for late payments", "why does scenario 2
+fail?"); an LLM reads the program open in the editor, changes it, verifies it
+with the Logical English engine, and returns an explanation and the new
+program text.
+
+It runs in one of two modes, chosen with the **Light Mode** checkbox in the
+panel header (default: light):
+
+- **Light** (`le_assistant_light.pl`): a Prolog loop in the server calls the
+  LLM directly and runs `verify` and `query` in-process. No external process,
+  no files.
+- **Deep** (`le_assistant.pl`): the server starts the `opencode` coding agent
+  on a copy of the program; opencode calls back into the server's MCP endpoint
+  to verify and query.
+
+Both modes share the web operations, the job table, the model registry and the
+key handling. Other LLM features are described elsewhere: the Contract
+Assistant in [contract-assistant.md](contract-assistant.md); "Write it in
+English…" in `nl_to_le.pl`.
+
+## 1. Shared parts
+
+### Operations
+
+| `/leapi` operation | Handler | Does |
+|---|---|---|
+| `list_models` | `handle_list_models/2` (`classic_web_api.pl`) | `models` from `llm_list_models/1`; `server_keys`: the providers for which the server has a key |
+| `assistant_command` | `handle_assistant_command/2` | starts a job, answers `{result: ok, job_id}` at once |
+| `assistant_status` | `handle_assistant_status/2` | `running` with the output so far, or `finished` with `stdout` (the explanation), `stderr`, `new_content`, `exit_status`, `session_id` |
+| `assistant_interrupt` | `handle_assistant_interrupt/2` | kills the opencode process (deep) or signals the thread (light) |
+
+`assistant_command` fields: `command`, `content` (the editor text), `mode`
+(`"light"` or `"deep"`; absent means deep), `model` (a short name),
+`api_keys` (a dict by provider), `session_id` (deep), `max_steps` (light,
+default 10). Wire details are in [the web API](../user/api/web-api.md).
+
+### Jobs
+
+`le_assistant.pl` keeps the job table as dynamic facts:
+`assistant_job(JobID, PIDorThread)`, `assistant_job_status/2`
+(`running` or `finished(Status)`), `assistant_job_output(JobID, Stream, Text)`
+and `assistant_job_content/2`. Job ids are `job_<n>`. The client polls
+`assistant_status` about once a second, shows the last output line as
+progress, and on `finished` shows the explanation and replaces the document
+text with `new_content` when it differs. A request belongs to the document tab
+it was sent from, whichever tab is in front when it returns.
+
+`handle_assistant_status/2` concatenates the output, strips ANSI escapes and
+looks for the final JSON object with `extract_json_from_string/3` (a fenced
+```` ```json ```` block, else the last parseable `{…}`). Its `explanation`
+becomes `stdout` (with any non-JSON text before it) and its `new_content`
+wins over the stored content.
+
+### Models and keys
+
+- **Registry**: `llm_model_entry(Short, Provider, APIModel, BaseURL)` in
+  `llm/llm_client.pl`; providers `openai`, `anthropic`, `gemini`, `groq`,
+  `together`. `llm_model/3` resolves a short name.
+- **Client**: **Misc ▸ API Keys & Assistant Settings…** picks the model
+  (`localStorage` `le-assistant-model`), the light-mode step limit
+  (`le-assistant-max-steps`) and the user's own keys (`le-<provider>-key`,
+  with `google` for Gemini). Before sending, the client refuses a model whose
+  provider has neither a server key nor a local key. It sends all local keys
+  with each command.
+- **Server**: a key in the request wins; otherwise the environment
+  (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY` / `GOOGLE_API_KEY` /
+  `GOOGLE_GENERATIVE_AI_API_KEY`, `GROQ_API_KEY`, `TOGETHER_API_KEY` /
+  `TOGETHERAI_API_KEY`) or a Prolog flag `llm_<provider>_key`.
+
+### The instructions: `AGENTS_LE_template.md`
+
+The system instructions of both modes. A YAML front matter names the
+resources (`le_syntax_doc: docs/user/reference/language.md`,
+`le_examples_dir`, `target_file`, `project_root`). The body gives the role,
+the resources (the language reference, the extensions reference where the
+server has the extensions, the examples), principles, how to react to verifier
+issues (pointing at `docs/user/guide/warnings.md`), the
+regulatory-text-to-LE workflow, the rule "do not finish until verify is clean
+and all tests pass", and the output contract:
 
 ```json
-{
-  "explanation": "A brief summary of what you did, in Markdown; refer to the file only as 'your program'.",
-  "new_content": "The full, updated text content of the Logical English file"
-}
+{ "explanation": "Markdown; refer to the file as 'your program'",
+  "new_content": "the full, updated program" }
 ```
 
-`extract_json_from_string/3` recovers this object from the agent's stdout,
-tolerating a fenced ```json block or a bare `{ … }`, and separating any
-surrounding prose (`Explanation`) from the JSON. `handle_assistant_status/2`
-then returns `explanation` as `stdout` and `new_content` to the client. If no
-JSON is found, the raw stdout is returned and the file re-read from disk is used
-as the new content fallback.
+Opencode-specific text (its tools, file handling) sits between
+`<!-- DEEP_MODE_ONLY_START -->` and `<!-- DEEP_MODE_ONLY_END -->`. The body has
+six `~w` placeholders (project root twice, target file four times).
+`AGENTS_LE_template.pt.md` is the Portuguese version.
 
----
+## 2. Light mode
 
-## Model selection and resolution
+`handle_assistant_command/2` with `mode: "light"` creates a detached thread
+running `run_light_assistant_thread/7` in the request's UI language, and
+records the thread as the job's target.
 
-- The editor offers the models advertised by the server (`list_models`
-  operation, backed by `llm_list_models/1` over the `llm_model_entry/4` table in
-  `llm/llm_client.pl`). The chosen short name is stored in `localStorage` under
-  `le-assistant-model`.
-- Before sending, the client checks that an API key exists for the model's
-  provider — either a **server-side** key (reported in the page bootstrap) or a
-  **local** key the user pasted (stored as `le-<provider>-key`).
-- The chosen short name plus the `api_keys` dict are sent with every
-  `assistant_command`.
-- Server-side, `llm_model/3` maps the short name to `Provider`/`APIModel`;
-  provider aliases are remapped for opencode (`gemini → google`,
-  `together → togetherai`), and the result is formatted as `provider/model` for
-  `--model`. Unknown names fall back to passing the string through unchanged.
+### The prompt (`assemble_system_prompt/3`)
 
----
+The language is the program's (from its first statement), else the request's
+UI language. The system message is, in order:
 
-## Sessions and working directories
+1. the template body (`localized_asset/3` picks the `.pt` file for
+   Portuguese), front matter parsed and dropped, deep-only block removed,
+   placeholders filled with `.` and "your program";
+2. for a non-English language, an output-language directive;
+3. the whole language reference, `docs/user/reference/language[.<lang>].md`,
+   followed, when `le_extensions` is loaded and the reference is the English
+   one, by `docs/user/reference/extensions.md` (`with_extensions_reference/3`);
+4. examples: for English, a list of every example the user may open, with its
+   `kbSummary` (`list_examples_with_summaries/4`, filtered by
+   `restricted_paths`), plus the full text of six fixed files
+   (`citizenship.le`, `language/unknowns/unknowns.le`,
+   `domains/tax/1_net_asset_value_test_3.le`, `domains/tax/payg.le`,
+   `dates.le`, `insureLE2/big_conclusions.le`, each if present and allowed);
+   for another language, the full text of every `.le` in `examples/<lang>/`;
+5. the action protocol (`tool_specification/1`);
+6. the current program.
 
-- Each editor conversation has a `session_id` (initially a random `ses_…`
-  string generated client-side).
-- The backend maps it to a working directory under `/tmp/le_assistant/` and,
-  where possible, to a **real opencode session id** discovered via
-  `opencode session list --format json` and matched by normalised directory
-  (`normalize_path/2` strips `/private`, collapses slashes, etc.).
-- After each run, `wait_for_job/6` re-discovers the most recent opencode session
-  for the directory and returns it as `session_id`. The client adopts that id,
-  so subsequent messages resume the same opencode conversation (history intact)
-  via `--session`.
-- `myProgram.le` and `AGENTS.md` are kept in the work dir between turns to
-  facilitate this discovery and continuity.
+The user message is the command. There is no token budget: the prompt is
+sent as assembled.
 
----
+### The loop (`agent_loop/10`)
 
-## Parsing the assistant's output
+Each step checks the job is still `running`, calls
+`llm_client:llm_request/4` with `api_key(Key)` and `max_tokens(4096)`, and
+parses the reply's JSON with `extract_json_from_string/3`. There is no native
+function calling; the model answers with one JSON action:
 
-`handle_assistant_status/2` post-processes the captured streams:
+| Action | Effect |
+|---|---|
+| `{"action": "verify"}` | `le_tools:le_tool_verify/2` on the current program; the issues and test results go back as the next user message. With no issues and no test results, the message tells the model to finish |
+| `{"action": "query", "query", "scenario", "facts"}` | `le_tools:le_tool_query/2` on the current program; the answers go back. That predicate reads the scenario from `scenario_name`, so the `scenario` the protocol names is currently ignored |
+| `{"action": "edit", "new_content"}` | replaces the in-memory program; the reply asks the model to verify |
+| `{"action": "finish", "explanation", "new_content"}` | ends the job |
 
-1. Concatenate all stdout/stderr chunks; **strip ANSI** escape sequences
-   (`strip_ansi/2`).
-2. `extract_json_from_string/3` pulls out the final JSON object.
-3. If it has an `explanation`, that becomes the user-facing message; any
-   non-JSON preamble is preserved/merged (unless it merely duplicates a path).
-4. `new_content` from the JSON wins; otherwise the file re-read from disk by
-   `wait_for_job/6` is used.
-5. The response carries `status`, `exit_status`, `stdout` (explanation),
-   `stderr` (logs), `new_content`, and `session_id`.
+A reply without JSON, or with an unknown action, gets a one-line correction
+and costs a step. After a clean verification, a further `verify` or `query`
+ends the job as a success with the program as it is. At `max_steps` the job
+ends with "Reached step limit before completion." and the current program.
 
----
+Progress lines (localized through `i18n/messages.csv`) go to
+`assistant_job_output/3`. On success the thread writes the final
+`{explanation, new_content}` JSON to stdout, so the status handler treats both
+modes alike. An exception or an interrupt (`thread_signal(…, throw(interrupt))`)
+finishes the job with the original program.
 
-## Configuration files
+Light mode keeps no conversation between commands: each command starts from
+the editor's current text, and `session_id` is ignored.
 
-| File | Used by | Purpose |
-|------|---------|---------|
-| `AGENTS_LE_template.md` | rendered → `<workdir>/AGENTS.md` | The agent's system prompt / instructions |
-| `llm/settings/opencode_config.json.template` | rendered → `<workdir>/opencode_config.json` (`OPENCODE_CONFIG`) | Registers the `logical-english` MCP server, providers, and directory permissions; `{{PROJECT_ROOT}}` substituted at runtime |
-| `opencode.json` | project root | Static opencode config (MCP + permissions) for running opencode directly in the repo |
-| `llm/settings/claude_desktop_config*.json` | Claude Desktop | Connect Claude Desktop to the same MCP server (local or remote) |
-| `llm/settings/chatgpt_openapi.yaml` | ChatGPT Actions | OpenAPI schema for the REST endpoints (`/query`, `/verify`, …) |
+## 3. Deep mode
 
----
+### A command
 
-## Security considerations
+1. **Work directory.** `session_id` is normalised to start with `ses`. A long
+   id that `opencode session list` knows reuses that session's directory;
+   otherwise the directory is `/tmp/le_assistant/<session_id>`, and the most
+   recent opencode session for it, if any, is used.
+2. The editor text is written to `<dir>/myProgram.le`, the only file the
+   instructions allow the agent to change.
+3. `AGENTS_LE_template.md` (always the English one) is written to
+   `<dir>/AGENTS.md` with the deep-only markers removed and the placeholders
+   filled with the server's working directory and `myProgram.le`.
+4. **Model.** The short name becomes `provider/model` for opencode, with
+   `gemini` → `google` and `together` → `togetherai`; an unknown name passes
+   through; no model means opencode's default.
+5. **Environment** (`get_opencode_env/4`): `PATH`, `HOME`, `USER`, `SHELL`;
+   the provider keys as environment variables; `TERM=dumb`, `PAGER=cat`,
+   `NO_COLOR=1`; and `OPENCODE_CONFIG`, a per-job file
+   `/tmp/le_assistant/opencode_config_<job>.json` rendered from
+   `llm/settings/opencode_config.json.template`.
+6. **Process.**
 
-- **`--dangerously-skip-permissions`.** opencode runs without interactive
-  permission prompts, so it can edit files and call tools autonomously. This is
-  contained by: running in an isolated `/tmp/le_assistant/<session>` work dir, a
-  system prompt that forbids touching any file other than `myProgram.le`, and
-  opencode `permission` config that only pre-authorises specific directories.
-- **API keys.** Keys arrive per-request (`api_keys`) or come from the server's
-  environment; they are injected into the child process environment only, not
-  persisted by the backend. The browser stores user-supplied keys in
-  `localStorage`.
-- **Loopback MCP.** The agent's tool calls hit `127.0.0.1:3050/mcp` on the same
-  host; the LE engine runs the user's program for `verify`/`query`. Treat the
-  verification engine as executing untrusted LE (it is sandboxed by the LE
-  interpreter's own evaluation model, not by the OS).
-- **Token.** `/leapi` requires the API token (`myToken123` in the default
-  build); change it for any non-local deployment.
+   ```
+   opencode run --dangerously-skip-permissions [--session <id>]
+       --file myProgram.le --agent build --format default [--model <p/m>] "<command>"
+   ```
 
----
+   Two threads copy stdout and stderr into `assistant_job_output/3`; a third
+   (`wait_for_job/7`) waits for the exit, re-reads `myProgram.le`, discovers
+   the opencode session id of the directory and marks the job finished.
+7. **Recovering the work.** If the file is unchanged but the agent verified
+   a different program during this job, that program becomes the result
+   (`le_tools:get_last_verified_program/3`). The MCP URL in the rendered config
+   carries `?job=<JobID>`, so `/mcp` records verified programs under that job.
 
-## Code reference
+The returned `session_id` is stored on the client's document, so the next
+command continues the same opencode conversation.
 
-| Predicate / symbol | File | Responsibility |
-|--------------------|------|----------------|
-| `handle_assistant_command/2` | `le_assistant.pl` | Spawn the opencode job, return `job_id` |
-| `handle_assistant_status/2` | `le_assistant.pl` | Poll job; extract JSON; return explanation + content |
-| `handle_assistant_interrupt/2` | `le_assistant.pl` | Kill a running job |
-| `get_opencode_env/3` | `le_assistant.pl` | Build child env: API keys + `OPENCODE_CONFIG` + base vars |
-| `get_dynamic_opencode_config/1` | `le_assistant.pl` | Render the MCP config template (`{{PROJECT_ROOT}}`) |
-| `create_agent_files/2` | `le_assistant.pl` | Render `AGENTS_LE_template.md` → `AGENTS.md` |
-| `get_most_recent_opencode_session/2` | `le_assistant.pl` | Discover the opencode session for a directory |
-| `read_to_db/3`, `wait_for_job/6` | `le_assistant.pl` | Stream output; finalise job, re-read file, capture session id |
-| `extract_json_from_string/3`, `strip_ansi/2` | `le_assistant.pl` | Recover the final JSON; clean terminal output |
-| `llm_model/3`, `llm_model_entry/4` | `llm/llm_client.pl` | Short-name → provider/API-model table |
-| `handle_mcp/1`, `call_tool/3` | `llm/mcp.pl` | MCP endpoint; `verify` / `query` / example tools |
-| `handle_operation/2` (`assistant_*`) | `classic_web_api.pl` | Route `/leapi` operations to the backend |
-| `handleAssistantSend`, `pollAssistantStatus`, `handleAssistantInterrupt` | `editor/src/client.ts` | Editor-side send/poll/interrupt + apply `new_content` |
+### The MCP loopback
 
----
+The rendered config registers an MCP server `logical-english` whose command is
+`npx mcp-remote http://127.0.0.1:3050/mcp?job=<JobID>`: opencode's MCP
+client reaches the same Prolog server (`llm/mcp.pl`, `handle_mcp/1`). The
+template also sets a base URL for Together and allows the external directories
+`/tmp/le_assistant/**`, `/app/**`, `<root>/docs/**` and
+`<root>/examples/moreExamples/**`. The port 3050 is fixed in the template.
 
-*See also: [`docs/user/api/web-api.md`](../user/api/web-api.md) for the `/leapi` wire protocol,
-[`docs/user/reference/language.md`](../user/reference/language.md) for LE syntax, and
-[`llm/settings/README.md`](../../llm/settings/README.md) for connecting external MCP
-clients.*
+`llm/mcp.pl` offers:
+
+| Kind | Items |
+|---|---|
+| tools | `verify` (`program_text` → issues and test results), `query` (`query` plus `example_name` or `program_text`, optional `scenario_name`, `facts` → answers with explanations), `get_example_details`, `list_examples`. The flag `mcp_only_query_verify` hides the last two. opencode shows them as `logical-english_verify`, … |
+| prompts | `use_logical_english`, `massage_query`, `massage_facts`: for chat clients that rewrite a user's question or facts into template-exact LE |
+| resource | `le://docs/syntax`: `docs/user/reference/language.md` |
+
+`verify` and `query` are `le_tools:le_tool_verify/2` and `le_tool_query/2`,
+the same predicates light mode calls. The REST endpoints `/verify`, `/query`,
+`/list_examples` and `/example_details` expose them too. Configuration for
+other MCP clients is in [Logical English over MCP](../user/api/mcp.md).
+
+## 4. Comparison
+
+| | Light | Deep |
+|---|---|---|
+| Runs | a thread in the server | an `opencode` process per command |
+| Needs | nothing beyond the server | `opencode`, `node`/`npx`, `mcp-remote` (installed in the Docker image) |
+| LLM call | `llm/llm_client.pl` | opencode |
+| Tools | `verify`, `query`, `edit`, `finish` as JSON actions | opencode's file, search, web and shell tools, plus MCP `verify` and `query` |
+| Context | language reference and examples inlined | files read on demand |
+| Program | a string in memory | `myProgram.le` in a work directory |
+| Memory across commands | none | the opencode session |
+| Language | the program's (localized template, reference, examples) | English instructions |
+| Stops at | `finish`, a repeated check after a clean verify, or `max_steps` | the agent's own end |
+
+## 5. Security
+
+- **The API token** of `/leapi` is the constant `myToken123`, checked by
+  `validate_token/1` and sent by every page. It separates nothing.
+- **Deep mode** runs opencode with `--dangerously-skip-permissions` (and the
+  image sets `OPENCODE_DANGEROUSLY_SKIP_PERMISSIONS=true`). It can run shell
+  commands as the server's user. What limits it is the work directory, the
+  instructions ("only modify the provided file") and opencode's
+  `external_directory` permissions — not an OS sandbox.
+- **Keys** from the request go into the child's environment (deep) or into the
+  HTTP call (light), and are not stored by the server. The browser keeps
+  user-supplied keys in `localStorage`.
+- **Examples**: light mode lists and inlines only examples allowed for the
+  user's roles. The MCP and REST example listing leaves out the role-gated
+  trees; `get_example_details` and `query` with `example_name` do not check
+  `is_path_allowed/2`, so they open any example whose name is known.
+- **Running programs**: `verify` and `query` run the submitted program with
+  the LE reasoner; `prolog` goals inside programs are sandboxed
+  (`reasoner.pl` uses `library(sandbox)`).
+
+## 6. Code reference
+
+| Symbol | File |
+|---|---|
+| `handle_assistant_command/2`, `handle_assistant_status/2`, `handle_assistant_interrupt/2` | `le_assistant.pl` |
+| `get_opencode_env/4`, `get_dynamic_opencode_config/2`, `create_agent_files/2`, `get_most_recent_opencode_session/2`, `wait_for_job/7`, `extract_json_from_string/3` | `le_assistant.pl` |
+| `run_light_assistant_thread/7`, `agent_loop/10`, `assemble_system_prompt/3`, `load_agent_template/2`, `load_curated_examples/2`, `tool_specification/1` | `le_assistant_light.pl` |
+| `le_tool_verify/2`, `le_tool_query/2`, `get_last_verified_program/3`, `set_verify_job/1` | `le_tools.pl` |
+| `handle_mcp/1`, REST handlers | `llm/mcp.pl` |
+| `llm_request/4`, `llm_model/3`, `llm_list_models/1`, `api_key/2` | `llm/llm_client.pl` |
+| `handleAssistantSend`, the mode toggle, the model and key dialog | `editor/src/client.ts` |
+| `test_llm_providers/0` (smoke test of each provider through opencode) | `le_assistant.pl` |

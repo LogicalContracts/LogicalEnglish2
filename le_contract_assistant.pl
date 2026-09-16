@@ -2,8 +2,8 @@
 
     Converts a contract — normative wording + schedule of parameters + concrete
     cases (e.g. an insurance policy + policy schedule + claims) — into a tested
-    Logical English knowledge base, as designed in
-    InsurLE2/docs/policyToLEAssistant.md.
+    Logical English knowledge base, as described in
+    docs/dev/contract-assistant.md.
 
     THREE JOBS, one apparatus. The request's `mode` field selects which:
 
@@ -1311,7 +1311,7 @@ fragment_repair_loop(JobID, Config, Idx, Text, Iter, Best0, Streak0, Final, Scor
 % ======================= Residue mode: a fixed skeleton =======================
 %
 % The migration pipelines (le_writer.pl, le_migration.pl; InsurLE2/docs/
-% MiggratingFromOtherSystems.md §4.4) translate everything structural
+% InsurLE2/docs/migration/roadmap.md §4.4) translate everything structural
 % deterministically and leave what has no deterministic reading — a rating
 % plugin, a Gosu method body, a helper function — as RESIDUE: a block in the
 % program, between two marker lines, holding the source fragment as comments:
@@ -4635,10 +4635,21 @@ le_syntax_summary(Text) :-
     % The active language's variant (docs/user/reference/language.<lang>.md) when present;
     % see set_request_language/1 — the request's ?lang= parameter selects it.
     le_i18n:localized_asset('docs/user/reference/language', md, Path),
-    (   exists_file(Path) -> read_file_to_string(Path, Text0, [])
+    (   exists_file(Path) -> read_file_to_string(Path, Text00, [])
     ;   % Without the syntax reference every generated program would be
         % garbage in mysterious ways: fail loudly, like a missing stage prompt.
         throw(error(contract_assistant_error(missing_syntax_summary(Path)), _))
+    ),
+    % Where le_extensions.pl is loaded, the English reference is followed by
+    % docs/user/reference/extensions.md (the constructs it leaves out); a
+    % localized reference (language.pt.md) still describes them itself.
+    (   current_module(le_extensions),
+        file_base_name(Path, 'language.md'),
+        le_i18n:localized_asset('docs/user/reference/extensions', md, ExtPath),
+        exists_file(ExtPath)
+    ->  read_file_to_string(ExtPath, Extensions, []),
+        format(string(Text0), "~w\n\n~w", [Text00, Extensions])
+    ;   Text0 = Text00
     ),
     contract_language_directive(Directive),
     format(string(Text), "~w~w", [Directive, Text0]).

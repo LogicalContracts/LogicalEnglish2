@@ -2,7 +2,7 @@
 
     File ▸ Open in the editor accepts, besides `.le`, the files of the
     systems a translator is registered for (InsurLE2/docs/
-    MiggratingFromOtherSystems.md, docs/dev/migration.md). This module is the
+    InsurLE2/docs/migration/roadmap.md, docs/dev/migration.md). This module is the
     door they all go through; it knows no source system. A translator
     registers itself with one clause of importer/6:
 

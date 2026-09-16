@@ -3584,7 +3584,7 @@ term_tail(T, T, VM, VM, _, _) --> [].
 % slashes, which the tokenizer splits) and `mod`. Integer division and modulo
 % are what EVM arithmetic is made of (fixed point in 1e18 units), and without
 % them every such rule had to call Prolog (InsurLE2/docs/
-% MiggratingFromOtherSystems.md, E4). All four are evaluated by is/2.
+% InsurLE2/docs/migration/roadmap.md, E4). All four are evaluated by is/2.
 mul_operator('//') --> [punctuation('/', loc(_, E))], [punctuation('/', loc(E, _))], !.
 mul_operator(Op) --> [punctuation(Op, _)], { member(Op, ['*', '/']) }.
 mul_operator(mod) --> [word(mod, _)].

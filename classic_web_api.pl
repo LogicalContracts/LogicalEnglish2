@@ -386,7 +386,7 @@ handle_landing_page(Request) :-
                     br([]),
                     small(ExecBlurb)
                 ]),
-                li(a(href('https://github.com/mcalejo/LogicalEnglish2'), GitHubRepo))
+                li(a(href('https://github.com/LogicalContracts/LogicalEnglish2'), GitHubRepo))
             ]),
             h2(DocumentationTxt),
             ul(DocItems),

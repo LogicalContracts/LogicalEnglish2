@@ -554,7 +554,7 @@ undefined_predicate(KB, issue(Type, Description, Fix, Start, End)) :-
         % nothing concludes it: an opposite states a negative CONCLUSION (the
         % head of an `only if` rule, say); it is not the negation of the
         % template in a condition. Say so, rather than "undefined predicate"
-        % (defect D3 of MiggratingFromOtherSystems.md, Appendix A).
+        % (defect D3 of InsurLE2/docs/migration/roadmap.md, Appendix A).
         Type = opposite_as_condition,
         ( le_kbs:template_of(KB, FL, AL, _, Opposite) -> true ; Opposite = FL ),
         le_i18n:le_msg(opposite_as_condition_desc, [opposite-Opposite, template-Positive], Description),

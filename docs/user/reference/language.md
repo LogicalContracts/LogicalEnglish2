@@ -98,7 +98,7 @@ A prepositional template is a binary template that **starts with an argument** a
   *a payment* under *a policy*; prepositional.
   ```
 - **Constraints:** must have exactly two `*variable*` arguments, and the first token of the template must be a `*variable*`. Otherwise the parser reports a `prepositional_arity` or `prepositional_first_arg` issue.
-- **Chained usage** (omitting the first argument):
+- **Chained usage** (omitting the first argument; the chaining needs `le_extensions.pl`, [extensions.md](extensions.md) §15.7):
   ```le
   we will make a payment under this policy in respect of a claim
   ```
@@ -255,7 +255,7 @@ Body.` as such a constraint.
 
 ## 4. Logical Operators
 - **And:** `and` (or new line with same indentation)
-- **Or:** `or`, `either`, `any of`, `all of`
+- **Or:** `or`; grouped alternatives `either`, `any of`, `all of` ([extensions.md](extensions.md) §15.4)
 - **Otherwise:** a line opening with `otherwise` starts a new alternative, applied only when all the earlier ones fail (§17.2).
 - **According to:** `<condition> according to <source>` proves the condition from that source's evidence only (§17.5).
 - **Negation:** `it is not the case that` or `not the case that`
@@ -466,7 +466,7 @@ Logical English programs can include other LE programs using the `includes these
 - **Source positions:** each included `.le` resource is parsed with its character offsets moved into a range of its own (a multiple of `le_grammar:resource_offset_unit/1`, one per resource, `le_kbs:resource_base/2`), so nothing recorded for it — a rule's range or id, a condition, an issue, a provenance record — is confused with the including document's. Every `/leapi` reply annotates a range inside a resource with `resource`, `resourceExample`, `resourceLine`, `resourceStart`, `resourceEnd` (`le_kbs:annotate_resource_ranges/2`); the editor then opens the resource at that line in a new tab instead of selecting text in the document on screen (explanation nodes, graph nodes, *Show definition*), shows the resource's issues on the `includes these resources:` section, and printed diagnostics read `(apparel.le, line 53)`.
 
 ### 14.1 Prolog resources (`.pl`)
-A resource named with an explicit `.pl` extension (file or URL) is a **Prolog resource** — a way to back an LE knowledge base with a Prolog facts/predicates file (e.g. a large lookup table) exposed through a *thin LE layer*: a few templates plus rules with `prolog` bodies (§15.6). The main program includes the layer, and the layer includes the `.pl`:
+A resource named with an explicit `.pl` extension (file or URL) is a **Prolog resource** — a way to back an LE knowledge base with a Prolog facts/predicates file (e.g. a large lookup table) exposed through a *thin LE layer*: a few templates plus rules with `prolog` bodies ([extensions.md](extensions.md) §15.6). The main program includes the layer, and the layer includes the `.pl`:
 ```le
 % layer.le
 the knowledge base layer includes these resources:
@@ -513,11 +513,15 @@ translators), so a program and its libraries form one directory.
   its twins with it.
 
 ## 15. LE Extensions
-Features beyond the core constructs summarised above. Some are implemented in
-the core grammar but were previously undocumented; the ones marked
-**[requires le_extensions.pl]** are gated on the proprietary `le_extensions.pl`
-module (installed as a symlink next to the LE2 sources — see the InsurLE2
-README) and are unavailable without it.
+Features beyond the core constructs summarised above. `only if` rules (§15.1)
+and rule labels with their provenance (§15.5) are core LE. The other
+constructs of this section — `which` relative clauses (§15.2), `unless` inside
+rule bodies (§15.3), grouped alternatives `either:` / `any of:` /
+`at least one of:` / `all of:` (§15.4), numbered rule bodies (§15.5),
+embedded `prolog` goals (§15.6) and prepositional chaining (§15.7) — need the
+proprietary `le_extensions.pl` module, installed where Logical English is
+offered as a hosted service, and are unavailable without it. They are
+documented, under the same section numbers, in [LE Extensions](extensions.md).
 
 ### 15.1 `only if` rules (necessary conditions)
 `Head only if Body.` states that Body is a **necessary** condition for Head —
@@ -541,65 +545,7 @@ Ordinary `if` rules give sufficient conditions; `only if` rules act as
 constraints producing negative conclusions. See
 `examples/moreExamples/language/negation/only_if.le`.
 
-### 15.2 `which` relative clauses **[requires le_extensions.pl]**
-`which` continues a condition with a subordinate clause about the **last
-variable** of the preceding condition, avoiding a re-named repetition:
-```le
-a person is an ancestor of a descendant if
-    the person is a parent of a child
-    which is an ancestor of the descendant.
-```
-(`which` = `the child`.) In **rule heads and facts** ("big conclusions"), the
-head keeps only the part before the first `which`; each `which` clause becomes
-a body condition:
-```le
-we will cover a cost
-    which is in respect of a damage
-    which is caused by a burst pipe
-if it is not the case that
-    the damage is caused by wear and tear or negligence.
-```
-parses as head `we will cover a cost` with the two `which` clauses as extra
-conditions. A standalone fact with `which` clauses becomes a rule the same
-way.
-
-### 15.3 `unless` inside rule bodies **[requires le_extensions.pl]**
-The core forms are `Head if Body unless Condition.` (§4) and
-`Head unless Body.` (≡ `Head if it is not the case that Body`). The extension
-also allows `unless` (or `and unless`) **within** a body, either inline or
-governing an indented block — equivalent to
-`and it is not the case that <the negated conditions>`:
-```le
-we will pay a claim if
-    the claim is covered
-    and unless
-        the claim is fraudulent
-        and the fraud is proven.
-```
-
-### 15.4 Grouped alternatives: `either:` / `any of:` / `at least one of:` / `all of:` **[requires le_extensions.pl]**
-A body line consisting of one of these connectives groups its indented
-children: `either`, `any of` and `at least one of` OR the children together;
-`all of` groups them conjunctively (useful inside an `or` block). Each direct
-child is one alternative with its own structure, so an `all of` nested in an
-`either` stays a conjunction:
-```le
-the claimant is eligible for a pension if
-    either
-        the claimant is poor
-        all of
-            the claimant is sick
-            the claimant has been sick for more than 6 months
-            it is not the case that
-                the claimant has another form of income
-        the claimant has been entitled to a pension previously.
-```
-In a numbered body (§15.5) an item may be a negation — `1.2.3. it is not the
-case that the claimant has another form of income; or` — with the negated
-goal on the item's line or as its sub-items (`1.2.3. it is not the case
-that:` / `1.2.3.1. ...`).
-
-### 15.5 Rule labels and numbered rule bodies **[numbering requires le_extensions.pl]**
+### 15.5 Rule labels and provenance
 A rule may be labelled: `rule <name>: Head if ...` — the label becomes the
 rule's ID (visible in `le_source_element/3` and `le_source_info/4`, §13).
 A label may also point at where the rule comes from (core LE, no extension):
@@ -620,41 +566,6 @@ document, §17.1). The trailers of a fact (`according to`, `as stated in`,
 editor show it (§17.1, *Documents*). A decision table header takes the same
 addition: `the table apparel is, with first match, with provenance ...:`
 (recorded under the table's id, `table_<name>`).
-With the extension, a rule body introduced by `if:` may be written as a
-numbered outline mirroring a statute or contract clause:
-```le
-rule jd:
-an A has a relevant asset a B if:
-1. the A is affiliated with a C; and
-2. the C is connected to a D; and
-3. the D owns the B; and
-4. either:
-4.1. the B is used in the business of the A; or
-4.2. all of:
-4.2.1. the A is connected to an E; and
-4.2.2. the B is used in the business of the E.
-```
-Each numbered condition is addressable by its hierarchical designator through
-`le_source_element(RuleID, Designator, Goal)` — e.g. goal 4.2.1 of rule `jd` —
-which supports clause-level traceability to the source text. See
-`examples/moreExamples/language/extensions/numbering_test.le`.
-
-### 15.6 Embedded Prolog goals **[resolution requires le_extensions.pl]**
-A body condition of the form `prolog <goal>` (parenthesise conjunctions:
-`prolog (g1, g2)`) calls raw Prolog. LE variables are referenced inside the
-goal as `the <name>` phrases, `*a name*` markers, or ALL-CAPS ids, and are
-bound to the goal's results; the system predicates of §13 are commonly used:
-```le
-an id has designator a d if
-    prolog (le_my_kb(KB), KB:le_source_element(the id, the d, the g)).
-```
-See `examples/moreExamples/language/extensions/prolog_call.le` and `language/rules/rule_id_test.le`.
-
-### 15.7 Prepositional chaining **[requires le_extensions.pl]**
-The `; prepositional` template marker and its chained usage are described in
-§2.1; note that the *chaining* itself (omitting the leading argument so one
-sentence expands into a conjunction of conditions) is resolved by the
-extensions module.
 
 ## 16. Humanizing LE
 LE programs are read by lawyers and domain experts more often than they are
