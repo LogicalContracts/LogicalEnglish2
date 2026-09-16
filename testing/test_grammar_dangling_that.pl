@@ -40,7 +40,7 @@ deep_strip_le_at(G, G).
 
 % All it_is_prohibited_that/1 rule bodies in the example, with le_at stripped.
 prohibited_bodies(KB, Bodies) :-
-    le_kbs:load('examples/moreExamples/testing/tea_party2.le', KB),
+    le_kbs:load('testing/fixtures/le/tea_party2.le', KB),
     findall(Body,
             ( clause(KB:it_is_prohibited_that(H), B),
               deep_strip_le_at((it_is_prohibited_that(H) :- B), (_ :- Body))

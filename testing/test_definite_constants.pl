@@ -3,7 +3,7 @@
     "the white rabbit" is a variable only when the SAME rule introduced it with
     an indefinite phrase ("a white rabbit"); where nothing introduces it, the
     phrase names a global constant — the same individual in rules, scenarios and
-    queries. See examples/moreExamples/white_rabbit.le, the worked example.
+    queries. See examples/moreExamples/language/templates/white_rabbit.le, the worked example.
 
     Pinned here:
       * an introduced definite phrase ("a rabbit ... if the rabbit ...") is
@@ -41,7 +41,7 @@ rule(KB, Functor, Arity, Head, Body) :-
     clause(KB:Head, Body0),
     deep_strip_le_at(Body0, Body).
 
-wonderland(KB) :- le_kbs:load('examples/moreExamples/white_rabbit.le', KB).
+wonderland(KB) :- le_kbs:load('examples/moreExamples/language/templates/white_rabbit.le', KB).
 
 :- begin_tests(definite_constants).
 

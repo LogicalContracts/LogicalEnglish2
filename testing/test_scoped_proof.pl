@@ -73,7 +73,7 @@ inline_rule("a tenant owes the late penalty
 :- begin_tests(scoped_proof).
 
 test(example_program) :-
-    load('examples/RulesRus/scoped_notice.le', KB),
+    load('examples/regulatory/scoped_notice.le', KB),
     answers(KB, proven, penalty, A1), A1 == ["ann owes the late penalty"],
     answers(KB, not_proven, penalty, A2), A2 == [],
     answers(KB, unattributed, penalty, A3), A3 == [].

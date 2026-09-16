@@ -153,14 +153,14 @@ test(fail_node_rejected_on_positive_condition) :-
 :- end_tests(proof_game_naf_forall).
 
 % --- A negation satisfied by SEVERAL failing rules ----------------------------
-% In examples/moreExamples/testing/p_with_negation.le the goal `r` is the head of
+% In testing/fixtures/le/p_with_negation.le the goal `r` is the head of
 % two rules (`r if u`, `r if w`), so "it is not the case that r" fails only when
 % BOTH of them fail. The proof game must accept a link from the NAF condition to
 % each such rule (a "not the case" link unifies the rule head with the negated
 % inner goal `r`), all into the same condition socket, without clashing.
 
 p_with_negation_session(KB, SM) :-
-    le_kbs:load('examples/moreExamples/testing/p_with_negation.le', KB),
+    le_kbs:load('testing/fixtures/le/p_with_negation.le', KB),
     le_kbs:createSession(KB, SM),
     le_kbs:setScenarion(SM, negation).
 
@@ -203,13 +203,13 @@ test(two_rules_into_one_negation_unifies) :-
 :- end_tests(proof_game_naf_multi_rule).
 
 % --- Abduction: assumable predicates become ASSUMPTION cards -------------------
-% In examples/moreExamples/abduction/grass_is_wet.le the two candidate causes are
+% In examples/moreExamples/language/abduction/grass_is_wet.le the two candidate causes are
 % "; assumable" templates with no facts at all: the game must offer each as an
 % assumption card (assumed: true) that satisfies the rule condition it matches,
 % so the abductive proof (query -> rule -> assumption) can be completed.
 
 grass_session(KB, SM, Goal) :-
-    le_kbs:load('examples/moreExamples/abduction/grass_is_wet.le', KB),
+    le_kbs:load('examples/moreExamples/language/abduction/grass_is_wet.le', KB),
     le_kbs:createSession(KB, SM),
     KB:query_info(explain, Goal, _).
 
@@ -316,7 +316,7 @@ test(kb_walks_survive_resolved_clause_3) :-
 % KB module, as the program's rules — 75-odd phantom rules, which silently
 % disabled the missing_rules and too_many_facts checks.
 test(rule_and_fact_counts_are_the_programs_own) :-
-    le_kbs:load('examples/moreExamples/testing/citizenship_premier.le', KB, [skip_tests]),
+    le_kbs:load('examples/moreExamples/language/includes/citizenship_premier.le', KB, [skip_tests]),
     le_verifier:count_rules(KB, Rules),
     le_verifier:count_facts(KB, Facts),
     assertion(Rules == 1),
@@ -330,10 +330,10 @@ test(rule_and_fact_counts_are_the_programs_own) :-
 % in_respect_of(P, …). The query node used to carry that WHOLE conjunction as one
 % condition, and no card head can unify with an and/2 — so every link into the
 % query clashed (the game showed all red) and Show Proof could only ever wire the
-% first conjunct. Uses examples/moreExamples/testing/template_folding.le.
+% first conjunct. Uses testing/fixtures/le/template_folding.le.
 
 folding_query_session(KB, SM, Goal) :-
-    le_kbs:load('examples/moreExamples/testing/template_folding.le', KB, [skip_tests]),
+    le_kbs:load('testing/fixtures/le/template_folding.le', KB, [skip_tests]),
     le_kbs:createSession(KB, SM),
     le_kbs:setScenarion(SM, zero),
     KB:query_info(1, Goal, _).
@@ -490,7 +490,7 @@ query one is:
 % "the amount is the rent / 2" and "the rent is at most 1000" are computed by the
 % engine, no card proves them. They had a socket nothing could fill, so a rule
 % computing its conclusion could never complete: Show Proof laid out the tree of
-% examples/RulesRus/sections_benefit.le and it never turned green. Now they are
+% examples/regulatory/sections_benefit.le and it never turned green. Now they are
 % engine-checked (no socket), evaluated once the links bind their inputs.
 
 builtin_program("the target language is: prolog.
@@ -565,7 +565,7 @@ test(unbound_inputs_wait) :-
 % enumeration, which differs between two sessions of one program once a query
 % has run in one of them: "fact_24" named one fact on the cards and another on
 % the server, so every link clashed or bound nothing (heart_failure.le, in
-% examples/moreExamples/LogicalThinkingInAgeOfAI). They are now numbered in
+% examples/moreExamples/collections/logical-thinking-talk). They are now numbered in
 % source order: rules first, then facts.
 
 card_number(Card, Start-N) :-
@@ -583,7 +583,7 @@ numbered_in_source_order(Cards) :-
 :- begin_tests(proof_game_card_ids).
 
 test(card_ids_follow_the_source) :-
-    le_kbs:load('examples/moreExamples/LogicalThinkingInAgeOfAI/heart_failure.le', KB, [skip_tests]),
+    le_kbs:load('examples/moreExamples/collections/logical-thinking-talk/heart_failure.le', KB, [skip_tests]),
     le_kbs:createSession(KB, SM),
     le_kbs:setScenarion(SM, fluid_retention_without_diuretics),
     KB:query_info(treatments, Goal, _),
@@ -671,7 +671,7 @@ test(needs_a_card_otherwise) :-
 :- begin_tests(proof_game_is_a_cards).
 
 test(written_is_a_facts_are_cards) :-
-    le_kbs:load('examples/moreExamples/LogicalThinkingInAgeOfAI/standard_for_judgment.le', KB, [skip_tests]),
+    le_kbs:load('examples/moreExamples/collections/logical-thinking-talk/standard_for_judgment.le', KB, [skip_tests]),
     le_kbs:createSession(KB, SM),
     le_kbs:setScenarion(SM, rape_case_alone),
     KB:query_info(acceptable, Goal, _),

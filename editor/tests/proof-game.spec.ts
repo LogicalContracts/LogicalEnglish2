@@ -275,7 +275,7 @@ test.describe('Proof Game — conjunctive query', () => {
 // A rule that COMPUTES its conclusion ("the amount is the rent / 2") has a
 // built-in condition no card can prove. It used to get a socket nothing could
 // fill, so Show Proof laid out the tree and the proof never turned green
-// (examples/RulesRus/sections_benefit.le). The engine now checks it.
+// (examples/regulatory/sections_benefit.le). The engine now checks it.
 const COMPUTED = `the target language is: prolog.
 
 the templates are:
@@ -316,14 +316,14 @@ test.describe('Proof Game — built-in conditions', () => {
     });
 });
 
-// examples/moreExamples/LogicalThinkingInAgeOfAI/heart_failure.le, as reported:
+// examples/moreExamples/collections/logical-thinking-talk/heart_failure.le, as reported:
 // after the editor had run the query, the cards' ids named other facts in the
 // game's own session, so nothing bound; the negated conjunction ("… should not
 // be prescribed without a second treatment … and …") got no proof; an "or"
 // holding by a comparison ("N >= 3 or …") had a socket nothing could fill; and
 // a negation failing because what it negates holds got a FAIL, not that proof.
 const HEART_FAILURE = fs.readFileSync(
-    path.join(__dirname, '../../examples/moreExamples/LogicalThinkingInAgeOfAI/heart_failure.le'), 'utf8');
+    path.join(__dirname, '../../examples/moreExamples/collections/logical-thinking-talk/heart_failure.le'), 'utf8');
 
 async function showProofCompletes(popup: any, answer: number) {
     popup.on('dialog', (d: any) => d.accept());

@@ -1,7 +1,8 @@
 # Logical English 2 Agent Guidelines
 
 You are an expert in both Logical English (LE) and SWI-PROLOG. 
-Refer to `docs/le_summary.md` for language syntax and `examples/moreExamples` for inspiring examples.
+Refer to `docs/le_summary.md` for language syntax and `examples/moreExamples` for inspiring examples
+(`examples/README.md` says what each example tree holds; `language/` has one program per feature).
 Translators from other systems into LE (migrations) share `le_writer.pl` (Migration IR -> LE
 text), `le_migration.pl` (ledger, source tests as scenarios) and `lib/` (shared LE libraries);
 see `docs/le_migration.md`.
@@ -63,9 +64,11 @@ The three suites it wraps (also runnable directly):
   files are no longer used. Non-English example trees live under
   `examples/<lang>/` (e.g. `examples/pt/`) and are run by the same suite, as are
   the extra trees of `le_extra_examples_dir/2` in `le_kbs.pl` — currently
-  `examples/RulesRus/`, the programs of the regulatory-decision constructs,
-  docs/le_summary.md §17, and `examples/migration/`, the twins that the
-  translators of other systems wrote, docs/le_migration.md.)
+  `examples/regulatory/`, the programs of the regulatory-decision constructs,
+  docs/le_summary.md §17, `examples/migration/`, the twins that the
+  translators of other systems wrote, docs/le_migration.md, and
+  `testing/fixtures/le/`, the programs the test suites load by name — put a new
+  test fixture there, not among the examples.)
   **Moving or renaming an example:** add a row to `example_alias/2` (or
   `example_dir_alias/2` for a directory) in `le_kbs.pl`, so that links, QR
   codes and docs using the old name keep working

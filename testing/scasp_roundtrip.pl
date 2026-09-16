@@ -36,8 +36,13 @@ scasp_available :- fail.
 :- endif.
 
 corpus(Files) :-
-    findall(F, ( member(Dir, ['examples/moreExamples', 'examples/RulesRus', 'examples/pt',
-                              'examples/es', 'examples/fr', 'examples/it']),
+    %  The example suite's trees (le_kbs), but the migration twins: the
+    %  translators' own tests check those.
+    findall(F, ( (   le_kbs:le_examples_dir(Dir)
+                 ;   le_kbs:le_extra_examples_dir(Root, Dir), Root \== migration
+                 ;   le_kbs:language_examples_dir(_, Dir)
+                 ),
+                 exists_directory(Dir),
                  directory_member(Dir, F, [extensions([le]), recursive(true)]),
                  \+ sub_atom(F, _, _, _, 'insureLE2'),
                  \+ sub_atom(F, _, _, _, 'InsurLE2') ),

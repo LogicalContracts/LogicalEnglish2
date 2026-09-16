@@ -54,7 +54,7 @@ itself would never succeed.
 From the repo root:
 
 ```
-./myswipl.sh -g "use_module(le_kbs), runTestsFor('examples/moreExamples/abduction/<FILE>.le', R), print_test_result(R), halt."
+./myswipl.sh -g "use_module(le_kbs), runTestsFor('examples/moreExamples/language/abduction/<FILE>.le', R), print_test_result(R), halt."
 ```
 
 All four files pass their embedded `expects answers [...] and unknowns [...]`

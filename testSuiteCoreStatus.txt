@@ -5,126 +5,108 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      core (this repository alone; extension-dependent trees excluded)
 Command:    testing/run_tests.sh le   (or: runTests)
 Sibling:    testSuiteStatus.txt — all (core + trees requiring the proprietary le_extensions.pl)
-Generated:  2026-09-16 11:26:18 UTC
+Generated:  2026-09-16 11:54:39 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 194
-Total tests:     1043
-Passed:          1043
+Files processed: 192
+Total tests:     1036
+Passed:          1036
 Failed:          0
 Errors/Timeouts: 0
 -------------
 
 Detailed File Summary:
-  [PASS] examples/moreExamples/AItest.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/alice.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/alice_propositional.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/assumption_constraints.le: 5 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/augmentedsem.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship.le: 4 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/citizenship_including.le: 1 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/clp_coverage.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/dates.le: 2 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/dual_engine_demo.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/ecommerce.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/enclosure.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/error.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/flying_dragon.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/happy_dragon.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/inequality.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/named_vars.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/numbering_test.le: 5 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/numbers.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/only_if.le: 4 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/prolog_call.le: 2 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/propositional.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/royal_family.le: 8 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rule_id_test.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/scenario_element_test.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/sequencer.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/subset.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/sums.le: 3 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/synonyms.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/tea_party.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/type_check_test.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/unknowns.le: 5 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/unknowns_in_aggregates.le: 9 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/unknowns_in_forall.le: 4 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/white_rabbit.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/prolog_resources/postcodes.le: 5 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/prolog_resources/postcodes_layer.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/above_transitivity.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/amazing_animals.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/behaviourist_fox.le: 3 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/bna_citizenship_1_1.le: 3 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/cause_and_effect.le: 3 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/equation_solving_goal.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/fox_and_crow.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/genesis_ancestors.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/grass_wet_abduction.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/housing_benefit.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/innocent_until_guilty.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/last_train.le: 3 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/lease_termination.le: 8 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/library_study.le: 3 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/naturalisation_schedule1.le: 3 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/older_brother.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/party_looping.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/party_naf.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/relative_clauses.le: 4 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/thieves_punishment.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/trolley_problem.le: 4 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/rkBook/underground_emergency.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/short/is_a_class_of.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/short/longsentence.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/short/sunangel.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/tax/1_cgt_assets_and_exemptions_3.le: 3 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/tax/1_net_asset_value_test_3.le: 4 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/tax/3_rollover_3.le: 6 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/tax/4_affiliates_3.le: 7 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/tax/div36_loss_sequencing.le: 32 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/tax/gst.le: 12 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/tax/gstturnover.le: 49 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/tax/journal_balance.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/tax/payg.le: 25 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/tax/sbpp_0.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/tax/sbppxml1.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/tax/small_business.le: 25 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/testing/apostrophe.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/testing/assumed_coloring.le: 2 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/testing/citizenship_buggy.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/testing/citizenship_premier.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/testing/forall_vacuous.le: 1 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/testing/nonterminating.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/testing/p_with_negation.le: 1 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/testing/payg_buggy.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/testing/propositional_negation.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/testing/tea_party2.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/testing/tea_party3.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/testing/template_folding.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/testing/trace_sample.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/LogicalThinkingInAgeOfAI/heart_failure.le: 30 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/LogicalThinkingInAgeOfAI/heart_failure_what_if.le: 3 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/LogicalThinkingInAgeOfAI/provocation_transposed.le: 8 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/LogicalThinkingInAgeOfAI/standard_for_judgment.le: 8 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/abduction/diagnosis.le: 4 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/abduction/grass_is_wet.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/abduction/loan_approval.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/abduction/sunglasses.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/RulesRus/eu261_integration.le: 9 Pass, 0 Fail, 0 Error
-  [PASS] examples/RulesRus/flip_housing.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/RulesRus/judged_damage.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/RulesRus/loaded_table.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/RulesRus/otherwise_table.le: 2 Pass, 0 Fail, 0 Error
-  [NONE] examples/RulesRus/precedent.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/RulesRus/precedent_pattern.le: 4 Pass, 0 Fail, 0 Error
-  [PASS] examples/RulesRus/scoped_notice.le: 3 Pass, 0 Fail, 0 Error
-  [PASS] examples/RulesRus/sections_benefit.le: 8 Pass, 0 Fail, 0 Error
-  [NONE] examples/RulesRus/semantic_llm.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/RulesRus/semantic_match.le: 1 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/domains/other/augmentedsem.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/domains/other/enclosure.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/domains/other/flying_dragon.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/domains/other/sequencer.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/domains/other/sunangel.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/domains/tax/1_cgt_assets_and_exemptions_3.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/domains/tax/1_net_asset_value_test_3.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/domains/tax/3_rollover_3.le: 6 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/domains/tax/4_affiliates_3.le: 7 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/domains/tax/div36_loss_sequencing.le: 32 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/domains/tax/gst.le: 12 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/domains/tax/gstturnover.le: 49 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/domains/tax/journal_balance.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/domains/tax/payg.le: 25 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/domains/tax/sbpp_0.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/domains/tax/sbppxml1.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/domains/tax/small_business.le: 25 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/language/negation/alice_propositional.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/negation/inequality.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/negation/only_if.le: 4 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/language/negation/propositional.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/language/aggregates/ecommerce.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/aggregates/sums.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/unknowns/assumption_constraints.le: 5 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/unknowns/unknowns.le: 5 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/unknowns/unknowns_in_aggregates.le: 9 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/unknowns/unknowns_in_forall.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/includes/citizenship_including.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/includes/citizenship_premier.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/includes/prolog_resources/postcodes.le: 5 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/language/includes/prolog_resources/postcodes_layer.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/language/scasp/clp_coverage.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/language/scasp/dual_engine_demo.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/rules/rule_id_test.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/templates/is_a_class_of.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/templates/longsentence.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/templates/named_vars.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/templates/subset.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/templates/synonyms.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/templates/white_rabbit.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/abduction/diagnosis.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/abduction/grass_is_wet.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/abduction/loan_approval.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/abduction/sunglasses.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/logical-thinking-talk/heart_failure.le: 30 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/logical-thinking-talk/heart_failure_what_if.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/logical-thinking-talk/provocation_transposed.le: 8 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/logical-thinking-talk/standard_for_judgment.le: 8 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/above_transitivity.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/amazing_animals.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/behaviourist_fox.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/bna_citizenship_1_1.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/cause_and_effect.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/equation_solving_goal.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/fox_and_crow.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/genesis_ancestors.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/grass_wet_abduction.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/housing_benefit.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/innocent_until_guilty.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/last_train.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/lease_termination.le: 8 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/library_study.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/naturalisation_schedule1.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/older_brother.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/party_looping.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/party_naf.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/relative_clauses.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/thieves_punishment.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/trolley_problem.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/kowalski-book/underground_emergency.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/eu261_integration.le: 9 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/flip_housing.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/judged_damage.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/loaded_table.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/otherwise_table.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/precedent.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/precedent_pattern.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/scoped_notice.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/sections_benefit.le: 8 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/semantic_llm.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/semantic_match.le: 1 Pass, 0 Fail, 0 Error
   [NONE] examples/migration/legalruleml/ex8_defeasible/deontic.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/legalruleml/ex8_defeasible/ex8_defeasible.le: 4 Pass, 0 Fail, 0 Error
   [NONE] examples/migration/legalruleml/ex5_section29new/deontic.le: 0 Pass, 0 Fail, 0 Error
@@ -204,6 +186,22 @@ Detailed File Summary:
   [PASS] examples/migration/scasp/birds/birds.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/scasp/itispermittedthat/itispermittedthat.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/scasp/simplerps/simplerps.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] testing/fixtures/le/AItest.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] testing/fixtures/le/apostrophe.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] testing/fixtures/le/assumed_coloring.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] testing/fixtures/le/citizenship_buggy.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] testing/fixtures/le/error.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] testing/fixtures/le/forall_vacuous.le: 1 Pass, 0 Fail, 0 Error
+  [NONE] testing/fixtures/le/nonterminating.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] testing/fixtures/le/p_with_negation.le: 1 Pass, 0 Fail, 0 Error
+  [NONE] testing/fixtures/le/payg_buggy.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] testing/fixtures/le/propositional_negation.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] testing/fixtures/le/scenario_element_test.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] testing/fixtures/le/tea_party2.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] testing/fixtures/le/tea_party3.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] testing/fixtures/le/template_folding.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] testing/fixtures/le/trace_sample.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] testing/fixtures/le/type_check_test.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/cidadania.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/desconhecidos.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/despesas.le: 6 Pass, 0 Fail, 0 Error

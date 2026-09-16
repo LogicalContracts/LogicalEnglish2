@@ -360,7 +360,8 @@ handle_landing_page(Request) :-
          % Collapsible example folders: open/closed state per folder is remembered
          % in LocalStorage; ?expand=all opens everything (script embedded below).
          style('li.le-folder-item { list-style: none; } \c
-                details.le-folder > summary { cursor: pointer; }'),
+                details.le-folder > summary { cursor: pointer; } \c
+                .le-folder-blurb { color: #666; font-weight: normal; }'),
          script([type('text/javascript')], FolderScript)],
         [
             div([style('float: right; padding: 10px;')], [
@@ -589,15 +590,33 @@ landing_example_items(Dir, UserRoles, Items) :-
     % each as one more collapsible folder named after its directory.
     findall(li([class('le-folder-item')],
                details(['data-path'(Prefix), class('le-folder')],
-                       [summary(b(Prefix)), ul(SubItems)])),
+                       [summary([b(Prefix)|Blurb]), ul(SubItems)])),
             ( le_kbs:le_extra_examples_dir(Root, ExtraDir),
               exists_directory(ExtraDir),
               is_path_allowed(ExtraDir, UserRoles),
               atom_concat(Root, '/', Prefix),
               landing_example_items(ExtraDir, Prefix, UserRoles, SubItems),
-              SubItems \== [] ),
+              SubItems \== [],
+              folder_blurb(ExtraDir, Blurb) ),
             ExtraItems),
     append(Items0, ExtraItems, Items).
+
+%!  folder_blurb(+Dir:atom, -Blurb:list) is det.
+%
+%   What a folder of examples is about, for its heading on the landing page:
+%   the title of its README.md (its first line, without the `#`s), or nothing.
+folder_blurb(Dir, Blurb) :-
+    directory_file_path(Dir, 'README.md', Readme),
+    (   exists_file(Readme),
+        catch(setup_call_cleanup(open(Readme, read, In, [encoding(utf8)]),
+                                 read_line_to_string(In, Line0),
+                                 close(In)), _, fail),
+        string(Line0),
+        split_string(Line0, "", "# \t", [Title]),
+        Title \== ""
+    ->  Blurb = [span(class('le-folder-blurb'), [' — ', Title])]
+    ;   Blurb = []
+    ).
 
 landing_example_items(Dir, Prefix, UserRoles, Items) :-
     directory_files(Dir, Files),
@@ -621,7 +640,7 @@ landing_example_items(Dir, Prefix, UserRoles, Items) :-
     % LocalStorage and an ?expand=all query can open them all.
     findall(SubDir-li([class('le-folder-item')],
                       details(['data-path'(SubPrefix), class('le-folder')],
-                              [summary(b([SubDir, '/'])), ul(SubItems)])), (
+                              [summary([b([SubDir, '/'])|Blurb]), ul(SubItems)])), (
         member(SubDir, Files),
         \+ sub_atom(SubDir, 0, 1, _, '.'),
         directory_file_path(Dir, SubDir, SubDirPath),
@@ -629,7 +648,8 @@ landing_example_items(Dir, Prefix, UserRoles, Items) :-
         is_path_allowed(SubDirPath, UserRoles),
         atomic_list_concat([Prefix, SubDir, '/'], SubPrefix),
         landing_example_items(SubDirPath, SubPrefix, UserRoles, SubItems),
-        SubItems \= []
+        SubItems \= [],
+        folder_blurb(SubDirPath, Blurb)
     ), SubDirPairs),
     keysort(SubDirPairs, SubDirSorted),
     pairs_values(SubDirSorted, SubDirItems),
@@ -769,7 +789,8 @@ multilingual_landing_page(Lang, LangDir) :-
         [title(Title),
          script([src('/telemetry.js')], []),
          style('li.le-folder-item { list-style: none; } \c
-                details.le-folder > summary { cursor: pointer; }'),
+                details.le-folder > summary { cursor: pointer; } \c
+                .le-folder-blurb { color: #666; font-weight: normal; }'),
          script([type('text/javascript')], FolderScript),
          script([type('text/javascript')], PrefScript)],
         Body

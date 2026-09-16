@@ -58,7 +58,7 @@ test(core_includes_language_tree) :-
 % The fragments name whole directories, so a file merely *about* insurance —
 % of which the tax corpus has several — stays in the core suite.
 test(core_does_not_overmatch_similar_names) :-
-    le_kbs:suite_includes(core, 'examples/moreExamples/tax/insurance_payouts.le'),
+    le_kbs:suite_includes(core, 'examples/moreExamples/domains/tax/insurance_payouts.le'),
     le_kbs:suite_includes(core, 'examples/moreExamples/insurers.le').
 
 % --- all includes everything -------------------------------------------------

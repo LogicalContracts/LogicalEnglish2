@@ -19,11 +19,11 @@
 :- begin_tests(scasp_round_trip).
 
 test(sample_round_trips, [forall(member(F, ['examples/moreExamples/citizenship.le',
-                                             'examples/moreExamples/only_if.le',
-                                             'examples/moreExamples/flying_dragon.le',
-                                             'examples/moreExamples/synonyms.le',
-                                             'examples/moreExamples/rkBook/amazing_animals.le',
-                                             'examples/moreExamples/abduction/loan_approval.le',
+                                             'examples/moreExamples/language/negation/only_if.le',
+                                             'examples/moreExamples/domains/other/flying_dragon.le',
+                                             'examples/moreExamples/language/templates/synonyms.le',
+                                             'examples/moreExamples/collections/kowalski-book/amazing_animals.le',
+                                             'examples/moreExamples/language/abduction/loan_approval.le',
                                              'examples/es/ciudadania.le']))]) :-
     scasp_roundtrip:roundtrip_file(F, O),
     assertion(O == same).

@@ -2,7 +2,7 @@
 
 *A tutorial. You need the Logical English 2 editor and server (`start_api_server`,
 then http://localhost:3050/editor/index.html); every program named here is in
-`examples/RulesRus/` of this repository. Language reference:
+`examples/regulatory/` of this repository. Language reference:
 [le_summary.md](le_summary.md) §17.10.*
 
 A Logical English program answers questions. The editor shows it to the person
@@ -69,7 +69,7 @@ verifier says about a broken view, and how it all works.
 
 ## 1. The program
 
-`examples/RulesRus/sections_benefit.le` decides whether a person gets help with
+`examples/regulatory/sections_benefit.le` decides whether a person gets help with
 the rent, and how much. Its rules are in three sections with reserved names —
 **applicability**, **question** and **remedy** (the decision skeleton of
 [le_summary.md](le_summary.md) §17.4) — so a failed application can say how far it got:
@@ -111,7 +111,7 @@ distinction.
 ## 2. A first view, drafted for you
 
 Open the program in the editor (**File → Open copy from server…**,
-`RulesRus/sections_benefit`) and delete its view section at the end, to start
+`regulatory/sections_benefit`) and delete its view section at the end, to start
 from nothing. Then open the **LE Assistant** tab and press **Generate LE view**.
 
 ![Generate LE view in the editor](IntroducingLEViews/01-generate-view.png)
@@ -169,11 +169,11 @@ run programs rather than write them. There are three ways to open it:
   it is in the editor, unsaved changes included: the editor hands its text to
   the new tab through the browser's storage. A link copied from that tab shows
   the saved program in another browser.
-- On the program's executive page (`/executive?program=RulesRus/sections_benefit`),
+- On the program's executive page (`/executive?program=regulatory/sections_benefit`),
   a row of links lists the program's views (for a program without any, its
   automatic view). **Without a view** goes back to the plain
   scenario-and-query screen.
-- A direct link: `/executive?program=RulesRus/sections_benefit&view=sections%20benefit`.
+- A direct link: `/executive?program=regulatory/sections_benefit&view=sections%20benefit`.
 
 ![The drafted view, on the scenario no_rent](IntroducingLEViews/02-draft-view.png)
 
@@ -364,7 +364,7 @@ written that way, but it points it out.
 ## 7. An interview: a citizen's check on a phone
 
 A caseworker edits a case; a citizen answers questions.
-`examples/RulesRus/flip_housing.le` holds Kowalski's housing-benefit rules
+`examples/regulatory/flip_housing.le` holds Kowalski's housing-benefit rules
 (*Computational Logic and Human Thinking*, §5.7): help to pay rent comes with
 housing benefit. That is for someone on other benefits, working part-time, or
 working full-time on a low income — unless they are ineligible, which they are
@@ -412,7 +412,7 @@ turn the result is to answer yes to the income question.
 
 ## 8. A professional's desk
 
-A view grows with the program. `examples/RulesRus/eu261_integration.le` decides
+A view grows with the program. `examples/regulatory/eu261_integration.le` decides
 EU Regulation 261 compensation for a cancelled flight. Its facts are attributed
 to their sources ("according to Alitalia, as stated in the carrier letter at
 paragraph 2"). Its open-textured judgments — was the event *inherent in the

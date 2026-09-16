@@ -6,7 +6,7 @@
     render each node with the surface form used at its source location (the proving
     clause's head form), falling back to the main template.
 
-    Uses examples/moreExamples/synonyms.le. Run with:
+    Uses examples/moreExamples/language/templates/synonyms.le. Run with:
         swipl -g run_tests -t halt testing/test_synonyms.pl
     (or via testing/run_tests.sh unit)
 */
@@ -18,7 +18,7 @@
 :- use_module('../reasoner').
 
 syn_session(KB, SM) :-
-    le_kbs:load('examples/moreExamples/synonyms.le', KB),
+    le_kbs:load('examples/moreExamples/language/templates/synonyms.le', KB),
     le_kbs:createSession(KB, SM),
     le_kbs:setScenarion(SM, friends).
 

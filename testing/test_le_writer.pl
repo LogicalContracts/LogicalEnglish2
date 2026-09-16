@@ -183,12 +183,12 @@ roundtrips(File) :-
     assertion(Outcome == same).
 
 test(citizenship) :- roundtrips('examples/moreExamples/citizenship.le').
-test(otherwise_and_tables) :- roundtrips('examples/RulesRus/otherwise_table.le').
-test(provenance_views_scoped) :- roundtrips('examples/RulesRus/eu261_integration.le').
-test(aggregates) :- roundtrips('examples/moreExamples/tax/sbpp_0.le').
+test(otherwise_and_tables) :- roundtrips('examples/regulatory/otherwise_table.le').
+test(provenance_views_scoped) :- roundtrips('examples/regulatory/eu261_integration.le').
+test(aggregates) :- roundtrips('examples/moreExamples/domains/tax/sbpp_0.le').
 test(portuguese) :- roundtrips('examples/pt/desconhecidos.le').
 test(numbering, [condition(current_module(le_extensions))]) :-
-    roundtrips('examples/moreExamples/numbering_test.le').
+    roundtrips('examples/moreExamples/language/extensions/numbering_test.le').
 
 :- end_tests(le_writer_roundtrip).
 

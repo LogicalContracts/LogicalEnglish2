@@ -136,7 +136,7 @@ não pode ser verdade que
 - **Alvo lps** — a mesma frase é uma restrição sobre ações e estados (`d_pre/1`).
 
 Ver `examples/pt/desconhecidos.le` e, em inglês, §3.3 de `le_summary.md` e
-`examples/moreExamples/assumption_constraints.le`.
+`examples/moreExamples/language/unknowns/assumption_constraints.le`.
 
 ## 4. Operadores lógicos
 - **E:** `e` (ou nova linha com a mesma indentação)
@@ -177,7 +177,7 @@ variável quando a **mesma frase** já introduziu uma variável com esse nome; c
 contrário nomeia uma **constante global** — o indivíduo que a frase denota,
 escrito com o artigo (`o coelho branco`), o mesmo em todas as regras, cenários e
 consultas do programa. É o que já acontecia nos cenários, e passa a valer também
-na base de conhecimento. Ver `examples/moreExamples/white_rabbit.le` (em inglês).
+na base de conhecimento. Ver `examples/moreExamples/language/templates/white_rabbit.le` (em inglês).
 
 Para usar como variável uma frase definida que nada introduz, nomeie-a
 explicitamente: `*o coelho branco*` (§6.1).

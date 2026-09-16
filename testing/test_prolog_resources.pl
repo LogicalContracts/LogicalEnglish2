@@ -30,7 +30,7 @@ has_issue(KB, Type) :- KB:le_issue(_, Type, _, _, _, _).
 :- begin_tests(prolog_resource_example).
 
 test(postcodes_example_all_pass) :-
-    runTestsFor('examples/moreExamples/prolog_resources/postcodes.le', test_file(_, Results)),
+    runTestsFor('examples/moreExamples/language/includes/prolog_resources/postcodes.le', test_file(_, Results)),
     forall(member(R, Results), assertion(R = pass(_, _))).
 
 :- end_tests(prolog_resource_example).
@@ -52,8 +52,8 @@ test(plain_url_preserved) :-
     assertion(Got == 'https://raw.githubusercontent.com/mcalejo/LogicalEnglish2/main/examples/moreExamples/royal_family').
 
 test(local_path_preserved) :-
-    parse_single_resource('examples/moreExamples/testing/citizenship_premier', Got),
-    assertion(Got == 'examples/moreExamples/testing/citizenship_premier').
+    parse_single_resource('examples/moreExamples/language/includes/citizenship_premier', Got),
+    assertion(Got == 'examples/moreExamples/language/includes/citizenship_premier').
 
 test(pl_extension_preserved) :-
     parse_single_resource('postcodes_facts.pl', Got),

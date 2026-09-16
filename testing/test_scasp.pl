@@ -115,7 +115,7 @@ test(differential_citizenship, [condition(le_scasp_available), forall(member(Sce
 
 % --- §5b: constraint / symbolic answers ---
 test(symbolic_constraint_answer, [condition(le_scasp_available)]) :-
-    load('examples/moreExamples/clp_coverage.le', M),
+    load('examples/moreExamples/language/scasp/clp_coverage.le', M),
     M:query_info(covered, Goal, _),
     le_scasp_query(M, none, Goal, [time_limit(30)], [answer(_, GoalInstance, _, _)|_], _),
     % The answer variable is non-ground (a CLP constraint), not a value.
@@ -128,7 +128,7 @@ test(symbolic_constraint_answer, [condition(le_scasp_available)]) :-
 
 % --- §5c: abduction set ---
 test(abduction_assumption_set, [condition(le_scasp_available)]) :-
-    load('examples/moreExamples/abduction/sunglasses.le', M),
+    load('examples/moreExamples/language/abduction/sunglasses.le', M),
     M:query_info(plan, Goal, _),
     le_scasp_query(M, planning, Goal, [time_limit(30)], [answer(_, _, _, Tree)|_], _),
     le_scasp_assumptions(M, Tree, Assumptions),
@@ -136,7 +136,7 @@ test(abduction_assumption_set, [condition(le_scasp_available)]) :-
 
 % --- verifier: suppress rule_without_variables for wholly-propositional KBs ---
 test(propositional_program_no_rule_without_variables) :-
-    load('examples/moreExamples/abduction/grass_is_wet.le', M),
+    load('examples/moreExamples/language/abduction/grass_is_wet.le', M),
     verify(M, Issues),
     assertion(\+ memberchk(issue(rule_without_variables, _, _, _, _), Issues)).
 

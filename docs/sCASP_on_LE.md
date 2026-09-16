@@ -227,7 +227,7 @@ renders them in LE. These are surfaced through the **same `unknowns` channel** t
 Prolog engine already uses for assumed facts, so the existing amber "?" marker and
 tooltip render them with no editor change. This answers *"what would have to be
 true for X to hold?"* — demonstrated by
-`examples/moreExamples/abduction/loan_approval.le` (four distinct worlds, each with
+`examples/moreExamples/language/abduction/loan_approval.le` (four distinct worlds, each with
 its own assumption set).
 
 ---
@@ -358,10 +358,10 @@ Demo files:
 
 | File | Feature |
 |---|---|
-| `examples/moreExamples/dual_engine_demo.le` | non-stratified — Prolog gives no answer, s(CASP) finds the stable model |
-| `examples/moreExamples/clp_coverage.le` | §5b constraint / symbolic answer |
-| `examples/moreExamples/abduction/sunglasses.le` | §5c abduction set |
-| `examples/moreExamples/abduction/loan_approval.le` | multi-model — 4 possible worlds, each with its own assumptions |
+| `examples/moreExamples/language/scasp/dual_engine_demo.le` | non-stratified — Prolog gives no answer, s(CASP) finds the stable model |
+| `examples/moreExamples/language/scasp/clp_coverage.le` | §5b constraint / symbolic answer |
+| `examples/moreExamples/language/abduction/sunglasses.le` | §5c abduction set |
+| `examples/moreExamples/language/abduction/loan_approval.le` | multi-model — 4 possible worlds, each with its own assumptions |
 
 ---
 

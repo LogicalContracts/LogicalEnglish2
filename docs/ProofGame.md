@@ -153,7 +153,7 @@ it is not the case that bob smokes
 ```
 
 A failure can itself contain a proof. In
-`examples/moreExamples/LogicalThinkingInAgeOfAI/heart_failure.le` (scenario
+`examples/moreExamples/collections/logical-thinking-talk/heart_failure.le` (scenario
 `high_creatinine`, query `withheld`), "the guideline recommends aldosterone
 antagonists for Frank" fails because its condition *"it is not the case that
 Frank has a contraindication to aldosterone antagonists"* fails — and that
@@ -175,7 +175,7 @@ prove"** dropdown appears in the toolbar. Pick the answer you want the class to 
 on.
 
 An answer that holds only by **assuming** something (see the Assumption card) is
-labelled with its assumptions — e.g. in `examples/moreExamples/abduction/grass_is_wet.le`
+labelled with its assumptions — e.g. in `examples/moreExamples/language/abduction/grass_is_wet.le`
 the picker offers *"the grass is wet, assuming it rained"* and *"the grass is wet,
 assuming the sprinkler was on"*: two alternative **explanations** of the same
 observation, each with its own proof to build.

@@ -382,8 +382,8 @@ test.describe('Logical English Editor', () => {
     // 1. Open "File" -> "Open copy from server..." and pick "payg"
     await openFromServer(page, /^payg$/);
 
-    // 3. Wait for the editor to load the content (payg.le now lives under tax/)
-    await expect(page.locator('#filename-display')).toHaveText('tax/payg.le');
+    // 3. Wait for the editor to load the content (payg.le lives under domains/tax/)
+    await expect(page.locator('#filename-display')).toHaveText('domains/tax/payg.le');
 
     // 4. Wait for the module to load proactively
     await expect(async () => {
@@ -415,10 +415,15 @@ test.describe('Logical English Editor', () => {
   test('non-terminating query can be interrupted', async ({ page }) => {
     test.setTimeout(60000);
 
-    // 1. Open the 'nonterminating' example from the server
+    // 1. Open the 'nonterminating' fixture from the server: the test fixtures
+    //    (testing/fixtures/le) are listed to logged-in users only.
+    await page.goto('http://localhost:3000/login?return=/editor/index.html');
+    await page.fill('input[name="email"]', 'support@logicalcontracts.com');
+    await page.fill('input[name="password"]', 'LE2rocks');
+    await page.click('input[type="submit"]');
+    await page.waitForURL(/\/editor\/index\.html/, { timeout: 20000 });
     await openFromServer(page, /^nonterminating$/);
-    // nonterminating.le now lives under testing/
-    await expect(page.locator('#filename-display')).toHaveText('testing/nonterminating.le');
+    await expect(page.locator('#filename-display')).toHaveText('fixtures/nonterminating.le');
 
     // 2. Wait for the module to load (scenario dropdown populated)
     await expect(async () => {

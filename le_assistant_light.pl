@@ -353,9 +353,9 @@ load_curated_examples(UserRoles, ExamplesStr) :-
     % Also inline the full content of a few key representative examples (and only these, token budget oblige)
     CuratedFiles = [
         "examples/moreExamples/citizenship.le",
-        "examples/moreExamples/numbering_test.le",
-        "examples/moreExamples/tax/1_net_asset_value_test_3.le",
-        "examples/moreExamples/tax/payg.le",
+        "examples/moreExamples/language/unknowns/unknowns.le",
+        "examples/moreExamples/domains/tax/1_net_asset_value_test_3.le",
+        "examples/moreExamples/domains/tax/payg.le",
         "examples/moreExamples/dates.le",
         "examples/moreExamples/insureLE2/big_conclusions.le"
     ],

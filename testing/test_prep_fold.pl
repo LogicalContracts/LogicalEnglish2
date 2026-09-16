@@ -7,7 +7,7 @@
     wrote — dropping any leading `true` and ordering the phrases by source position.
     Separately, a rule head's prepositional goals are compiled in textual order.
 
-    Uses examples/moreExamples/testing/template_folding.le, scenario zero, query 1
+    Uses testing/fixtures/le/template_folding.le, scenario zero, query 1
     ("we will make which payment under this policy in respect of this claim").
 
     Run with:  swipl -g run_tests -t halt testing/test_prep_fold.pl
@@ -20,7 +20,7 @@
 :- use_module('../le_kbs').
 
 folding_kb(KB) :-
-    le_kbs:load('examples/moreExamples/testing/template_folding.le', KB).
+    le_kbs:load('testing/fixtures/le/template_folding.le', KB).
 
 query1_answer(Answer) :-
     folding_kb(KB),

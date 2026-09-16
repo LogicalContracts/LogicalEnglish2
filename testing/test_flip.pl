@@ -33,14 +33,14 @@ answers(KB, Scenario, Query, Answers) :-
 :- begin_tests(flip).
 
 test(housing_example) :-
-    load('examples/RulesRus/flip_housing.le', KB),
+    load('examples/regulatory/flip_housing.le', KB),
     change_sets(KB, rich, flip_rich, R),
     R == [["add: rich is on a low income"]],
     change_sets(KB, bob, flip_bob, B),
     B == [["remove: bob is on a low income"], ["remove: bob is on other benefits"]].
 
 test(answers_render_the_change) :-
-    load('examples/RulesRus/flip_housing.le', KB),
+    load('examples/regulatory/flip_housing.le', KB),
     answers(KB, rich, flip_rich, As),
     As == ["add: rich is on a low income"].
 
@@ -79,7 +79,7 @@ query flip is:
     L == [["add: the burst pipe is accidental", "add: the burst pipe is reported within the time limit"]].
 
 test(already_holds_needs_no_change) :-
-    load('examples/RulesRus/flip_housing.le', KB),
+    load('examples/regulatory/flip_housing.le', KB),
     createSession(KB, SM), setScenarion(SM, bob),
     once(parse_custom_query(KB, "bob gets help to pay rent", G)),
     findall(C, ( le_flip:minimal_changes(G, SM, KB, C, _) ), Cs),

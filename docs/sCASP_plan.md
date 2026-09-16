@@ -353,11 +353,11 @@ numbers are rendered raw (no thousands separator / locale). Source spans are
 head-granularity (`kb_pred_source`) — could refine to sub-goal via s(CASP)'s
 `assert_scasp_source_reference`.
 
-**Demo files:** `examples/moreExamples/dual_engine_demo.le` (non-stratified —
+**Demo files:** `examples/moreExamples/language/scasp/dual_engine_demo.le` (non-stratified —
 Prolog gives no answer, s(CASP) finds the stable model),
-`examples/moreExamples/clp_coverage.le` (§5b constraint answer),
-`examples/moreExamples/abduction/sunglasses.le` (§5c abduction set),
-`examples/moreExamples/abduction/loan_approval.le` (**multi-model** — 4 distinct
+`examples/moreExamples/language/scasp/clp_coverage.le` (§5b constraint answer),
+`examples/moreExamples/language/abduction/sunglasses.le` (§5c abduction set),
+`examples/moreExamples/language/abduction/loan_approval.le` (**multi-model** — 4 distinct
 "possible worlds" each with its own assumption set; also a valid Prolog abduction
 test). s(CASP) enumerates a model per truth-assignment of *unused* abducibles, so
 the web handler dedups by (answer + assumption set) and stamps `modelIndex`/

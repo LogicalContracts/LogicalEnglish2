@@ -17,7 +17,7 @@
 :- use_module('../le_writer').
 :- use_module('../le_verifier').
 
-example('examples/moreExamples/assumption_constraints.le').
+example('examples/moreExamples/language/unknowns/assumption_constraints.le').
 
 kb(KB) :-
     example(File),
@@ -89,7 +89,7 @@ test(writer_writes_constraints_back) :-
     assertion(sub_string(Text, _, _, _, "it must not be true that\n    a person is married to a second person\n    and it is not the case that the second person is married to the person.")).
 
 test(program_without_constraints_unchanged) :-
-    read_file_to_string('examples/moreExamples/unknowns.le', Text, []),
+    read_file_to_string('examples/moreExamples/language/unknowns/unknowns.le', Text, []),
     le_kbs:load_text(Text, 'examples/moreExamples', KB),
     le_kbs:createSession(KB, SM),
     le_kbs:setScenarion(SM, one),

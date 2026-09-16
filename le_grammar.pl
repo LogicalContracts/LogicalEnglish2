@@ -3651,7 +3651,7 @@ token_span(Token, Start, End) :- compound(Token), arg(2, Token, loc(Start, End))
 % Structured Body Parsing
 
 parse_body(Tokens, Indent, Templates, VMIn, VMOut, StructuredBody) :-
-    once(tokens_to_lines(Tokens, Indent, Lines)), % removing this once(..) causes nontermination in moreExamples/tax/sbpp_0.le
+    once(tokens_to_lines(Tokens, Indent, Lines)), % removing this once(..) causes nontermination in moreExamples/domains/tax/sbpp_0.le
     (   lines_to_tree(Tokens, Lines, Templates, VMIn, VMOut, StructuredBody) ->  
         ( le_kbs:do_log -> print_message(informational,'  Body succeeded~n'); true)
         ;   
@@ -3768,7 +3768,7 @@ lines_to_tree(_Tokens, Lines, Templates, VMIn, VMOut, Tree) :-
 % connective's second argument (hiscoxhappypath.le's "... fulfills all the
 % general conditions"). The gate on ends_with_that/1 keeps ordinary and/or
 % branches untouched: a shallower "or" alternative followed by its own deeper
-% "and" conjunct (tax/gst.le) must still nest that conjunct under itself.
+% "and" conjunct (domains/tax/gst.le) must still nest that conjunct under itself.
 lines_to_hierarchy(Lines, Nodes) :-
     ( Lines = [line(Anchor, _)|_] -> true ; Anchor = 0 ),
     lines_to_hierarchy_(Lines, Anchor, Nodes).

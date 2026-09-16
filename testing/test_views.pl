@@ -274,7 +274,7 @@ test(automatic_view) :-
     assertion(J.judged == true),
     assertion(length(G.facts, 3)),
     createSession(KB, SM), atom_string(SM, SMS),
-    classic_web_api:handle_automatic_view(_{sessionModule: SMS, name: "RulesRus/benefit.le"}, R),
+    classic_web_api:handle_automatic_view(_{sessionModule: SMS, name: "regulatory/benefit.le"}, R),
     assertion(R.view.title == "Help"),
     destroySession(SM).
 
@@ -318,8 +318,8 @@ a vista balcão é:
     assertion(sub_string(Msg, _, _, _, "uma pessoa é o pai de uma pessoa")).
 
 % The example programs' views compile without issues.
-test(example_views, [forall(member(F, ['examples/RulesRus/eu261_integration.le', 'examples/RulesRus/flip_housing.le',
-                                       'examples/RulesRus/judged_damage.le', 'examples/RulesRus/sections_benefit.le']))]) :-
+test(example_views, [forall(member(F, ['examples/regulatory/eu261_integration.le', 'examples/regulatory/flip_housing.le',
+                                       'examples/regulatory/judged_damage.le', 'examples/regulatory/sections_benefit.le']))]) :-
     load(F, KB),
     le_views:program_views(KB, [_|_]),
     view_issues(KB, Issues),

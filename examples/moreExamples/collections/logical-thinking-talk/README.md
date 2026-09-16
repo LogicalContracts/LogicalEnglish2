@@ -119,4 +119,4 @@ a standard is acceptable
   aggression standard mentions the loss-of-control defence of the Coroners
   and Justice Act 2009 (s. 55) only as an example of a real standard of that kind.
 - Re-verify from the repository root:
-  `./myswipl.sh -g "use_module(le_kbs), runTestsFor('examples/moreExamples/LogicalThinkingInAgeOfAI/<FILE>.le', R), print_test_result(R), halt."`
+  `./myswipl.sh -g "use_module(le_kbs), runTestsFor('examples/moreExamples/collections/logical-thinking-talk/<FILE>.le', R), print_test_result(R), halt."`

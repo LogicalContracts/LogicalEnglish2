@@ -21,8 +21,18 @@ test(every_alias_leads_to_a_file, [forall(le_kbs:example_alias(Old, _))]) :-
     assertion(exists_file(Path)).
 
 test(every_directory_alias_leads_to_a_directory, [forall(le_kbs:example_dir_alias(_, New))]) :-
-    le_example_relpath(New, Dir),
+    (   le_kbs:le_extra_examples_dir(New, Dir) -> true
+    ;   le_example_relpath(New, Dir)
+    ),
     assertion(exists_directory(Dir)).
+
+test(old_directory_names_resolve) :-
+    le_example_relpath('RulesRus/flip_housing', P1),
+    assertion(P1 == 'examples/regulatory/flip_housing'),
+    le_example_relpath('testing/nonterminating', P2),
+    assertion(P2 == 'testing/fixtures/le/nonterminating'),
+    le_example_relpath('tax/payg.le', P3),
+    assertion(exists_file(P3)).
 
 test(an_alias_is_not_an_existing_name, [forall(le_kbs:example_alias(Old, _))]) :-
     le_kbs:le_examples_dir(Main),
@@ -31,15 +41,15 @@ test(an_alias_is_not_an_existing_name, [forall(le_kbs:example_alias(Old, _))]) :
 
 test(old_name_resolves_to_new_path) :-
     le_example_relpath(sum_onto, P1),
-    assertion(P1 == 'examples/moreExamples/sums'),
+    assertion(P1 == 'examples/moreExamples/language/aggregates/sums'),
     le_example_relpath('sum_onto.le', P2),
-    assertion(P2 == 'examples/moreExamples/sums.le').
+    assertion(P2 == 'examples/moreExamples/language/aggregates/sums.le').
 
 test(current_names_are_unchanged) :-
     le_example_relpath(citizenship, P1),
     assertion(P1 == 'examples/moreExamples/citizenship'),
-    le_example_relpath('RulesRus/precedent', P2),
-    assertion(P2 == 'examples/RulesRus/precedent'),
+    le_example_relpath('regulatory/precedent', P2),
+    assertion(P2 == 'examples/regulatory/precedent'),
     le_example_relpath('pt/cidadania', P3),
     assertion(P3 == 'examples/pt/cidadania').
 

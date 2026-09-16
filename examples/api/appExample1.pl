@@ -5,7 +5,7 @@
     add facts, and run queries with explanations.
 */
 
-:- use_module('../le_kbs').
+:- use_module('../../le_kbs').
 :- use_module(library(pprint)).
 
 main :-

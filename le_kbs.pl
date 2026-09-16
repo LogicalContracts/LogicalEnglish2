@@ -77,17 +77,20 @@ language_examples_dir(Lang, Dir) :-
 
 %!  le_extra_examples_dir(?Name:atom, ?Dir:atom) is nondet.
 %
-%   Example trees kept beside the main one so that a family of examples does
-%   not clutter it: examples/RulesRus/ holds the programs exercising the
-%   regulatory-decision constructs (provenance, judged templates, otherwise,
-%   decision tables, section conventions, scoped proof, services, flip
-%   queries). Such a tree is named by its directory: 'RulesRus/judged_damage'
-%   resolves into it (le_example_relpath/2), and it is listed and run by the
-%   example suite like the main tree. examples/migration/ holds the twins
-%   the translators of other systems wrote (docs/le_migration.md), one
-%   directory per source system: 'migration/blawx/bird/bird'.
-le_extra_examples_dir('RulesRus', 'examples/RulesRus').
-le_extra_examples_dir('migration', 'examples/migration').
+%   Example trees kept beside the main one (examples/README.md). Such a tree
+%   is named by Name: 'regulatory/judged_damage' resolves into it
+%   (le_example_relpath/2), and it is listed and run by the example suite
+%   like the main tree.
+%     - examples/regulatory/: the regulatory-decision constructs (provenance,
+%       judged templates, otherwise, decision tables, sections, scoped proof,
+%       services, flip queries, views), docs/le_summary.md §17;
+%     - examples/migration/: the twins the translators of other systems wrote
+%       (docs/le_migration.md), one directory per source system;
+%     - testing/fixtures/le/: the programs the test suites load, listed only
+%       to logged-in users (restricted_paths.pl).
+le_extra_examples_dir(regulatory, 'examples/regulatory').
+le_extra_examples_dir(migration, 'examples/migration').
+le_extra_examples_dir(fixtures, 'testing/fixtures/le').
 
 %!  example_alias(?Old:atom, ?New:atom) is nondet.
 %!  example_dir_alias(?OldDir:atom, ?NewDir:atom) is nondet.
@@ -95,16 +98,54 @@ le_extra_examples_dir('migration', 'examples/migration').
 %   Names an example had before the example trees were regrouped
 %   (docs/NewExamplesStructure.md), and the name it has now: links, QR codes,
 %   papers and videos keep working. A name is what ?example= and
-%   le_example_relpath/2 take ('citizenship', 'tax/payg', 'RulesRus/x');
+%   le_example_relpath/2 take ('citizenship', 'domains/tax/payg', 'regulatory/x');
 %   a directory alias renames every example under it.
+example_alias(unknowns, 'language/unknowns/unknowns').
+example_alias(unknowns_in_aggregates, 'language/unknowns/unknowns_in_aggregates').
+example_alias(unknowns_in_forall, 'language/unknowns/unknowns_in_forall').
+example_alias(assumption_constraints, 'language/unknowns/assumption_constraints').
+example_alias(only_if, 'language/negation/only_if').
+example_alias(propositional, 'language/negation/propositional').
+example_alias(alice_propositional, 'language/negation/alice_propositional').
+example_alias(inequality, 'language/negation/inequality').
+example_alias(synonyms, 'language/templates/synonyms').
+example_alias(named_vars, 'language/templates/named_vars').
+example_alias(white_rabbit, 'language/templates/white_rabbit').
+example_alias('short/is_a_class_of', 'language/templates/is_a_class_of').
+example_alias('short/longsentence', 'language/templates/longsentence').
+example_alias(sums, 'language/aggregates/sums').
+example_alias(ecommerce, 'language/aggregates/ecommerce').
+example_alias(citizenship_including, 'language/includes/citizenship_including').
+example_alias('testing/citizenship_premier', 'language/includes/citizenship_premier').
+example_alias(dual_engine_demo, 'language/scasp/dual_engine_demo').
+example_alias(enclosure, 'domains/other/enclosure').
+example_alias(sequencer, 'domains/other/sequencer').
+example_alias(augmentedsem, 'domains/other/augmentedsem').
+example_alias(flying_dragon, 'domains/other/flying_dragon').
+example_alias('short/sunangel', 'domains/other/sunangel').
+example_alias(error, 'fixtures/error').
+example_alias(rule_id_test, 'language/rules/rule_id_test').
+example_alias(type_check_test, 'fixtures/type_check_test').
+example_alias(scenario_element_test, 'fixtures/scenario_element_test').
+example_alias(numbering_test, 'language/extensions/numbering_test').
+example_alias(clp_coverage, 'language/scasp/clp_coverage').
+example_alias('AItest', 'fixtures/AItest').
+example_alias(prolog_call, 'language/extensions/prolog_call').
+example_alias(subset, 'language/templates/subset').
 example_alias('testing/happpy_dragon', happy_dragon).
-example_alias('short/sets', subset).
-example_alias(sum_onto, sums).
-example_alias(sum_simple, sums).
-example_alias(cgt_assets, 'tax/1_cgt_assets_and_exemptions_3').
-example_alias(journal, 'tax/journal_balance').
+example_alias('short/sets', 'language/templates/subset').
+example_alias(sum_onto, 'language/aggregates/sums').
+example_alias(sum_simple, 'language/aggregates/sums').
+example_alias(cgt_assets, 'domains/tax/1_cgt_assets_and_exemptions_3').
+example_alias(journal, 'domains/tax/journal_balance').
 
-example_dir_alias(_, _) :- fail.
+example_dir_alias(abduction, 'language/abduction').
+example_dir_alias(prolog_resources, 'language/includes/prolog_resources').
+example_dir_alias(tax, 'domains/tax').
+example_dir_alias(rkBook, 'collections/kowalski-book').
+example_dir_alias('LogicalThinkingInAgeOfAI', 'collections/logical-thinking-talk').
+example_dir_alias('RulesRus', regulatory).
+example_dir_alias(testing, fixtures).
 
 %!  example_current_name(+Name:atom, -Current:atom) is det.
 %
@@ -130,7 +171,7 @@ example_current_name(Name, Current) :-
 %!  le_example_relpath(+Name, -Path:atom) is det.
 %
 %   Resolves an example name as used by the web API/MCP — relative to the
-%   examples directory, e.g. 'citizenship' or 'tax/vat' (no extension
+%   examples directory, e.g. 'citizenship' or 'domains/tax/gst' (no extension
 %   handling) — to a repo-relative file path. A name whose first path
 %   component is a registered non-English language code with an
 %   examples/<Lang>/ tree resolves into that tree instead:
@@ -3055,6 +3096,8 @@ le_suite(all).
 %   nothing else needs to change.
 extension_dependent_path_fragment('/insurele2/').
 extension_dependent_path_fragment('/insurle2/').
+%  The examples of the extension constructs themselves (le_summary.md §15).
+extension_dependent_path_fragment('/language/extensions/').
 %  A twin of another system written with an extension construct: embedded
 %  Prolog goals (s(CASP)'s list built-ins, which core LE has no sentence for).
 extension_dependent_path_fragment('/migration/scasp/turingcomplete/').

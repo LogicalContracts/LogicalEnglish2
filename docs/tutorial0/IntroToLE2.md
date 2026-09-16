@@ -667,7 +667,7 @@ key to the next feature.
 ### Answers that are *constraints*
 
 Because comparisons become constraints, s(CASP) can answer a query **with no concrete
-scenario at all**. Load `clp_coverage` (it declares `scasp`, so the engine
+scenario at all**. Load `language/scasp/clp_coverage` (it declares `scasp`, so the engine
 pre‑selects), pick the `covered` query — no scenario — and hit **Query**:
 
 ![A symbolic s(CASP) answer: any amount greater than 25000](17-scasp-constraint.png)
@@ -752,7 +752,7 @@ From here:
   [`docs/sCASP_on_LE.md`](https://github.com/LogicalContracts/LogicalEnglish2/blob/main/docs/sCASP_on_LE.md)
   for the full dual‑engine story.
 - Browse the [examples](https://github.com/LogicalContracts/LogicalEnglish2/tree/main/examples/moreExamples)
-  — `citizenship_including`, `royal_family`, `subset`, the `tax/` set — and open any
+  — `language/includes/citizenship_including`, `royal_family`, `language/templates/subset`, the `domains/tax/` set — and open any
   of them straight from the running system at
   **<https://le2.logicalcontracts.com>**.
 

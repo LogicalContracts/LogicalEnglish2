@@ -448,7 +448,7 @@ call_tool("list_examples", _Args, Result) :-
     b_setval(mcp_list_deadline, Deadline),
     list_examples_with_summaries(Dir, '', Main),
     % The other example trees, under the names get_example_details resolves
-    % (le_kbs:le_example_relpath/2): 'RulesRus/x', 'migration/blawx/..', 'pt/x'.
+    % (le_kbs:le_example_relpath/2): 'regulatory/x', 'migration/blawx/..', 'pt/x'.
     findall(Es,
             ( (   le_kbs:le_extra_examples_dir(Root, TreeDir)
               ;   le_kbs:language_examples_dir(Root, TreeDir)
