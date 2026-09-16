@@ -332,7 +332,7 @@ solve_real_actual(le_query_fails_at_section(Query, Section), SM, KM, _Anc, _D, _
     nonvar(Query),
     le_sections:failing_section(SM, KM, Query, Section).
 
-% Source-scoped proof (docs/le_summary.md §17.5): Goal proved from the rules
+% Source-scoped proof (docs/user/reference/language.md §17.5): Goal proved from the rules
 % and facts of the program plus only those session (scenario) facts whose
 % provenance source is admissible under Scope. The scope is carried down the
 % sub-proof in a backtrackable global and checked at each session leaf.

@@ -1,4 +1,4 @@
-/** <module> Views: how a screen shows a program (docs/le_summary.md §17.10)
+/** <module> Views: how a screen shows a program (docs/user/reference/language.md §17.10)
 
     A view is a section of declarative sentences about a program — which facts
     a case states and how they are grouped, which query is the result, what is

@@ -2,7 +2,7 @@
 editor/node_modules
 editor/test-results/
 editor/playwright-report/
-docs/images/editor_selection.png
+docs/user/guide/images/editor_selection.png
 tmp/
 le_extensions.pl
 .github

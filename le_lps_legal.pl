@@ -44,7 +44,7 @@
 
     Items: fluent(F, Text, Adds), action(F, Text, Adds), event(F, Text, Adds),
     template(F, Text, Adds) (timeless), lps(Term) — Migration IR items
-    (docs/le_migration.md), F being the functor the LPS terms use.
+    (docs/dev/migration.md), F being the functor the LPS terms use.
 
     Options: kb(Name), comment(Text), scenarios(Scenarios),
     queries(Queries) (replace the generated ones), language(Lang),

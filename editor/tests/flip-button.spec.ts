@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-// The Flip… button beside Query: a flip query (docs/le_summary.md §17.7) about
+// The Flip… button beside Query: a flip query (docs/user/reference/language.md §17.7) about
 // the selected answer — "which minimal change to the scenario makes it the
 // case that it is not the case that <answer>" — composed in a small dialog and
 // run as a custom query, so its change sets show as the answers.

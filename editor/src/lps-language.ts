@@ -2,7 +2,7 @@
  * lps-language.ts — Monaco language configuration and Monarch tokenizer for
  * LPS *external* syntax: the `.lps` files that sit beside a `.le` document and
  * carry what Logical English deliberately does not (display/2, Prolog escapes,
- * real-time plumbing — docs/le_lps_surface.md §7).
+ * real-time plumbing — lps2's docs/user/reference/le-for-lps.md §7).
  *
  * A SECOND mode rather than an extension of `le`, because the two languages
  * share no lexis. LE is English with indentation-significant structure; this is

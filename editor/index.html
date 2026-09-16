@@ -792,9 +792,8 @@
             Help
             <div class="dropdown">
                 <div style="padding: 8px 15px; font-weight: bold; font-size: 11px; color: #888;">DOCUMENTATION</div>
-                <a class="dropdown-item" href="/docs/tutorial0/IntroToLE2" target="_blank" rel="noopener" title="A hands-on tutorial: write, query and debug three small LE programs.">Introduction to Logical English (tutorial)</a>
-                <a class="dropdown-item" href="/docs/howToUse" target="_blank" rel="noopener" title="The editor manual: files, queries, scenario/query editors, explanations.">Using this editor (manual)</a>
-                <a class="dropdown-item" href="/docs/le_summary" target="_blank" rel="noopener" title="The language reference: every LE construct.">Logical English syntax (reference)</a>
+                <!-- filled from the documentation's table of contents, docs/user/nav.json -->
+                <div id="help-docs"></div>
             </div>
         </div>
         <input type="file" id="file-input" accept=".le" style="display: none;">
@@ -912,7 +911,7 @@
             <div id="assistant-panel">
                 <div id="assistant-header" style="display: flex; align-items: center; padding: 8px 12px; background: var(--header-bg); border-bottom: 1px solid var(--border-color); font-size: 12px;">
                     <span style="font-weight: bold; margin-right: auto;">LE Assistant</span>
-                    <button id="btn-generate-view" title="Draft a view for this program (docs/le_summary.md §17.10): the section that says how a screen shows it — its case facts, its result, what is shown beside it" style="margin-right: 12px; background: #0e639c; color: #fff; border: none; border-radius: 3px; padding: 3px 10px; cursor: pointer; font-size: 12px;">Generate LE view</button>
+                    <button id="btn-generate-view" title="Draft a view for this program (docs/user/reference/language.md §17.10): the section that says how a screen shows it — its case facts, its result, what is shown beside it" style="margin-right: 12px; background: #0e639c; color: #fff; border: none; border-radius: 3px; padding: 3px 10px; cursor: pointer; font-size: 12px;">Generate LE view</button>
                     <div style="display: flex; align-items: center; gap: 5px;" title="Light Mode runs a fast, in-process Prolog loop. Uncheck for Deep Mode (full opencode agent with file/web/shell tools).">
                         <input type="checkbox" id="assistant-mode-toggle" checked style="cursor: pointer;">
                         <label for="assistant-mode-toggle" style="cursor: pointer; user-select: none;">Light Mode</label>
@@ -952,7 +951,7 @@
         </div>
     </div>
 
-    <!-- A flip query (docs/le_summary.md §17.7), composed from the selected
+    <!-- A flip query (docs/user/reference/language.md §17.7), composed from the selected
          answer or the query and run as a custom query. -->
     <div id="flip-modal" class="modal-overlay">
         <div class="modal-content" style="width: 560px;">

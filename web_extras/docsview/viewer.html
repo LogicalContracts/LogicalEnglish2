@@ -29,7 +29,17 @@ header.docbar {
 }
 header.docbar a { color: var(--accent); text-decoration: none; font-size: 14px; }
 header.docbar .spacer { flex: 1; }
-main { max-width: 860px; margin: 0 auto; padding: 24px 24px 64px; }
+.layout { display: flex; align-items: flex-start; }
+nav.toc {
+    position: sticky; top: 49px; flex: 0 0 230px; max-height: calc(100vh - 49px); overflow-y: auto;
+    padding: 20px 8px 20px 24px; font-size: 14px; border-right: 1px solid var(--border);
+}
+nav.toc h4 { margin: 14px 0 4px; font-size: 12px; text-transform: uppercase; color: var(--muted); letter-spacing: .04em; }
+nav.toc a { display: block; padding: 3px 0; color: var(--ink); text-decoration: none; }
+nav.toc a:hover { color: var(--accent); }
+nav.toc a.current { color: var(--accent); font-weight: 600; }
+@media (max-width: 900px) { nav.toc { display: none; } }
+main { flex: 1; min-width: 0; max-width: 860px; margin: 0 auto; padding: 24px 24px 64px; }
 main img { max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 6px; }
 main h1, main h2, main h3 { line-height: 1.25; }
 /* anchored headings land below the sticky docbar */
@@ -66,15 +76,37 @@ main hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
     <span class="spacer"></span>
     <a id="source-link" href="#" target="_blank" rel="noopener">View source on GitHub ↗</a>
 </header>
+<div class="layout">
+<nav class="toc" id="toc" aria-label="Documentation"></nav>
 <main id="content"><p id="status">Loading documentation…</p></main>
+</div>
 <script>
 (async function () {
     // The rendered doc lives at this page's own URL; the raw Markdown is the
     // same path + ".md". Relative images therefore resolve correctly against
-    // the page URL (e.g. /docs/tutorial0/IntroToLE2 -> its screenshots at
-    // /docs/tutorial0/<img>.png), served by the same /docs route.
+    // the page URL (e.g. /docs/user/tutorials/intro-to-le/intro-to-le -> its screenshots at
+    // /docs/user/tutorials/intro-to-le/<img>.png), served by the same /docs route.
     const path = location.pathname.replace(/\/+$/, '');
     const mdUrl = path + '.md';
+
+    // The table of contents (docs/user/nav.json) as a sidebar.
+    fetch('/docs/user/nav.json').then(r => r.ok ? r.json() : null).then(nav => {
+        if (!nav) return;
+        const toc = document.getElementById('toc');
+        for (const section of nav.sections) {
+            const h = document.createElement('h4');
+            h.textContent = section.title;
+            toc.appendChild(h);
+            for (const item of section.items) {
+                const a = document.createElement('a');
+                a.href = '/docs/user/' + item.path;
+                a.textContent = item.title;
+                if (item.blurb) a.title = item.blurb;
+                if (a.pathname === path) a.className = 'current';
+                toc.appendChild(a);
+            }
+        }
+    }).catch(() => {});
     const gh = 'https://github.com/LogicalContracts/LogicalEnglish2/blob/main'
              + path.replace(/^\/docs/, '/docs') + '.md';
     document.getElementById('source-link').href = gh;
@@ -88,6 +120,18 @@ main hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
         marked.setOptions({ gfm: true, breaks: false });
         const content = document.getElementById('content');
         content.innerHTML = marked.parse(md);
+
+        // A link to another document (`../guide/editor.md#anchor`) opens it
+        // rendered: the same address without `.md`.
+        for (const a of content.querySelectorAll('a[href]')) {
+            const href = a.getAttribute('href');
+            if (/^[a-z]+:/i.test(href) || href.startsWith('#')) continue;
+            const url = new URL(href, location.href);
+            if (url.origin === location.origin && url.pathname.endsWith('.md')) {
+                url.pathname = url.pathname.slice(0, -3);
+                a.setAttribute('href', url.pathname + url.hash);
+            }
+        }
 
         // Heading ids, GitHub-style (marked v5+ no longer generates any, so
         // without this neither #deep-links nor the documents' own tables of

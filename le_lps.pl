@@ -10,8 +10,8 @@
     d_pre/1, initial_state/1 and observe/2 — together with a provenance list
     that points each generated term back at the `.le` sentence it came from.
 
-    The contract with LPS(2) is docs/le_lps_interface.md, duplicated verbatim
-    in that repository. The surface language is docs/le_lps_surface.md. Neither
+    The contract with LPS(2) is lps2's docs/dev/le-lps-interface.md, duplicated verbatim
+    in that repository. The surface language is lps2's docs/user/reference/le-for-lps.md. Neither
     is restated here; what follows is how this module is built.
 
     ## Three stages, and why they are separate
@@ -465,7 +465,7 @@ locate_issue(LEText, le_lps_issue(S, T, M, Start, _),
 
 %!  offset_line_col(+Text, +Offset, -Line, -Col) is det.
 %
-%   1-based line, 0-based column, as docs/le_lps_interface.md §2 requires.
+%   1-based line, 0-based column, as lps2's docs/dev/le-lps-interface.md §2 requires.
 offset_line_col(Text, Offset, Line, Col) :-
 	string_length(Text, Len),
 	(   Offset =< Len
@@ -527,7 +527,7 @@ item(KB, Kind, Payload, Start) :-
 		 *******************************/
 
 %   A knowledge base that extends others (`the knowledge base my token extends
-%   erc20, pausable.`, docs/le_lps_surface.md §1.1) has their laws and
+%   erc20, pausable.`, lps2's docs/user/reference/le-for-lps.md §1.1) has their laws and
 %   constraints as its own: the loader read them in (le_kbs:fetch_base/4), each
 %   keeping its file's positions, so explanations cite the base. What is left
 %   here is replacement: a labelled law or constraint of a base is left out
@@ -650,7 +650,7 @@ role_terms(KB, Role, Terms) :-
 
 %!  defaults_declaration(+KB, -Entries, -Issues) is det.
 %
-%   `; <value> by default` on fluents (docs/le_lps_surface.md §2), as one
+%   `; <value> by default` on fluents (lps2's docs/user/reference/le-for-lps.md §2), as one
 %   `defaults([balance(_, 0), owner('the zero address')])` beside fluents/1:
 %   each term the fluent's most general term with its value place holding
 %   the default. An LPS2 declaration (upstream LPS has none): the engine reads
@@ -683,7 +683,7 @@ fluent_default(KB, Fl, Key, Default) :-
 
 %!  default_issues(+KB, +Entries, -Issues) is det.
 %
-%   What a default makes suspicious (docs/le_lps_surface.md §2):
+%   What a default makes suspicious (lps2's docs/user/reference/le-for-lps.md §2):
 %     - `it is not the case that the balance of X is a thing` — a key always
 %       holds a value, its default at least, so the test never succeeds;
 %     - a count over a defaulted fluent counts the stored entries only;
@@ -1309,7 +1309,7 @@ with_kb(KB, Goal) :-
 
 %!  le_lps_json(+Path) is det.
 %
-%   Writes the docs/le_lps_interface.md §2 object to the current output, as one
+%   Writes the lps2's docs/dev/le-lps-interface.md §2 object to the current output, as one
 %   line, so that a caller reading the child's stdout can find it. This is
 %   transport 3.3.
 le_lps_json(Path) :-

@@ -69,7 +69,7 @@ query flip_bob is:
     which minimal change to the scenario makes it the case that
         it is not the case that bob gets help to pay rent.
 
-% A view (docs/le_summary.md §17.10): the rules as a citizen's check on a
+% A view (docs/user/reference/language.md §17.10): the rules as a citizen's check on a
 % phone — four questions, asked only when the answer still depends on them,
 % and the answer in the view's words.
 the view benefit check is:

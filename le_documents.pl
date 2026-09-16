@@ -1,6 +1,6 @@
 /** <module> The text of a cited document
 
-    Provenance cites documents (docs/le_summary.md §17.1, §15.5): "as stated in
+    Provenance cites documents (docs/user/reference/language.md §17.1, §15.5): "as stated in
     ruling NY N362700 at "a zipper garage at the top of the collar"". A program
     may say where a document's text is — `the text of <document> is at
     <address>` — and the editor then shows that text with the quoted passage

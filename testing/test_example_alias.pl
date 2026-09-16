@@ -1,6 +1,6 @@
 /** <module> Old example names keep resolving (le_kbs:example_alias/2)
 
-    When examples are regrouped (docs/NewExamplesStructure.md), the names
+    When examples are regrouped (docs/project/plans/NewExamplesStructure.md), the names
     they had — in links, QR codes, papers, videos — are kept in
     example_alias/2 and example_dir_alias/2. Every alias must lead to a
     file that exists, and resolution must go through them.

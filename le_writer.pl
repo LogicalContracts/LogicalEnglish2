@@ -16,7 +16,7 @@
     ## The Migration IR
 
     A program is `program(Header, Items)`. The IR is documented in full in
-    docs/le_migration.md; in short:
+    docs/dev/migration.md; in short:
 
         Header:  kb(Name), target(prolog|lps), comment(Text),
                  includes([Resource, ...]), extends([Base, ...]), provenance_required,
@@ -2268,7 +2268,7 @@ pop_scasp_ops.
 %   language, for the articles and keywords written: en by default).
 %
 %   s(CASP) programs (§5.7 of the migration report; the reverse of LE's own
-%   s(CASP) target, docs/sCASP_on_LE.md §4, read backwards):
+%   s(CASP) target, docs/user/reference/scasp.md §4, read backwards):
 %
 %     #pred p(X) :: '@(X) ...'   the template (`@(X:type)` names the place)
 %     -p(X)                      the opposite form of p (`; opposite:`), its

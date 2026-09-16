@@ -7,7 +7,7 @@ server's landing page.
 | Tree | Example names | What |
 |---|---|---|
 | [`moreExamples/`](moreExamples/README.md) | `citizenship`, `language/unknowns/unknowns`, … | the main tree: a first set at its top, then `language/` (one program per feature), `domains/`, `collections/` |
-| [`regulatory/`](regulatory/README.md) | `regulatory/…` | the regulatory-decision constructs and views (docs/le_summary.md §17) |
+| [`regulatory/`](regulatory/README.md) | `regulatory/…` | the regulatory-decision constructs and views (docs/user/reference/language.md §17) |
 | [`migration/`](migration/README.md) | `migration/<source>/<twin>/<twin>` | twins of other systems' programs (Blawx, LegalRuleML, Miniscript, s(CASP)) |
 | [`es/`](es/README.md) [`fr/`](fr/README.md) [`it/`](it/README.md) [`pt/`](pt/README.md) | `pt/cidadania`, … | programs written in other languages |
 | [`api/`](api/README.md) | | calling LE from Prolog |

@@ -1,5 +1,46 @@
 import { leLanguageConfiguration, leMonarchTokens, buildLeMonarchTokens } from './le-language';
 import { t, applyI18nDom, installLeApiLang, detectProgramLanguage, detectTargetLanguage, targetLanguageStatement, uiLang } from './i18n';
+
+/** An entry of the documentation's table of contents (docs/user/nav.json). */
+interface DocNavItem {
+    path: string;
+    title: string;
+    blurb?: string;
+    menu?: string;
+    menuTip?: string;
+    translations?: Record<string, string>;
+}
+interface DocNav { sections: { title: string; items: DocNavItem[] }[] }
+
+/**
+ * Help ▸ Documentation: the documents nav.json gives a `menu` label, in the
+ * UI language, each opening its translation when the active language has one.
+ */
+async function fillHelpMenu(): Promise<void> {
+    const box = document.getElementById('help-docs');
+    if (!box) return;
+    try {
+        const resp = await fetch('/docs/user/nav.json');
+        if (!resp.ok) return;
+        const nav = await resp.json() as DocNav;
+        for (const section of nav.sections) {
+            for (const item of section.items) {
+                if (!item.menu) continue;
+                const path = item.translations?.[uiLang()] ?? item.path;
+                const a = document.createElement('a');
+                a.className = 'dropdown-item';
+                a.href = `/docs/user/${path}`;
+                a.target = '_blank';
+                a.rel = 'noopener';
+                a.title = t(item.menuTip ?? item.blurb ?? '');
+                a.textContent = t(item.menu);
+                box.appendChild(a);
+            }
+        }
+    } catch {
+        // No table of contents: the menu keeps its other entries.
+    }
+}
 import { buildShareUrl, decompressFromParam, fragmentParam } from './share-url';
 import qrcode from 'qrcode-generator';
 import { parseScenarioBlocks, parseQueryBlocks } from './le-templates';
@@ -51,6 +92,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         if (homeLink && uiLang() !== 'en') {
             homeLink.setAttribute('href', `/multilingual?lang=${encodeURIComponent(uiLang())}`);
         }
+        void fillHelpMenu();
 
         const issueFixes = new Map<string, string>();
         const getMarkerKey = (marker: any) => {
@@ -3140,7 +3182,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     });
 
     // --- Flip -----------------------------------------------------------------
-    // A flip query (docs/le_summary.md §17.7) about what is on screen: "which
+    // A flip query (docs/user/reference/language.md §17.7) about what is on screen: "which
     // minimal change to the scenario makes it the case that <goal>". The goal
     // is the selected answer, negated — what would make it not so — or, when
     // the query has no answer, the query itself; the author may edit either.
@@ -3770,7 +3812,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     btnAssistantSend.addEventListener('click', handleAssistantSend);
 
     // --- Generate LE view ----------------------------------------------------
-    // A first view section for the program (docs/le_summary.md §17.10), drafted
+    // A first view section for the program (docs/user/reference/language.md §17.10), drafted
     // by the server from the program itself (le_views:draft_view/2 — no
     // language model needed): its case facts as one group, its judged
     // templates, its first query as the result, and what the program can show
@@ -3808,7 +3850,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         // the program as it is when the link is followed, edits to the view included
         const link = assistantHistory.lastElementChild?.querySelector('a[href="#open-view"]') as HTMLAnchorElement | null;
         link?.addEventListener('click', (e) => { e.preventDefault(); openExecutive(doc, name); });
-        assistantInput.value = t('Refine the view section at the end of the program: group its facts under short titles, head the result by the value that matters, and add questions or a draft where they help. Use only the view sentences of docs/le_summary.md §17.10.');
+        assistantInput.value = t('Refine the view section at the end of the program: group its facts under short titles, head the result by the value that matters, and add questions or a draft where they help. Use only the view sentences of docs/user/reference/language.md §17.10.');
     });
     btnAssistantInterrupt.addEventListener('click', handleAssistantInterrupt);
     assistantInput.addEventListener('keypress', (e) => {

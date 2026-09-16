@@ -723,7 +723,7 @@ system_prompt(Kind, Templates, Program, Prompt) :-
 %
 %   The extra instruction for extracting facts from the text of a document:
 %   each fact cites the passage that states it, with the program's own
-%   provenance trailers (docs/le_summary.md §17.1) in the program's language;
+%   provenance trailers (docs/user/reference/language.md §17.1) in the program's language;
 %   judged templates only record a decision the text reports; derived ones are
 %   never stated.
 document_rules(Doc, Text) :-

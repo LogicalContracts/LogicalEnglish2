@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-// LE Views (docs/le_summary.md §17.10): a program's view sections, rendered by
+// LE Views (docs/user/reference/language.md §17.10): a program's view sections, rendered by
 // the executive view with generic widgets (editor/src/le-views.ts), and the LE
 // Assistant's "Generate LE view".
 const ready = async (page: any) => {

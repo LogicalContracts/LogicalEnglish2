@@ -25,7 +25,7 @@ When no opener matches, the program is parsed as English (decision O-1).
   more **synonyms separated by `|`**; each synonym is a space-separated word
   phrase. The first/longest synonym is the *principal* form, used when LE text
   is generated (answers, explanations); all synonyms are accepted when parsing.
-  Category `view` holds the sentence phrases of views (docs/le_summary.md
+  Category `view` holds the sentence phrases of views (docs/user/reference/language.md
   §17.10): each view sentence is a sequence of these phrases and its
   arguments.
 - **`system_templates.csv`** — surface phrases of the built-in predicates

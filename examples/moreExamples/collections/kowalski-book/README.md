@@ -2,7 +2,7 @@
 
 This directory contains Logical English (LE) programs vibe-coded from the examples
 in Robert Kowalski's *Computational Logic and Human Thinking* that
-[`docs/RK_book/bookExamples.md`](../../../docs/RK_book/bookExamples.md) judged to **already fit current LE**
+[`docs/project/research/rk-book/bookExamples.md`](../../../docs/project/research/rk-book/bookExamples.md) judged to **already fit current LE**
 (status "Fits current LE", excluding the "partially" / "not yet" cases).
 
 Each `.le` file carries a header comment with (a) its precise chapter/section
@@ -20,7 +20,7 @@ beliefs are genuinely propositional (no variables). No program has a failing tes
 From the repo root (`/work`):
 
 ```
-swipl -q -g main -t halt docs/RK_book/examples/.le_check.pl docs/RK_book/examples/<FILE>.le 2>&1 | grep -v Warning
+swipl -q -g main -t halt docs/project/research/rk-book/examples/.le_check.pl docs/project/research/rk-book/examples/<FILE>.le 2>&1 | grep -v Warning
 ```
 
 `.le_check.pl` reports parser/verifier `issues` (via `le_tool_verify/2`) and runs

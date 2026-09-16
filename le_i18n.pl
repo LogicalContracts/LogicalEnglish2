@@ -190,8 +190,8 @@ skip_noise_tokens(Ts, Ts).
 %   Path of the active language's variant of a text asset: for language L
 %   (other than en), Base.L.Ext when that file exists (also trying a '../'
 %   prefix, mirroring how the assistants locate their assets), else Base.Ext
-%   (again trying '../' when needed). E.g. localized_asset('docs/le_summary',
-%   md, P) gives 'docs/le_summary.pt.md' for Portuguese when present.
+%   (again trying '../' when needed). E.g. localized_asset('docs/user/reference/language',
+%   md, P) gives 'docs/user/reference/language.pt.md' for Portuguese when present.
 localized_asset(Base, Ext, Path) :-
     le_active_language(Lang),
     (   Lang \== en,

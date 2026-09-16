@@ -16,7 +16,7 @@ Logical English is designed to be readable by non-programmers while remaining ma
 - **Explainable:** Every answer comes with a justification tree in natural language.
 - **Typed:** Built-in support for types, dates, and arithmetic.
 
-[Learn more about LE Syntax](./docs/le_syntax.md) | [Cheat sheet](./docs/le_summary.md) | [View Examples](./examples/moreExamples/)
+[Learn more about LE Syntax](./docs/project/archive/le_syntax.md) | [Cheat sheet](./docs/user/reference/language.md) | [View Examples](./examples/moreExamples/)
 
 ---
 
@@ -28,7 +28,7 @@ The LE 2.0 environment provides a powerful, web-based IDE for developing and tes
 - **Scenario Testing:** Define "Scenarios" (facts) and "Queries" within the same file to verify behavior.
 - **LSP Support:** Modern editor features including autocompletion and hover information.
 
-[Editor Summary](./docs/editorSummary.md) | [Debugger Design](./docs/DebuggerDesign.md)
+[Editor Summary](./docs/dev/architecture.md) | [Debugger Design](./docs/dev/debugger.md)
 
 ---
 
@@ -43,7 +43,7 @@ You can configure the deployment using the following environment variables:
 - `GEMINI_API_KEY`, `GOOGLE_API_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`: API key for Google Gemini models.
 - `GROQ_API_KEY`: API key for Groq models.
 - `TOGETHER_API_KEY`, `TOGETHERAI_API_KEY`: API key for Together AI models.
-- `LE_SENTRY_DSN`, `LE_CLOUDFLARE_ANALYTICS_TOKEN` (and `LE_SENTRY_ENVIRONMENT`, `LE_SENTRY_RELEASE`): error reports to Sentry, with a feedback form, and Cloudflare Web Analytics; off unless set, and set (as fly secrets) only on the deployed server. See [docs/telemetry.md](./docs/telemetry.md).
+- `LE_SENTRY_DSN`, `LE_CLOUDFLARE_ANALYTICS_TOKEN` (and `LE_SENTRY_ENVIRONMENT`, `LE_SENTRY_RELEASE`): error reports to Sentry, with a feedback form, and Cloudflare Web Analytics; off unless set, and set (as fly secrets) only on the deployed server. See [docs/dev/telemetry.md](./docs/dev/telemetry.md).
 
 ### Local Installation (SWI-Prolog)
 To run Logical English 2.0 on your local machine:
@@ -149,7 +149,7 @@ LE 2.0 is built on **SWI-Prolog** for the reasoning engine and **TypeScript/Mona
 - **Web API:** A JSON-RPC and REST API for loading KBs and running queries.
 - **MCP Server:** Built-in support for the [Model Context Protocol](https://modelcontextprotocol.io), allowing LLMs (like Claude) to interact directly with your logic.
 
-[API Documentation](./docs/api.md) | [MCP Setup](./llm/settings/README.md)
+[API Documentation](./docs/user/api/web-api.md) | [MCP Setup](./llm/settings/README.md)
 
 ---
 

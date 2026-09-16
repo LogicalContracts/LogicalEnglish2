@@ -1,6 +1,6 @@
 # Language features, one program each
 
-Each folder illustrates part of the language reference, docs/le_summary.md:
+Each folder illustrates part of the language reference, docs/user/reference/language.md:
 
 | Folder | Programs | Reference |
 |---|---|---|
@@ -11,5 +11,5 @@ Each folder illustrates part of the language reference, docs/le_summary.md:
 | [`unknowns/`](unknowns/README.md) | unknowns, unknowns_in_aggregates, unknowns_in_forall, assumption_constraints | §2 (`; unknown`), §3.3 |
 | [`abduction/`](abduction/README.md) | grass_is_wet, sunglasses, diagnosis, loan_approval | §2, §3.3 |
 | [`includes/`](includes/README.md) | citizenship_including (+ citizenship_premier), prolog_resources/ | §14 |
-| [`scasp/`](scasp/README.md) | dual_engine_demo, clp_coverage | docs/sCASP_on_LE.md |
+| [`scasp/`](scasp/README.md) | dual_engine_demo, clp_coverage | docs/user/reference/scasp.md |
 | [`extensions/`](extensions/README.md) | numbering_test, prolog_call | §15 (need le_extensions.pl) |

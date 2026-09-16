@@ -6,9 +6,9 @@ test.describe('Help menu', () => {
     // Links now point at the LE server's own rendered-docs route (/docs/...),
     // not GitHub — clean rendering, no repo chrome.
     const DOCS = [
-        { text: 'Introduction to Logical English (tutorial)', href: '/docs/tutorial0/IntroToLE2' },
-        { text: 'Using this editor (manual)', href: '/docs/howToUse' },
-        { text: 'Logical English syntax (reference)', href: '/docs/le_summary' },
+        { text: 'Introduction to Logical English (tutorial)', href: '/docs/user/tutorials/intro-to-le/intro-to-le' },
+        { text: 'Using this editor (manual)', href: '/docs/user/guide/editor' },
+        { text: 'Logical English syntax (reference)', href: '/docs/user/reference/language' },
     ];
 
     test('lists the three docs in order, each opening in a new tab', async ({ page }) => {

@@ -358,7 +358,7 @@ function renderAnswers(data) {
 
 // ---------------------------- citations ------------------------------------
 // Where the program cites its sources (a rule's `with provenance`, a fact's
-// "as stated in …, confer "…"", a table row's passage — docs/le_summary.md
+// "as stated in …, confer "…"", a table row's passage — docs/user/reference/language.md
 // §15.5, §17.1), every explanation node proved by it carries a `provenance`.
 // An answer opens on those steps alone, in the order of the proof — the chain
 // a reviewer reads, each step with its passage, one tap from the document —

@@ -87,7 +87,7 @@ export function buildLeMonarchTokens(lang: string): any {
         'all_of', 'at_least_one_of', 'unless', 'and_unless', 'forall',
         'it_the_case', 'not_the_case', 'such_that', 'sum', 'count', 'average',
         'min', 'max', 'marker',
-        // LPS (docs/le_lps_surface.md §3): the sentence forms a document with
+        // LPS (lps2's docs/user/reference/le-for-lps.md §3): the sentence forms a document with
         // "the target language is: lps." adds. Highlighting them in a plain-LE
         // document is harmless -- they read as ordinary template instances --
         // which is the argument for one .le extension rather than two.
@@ -97,7 +97,7 @@ export function buildLeMonarchTokens(lang: string): any {
         // MiggratingFromOtherSystems Phase 1e: a knowledge base built on
         // others, and a law of the child that replaces one of a base's.
         'kb_extends', 'lps_this_law_replaces', 'lps_this_constraint_replaces',
-        // Regulatory-decision constructs (docs/le_summary.md §17): provenance
+        // Regulatory-decision constructs (docs/user/reference/language.md §17): provenance
         // trailers, otherwise cascades, decision tables, services, flip queries.
         'provenance_required', 'according_to', 'as_stated_in', 'because',
         'otherwise', 'table_open', 'table_loaded_from', 'first_match',

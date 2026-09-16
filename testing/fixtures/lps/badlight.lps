@@ -1,4 +1,4 @@
-% Companion file to badlight.le (docs/le_lps_surface.md §3.10, §7).
+% Companion file to badlight.le (lps2's docs/user/reference/le-for-lps.md §3.10, §7).
 % The visual mapping, in LPS external syntax: display/2 is a property list of
 % shapes, colours and coordinates, and rendering it in English buys nothing.
 

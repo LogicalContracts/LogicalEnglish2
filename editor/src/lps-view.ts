@@ -18,7 +18,7 @@
  * understand — and that set grows with every LPS feature. Two base URLs in the
  * client is the cheaper coupling, and it is visible.
  *
- * The flow for one document, which is the whole of docs/le_lps_interface.md:
+ * The flow for one document, which is the whole of lps2's docs/dev/le-lps-interface.md:
  *
  *     .le  --POST /leapi  {getLps}-->  {lps, provenance, issues}
  *          --POST /lpsapi {compile, syntax:"internal", source, provenance}-->
@@ -185,7 +185,7 @@ function showIssues(issues: Dict[]) {
 
 /**
  * LPS-side diagnostics. `source` is the decomposed position of
- * docs/le_lps_interface.md §4 — for an LE-sourced program it points into the
+ * lps2's docs/dev/le-lps-interface.md §4 — for an LE-sourced program it points into the
  * .le document, which is the whole reason provenance exists.
  */
 function showDiagnostics(diags: Dict[]) {

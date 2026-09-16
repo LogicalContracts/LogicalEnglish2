@@ -1,6 +1,6 @@
 /** <module> Provenance trailers, judged templates, "scenario facts require provenance"
 
-    LE_extensions_proposal §3.1, docs/le_summary.md §17.1. A fact may carry
+    LE_extensions_proposal §3.1, docs/user/reference/language.md §17.1. A fact may carry
     trailers — `according to <source>`, `as stated in <document> at
     <locator>`, `because "<text>"` — recorded as le_fact_provenance/4 against
     the fact's source range and asserted per session as le_provenance/5. Proof
@@ -303,7 +303,7 @@ query q is:
     KB:le_fact_provenance(_, _, beats(6106, 6109), Prov), !,
     Prov == prov('CBP', doc('HQ H325360', "HQ H325360"), "page 07", "loose tops are blouses").
 
-% "rule <name> with provenance <provenance>:" (docs/le_summary.md §15.5): the
+% "rule <name> with provenance <provenance>:" (docs/user/reference/language.md §15.5): the
 % trailers of a fact, or one quoted string (a URL or a citation); a table
 % header may carry the same. Recorded as le_rule_provenance(ID, Prov).
 cited_program("the target language is: prolog.

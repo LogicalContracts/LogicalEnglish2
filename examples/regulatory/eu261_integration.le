@@ -179,7 +179,7 @@ query flip is:
     which minimal change to the scenario makes it the case that
         it is not the case that anna is entitled to compensation of 250 for flight AZ123.
 
-% A view (docs/le_summary.md §17.10): how a claims handler's screen shows the
+% A view (docs/user/reference/language.md §17.10): how a claims handler's screen shows the
 % program — the executive view renders it (/executive?program=regulatory/eu261_integration&view=claim desk).
 the view claim desk is:
     the title is "Passenger claim desk".

@@ -1,6 +1,6 @@
 /** <module> Flip queries: minimal scenario changes that flip an outcome
 
-    LE_extensions_proposal §3.7, docs/le_summary.md §17.7.
+    LE_extensions_proposal §3.7, docs/user/reference/language.md §17.7.
 
     Run with:  swipl -q -g run_tests -t halt testing/test_flip.pl
     (or via testing/run_tests.sh unit)

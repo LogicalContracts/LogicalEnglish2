@@ -8610,7 +8610,7 @@ function buildLeMonarchTokens(lang) {
     "min",
     "max",
     "marker",
-    // LPS (docs/le_lps_surface.md §3): the sentence forms a document with
+    // LPS (lps2's docs/user/reference/le-for-lps.md §3): the sentence forms a document with
     // "the target language is: lps." adds. Highlighting them in a plain-LE
     // document is harmless -- they read as ordinary template instances --
     // which is the argument for one .le extension rather than two.
@@ -8631,7 +8631,7 @@ function buildLeMonarchTokens(lang) {
     "kb_extends",
     "lps_this_law_replaces",
     "lps_this_constraint_replaces",
-    // Regulatory-decision constructs (docs/le_summary.md §17): provenance
+    // Regulatory-decision constructs (docs/user/reference/language.md §17): provenance
     // trailers, otherwise cascades, decision tables, services, flip queries.
     "provenance_required",
     "according_to",

@@ -217,7 +217,7 @@ assemble_system_prompt(Program, UserRoles, SystemPrompt) :-
     ),
     
     % Load LE syntax summary (the active language's variant when present)
-    le_i18n:localized_asset('docs/le_summary', md, SummaryPath),
+    le_i18n:localized_asset('docs/user/reference/language', md, SummaryPath),
     read_file_to_string(SummaryPath, SyntaxSummary, []),
     
     % Load curated examples

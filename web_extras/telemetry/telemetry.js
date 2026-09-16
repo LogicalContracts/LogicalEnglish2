@@ -7,7 +7,7 @@
  * configured — everywhere but the deployed server — the server answers a
  * comment instead, and nothing is loaded or sent.
  *
- * What is sent, and what is not (docs/telemetry.md):
+ * What is sent, and what is not (docs/dev/telemetry.md):
  *  - Sentry: uncaught errors of the page, with sendDefaultPii off, no console
  *    breadcrumbs (a page may log a program), and the feedback form without
  *    screenshots (a screenshot would show the program). Every address it

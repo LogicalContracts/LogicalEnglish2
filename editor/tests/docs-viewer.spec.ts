@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test';
 // client-side with marked.js, serving sibling images from the same tree.
 test.describe('Docs viewer', () => {
     test('renders the syntax reference from Markdown', async ({ page }) => {
-        await page.goto('/docs/le_summary');
+        await page.goto('/docs/user/reference/language');
         // marked turns the "# Logical English (LE) Syntax Summary" heading into <h1>.
         const h1 = page.locator('#content h1').first();
         await expect(h1).toBeVisible();
@@ -16,10 +16,10 @@ test.describe('Docs viewer', () => {
     });
 
     test('renders the tutorial with its screenshots resolving', async ({ page }) => {
-        await page.goto('/docs/tutorial0/IntroToLE2');
+        await page.goto('/docs/user/tutorials/intro-to-le/intro-to-le');
         await expect(page.locator('#content h1').first()).toContainText('Gentle Introduction');
         // A relative screenshot (e.g. 01-editor-overview.png) must resolve under
-        // /docs/tutorial0/ and actually load (naturalWidth > 0).
+        // /docs/user/tutorials/intro-to-le/ and actually load (naturalWidth > 0).
         const img = page.locator('#content img').first();
         await expect(img).toBeVisible();
         await expect.poll(async () =>
@@ -31,7 +31,7 @@ test.describe('Docs viewer', () => {
     // stopped generating them), so #deep-links and the documents' own
     // table-of-contents links navigate correctly.
     test('a #deep-link scrolls to its section', async ({ page }) => {
-        await page.goto('/docs/tutorial0/IntroToLE2#10-explanation-preferences-and-the-explanation-drill');
+        await page.goto('/docs/user/tutorials/intro-to-le/intro-to-le#10-explanation-preferences-and-the-explanation-drill');
         // [id=…]: a CSS #id selector cannot start with a digit
         const heading = page.locator('[id="10-explanation-preferences-and-the-explanation-drill"]');
         await expect(heading).toHaveText(/10\. Explanation preferences/);
@@ -44,7 +44,7 @@ test.describe('Docs viewer', () => {
     });
 
     test('table-of-contents links navigate within the page', async ({ page }) => {
-        await page.goto('/docs/tutorial0/IntroToLE2');
+        await page.goto('/docs/user/tutorials/intro-to-le/intro-to-le');
         await page.click('a[href="#9-why-not-failure-explanations"]');
         await expect(page).toHaveURL(/#9-why-not-failure-explanations$/);
         const heading = page.locator('[id="9-why-not-failure-explanations"]');
@@ -53,13 +53,29 @@ test.describe('Docs viewer', () => {
     });
 
     test('only the published documents are served', async ({ request }) => {
-        // docs/ also holds plans, papers and private notes: /docs/ serves the
-        // user documentation only (classic_web_api.pl public_doc/1).
-        expect((await request.get('/docs/le_summary.md')).status()).toBe(200);
-        expect((await request.get('/docs/tutorial0/01-editor-overview.png')).status()).toBe(200);
+        // docs/ also holds developer and project documents and private notes:
+        // /docs/ serves docs/user only (classic_web_api.pl public_doc/1).
+        expect((await request.get('/docs/user/reference/language.md')).status()).toBe(200);
+        expect((await request.get('/docs/user/tutorials/intro-to-le/01-editor-overview.png')).status()).toBe(200);
         for (const hidden of ['/docs/vibeCodingNotes', '/docs/vibeCodingNotes.md',
-                              '/docs/papers/LE2paperDraft.md', '/docs/sCASP_plan']) {
+                              '/docs/project/papers/LE2paperDraft.md', '/docs/dev/assistant',
+                              '/docs/project/plans/sCASP_plan']) {
             expect((await request.get(hidden)).status(), hidden).toBe(404);
         }
+    });
+
+    test('old addresses redirect to where the documents are now', async ({ page }) => {
+        await page.goto('/docs/le_summary');
+        await expect(page).toHaveURL(/\/docs\/user\/reference\/language$/);
+        await expect(page.locator('#content h1').first()).toContainText('Logical English');
+    });
+
+    test('a sidebar lists the documentation, and links between documents open rendered', async ({ page }) => {
+        await page.goto('/docs/user/guide/editor');
+        await expect(page.locator('#toc a.current')).toHaveText('How to use the LE2 web application');
+        await expect(page.locator('#toc a', { hasText: 'Logical English syntax summary' }))
+            .toHaveAttribute('href', '/docs/user/reference/language');
+        // editor.md links ../tutorials/views.md: rendered, without .md
+        await expect(page.locator('#content a[href^="/docs/user/tutorials/views"]').first()).toBeVisible();
     });
 });

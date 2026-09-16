@@ -148,9 +148,9 @@ handle_method(Method, Dict, Response) :-
             resources: [
                 _{
                     uri: "le://docs/syntax",
-                    name: "Logical English Syntax Summary",
+                    name: "Logical English language reference",
                     mimeType: "text/markdown",
-                    description: "A summary of the Logical English language syntax and rules"
+                    description: "The Logical English language reference: every construct, with examples"
                 }
             ]
         }
@@ -162,7 +162,7 @@ handle_method(Method, Dict, Response) :-
     Params = Dict.get(params, _{}),
     URI = Params.get(uri, ""),
     (   URI == "le://docs/syntax" ->
-        read_file_to_string('docs/le_syntax.md', Text, []),
+        read_file_to_string('docs/user/reference/language.md', Text, []),
         Response = _{
             jsonrpc: "2.0",
             id: ID,
