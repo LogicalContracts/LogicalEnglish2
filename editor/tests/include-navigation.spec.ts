@@ -71,3 +71,36 @@ test.describe('Navigation into included resources', () => {
         await expect(page.locator('#scenario-select')).toHaveValue('ny_n362700');
     });
 });
+
+// Show definition on the NAME of an included resource opens the resource: an
+// example in an editor tab of its own, a Prolog resource in the source viewer.
+test.describe('Show definition on an included resource', () => {
+    const showDefinitionOn = async (page: any, lineText: string, word: string) => {
+        await page.evaluate(({ lineText, word }) => {
+            const ed = (window as any).monaco.editor.getEditors()[0];
+            const lines: string[] = ed.getModel().getLinesContent();
+            const n = lines.findIndex(l => l.trim() === lineText);
+            ed.setPosition({ lineNumber: n + 1, column: lines[n].indexOf(word) + 2 });
+            ed.getAction('le-show-definition').run();
+        }, { lineText, word });
+    };
+
+    test('a Logical English resource opens in a tab', async ({ page }) => {
+        await page.goto('index.html?example=language/includes/prolog_resources/postcodes');
+        await page.waitForFunction(() => (window as any).monaco?.editor.getEditors().length > 0, null, { timeout: 60000 });
+        await expect.poll(() => page.evaluate(() =>
+            (window as any).monaco.editor.getEditors()[0].getModel().getValue()), { timeout: 30000 }).toContain('postcodes_layer.');
+        await showDefinitionOn(page, 'postcodes_layer.', 'postcodes_layer');
+        await expect.poll(() => page.evaluate(() =>
+            (window as any).monaco.editor.getEditors()[0].getModel().getValue()), { timeout: 30000 }).toContain('the knowledge base postcodes_layer includes these resources');
+    });
+
+    test('a Prolog resource opens in the source viewer', async ({ page }) => {
+        await page.goto('index.html?example=language/includes/prolog_resources/postcodes_layer');
+        await page.waitForFunction(() => (window as any).monaco?.editor.getEditors().length > 0, null, { timeout: 60000 });
+        await expect.poll(() => page.evaluate(() =>
+            (window as any).monaco.editor.getEditors()[0].getModel().getValue()), { timeout: 30000 }).toContain('postcodes_facts.pl.');
+        await showDefinitionOn(page, 'postcodes_facts.pl.', 'postcodes_facts');
+        await expect(page.getByText('A Prolog *resource* included by a Logical English program').first()).toBeVisible({ timeout: 30000 });
+    });
+});

@@ -159,6 +159,7 @@ As you type, the editor performs real-time verification:
 *   **Error Reporting:** Red squiggly lines indicate syntax errors or missing templates.
 *   **Quick Fixes:** Hover over an error to see suggested fixes (e.g., automatically adding a missing template).
 *   **Status:** The "Query" button in the bottom panel is disabled if the document contains errors.
+*   **Show definition (F12):** right-click a word and choose **Show definition** to go to the rule or template that defines it; on the name of an included resource (`… includes these resources: deontic.`) or of a base (`… extends token:`) it opens that resource — a Logical English one in a tab of its own, a Prolog one in the source viewer. **Go back** returns.
 *   **Where it is explained:** the hover of a warning or error ends with a link — to the section of the language reference its message cites, or to its entry in the [warnings guide](warnings.md).
 
 A **?** beside the query controls, the answers, the explanation, the LE Assistant, and at the top of the Scenario Editor, Query Editor, Scenario Variations, Explanation Drill, Proof Game and executive view opens the section of the documentation about that part.

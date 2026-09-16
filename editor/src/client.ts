@@ -634,7 +634,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             const model = ed.getModel();
             const position = ed.getPosition();
             try {
-                const response = await fetch('/leapi', {
+                const ask = () => fetch('/leapi', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -649,8 +649,15 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                         // with it (see on_head_line/3 in classic_web_api.pl).
                         lineStart: model.getOffsetAt({ lineNumber: position.lineNumber, column: 1 })
                     })
-                });
-                const data = await response.json();
+                }).then(r => r.json());
+                let data = await ask();
+                // The server no longer has the session (reclaimed when idle,
+                // or the server restarted): reload the program and ask again.
+                if (data && data.session_expired) {
+                    isLoaded = false;
+                    if (!await loadModule()) return null;
+                    data = await ask();
+                }
                 if (data.error) {
                     console.log(operation + ':', data.error);
                     return null;
@@ -747,6 +754,74 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             setTimeout(() => ed.deltaDecorations(decorations, []), 1200);
         }
 
+        // The name of a resource under the cursor: an entry of an "includes
+        // these resources:" list (the list runs to the line ending in "."), or
+        // a base after "extends" on a knowledge base's header line. Entries
+        // are separated by commas; a name keeps its extension ("facts.pl.").
+        function resourceNameAt(model: any, position: any): string | null {
+            if (!model || !position) return null;
+            const lang = detectProgramLanguage(model.getValue());
+            const phrases = (key: string) => [...kwPhrases(lang, key), ...kwPhrases('en', key)]
+                .filter(Boolean).map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+'));
+            const includes = new RegExp(`(?:${phrases('resources_include').join('|')})\\s*:`, 'i');
+            const extendsKw = new RegExp(`(?:${phrases('kb_open').join('|')})\\b.*?\\b(?:${phrases('kb_extends').join('|')})\\b`, 'i');
+            const line: string = model.getLineContent(position.lineNumber);
+            const col = position.column - 1;
+            let from = -1;              // where the names start on this line
+            const own = includes.exec(line) || extendsKw.exec(line);
+            if (own) {
+                from = own.index + own[0].length;
+                if (col < from) return null;
+            } else {
+                // a later line of an includes list: the header above, and no
+                // line in between that ends the list
+                for (let n = position.lineNumber - 1; n >= 1 && n >= position.lineNumber - 200; n--) {
+                    const l: string = model.getLineContent(n);
+                    if (/\.\s*(%.*)?$/.test(l) || l.trim() === '') return null;
+                    if (includes.test(l)) { from = 0; break; }
+                    if (/:\s*$/.test(l)) return null;
+                }
+                if (from < 0) return null;
+            }
+            const text = line.replace(/%.*$/, '');
+            let start = from;
+            for (const part of text.slice(from).split(',')) {
+                const end = start + part.length;
+                if (col >= start && col <= end) {
+                    const name = part.trim().replace(/[.:]\s*$/, '').trim();
+                    return name && !/\s/.test(name) ? name : null;
+                }
+                start = end + 1;
+            }
+            return null;
+        }
+
+        async function openResourceNamed(name: string): Promise<void> {
+            const doc = activeDoc;
+            let data: any;
+            try {
+                const r = await fetch('/leapi', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: 'myToken123', operation: 'resourceAt', resource: name,
+                                           source: doc.example || '', base: doc.baseUrl || '' })
+                });
+                data = await r.json();
+            } catch (err) {
+                data = { error: String(err) };
+            }
+            const open = (window as any).leOpenResourceTab;
+            if (data.kind === 'example' && typeof open === 'function') {
+                await open({ resource: data.resource, resourceExample: data.example, resourceLine: 1 });
+            } else if (data.kind === 'text' && data.language === 'le' && typeof open === 'function') {
+                await open({ resource: data.resource, resourceText: data.text, resourceUrl: data.url || '', resourceLine: 1 });
+            } else if (data.kind === 'text') {
+                openSourceViewer({ document: data.resource, content: data.text, url: data.url || null }, undefined,
+                                 { source: doc.example || '', base: doc.baseUrl || '' });
+            } else {
+                alert(`${t('Could not open the included resource')} ${name}: ${data.error || ''}`);
+            }
+        }
+
         editor.addAction({
             id: 'le-show-definition',
             label: t('Show definition'),
@@ -754,6 +829,14 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             contextMenuGroupId: 'navigation',
             contextMenuOrder: 2.1,
             run: async (ed: any) => {
+                // On the name of an included resource or of an extended base
+                // ("… includes these resources: deontic.", "… extends token:")
+                // its definition is the resource itself: open it.
+                const resource = resourceNameAt(ed.getModel(), ed.getPosition());
+                if (resource) {
+                    await openResourceNamed(resource);
+                    return;
+                }
                 // On a provenance trailer ("with provenance …", "as stated in
                 // … at …") the definition of what is written there is the
                 // document it cites: open it, as "View Original Text" does.
@@ -4327,8 +4410,17 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     // tab that has it already, or a new one with the server's copy of it. The
     // panels stay on the program that led here.
     async function openResourceTab(info: any): Promise<void> {
-        let doc = docs.find(d => d.example === info.resourceExample);
-        if (!doc) {
+        let doc = info.resourceExample ? docs.find(d => d.example === info.resourceExample) : undefined;
+        if (!doc && typeof info.resourceText === 'string') {
+            // a resource that is not one of the server's examples (a URL, a
+            // file elsewhere): its text, in a tab; a URL keeps its base, so
+            // its own includes resolve
+            const url: string = info.resourceUrl || '';
+            doc = createDoc(info.resourceText, info.resource || 'resource.le',
+                            url ? { baseUrl: url.slice(0, url.lastIndexOf('/') + 1) } : {});
+            doc.dirty = false;
+            lspOpen(doc);
+        } else if (!doc) {
             try {
                 const response = await fetch('/leapi', {
                     method: 'POST',
