@@ -352,9 +352,9 @@ small fixture set for its own target tests.
 
 ## 6. Decisions needed
 
-- **D1.** Socotra and Epilog twins: may they be published (move as in §1)?
-- **D2.** LE for LPS (`examples/lps`): move to `lps2/examples/le` (recommended) or keep in LE2?
-- **D3.** Rename `moreExamples` (with aliases) as in §4.2, or keep the name and only regroup inside it?
-- **D4.** Language trees: `examples/<lang>/` as today (the folder name is the language code, and `?example=pt/...` links exist) or `examples/lang/<lang>/`? Recommendation: keep `examples/<lang>/`; it costs nothing and the aliases would be one more table.
-- **D5.** Should fixtures stay visible to logged-in developers (e.g. a `?dir=fixtures` landing view), or be hidden entirely?
-- **D6.** Twin library copies (`temporal`, `deontic`): keep them self-contained (recommended) or include from `lib/`?
+- **D1.** Socotra and Epilog twins: may they be published (move as in §1)? NO
+- **D2.** LE for LPS (`examples/lps`): move to `lps2/examples/le` (recommended) or keep in LE2? Follow your recommendation
+- **D3.** Rename `moreExamples` (with aliases) as in §4.2, or keep the name and only regroup inside it? only regroup
+- **D4.** Language trees: `examples/<lang>/` as today (the folder name is the language code, and `?example=pt/...` links exist) or `examples/lang/<lang>/`? Recommendation: keep `examples/<lang>/`; it costs nothing and the aliases would be one more table. Follow your recommendation
+- **D5.** Should fixtures stay visible to logged-in developers (e.g. a `?dir=fixtures` landing view), or be hidden entirely? Stay visible
+- **D6.** Twin library copies (`temporal`, `deontic`): keep them self-contained (recommended) or include from `lib/`? keep them self-contained
