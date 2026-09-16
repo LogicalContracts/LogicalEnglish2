@@ -2,7 +2,7 @@
 
 Logical English programs written by the translators of other rule systems
 (InsurLE2/migration), one directory per source system and one per program,
-each with its migration ledger and its sources (docs/le_migration.md):
+each with its migration ledger and its sources (docs/dev/migration.md):
 
 - `blawx/` — Blawx (s(CASP)-based legal encodings);
 - `legalruleml/` — the OASIS LegalRuleML specification's examples;

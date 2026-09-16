@@ -12,12 +12,12 @@ result is documented.
 
 **User documentation** (`user/`)
 
-- Tutorials: [Introduction to Logical English](user/tutorials/intro-to-le/intro-to-le.md), [LE Views](user/tutorials/views.md)
-- Guides: [the editor](user/guide/editor.md), [the Proof Game](user/guide/proof-game.md), [the verifier's warnings](user/guide/warnings.md)
-- Reference: [the language](user/reference/language.md) (and [em português](user/reference/language.pt.md)), [s(CASP)](user/reference/scasp.md), Logical English for LPS (in LPS2: `docs/user/reference/le-for-lps.md`)
-- API: [the web API](user/api/web-api.md)
+- Tutorials: [Introduction to Logical English](user/tutorials/intro-to-le/intro-to-le.md), [querying a program](user/tutorials/querying-a-program.md), [LE Views](user/tutorials/views.md)
+- Guides: [the editor](user/guide/editor.md), [the executive view](user/guide/executive-view.md), [the assistants](user/guide/assistants.md), [importing and exporting](user/guide/import-export.md), [the Proof Game](user/guide/proof-game.md), [the verifier's warnings](user/guide/warnings.md)
+- Reference: [the language](user/reference/language.md) (and [em português](user/reference/language.pt.md)), [the extensions](user/reference/extensions.md) (the hosted service), [s(CASP)](user/reference/scasp.md), Logical English for LPS (in LPS2: `docs/user/reference/le-for-lps.md`)
+- API: [the web API](user/api/web-api.md), [MCP](user/api/mcp.md)
 
-**Developer documentation** (`dev/`): [architecture](dev/architecture.md), [the assistant](dev/assistant.md) and [its light mode](dev/assistant-light.md), [migration](dev/migration.md), [debugger](dev/debugger.md), [graph](dev/graph.md), [telemetry](dev/telemetry.md), [i18n](../i18n/README.md), the LE2↔LPS2 interface (in LPS2: `docs/dev/le-lps-interface.md`).
+**Developer documentation** (`dev/`): [architecture](dev/architecture.md), [the LE Assistant](dev/assistant.md), [the Contract Assistant](dev/contract-assistant.md), [LE Views](dev/views.md), [migration](dev/migration.md), [debugger](dev/debugger.md), [graph](dev/graph.md), [telemetry](dev/telemetry.md), [i18n](../i18n/README.md), the LE2↔LPS2 interface (in LPS2: `docs/dev/le-lps-interface.md`).
 
 **Project documents** (`project/`): [plans](project/plans/), [papers](project/papers/), [research](project/research/), [archive](project/archive/).
 

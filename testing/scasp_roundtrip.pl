@@ -1,6 +1,6 @@
 /** <module> The s(CASP) round trip: LE -> s(CASP) -> LE -> s(CASP)
 
-    The gate of MiggratingFromOtherSystems.md Phase 2c for the s(CASP)
+    The gate of InsurLE2/docs/migration/roadmap.md Phase 2c for the s(CASP)
     reader (le_writer:prolog_file_to_ir/3): for every program of the core
     example corpus that LE's s(CASP) target can emit,
 

@@ -218,7 +218,8 @@ assemble_system_prompt(Program, UserRoles, SystemPrompt) :-
     
     % Load LE syntax summary (the active language's variant when present)
     le_i18n:localized_asset('docs/user/reference/language', md, SummaryPath),
-    read_file_to_string(SummaryPath, SyntaxSummary, []),
+    read_file_to_string(SummaryPath, SyntaxSummary0, []),
+    with_extensions_reference(SummaryPath, SyntaxSummary0, SyntaxSummary),
     
     % Load curated examples
     load_curated_examples(UserRoles, ExamplesStr),
@@ -233,6 +234,22 @@ assemble_system_prompt(Program, UserRoles, SystemPrompt) :-
     format(string(SystemPrompt),
            "~w~w\n\n## Logical English Syntax Summary\n~w\n\n## Curated Examples\n~w\n\n~w\n\n## Your Program\n```\n~w\n```\n",
            [InstructionBody, LangDirective, SyntaxSummary, ExamplesStr, ToolSpec, Program]).
+
+%!  with_extensions_reference(+SummaryPath, +Summary, -Text) is det.
+%
+%   Where le_extensions.pl is loaded, the English reference (which leaves the
+%   extension constructs to docs/user/reference/extensions.md) is followed by
+%   that document, so the assistant knows the constructs the server accepts.
+%   A localized reference (language.pt.md) still describes them itself.
+with_extensions_reference(SummaryPath, Summary, Text) :-
+    (   current_module(le_extensions),
+        file_base_name(SummaryPath, 'language.md'),
+        le_i18n:localized_asset('docs/user/reference/extensions', md, ExtPath),
+        exists_file(ExtPath)
+    ->  read_file_to_string(ExtPath, Extensions, []),
+        format(string(Text), "~w\n\n~w", [Summary, Extensions])
+    ;   Text = Summary
+    ).
 
 %!  language_directive(-Directive) is det.
 %

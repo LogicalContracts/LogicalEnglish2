@@ -1,26 +1,13 @@
-# Logical English Editor
+# Logical English editor
 
-A cute, simple browser-based editor for Logical English (LE) programs, featuring syntax highlighting, autocompletion, and an LSP server.
+The browser editor of LogicalEnglish2: TypeScript sources in `src/`, one
+esbuild bundle per page in `dist/`, served by the Prolog server. How it is
+built inside, and how it fits with the server, is in
+[docs/dev/architecture.md](../docs/dev/architecture.md).
 
-## Features
+## Build
 
-- **Syntax Highlighting**: Custom Monarch tokens for LE syntax.
-- **LSP Server**: Browser-based Language Server Protocol implementation providing:
-  - **Autocompletion**: Templates (user-defined and system), section headers, and keywords.
-  - **Diagnostics**: Basic error checking (e.g., unclosed strings).
-  - **Hover**: Information about token types.
-  - **Folding**: Syntax-aware folding for rules, scenarios, and sections.
-- **Theme Support**: Persistent theme selection (Dark, Light, High Contrast).
-- **Prolog Integration**: Can be launched directly from SWI-Prolog to edit local files.
-
-## Prerequisites
-
-- [Node.js](https://nodejs.org/) (for building the assets)
-- [SWI-Prolog](https://www.swi-prolog.org/) (for running the backend and serving the editor)
-
-## Building the Editor
-
-To compile the TypeScript client and server assets:
+Requires Node.js (the Docker image uses Node 20).
 
 ```bash
 cd editor
@@ -28,29 +15,30 @@ npm install
 npm run build
 ```
 
-This will generate the bundled files in the `editor/dist/` directory.
+`npm run build` regenerates `src/generated/i18nData.ts` from `../i18n/*.csv`
+(`npm run gen-i18n` does only that step) and writes the bundles to `dist/`.
+The bundles are committed: rebuild and commit them together with any change
+to `src/` or to the i18n CSVs.
 
-## Launching the Editor
+## Launch
 
-The editor is designed to be served by the Logical English Prolog backend.
+The editor is served by the Prolog server, from the repository root:
 
-1. Start the Prolog API server:
-   ```prolog
-   ?- use_module(classic_web_api).
-   ?- start_api_server(3050).
-   ```
+```bash
+swipl -g "use_module(classic_web_api), start_api_server(3050)"
+```
 
-2. Open an LE file for editing from the Prolog console:
-   ```prolog
-   ?- use_module(le_kbs).
-   ?- edit('path/to/your/file.le').
-   ```
+then open `http://localhost:3050/editor/`. From a Prolog session,
+`use_module(le_kbs), edit('path/to/file.le')` opens a file in the editor of
+the server on port 3050.
 
-This will automatically open your default browser at `http://localhost:3050/editor/index.html` with the file content loaded.
+## Test
 
-## Development
+```bash
+npm run test:e2e              # Playwright; add -- --headed to watch
+```
 
-- `src/client.ts`: Monaco editor initialization and LSP client bridge.
-- `src/server.ts`: LSP server implementation (runs in a Web Worker).
-- `src/tokenizer.ts`: LE tokenizer for the LSP server.
-- `src/le-language.ts`: Monaco language definition (Monarch tokens and configuration).
+The suite starts its own server on port 3000 (`playwright.config.ts`) and
+keeps its browsers in `node_modules` (`PLAYWRIGHT_BROWSERS_PATH=0`); always run
+it through `npm run test:e2e`. `testing/run_tests.sh` at the repository root
+runs it together with the Prolog suites.

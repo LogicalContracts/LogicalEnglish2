@@ -13,6 +13,7 @@ Write ALL Logical English you produce in **Portuguese**, using the Português L�
 
 ## Resources
 - **Syntax:** Read the file at `~w/docs/user/reference/language.pt.md` for a comprehensive summary of Português Lógico syntax. You must comply with this syntax; LE is neither Prolog nor plain Portuguese. DO NOT attempt to fetch documentation from GitHub or other URLs; use the local file provided.
+- **Extensions:** The constructs that `language.pt.md` marks "[requer le_extensions.pl]" (described in English in `docs/user/reference/extensions.md`) are accepted only where the server has the LE extensions installed; without them they do not parse, so prefer the core forms unless the program already uses them.
 - **Examples:** Explore the directory `~w/examples/pt/` for examples of Português Lógico programs and test cases.
 - **Tools:** Use the `verify` and `query` tools to verify your work.
 
@@ -47,23 +48,11 @@ NEVER use tools like `edit` or `write` on any file other than `~w` (which is `~w
 ### How to test a LE program
 * Execute the `verify` tool for overall errors and warnings, or the `query` tool to test specific queries and scenarios.
 ### How to debug a LE program
-React to the errors and warnings produced by the verify tool. First edit the program as follows, then test it again:
-### Missing template for 'sentence' (Falta um modelo para ...)
-Generate a template (`modelo`) for the sentence and add it to the program.
-### Rule without variables (Regra sem variáveis)
-Rules should not refer to concrete data, which should be in scenarios; predicates in rules mostly refer to variables.
-### Missing rules (Faltam regras)
-A LE program must have more than just facts; it needs rules.
-### Predicate is not tested by any query
-Ask the user to provide a query for the predicate, as well as expected answers for all scenarios.
-### Undefined predicate (Predicado não definido)
-The predicate must either have a rule defining it, or there must be a scenario with a fact sentence for the predicate. Try to obtain this from the given regulatory text, or perform a web search.
-### Missing expected answer for query <Q> with scenario <S>
-Ask the user.
-### Test failure in scenario <S> for query <Q>
-Be creative and edit the program to fix this.
-### time_limit_exceeded
-Look for uncontrolled recursions in the program rules and fix them.
+React to the errors and warnings produced by the verify tool, edit the program, then test it again. Each verifier warning and its fix is described (in English) in `docs/user/guide/warnings.md` (in the same `docs/` tree as the syntax file); the Portuguese messages name the same warnings (`Falta um modelo para ...`, `Regra sem variáveis`, `Faltam regras`, `Predicado não definido`). In addition:
+* A predicate not tested by any query, or a missing expected answer for a query in a scenario: ask the user for the query and the expected answers for all scenarios.
+* An undefined predicate: obtain its rule or its scenario facts from the given regulatory text, or perform a web search.
+* A test failure in a scenario: be creative and edit the program to fix it.
+* `time_limit_exceeded`: look for uncontrolled recursions in the program rules and fix them.
 ### How to convert regulatory text to a new LE program
 Perform these 3 steps in sequence, explained below:
 * Analyze the given regulatory text

@@ -16,7 +16,7 @@ Logical English is designed to be readable by non-programmers while remaining ma
 - **Explainable:** Every answer comes with a justification tree in natural language.
 - **Typed:** Built-in support for types, dates, and arithmetic.
 
-[Learn more about LE Syntax](./docs/project/archive/le_syntax.md) | [Cheat sheet](./docs/user/reference/language.md) | [View Examples](./examples/moreExamples/)
+[Language reference](./docs/user/reference/language.md) | [Tutorial](./docs/user/tutorials/intro-to-le/intro-to-le.md) | [All documentation](./docs/README.md) | [Examples](./examples/README.md)
 
 ---
 
@@ -24,11 +24,12 @@ Logical English is designed to be readable by non-programmers while remaining ma
 The LE 2.0 environment provides a powerful, web-based IDE for developing and testing logic:
 
 - **Real-time Feedback:** Instant syntax highlighting and error reporting as you type.
-- **Integrated Debugger:** Step through logic and visualize explanation trees.
-- **Scenario Testing:** Define "Scenarios" (facts) and "Queries" within the same file to verify behavior.
-- **LSP Support:** Modern editor features including autocompletion and hover information.
+- **Explanations:** Every answer, and every failure, with a navigable explanation tree; a step-by-step tracer.
+- **Scenario Testing:** Define "Scenarios" (facts) and "Queries" within the same file, with expected answers.
+- **Language server:** Autocompletion, hover, folding and quick fixes, running in the browser.
+- **Assistants:** The LE Assistant edits and repairs the open program with an LLM; the Contract Assistant turns a contract into a tested program.
 
-[Editor Summary](./docs/dev/architecture.md) | [Debugger Design](./docs/dev/debugger.md)
+[Using the editor](./docs/user/guide/editor.md) | [Architecture](./docs/dev/architecture.md) | [Debugger](./docs/dev/debugger.md) | [LE Assistant](./docs/dev/assistant.md)
 
 ---
 
@@ -36,29 +37,38 @@ The LE 2.0 environment provides a powerful, web-based IDE for developing and tes
 
 ### Environment Variables
 You can configure the deployment using the following environment variables:
-- `NO_RESTRICTIONS`: Set to `true` to disable example path restrictions.
-- `ALLOWED_LE_EXPORTS`: Comma-separated list of allowed /source web endpoint export paths.
+- `NO_RESTRICTIONS`: Set to `true` to disable the role restrictions on example trees (`restricted_paths.pl`).
+- `ALLOWED_LE_EXPORTS`: Comma-separated directories whose examples the `/source/` endpoint may serve (fly.toml sets `examples/moreExamples`).
 - `OPENAI_API_KEY`: API key for OpenAI models.
 - `ANTHROPIC_API_KEY`: API key for Anthropic models.
 - `GEMINI_API_KEY`, `GOOGLE_API_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`: API key for Google Gemini models.
 - `GROQ_API_KEY`: API key for Groq models.
 - `TOGETHER_API_KEY`, `TOGETHERAI_API_KEY`: API key for Together AI models.
+- `LE_CONTRACT_JOBS_DIR`: where the Contract Assistant keeps its jobs (default `contract_jobs/`).
+- `LE_MODEL_PRICES_URL`, `LE_MODEL_PRICES_FILE`, `LE_MODEL_PRICES_CACHE`: where the LLM price table for cost estimates comes from (default: LiteLLM's table on GitHub, cached in `tmp/model_prices.json`).
 - `LE_SENTRY_DSN`, `LE_CLOUDFLARE_ANALYTICS_TOKEN` (and `LE_SENTRY_ENVIRONMENT`, `LE_SENTRY_RELEASE`): error reports to Sentry, with a feedback form, and Cloudflare Web Analytics; off unless set, and set (as fly secrets) only on the deployed server. See [docs/dev/telemetry.md](./docs/dev/telemetry.md).
 
 ### Local Installation (SWI-Prolog)
 To run Logical English 2.0 on your local machine:
 
-1. **Install SWI-Prolog:** Download and install [SWI-Prolog](https://www.swi-prolog.org/download/stable) (version 9.0 or later recommended).
+1. **Install SWI-Prolog:** Download and install a recent [SWI-Prolog](https://www.swi-prolog.org/download/stable) (the Docker image uses `swipl:latest`).
 2. **Clone the Repository:**
    ```bash
-   git clone https://github.com/mcalejo/LogicalEnglish2.git
+   git clone https://github.com/LogicalContracts/LogicalEnglish2.git
    cd LogicalEnglish2
    ```
-3. **Start the Server:**
+3. **Start the Server** (from the repository root):
    ```bash
-   swipl -g "use_module(classic_web_api), start_api_server(3050)" classic_web_api.pl
+   swipl -g "use_module(classic_web_api), start_api_server(3050)"
    ```
-   The editor will be available at `http://localhost:3050/editor/`.
+   The landing page is at `http://localhost:3050/` and the editor at `http://localhost:3050/editor/`.
+   The editor's bundles (`editor/dist/`) are committed, so Node.js is only needed to rebuild them ([editor/README.md](./editor/README.md)).
+
+Optional components:
+- **s(CASP):** `swipl -g "pack_install(scasp)"` enables the s(CASP) engine (`le_scasp.pl`).
+- **Deep mode of the LE Assistant:** `npm install -g opencode-ai mcp-remote` ([docs/dev/assistant.md](./docs/dev/assistant.md)).
+- **LPS:** programs with `the target language is: lps.` run on an LPS2 server beside this one.
+- **Proprietary extensions:** `le_extensions.pl`, when present next to `le_kbs.pl`, adds the constructs of [docs/user/reference/extensions.md](./docs/user/reference/extensions.md) and the importers and exporters of other systems.
 
 ### Testing
 
@@ -115,8 +125,8 @@ status of `testing/run_tests.sh`.
 
 #### Running the suites directly
 
-- **Prolog unit tests (plunit):** `swipl -q -g run_tests -t halt testing/test_session_reaper.pl`
-  (covers `testing/test_*.pl`).
+- **Prolog unit tests (plunit):** `testing/run_tests.sh unit` loads every `testing/test_*.pl` and runs
+  them together; one file alone runs with `swipl -q -g run_tests -t halt testing/test_session_reaper.pl`.
 - **Logical English example tests:** `swipl -g "use_module(le_kbs), runTests, halt."`
   runs the **core** suite; `runAllTests` (equivalently `runTests(all)`) adds the
   extension-dependent trees. Each refreshes its own status file. Expectations live
@@ -133,40 +143,37 @@ status of `testing/run_tests.sh`.
   To run tests visibly, use `npm run test:e2e -- --headed` or `npx playwright test --ui`.
 
 ### Docker Deployment
-Logical English 2.0 is also available as a pre-configured Docker image.
+The `Dockerfile` builds an image with SWI-Prolog, the s(CASP) pack, Node.js, `opencode` and `mcp-remote`, and builds the editor:
 
-#### Quick Start
 ```bash
-docker run -p 3050:3050 logicalcontracts/le2
+docker build -t le2 .
+docker run -p 3050:3050 le2
 ```
 The editor will be available at `http://localhost:3050/editor/`.
+
+The public deployment runs on fly.io (`fly.toml`): `buildPush.sh` builds the image from a copy of the tree with symlinks dereferenced (so the proprietary extensions and examples are included) and runs `fly deploy --local-only`. API keys are set as fly secrets.
 
 ---
 
 ## 🏗 Architecture & API
 LE 2.0 is built on **SWI-Prolog** for the reasoning engine and **TypeScript/Monaco** for the frontend.
 
-- **Web API:** A JSON-RPC and REST API for loading KBs and running queries.
-- **MCP Server:** Built-in support for the [Model Context Protocol](https://modelcontextprotocol.io), allowing LLMs (like Claude) to interact directly with your logic.
+- **Web API:** `POST /leapi`, a JSON API (one `operation` per request) for loading programs, running queries and using every feature of the editor.
+- **MCP Server:** `/mcp`, for the [Model Context Protocol](https://modelcontextprotocol.io), with REST equivalents, so LLM clients can verify and query programs.
+- **Debug Adapter Protocol:** `/dap`, over a WebSocket.
 
-[API Documentation](./docs/user/api/web-api.md) | [MCP Setup](./llm/settings/README.md)
+[Architecture](./docs/dev/architecture.md) | [Web API](./docs/user/api/web-api.md) | [MCP](./docs/user/api/mcp.md) | [Developer documentation](./docs/README.md)
 
 ---
 
-## 📝 Roadmap & To-Do
-We are actively expanding LE 2.0. Under consideration:
+## 📝 Roadmap
 
-### Features & Integration
-- [ ] **LLM assistant:** Generate programs and scenario facts from free-form text or URLs.
-- [ ] **Inter-module Calling:** Importing and calling logic across different LE files.
-- [ ] **Prolog Bridge:** Calling arbitrary Prolog predicates with explanations.
-- [ ] **Time & Durations:** Time expressions and intervals.
-- [ ] **Debug Adapter Protocol (DAP):** Implement DAP for deeper integration with VS Code and other IDEs.
-- [ ] **Generators:** Standalone Prolog and s(CASP) target generation.
+**Done** (formerly on this list): the LLM assistants (LE Assistant, light and deep; Contract Assistant; "Write it in English…"); calling across LE files (included resources, `lib/` libraries); Prolog resources and embedded `prolog` goals; dates and durations (`lib/temporal.le`); the step-by-step debugger over DAP; s(CASP) and LPS execution targets; global constants (definite descriptions, `defines global`); the proprietary extension hook (`le_extensions.pl`).
 
-### Language Evolution
-- [ ] **Globals:** Support for global entities (e.g., `*The TaxPayer*`).
-- [ ] **Proprietary Extensions:** Allow additions to the LE grammar and reasoner.
+**Open:**
+- [ ] **Debugger:** honour breakpoints and make Continue run to the next answer (today every port stops, [docs/dev/debugger.md](./docs/dev/debugger.md)); a DAP transport that desktop IDEs such as VS Code can attach to.
+- [ ] **Contract Assistant:** the faithfulness audit (every proof step supported by a quotation) and coverage as a fitness term, both designed but not built ([docs/dev/contract-assistant.md](./docs/dev/contract-assistant.md) §9).
+- [ ] **Contextual help in the editor:** links from panels and diagnostics to the documentation ([docs/project/plans/NewDocumentationStructure.md](./docs/project/plans/NewDocumentationStructure.md) §6, phase 3).
 
 ---
 

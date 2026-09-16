@@ -1,6 +1,6 @@
 # How to use the Logical English 2 web application
 
-*Kind: guide · Audience: users · Status: current (2026-09-14); gaps listed in docs/project/plans/NewDocumentationStructure.md §3*
+*Kind: guide · Audience: users · Status: current (2026-09-16)*
 
 The Logical English (LE) web application is a simple IDE designed for developing, testing, and debugging Logical English programs.
 
@@ -12,6 +12,7 @@ The Logical English (LE) web application is a simple IDE designed for developing
   - [Executive Mode (run a program without editing)](#executive-mode-run-a-program-without-editing)
   - [File Operations](#file-operations)
     - [Opening and Saving](#opening-and-saving)
+    - [Other systems' files: import and export](#other-systems-files-import-and-export)
     - [Saving via URL (Quick Save)](#saving-via-url-quick-save)
     - [Several documents: file tabs](#several-documents-file-tabs)
   - [Writing Logic and Issue Reporting](#writing-logic-and-issue-reporting)
@@ -25,13 +26,16 @@ The Logical English (LE) web application is a simple IDE designed for developing
   - [Scenario Variations](#scenario-variations)
     - [Layout](#layout-1)
     - [Running and sharing](#running-and-sharing)
+  - [Generate LE view (LE Assistant)](#generate-le-view-le-assistant)
   - [Explanations and Navigation](#explanations-and-navigation)
     - [Reading the Explanation Tree](#reading-the-explanation-tree)
     - [The Explanation Drill](#the-explanation-drill)
     - [Repeated Sub-explanations](#repeated-sub-explanations)
     - [The Explanation Context Menu](#the-explanation-context-menu)
     - [Explanation Preferences](#explanation-preferences)
+    - [Why not: a query with no answer](#why-not-a-query-with-no-answer)
   - [Advanced Features](#advanced-features)
+  - [More guides](#more-guides)
 
 ## Getting Started
 
@@ -53,31 +57,36 @@ folders. Its URL takes two optional parameters, handy for sharable links:
 For people who just want to **use** an existing program — ask questions of it and
 try different scenarios — rather than write or edit rules, there is a minimalist,
 mobile-friendly entry point at **`/executive`** (e.g.
-`http://localhost:3050/executive`).
+`http://localhost:3050/executive`). The full guide is
+[The executive view](executive-view.md); in short:
 
 - **Choose a program.** Opening `/executive` with no parameters shows a filterable
   list of the available example programs; tap one to open it.
-- **Pick a scenario and a question.** The program screen has just two dropdowns —
+- **Pick a scenario and a question.** The program screen has two pickers —
   **Scenario** (the named scenarios in the program, or *(no scenario)*) and
-  **Question** (the program's queries). There is no "run" button: the query runs
-  automatically whenever you change either dropdown, and the answers appear below.
+  **Query** (the program's queries). There is no "run" button: the query runs
+  when the program opens (on its first scenario) and whenever you change either
+  picker, and the answers appear below.
 - **See why.** Each answer is a card; tap it to expand its explanation as an
-  indented tree (green ✓ for what held, with any assumed *unknowns* noted). A
+  indented tree (green for what held, with any assumed *unknowns* noted). A
   step that held only because what it denies failed ("it is not the case
-  that …") keeps those failures folded behind **…**.
+  that …") keeps those failures folded.
 - **Citations first.** When the program cites its sources (rules and tables
   `with provenance`, facts `as stated in …, confer "…"`), an opened answer
   lists its **cited steps** in the order of the proof — each with the rule,
-  the document and the passage — and a **§** button that opens the passage
-  in the document's text. **Copy** puts the list on the clipboard; **Full
-  explanation** unfolds the whole tree (a link beside the list's heading jumps
-  to it, past a long list of citations).
+  the document and the passage — and, where the document's text is known, a
+  **§** button that opens the passage in the document's text. **Copy** puts the
+  list on the clipboard; **Full explanation** unfolds the whole tree (a link
+  beside the list's heading jumps to it, past a long list of citations).
+- **Why not.** A query with no answer lists the conditions the case did not
+  meet, each marked *not stated* (the case is silent) or *not met* (the case
+  says otherwise), with the rule that asks for it, its citation, and the facts
+  it compared.
 - **Explore variations.** A **Scenario Variations** button between the two
-  dropdowns opens the full [Scenario Variations](#scenario-variations) window on
+  pickers opens the full [Scenario Variations](#scenario-variations) window on
   the same program, for altering facts and comparing outcomes.
-
-- **Views.** A program that declares views (docs/user/reference/language.md §17.10) lists
-  them at the top; a view replaces the two dropdowns with the screen its author
+- **Views.** A program that declares views ([the language reference](../reference/language.md) §17.10) lists
+  them at the top; a view replaces the two pickers with the screen its author
   described — the case's facts in groups, the result in large type, its
   citations, the stage it reaches, what is missing, what would change it, the
   documents beside it, every case with its result, or an interview asking one
@@ -85,11 +94,14 @@ mobile-friendly entry point at **`/executive`** (e.g.
   views of its own offers an **Automatic view**, drawn from the program when
   opened (`&view=*`). How to write one:
   [Introducing LE Views](../tutorials/views.md).
+- **Login.** The top right shows **Login** (or the user and **Logout**); a
+  logged-in user with the right role also sees the restricted programs.
 
 Everything is driven by the URL, so results are shareable and bookmarkable:
-`/executive?program=<name>`, optionally with `&scenario=<name>` and
-`&query=<name>`. A link that names all three runs the query immediately on load.
-The view is read-only — it never edits the program.
+`/executive?program=<name>`, optionally with `&scenario=<name>`,
+`&query=<name>` and `&view=<name>`. A link that names a program, a scenario and
+a query runs the query immediately on load. The view is read-only — it never
+edits the program.
 
 ## File Operations
 
@@ -99,14 +111,30 @@ New and the Open operations put the document in a tab of its own; Save and Save 
 Every menu item has a tooltip saying what it does (hover over it).
 
 *   **New File:** `File > New` opens a new, empty document.
-*   **Open Local File:** `File > Open...` allows you to load a `.le` file from your computer. It also opens the files of other systems the server has a translator for (with the InsurLE extensions: a Solidity contract `.sol`, a Bitcoin Miniscript policy or descriptor, an Oracle Intelligent Advisor `.xgen` / `rulebase.xml` or a zipped project, a Socotra product configuration as a `.zip`): the file is translated on opening, deterministically, into a new tab, with a note saying what was done; a fragment that could not be translated is kept in the program as a `% TODO` comment holding the fragment verbatim. The translation and what it includes or cites are kept on the server for a day (`le_import.pl`, `docs/dev/migration.md`).
+*   **Open Local File:** `File > Open...` allows you to load a `.le` file from your computer. It also opens the files of other systems the server has a translator for: the file is translated on opening, deterministically, into a new tab, with a note saying what was done; a fragment that could not be translated is kept in the program as a `% TODO` comment holding the fragment verbatim. The translation and what it includes or cites are kept on the server for a day. See [Other systems' files](#other-systems-files-import-and-export) below.
 *   **Import from Another System:** `File > Import from Another System…` is the same deterministic translation, offering only the other systems' files (its tooltip lists the systems this server translates from; the item is hidden when there are none).
 *   **Show the Original:** `File > Show the Original…` shows the files a program was converted from, in the source viewer: by convention the `sources/` folder beside the program, which File > Open keeps for a translated upload (what was uploaded) and the migrations' twins keep for theirs (a Solidity twin's contract, a Socotra product's configuration files, an OIA project's rule documents and rulebase). One file opens directly; several are listed first. A program with no `sources/` folder says so.
+*   **New from URL:** `File > New from URL...` opens a copy of a Logical English program published at a web address; its `includes these resources:` with relative paths, and the documents it cites, resolve against that address.
 *   **Tests:** `Misc > Run the Program's Tests…` runs every expectation of the program and lists each with its outcome (what was expected and what came instead); a row opens its scenario and query.
 *   **Open from Server:** `File > Open copy from server...` provides a list of built-in examples (like `citizenship`).
 *   **Save:** `File > Save` or `Save As...` allows you to save your work back to your local filesystem.
+*   **Export to Another System:** `File > Export to Another System…` writes the program in another system's format, when the server has an exporter that applies to it (see below).
+*   **QR code:** `File > QR code…` shows a QR code, and its URL with **Copy URL**, that opens this document with its selected scenario and query — to continue on a phone, for instance.
 
 > **⚠️ Browser Compatibility:** Direct file saving (writing back to the same file) requires a modern browser that supports the *File System Access API* (e.g., Chrome, Edge). In other browsers (e.g., Safari, Firefox), the "Save" action will instead trigger a **Download** of the file.
+
+### Other systems' files: import and export
+
+With the InsurLE extensions installed (the hosted service has them), the server
+translates the files of eleven other systems into Logical English, and writes
+Logical English programs in three other systems' formats. Without them, `Import
+from Another System…` is hidden and `File > Open...` offers only `.le` files.
+Full guide: [Importing and exporting](import-export.md).
+
+*   **Importers** (`File > Open...` and `File > Import from Another System…`, whose tooltip lists the systems this server translates from): a Bitcoin Miniscript policy or descriptor; an Oracle Intelligent Advisor project or rulebase; a Socotra product configuration; a Solidity contract (as LE for LPS); an s(CASP) or Prolog program (LE1's s(CASP) translations too); a Blawx project; a Drools rule base (DRL); an Epilog program; a LegalRuleML document; an Oracle Insurance Policy Administration transaction (Rules Palette XML); a Daml source (as LE for LPS).
+*   **Exporters** (`File > Export to Another System…`, which offers only those that apply to the program): a Bitcoin Miniscript policy (with a link to the Minsc playground); LegalRuleML; Daml, for an LE for LPS program. The result is shown with its notes, **Copy** and **Save…**.
+*   **Refusals.** An exporter that cannot write the program faithfully writes nothing: a dialog lists each problem with its line (a link to it) and the program's words there. **See s(CASP)** and the s(CASP) engine refuse the same way.
+*   **The twins.** The translators' results on published programs are among the examples, under `migration/` (Blawx, LegalRuleML, Miniscript, s(CASP)), each with its migration ledger and its `sources/` folder, which **Show the Original** opens.
 
 ### Saving via URL (Quick Save)
 The editor automatically synchronizes the current code into the browser's URL using a `text` parameter. 
@@ -135,8 +163,8 @@ As you type, the editor performs real-time verification:
 ## Running Queries
 
 1.  **Load the Module:** The editor proactively loads your code onto the server. You can see the session ID in the top header.
-2.  **Select Scenario:** In the **Query** tab, select a scenario defined in your code (e.g., `scenario(alice, ...)`). You can also select "Another..." to type custom facts.
-3.  **Select Query:** Select a query defined in your code (e.g., `query(one, ...)`).
+2.  **Select Scenario:** In the **Query** tab, select a scenario defined in your code (e.g., `scenario alice is:`). You can also select "Another..." to type custom facts.
+3.  **Select Query:** Select a query defined in your code (e.g., `query one is:`).
 4.  **Execute:** Click the **Query** button.
 5.  **Flip the outcome:** **Flip…** asks which minimal change to the scenario would change the answer. Select an answer first: the dialog proposes *which minimal change to the scenario makes it the case that it is not the case that* the answer (untick **it is not the case that** to ask for the answer itself, or edit the sentence — to aim at a different answer, say). With no answer, it proposes the query. **Flip** runs it as a custom query on the selected scenario: each answer is a set of facts to add or remove (`add: …`, `remove: …`), explained by the proof the changed scenario then gives. See the language summary, §17.7.
 
@@ -171,7 +199,7 @@ Only the placeholders are editable — you can't accidentally break the surround
 Instead of picking a template, choose **Write it in English** (the last entry in the **Add fact** menu) to add facts by describing them in plain language. A dialog opens; type one or more sentences describing precise facts, and an LLM turns them into Logical English facts that use **your program's existing templates**, adding them as ordinary editable rows.
 
 *   **Respects your templates.** The model only fills in the templates you already have — it won't invent predicates. It also normalises wording and tense (e.g. "Miguel *was* born in Portugal" → `Miguel is born in Portugal on a date`) and, where the sentence leaves a placeholder unspecified, keeps the placeholder's own words (like `a date`) for you to fill in. If you need new predicates first, add them in the main editor or with the **LE Assistant**.
-*   **You need an LLM configured** — the same model and API keys as the LE Assistant. Set them in the main editor under **Misc → API Keys…**; the dialog shows which model it will use, or a hint if none is set.
+*   **You need an LLM configured** — the same model and API keys as the LE Assistant. Set them in the main editor under **Misc → API Keys & Assistant Settings…**; the dialog shows which model it will use, or a hint if none is set. More in [The assistants](assistants.md#write-it-in-english).
 *   **Verified before it's added.** The proposed facts are checked against your program (baseline-diffed, so only *new* problems count). If the result verifies clean it is added straight away; if it introduces new issues you are **warned** but can still **Insert anyway**, or rephrase and **Regenerate**.
 
 ### Saving your work
@@ -215,7 +243,7 @@ As you edit, the window keeps its **URL in sync** — the altered scenario, the 
 ## Generate LE view (LE Assistant)
 
 The **Generate LE view** button in the LE Assistant's header drafts a view for
-the program (docs/user/reference/language.md §17.10) and appends it: the facts a case can
+the program ([the language reference](../reference/language.md) §17.10) and appends it: the facts a case can
 state as one group, the judged facts apart, the first query as the result,
 and what the program can show (citations, the stage, documents, a flip). It
 needs no language model. Edit it — group the facts under titles, head the
@@ -278,11 +306,28 @@ Open **Misc → EXPLANATIONS → Preferences...** to configure:
 *   **Prefix for failed nodes:** Text prepended to failed nodes when copying an explanation (handy when pasting into a context that loses colour).
 *   **Detailed failure explanations (per-rule nodes):** When on, a failed predicate proven by several rules shows an intermediate node per rule (each navigable to that rule), with each rule's failed sub-goals beneath it. Slower; off by default.
 *   **Hide repeated explanations:** As described above; on by default.
+*   **Larger important reasons:** When on (the default), the important reason of a failed query lists all of its deepest failed conditions ("it is not the case that X, nor that Y, nor that Z", cut after the third) instead of the first only.
+
+### Why not: a query with no answer
+
+In the editor, a query with no answer shows **No answers (false)** and its failure explanation: the conditions that were tried, the failed ones in red. When the program's rules are in the sections *applicability*, *question* and *remedy* ([the language reference](../reference/language.md) §17.4), the first node is the section checklist ("applicability passed, question failed, remedy not reached"). **Detailed failure explanations** (above) adds a node per rule attempted.
+
+The [executive view](executive-view.md#when-there-is-no-answer-why-not), and a view that `shows its reasons`, say it shorter, as **Why not**: only the conditions the case did not meet, taken from the ways of reaching the answer that came closest (those in which the most conditions held). Each is marked **not stated** (a fact the case could state but does not) or **not met** (a test false on the case's values, a fact the case states otherwise, a negation whose subject holds), with the rule that asks for it, the rule's citation, and the facts it compared. To see it for the program in the editor, use **Misc → Open Executive View**. The tutorial [Querying a program](../tutorials/querying-a-program.md) works through failed queries on an example.
 
 ## Advanced Features
 
-*   **Executive view:** **Misc → Open Executive View** opens the executive view of the program in a new tab, on the scenario and query picked in the editor, with the program's views listed at the top. It shows the program as it is in the editor, unsaved changes included (the text goes to the new tab through the browser's storage, so a link copied from it shows the saved program in another browser).
+*   **Executive view:** ([guide](executive-view.md)) **Misc → Open Executive View** opens the executive view of the program in a new tab, on the scenario and query picked in the editor, with the program's views listed at the top. It shows the program as it is in the editor, unsaved changes included (the text goes to the new tab through the browser's storage, so a link copied from it shows the saved program in another browser).
 *   **LPS programs:** a document that declares `the target language is: lps.` runs in time rather than answering queries, so the query bar shows two buttons instead. **Run in LPS** (also **Misc → Run in LPS**) opens the Logical English → LPS page with the document as it is in the editor and runs it with the LPS engine (LPS2, which must be running: `LPS_LE2_LIB=<this checkout> ./lps ide` in the LPS2 checkout) — timeline, state changes, explanations. **Legal View** (also **Misc → Legal View of This LPS Program**) opens, in a new tab, the program's *legal view* (`le_lps_legal.pl`): each action's integrity constraints as one rule saying who may perform it, each causal law as an effect rule (`… transferring … results in the balance of … being …`), the fluents as scenario elements — an ordinary Logical English program, with the program's own calls as queries (may it happen? what does it change? a flip query: what would have to change for it to be allowed?). It is computed each time, never stored. When the LPS server is running, it draws the view from the program's run: one scenario per call of the program's scenario, holding the state just before that call, with the call's questions as expectations (may it happen — exactly when the run accepted it; what it changes) — so **Misc → Run the Program's Tests…** on the view checks it against the program. Without the LPS server, the view has the program's initial state as its one scenario. Constraints on two actions at once, and actions nothing in the program governs, are stated as comments rather than turned into permissions.
 *   **Source Graph:** **Misc → View Source Graph** opens, in a new browser tab, an interactive graph of the program: templates, rules, facts, scenarios, types and queries as nodes, with their uses/depends-on/negates/is-a relationships as edges. A sidebar selects the layout algorithm, its direction, and which layers (node and edge types) to show — these preferences persist across sessions. Clicking a node highlights its source text back in the editor (and the editor caret focuses the corresponding node); right-clicking a node offers **Copy Node** (copies its text to the clipboard), **Copy URL** (a shareable link focusing that node) and **Redraw from here**. The **Copy Mermaid** toolbar button copies the *visible* graph (the current layers and scenario filter, in the selected direction) as a [Mermaid](https://mermaid.js.org) flowchart — scenarios become subgraphs around their facts — ready to paste into GitHub, Obsidian, or any Mermaid renderer.
-*   **LE Assistant:** Use the **LE Assistant** tab to ask questions about your code or request help with drafting new rules.
+*   **LE Assistant:** Use the **LE Assistant** tab to ask questions about your code or request help with drafting new rules. The **Light Mode** checkbox in its header chooses between a fast assistant that runs on the server (Light, the default) and a full coding agent (Deep). It needs a model and an API key, set in **Misc → API Keys & Assistant Settings…**. See [The assistants](assistants.md), which also covers the Contract Assistant web page.
+*   **s(CASP) engine:** the **Engine** picker beside the query (shown according to **Misc → ENGINE PICKER**) runs a query with s(CASP) instead of Prolog; right-click in the editor and select **See s(CASP)** to view the translation. A program s(CASP) cannot state faithfully is refused, with the list of problems. See [s(CASP)](../reference/scasp.md).
+*   **Proof Game:** the **Proof Game** button in the Query tab opens a game in which you build the proof of the selected query yourself. See [the Proof Game](proof-game.md).
 *   **Debugger:** Right-click in the editor and select **See PROLOG** to view the translated logic, or use the **Trace** button in the Query tab for step-by-step execution.
+
+## More guides
+
+*   [The executive view](executive-view.md): running a program without its text, citations, why not, views, links.
+*   [Importing and exporting](import-export.md): other systems' files, exports and refusals, the migration twins.
+*   [The assistants](assistants.md): the LE Assistant, Write it in English, the Contract Assistant.
+*   [Querying a program](../tutorials/querying-a-program.md): a tutorial on queries, explanations, variations, flips and the Explanation Drill.
+*   [The Proof Game](proof-game.md) and [the verifier's warnings](warnings.md).
