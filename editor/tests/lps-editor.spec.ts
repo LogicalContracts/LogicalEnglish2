@@ -17,7 +17,7 @@ async function lpsUp(): Promise<boolean> {
         const r = await fetch(LPS_API, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ operation: 'example', name: 'goat_declarative' }),
+            body: JSON.stringify({ operation: 'example', name: 'start/goat_declarative' }),
         });
         return r.ok;
     } catch {
