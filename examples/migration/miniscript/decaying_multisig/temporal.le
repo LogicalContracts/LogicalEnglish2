@@ -11,6 +11,10 @@
 % `... months after ...` and the date comparisons (`is after`, `is before or
 % equal to`, ...); this library adds what those do not give.
 %
+% Each template is implemented by the predicate of temporal.pl named after it
+% (LE's functor for the template, e.g. `is_years_after/3`), so the library is
+% core LE: no embedded `prolog` goals, which need le_extensions.pl.
+%
 % What is NOT here: Oracle Intelligent Advisor's change-point semantics
 % (attributes as step functions recomputed over time). A rulebase that leans
 % on them is marked "approximated" in its migration ledger.
@@ -41,59 +45,6 @@ the templates are:
 
 the knowledge base temporal includes:
 
-the age on a date of someone born on a birth date is a number N if
-    prolog le_temporal_years_between(the birth date, the date, N).
-
-the number of whole years from a date to a second date is a number N if
-    prolog le_temporal_years_between(the date, the second date, N).
-
-the number of whole months from a date to a second date is a number N if
-    prolog le_temporal_months_between(the date, the second date, N).
-
-the number of days from a date to a second date is a number N if
-    prolog le_temporal_days_between(the date, the second date, N).
-
-a later date is a number N years after a date if
-    prolog le_temporal_add_years(the date, N, the later date).
-
-a later date is a number N calendar months after a date if
-    prolog le_temporal_add_months(the date, N, the later date).
-
-an earlier date is a number N calendar months before a date if
-    prolog le_temporal_sub_months(the date, N, the earlier date).
-
-a date is in the period from a start date to an end date if
-    prolog le_temporal_in_period(the date, the start date, the end date).
-
-a date is within the last a number N months before a reference date if
-    prolog le_temporal_within_months_before(the date, N, the reference date).
-
-a date is within the last a number N days before a reference date if
-    prolog le_temporal_within_days_before(the date, N, the reference date).
-
-the first day of the month of a date is a first date if
-    prolog le_temporal_month_start(the date, the first date).
-
-the last day of the month of a date is a last date if
-    prolog le_temporal_month_end(the date, the last date).
-
-the year of a date is a number N if
-    prolog le_temporal_year(the date, N).
-
-the month of a date is a number N if
-    prolog le_temporal_month(the date, N).
-
-the weekday of a date is a number N if
-    prolog le_temporal_weekday(the date, N).
-
-a date is in a leap year if
-    prolog (le_temporal_year(the date, Y), le_temporal_leap(Y)).
-
-the lock time a number N is a block height if
-    prolog le_temporal_lock_is_height(N).
-
-the lock time a number N is a time if
-    prolog le_temporal_lock_is_time(N).
-
+% Every other template is answered by temporal.pl.
 block a height H is at least a number N blocks after block a first height F if
     H - F >= N.

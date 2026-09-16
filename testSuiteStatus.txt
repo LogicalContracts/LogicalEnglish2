@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      all (core + trees requiring the proprietary le_extensions.pl)
 Command:    testing/run_tests.sh le --with-extensions   (or: runAllTests)
 Sibling:    testSuiteCoreStatus.txt — core (this repository alone; extension-dependent trees excluded)
-Generated:  2026-09-16 09:37:14 UTC
+Generated:  2026-09-16 11:42:13 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 610
-Total tests:     7543
-Passed:          7543
+Files processed: 605
+Total tests:     7518
+Passed:          7518
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -24,7 +24,6 @@ Detailed File Summary:
   [NONE] examples/moreExamples/alice_propositional.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/assumption_constraints.le: 5 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/augmentedsem.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/cgt_assets.le: 21 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship_including.le: 1 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/clp_coverage.le: 0 Pass, 0 Fail, 0 Error
@@ -36,7 +35,6 @@ Detailed File Summary:
   [PASS] examples/moreExamples/flying_dragon.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/happy_dragon.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/inequality.le: 2 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/journal.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/named_vars.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/numbering_test.le: 5 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/numbers.le: 2 Pass, 0 Fail, 0 Error
@@ -48,8 +46,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/scenario_element_test.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sequencer.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/subset.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/sum_onto.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/sum_simple.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/sums.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/synonyms.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/tea_party.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/type_check_test.le: 1 Pass, 0 Fail, 0 Error
@@ -83,7 +80,6 @@ Detailed File Summary:
   [PASS] examples/moreExamples/rkBook/underground_emergency.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/short/is_a_class_of.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/short/longsentence.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/short/sets.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/short/sunangel.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/tax/1_cgt_assets_and_exemptions_3.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/tax/1_net_asset_value_test_3.le: 4 Pass, 0 Fail, 0 Error
@@ -102,7 +98,6 @@ Detailed File Summary:
   [NONE] examples/moreExamples/testing/citizenship_buggy.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/citizenship_premier.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/forall_vacuous.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/testing/happpy_dragon.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/testing/nonterminating.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/p_with_negation.le: 1 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/testing/payg_buggy.le: 0 Pass, 0 Fail, 0 Error

@@ -40,9 +40,8 @@ a thing can fly if
 rule section_3 with provenance the New Bird Act at section 3:
 a thing cannot fly under section_3 if
     the thing is a penguin
-    and all of
-        it is not the case that the thing can fly under section_4
-        and it is not the case that the thing can fly under section_5.
+    and it is not the case that the thing can fly under section_4
+    and it is not the case that the thing can fly under section_5.
 
 % What section 3 concludes holds.
 rule section_3_conclusion with provenance the New Bird Act at section 3:

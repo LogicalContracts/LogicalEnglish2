@@ -25,6 +25,8 @@ scenario facts is:
     Bob belongs to family one.
     Alice belongs to family one.
     Alice belongs to family two.
+    % family one = {Bob, Alice}, family two = {Alice}: so two is a subset of one,
+    % NOT the other way round — Bob belongs to one and not to two.
     subset expects answers ["family one is a subset of family one", "family two is a subset of family one", "family two is a subset of family two"].
    
 scenario lists is:
@@ -33,6 +35,8 @@ scenario lists is:
 
     a thing belongs to a set if 
         the thing is in the set.
-        
+    % Only [Alice Bob] and [Alice] are sets here, so those are the only candidates:
+    % [Alice Bob] is not a subset of [Alice] (Bob is missing), and [Bob] is not a
+    % set at all. A list value renders space-separated inside its brackets.
     subset expects answers ["[Alice Bob] is a subset of [Alice Bob]", "[Alice] is a subset of [Alice Bob]", "[Alice] is a subset of [Alice]"].
 

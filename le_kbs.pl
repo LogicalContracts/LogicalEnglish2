@@ -3015,10 +3015,8 @@ le_suite(all).
 %   nothing else needs to change.
 extension_dependent_path_fragment('/insurele2/').
 extension_dependent_path_fragment('/insurle2/').
-%  Twins of other systems written with extension constructs: embedded Prolog
-%  goals (Miniscript, turingcomplete) and grouped alternatives (bird).
-extension_dependent_path_fragment('/migration/miniscript/').
-extension_dependent_path_fragment('/migration/blawx/bird/').
+%  A twin of another system written with an extension construct: embedded
+%  Prolog goals (s(CASP)'s list built-ins, which core LE has no sentence for).
 extension_dependent_path_fragment('/migration/scasp/turingcomplete/').
 
 %!  suite_includes(+Suite:atom, +Path:atom) is semidet.

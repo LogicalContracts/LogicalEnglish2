@@ -136,6 +136,21 @@ solve_real_actual(and(A, B), SM, KM, Anc, D, MyID, Us, Whys) :- !,
     solve(B, SM, KM, Anc, D, MyID, UsB, WhysB),
     append(UsA, UsB, Us),
     append(WhysA, WhysB, Whys).
+% If-then-else, as Prolog reads it: the condition's first proof commits.
+% The clauses of an included .pl resource are run here too, and a
+% `(C -> T ; E)` there is not a disjunction.
+solve_real_actual((C -> T ; E), SM, KM, Anc, D, MyID, Us, Whys) :- !,
+    (   once(solve(C, SM, KM, Anc, D, MyID, UsC, WhysC))
+    ->  solve(T, SM, KM, Anc, D, MyID, UsT, WhysT),
+        append(UsC, UsT, Us),
+        append(WhysC, WhysT, Whys)
+    ;   solve(E, SM, KM, Anc, D, MyID, Us, Whys)
+    ).
+solve_real_actual((C -> T), SM, KM, Anc, D, MyID, Us, Whys) :- !,
+    once(solve(C, SM, KM, Anc, D, MyID, UsC, WhysC)),
+    solve(T, SM, KM, Anc, D, MyID, UsT, WhysT),
+    append(UsC, UsT, Us),
+    append(WhysC, WhysT, Whys).
 % Disjunction
 solve_real_actual((A ; B), SM, KM, Anc, D, MyID, Us, Whys) :- !,
     (   solve(A, SM, KM, Anc, D, MyID, Us, Whys)

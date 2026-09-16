@@ -2,7 +2,7 @@
 
 This directory contains Logical English (LE) programs vibe-coded from the examples
 in Robert Kowalski's *Computational Logic and Human Thinking* that
-[`../bookExamples.md`](../bookExamples.md) judged to **already fit current LE**
+[`docs/RK_book/bookExamples.md`](../../../docs/RK_book/bookExamples.md) judged to **already fit current LE**
 (status "Fits current LE", excluding the "partially" / "not yet" cases).
 
 Each `.le` file carries a header comment with (a) its precise chapter/section

@@ -114,7 +114,7 @@
       "verdict":"encoded"
     },
     {
-      "element":"blawx_applies(sec_5_section,_268538) :- ...",
+      "element":"blawx_applies(sec_5_section,_6140) :- ...",
       "in_program":"section_5",
       "kind":"rule",
       "mapping":"a rule of the section, citing it",
@@ -281,7 +281,7 @@
       "sources/bird.yaml",
       "https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418"
     ],
-    "date":"2026-09-15",
+    "date":"2026-09-16",
     "licence":"Blawx: MIT",
     "program":"bird",
     "source":"New Bird Act",

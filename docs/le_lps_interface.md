@@ -109,7 +109,7 @@ le_service:le_service_version(-Version)                      % '1.1'
 
 The payload is identical to §3.1's and §3.3's — LPS2 shapes all three through
 the same code — and that is a *gate*, not a hope: `tools/m8a_test.pl` runs
-LE2's fifteen `examples/lps/*.le` through this transport and the subprocess and
+LE2's seventeen `examples/lps/*.le` through this transport and the subprocess and
 requires the terms to be `variant/2`-equal with identical provenance and issues.
 
 Two things an embedder should say to LE2 on loading, both about being in

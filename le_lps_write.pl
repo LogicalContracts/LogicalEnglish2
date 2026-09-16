@@ -16,7 +16,7 @@
     That is a real claim about the language — it says the internal form carries
     everything the English did, up to the choices this writer makes about
     wording and variable names — and it is checked by testing/lps_roundtrip.pl
-    over the same fifteen programs M8c uses.
+    over the programs of examples/lps (seventeen; M8c used the first fifteen).
 
     It deliberately does NOT claim the two ENGLISH texts are equal. They are
     not, and could not be: `a first player` and `a player` are the same

@@ -33,6 +33,15 @@ scenario smoky is:
 	alice is a parent of bob.
 	happy expects answers ["bob is happy","alice is happy"].
 	healthy expects answers ["bob is healthy","alice is healthy"].
+
+scenario mary is:
+	bob is a dragon.
+	alice is a dragon.
+	alice is a parent of bob.
+	alice is a parent of mary.
+	mary is a dragon.
+	mary is healthy.
+	bob is healthy.
     
 query happy is:
 	which dragon is happy.

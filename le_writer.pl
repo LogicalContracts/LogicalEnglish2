@@ -830,6 +830,17 @@ seq(Ctx, St, otherwise([A|As]), Nodes) :- !,
     seq(Ctx, St, otherwise(As), NB),
     set_first_op(NB, otherwise, NB1),
     append(NA, NB1, Nodes).
+%   `A and (B and C)` is `(A and B) and C`: a conjunction under a conjunction
+%   whose first condition cannot carry the others as its children (a
+%   negation, a universal, an aggregate) joins the outer one's lines, instead
+%   of becoming the `all of` block of the extensions (block_single/4).
+seq(Ctx, St, B, Nodes) :-
+    binary_conn(B, and, L, R),
+    binary_conn(R, and, RL, RR),
+    \+ otherwise_pattern(R, _, _),
+    left_spine(R, Leaf, _),
+    \+ ( line_goal(Leaf), \+ Leaf = not(_) ), !,
+    seq(Ctx, St, and(and(L, RL), RR), Nodes).
 seq(Ctx, St, B, Nodes) :-
     binary_conn(B, Op, L, R), !,
     seq(Ctx, St, L, NL),

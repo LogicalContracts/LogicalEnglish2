@@ -13,7 +13,7 @@ function grabGameSession(r: any, set: (s: string) => void) {
     }
 }
 
-// happpy_dragon's "mary" scenario: alice is a parent of BOTH bob and mary, so
+// happy_dragon's "mary" scenario: alice is a parent of BOTH bob and mary, so
 // "alice is happy" requires the forall consequent ("… is healthy") for BOTH.
 const HAPPY_DRAGON = `the target language is: prolog.
 

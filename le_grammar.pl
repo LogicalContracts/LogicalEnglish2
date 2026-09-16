@@ -3651,7 +3651,7 @@ token_span(Token, Start, End) :- compound(Token), arg(2, Token, loc(Start, End))
 % Structured Body Parsing
 
 parse_body(Tokens, Indent, Templates, VMIn, VMOut, StructuredBody) :-
-    once(tokens_to_lines(Tokens, Indent, Lines)), % removing this once(..) causes nontermination in moreExamples/sbpp_0.le
+    once(tokens_to_lines(Tokens, Indent, Lines)), % removing this once(..) causes nontermination in moreExamples/tax/sbpp_0.le
     (   lines_to_tree(Tokens, Lines, Templates, VMIn, VMOut, StructuredBody) ->  
         ( le_kbs:do_log -> print_message(informational,'  Body succeeded~n'); true)
         ;   
