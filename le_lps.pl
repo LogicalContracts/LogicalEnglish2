@@ -10,8 +10,8 @@
     d_pre/1, initial_state/1 and observe/2 — together with a provenance list
     that points each generated term back at the `.le` sentence it came from.
 
-    The contract with LPS(2) is lps2's docs/dev/le-lps-interface.md, duplicated verbatim
-    in that repository. The surface language is lps2's docs/user/reference/le-for-lps.md. Neither
+    The contract with LPS(2) is lps2's docs/dev/le-lps-interface.md. The surface
+    language is lps2's docs/user/reference/le-for-lps.md. Neither
     is restated here; what follows is how this module is built.
 
     ## Three stages, and why they are separate

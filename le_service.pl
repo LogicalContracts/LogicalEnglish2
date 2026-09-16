@@ -4,7 +4,7 @@
     it loads *this* module into its own SWI-Prolog image and calls predicates.
     This file is the documented surface of that arrangement, so an embedder
     never reaches into le_kbs or le_grammar and those two stay free to move.
-    The plan is docs/LEintegrationImprovementPlan.md in the LPS2 repository,
+    The plan is docs/project/plans/LEintegrationImprovementPlan.md in the LPS2 repository,
     items R1 (this module), R2 (lifecycle and containment) and R3 (the
     editor-facing data).
 
