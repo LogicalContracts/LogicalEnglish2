@@ -19,7 +19,8 @@
     maybe_destroy_kb/1, is_generated_kb_module/1,
     le_network_allowed/0, set_le_network_allowed/1,
     le_issue_reporting/0, set_le_issue_reporting/1,
-    le_examples_dir/1, le_example_relpath/2, language_examples_dir/2, le_extra_examples_dir/2, negation_words/1, user_rule_name/1]).
+    le_examples_dir/1, le_example_relpath/2, language_examples_dir/2, le_extra_examples_dir/2,
+    example_alias/2, example_dir_alias/2, example_current_name/2, negation_words/1, user_rule_name/1]).
 
 :- discontiguous process_section_acc/2.
 :- discontiguous print_test_result/1.
@@ -88,6 +89,44 @@ language_examples_dir(Lang, Dir) :-
 le_extra_examples_dir('RulesRus', 'examples/RulesRus').
 le_extra_examples_dir('migration', 'examples/migration').
 
+%!  example_alias(?Old:atom, ?New:atom) is nondet.
+%!  example_dir_alias(?OldDir:atom, ?NewDir:atom) is nondet.
+%
+%   Names an example had before the example trees were regrouped
+%   (docs/NewExamplesStructure.md), and the name it has now: links, QR codes,
+%   papers and videos keep working. A name is what ?example= and
+%   le_example_relpath/2 take ('citizenship', 'tax/payg', 'RulesRus/x');
+%   a directory alias renames every example under it.
+example_alias('testing/happpy_dragon', happy_dragon).
+example_alias('short/sets', subset).
+example_alias(sum_onto, sums).
+example_alias(sum_simple, sums).
+example_alias(cgt_assets, 'tax/1_cgt_assets_and_exemptions_3').
+example_alias(journal, 'tax/journal_balance').
+
+example_dir_alias(_, _) :- fail.
+
+%!  example_current_name(+Name:atom, -Current:atom) is det.
+%
+%   Name as it is now: through example_alias/2 (with or without its `.le`),
+%   else through the longest example_dir_alias/2 prefix, else Name itself.
+example_current_name(Name, Current) :-
+    (   file_name_extension(Base, le, Name) -> Ext = '.le' ; Base = Name, Ext = '' ),
+    (   example_alias(Base, New)
+    ->  atom_concat(New, Ext, Current)
+    ;   findall(L-(Old-NewDir),
+                ( example_dir_alias(Old, NewDir),
+                  atom_concat(Old, '/', OldSlash),
+                  sub_atom(Name, 0, _, _, OldSlash),
+                  atom_length(Old, L) ),
+                Pairs),
+        Pairs \== []
+    ->  max_member(_-(Old-NewDir), Pairs),
+        atom_concat(Old, Rest, Name),
+        atom_concat(NewDir, Rest, Current)
+    ;   Current = Name
+    ).
+
 %!  le_example_relpath(+Name, -Path:atom) is det.
 %
 %   Resolves an example name as used by the web API/MCP — relative to the
@@ -97,7 +136,8 @@ le_extra_examples_dir('migration', 'examples/migration').
 %   examples/<Lang>/ tree resolves into that tree instead:
 %   'pt/cidadania' -> 'examples/pt/cidadania'.
 le_example_relpath(Name0, Path) :-
-    ( atom(Name0) -> Name = Name0 ; atom_string(Name, Name0) ),
+    ( atom(Name0) -> Name1 = Name0 ; atom_string(Name1, Name0) ),
+    example_current_name(Name1, Name),
     (   atom_concat('imported/', Rest, Name)          % a translated upload (le_import.pl)
     ->  atomic_list_concat([Id|RelParts], '/', Rest),
         atomic_list_concat(RelParts, '/', Rel),

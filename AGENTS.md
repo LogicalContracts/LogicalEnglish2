@@ -66,6 +66,10 @@ The three suites it wraps (also runnable directly):
   `examples/RulesRus/`, the programs of the regulatory-decision constructs,
   docs/le_summary.md §17, and `examples/migration/`, the twins that the
   translators of other systems wrote, docs/le_migration.md.)
+  **Moving or renaming an example:** add a row to `example_alias/2` (or
+  `example_dir_alias/2` for a directory) in `le_kbs.pl`, so that links, QR
+  codes and docs using the old name keep working
+  (`testing/test_example_alias.pl` checks every alias).
 - **Editor E2E (Playwright):** `cd editor && npm run test:e2e` (add `-- --headed` to run visibly).
   Browsers are pinned to this project: `test:e2e` runs with `PLAYWRIGHT_BROWSERS_PATH=0`
   (browsers live in `editor/node_modules`, not the shared `~/Library/Caches/ms-playwright`),

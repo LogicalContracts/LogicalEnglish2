@@ -321,7 +321,8 @@ handle_landing_page(Request) :-
     % group of examples. An unknown (or access-restricted) directory falls back
     % to the full list with a note; restricted directories are reported exactly
     % like missing ones, so the parameter cannot probe their existence.
-    normalize_dir_param(DirParam0, DirParam),
+    normalize_dir_param(DirParam0, DirParam1),
+    example_current_dir(DirParam1, DirParam),
     (   DirParam == '' ->
         landing_example_items(Dir, UserRoles, ExampleItems),
         FocusNote = ''
@@ -549,6 +550,16 @@ normalize_dir_param(D0, D) :-
         normalize_dir_param(D1, D)
     ;   D0 == '/' -> D = ''
     ;   D = D0
+    ).
+
+%!  example_current_dir(+Dir0:atom, -Dir:atom) is det.
+%
+%   A ?dir= value as the directory is named now (le_kbs:example_dir_alias/2):
+%   /?dir=abduction keeps working after abduction/ moved.
+example_current_dir(Dir0, Dir) :-
+    (   Dir0 == '' -> Dir = ''
+    ;   le_kbs:example_dir_alias(Dir0, Dir1) -> Dir = Dir1
+    ;   le_kbs:example_current_name(Dir0, Dir)
     ).
 
 %!  safe_example_subdir(+DirParam:atom, +BaseDir:atom, -SubDirPath:atom, +UserRoles:list) is semidet.
@@ -3280,7 +3291,14 @@ safe_docs_path(DocsDir, Rel, Abs) :-
 
 handle_source(Request) :-
     member(path(Path), Request),
-    atom_concat('/source/', ExamplePath, Path),
+    atom_concat('/source/', ExamplePath0, Path),
+    %  An example of the main tree under a name it had before (example_alias/2).
+    le_examples_dir(MainDir), atom_concat(MainDir, '/', MainPrefix),
+    (   atom_concat(MainPrefix, Name0, ExamplePath0)
+    ->  le_kbs:example_current_name(Name0, Name),
+        atom_concat(MainPrefix, Name, ExamplePath)
+    ;   ExamplePath = ExamplePath0
+    ),
     atom_concat(ExamplePath, '.le', FilePath),
     (   http_in_session(_SessionId), http_session_data(user(_, Roles)) -> UserRoles = Roles ; UserRoles = [] ),
     (   is_allowed_export(FilePath), is_path_allowed(FilePath, UserRoles)
