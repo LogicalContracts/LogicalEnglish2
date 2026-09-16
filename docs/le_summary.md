@@ -493,8 +493,10 @@ translators), so a program and its libraries form one directory.
   day of a month, year / month / weekday of a date, leap years, and Bitcoin
   lock times (`the lock time *a number* is a block height` / `is a time`,
   `block *a height* is at least *a number* blocks after block *a first
-  height*`). Its templates are not reported as untested in a program that
-  includes it. See `testing/fixtures/temporal/uses_temporal.le`.
+  height*`). The templates are answered by the predicates of `temporal.pl`
+  named after them, so the library is core LE. Its templates are not reported
+  as untested in a program that includes it. See
+  `testing/fixtures/temporal/uses_temporal.le`.
 - **`lib/deontic.le`** — obligations, permissions and prohibitions (the
   deontic pattern library): `*a party* is obliged / permitted / forbidden that
   *a sentence*`, `the obligation (prohibition) of *a party* that *a sentence*

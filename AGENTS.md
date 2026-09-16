@@ -38,7 +38,7 @@ you can call it from anywhere. Use it as the default check:
 
 The exclusion is a hardwired table, `extension_dependent_path_fragment/1` in
 `le_kbs.pl` (currently the `insureLE2/` and `InsurLE2/` trees, and the
-migration twins `examples/migration/miniscript/`, `blawx/bird/` and `scasp/turingcomplete/`). Add a row there when
+migration twin `examples/migration/scasp/turingcomplete/`). Add a row there when
 a new extension-dependent example tree appears; nothing else needs to change.
 
 Each variant writes its own committed status snapshot and never touches the other's

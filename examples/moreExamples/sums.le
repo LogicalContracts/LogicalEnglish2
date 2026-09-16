@@ -1,0 +1,37 @@
+the target language is: prolog.
+
+% Sums over a set of values: "S is the sum of each F such that F is a factor".
+% "is a factor" is not a template: it is the built-in "is a" of types, so the
+% factors come from two places, the ontology (true in every scenario) and each
+% scenario's own facts; query two lists every "is a" fact, the transitive ones
+% included.
+
+the templates are:
+*a number* is the result.
+
+the ontology is:
+    3 is a factor.
+    2 is a factor.
+    a is a b.
+    b is a c.
+
+the knowledge base sums includes:
+
+a number S is the result if
+    S is the sum of each F such that
+         F is a factor.
+
+scenario one is:
+    0 is a factor.
+    one expects answers ["5 is the result"].
+    two expects answers ["3 is a factor","2 is a factor","0 is a factor","a is a c","a is a b","b is a c"].
+
+scenario more is:
+    4 is a factor.
+    one expects answers ["9 is the result"].
+
+query one is:
+    which number is the result.
+
+query two is:
+    which thing is a which other thing.

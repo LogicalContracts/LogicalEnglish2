@@ -2,7 +2,7 @@
 
 Source: New Bird Act — sources/bird.yaml, https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418
 Translator: InsurLE2/migration/blawx (blawx_twin.pl)
-Date: 2026-09-15
+Date: 2026-09-16
 Source licence: Blawx: MIT
 
 ## Summary
@@ -36,7 +36,7 @@ A source element is **encoded** when a documented mapping rule translated it wit
 | according_to(sec_2_section, flies, ...) :- ... | rule | encoded | a defeasible rule: guarded by the failure of its defeaters under their sections | section_2 |  |
 | according_to(sec_3_section, -flies, ...) :- ... | rule | encoded | a defeasible rule: guarded by the failure of its defeaters under their sections | section_3 |  |
 | according_to(sec_4_section, flies, ...) :- ... | rule | encoded | a rule of the section, citing it | section_4 |  |
-| blawx_applies(sec_5_section,_268538) :- ... | rule | encoded | a rule of the section, citing it | section_5 |  |
+| blawx_applies(sec_5_section,_6140) :- ... | rule | encoded | a rule of the section, citing it | section_5 |  |
 | according_to(sec_5_section, flies, ...) :- ... | rule | encoded | a rule of the section, citing it | section_5_2 |  |
 | penguin(pingu) | fact | encoded | a fact of the section, citing it | penguin(pingu) |  |
 | holds(sec_5__span_pingu_section,-blawx_applies,sec_5_section,pingu) | fact | encoded | a conclusion stated by a section -> a fact under that section | holds(sec_5__span_pingu_section,-blawx_applies,sec_5_section,pingu) |  |

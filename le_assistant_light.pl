@@ -354,8 +354,8 @@ load_curated_examples(UserRoles, ExamplesStr) :-
     CuratedFiles = [
         "examples/moreExamples/citizenship.le",
         "examples/moreExamples/numbering_test.le",
-        "examples/moreExamples/1_net_asset_value_test_3.le",
-        "examples/moreExamples/payg.le",
+        "examples/moreExamples/tax/1_net_asset_value_test_3.le",
+        "examples/moreExamples/tax/payg.le",
         "examples/moreExamples/dates.le",
         "examples/moreExamples/insureLE2/big_conclusions.le"
     ],

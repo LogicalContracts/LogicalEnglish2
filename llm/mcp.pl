@@ -446,7 +446,20 @@ call_tool("list_examples", _Args, Result) :-
     examples_dir(Dir),
     get_time(T0), list_summary_budget(B), Deadline is T0 + B,
     b_setval(mcp_list_deadline, Deadline),
-    list_examples_with_summaries(Dir, '', Examples),
+    list_examples_with_summaries(Dir, '', Main),
+    % The other example trees, under the names get_example_details resolves
+    % (le_kbs:le_example_relpath/2): 'RulesRus/x', 'migration/blawx/..', 'pt/x'.
+    findall(Es,
+            ( (   le_kbs:le_extra_examples_dir(Root, TreeDir)
+              ;   le_kbs:language_examples_dir(Root, TreeDir)
+              ),
+              exists_directory(TreeDir),
+              absolute_file_name(TreeDir, AbsTree, [file_type(directory)]),
+              atomic_list_concat([AbsTree, '/'], TreeSlash),
+              atomic_list_concat([Root, '/'], TreePrefix),
+              list_examples_with_summaries(TreeSlash, TreePrefix, Es) ),
+            Others),
+    append([Main|Others], Examples),
     Result = _{examples: Examples}.
 
 call_tool("get_example_details", Args, Result) :-
@@ -546,11 +559,13 @@ list_examples_with_summaries(Dir, Prefix, Examples) :-
         atom_concat(Prefix, Base, ExPath),
         directory_file_path(Dir, F, Path),
         restricted_paths:is_path_allowed(Path, []),
+        \+ library_copy_in(Dir, Base),
         example_summary(Path, Summary)
     ), DirectExamples),
     findall(SubExamples, (
         member(F, Files),
         \+ sub_atom(F, 0, 1, _, '.'),
+        \+ memberchk(F, [sources, node_modules]),   % a twin's originals, not programs
         directory_file_path(Dir, F, SubDir),
         exists_directory(SubDir),
         restricted_paths:is_path_allowed(SubDir, []),
@@ -559,6 +574,12 @@ list_examples_with_summaries(Dir, Prefix, Examples) :-
     ), SubExamplesLists),
     append(SubExamplesLists, SubExamplesFlat),
     append(DirectExamples, SubExamplesFlat, Examples).
+
+%   A copy of a lib/ library beside the programs that include it
+%   (classic_web_api:library_copy/2), when the web API is loaded.
+library_copy_in(Dir, Base) :-
+    ( sub_atom(Dir, _, 1, 0, '/') -> D = Dir ; atom_concat(Dir, '/', D) ),
+    catch(classic_web_api:library_copy(D, Base), _, fail).
 
 % --- MCP Helpers ---
 

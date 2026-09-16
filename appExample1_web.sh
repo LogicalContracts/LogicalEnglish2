@@ -111,7 +111,7 @@ EXAMPLE_DATA=$(cat <<EOF
 {
     "token": "$TOKEN",
     "operation": "examples",
-    "file": "1_net_asset_value_test_3"
+    "file": "tax/1_net_asset_value_test_3"
 }
 EOF
 )

@@ -2,8 +2,11 @@
 
     Extension E3 of InsurLE2/docs/MiggratingFromOtherSystems.md (§7.2): a
     library, not syntax. Dates are LE's own date(Year, Month, Day) terms.
-    Pure arithmetic only (days from the civil calendar, no clock), so every
-    predicate passes the sandbox LE applies to `prolog` goals.
+    Pure arithmetic only (days from the civil calendar, no clock).
+
+    The predicates at the end are the templates of temporal.le, under the
+    names LE gives them (a template's words, its slots left out), with their
+    arguments in the order of the slots: LE calls them directly.
 
     Loaded assert-only as a Prolog resource (docs/le_summary.md §14.1).
 */
@@ -32,10 +35,13 @@ le_temporal_date_of_day(N, date(Y, M, D)) :-
 
 le_temporal_leap(Y) :- Y mod 4 =:= 0, ( Y mod 100 =\= 0 ; Y mod 400 =:= 0 ).
 
-le_temporal_days_in_month(Y, 2, 29) :- le_temporal_leap(Y), !.
-le_temporal_days_in_month(_, 2, 28) :- !.
-le_temporal_days_in_month(_, M, 30) :- memberchk(M, [4, 6, 9, 11]), !.
-le_temporal_days_in_month(_, _, 31).
+%   No cuts in this file: LE's reasoner runs a resource's clauses itself
+%   (for the explanations), and a cut there does not prune.
+le_temporal_days_in_month(Y, M, L) :-
+    (   M =:= 2 -> ( le_temporal_leap(Y) -> L = 29 ; L = 28 )
+    ;   memberchk(M, [4, 6, 9, 11]) -> L = 30
+    ;   L = 31
+    ).
 
 %   The number of days from the first date to the second (negative when the
 %   second is earlier).
@@ -112,3 +118,23 @@ le_temporal_weekday(Date, W) :-
 %   (nSequence, older(n)) counts blocks.
 le_temporal_lock_is_height(T) :- integer(T), T < 500000000.
 le_temporal_lock_is_time(T) :- integer(T), T >= 500000000.
+
+%   The templates of temporal.le.
+the_age_on_of_someone_born_on_is(Date, Birth, N) :- le_temporal_years_between(Birth, Date, N).
+the_number_of_whole_years_from_to_is(D1, D2, N) :- le_temporal_years_between(D1, D2, N).
+the_number_of_whole_months_from_to_is(D1, D2, N) :- le_temporal_months_between(D1, D2, N).
+the_number_of_days_from_to_is(D1, D2, N) :- le_temporal_days_between(D1, D2, N).
+is_years_after(Later, N, Date) :- le_temporal_add_years(Date, N, Later).
+is_calendar_months_after(Later, N, Date) :- le_temporal_add_months(Date, N, Later).
+is_calendar_months_before(Earlier, N, Date) :- le_temporal_sub_months(Date, N, Earlier).
+is_in_the_period_from_to(Date, Start, End) :- le_temporal_in_period(Date, Start, End).
+is_within_the_last_months_before(Date, N, Ref) :- le_temporal_within_months_before(Date, N, Ref).
+is_within_the_last_days_before(Date, N, Ref) :- le_temporal_within_days_before(Date, N, Ref).
+the_first_day_of_the_month_of_is(Date, First) :- le_temporal_month_start(Date, First).
+the_last_day_of_the_month_of_is(Date, Last) :- le_temporal_month_end(Date, Last).
+the_year_of_is(Date, Y) :- le_temporal_year(Date, Y).
+the_month_of_is(Date, M) :- le_temporal_month(Date, M).
+the_weekday_of_is(Date, W) :- le_temporal_weekday(Date, W).
+is_in_a_leap_year(Date) :- le_temporal_year(Date, Y), le_temporal_leap(Y).
+the_lock_time_is_a_block_height(T) :- le_temporal_lock_is_height(T).
+the_lock_time_is_a_time(T) :- le_temporal_lock_is_time(T).

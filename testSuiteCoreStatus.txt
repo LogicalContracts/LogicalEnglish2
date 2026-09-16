@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      core (this repository alone; extension-dependent trees excluded)
 Command:    testing/run_tests.sh le   (or: runTests)
 Sibling:    testSuiteStatus.txt — all (core + trees requiring the proprietary le_extensions.pl)
-Generated:  2026-09-16 09:15:00 UTC
+Generated:  2026-09-16 11:26:18 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 174
-Total tests:     690
-Passed:          690
+Files processed: 194
+Total tests:     1043
+Passed:          1043
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -24,7 +24,6 @@ Detailed File Summary:
   [NONE] examples/moreExamples/alice_propositional.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/assumption_constraints.le: 5 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/augmentedsem.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/cgt_assets.le: 21 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship_including.le: 1 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/clp_coverage.le: 0 Pass, 0 Fail, 0 Error
@@ -36,7 +35,6 @@ Detailed File Summary:
   [PASS] examples/moreExamples/flying_dragon.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/happy_dragon.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/inequality.le: 2 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/journal.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/named_vars.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/numbering_test.le: 5 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/numbers.le: 2 Pass, 0 Fail, 0 Error
@@ -48,8 +46,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/scenario_element_test.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sequencer.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/subset.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/sum_onto.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/sum_simple.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/sums.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/synonyms.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/tea_party.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/type_check_test.le: 1 Pass, 0 Fail, 0 Error
@@ -83,7 +80,6 @@ Detailed File Summary:
   [PASS] examples/moreExamples/rkBook/underground_emergency.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/short/is_a_class_of.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/short/longsentence.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/short/sets.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/short/sunangel.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/tax/1_cgt_assets_and_exemptions_3.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/tax/1_net_asset_value_test_3.le: 4 Pass, 0 Fail, 0 Error
@@ -102,7 +98,6 @@ Detailed File Summary:
   [NONE] examples/moreExamples/testing/citizenship_buggy.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/citizenship_premier.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/forall_vacuous.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/testing/happpy_dragon.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/testing/nonterminating.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/p_with_negation.le: 1 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/testing/payg_buggy.le: 0 Pass, 0 Fail, 0 Error
@@ -162,12 +157,37 @@ Detailed File Summary:
   [PASS] examples/migration/blawx/net30/net30.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/blawx/wills/wills.le: 10 Pass, 0 Fail, 0 Error
   [NONE] examples/migration/blawx/wills_tutorial/wills_tutorial.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/blawx/bird/bird.le: 17 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/blawx/mortality/mortality.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/migration/blawx/life_act/life_act.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/blawx/r34/r34.le: 64 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/blawx/oasa/oasa.le: 20 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/blawx/siblings/siblings.le: 10 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/blawx/numerical_constraints/numerical_constraints.le: 11 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/miniscript/bolt3_received_htlc/bolt3_received_htlc.le: 25 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/miniscript/bolt3_received_htlc/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/miniscript/liana_inheritance/liana_inheritance.le: 39 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/miniscript/liana_inheritance/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/miniscript/bolt3_to_local/bolt3_to_local.le: 15 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/miniscript/bolt3_to_local/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/miniscript/liquid_federation/liquid_federation.le: 34 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/miniscript/liquid_federation/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/miniscript/halving_decay/halving_decay.le: 92 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/miniscript/halving_decay/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/miniscript/cosigning_service/cosigning_service.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/miniscript/cosigning_service/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/miniscript/revault_unvault/revault_unvault.le: 29 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/miniscript/revault_unvault/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/miniscript/core_2of3_multisig/core_2of3_multisig.le: 25 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/miniscript/core_2of3_multisig/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/miniscript/liana_recovery/liana_recovery.le: 15 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/miniscript/liana_recovery/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/miniscript/bolt3_offered_htlc/bolt3_offered_htlc.le: 24 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/miniscript/bolt3_offered_htlc/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/miniscript/decaying_multisig/decaying_multisig.le: 33 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/miniscript/decaying_multisig/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/miniscript/hash_threshold/hash_threshold.le: 14 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/miniscript/hash_threshold/temporal.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/scasp/classic_negation_inconstistent/classic_negation_inconstistent.le: 1 Pass, 0 Fail, 0 Error
   [NONE] examples/migration/scasp/obligation/obligation.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/scasp/subset/subset.le: 2 Pass, 0 Fail, 0 Error
