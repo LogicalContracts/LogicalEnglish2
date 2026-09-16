@@ -2,7 +2,7 @@
 
 This document catalogs the illustrative examples in Robert Kowalski's book
 *Computational Logic and Human Thinking: How to be Artificially Intelligent*
-(`CLandHT-HtobAI.pdf`), the precursor to **Logical English (LE)**. The book
+(Cambridge University Press, 2011), the precursor to **Logical English (LE)**. The book
 writes its rules in a "pre-LE" dialect — sometimes with connectives and
 primitives (maintenance goals, integrity constraints, the event calculus,
 decision-theoretic utilities, resolution machinery, …) that are **not yet** in
@@ -35,10 +35,10 @@ used as equivalences (`if and only if`); decision-theoretic utilities and
 probabilities; full object/meta-language mixing and self-reference;
 object-oriented message-passing; and connection-graph / resolution machinery.
 
-> Images are reproduced from the Markdown conversion in
-> `CLandHT-HtobAI_conversion/`. Only figures that *are* an example (connection
-> graphs, search trees, semantic networks, decision diagrams) are embedded;
-> decorative images are omitted.
+> The figures that *are* an example (connection graphs, search trees, semantic
+> networks, decision diagrams) were embedded from a conversion of the book, which
+> is no longer kept in this repository (it is copyrighted); each is marked where
+> it stood.
 
 ---
 
@@ -111,7 +111,7 @@ John may suffer irreversible brain damage if John takes intelligence-enhancing d
 
 - **Motivation:** The central picture of the agent (mind = syntactic structure of goals/beliefs) interacting with the world (semantic structure), observing events and performing actions.
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-1.jpeg)
+*(a figure of the book, not reproduced here)*
 
 - **Status:** Diagram, not a logic example. Depicts the observe→think→decide→act **agent cycle** and event-based temporal reasoning (initiates/terminates), which is **not yet** in LE.
 
@@ -179,7 +179,7 @@ conclusion C if condition B. conclusion B if condition A.
 
 - **Motivation:** Depicts a person's pre-existing goals and beliefs as a connection graph, with links between matching conditions and conclusions.
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-2.jpeg)
+*(a figure of the book, not reproduced here)*
 
 - **Status:** Diagram (a connection graph). The graph's individual conditionals fit LE, but **connection graphs / resolution machinery** themselves are **not yet** in LE.
 
@@ -187,7 +187,7 @@ conclusion C if condition B. conclusion B if condition A.
 
 - **Motivation:** The same connection graph augmented with the beliefs conveyed by the notice, showing how new sentences add links to the web of belief.
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-3.jpeg)
+*(a figure of the book, not reproduced here)*
 
 - **Status:** Diagram (a connection graph). Same judgment: underlying conditionals fit LE; the **connection-graph** representation is **not yet** in LE. Note the maintenance goal `if there is an emergency then you deal with the emergency appropriately`, which is a **maintenance goal** — **not yet** in LE.
 
@@ -225,7 +225,7 @@ The driver will stop the train immediately if the driver is alerted to an emerge
 
 - **Motivation:** Pictures forward reasoning as following a connection-graph link from a belief's conclusion to another belief whose condition it matches.
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-4.jpeg)
+*(a figure of the book, not reproduced here)*
 
 - **Status:** Diagram (connection-graph link). Connection graphs are **not yet** in LE.
 
@@ -233,7 +233,7 @@ The driver will stop the train immediately if the driver is alerted to an emerge
 
 - **Motivation:** Shows that a frequently-activated link between two beliefs can be short-circuited ("compiled") into a single derived belief.
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-5.jpeg)
+*(a figure of the book, not reproduced here)*
 
 ```
 You deal with the emergency appropriately if you alert the driver.
@@ -292,7 +292,7 @@ If there is an emergency then you deal with the emergency appropriately.
 
 - **Motivation:** A summary picture of the agent-and-world problem the book aims to solve (open to a changing world, combining thinking, deciding, and acting).
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-6.jpeg)
+*(a figure of the book, not reproduced here)*
 
 - **Status:** Diagram (overview, not a logic example). Depicts the **agent cycle / changing world**, **not yet** in LE.
 
@@ -322,10 +322,10 @@ Susan, who has the label B stuck to her front.
 
 - **Motivation:** The original, abstract Wason selection task; introduces forward reasoning (modus ponens), the converse, and the contrapositive, and the empirical finding that ~10% answer correctly.
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-7.jpeg)
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-8.jpeg)
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-9.jpeg)
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-10.jpeg)
+*(a figure of the book, not reproduced here)*
+*(a figure of the book, not reproduced here)*
+*(a figure of the book, not reproduced here)*
+*(a figure of the book, not reproduced here)*
 
 ```
 If there is a d on one side, then there is a 3 on the other side.
@@ -540,7 +540,7 @@ Visualises the fox's goal reduction as a search through a connection graph linki
 
 - **Motivation:** Depicts the sub-graph connecting the top-level goal to facts and action subgoals — a proof that, if the actions succeed and the beliefs are true, the fox achieves her goal.
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-12.jpeg)
+*(a figure of the book, not reproduced here)*
 
 - **Status:** Complete-as-figure (the diagram is the artifact). Not in current LE: connection graphs / resolution machinery are explicitly outside LE.
 
@@ -587,7 +587,7 @@ Argues that, beyond thinking, an agent must also observe and act on the world, a
 
 - **Motivation:** Illustrates how logic provides symbolic representations of the world that an agent processes to reason about it.
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-13.jpeg)
+*(a figure of the book, not reproduced here)*
 
 - **Status:** Fragment / conceptual figure. Not an example program; not applicable to LE.
 
@@ -668,7 +668,7 @@ Explains the relationship between backward reasoning and search via and-or trees
 
 - **Motivation:** Pictures the search space generated by backward reasoning over the fox's goal as an and-or tree (top-level goal at the top, or-arcs to alternatives, and-arcs to conjoined subgoals).
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-15.jpeg)
+*(a figure of the book, not reproduced here)*
 
 - **Status:** Complete-as-figure (the search-space diagram for the fox example). Not in current LE: and-or trees / search-space machinery are outside LE's surface language.
 
@@ -688,7 +688,7 @@ and the animal picks up the object.
 
 - **Motivation:** Pictures the alternative or-tree representation, whose nodes are conjunctions of subgoals; the underlined subgoal in each node is the one selected for reduction.
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-16.jpeg)
+*(a figure of the book, not reproduced here)*
 
 - **Status:** Complete-as-figure. Not in current LE.
 
@@ -696,9 +696,9 @@ and the animal picks up the object.
 
 - **Motivation:** A classic example of how depth-first search (as in Prolog) can loop forever on mutually recursive clauses, while breadth-first finds the solution `Who = bob` immediately; clause order matters.
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-17.jpeg)
+*(a figure of the book, not reproduced here)*
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-18.jpeg)
+*(a figure of the book, not reproduced here)*
 
 ```
 mary will go to the party if john will go to the party.
@@ -1910,7 +1910,7 @@ Discussion (no new transcribable examples): distinguishes reactive, forward-reas
 **Example 22 — The production-system agent-in-the-world picture.**
 **Motivation:** A diagram summarising how a production system generates an intelligent agent's behaviour in interaction with the world (the chapter's closing figure).
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-19.jpeg)
+*(a figure of the book, not reproduced here)*
 
 **Status:** diagram. not yet — depicts the reactive agent/production-system cycle interacting with the world, which is outside current LE (the book defers reconciliation with logic to the next chapter).
 
@@ -2076,7 +2076,7 @@ Backward reasoning, subgoal: I alert the driver!
 Backward reasoning, action: I press the alarm signal button!
 ```
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-21.jpeg)
+*(a figure of the book, not reproduced here)*
 
 **Status:** Complete. The **beliefs** (definition hierarchy of emergencies, and the `cause if effect` recognition rules) are plain definite clauses and **fit current LE**. The maintenance goal and the cycle-based forward/backward trace do **not**. Note the book itself flags that `there is a fire if there is smoke` is the abduction-avoiding inverse of the natural causal direction, treated properly in Chapter 10.
 
@@ -2167,7 +2167,7 @@ Forward reasoning: false
 
 Summarises the chapter: forward reasoning with maintenance goals generalises condition-action rules, achievement goals generalise actions, backward reasoning generates plans. References the perception/cognition/action diagram. No new examples.
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-22.jpeg)
+*(a figure of the book, not reproduced here)*
 
 ## Chapter 9. The Meaning of Life
 
@@ -2383,7 +2383,7 @@ Hypotheses: it rained   /   the sprinkler was on.
 
 (`the grass is wet` is a closed predicate; `it rained` and `the sprinkler was on` are open predicates.)
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-23.jpeg)
+*(a figure of the book, not reproduced here)*
 
 **Status:** Complete. **Fits current LE** abduction: declare `it rained` and `the sprinkler was on` as assumable/open templates; querying `the grass is wet` yields them as **unknowns** (alternative explanations) instead of failing. The book's `effect if cause` clauses are ordinary LE rules.
 
@@ -2399,7 +2399,7 @@ explains two independent observations, compared with the assumption that the
 sprinkler was on, which explains only one.
 ```
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-24.jpeg)
+*(a figure of the book, not reproduced here)*
 
 **Status:** Complete (informal). **Partially** fits LE: the underlying clauses and assumptions fit, and LE can report the assumed unknowns; but **selecting the best explanation** by counting how many observations each hypothesis explains goes **beyond** LE's abduction.
 
@@ -2956,7 +2956,7 @@ No transcribable examples.
 
 **Motivation:** Introduces change as actions/events transforming one static world-state into the next, formalised in modal logic's possible-world semantics; includes an opening diagram of state transitions.
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-25.jpeg)
+*(a figure of the book, not reproduced here)*
 
 **Example 1 — Modal-logic truth condition for "in the future"**
 
@@ -3031,9 +3031,9 @@ an action in which the crow sings
 
 **Motivation:** Motivates abandoning the global situation-calculus view for a local event-oriented view in which events occur instantaneously and independently in different parts of the world. Includes diagrams of an atomic state initiated/terminated by events, and of the fox-and-crow timeline.
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-26.jpeg)
+*(a figure of the book, not reproduced here)*
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-27.jpeg)
+*(a figure of the book, not reproduced here)*
 
 **Example 3 — Crow-singing as a timed cause-and-effect rule**
 
@@ -3197,7 +3197,7 @@ an animal has an object at a time,
 
 **Motivation:** Shows that event-calculus time need not be linear: events can be named symbolically and ordered by an explicit (transitive) before-relation. Includes a diagram of partially ordered events (with a wolf).
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-28.jpeg)
+*(a figure of the book, not reproduced here)*
 
 ```
 the crow picks up the cheese at time_crow-pickup
@@ -3305,9 +3305,9 @@ then the fox picks up the food.
 
 The two diagrams contrast the conventional logic view of agent-and-world with the OO inside-out view.
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-29.jpeg)
+*(a figure of the book, not reproduced here)*
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-30.jpeg)
+*(a figure of the book, not reproduced here)*
 
 **Status:** Diagrams only, no rules. The OO agent/message reframing is **not in current LE** (no message-passing / reactive agent-cycle primitives).
 
@@ -3371,19 +3371,19 @@ Beliefs: G if conditions and I send message of form R to object P.
 
 Initial-state semantic network for the fox-and-crow story:
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-31.jpeg)
+*(a figure of the book, not reproduced here)*
 
 Semantic network representing dynamic information by reifying events:
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-32.jpeg)
+*(a figure of the book, not reproduced here)*
 
 Semantic network representing a hierarchy of classes:
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-33.jpeg)
+*(a figure of the book, not reproduced here)*
 
 A semantic-network connection is just a graphical atomic sentence "one thing is related to another thing":
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-34.jpeg)
+*(a figure of the book, not reproduced here)*
 
 **Status:** (a) complete (as diagrams). (b) **partially** — the underlying content is sets of atomic sentences (facts), which LE fully supports, and the class-hierarchy network maps to LE taxonomy/ontology. The graphical/object-oriented *structuring* itself is not an LE construct.
 
@@ -3733,7 +3733,7 @@ The general reasoning pattern:
 
 The derivation viewed as activating links in a connection graph of constraint and beliefs:
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-35.jpeg)
+*(a figure of the book, not reproduced here)*
 
 **Status:** (a) complete. (b) **not yet** — depends on integrity constraints (`then false`), mixed forward/backward reasoning, connection-graph link activation, and the belief/doubt agent-cycle framing, none of which are LE constructs.
 
@@ -3856,9 +3856,9 @@ and mary believes the person has a noble character.
 
 The connection graph of the relevant beliefs, and its simplification by activating links:
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-36.jpeg)
+*(a figure of the book, not reproduced here)*
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-37.jpeg)
+*(a figure of the book, not reproduced here)*
 
 **Status:** (a) complete. (b) **partially** — "mary believes that ⟨the person is well-bred⟩" maps to LE `says/that` meta-templates. But the rule mixes an object-level conclusion with a meta-level condition, names a whole conditional `(... holds for all persons)` as a term, and uses connection-graph resolution — full object/meta mixing that is **not yet** in LE.
 
@@ -3886,7 +3886,7 @@ and the person intends to make his principal home in the uk
 
 Connection graph (similar structure to the "impressing Mary" graph), and the simplified result with the previously-missing link:
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-38.jpeg)
+*(a figure of the book, not reproduced here)*
 
 ```
 the secretary of state may grant a certificate of naturalisation
@@ -3945,7 +3945,7 @@ after a short pause, declares that he knows that he has mud on his face.
 
 Step-1 connection graph (in terms of belief):
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-39.jpeg)
+*(a figure of the book, not reproduced here)*
 
 Step-1 forward-reasoning specialisations and result:
 
@@ -4626,7 +4626,7 @@ A ∨ (B ∨ C) ≡ (A ∨ B) ∨ C
 % backward reasoning as resolution: derive D ∧ B → false from D → A and A ∧ B → false
 ```
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-40.jpeg)
+*(a figure of the book, not reproduced here)*
 
 **Status:** fragment. Not LE surface language: the clause-compilation example is two ordinary LE rules, but the resolution rule, set-of-literals representation, and resolvent derivation are inference-engine internals.
 
@@ -4677,14 +4677,14 @@ employs(john, bob)               % fact
 U = s(Z), Z = s(Z'), Z' = s(s(0))  ⇒  U = s(s(s(s(0))))
 ```
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-41.jpeg)
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-42.jpeg)
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-43.jpeg)
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-44.jpeg)
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-45.jpeg)
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-46.jpeg)
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-47.jpeg)
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-48.jpeg)
+*(a figure of the book, not reproduced here)*
+*(a figure of the book, not reproduced here)*
+*(a figure of the book, not reproduced here)*
+*(a figure of the book, not reproduced here)*
+*(a figure of the book, not reproduced here)*
+*(a figure of the book, not reproduced here)*
+*(a figure of the book, not reproduced here)*
+*(a figure of the book, not reproduced here)*
 
 **Status:** fragment + figures. Not LE surface language: connection graphs are inference-engine internals. The underlying clauses fit LE except the non-Horn disjunctive clause `playing(bob) ∨ working(bob)` (disjunctive head, not yet LE) and the `s(...)` arithmetic data.
 
@@ -4698,7 +4698,7 @@ I get wet if it will rain and I do not take an umbrella.
 % same logical form / same belief
 ```
 
-![figure](CLandHT-HtobAI_conversion/chunk-0-img-49.jpeg)
+*(a figure of the book, not reproduced here)*
 
 **Status:** fragment. Partially fits LE: the two English rules are directly expressible LE rules (`I get wet if I do not take an umbrella and it will rain`), and order-independence of conditions matches LE. The connection-graph view is engine-internal.
 

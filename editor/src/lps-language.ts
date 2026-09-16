@@ -9,7 +9,7 @@
  * Prolog with an operator table. One Monarch grammar covering both would be a
  * mode-switching monster, and the LSP features differ in kind: template
  * extraction is meaningless for `.lps`, operator completion is meaningless for
- * `.le`. See docs/le_lps_design.md §3.
+ * `.le`.  See lps2's docs/le_lps_design.md §3.
  *
  * The keyword list is the §I.4 operator table of the LPS(2) repository
  * (src/core/lps_ops.pl) — an interface specification, not a guess.

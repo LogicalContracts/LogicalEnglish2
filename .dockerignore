@@ -7,3 +7,8 @@ tmp
 *.log
 ._*
 examples/moreExamples/._*
+# Not for the image, which serves docs/ (docs/NewDocumentationStructure.md §1.3):
+# private notes, and papers and research material that are not published.
+docs/vibeCodingNotes.md
+docs/RK_book
+docs/papers

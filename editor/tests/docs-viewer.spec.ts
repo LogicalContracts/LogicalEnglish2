@@ -51,4 +51,15 @@ test.describe('Docs viewer', () => {
         await expect.poll(async () => (await heading.boundingBox())!.y,
             { timeout: 15000 }).toBeLessThan(120);
     });
+
+    test('only the published documents are served', async ({ request }) => {
+        // docs/ also holds plans, papers and private notes: /docs/ serves the
+        // user documentation only (classic_web_api.pl public_doc/1).
+        expect((await request.get('/docs/le_summary.md')).status()).toBe(200);
+        expect((await request.get('/docs/tutorial0/01-editor-overview.png')).status()).toBe(200);
+        for (const hidden of ['/docs/vibeCodingNotes', '/docs/vibeCodingNotes.md',
+                              '/docs/papers/LE2paperDraft.md', '/docs/sCASP_plan']) {
+            expect((await request.get(hidden)).status(), hidden).toBe(404);
+        }
+    });
 });
