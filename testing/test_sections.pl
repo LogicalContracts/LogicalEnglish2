@@ -14,7 +14,7 @@
 :- use_module(library(plunit)).
 :- use_module('../le_kbs').
 
-example(KB) :- load('examples/RulesRus/sections_benefit.le', KB).
+example(KB) :- load('examples/regulatory/sections_benefit.le', KB).
 
 answers_for(KB, Scenario, QueryText, Answers) :-
     createSession(KB, SM),

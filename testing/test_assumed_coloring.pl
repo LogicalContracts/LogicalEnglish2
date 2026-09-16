@@ -7,7 +7,7 @@
     change in postprocess_why: the answers and the unknowns list (from i/4) are
     unchanged, so KB-level unknowns and the "definite proof wins" rule still hold.
 
-    Uses examples/moreExamples/testing/assumed_coloring.le. Run with:
+    Uses testing/fixtures/le/assumed_coloring.le. Run with:
         swipl -g run_tests -t halt testing/test_assumed_coloring.pl
     (or via testing/run_tests.sh unit)
 */
@@ -22,7 +22,7 @@
 % The type of the explanation node whose literal is exactly Lit, for query `happy`
 % run against Scenario.
 node_type_for(Scenario, Lit, Type) :-
-    le_kbs:load('examples/moreExamples/testing/assumed_coloring.le', KB),
+    le_kbs:load('testing/fixtures/le/assumed_coloring.le', KB),
     le_kbs:createSession(KB, SM),
     le_kbs:setScenarion(SM, Scenario),
     classic_web_api:run_answering_query(SM, happy, KB, Response),
@@ -59,7 +59,7 @@ test(assumed_subcondition_stays_success) :-
 % equivalent is_a(Arg, Type) session fact (the hiscox "this payment is a payment"
 % case); an unrelated type guard is not.
 test(type_check_maps_to_is_a_assumption) :-
-    le_kbs:load('examples/moreExamples/testing/assumed_coloring.le', KB),
+    le_kbs:load('testing/fixtures/le/assumed_coloring.le', KB),
     le_kbs:createSession(KB, SM),
     assertz(SM:le_unknown(is_a('this payment', payment))),
     assertion(le_kbs:is_session_assumption(SM, le_type_check('this payment', payment))),

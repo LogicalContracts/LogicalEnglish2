@@ -103,7 +103,7 @@ test.describe('Forms and views for stating facts', () => {
             stale = !/view-links|view-root|default-screen/.test(html);
             await route.fulfill({ response: resp, body: html });
         });
-        await page.goto('/executive?program=RulesRus/flip_housing&view=benefit%20check');
+        await page.goto('/executive?program=regulatory/flip_housing&view=benefit%20check');
         expect(stale).toBe(true);
         await expect(page.locator('#view-root .lv-ask')).toBeVisible({ timeout: 90000 });
     });

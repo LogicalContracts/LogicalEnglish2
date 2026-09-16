@@ -13,10 +13,10 @@ const ready = async (page: any) => {
 test.describe('LE Views', () => {
     test('a program lists its views; the claim desk shows its widgets', async ({ page }) => {
         test.setTimeout(240000);
-        await page.goto('/executive?program=RulesRus/eu261_integration');
+        await page.goto('/executive?program=regulatory/eu261_integration');
         await expect(page.locator('#view-links a', { hasText: 'Passenger claim desk' })).toBeVisible({ timeout: 60000 });
 
-        await page.goto('/executive?program=RulesRus/eu261_integration&view=claim%20desk');
+        await page.goto('/executive?program=regulatory/eu261_integration&view=claim%20desk');
         await ready(page);
         const root = page.locator('#view-root');
         // the result, headed by the amount, in euros
@@ -42,7 +42,7 @@ test.describe('LE Views', () => {
     test('an interview asks one question at a time and flips the answer', async ({ page }) => {
         test.setTimeout(120000);
         await page.setViewportSize({ width: 480, height: 900 });
-        await page.goto('/executive?program=RulesRus/flip_housing&view=benefit%20check');
+        await page.goto('/executive?program=regulatory/flip_housing&view=benefit%20check');
         await ready(page);
         const ask = page.locator('.lv-ask');
         const answer = async (a: string) => {
@@ -65,7 +65,7 @@ test.describe('LE Views', () => {
 
     test('what is missing: a fact stated from the question runs only once its value is in', async ({ page }) => {
         test.setTimeout(180000);
-        await page.goto('/executive?program=RulesRus/sections_benefit&view=rent%20help');
+        await page.goto('/executive?program=regulatory/sections_benefit&view=rent%20help');
         const root = page.locator('#view-root');
         await expect(root.locator('.lv-card').first()).toBeVisible({ timeout: 90000 });
         await root.locator('select').first().selectOption('no_rent');
@@ -95,7 +95,7 @@ test.describe('LE Views', () => {
     // the view says it keeps.
     test('a failed result says why not, in the view\'s words and letter', async ({ page }) => {
         test.setTimeout(180000);
-        await page.goto('/executive?program=RulesRus/sections_benefit&view=rent%20decision&scenario=not_eligible');
+        await page.goto('/executive?program=regulatory/sections_benefit&view=rent%20decision&scenario=not_eligible');
         await ready(page);
         const root = page.locator('#view-root');
         await expect(root.locator('[data-widget="result"]')).toContainText('No help', { timeout: 60000 });
@@ -134,7 +134,7 @@ test.describe('LE Views', () => {
             }
             await route.continue();
         });
-        await page.goto('/executive?program=RulesRus/sections_benefit&view=rent%20help');
+        await page.goto('/executive?program=regulatory/sections_benefit&view=rent%20help');
         await expect(page.locator('#view-root .status')).toHaveText('Opening the view…', { timeout: 30000 });
         await expect(page.locator('body')).toHaveClass(/busy/);
         const cases = page.locator('#view-root [data-widget="cases"]');
@@ -155,7 +155,7 @@ test.describe('LE Views', () => {
 
     test('the plain screen says why not for a query with no answer', async ({ page }) => {
         test.setTimeout(120000);
-        await page.goto('/executive?program=RulesRus/sections_benefit&scenario=not_eligible&query=help');
+        await page.goto('/executive?program=regulatory/sections_benefit&scenario=not_eligible&query=help');
         const answers = page.locator('#answers');
         await expect(answers).toContainText('Why not', { timeout: 60000 });
         await expect(answers.locator('.cite-list.unmet li', { hasText: 'cy is on a low income' })).toBeVisible();
@@ -176,14 +176,14 @@ test.describe('LE Views', () => {
         await expect(page.locator('#view-root [data-widget="result"]')).toBeVisible({ timeout: 60000 });
         await expect(page.locator('#view-root .lv-grp', { hasText: 'the case' })).toBeVisible();
         // a program with views of its own: those, no automatic one
-        await page.goto('/executive?program=RulesRus/sections_benefit');
+        await page.goto('/executive?program=regulatory/sections_benefit');
         await expect(page.locator('#view-links a', { hasText: 'Help with the rent' })).toBeVisible({ timeout: 60000 });
         await expect(page.locator('#view-links a', { hasText: 'Automatic view' })).toHaveCount(0);
     });
 
     test('Misc > Open Executive View opens the program as it is in the editor, unsaved', async ({ page, context }) => {
         test.setTimeout(120000);
-        await page.goto('index.html?example=RulesRus/sections_benefit&scenario=no_rent&query=help');
+        await page.goto('index.html?example=regulatory/sections_benefit&scenario=no_rent&query=help');
         await expect.poll(async () => page.locator('#scenario-select option').count(), { timeout: 60000 }).toBeGreaterThan(1);
         await expect(page.locator('#scenario-select')).toHaveValue('no_rent');
         const open = async () => {
@@ -196,7 +196,7 @@ test.describe('LE Views', () => {
         };
         // on the scenario and query picked here
         const first = await open();
-        expect(first.url()).toContain('/executive?program=RulesRus%2Fsections_benefit&text=');
+        expect(first.url()).toContain('/executive?program=regulatory%2Fsections_benefit&text=');
         expect(first.url()).toContain('&scenario=no_rent&query=help');
         await first.close();
         // an edit not saved: the view's title
@@ -215,7 +215,7 @@ test.describe('LE Views', () => {
     test('Generate LE view drafts a view at the end of the program', async ({ page }) => {
         test.setTimeout(120000);
         page.on('dialog', d => d.dismiss());
-        await page.goto('index.html?example=RulesRus/sections_benefit');
+        await page.goto('index.html?example=regulatory/sections_benefit');
         await page.waitForSelector('.monaco-editor', { timeout: 30000 });
         await page.click('.tab[data-tab="assistant-tab"]');
         await page.click('#btn-generate-view');

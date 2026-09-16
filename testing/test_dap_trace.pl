@@ -7,7 +7,7 @@
     - a "for all cases in which …" (forall) goal stays on the ancestor stack while its
       condition and consequent are solved (so it does not vanish from the debugger).
 
-    Uses examples/moreExamples/testing/trace_sample.le. Run with:
+    Uses testing/fixtures/le/trace_sample.le. Run with:
         swipl -g run_tests -t halt testing/test_dap_trace.pl
     (or via testing/run_tests.sh unit)
 */
@@ -21,7 +21,7 @@
 
 % Run Query (over scenario s) in debug mode and collect the recorded stops.
 run_trace(Query, Stops) :-
-    le_kbs:load('examples/moreExamples/testing/trace_sample.le', KB),
+    le_kbs:load('testing/fixtures/le/trace_sample.le', KB),
     le_kbs:createSession(KB, SM),
     le_kbs:setScenarion(SM, s),
     KB:query_info(Query, Goal, _),

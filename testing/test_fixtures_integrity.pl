@@ -30,23 +30,23 @@
 % test_suite_fixture(Path, UsedBy)
 test_suite_fixture('examples/moreExamples/alice.le',
                    'testing/test_proof_game.pl').
-test_suite_fixture('examples/moreExamples/testing/p_with_negation.le',
+test_suite_fixture('testing/fixtures/le/p_with_negation.le',
                    'testing/test_proof_game.pl').
-test_suite_fixture('examples/moreExamples/testing/tea_party2.le',
+test_suite_fixture('testing/fixtures/le/tea_party2.le',
                    'testing/test_grammar_dangling_that.pl').
 test_suite_fixture('examples/moreExamples/citizenship.le',
                    'editor/tests/editor.spec.ts, editor/tests/api/mcp.spec.ts').
-test_suite_fixture('examples/moreExamples/tax/payg.le',
+test_suite_fixture('examples/moreExamples/domains/tax/payg.le',
                    'editor/tests/editor.spec.ts').
-test_suite_fixture('examples/moreExamples/testing/nonterminating.le',
+test_suite_fixture('testing/fixtures/le/nonterminating.le',
                    'editor/tests/editor.spec.ts').
-test_suite_fixture('examples/moreExamples/synonyms.le',
+test_suite_fixture('examples/moreExamples/language/templates/synonyms.le',
                    'testing/test_synonyms.pl').
-test_suite_fixture('examples/moreExamples/testing/template_folding.le',
+test_suite_fixture('testing/fixtures/le/template_folding.le',
                    'testing/test_prep_fold.pl').
-test_suite_fixture('examples/moreExamples/testing/trace_sample.le',
+test_suite_fixture('testing/fixtures/le/trace_sample.le',
                    'testing/test_dap_trace.pl').
-test_suite_fixture('examples/moreExamples/testing/assumed_coloring.le',
+test_suite_fixture('testing/fixtures/le/assumed_coloring.le',
                    'testing/test_assumed_coloring.pl').
 
 :- begin_tests(fixtures_integrity).

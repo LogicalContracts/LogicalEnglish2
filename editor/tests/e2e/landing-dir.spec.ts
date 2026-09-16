@@ -12,7 +12,7 @@ test.describe('Landing page ?dir= focus', () => {
         await expect(page.locator('text=showing')).toBeVisible();
         await expect(page.locator('a', { hasText: '[show all]' })).toHaveAttribute('href', '/');
         // The subdirectory's examples link into the editor with the dir prefix…
-        await expect(page.locator('a[href="/editor/index.html?example=abduction/grass_is_wet"]')).toBeVisible();
+        await expect(page.locator('a[href="/editor/index.html?example=language/abduction/grass_is_wet"]')).toBeVisible();
         // …and top-level examples are not listed.
         await expect(page.locator('a[href="/editor/index.html?example=citizenship"]')).not.toBeVisible();
     });

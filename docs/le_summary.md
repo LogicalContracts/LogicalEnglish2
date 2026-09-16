@@ -247,7 +247,7 @@ it must not be true that
   abducibles, and the reactive engine and the planner never choose an action
   that would break one.
 
-See `examples/moreExamples/assumption_constraints.le`. Translators from s(CASP)
+See `examples/moreExamples/language/unknowns/assumption_constraints.le`. Translators from s(CASP)
 and Prolog (`le_writer:prolog_to_ir/3`) read a denial `:- Body.` / `false :-
 Body.` as such a constraint.
 
@@ -302,7 +302,7 @@ a person falls down the rabbit hole
 The second rule is about **one** rabbit: a scenario fact `the white rabbit is
 late for the tea party` is about that same individual, because a definite phrase
 in a scenario has always been a constant. See
-`examples/moreExamples/white_rabbit.le`.
+`examples/moreExamples/language/templates/white_rabbit.le`.
 
 Consequences worth knowing:
 - Order matters within a sentence, not just membership: the introduction has to
@@ -318,7 +318,7 @@ Consequences worth knowing:
 A variable phrase optionally carries a **name** in addition to its **type**, so that several variables of the same type can be distinguished:
 - **Type** = the **head noun** of the phrase. The whole phrase is the variable's **name** (used for identity/co-reference and for display).
 - **Leading qualifier:** an ordinal (`first`, `second`, …, `tenth`) or one of `other, another, new, previous, next, current, last, same, original, single, given` in front of the noun marks a distinct variable of the same type. So `a first person` and `a second person` are **two different variables, both of type `person`**, and a `person` value is accepted in either slot.
-  - `*a first person* greets *a second person*` — two `person` arguments; see `examples/moreExamples/named_vars.le`.
+  - `*a first person* greets *a second person*` — two `person` arguments; see `examples/moreExamples/language/templates/named_vars.le`.
 - **All-caps id convention:** a trailing identifier (a single uppercase letter or a short ALL-CAPS token) is the variable's name, and the preceding noun(s) are the type. `a person X` and `a person Y` are two different variables of type `person`; likewise `a number N`, `a date D`.
 - **Genuine multi-word types** (no leading qualifier / trailing id) are kept whole, e.g. `a bodily injury` has type `bodily injury`, `a repair cost` has type `repair cost`.
 - Repeated occurrences of the *same* phrase co-refer (`a first person` … `the first person`), as in §2.
@@ -478,7 +478,7 @@ the knowledge base layer includes:
 - **Loading is assert-only** (never `consult`): clause terms are asserted into a dedicated, content-addressed cache module that reasoning sessions import. The only directives honoured at load time are `dynamic/1`, `discontiguous/1` and `use_module(library(...))`; a `:- module(...)` directive is stripped (with a warning) and its clauses load anyway; every other directive is skipped with a warning. So a remote `.pl` cannot execute code merely by being included.
 - **Runtime safety:** every `prolog` body goal is checked by `library(sandbox)` before it runs (LE's own read-only metadata predicates are whitelisted). Trusted installations can disable the check with the flag `le_sandbox_prolog` set to `false`.
 - **Caching:** a file `.pl` reloads when its modification time changes; a URL `.pl` is fetched once per server run — so editing the LE program does not re-load a large facts file.
-- See `examples/moreExamples/prolog_resources/` (postcodes: main → thin layer → facts `.pl`).
+- See `examples/moreExamples/language/includes/prolog_resources/` (postcodes: main → thin layer → facts `.pl`).
 
 ### 14.2 Shipped libraries (`lib/`)
 Libraries are ordinary LE resources kept in `lib/` and copied beside the
@@ -537,7 +537,7 @@ I will marry a woman only if I love the woman.  % necessary condition:
 ```
 Ordinary `if` rules give sufficient conditions; `only if` rules act as
 constraints producing negative conclusions. See
-`examples/moreExamples/only_if.le`.
+`examples/moreExamples/language/negation/only_if.le`.
 
 ### 15.2 `which` relative clauses **[requires le_extensions.pl]**
 `which` continues a condition with a subordinate clause about the **last
@@ -635,7 +635,7 @@ an A has a relevant asset a B if:
 Each numbered condition is addressable by its hierarchical designator through
 `le_source_element(RuleID, Designator, Goal)` — e.g. goal 4.2.1 of rule `jd` —
 which supports clause-level traceability to the source text. See
-`examples/moreExamples/numbering_test.le`.
+`examples/moreExamples/language/extensions/numbering_test.le`.
 
 ### 15.6 Embedded Prolog goals **[resolution requires le_extensions.pl]**
 A body condition of the form `prolog <goal>` (parenthesise conjunctions:
@@ -646,7 +646,7 @@ bound to the goal's results; the system predicates of §13 are commonly used:
 an id has designator a d if
     prolog (le_my_kb(KB), KB:le_source_element(the id, the d, the g)).
 ```
-See `examples/moreExamples/prolog_call.le` and `rule_id_test.le`.
+See `examples/moreExamples/language/extensions/prolog_call.le` and `language/rules/rule_id_test.le`.
 
 ### 15.7 Prepositional chaining **[requires le_extensions.pl]**
 The `; prepositional` template marker and its chained usage are described in
@@ -698,7 +698,7 @@ natural prose:
 Constructs for programs that apply written rules to recorded cases — the
 shape of a regulatory decision (applicability, one contested predicate,
 remedy), where every fact has a source and the contested predicate is
-decided by someone. Examples live in `examples/RulesRus/`;
+decided by someone. Examples live in `examples/regulatory/`;
 `eu261_integration.le` uses them all together on the facts of the CJEU's
 Wallentin-Hermann judgment. Two larger applications are kept in the InsurLE
 repository (`examples/customs/`: tariff classification — the GRIs and the
@@ -824,7 +824,7 @@ close to it: `the fabric construction of style A is knit` where the rules read
 knitted, woven, … — "Did you mean knitted?". A value like none of them (a
 free description, a name) is not reported.
 
-See `examples/RulesRus/judged_damage.le`, and the customs and Medicare
+See `examples/regulatory/judged_damage.le`, and the customs and Medicare
 programs of the InsurLE repository (`examples/customs/`,
 `examples/medicare/`), where every rule, table and fact cites its passage.
 
@@ -863,7 +863,7 @@ the failure of all earlier ones and exactly one applies. Details:
 - **Explanations** show the failed guard as a negation pointing at the
   `otherwise` line: `it is not the case that cy is a member`.
 
-See `examples/RulesRus/otherwise_table.le`.
+See `examples/regulatory/otherwise_table.le`.
 
 ### 17.3 Decision tables
 A **decision table** is a section of its own, bound to the ONE template whose
@@ -920,7 +920,7 @@ the table shipping is, with first match:
   `table_row_width`, `table_bad_cell`, `table_bad_output`,
   `table_csv_missing`.
 
-See `examples/RulesRus/otherwise_table.le` and `loaded_table.le` (+ `shipping.csv`).
+See `examples/regulatory/otherwise_table.le` and `loaded_table.le` (+ `shipping.csv`).
 
 ### 17.4 The decision skeleton: applicability, question, remedy
 No new keyword: the macro-structure of a decision — *is the rule applicable,
@@ -953,7 +953,7 @@ query:
   `section checklist: applicability passed, question failed, remedy not reached`.
   Programs that do not use the reserved names are unaffected.
 
-See `examples/RulesRus/sections_benefit.le`.
+See `examples/regulatory/sections_benefit.le`.
 
 ### 17.5 Source-scoped proof: `according to` in a rule
 In a rule (or query) body, `according to <scope>` restricts the proof of the
@@ -988,7 +988,7 @@ scoped proof; knowledge-base facts always are (they are rules, not evidence).
   `the notice was delivered to ann, according to ann, is not admissible under the landlord`.
 - Not available on the s(CASP) engine.
 
-See `examples/RulesRus/scoped_notice.le`.
+See `examples/regulatory/scoped_notice.le`.
 
 ### 17.6 Services and semantic predicates over text
 Some predicates cannot be decided by rules because their arguments are free
@@ -1043,7 +1043,7 @@ the templates are:
 - Verifier: `service_undeclared` (error) for `; via service X` with no
   declared X, or a built-in semantic template with no semantic matcher.
 
-See `examples/RulesRus/semantic_match.le` (stub, tested) and
+See `examples/regulatory/semantic_match.le` (stub, tested) and
 `semantic_llm.le` (an LLM classifier; no expectations — its answers depend on
 the model).
 
@@ -1092,12 +1092,12 @@ predicates are never changed.
   may edit it before it runs. The goal may keep variables (`the heading of
   which good is 3924`).
 
-See `examples/RulesRus/flip_housing.le`.
+See `examples/regulatory/flip_housing.le`.
 
 ### 17.8 Factors and precedent: a pattern, not syntax
 Deciding an open-textured (`; judged`) issue from earlier decisions —
 Horty's *result model* of precedential constraint — needs no construct of
-its own. `examples/RulesRus/precedent.le` is a plain-LE library (include it
+its own. `examples/regulatory/precedent.le` is a plain-LE library (include it
 as a resource); a program supplies:
 - **factors**, as rules that name them: `a damage has factor suddenness if the damage occurred suddenly.`
   and which way they point: `suddenness favours accidental.` / `wear and tear disfavours accidental.`;
@@ -1118,7 +1118,7 @@ symmetrically *against*). Forced, the explanation is the analogy: the cited
 decision and each shared factor with its source. Not forced, the judged
 predicate is open and reported as a judgment needed. The consistency of the
 case base is the library's `*an issue* has an inconsistent case base`, asked
-as a query. See `examples/RulesRus/precedent_pattern.le`.
+as a query. See `examples/regulatory/precedent_pattern.le`.
 
 ### 17.9 Facts from a document
 The Scenario Editor's *Write it in English…* dialog also extracts facts from
@@ -1270,7 +1270,7 @@ language):
   can show — and proposes a request to refine it.
 
 A tutorial, building a view step by step: [IntroducingLEViews.md](IntroducingLEViews.md).
-See the views of `examples/RulesRus/eu261_integration.le` (a claims desk),
+See the views of `examples/regulatory/eu261_integration.le` (a claims desk),
 `flip_housing.le` (an interview), `judged_damage.le`, `sections_benefit.le`
 (its view *rent decision*: sections in its own words, why not, a flip that
 keeps a fact, a letter for each outcome) and, in the InsurLE repository,

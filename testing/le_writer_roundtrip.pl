@@ -35,13 +35,18 @@ excluded(augmentedsem,
           the section''s facts in the ontology and its rules in the knowledge base, which \c
           reorders the clauses of is_a/2.').
 excluded(payg_buggy,
-         'a deliberately broken program (examples/moreExamples/testing): a rule head read \c
+         'a deliberately broken program (testing/fixtures/le): a rule head read \c
           through the generic "is a" form, whose written form is read through it again with \c
           another variable.').
 
 corpus(Files) :-
-    findall(F, ( member(Dir, ['examples/moreExamples', 'examples/RulesRus', 'examples/pt',
-                              'examples/es', 'examples/fr', 'examples/it']),
+    %  The example suite's trees (le_kbs), but the migration twins: the
+    %  translators' own tests check those.
+    findall(F, ( (   le_kbs:le_examples_dir(Dir)
+                 ;   le_kbs:le_extra_examples_dir(Root, Dir), Root \== migration
+                 ;   le_kbs:language_examples_dir(_, Dir)
+                 ),
+                 exists_directory(Dir),
                  directory_member(Dir, F, [extensions([le]), recursive(true)]),
                  \+ sub_atom(F, _, _, _, 'insureLE2'),
                  \+ sub_atom(F, _, _, _, 'InsurLE2') ),

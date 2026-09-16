@@ -64,7 +64,7 @@ test.describe('Bento Box', () => {
     // (not actual loading), so the test needs no network access.
     test('fact image additions render in the leaves', async ({ page }) => {
         test.setTimeout(120000);
-        await page.goto('index.html?example=sequencer&scenario=groovebox&query=design');
+        await page.goto('index.html?example=domains/other/sequencer&scenario=groovebox&query=design');
         await expect(page.locator('#filename-display')).toHaveText('sequencer.le');
         await expect(page.locator('#query-select')).toHaveValue('design', { timeout: 45000 });
         await page.click('#btn-query');

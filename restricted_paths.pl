@@ -6,6 +6,8 @@
 restricted_access_for('examples/moreExamples/insureLE2', [insurLE2]).
 % The same InsurLE examples, where they are mounted as a directory of their own.
 restricted_access_for('examples/moreExamples/InsurLE2', [insurLE2]).
+% The test suites' fixtures: shown to the team's logged-in users only.
+restricted_access_for('testing/fixtures/le', [insurLE2, developer]).
 
 %!  is_path_allowed(+Path:atom, +UserRoles:list) is semidet.
 %
