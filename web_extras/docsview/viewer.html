@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Logical English — Documentation</title>
 <script src="/web_extras/docsview/marked.min.js"></script>
+<script src="/web_extras/docsview/docs-extras.js"></script>
 <style>
 :root {
     --bg: #ffffff; --ink: #1c2430; --muted: #5b6674; --accent: #0e639c;
@@ -67,6 +68,23 @@ main th, main td { border: 1px solid var(--border); padding: 6px 12px; text-alig
 main th { background: var(--code-bg); }
 main hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
 #status { color: var(--muted); padding: 24px; }
+header.docbar form { display: flex; gap: 6px; }
+header.docbar input[type=search], .docs-search-form input {
+    font: 14px system-ui, sans-serif; padding: 4px 8px; border: 1px solid var(--border);
+    border-radius: 5px; background: var(--bg); color: var(--ink); width: 16em; max-width: 40vw;
+}
+.docs-search-form { display: flex; gap: 8px; margin: 0 0 1em; }
+.docs-search-form input { flex: 1; font-size: 16px; width: auto; max-width: none; }
+.docs-search-form button { font: 15px system-ui, sans-serif; padding: 4px 14px; }
+.docs-search-about { font-weight: 600; }
+.docs-search-status, .docs-search-results small { color: var(--muted); }
+.docs-search-results h2 { font-size: 19px; margin-top: 1.4em; }
+.docs-search-results ul { padding-left: 1.2em; }
+.docs-search-results li { margin: .5em 0; }
+.docs-search-snippet { color: var(--muted); font-size: 14px; }
+.docs-search-snippet mark { background: #ffe58f; color: #1c2430; padding: 0 1px; }
+.docs-diagram { overflow-x: auto; margin: 1em 0; text-align: center; }
+.docs-diagram svg { max-width: 100%; height: auto; }
 </style>
 </head>
 <body>
@@ -74,6 +92,9 @@ main hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
     <a href="/">&larr; Logical English</a>
     <a href="/editor/index.html">Editor</a>
     <span class="spacer"></span>
+    <form action="/docs/search" method="get" role="search">
+        <input type="search" name="q" placeholder="Search the documentation" aria-label="Search the documentation">
+    </form>
     <a id="source-link" href="#" target="_blank" rel="noopener">View source on GitHub ↗</a>
 </header>
 <div class="layout">
@@ -111,6 +132,21 @@ main hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
              + path.replace(/^\/docs/, '/docs') + '.md';
     document.getElementById('source-link').href = gh;
 
+    // The anchors a heading gets (below), for the search's links too.
+    const slug = (text) => text.trim().toLowerCase()
+        .replace(/[^\p{L}\p{M}\p{Nd}\p{Nl}\p{Pc}\- ]/gu, '')
+        .replace(/ /g, '-');
+
+    // /docs/search?q=…: the documentation's full-text search.
+    if (path === '/docs/search') {
+        document.getElementById('source-link').hidden = true;
+        document.querySelector('header.docbar form').hidden = true;
+        await DocsExtras.renderSearchPage(document.getElementById('content'), {
+            self: 'le2', navUrl: '/docs/user/nav.json', searchUrl: '/docs/search', slug,
+            rawUrl: (p) => '/docs/user/' + p + '.md', docUrl: (p) => '/docs/user/' + p });
+        return;
+    }
+
     try {
         const resp = await fetch(mdUrl);
         if (!resp.ok) throw new Error(resp.status + ' ' + resp.statusText);
@@ -141,13 +177,15 @@ main hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
         // '-'/'_' , spaces to '-', duplicates deduped with -1, -2, …
         const seen = new Map();
         for (const h of content.querySelectorAll('h1,h2,h3,h4,h5,h6')) {
-            let slug = h.textContent.trim().toLowerCase()
-                .replace(/[^\p{L}\p{M}\p{Nd}\p{Nl}\p{Pc}\- ]/gu, '')
-                .replace(/ /g, '-');
-            const n = seen.get(slug) || 0;
-            seen.set(slug, n + 1);
-            h.id = n ? slug + '-' + n : slug;
+            const base = slug(h.textContent);
+            const n = seen.get(base) || 0;
+            seen.set(base, n + 1);
+            h.id = n ? base + '-' + n : base;
         }
+
+        // Links to the other IDE's documents go to where it is; diagrams are drawn.
+        DocsExtras.rewritePeerLinks(content, 'le2');
+        await DocsExtras.renderMermaid(content, 'le2', { mermaidSrc: '/web_extras/docsview/mermaid.min.js' });
 
         // Honor a #fragment in the URL: the browser's native scroll happened
         // before the Markdown was fetched, so scroll now — and again once

@@ -20,7 +20,7 @@ The model never decides answers: the program does, when you run it.
 Two things in the editor need no model: **Generate LE view** in the LE
 Assistant's header, which drafts a view from the program itself (see
 [the editor guide](editor.md#generate-le-view-le-assistant)), and the
-translators of other systems' files ([import and export](import-export.md)).
+translators of other systems' files ([importing and exporting](../integrations/index.md)).
 
 ## Contents
 
@@ -153,7 +153,7 @@ apply to every mode.
   fits, or *never*.
 - **One query**: the same, for a question; you get one `query … is:` block.
 - **Migration residue**: paste a program translated from another system that
-  still has `RESIDUE` blocks ([import and export](import-export.md#what-could-not-be-translated)).
+  still has `RESIDUE` blocks ([importing and exporting](../integrations/index.md#what-could-not-be-translated)).
   The assistant translates those blocks only, never the rest, then runs the
   program's tests. A test that passed before and fails afterwards counts as a
   regression to repair. Background text, such as the source system's
