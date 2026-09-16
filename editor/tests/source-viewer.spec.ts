@@ -23,11 +23,11 @@ test.describe('Source viewer', () => {
         await expect(viewer).toHaveCount(0);
     });
 
-    // In the program itself: the context menu of a line that cites a document
-    // offers "Show original text" — the same viewer, the fact's passage
-    // highlighted — and, once the program is loaded, the menu of a line that
-    // cites nothing does not.
-    test('Show original text in the context menu of a cited fact', async ({ page }) => {
+    // In the program itself: the context menu of every line offers "View
+    // Original Text"; on a line that cites a document it opens the same
+    // viewer, the fact's passage highlighted. (Uncited lines: see
+    // view-original-text.spec.ts.)
+    test('View Original Text in the context menu of a cited fact', async ({ page }) => {
         test.setTimeout(120000);
         await page.goto('index.html?example=insureLE2/customs/apparel_cbp');
         await page.waitForSelector('.monaco-editor', { timeout: 30000 });
@@ -45,10 +45,9 @@ test.describe('Source viewer', () => {
             }, text);
             await page.mouse.click(point.x, point.y, { button: 'right' });
         };
-        const item = page.getByRole('menuitem', { name: 'Show original text' });
+        const item = page.getByRole('menuitem', { name: 'View Original Text' });
 
-        // Not loaded yet (no scenario or query in the address): where the
-        // program cites is not known, so the entry is offered; opening the
+        // Not loaded yet (no scenario or query in the address): opening the
         // menu loads the program, whose citations become decorations.
         await rightClickLine('the target language is: prolog.');
         await expect(item).toBeVisible();
@@ -58,9 +57,10 @@ test.describe('Source viewer', () => {
             return ed.getModel().getAllDecorations().filter((d: any) => d.options.description === 'le-citation').length;
         }), { timeout: 60000 }).toBeGreaterThan(50);
 
+        // offered on a line that cites nothing too
         await rightClickLine('the target language is: prolog.');
         await expect(page.getByRole('menuitem', { name: 'Show occurrences' })).toBeVisible();
-        await expect(item).toHaveCount(0);
+        await expect(item).toBeVisible();
         await page.keyboard.press('Escape');
 
         await rightClickLine('style 1025AD has a collar');

@@ -23,6 +23,11 @@ export interface Provenance {
     rationale?: string | null;
     url?: string | null;
     text?: string | null;
+    // [start, end) of the passage in the text, when the server located it
+    // (View Original Text): used when the text there is the quote itself
+    at?: [number, number] | null;
+    // why this document is shown (View Original Text found no passage)
+    note?: string | null;
 }
 
 // Where the program was opened from, so the server can resolve a text address
@@ -130,6 +135,7 @@ function ensureStyles() {
             background: var(--field-bg, #1e1e1e); border: 1px solid var(--input-border, #555);
             border-radius: 4px; padding: 10px; margin: 0; min-height: 120px; }
         .sv-text mark { background: #e2b93d; color: #000; }
+        .sv-note { font-size: 12px; margin: 0 0 8px 0; font-style: italic; }
         .sv-status { font-size: 12px; color: var(--muted, #888); margin: 6px 0; }
         .sv-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 12px; }
         .sv-dialog button { background: var(--input-bg, #3c3c3c); color: var(--input-text, #d4d4d4);
@@ -186,6 +192,12 @@ export function openSourceViewer(p: Provenance, rule: string | undefined, ctx: D
     addMeta(t('because'), p.rationale);
     addMeta(t('Published at'), p.url);
     dialog.appendChild(meta);
+    if (p.note) {
+        const note = document.createElement('div');
+        note.className = 'sv-note';
+        note.textContent = p.note;
+        dialog.appendChild(note);
+    }
 
     const status = document.createElement('div');
     status.className = 'sv-status';
@@ -231,7 +243,8 @@ export function openSourceViewer(p: Provenance, rule: string | undefined, ctx: D
         }
         const text = res.text;
         const lines = p.locator ? locatorLines(p.locator) : null;
-        const span = p.quote ? findQuote(text, p.quote) : lines ? lineSpan(text, lines) : null;
+        const located = p.at && p.quote && text.slice(p.at[0], p.at[1]) === p.quote ? p.at : null;
+        const span = located ? located : p.quote ? findQuote(text, p.quote) : lines ? lineSpan(text, lines) : null;
         pre.textContent = '';
         if (span) {
             pre.appendChild(document.createTextNode(text.slice(0, span[0])));

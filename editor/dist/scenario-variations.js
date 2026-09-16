@@ -8835,7 +8835,12 @@ var uiCatalog = {
     "The quoted passage was not found in this text.": "A passagem citada n\xE3o foi encontrada neste texto.",
     "Show the source": "Mostrar a fonte",
     "Show original text": "Mostrar o texto original",
-    "No cited document here.": "Nenhum documento citado aqui.",
+    "View Original Text": "Ver o texto original",
+    "Show where what is under the cursor comes from: the passage of the document it cites, or of the files the program was converted from, highlighted in the source viewer": "Mostrar de onde vem o que est\xE1 sob o cursor: a passagem do documento que cita, ou dos ficheiros de onde o programa foi convertido, destacada no visualizador",
+    "Place the cursor in a Logical English program first.": "Coloque primeiro o cursor num programa de Logical English.",
+    "The program could not be loaded, so no passage was looked for; these are its originals.": "N\xE3o foi poss\xEDvel carregar o programa, por isso nenhuma passagem foi procurada; estes s\xE3o os seus originais.",
+    "No passage of the original was located for what is under the cursor: here is the original instead.": "N\xE3o foi localizada nenhuma passagem do original para o que est\xE1 sob o cursor: eis o original.",
+    "This program keeps no original text: it cites no document whose text or address it gives, and it was not converted from another system's files (there is no sources folder beside it).": "Este programa n\xE3o guarda texto original: n\xE3o cita nenhum documento cujo texto ou endere\xE7o indique, e n\xE3o foi convertido a partir de ficheiros de outro sistema (n\xE3o h\xE1 pasta sources ao lado dele).",
     "the passage that states it": "a passagem que o afirma",
     'Where the document states this fact: the passage, or "according to \u2026", "as stated in \u2026 at \u2026"': 'Onde o documento afirma este facto: a passagem, ou "de acordo com \u2026", "conforme consta em \u2026 em \u2026"',
     "Cite the passage that states this fact": "Citar a passagem que afirma este facto",
@@ -9431,7 +9436,12 @@ var uiCatalog = {
     "The quoted passage was not found in this text.": "El pasaje citado no se encontr\xF3 en este texto.",
     "Show the source": "Mostrar la fuente",
     "Show original text": "Mostrar el texto original",
-    "No cited document here.": "No hay ning\xFAn documento citado aqu\xED.",
+    "View Original Text": "Ver el texto original",
+    "Show where what is under the cursor comes from: the passage of the document it cites, or of the files the program was converted from, highlighted in the source viewer": "Mostrar de d\xF3nde viene lo que est\xE1 bajo el cursor: el pasaje del documento que cita, o de los archivos de los que se convirti\xF3 el programa, resaltado en el visor",
+    "Place the cursor in a Logical English program first.": "Coloque primero el cursor en un programa de Logical English.",
+    "The program could not be loaded, so no passage was looked for; these are its originals.": "No se pudo cargar el programa, as\xED que no se busc\xF3 ning\xFAn pasaje; estos son sus originales.",
+    "No passage of the original was located for what is under the cursor: here is the original instead.": "No se localiz\xF3 ning\xFAn pasaje del original para lo que est\xE1 bajo el cursor: aqu\xED est\xE1 el original.",
+    "This program keeps no original text: it cites no document whose text or address it gives, and it was not converted from another system's files (there is no sources folder beside it).": "Este programa no guarda texto original: no cita ning\xFAn documento cuyo texto o direcci\xF3n indique, y no se convirti\xF3 a partir de archivos de otro sistema (no hay carpeta sources junto a \xE9l).",
     "the passage that states it": "el pasaje que lo afirma",
     'Where the document states this fact: the passage, or "according to \u2026", "as stated in \u2026 at \u2026"': 'D\xF3nde afirma el documento este hecho: el pasaje, o "de acuerdo con \u2026", "seg\xFAn consta en \u2026 en \u2026"',
     "Cite the passage that states this fact": "Citar el pasaje que afirma este hecho",
@@ -10025,7 +10035,12 @@ var uiCatalog = {
     "The quoted passage was not found in this text.": "Le passage cit\xE9 est introuvable dans ce texte.",
     "Show the source": "Afficher la source",
     "Show original text": "Afficher le texte original",
-    "No cited document here.": "Aucun document cit\xE9 ici.",
+    "View Original Text": "Voir le texte original",
+    "Show where what is under the cursor comes from: the passage of the document it cites, or of the files the program was converted from, highlighted in the source viewer": "Montrer d'o\xF9 vient ce qui est sous le curseur : le passage du document qu'il cite, ou des fichiers d'o\xF9 le programme a \xE9t\xE9 converti, surlign\xE9 dans la visionneuse",
+    "Place the cursor in a Logical English program first.": "Placez d'abord le curseur dans un programme Logical English.",
+    "The program could not be loaded, so no passage was looked for; these are its originals.": "Le programme n'a pas pu \xEAtre charg\xE9, aucun passage n'a donc \xE9t\xE9 cherch\xE9 ; voici ses originaux.",
+    "No passage of the original was located for what is under the cursor: here is the original instead.": "Aucun passage de l'original n'a \xE9t\xE9 localis\xE9 pour ce qui est sous le curseur : voici l'original.",
+    "This program keeps no original text: it cites no document whose text or address it gives, and it was not converted from another system's files (there is no sources folder beside it).": "Ce programme ne conserve aucun texte original : il ne cite aucun document dont il donne le texte ou l'adresse, et il n'a pas \xE9t\xE9 converti depuis les fichiers d'un autre syst\xE8me (il n'y a pas de dossier sources \xE0 c\xF4t\xE9).",
     "the passage that states it": "le passage qui l'\xE9nonce",
     'Where the document states this fact: the passage, or "according to \u2026", "as stated in \u2026 at \u2026"': "O\xF9 le document \xE9nonce ce fait : le passage, ou \xAB selon \u2026 \xBB, \xAB comme indiqu\xE9 dans \u2026 \xE0 \u2026 \xBB",
     "Cite the passage that states this fact": "Citer le passage qui \xE9nonce ce fait",
@@ -10619,7 +10634,12 @@ var uiCatalog = {
     "The quoted passage was not found in this text.": "Il passaggio citato non \xE8 stato trovato in questo testo.",
     "Show the source": "Mostra la fonte",
     "Show original text": "Mostra il testo originale",
-    "No cited document here.": "Nessun documento citato qui.",
+    "View Original Text": "Visualizza il testo originale",
+    "Show where what is under the cursor comes from: the passage of the document it cites, or of the files the program was converted from, highlighted in the source viewer": "Mostrare da dove viene ci\xF2 che \xE8 sotto il cursore: il passaggio del documento che cita, o dei file da cui il programma \xE8 stato convertito, evidenziato nel visualizzatore",
+    "Place the cursor in a Logical English program first.": "Posiziona prima il cursore in un programma Logical English.",
+    "The program could not be loaded, so no passage was looked for; these are its originals.": "Non \xE8 stato possibile caricare il programma, quindi non \xE8 stato cercato alcun passaggio; questi sono i suoi originali.",
+    "No passage of the original was located for what is under the cursor: here is the original instead.": "Non \xE8 stato individuato alcun passaggio dell'originale per ci\xF2 che \xE8 sotto il cursore: ecco l'originale.",
+    "This program keeps no original text: it cites no document whose text or address it gives, and it was not converted from another system's files (there is no sources folder beside it).": "Questo programma non conserva alcun testo originale: non cita alcun documento di cui indichi il testo o l'indirizzo, e non \xE8 stato convertito dai file di un altro sistema (non c'\xE8 una cartella sources accanto).",
     "the passage that states it": "il passaggio che lo afferma",
     'Where the document states this fact: the passage, or "according to \u2026", "as stated in \u2026 at \u2026"': 'Dove il documento afferma questo fatto: il passaggio, o "secondo \u2026", "come indicato in \u2026 a \u2026"',
     "Cite the passage that states this fact": "Citare il passaggio che afferma questo fatto",
@@ -11884,6 +11904,7 @@ function ensureStyles() {
             background: var(--field-bg, #1e1e1e); border: 1px solid var(--input-border, #555);
             border-radius: 4px; padding: 10px; margin: 0; min-height: 120px; }
         .sv-text mark { background: #e2b93d; color: #000; }
+        .sv-note { font-size: 12px; margin: 0 0 8px 0; font-style: italic; }
         .sv-status { font-size: 12px; color: var(--muted, #888); margin: 6px 0; }
         .sv-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 12px; }
         .sv-dialog button { background: var(--input-bg, #3c3c3c); color: var(--input-text, #d4d4d4);
@@ -11939,6 +11960,12 @@ function openSourceViewer(p, rule, ctx = {}) {
   addMeta(t("because"), p.rationale);
   addMeta(t("Published at"), p.url);
   dialog.appendChild(meta);
+  if (p.note) {
+    const note = document.createElement("div");
+    note.className = "sv-note";
+    note.textContent = p.note;
+    dialog.appendChild(note);
+  }
   const status = document.createElement("div");
   status.className = "sv-status";
   const pre = document.createElement("pre");
@@ -11987,7 +12014,8 @@ function openSourceViewer(p, rule, ctx = {}) {
     }
     const text = res.text;
     const lines = p.locator ? locatorLines(p.locator) : null;
-    const span = p.quote ? findQuote(text, p.quote) : lines ? lineSpan(text, lines) : null;
+    const located = p.at && p.quote && text.slice(p.at[0], p.at[1]) === p.quote ? p.at : null;
+    const span = located ? located : p.quote ? findQuote(text, p.quote) : lines ? lineSpan(text, lines) : null;
     pre.textContent = "";
     if (span) {
       pre.appendChild(document.createTextNode(text.slice(0, span[0])));

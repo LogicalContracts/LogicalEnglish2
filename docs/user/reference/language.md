@@ -844,7 +844,7 @@ the table shipping is, with first match:
   The column is not one of the template's (it is set aside before columns
   and arguments are matched). Each row's passage becomes the row's
   provenance, like a fact's (§17.1): the explanation's node for the row
-  carries it (its **§** badge opens the passage), "Show original text" on the
+  carries it (its **§** badge opens the passage), "View Original Text" on the
   row finds it, and the verifier checks the quotation against the document's
   text (`quote_not_found`). Loaded (CSV) tables have no citation column.
 - The table compiles to one clause of its template, `Head :- le_table(Name,

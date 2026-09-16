@@ -190,9 +190,30 @@ directly. When there are several, they are listed first. A program with no
 archives) are not listed, because the viewer shows text only.
 
 A program can also cite one of those files as the text of a document
-(`the text of the policy file is at "sources/…"`). A right-click on the
-citation in the editor offers **Show original text**. In an explanation, the
+(`the text of the policy file is at "sources/…"`). In an explanation, the
 § badge of a cited step opens the passage in that text.
+
+**View Original Text** (File menu, and the editor's context menu on any line)
+goes to the passage of the original that the construct under the cursor comes
+from. On a citation it opens the cited passage. Elsewhere it looks for the rule,
+fact, table, template, scenario or query under the cursor in the originals, by
+the program's own links, which the translators write:
+
+- the construct's label: `rule ps2_tblock1:` finds the element of the source
+  whose key is `ps2-tblock1` (identifiers are compared without case, `_` and
+  `-`);
+- the migration ledger's entries about it (their `in_program` is its label or
+  its template): the source element they name, such as `anc/2`, found where
+  the source defines `anc`;
+- what the construct cites: the document, the anchor of its published address,
+  the identifiers of the locator (`at MathVariable PremiumTaxMV`).
+
+A definition in the source (`key="…"`, `id="…"`, `"name": "…"`, a clause head
+at the start of a line, `def …`) is preferred over a mention. The passage
+highlighted is the element around it, or the block that starts on its line
+(for a clause head, with the clauses of the same head that follow). When no
+passage is found, the originals open with a note saying so. A program with no
+originals and no cited text says that it keeps no original text.
 
 ## Exporting to another system
 

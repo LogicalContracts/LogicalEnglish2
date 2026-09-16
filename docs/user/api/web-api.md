@@ -645,7 +645,8 @@ sorted by offset. `kind` is `template`, `fact`, `head`, `condition`,
 
 ### `provenanceAt` — The document cited at a position
 
-For "Show original text".
+The citation at a position (the editor's View Original Text now uses
+`originalTextAt`, which includes this).
 
 **Request**: `sessionModule`, `position`, `line`, `lineStart`.
 
@@ -660,6 +661,34 @@ For "Show original text".
 `rule` is null unless the citation is a named rule's. Fields that the program
 does not give are null. Errors: `{ "error": "No cited document at this position" }`,
 `{ "error": "No KB loaded" }`.
+
+### `originalTextAt` — Where the original of a position is
+
+For "View Original Text".
+
+**Request**: `sessionModule`, `position`, `line`, `lineStart`, and `source` or
+`base` (where the program's folder is, when the session does not know it).
+
+**Reply**, by `kind`, in the order they are tried:
+
+- `"citation"`: `{ kind, provenance, rule }` as `provenanceAt`, when the
+  citation there can be shown. A citation with a text address and a locator
+  naming an identifier (`at MathVariable PremiumTaxMV`) also gets the passage
+  that defines it: `quote` and `at`.
+- `"passage"`: `{ kind, construct: {kind, name}, rule, via, provenance }` — the
+  construct under the cursor (`rule`, `fact`, `table`, `template`, `scenario`,
+  `query`) found in the program's originals. `provenance.text` is the file
+  (`"sources/…"`), `document` its name, `locator` the identifier found,
+  `quote` the passage and `at` its `[start, end]` offsets in the file's
+  readable text (`documentText`); `quote` and `at` are null when the file as a
+  whole is the construct's original. `via` says which link found it: `label`,
+  `ledger` or `citation`.
+- `"originals"`: `{ kind, construct, files: [{document, text}], hinted }` —
+  no passage located; `hinted` lists the files the ledger names for the
+  construct.
+- `"none"`: `{ kind, construct }` — the program keeps no original text.
+
+Errors: `{ "error": "No KB loaded" }`.
 
 ### `is_a_hierarchy` — The type hierarchy
 

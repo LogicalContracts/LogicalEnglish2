@@ -152,7 +152,7 @@ the program: the transaction's XML and the attached rules that were read in
 "Withdrawal/Transaction.xml" at MathVariable NetAmountMV`) cites the
 MathVariable it states, and the program says where that file is (`the text of
 "Withdrawal/Transaction.xml" is at "sources/Withdrawal/Transaction.xml"`), so
-**Show original text** on a citation opens it.
+**View Original Text** on a citation opens it.
 
 ### Examples to try
 
