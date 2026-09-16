@@ -1,0 +1,101 @@
+% The Logical English twin of an s(CASP) program, written by the s(CASP) translator
+% (InsurLE2/migration/scasp) from criminaljustice-scasp.pl (kept in sources/).
+% Every expected answer in the scenarios is s(CASP)'s own answer on the source.
+
+the target language is: prolog.
+
+the templates are:
+    *a person* has *a right* with *a thing* in *a proceeding* under *an article* of *a law*.
+    exception to *an article* applies to *a person* under *an article* of *a law*.
+    *a person* is *a status* in *a proceeding*.
+    *a person* is involved in *a proceeding*.
+    *a proceeding* is ongoing.
+    *a person* knows *a language*.
+    *a person* has been made aware that *a fact*.
+    *a person* understands *a language*.
+    *a person* is represented by *a lawyer*.
+    *a person* speaks *a language*.
+    *a proceeding* has *a status*.
+    *a thing* is the member of *a second thing*.
+    *a person* isin danger of *a thing*.
+    *a proceeding* isin the language *a language*.
+    *a person* has *a right* in *a proceeding* under *an article*.
+    *an exception* is an exception to *an article*.
+    *a person* has *a right* in *a proceeding*.
+
+the knowledge base criminaljustice includes:
+
+the text of the source program is at "sources/criminaljustice-scasp.pl".
+
+a person has the_right_to_interpretation with the_trial in a proceeding under "article_2_(_1_)" of "Directive_2010_(_64_)" if
+    the person is criminal_subject in the proceeding
+    and the proceeding isin the language a language
+    and it is not the case that the person knows the language.
+
+a person has the_right_to_interpretation with a thing in a proceeding under "article_2_(_2_)" of "Directive_2010_(_64_)" if
+    the person is criminal_subject in the proceeding
+    and the person is represented by the thing
+    and the thing knows a language
+    and it is not the case that the person knows the language.
+
+a person has the_right_to_access_materials with the_trial in a proceeding under "article_7_(_3_)" of "Directive_2012_(_13_)" if
+    the person is criminal_subject in the proceeding
+    and the person has document_New_Evidence
+    and it is not the case that exception to "article_7_(_3_)" applies to the person under an article of a law.
+
+exception to "article_7_(_3_)" applies to a person under "article_7_(_4_)" of "Directive_2012_(_13_)" if
+    the person isin danger of a thing
+    and the thing is in [life, fundamental_rights, public_interest].
+
+a person has the_right_to_interpretation with a thing in a proceeding under article_10 of Italian_law if
+    the person is criminal_subject in the proceeding
+    and the person is represented by the thing
+    and the thing knows a language
+    and it is not the case that the person knows the language.
+
+a person is criminal_subject in a proceeding if
+    the person is involved in the proceeding
+    and the proceeding is a criminal
+    and the person has been made aware that the person is involved in the proceeding
+    and the proceeding is ongoing.
+
+a person is criminal_subject in a proceeding if
+    the person is involved in the proceeding
+    and the proceeding is an europeanArrestWarrant
+    and the person has been made aware that the person is involved in the proceeding
+    and the proceeding is ongoing.
+
+a person is involved in a proceeding if
+    the person is accused in the proceeding.
+
+a person is involved in a proceeding if
+    the person is suspect in the proceeding.
+
+a proceeding is ongoing if
+    the proceeding has started
+    and it is not the case that the proceeding has concluded.
+
+a person knows a language if
+    the person speaks the language
+    and the person understands the language.
+
+scenario one is, as stated in the source program at scenario one:
+    galileo is suspect in proc001.
+    galileo has been made aware that galileo is involved in proc001.
+    galileo understands german.
+    galileo is represented by francesco.
+    francesco speaks german.
+    francesco understands german.
+    proc001 is a criminal.
+    proc001 has started.
+    proc001 is the member of german.
+    galileo has document_New_Evidence.
+    query_1 expects answers [].
+
+scenario two is, as stated in the source program at scenario two:
+    galileo isin danger of life.
+    query_1 expects answers ["exception to article_7_(_3_) applies to galileo under article_7_(_4_) of Directive_2012_(_13_)"].
+
+query query_1 is:
+    exception to which article applies to which person under which second article of which law.
+

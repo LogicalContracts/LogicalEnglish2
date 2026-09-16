@@ -1,0 +1,39 @@
+% The Logical English twin of an s(CASP) program, written by the s(CASP) translator
+% (InsurLE2/migration/scasp) from abdbirds.pl (kept in sources/).
+% Every expected answer in the scenarios is s(CASP)'s own answer on the source.
+
+the target language is: scasp.
+
+the templates are:
+    *a thing* is a bird.
+    *a thing* is an ab; unknown.
+    *a thing* flies.
+    *a thing* is a penguin; unknown.
+    *a thing* is a wounded bird; unknown.
+
+the knowledge base abdbirds includes:
+
+the text of the source program is at "sources/abdbirds.pl".
+
+sam is a bird.
+
+tweety is a bird.
+
+john is a bird.
+
+a thing is an ab if
+    the thing is a penguin.
+
+a thing is an ab if
+    the thing is a wounded bird.
+
+a thing flies if
+    the thing is a bird
+    and it is not the case that the thing is an ab.
+
+scenario the_program is, as stated in the source program:
+    query_1 expects answers ["it is not the case that tweety flies"].
+
+query query_1 is:
+    it is not the case that tweety flies.
+

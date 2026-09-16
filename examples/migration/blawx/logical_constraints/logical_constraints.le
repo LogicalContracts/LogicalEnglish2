@@ -1,0 +1,54 @@
+% Logical Constraints
+%
+% The Logical English twin of a Blawx encoding, written by the Blawx translator
+% (InsurLE2/migration/blawx). Each rule is a rule of the Act as Blawx encodes it,
+% in the words of Blawx's own sentence forms, citing its section; the project's
+% tests are the scenarios, with Blawx's own answers as the expectations.
+%
+% Source: the Blawx project "Logical Constraints" (logical_constraints.yaml, 5 sections), an example of
+%         Blawx v1.6.22-alpha (Lexpedite, MIT licence), commit 3de892f67854292b304c9a55c5e2cd2058d3d418.
+
+the target language is: prolog.
+
+the templates are:
+    *a person* is a person.
+    *a person* is *a number* years of age.
+
+the knowledge base logical_constraints includes:
+
+the text of the Logical Constraints is at "sources/logical_constraints.md".
+
+the text of the Blawx project is at "sources/logical_constraints.yaml".
+
+% The Act, section by section.
+bob is a person, as stated in the Logical Constraints at section 1.
+
+bob is 40 years of age, as stated in the Logical Constraints at section 2.
+
+bob is 50 years of age, as stated in the Logical Constraints at section 4.
+
+% The constraint of section 3 of the Logical Constraints: no case may meet these conditions — one that does is inconsistent, and nothing follows from it.
+it must not be true that
+    a person is a person
+    and the person is a number years of age
+    and the person is a second number years of age
+    and the number is not equal to the second number.
+
+scenario how_old_bob is, as stated in the Blawx project at test how_old_bob:
+    % This query returns no models, because the constraint in section
+    % 3 has been violated, which renders the entire model inconsistent.
+    % If you disable section 4, this query will answer "40".
+    % If you disabled section 3, it will answer "40 and 50".
+    how_old_bob expects answers [].
+
+query how_old_bob is:
+    bob is which number years of age.
+
+the view the act is:
+    the title is "Logical Constraints, as Blawx encodes it".
+    the case is a scenario, with the documents it is stated in.
+    the result is the answer to query how_old_bob.
+    the result shows its reasons.
+    the result shows its citations.
+    the result can be flipped.
+

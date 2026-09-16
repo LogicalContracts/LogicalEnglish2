@@ -1,0 +1,83 @@
+{
+  "counts": {"approximated":0,"encoded":7,"residue":0},
+  "entries": [
+    {
+      "element":"mortal/1",
+      "in_program":"*a thing* is a mortal",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"human/1",
+      "in_program":"*a thing* is a human",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_1_section, mortal, ...) :- ...",
+      "in_program":"section_1",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"0 blawx_as_of / blawx_during clauses",
+      "in_program":"nothing",
+      "kind":"temporal boilerplate",
+      "mapping":"left out: nothing reads it",
+      "note":"Blawx writes these for every attribute and relationship; no rule or test of this project reads them0",
+      "verdict":"encoded"
+    },
+    {
+      "element":"18 #pred annotations",
+      "in_program":"the templates",
+      "kind":"natural language",
+      "mapping":"the wording of each template; the holds / according_to / defeated forms are the rules themselves",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest Socrates",
+      "in_program":"socrates",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"1 cases generated from the rules",
+      "in_program":"the case_ scenarios",
+      "kind":"generated cases",
+      "mapping":"each rule met by facts, each near miss, each defeat: Blawx's answers as the expectations",
+      "note":"not Blawx's tests: written by blawx_cases.pl from the encoding; the answers are Blawx's own",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":2,
+    "tests": [
+      {"detail":"","query":"socrates","result":"pass","scenario":"socrates"},
+      {"detail":"","query":"which_is_a_mortal","result":"pass","scenario":"case_1"}
+    ]
+  },
+  "meta": {
+    "artifacts": [
+      "sources/mortality.yaml",
+      "https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418"
+    ],
+    "date":"2026-09-15",
+    "licence":"Blawx: MIT",
+    "program":"mortality",
+    "source":"Mortality Act",
+    "translator":"InsurLE2/migration/blawx (blawx_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":2
+}

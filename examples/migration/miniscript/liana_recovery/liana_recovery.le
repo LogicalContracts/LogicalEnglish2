@@ -1,0 +1,199 @@
+% A Liana wallet: a primary key, or a recovery key after a delay
+%
+% The Logical English twin of a Bitcoin spending policy, written by the
+% Miniscript translator (InsurLE2/migration/miniscript). Who can spend the
+% coin, when, and why: each rule is one spending path of the policy.
+%
+% Source: the Liana recovery guide
+%         https://github.com/wizardsardine/liana/blob/master/doc/RECOVER.md
+%
+% The source, as written (cut into lines of 100 characters: join them for the text):
+%     wsh(or_d(pk([a5c6b76e/48'/1'/0'/2']tpubDF5861hj6vR3iJr3aPjGJz4rNbqDCRujQ21mczzKT5SiedaQqNVgHC8HT9cey
+%     xvMFRoPMx4P6HAcL3NZrUPhRUbwCyj3TKSa64bAfnE3sLh/<0;1>/*),and_v(v:pkh([c477fd13/48'/1'/0'/2']tpubDFn7i
+%     PbFqGrTQ2aRACNsUK1MXQR4Z6dYfU2nD1WA9ifSaia642j3Wah4n5pBUEpERNWGJsyv3Dv5qwBabC9TLQrwSboKzukw9wmurGu7X
+%     VH/<0;1>/*),older(3))))#8ldsjayd
+%
+% The source, laid out (keys and hashes by their role, <like this>):
+%     wsh(
+%       or_d(
+%         pk(<the primary key>),
+%         and_v(v:pkh(<the recovery key>),older(3))))
+%
+% The legend (role <- key or hash as written in the source):
+%     the primary key  <- [a5c6b76e/48'/1'/0'/2']tpubDF5861hj6vR3iJr3aPjGJz4rNbqDCRujQ21mczzKT5SiedaQqNVgHC8HT9ceyxvMFRoPMx4P6HAcL3NZrUPhRUbwCyj3TKSa64bAfnE3sLh/<0;1>/*
+%     the recovery key <- [c477fd13/48'/1'/0'/2']tpubDFn7iPbFqGrTQ2aRACNsUK1MXQR4Z6dYfU2nD1WA9ifSaia642j3Wah4n5pBUEpERNWGJsyv3Dv5qwBabC9TLQrwSboKzukw9wmurGu7XVH/<0;1>/*
+%
+% What it says (the spending policy, by BIP 379's semantics):
+%     any one of these:
+%       a signature by the primary key
+%       all of these:
+%         a signature by the recovery key
+%         the coin at least 3 blocks old (about 30 minutes; older(3))
+%
+% Try it in Minsc (the policy compiled to Miniscript, Script and an address,
+% in the browser): the document "the policy in Minsc" below.
+
+the target language is: prolog.
+
+the knowledge base liana_recovery includes these resources:
+    temporal.
+
+the templates are:
+    the coin can be spent.
+    the coin was confirmed in block *a height*; scenario element.
+    the spending transaction is in block *a height*; scenario element.
+    the coin has been confirmed for *a number* blocks.
+    the witness contains a signature by *a key*; scenario element.
+    the public key of *a key* is *a text*.
+
+the knowledge base liana_recovery includes:
+
+the Liana recovery guide is published at "https://github.com/wizardsardine/liana/blob/master/doc/RECOVER.md".
+the text of the Liana recovery guide is at "sources/liana_recover.txt".
+
+the policy in Minsc is published at "https://min.sc/#c=//%20A%20Liana%20wallet:%20a%20primary%20key,%20or%20a%20recovery%20key%20after%20a%20delay%0A//%20The%20Logical%20English%20twin's%20policy%20(InsurLE2/migration/miniscript).%0A$primary_key%20=%20%5Ba5c6b76e/48'/1'/0'/2'%5DtpubDF5861hj6vR3iJr3aPjGJz4rNbqDCRujQ21mczzKT5SiedaQqNVgHC8HT9ceyxvMFRoPMx4P6HAcL3NZrUPhRUbwCyj3TKSa64bAfnE3sLh/0/*;%20%20%20//%20the%20primary%20key%20(as%20in%20the%20source)%0A$recovery_key%20=%20%5Bc477fd13/48'/1'/0'/2'%5DtpubDFn7iPbFqGrTQ2aRACNsUK1MXQR4Z6dYfU2nD1WA9ifSaia642j3Wah4n5pBUEpERNWGJsyv3Dv5qwBabC9TLQrwSboKzukw9wmurGu7XVH/0/*;%20%20%20//%20the%20recovery%20key%20(as%20in%20the%20source)%0A%0Aor(pk($primary_key),and(pk($recovery_key),older(3)))%0A".
+
+the Tape run of 2026-09-14 is published at "https://tape.rewindbitcoin.com/explorer/address/bcrt1qrqw40q6l9ewlmpu3uyw8ngnxx3lrha07jwtf5tlgkgjnkdweqcwqwwk86e".
+the text of the Tape run of 2026-09-14 is at "sources/liana_recovery.chain.json".
+
+% The keys and hashes of the policy, as the source writes them.
+the public key of the primary key is "[a5c6b76e/48'/1'/0'/2']tpubDF5861hj6vR3iJr3aPjGJz4rNbqDCRujQ21mczzKT5SiedaQqNVgHC8HT9ceyxvMFRoPMx4P6HAcL3NZrUPhRUbwCyj3TKSa64bAfnE3sLh/<0;1>/*".
+
+the public key of the recovery key is "[c477fd13/48'/1'/0'/2']tpubDFn7iPbFqGrTQ2aRACNsUK1MXQR4Z6dYfU2nD1WA9ifSaia642j3Wah4n5pBUEpERNWGJsyv3Dv5qwBabC9TLQrwSboKzukw9wmurGu7XVH/<0;1>/*".
+
+% The spending paths of the policy.
+rule primary with provenance the Liana recovery guide,
+        confer "Your Liana wallet descriptor is probably of the form":
+the coin can be spent if
+    the witness contains a signature by the primary key.
+
+rule recovery with provenance the Liana recovery guide,
+        confer "Your Liana wallet descriptor is probably of the form":
+the coin can be spent if
+    the witness contains a signature by the recovery key
+    and the coin has been confirmed for a number N blocks
+    and N >= 3.
+
+% The age of the coin, which the relative timelocks (older) measure.
+rule coin_age_in_blocks:
+the coin has been confirmed for a number N blocks if
+    the coin was confirmed in block a height H
+    and the spending transaction is in block a height M
+    and N = M - H.
+
+scenario path_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 1 — the path needs: a coin 3 blocks old, a signature by the recovery key
+    the witness contains a signature by the recovery key.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 850003.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_1_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 1 without requirement 1 — the path needs: a coin 3 blocks old, a signature by the recovery key
+    the witness contains a signature by the recovery key.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 850002.
+    spendable expects answers [].
+
+scenario path_1_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 1 without requirement 2 — the path needs: a coin 3 blocks old, a signature by the recovery key
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 850003.
+    spendable expects answers [].
+
+scenario path_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 2 — the path needs: a signature by the primary key
+    the witness contains a signature by the primary key.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 850000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_2_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 2 without requirement 1 — the path needs: a signature by the primary key
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 850000.
+    spendable expects answers [].
+
+scenario no_witness is, as stated in the satisfaction analysis of the policy:
+    % an empty witness
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 850000.
+    spendable expects answers [].
+
+scenario flip_now is, as stated in the flip analysis of the policy:
+    % nothing signed, no delay passed
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 850000.
+    flip_spend expects changes [["add: the witness contains a signature by the primary key"]].
+
+scenario flip_after_delays is, as stated in the flip analysis of the policy:
+    % nothing signed, every delay passed
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 850003.
+    flip_spend expects changes [["add: the witness contains a signature by the primary key"], ["add: the witness contains a signature by the recovery key"]].
+
+scenario lost_the_primary_key is, as stated in the flip analysis of the policy:
+    % the key of the primary key lost, everything else given
+    the witness contains a signature by the recovery key.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 850003.
+    spendable expects answers ["the coin can be spent"].
+    flip_block expects changes [["remove: the coin was confirmed in block 850000"], ["remove: the spending transaction is in block 850003"], ["remove: the witness contains a signature by the recovery key"]].
+
+scenario lost_the_recovery_key is, as stated in the flip analysis of the policy:
+    % the key of the recovery key lost, everything else given
+    the witness contains a signature by the primary key.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 850003.
+    spendable expects answers ["the coin can be spent"].
+    flip_block expects changes [["remove: the witness contains a signature by the primary key"]].
+
+scenario chain_path_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1:
+    % the chain refused the spend: non-BIP68-final
+    the witness contains a signature by the recovery key.
+    the coin was confirmed in block 122322.
+    the spending transaction is in block 122322.
+    spendable expects answers [].
+
+scenario chain_path_1_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_1:
+    % the chain refused the spend: non-BIP68-final
+    the coin was confirmed in block 122322.
+    the spending transaction is in block 122322.
+    spendable expects answers [].
+
+scenario chain_path_2 is, as stated in the Tape run of 2026-09-14 at transaction f980a95dfc7d411f3db9ff055c37c613cee42b19844f876c305e845b419db3d6:
+    % the chain accepted the spend: transaction f980a95dfc7d411f3db9ff055c37c613cee42b19844f876c305e845b419db3d6
+    the witness contains a signature by the primary key.
+    the coin was confirmed in block 122322.
+    the spending transaction is in block 122322.
+    spendable expects answers ["the coin can be spent"].
+
+query spendable is:
+    the coin can be spent.
+
+query flip_spend is:
+    which minimal change to the scenario makes it the case that
+        the coin can be spent.
+
+query flip_block is:
+    which minimal change to the scenario makes it the case that
+        it is not the case that the coin can be spent.
+
+query keys is:
+    the public key of which key is which text.
+
+the view custody explainer is:
+    the title is "Who can spend this coin: A Liana wallet: a primary key, or a recovery key after a delay".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the witness" are
+        the witness contains a signature by a key.
+    the facts about "the timelocks" are
+        the coin was confirmed in block a height,
+        the spending transaction is in block a height.
+    the result is whether the coin can be spent.
+    the result shows its reasons.
+    the result shows its citations.
+    the result can be flipped, as "What would let this coin be spent?".
+    the flip keeps the coin was confirmed in block a height,
+        the spending transaction is in block a height.
+

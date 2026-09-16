@@ -1,0 +1,335 @@
+{
+  "counts": {"approximated":7,"encoded":13,"residue":20},
+  "entries": [
+    {
+      "element":"Rel rel2/1",
+      "in_program":"*a thing* is a rel2",
+      "kind":"relation",
+      "mapping":"Rel -> a template (a naive wording of its name, to be improved)",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Rel rel3/1",
+      "in_program":"*a thing* is a rel3",
+      "kind":"relation",
+      "mapping":"Rel -> a template (a naive wording of its name, to be improved)",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"defeater ps2",
+      "in_program":"ps2",
+      "kind":"defeater",
+      "mapping":"a defeater -> an exception (it is not the case that ...) of the rules it attacks",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Reparation rep1 (pen1 for ps1)",
+      "in_program":"rep1",
+      "kind":"reparation",
+      "mapping":"Reparation -> the penalty's chain of obligations on the violation",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ref1",
+      "in_program":"ref1",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ref6",
+      "in_program":"ref6",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ls1",
+      "in_program":"ls1",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ref2",
+      "in_program":"ref2",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source pen1-v1",
+      "in_program":"pen1-v1",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ps2-v1",
+      "in_program":"ps2-v1",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"temporal tblock1",
+      "in_program":"tblock1",
+      "kind":"temporal",
+      "mapping":"TemporalCharacteristics -> a period of the relevant date (Starts / Ends)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Alternatives alt1",
+      "in_program":"alt1",
+      "kind":"alternatives",
+      "mapping":"Alternatives -> each alternative's rules hold when it is the interpretation adopted",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Alternatives alt1",
+      "in_program":"alt1",
+      "kind":"alternatives",
+      "mapping":"Alternatives -> each alternative's rules hold when it is the interpretation adopted",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Alternatives alt3",
+      "in_program":"alt3",
+      "kind":"alternatives",
+      "mapping":"Alternatives -> each alternative's rules hold when it is the interpretation adopted",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Alternatives alt4",
+      "in_program":"alt4",
+      "kind":"alternatives",
+      "mapping":"Alternatives -> each alternative's rules hold when it is the interpretation adopted",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"an Atom with no Rel",
+      "in_program":"",
+      "kind":"atom",
+      "mapping":"an Atom with no relation (a keyref the document does not resolve)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"statement ps1",
+      "in_program":"ps1",
+      "kind":"statement",
+      "mapping":"a statement the translator could not read (an atom with no relation, a keyref to nothing): left out",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"Violation of ps1",
+      "in_program":"ps1",
+      "kind":"violation",
+      "mapping":"a Violation of a statement the document does not contain -> `the statement ... is violated`, a fact for the scenarios",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Reparation rep1",
+      "in_program":"rep1",
+      "kind":"reparation",
+      "mapping":"a Reparation whose penalty or statement is missing: dropped",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"Reparation rep1",
+      "in_program":"rep1",
+      "kind":"reparation",
+      "mapping":"a Reparation with nothing to conclude",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Override cs2 over cs1",
+      "in_program":"cs2",
+      "kind":"override",
+      "mapping":"an Override naming a rule the document does not contain: dropped",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"association_1 -> obl101",
+      "in_program":"obl101",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"association_2 -> rule1",
+      "in_program":"rule1",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"association_3 -> rule2",
+      "in_program":"rule2",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"association_4 -> rule1",
+      "in_program":"rule1",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"association_4 -> rule2",
+      "in_program":"rule2",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"association_5 -> rule2",
+      "in_program":"rule2",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"association_5 -> rule3",
+      "in_program":"rule3",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"association_6 -> rule1",
+      "in_program":"rule1",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"association_6 -> rule2",
+      "in_program":"rule2",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"association_7 -> rule1",
+      "in_program":"rule1",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"association_8 -> nev1",
+      "in_program":"nev1",
+      "kind":"context",
+      "mapping":"an Association or Context of an element inside a rule (an atom, a deontic formula): LE cites sources per rule, so it is not carried",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"association_8 -> nev2",
+      "in_program":"nev2",
+      "kind":"context",
+      "mapping":"an Association or Context of an element inside a rule (an atom, a deontic formula): LE cites sources per rule, so it is not carried",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"association_9 -> rule1",
+      "in_program":"rule1",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"association_9 -> atom1",
+      "in_program":"atom1",
+      "kind":"context",
+      "mapping":"an Association or Context of an element inside a rule (an atom, a deontic formula): LE cites sources per rule, so it is not carried",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"association_9 -> body1",
+      "in_program":"body1",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"association_11 -> ps3",
+      "in_program":"ps3",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"ruleContext1 -> stmt1",
+      "in_program":"stmt1",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"ruleInfo4 -> rule1",
+      "in_program":"rule1",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"ruleInfo4 -> rule4",
+      "in_program":"rule4",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    }
+  ],
+  "fidelity":null,
+  "meta": {
+    "artifacts": ["ex10-mix-normal.lrml" ],
+    "date":"2026-09-15",
+    "program":"ex10_mix",
+    "source":"a LegalRuleML document (OASIS LegalRuleML Core 1.0)",
+    "translator":"InsurLE2/migration/legalruleml (lrml_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":0
+}

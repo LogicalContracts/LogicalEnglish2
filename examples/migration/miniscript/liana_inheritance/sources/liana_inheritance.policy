@@ -1,0 +1,20 @@
+# The spending policy of the Logical English twin liana_inheritance.
+#
+# source: the Liana README
+#         https://github.com/wizardsardine/liana#about
+#
+# sipa's compiler (P2WSH) makes it the Miniscript:
+#     or_d(pk(manager),or_i(and_v(v:pkh(third_party),older(65535)),and_v(v:thresh(2,pkh(spouse),a:pkh(first_child),a:pkh(second_child)),older(52560))))
+# try it in Minsc (policy -> Miniscript -> Script -> address, in the browser):
+#     https://min.sc/#c=//%20A%20Liana%20inheritance%20wallet:%20the%20wallet%20manager,%20or%20two%20of%20the%20family%20after%20a%20year,%20or%20a%20third%20party%20after%20fifteen%20months%0A//%20The%20Logical%20English%20twin's%20policy%20(InsurLE2/migration/miniscript).%0A$wallet_manager%20=%2002d646504445989a8ccbbdac21b32dde51273c254c22bffe7d7a52ebfb2fd85595;%20%20%20//%20the%20wallet%20manager%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$spouse%20=%20036707fda5af19cc6aa3a044145cddad5421c31f4167b0b2e026cf1752540e4504;%20%20%20//%20the%20spouse%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$elder_child%20=%20026b802dc9194db6ae228cbbdab3a72cc46df92e39fe392a50b4298fdf864a24d8;%20%20%20//%20the%20elder%20child%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$younger_child%20=%200352cb257b56f4e1b7d023ffab1a2e02f80d55b0c9c1fb8061da171a8bf4f2ff12;%20%20%20//%20the%20younger%20child%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$third_party%20=%2003c4db97ce67acd0a88f7c597a6af2a67892fc2256160e4790b0681cf7e07c63f9;%20%20%20//%20the%20third%20party%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A%0Aor(pk($wallet_manager),or(and(thresh(2,pk($spouse),pk($elder_child),pk($younger_child)),older(52560)),and(pk($third_party),older(65535))))%0A
+#
+# File > Open in the Logical English editor translates this file into the twin.
+
+manager = the wallet manager
+spouse = the spouse
+first_child = the elder child
+second_child = the younger child
+third_party = the third party
+
+# A Liana inheritance wallet: the wallet manager, or two of the family after a year, or a third party after fifteen months
+or(99@pk(manager),or(9@and(thresh(2,pk(spouse),pk(first_child),pk(second_child)),older(52560)),and(pk(third_party),older(65535))))

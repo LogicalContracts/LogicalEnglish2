@@ -1,0 +1,58 @@
+% The Logical English twin of a LegalRuleML document, written by the LegalRuleML translator
+% (InsurLE2/migration/legalruleml) from ex9b-alternatives-normal.lrml (kept in sources/).
+% Obligations, permissions and prohibitions are the deontic library's (deontic.le).
+% Every expected answer in the scenarios is SPINdle's (defeasible deontic logic) on the source.
+
+the target language is: prolog.
+
+the knowledge base ex9b_alternatives includes these resources:
+    deontic.
+
+the templates are:
+    a holds.
+    b holds.
+    the interpretation adopted is *an interpretation*.
+
+the knowledge base ex9b_alternatives includes:
+
+the text of the source document is at "sources/ex9b-alternatives-normal.lrml".
+
+% This example demonstrates the use of the Alternatives expression to indicate mutually incompatible formalizations. The compact serialization is used.
+rule ps1:
+everyone is obliged that b holds if
+    a holds
+    and the interpretation adopted is ps1.
+
+rule cs2:
+b holds if
+    a holds
+    and the interpretation adopted is cs2.
+
+scenario prescriptive_reading is:
+    a holds.
+    the interpretation adopted is ps1.
+    b expects answers [].
+    obligations expects answers ["everyone is obliged that b holds"].
+    violated_obligations expects answers ["the obligation of everyone that b holds is violated"].
+    breaches expects answers ["everyone is in breach"].
+
+scenario constitutive_reading is:
+    a holds.
+    the interpretation adopted is cs2.
+    b expects answers ["b holds"].
+    obligations expects answers [].
+    violated_obligations expects answers [].
+    breaches expects answers [].
+
+query b is:
+    b holds.
+
+query obligations is:
+    which party is obliged that which sentence.
+
+query violated_obligations is:
+    the obligation of which party that which sentence is violated.
+
+query breaches is:
+    which party is in breach.
+

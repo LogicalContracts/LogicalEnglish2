@@ -1,0 +1,60 @@
+% The Logical English twin of an s(CASP) program, written by the s(CASP) translator
+% (InsurLE2/migration/scasp) from obligation-scasp.pl (kept in sources/).
+% Every expected answer in the scenarios is s(CASP)'s own answer on the source.
+
+the target language is: prolog.
+
+the templates are:
+    *a person* has *an obligation* that *a requirement*.
+    *a borrower* defaults on *a date*.
+    *a borrower* cures the failure of on or before that *an obligation* with *a day* with *a date* with *a requirement*.
+    *a borrower* fails to fulfil *an obligation* that *a requirement*.
+    *a borrower* cures the failure of *an obligation* on *a day* that *a requirement*.
+    *a day* is on or before *a thing*.
+    *a date* is days after *a thing* with *a second date*.
+    *a lender* notifies *a borrower* on *a date* that *a message*.
+    *a borrower* pays *an amount* to *a lender* on *a date*.
+    *a party* performs *an action* at *a time*.
+    *an event* occurs at *a time*.
+
+the knowledge base obligation includes:
+
+the text of the source program is at "sources/obligation-scasp.pl".
+
+the_borrower has an obligation that the_borrower pays 550 to the_lender on 2015-06-01.
+
+the_borrower has an obligation that the_borrower pays 525 to the_lender on 2016-06-01.
+
+the_borrower defaults on a date if
+    the_borrower has an obligation that a requirement
+    and the_borrower fails to fulfil the obligation that the requirement
+    and the_lender notifies the_borrower on a second date that the_borrower fails to fulfil the obligation that the requirement
+    and the date is days after 2 with the second date
+    and it is not the case that the_borrower cures the failure of on or before that the obligation with a day with the date with the requirement.
+
+a borrower cures the failure of on or before that an obligation with a day with a date with a requirement if
+    the borrower cures the failure of the obligation on the day that the requirement
+    and the day is on or before the date.
+
+the_borrower fails to fulfil an obligation that the_borrower pays an amount to the_lender on a date if
+    it is not the case that the_borrower pays the amount to the_lender on the date.
+
+the_borrower cures the failure of an obligation on a day that the_borrower pays an amount to the_lender on a date if
+    the_borrower pays the amount to the_lender on the day.
+
+a day is on or before a thing if
+    the thing is days after a thing T with the day
+    and T >= 0.
+
+a date D is days after a thing T with a date N if
+    D = T + N.
+
+scenario test is, as stated in the source program at scenario test:
+    the_lender notifies the_borrower on 2016-06-02 that the_borrower fails to fulfil an obligation that the_borrower pays 525 to the_lender on 2016-06-01.
+    the_borrower pays 525 to the_lender on 2016-06-02.
+    % pending — s(CASP) answers with a constraint, not a value:
+    % query_1 expects answers [].
+
+query query_1 is:
+    the_borrower cures the failure of which obligation on which day that the_borrower pays which amount to the_lender on which date.
+

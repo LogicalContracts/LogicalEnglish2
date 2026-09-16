@@ -1,0 +1,16 @@
+# The spending policy of the Logical English twin liana_recovery.
+#
+# source: the Liana recovery guide
+#         https://github.com/wizardsardine/liana/blob/master/doc/RECOVER.md
+#
+# it is Miniscript (or a descriptor) as it stands.
+# try it in Minsc (policy -> Miniscript -> Script -> address, in the browser):
+#     https://min.sc/#c=//%20A%20Liana%20wallet:%20a%20primary%20key,%20or%20a%20recovery%20key%20after%20a%20delay%0A//%20The%20Logical%20English%20twin's%20policy%20(InsurLE2/migration/miniscript).%0A$primary_key%20=%20%5Ba5c6b76e/48'/1'/0'/2'%5DtpubDF5861hj6vR3iJr3aPjGJz4rNbqDCRujQ21mczzKT5SiedaQqNVgHC8HT9ceyxvMFRoPMx4P6HAcL3NZrUPhRUbwCyj3TKSa64bAfnE3sLh/0/*;%20%20%20//%20the%20primary%20key%20(as%20in%20the%20source)%0A$recovery_key%20=%20%5Bc477fd13/48'/1'/0'/2'%5DtpubDFn7iPbFqGrTQ2aRACNsUK1MXQR4Z6dYfU2nD1WA9ifSaia642j3Wah4n5pBUEpERNWGJsyv3Dv5qwBabC9TLQrwSboKzukw9wmurGu7XVH/0/*;%20%20%20//%20the%20recovery%20key%20(as%20in%20the%20source)%0A%0Aor(pk($primary_key),and(pk($recovery_key),older(3)))%0A
+#
+# File > Open in the Logical English editor translates this file into the twin.
+
+a5c6b76e = the primary key
+c477fd13 = the recovery key
+
+# A Liana wallet: a primary key, or a recovery key after a delay
+wsh(or_d(pk([a5c6b76e/48'/1'/0'/2']tpubDF5861hj6vR3iJr3aPjGJz4rNbqDCRujQ21mczzKT5SiedaQqNVgHC8HT9ceyxvMFRoPMx4P6HAcL3NZrUPhRUbwCyj3TKSa64bAfnE3sLh/<0;1>/*),and_v(v:pkh([c477fd13/48'/1'/0'/2']tpubDFn7iPbFqGrTQ2aRACNsUK1MXQR4Z6dYfU2nD1WA9ifSaia642j3Wah4n5pBUEpERNWGJsyv3Dv5qwBabC9TLQrwSboKzukw9wmurGu7XVH/<0;1>/*),older(3))))#8ldsjayd

@@ -1,0 +1,292 @@
+{
+  "counts": {"approximated":0,"encoded":25,"residue":0},
+  "entries": [
+    {
+      "element":"bird/1",
+      "in_program":"*a thing* is a bird",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"penguin/1",
+      "in_program":"*a penguin* is a penguin",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"flies/1",
+      "in_program":"*a thing* can fly",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"on_plane/1",
+      "in_program":"*a penguin* is on a plane",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawx_applies/2",
+      "in_program":"*a provision* applies to *a thing*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"cartoon_jetpack/1",
+      "in_program":"*a penguin* is a cartoon with a jetpack",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_3_section, neg(flies), ...)",
+      "in_program":"*a thing* cannot fly under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_4_section, flies, ...)",
+      "in_program":"*a thing* can fly under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_5_section, flies, ...)",
+      "in_program":"*a thing* can fly under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_5__span_pingu_section, neg(blawx_applies), ...)",
+      "in_program":"*a provision* does not apply to *a thing* under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_1_section, bird, ...) :- ...",
+      "in_program":"section_1",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_2_section, flies, ...) :- ...",
+      "in_program":"section_2",
+      "kind":"rule",
+      "mapping":"a defeasible rule: guarded by the failure of its defeaters under their sections",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_3_section, -flies, ...) :- ...",
+      "in_program":"section_3",
+      "kind":"rule",
+      "mapping":"a defeasible rule: guarded by the failure of its defeaters under their sections",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_4_section, flies, ...) :- ...",
+      "in_program":"section_4",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawx_applies(sec_5_section,_268538) :- ...",
+      "in_program":"section_5",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_5_section, flies, ...) :- ...",
+      "in_program":"section_5_2",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"penguin(pingu)",
+      "in_program":"penguin(pingu)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_5__span_pingu_section,-blawx_applies,sec_5_section,pingu)",
+      "in_program":"holds(sec_5__span_pingu_section,-blawx_applies,sec_5_section,pingu)",
+      "kind":"fact",
+      "mapping":"a conclusion stated by a section -> a fact under that section",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"0 blawx_as_of / blawx_during clauses",
+      "in_program":"nothing",
+      "kind":"temporal boilerplate",
+      "mapping":"left out: nothing reads it",
+      "note":"Blawx writes these for every attribute and relationship; no rule or test of this project reads them0",
+      "verdict":"encoded"
+    },
+    {
+      "element":"54 #pred annotations",
+      "in_program":"the templates",
+      "kind":"natural language",
+      "mapping":"the wording of each template; the holds / according_to / defeated forms are the rules themselves",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest is_pingu_a_bird",
+      "in_program":"is_pingu_a_bird",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest pingu_cant_fly",
+      "in_program":"pingu_cant_fly",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"Blawx proves `not <the query>`: the twin's query expects no answer",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest pingu_on_plane_can_fly",
+      "in_program":"pingu_on_plane_can_fly",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest pingu_with_jetpack_cant_fly",
+      "in_program":"pingu_with_jetpack_cant_fly",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"Blawx cannot prove `not <the query>`: the twin's query expects its answer",
+      "verdict":"encoded"
+    },
+    {
+      "element":"13 cases generated from the rules",
+      "in_program":"the case_ scenarios",
+      "kind":"generated cases",
+      "mapping":"each rule met by facts, each near miss, each defeat: Blawx's answers as the expectations",
+      "note":"not Blawx's tests: written by blawx_cases.pl from the encoding; the answers are Blawx's own",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":17,
+    "tests": [
+      {"detail":"","query":"is_pingu_a_bird","result":"pass","scenario":"is_pingu_a_bird"},
+      {"detail":"","query":"pingu_cant_fly","result":"pass","scenario":"pingu_cant_fly"},
+      {
+	"detail":"",
+	"query":"pingu_on_plane_can_fly",
+	"result":"pass",
+	"scenario":"pingu_on_plane_can_fly"
+      },
+      {
+	"detail":"",
+	"query":"pingu_with_jetpack_cant_fly",
+	"result":"pass",
+	"scenario":"pingu_with_jetpack_cant_fly"
+      },
+      {"detail":"","query":"which_is_a_bird","result":"pass","scenario":"case_1"},
+      {"detail":"","query":"which_can_fly","result":"pass","scenario":"case_2"},
+      {
+	"detail":"",
+	"query":"which_can_fly",
+	"result":"pass",
+	"scenario":"case_2_with_sec_3_section"
+      },
+      {"detail":"","query":"which_cannot_fly","result":"pass","scenario":"case_3"},
+      {
+	"detail":"",
+	"query":"which_cannot_fly",
+	"result":"pass",
+	"scenario":"case_3_with_sec_4_section"
+      },
+      {
+	"detail":"",
+	"query":"which_cannot_fly",
+	"result":"pass",
+	"scenario":"case_3_with_sec_5_section"
+      },
+      {"detail":"","query":"which_can_fly","result":"pass","scenario":"case_4"},
+      {
+	"detail":"",
+	"query":"which_can_fly",
+	"result":"pass",
+	"scenario":"case_4_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_can_fly",
+	"result":"pass",
+	"scenario":"case_4_without_fact_2"
+      },
+      {"detail":"","query":"which_can_fly","result":"pass","scenario":"case_5"},
+      {
+	"detail":"",
+	"query":"which_can_fly",
+	"result":"pass",
+	"scenario":"case_5_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_can_fly",
+	"result":"pass",
+	"scenario":"case_5_without_fact_2"
+      },
+      {
+	"detail":"",
+	"query":"which_can_fly",
+	"result":"pass",
+	"scenario":"case_5_without_fact_3"
+      }
+    ]
+  },
+  "meta": {
+    "artifacts": [
+      "sources/bird.yaml",
+      "https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418"
+    ],
+    "date":"2026-09-15",
+    "licence":"Blawx: MIT",
+    "program":"bird",
+    "source":"New Bird Act",
+    "translator":"InsurLE2/migration/blawx (blawx_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":17
+}

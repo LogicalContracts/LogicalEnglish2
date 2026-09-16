@@ -1,0 +1,96 @@
+{
+  "counts": {"approximated":0,"encoded":9,"residue":0},
+  "entries": [
+    {
+      "element":"person/1",
+      "in_program":"*a person* is a person",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"age/2",
+      "in_program":"*a person* is *a number* years of age",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"person(bob)",
+      "in_program":"person(bob)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"age(bob,40)",
+      "in_program":"age(bob,40)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"age(bob,50)",
+      "in_program":"age(bob,50)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"false :- ... (section 3)",
+      "in_program":"it must not be true that …",
+      "kind":"constraint",
+      "mapping":"a denial -> an integrity constraint, it must not be true that …",
+      "note":"as in s(CASP), a model that meets the conditions is rejected: a case whose facts meet them answers nothing",
+      "verdict":"encoded"
+    },
+    {
+      "element":"0 blawx_as_of / blawx_during clauses",
+      "in_program":"nothing",
+      "kind":"temporal boilerplate",
+      "mapping":"left out: nothing reads it",
+      "note":"Blawx writes these for every attribute and relationship; no rule or test of this project reads them0",
+      "verdict":"encoded"
+    },
+    {
+      "element":"18 #pred annotations",
+      "in_program":"the templates",
+      "kind":"natural language",
+      "mapping":"the wording of each template; the holds / according_to / defeated forms are the rules themselves",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest how_old_bob",
+      "in_program":"how_old_bob",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":1,
+    "tests": [ {"detail":"","query":"how_old_bob","result":"pass","scenario":"how_old_bob"} ]
+  },
+  "meta": {
+    "artifacts": [
+      "sources/logical_constraints.yaml",
+      "https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418"
+    ],
+    "date":"2026-09-15",
+    "licence":"Blawx: MIT",
+    "program":"logical_constraints",
+    "source":"Logical Constraints",
+    "translator":"InsurLE2/migration/blawx (blawx_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":1
+}

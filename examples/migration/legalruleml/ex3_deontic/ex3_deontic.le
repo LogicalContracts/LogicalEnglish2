@@ -1,0 +1,138 @@
+% The Logical English twin of a LegalRuleML document, written by the LegalRuleML translator
+% (InsurLE2/migration/legalruleml) from ex3-deontic-normal.lrml (kept in sources/).
+% Obligations, permissions and prohibitions are the deontic library's (deontic.le).
+% Every expected answer in the scenarios is SPINdle's (defeasible deontic logic) on the source.
+
+the target language is: prolog.
+
+the knowledge base ex3_deontic includes these resources:
+    deontic.
+
+the templates are:
+    *a thing* is a rel1.
+    *a thing* is a rel103.
+    *a thing* is a rel2.
+    *a thing* is a rel3.
+    *a thing* is not a rel3.
+    *a thing* is a rel4.
+    *a thing* is a rel5.
+    the statement *a statement* is violated.
+    the statement *a statement* applies.
+
+the knowledge base ex3_deontic includes:
+
+the text of the source document is at "sources/ex3-deontic-normal.lrml".
+
+ls1 is published at "http://example.org/external-legal-statement".
+
+pen1_v1 is published at "http://original-version-of-this-document#pen1".
+
+ps2_v1 is published at "http://original-version-of-this-document#ps2".
+
+% This example demonstrates the specification of deontic elements, such as Obligation and Reparation. The compact serialization is used.
+rule cs1:
+x is a rel3 if
+    x is a rel1
+    and y is permitted that x is a rel2.
+
+rule cs2:
+x is a rel103 if
+    x is a rel1
+    and y is permitted that x is a rel2.
+
+rule ps1:
+y is forbidden that x is not a rel3 if
+    the statement ps0 is violated
+    and y is permitted that x is a rel1
+    and y is obliged that x is a rel2
+        or y is permitted that x is a rel2
+    and it is not the case that the statement ps2_1 applies
+    and it is not the case that the statement ps2_2 applies.
+
+% when ps2_1 applies, the rules it overrides or attacks do not
+the statement ps2_1 applies if
+    the statement ps0 is violated
+    and y is permitted that x is a rel1
+    and y is obliged that x is a rel2
+        or y is permitted that x is a rel2.
+
+rule ps2_1:
+y is forbidden that x is a rel3 if
+    the statement ps2_1 applies
+    and it is not the case that the statement rep1 applies
+    and it is not the case that the statement rep3 applies.
+
+% when ps2_2 applies, the rules it overrides or attacks do not
+the statement ps2_2 applies if
+    the statement ps0 is violated
+    and y is permitted that x is a rel1
+    and y is obliged that x is a rel2
+        or y is permitted that x is a rel2
+    and the prohibition of y that x is a rel3 is violated
+    and it is not the case that the statement ps101 is violated.
+
+rule ps2_2:
+y is obliged that x is a rel4 if
+    the statement ps2_2 applies.
+
+JohnDoe is a rel5.
+
+JaneDoe is obliged that JohnDoe is a rel5.
+
+% when rep1 applies, the rules it overrides or attacks do not
+the statement rep1 applies if
+    the prohibition of y that x is not a rel3 is violated.
+
+% reparation rep1: the penalty pen1 for a violation of ps1
+rule rep1:
+y is obliged that x is a rel3 if
+    the statement rep1 applies
+    and it is not the case that the statement ps2_1 applies.
+
+% when rep3 applies, the rules it overrides or attacks do not
+the statement rep3 applies if
+    the prohibition of y that x is not a rel3 is violated.
+
+% reparation rep3: the penalty pen1 for a violation of ps1
+rule rep3:
+y is obliged that x is a rel3 if
+    the statement rep3 applies
+    and it is not the case that the statement ps2_1 applies.
+
+scenario permitted_and_obliged is:
+    % Only the facts: nothing is violated, so ps1 and ps2 (which need a violation of ps0, a statement the document lacks) do not apply.
+    x is a rel1.
+    x is a rel2.
+    prohibitions expects answers [].
+    obligations expects answers ["JaneDoe is obliged that JohnDoe is a rel5"].
+    rel103 expects answers [].
+    rel3 expects answers [].
+    rel5 expects answers ["JohnDoe is a rel5"].
+    violated_obligations expects answers [].
+    violated_prohibitions expects answers [].
+    breaches expects answers [].
+
+query prohibitions is:
+    which party is forbidden that which sentence.
+
+query obligations is:
+    which party is obliged that which sentence.
+
+query rel103 is:
+    which thing is a rel103.
+
+query rel3 is:
+    which thing is a rel3.
+
+query rel5 is:
+    which thing is a rel5.
+
+query violated_obligations is:
+    the obligation of which party that which sentence is violated.
+
+query violated_prohibitions is:
+    the prohibition of which party that which sentence is violated.
+
+query breaches is:
+    which party is in breach.
+

@@ -1,0 +1,202 @@
+% Rock Paper Scissors Act
+%
+% The Logical English twin of a Blawx encoding, written by the Blawx translator
+% (InsurLE2/migration/blawx). Each rule is a rule of the Act as Blawx encodes it,
+% in the words of Blawx's own sentence forms, citing its section; the project's
+% tests are the scenarios, with Blawx's own answers as the expectations.
+%
+% Source: the Blawx project "Rock Paper Scissors Act" (rps.yaml, 11 sections), an example of
+%         Blawx v1.6.22-alpha (Lexpedite, MIT licence), commit 3de892f67854292b304c9a55c5e2cd2058d3d418.
+
+the target language is: prolog.
+
+the templates are:
+    *a sign* is a sign.
+    *a sign* beats *a second sign*.
+    the winner of *a game* is *a player*.
+    *a game* is a game; scenario element.
+    *a player* is a player; scenario element.
+    *a player* played in *a game*; scenario element.
+    *a player* threw *a sign* in *a game*; scenario element.
+
+the knowledge base rps includes:
+
+the text of the Rock Paper Scissors Act is at "sources/rps.md".
+
+the text of the Blawx project is at "sources/rps.yaml".
+
+% The Act, section by section.
+rock is a sign, as stated in the Rock Paper Scissors Act at section 2 a.
+
+paper is a sign, as stated in the Rock Paper Scissors Act at section 2 b.
+
+scissors is a sign, as stated in the Rock Paper Scissors Act at section 2 c.
+
+rock beats scissors, as stated in the Rock Paper Scissors Act at section 3 a.
+
+paper beats rock, as stated in the Rock Paper Scissors Act at section 3 b.
+
+scissors beats paper, as stated in the Rock Paper Scissors Act at section 3 c.
+
+rule section_4 with provenance the Rock Paper Scissors Act at section 4:
+the winner of a game is a player if
+    the game is a game
+    and the player is a player
+    and a second player is a player
+    and the player is not equal to the second player
+    and the player played in the game
+    and the second player played in the game
+    and the player threw a sign in the game
+    and the second player threw a second sign in the game
+    and the sign beats the second sign.
+
+scenario bobjane is, as stated in the Blawx project at test bobjane:
+    testgame is a game.
+    bob is a player.
+    jane is a player.
+    bob played in testgame.
+    jane played in testgame.
+    jane threw rock in testgame.
+    bob threw scissors in testgame.
+    bobjane expects answers ["the winner of testgame is jane"].
+
+scenario hypothetical is, as stated in the Blawx project at test hypothetical:
+    % Blawx cannot hypothesize across disunity blocks (_ and _
+    % are not the same object). Because that block is used in
+    % our section 4 encoding, we need to be explicit about who
+    % the players are, but Blawx can hypothesize about the rest.
+    % We ask specifically whether bob won any games so that we don't
+    % get the same three answers twice, once for each possible player.
+    bob is a player.
+    jane is a player.
+    % pending — abductive: the test lets s(CASP) assume game/1, player/2, throw/3 (#abducible); Blawx's answers are hypotheses, which an LE scenario states as facts or not at all:
+    % hypothetical expects answers ["the winner of a game is bob"].
+
+scenario who_wins is, as stated in the Blawx project at test who_wins:
+    who_wins expects answers [].
+
+scenario case_1 is, as stated in the case analysis of the encoding at section 4:
+    % a case of the rule of section 4 (blawx_cases.pl), answered by Blawx
+    game_a is a game.
+    player_a is a player.
+    player_b is a player.
+    player_a played in game_a.
+    player_b played in game_a.
+    player_a threw sign_a in game_a.
+    player_b threw sign_b in game_a.
+    sign_a beats sign_b.
+    which_the_winner_of_is expects answers ["the winner of game_a is player_a"].
+
+scenario case_1_without_fact_1 is, as stated in the case analysis of the encoding at section 4:
+    % a case of the rule of section 4 (blawx_cases.pl), answered by Blawx
+    player_a is a player.
+    player_b is a player.
+    player_a played in game_a.
+    player_b played in game_a.
+    player_a threw sign_a in game_a.
+    player_b threw sign_b in game_a.
+    sign_a beats sign_b.
+    which_the_winner_of_is expects answers [].
+
+scenario case_1_without_fact_2 is, as stated in the case analysis of the encoding at section 4:
+    % a case of the rule of section 4 (blawx_cases.pl), answered by Blawx
+    game_a is a game.
+    player_b is a player.
+    player_a played in game_a.
+    player_b played in game_a.
+    player_a threw sign_a in game_a.
+    player_b threw sign_b in game_a.
+    sign_a beats sign_b.
+    which_the_winner_of_is expects answers [].
+
+scenario case_1_without_fact_3 is, as stated in the case analysis of the encoding at section 4:
+    % a case of the rule of section 4 (blawx_cases.pl), answered by Blawx
+    game_a is a game.
+    player_a is a player.
+    player_a played in game_a.
+    player_b played in game_a.
+    player_a threw sign_a in game_a.
+    player_b threw sign_b in game_a.
+    sign_a beats sign_b.
+    which_the_winner_of_is expects answers [].
+
+scenario case_1_without_fact_4 is, as stated in the case analysis of the encoding at section 4:
+    % a case of the rule of section 4 (blawx_cases.pl), answered by Blawx
+    game_a is a game.
+    player_a is a player.
+    player_b is a player.
+    player_b played in game_a.
+    player_a threw sign_a in game_a.
+    player_b threw sign_b in game_a.
+    sign_a beats sign_b.
+    which_the_winner_of_is expects answers [].
+
+scenario case_1_without_fact_5 is, as stated in the case analysis of the encoding at section 4:
+    % a case of the rule of section 4 (blawx_cases.pl), answered by Blawx
+    game_a is a game.
+    player_a is a player.
+    player_b is a player.
+    player_a played in game_a.
+    player_a threw sign_a in game_a.
+    player_b threw sign_b in game_a.
+    sign_a beats sign_b.
+    which_the_winner_of_is expects answers [].
+
+scenario case_1_without_fact_6 is, as stated in the case analysis of the encoding at section 4:
+    % a case of the rule of section 4 (blawx_cases.pl), answered by Blawx
+    game_a is a game.
+    player_a is a player.
+    player_b is a player.
+    player_a played in game_a.
+    player_b played in game_a.
+    player_b threw sign_b in game_a.
+    sign_a beats sign_b.
+    which_the_winner_of_is expects answers [].
+
+scenario case_1_without_fact_7 is, as stated in the case analysis of the encoding at section 4:
+    % a case of the rule of section 4 (blawx_cases.pl), answered by Blawx
+    game_a is a game.
+    player_a is a player.
+    player_b is a player.
+    player_a played in game_a.
+    player_b played in game_a.
+    player_a threw sign_a in game_a.
+    sign_a beats sign_b.
+    which_the_winner_of_is expects answers [].
+
+scenario case_1_without_fact_8 is, as stated in the case analysis of the encoding at section 4:
+    % a case of the rule of section 4 (blawx_cases.pl), answered by Blawx
+    game_a is a game.
+    player_a is a player.
+    player_b is a player.
+    player_a played in game_a.
+    player_b played in game_a.
+    player_a threw sign_a in game_a.
+    player_b threw sign_b in game_a.
+    which_the_winner_of_is expects answers [].
+
+query bobjane is:
+    the winner of testgame is which player.
+
+query hypothetical is:
+    the winner of which game is bob.
+
+query who_wins is:
+    the winner of which game is which player.
+
+query which_the_winner_of_is is:
+    the winner of which game is which player.
+
+the view the act is:
+    the title is "Rock Paper Scissors Act, as Blawx encodes it".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the case" are
+        a game is a game,
+        a player is a player,
+        a player played in a game,
+        a player threw a sign in a game.
+    the result is the answer to query which_the_winner_of_is.
+    the result shows its reasons.
+    the result shows its citations.
+    the result can be flipped.
+

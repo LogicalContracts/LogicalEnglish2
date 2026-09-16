@@ -136,7 +136,7 @@ handle_build_info(_Request) :-
     build_info(Info),
     reply_json_dict(_{build_info: Info}).
 
-%   The pages' telemetry script: a no-op unless Sentry or PostHog is
+%   The pages' telemetry script: a no-op unless Sentry or Web Analytics is
 %   configured; the feedback form's words in the cookie's UI language.
 handle_telemetry_js(Request) :-
     set_cookie_language(Request),

@@ -1,0 +1,157 @@
+% Beard Tax Act
+%
+% The Logical English twin of a Blawx encoding, written by the Blawx translator
+% (InsurLE2/migration/blawx). Each rule is a rule of the Act as Blawx encodes it,
+% in the words of Blawx's own sentence forms, citing its section; the project's
+% tests are the scenarios, with Blawx's own answers as the expectations.
+%
+% Source: the Blawx project "Beard Tax Act" (beard_tax.yaml, 4 sections), an example of
+%         Blawx v1.6.22-alpha (Lexpedite, MIT licence), commit 3de892f67854292b304c9a55c5e2cd2058d3d418.
+
+the target language is: prolog.
+
+the templates are:
+    *a person* is bearded.
+    *a person* is a person; scenario element.
+    the facial hair of *a person* is *a number* mm in length; scenario element.
+    *a person* qualifies under section 1 a.
+    *a person* qualifies under section 1 b.
+    the facial hair of *a person* is on the chin; scenario element.
+    the facial hair of *a person* is below the chin; scenario element.
+    the facial hair of *a person* is ear to ear below the nose; scenario element.
+
+the knowledge base beard_tax includes:
+
+the text of the Beard Tax Act is at "sources/beard_tax.md".
+
+the text of the Blawx project is at "sources/beard_tax.yaml".
+
+% The Act, section by section.
+rule section_1 with provenance the Beard Tax Act at section 1:
+a person is bearded if
+    the person is a person
+    and the facial hair of the person is a number N mm in length
+    and N >= 5
+    and the person qualifies under section 1 a.
+
+rule section_1_2 with provenance the Beard Tax Act at section 1:
+a person is bearded if
+    the person is a person
+    and the facial hair of the person is a number N mm in length
+    and N >= 5
+    and the person qualifies under section 1 b.
+
+rule section_1_a with provenance the Beard Tax Act at section 1 a:
+a person qualifies under section 1 a if
+    the facial hair of the person is on the chin.
+
+rule section_1_a_2 with provenance the Beard Tax Act at section 1 a:
+a person qualifies under section 1 a if
+    the facial hair of the person is below the chin.
+
+rule section_1_b with provenance the Beard Tax Act at section 1 b:
+a person qualifies under section 1 b if
+    the facial hair of the person is ear to ear below the nose.
+
+scenario are_they_bearded is, as stated in the Blawx project at test are_they_bearded:
+    are_they_bearded expects answers [].
+
+scenario case_1 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    the facial hair of person_a is 5 mm in length.
+    person_a qualifies under section 1 a.
+    which_is_bearded expects answers ["person_a is bearded"].
+
+scenario case_1_without_fact_1 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    the facial hair of person_a is 5 mm in length.
+    person_a qualifies under section 1 a.
+    which_is_bearded expects answers [].
+
+scenario case_1_without_fact_2 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    person_a qualifies under section 1 a.
+    which_is_bearded expects answers [].
+
+scenario case_1_without_fact_3 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    the facial hair of person_a is 5 mm in length.
+    which_is_bearded expects answers [].
+
+scenario case_1_missing_comparison_1 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    the facial hair of person_a is 4 mm in length.
+    person_a qualifies under section 1 a.
+    which_is_bearded expects answers [].
+
+scenario case_2 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    the facial hair of person_a is 5 mm in length.
+    person_a qualifies under section 1 b.
+    which_is_bearded expects answers ["person_a is bearded"].
+
+scenario case_2_without_fact_1 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    the facial hair of person_a is 5 mm in length.
+    person_a qualifies under section 1 b.
+    which_is_bearded expects answers [].
+
+scenario case_2_without_fact_2 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    person_a qualifies under section 1 b.
+    which_is_bearded expects answers [].
+
+scenario case_2_missing_comparison_1 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    the facial hair of person_a is 4 mm in length.
+    person_a qualifies under section 1 b.
+    which_is_bearded expects answers [].
+
+scenario case_3 is, as stated in the case analysis of the encoding at section 1 a:
+    % a case of the rule of section 1(a) (blawx_cases.pl), answered by Blawx
+    the facial hair of person_a is on the chin.
+    which_qualifies_under_section_1_a expects answers ["person_a qualifies under section 1 a"].
+
+scenario case_4 is, as stated in the case analysis of the encoding at section 1 a:
+    % a case of the rule of section 1(a) (blawx_cases.pl), answered by Blawx
+    the facial hair of person_a is below the chin.
+    which_qualifies_under_section_1_a expects answers ["person_a qualifies under section 1 a"].
+
+scenario case_5 is, as stated in the case analysis of the encoding at section 1 b:
+    % a case of the rule of section 1(b) (blawx_cases.pl), answered by Blawx
+    the facial hair of person_a is ear to ear below the nose.
+    which_qualifies_under_section_1_b expects answers ["person_a qualifies under section 1 b"].
+
+query are_they_bearded is:
+    which person is bearded.
+
+query which_is_bearded is:
+    which person is bearded.
+
+query which_qualifies_under_section_1_a is:
+    which person qualifies under section 1 a.
+
+query which_qualifies_under_section_1_b is:
+    which person qualifies under section 1 b.
+
+the view the act is:
+    the title is "Beard Tax Act, as Blawx encodes it".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the case" are
+        a person is a person,
+        the facial hair of a person is a number mm in length,
+        the facial hair of a person is on the chin,
+        the facial hair of a person is below the chin,
+        the facial hair of a person is ear to ear below the nose.
+    the result is the answer to query which_qualifies_under_section_1_a.
+    the result shows its reasons.
+    the result shows its citations.
+    the result can be flipped.
+

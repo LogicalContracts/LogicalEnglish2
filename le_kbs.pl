@@ -82,8 +82,11 @@ language_examples_dir(Lang, Dir) :-
 %   decision tables, section conventions, scoped proof, services, flip
 %   queries). Such a tree is named by its directory: 'RulesRus/judged_damage'
 %   resolves into it (le_example_relpath/2), and it is listed and run by the
-%   example suite like the main tree.
+%   example suite like the main tree. examples/migration/ holds the twins
+%   the translators of other systems wrote (docs/le_migration.md), one
+%   directory per source system: 'migration/blawx/bird/bird'.
 le_extra_examples_dir('RulesRus', 'examples/RulesRus').
+le_extra_examples_dir('migration', 'examples/migration').
 
 %!  le_example_relpath(+Name, -Path:atom) is det.
 %
@@ -3012,6 +3015,11 @@ le_suite(all).
 %   nothing else needs to change.
 extension_dependent_path_fragment('/insurele2/').
 extension_dependent_path_fragment('/insurle2/').
+%  Twins of other systems written with extension constructs: embedded Prolog
+%  goals (Miniscript, turingcomplete) and grouped alternatives (bird).
+extension_dependent_path_fragment('/migration/miniscript/').
+extension_dependent_path_fragment('/migration/blawx/bird/').
+extension_dependent_path_fragment('/migration/scasp/turingcomplete/').
 
 %!  suite_includes(+Suite:atom, +Path:atom) is semidet.
 %

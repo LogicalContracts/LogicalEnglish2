@@ -1,0 +1,116 @@
+{
+  "counts": {"approximated":0,"encoded":11,"residue":1},
+  "entries": [
+    {
+      "element":"is_a_subset_of/2",
+      "in_program":"*a set* is a subset of *a set*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the_concatenation_of_then_is/3",
+      "in_program":"the concatenation of *a list* then *a list* is *a list*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"followed_by_is/3",
+      "in_program":"*a thing* followed by is *a second thing* with *a third thing*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_a_set/1",
+      "in_program":"*a thing* is a set",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"belongs_to/2",
+      "in_program":"*a thing* belongs to *a set*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"has_as_head_before/3",
+      "in_program":"*a thing* has as head before *a second thing* with *a third thing*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of is_a_subset_of/2",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of followed_by_is/3",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Scenario one",
+      "in_program":"one",
+      "kind":"scenario",
+      "mapping":"an LE1 scenario -> a scenario",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"?- is_a_subset_of(_92738,_92740)",
+      "in_program":"the queries",
+      "kind":"query",
+      "mapping":"a ?- query -> a query, asked in every scenario",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the program's own forall/2 (by double negation, through wrong/2 and once/1) is the universal built into s(CASP) and LE (for all cases in which ...): its definitions are left out",
+      "in_program":"the program",
+      "kind":"dates",
+      "mapping":"LE1 dates and date arithmetic -> LE2 dates and built-ins",
+      "note":"the program's own forall/2 (by double negation, through wrong/2 and once/1) is the universal built into s(CASP) and LE (for all cases in which ...): its definitions are left out",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the_concatenation_of_then_is(['A'|'B'], 'C', ['A'|'D']) :-\n    the_concatenation_of_then_is('B', 'C', 'D').\n",
+      "in_program":"list_pattern_1",
+      "kind":"clause",
+      "mapping":"a clause taking a list apart (no list patterns in LE)",
+      "note":"Logical English has no list patterns (a list's first element and the rest, [H|T]); a recursive definition over a list is written with an included Prolog resource, or restated with aggregates",
+      "verdict":"residue"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":1,
+    "tests": [ {"detail":"","query":"query_1","result":"pass","scenario":"one"} ]
+  },
+  "meta": {
+    "artifacts": ["list-scasp.pl" ],
+    "date":"2026-09-15",
+    "program":"list",
+    "source":"an s(CASP) program",
+    "translator":"InsurLE2/migration/scasp (scasp_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":1
+}

@@ -1,0 +1,130 @@
+% The Logical English twin of an s(CASP) program, written by the s(CASP) translator
+% (InsurLE2/migration/scasp) from family.pl (kept in sources/).
+% Every expected answer in the scenarios is s(CASP)'s own answer on the source.
+
+the target language is: prolog.
+
+the templates are:
+    *a thing* is test one.
+    *a thing* is the test two of *a second thing*.
+    *a thing* is test three.
+    *a thing* is a male.
+    *a thing* is a female.
+    *a thing* is the father of *a second thing*.
+    *a thing* is the mother of *a second thing*.
+    *a thing* is the parent of *a second thing*.
+    *a thing* is the grandparent of *a second thing*.
+    *a thing* is the ancestor of *a second thing*.
+    *a thing* is the sibling of *a second thing*.
+    *a thing* is the sister of *a second thing*.
+    *a thing* is the brother of *a second thing*.
+    *a thing* is the cousin of *a second thing*.
+    *a thing* is a hardmath.
+
+the knowledge base family includes:
+
+the text of the source program is at "sources/family.pl".
+
+a thing is test one if
+    it is not the case that the thing is the test two of a second thing.
+
+a thing is test one.
+
+a thing is the test two of a second thing if
+    the second thing is not equal to 1
+    and it is not the case that the thing is test three.
+
+a thing is the test two of 1 if
+    it is not the case that the thing is test three.
+
+a thing is test three if
+    it is not the case that the thing is test one.
+
+bob is a male.
+
+bo is a male.
+
+ben is a male.
+
+jeff is a male.
+
+ron is a male.
+
+tim is a male.
+
+ray is a male.
+
+may is a female.
+
+joy is a female.
+
+jill is a female.
+
+kathy is a female.
+
+ali is a female.
+
+sam is a female.
+
+beth is a female.
+
+bob is the father of jill.
+
+bob is the father of bo.
+
+bo is the father of ali.
+
+ben is the father of sam.
+
+may is the mother of jill.
+
+may is the mother of bo.
+
+joy is the mother of ali.
+
+jill is the mother of sam.
+
+a thing is the parent of a second thing if
+    the thing is the father of the second thing.
+
+a thing is the parent of a second thing if
+    the thing is the mother of the second thing.
+
+a thing is the grandparent of a second thing if
+    the thing is the parent of a third thing
+    and the third thing is the parent of the second thing.
+
+a thing is the ancestor of a second thing if
+    the thing is the parent of the second thing.
+
+a thing is the ancestor of a second thing if
+    the thing is the parent of a third thing
+    and the third thing is the ancestor of the second thing.
+
+a thing is the sibling of a second thing if
+    the thing is not equal to the second thing
+    and a third thing is the parent of the thing
+    and the third thing is the parent of the second thing.
+
+a thing is the sister of a second thing if
+    the thing is the sibling of the second thing
+    and the thing is a female.
+
+a thing is the brother of a second thing if
+    the thing is the sibling of the second thing
+    and the thing is a male.
+
+a thing is the cousin of a second thing if
+    a third thing is the parent of the thing
+    and a fourth thing is the parent of the second thing
+    and the third thing is not equal to the fourth thing.
+
+a thing T is a hardmath if
+    T = a thing N + (a thing M * a thing K - (a thing P / a thing Q - a thing R) * a thing S) * a thing U.
+
+scenario the_program is, as stated in the source program:
+    query_1 expects answers ["bob is the ancestor of sam"].
+
+query query_1 is:
+    bob is the ancestor of sam.
+

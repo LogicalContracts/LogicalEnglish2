@@ -1,0 +1,51 @@
+% The Logical English twin of an s(CASP) program, written by the s(CASP) translator
+% (InsurLE2/migration/scasp) from list-scasp.pl (kept in sources/).
+% Every expected answer in the scenarios is s(CASP)'s own answer on the source.
+
+the target language is: prolog.
+
+the templates are:
+    *a set* is a subset of *a set*.
+    the concatenation of *a list* then *a list* is *a list*.
+    *a thing* followed by is *a second thing* with *a third thing*.
+    *a thing* is a set.
+    *a thing* belongs to *a set*.
+    *a thing* has as head before *a second thing* with *a third thing*.
+
+the knowledge base list includes:
+
+the text of the source program is at "sources/list-scasp.pl".
+
+a set is a subset of a second set if
+    the set is a set
+    and the second set is a set
+    and for all cases in which
+        a thing belongs to the set
+        it is the case that
+            the thing belongs to the second set.
+
+the concatenation of [] then a list is the list.
+
+% RESIDUE list_pattern_1 BEGIN: a clause that takes a list apart
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+% Logical English has no list patterns (a list's first element and the rest, [H|T]); a recursive definition over a list is written with an included Prolog resource, or restated with aggregates
+%   prolog:
+%   | the_concatenation_of_then_is(['A'|'B'], 'C', ['A'|'D']) :-
+%   |     the_concatenation_of_then_is('B', 'C', 'D').
+%   | 
+% RESIDUE list_pattern_1 END
+
+a thing followed by is a second thing with a third thing if
+    the third thing has as head before the thing with the second thing.
+
+scenario one is, as stated in the source program at scenario one:
+    family_one is a set.
+    family_two is a set.
+    Bob belongs to family_one.
+    Alice belongs to family_one.
+    Alice belongs to family_two.
+    query_1 expects answers ["family_one is a subset of family_one", "family_two is a subset of family_one", "family_two is a subset of family_two"].
+
+query query_1 is:
+    which set is a subset of which second set.
+

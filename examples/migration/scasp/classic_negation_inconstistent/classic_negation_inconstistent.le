@@ -1,0 +1,23 @@
+% The Logical English twin of an s(CASP) program, written by the s(CASP) translator
+% (InsurLE2/migration/scasp) from classic_negation_inconstistent.pl (kept in sources/).
+% Every expected answer in the scenarios is s(CASP)'s own answer on the source.
+
+the target language is: scasp.
+
+the templates are:
+    *a thing* is a p; opposite: *a thing* is not a p.
+
+the knowledge base classic_negation_inconstistent includes:
+
+the text of the source program is at "sources/classic_negation_inconstistent.pl".
+
+1 is a p.
+
+1 is not a p.
+
+scenario the_program is, as stated in the source program:
+    query_1 expects answers [].
+
+query query_1 is:
+    2 is a p.
+

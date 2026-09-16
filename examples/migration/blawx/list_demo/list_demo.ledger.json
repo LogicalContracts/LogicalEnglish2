@@ -1,0 +1,75 @@
+{
+  "counts": {"approximated":0,"encoded":6,"residue":1},
+  "entries": [
+    {
+      "element":"average_score/2",
+      "in_program":"the average score adding a 10 of *a person* is *a number*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"person/1",
+      "in_program":"*a person* is a person",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"score/2",
+      "in_program":"the score of *a person* is *a number*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_1_section,average_score,_63382,_63384):-person(_63382),findall(_63404,score(_63382,_63404),_63408),coun...",
+      "in_program":"section_1_residue",
+      "kind":"rule",
+      "mapping":"not translated: kept verbatim as a residue block",
+      "note":"a list aggregate (findall): the rule collects values with findall and Blawx's list predicates",
+      "verdict":"residue"
+    },
+    {
+      "element":"0 blawx_as_of / blawx_during clauses",
+      "in_program":"nothing",
+      "kind":"temporal boilerplate",
+      "mapping":"left out: nothing reads it",
+      "note":"Blawx writes these for every attribute and relationship; no rule or test of this project reads them0",
+      "verdict":"encoded"
+    },
+    {
+      "element":"27 #pred annotations",
+      "in_program":"the templates",
+      "kind":"natural language",
+      "mapping":"the wording of each template; the holds / according_to / defeated forms are the rules themselves",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest test",
+      "in_program":"test",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {"errors":0,"failed":0,"passed":0,"tests": []},
+  "meta": {
+    "artifacts": [
+      "sources/list_demo.yaml",
+      "https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418"
+    ],
+    "date":"2026-09-15",
+    "licence":"Blawx: MIT",
+    "program":"list_demo",
+    "source":"Lists Demonstration",
+    "translator":"InsurLE2/migration/blawx (blawx_twin.pl)"
+  },
+  "pending_expectations":1,
+  "source_tests":1
+}

@@ -1,0 +1,99 @@
+{
+  "counts": {"approximated":0,"encoded":5,"residue":5},
+  "entries": [
+    {
+      "element":"person/1",
+      "in_program":"*a person* is a person",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"dob/2",
+      "in_program":"*a person* was born on *a time*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"dod/2",
+      "in_program":"*a person* died on *a time*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"2 clause(s) of events in section 3",
+      "in_program":"section_3_events",
+      "kind":"events",
+      "mapping":"not translated: kept verbatim as a residue block",
+      "note":"Blawx's event calculus (blawx_becomes, blawx_initially, blawx_ultimately, blawx_as_of, blawx_during): a value that events change belongs in an LPS twin (a fluent), or in lib/temporal's periods; not translated automatically",
+      "verdict":"residue"
+    },
+    {
+      "element":"1 clause(s) of events in section 2",
+      "in_program":"section_2_events",
+      "kind":"events",
+      "mapping":"not translated: kept verbatim as a residue block",
+      "note":"Blawx's event calculus (blawx_becomes, blawx_initially, blawx_ultimately, blawx_as_of, blawx_during): a value that events change belongs in an LPS twin (a fluent), or in lib/temporal's periods; not translated automatically",
+      "verdict":"residue"
+    },
+    {
+      "element":"1 clause(s) of events in section 1",
+      "in_program":"section_1_events",
+      "kind":"events",
+      "mapping":"not translated: kept verbatim as a residue block",
+      "note":"Blawx's event calculus (blawx_becomes, blawx_initially, blawx_ultimately, blawx_as_of, blawx_during): a value that events change belongs in an LPS twin (a fluent), or in lib/temporal's periods; not translated automatically",
+      "verdict":"residue"
+    },
+    {
+      "element":"48 blawx_as_of / blawx_during clauses",
+      "in_program":"nothing",
+      "kind":"temporal boilerplate",
+      "mapping":"left out: nothing reads it",
+      "note":"Blawx writes these for every attribute and relationship; no rule or test of this project reads them0",
+      "verdict":"encoded"
+    },
+    {
+      "element":"84 #pred annotations",
+      "in_program":"the templates",
+      "kind":"natural language",
+      "mapping":"the wording of each template; the holds / according_to / defeated forms are the rules themselves",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest when_did_bob_live",
+      "in_program":"when_did_bob_live",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"the query blawx_during(_24422,alive(bob),_24426) is not translated: ",
+      "verdict":"residue"
+    },
+    {
+      "element":"blawxtest when_is_bob_not_alive",
+      "in_program":"when_is_bob_not_alive",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"the query blawx_during(_24282,-alive(bob),_24286) is not translated: ",
+      "verdict":"residue"
+    }
+  ],
+  "fidelity": {"errors":0,"failed":0,"passed":0,"tests": []},
+  "meta": {
+    "artifacts": [
+      "sources/life_act.yaml",
+      "https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418"
+    ],
+    "date":"2026-09-15",
+    "licence":"Blawx: MIT",
+    "program":"life_act",
+    "source":"Life Act.",
+    "translator":"InsurLE2/migration/blawx (blawx_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":2
+}

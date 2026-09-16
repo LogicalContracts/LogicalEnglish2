@@ -1,0 +1,172 @@
+{
+  "counts": {"approximated":0,"encoded":18,"residue":0},
+  "entries": [
+    {
+      "element":"test_result/1",
+      "in_program":"*a test result* is a test result",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"may_board/2",
+      "in_program":"*a person* is permitted to board *a flight*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"person/1",
+      "in_program":"*a person* is a person",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"flight/1",
+      "in_program":"*a flight* is a flight",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"test/1",
+      "in_program":"*a test* is a test",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"ticketed_for/2",
+      "in_program":"*a person* has a ticket for *a flight*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"subject/2",
+      "in_program":"*a person* took a covid test *a test*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"scheduled_departure/2",
+      "in_program":"*a flight* is scheduled to depart at *a time*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"result/2",
+      "in_program":"the result of *a test* was *a test result*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"administered_at/2",
+      "in_program":"*a test* was administered at *a time*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"test_result(positive)",
+      "in_program":"test_result(positive)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"test_result(negative)",
+      "in_program":"test_result(negative)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_1_section, may_board, ...) :- ...",
+      "in_program":"section_1",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"100 blawx_as_of / blawx_during clauses",
+      "in_program":"nothing",
+      "kind":"temporal boilerplate",
+      "mapping":"left out: nothing reads it",
+      "note":"Blawx writes these for every attribute and relationship; no rule or test of this project reads them0",
+      "verdict":"encoded"
+    },
+    {
+      "element":"190 #pred annotations",
+      "in_program":"the templates",
+      "kind":"natural language",
+      "mapping":"the wording of each template; the holds / according_to / defeated forms are the rules themselves",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest can_fly",
+      "in_program":"can_fly",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest good_test",
+      "in_program":"good_test",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest old_test",
+      "in_program":"old_test",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":3,
+    "tests": [
+      {"detail":"","query":"can_fly","result":"pass","scenario":"can_fly"},
+      {"detail":"","query":"good_test","result":"pass","scenario":"good_test"},
+      {"detail":"","query":"old_test","result":"pass","scenario":"old_test"}
+    ]
+  },
+  "meta": {
+    "artifacts": [
+      "sources/covid_test.yaml",
+      "https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418"
+    ],
+    "date":"2026-09-15",
+    "licence":"Blawx: MIT",
+    "program":"covid_test",
+    "source":"Covid Test Rule",
+    "translator":"InsurLE2/migration/blawx (blawx_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":3
+}

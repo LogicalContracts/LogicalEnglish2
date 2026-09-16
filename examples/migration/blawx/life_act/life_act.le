@@ -1,0 +1,66 @@
+% Life Act.
+%
+% The Logical English twin of a Blawx encoding, written by the Blawx translator
+% (InsurLE2/migration/blawx). Each rule is a rule of the Act as Blawx encodes it,
+% in the words of Blawx's own sentence forms, citing its section; the project's
+% tests are the scenarios, with Blawx's own answers as the expectations.
+%
+% Source: the Blawx project "Life Act" (life_act.yaml, 4 sections), an example of
+%         Blawx v1.6.22-alpha (Lexpedite, MIT licence), commit 3de892f67854292b304c9a55c5e2cd2058d3d418.
+
+the target language is: prolog.
+
+the templates are:
+    *a person* is a person; scenario element.
+    *a person* was born on *a time*; scenario element.
+    *a person* died on *a time*; scenario element.
+
+the knowledge base life_act includes:
+
+the text of the Life Act is at "sources/life_act.md".
+
+the text of the Blawx project is at "sources/life_act.yaml".
+
+% The Act, section by section.
+% RESIDUE section_1_events BEGIN: the events of section 1 of the Life Act
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: section 1
+% Blawx's event calculus (blawx_becomes, blawx_initially, blawx_ultimately, blawx_as_of, blawx_during): a value that events change belongs in an LPS twin (a fluent), or in lib/temporal's periods; not translated automatically
+%   s(CASP), as Blawx generated it:
+%   | according_to(sec_1_section, blawx_becomes, alive(A), B) :-
+%   |     person(A),
+%   |     dob(A, B).
+%   | 
+% RESIDUE section_1_events END
+
+% RESIDUE section_2_events BEGIN: the events of section 2 of the Life Act
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: section 2
+% Blawx's event calculus (blawx_becomes, blawx_initially, blawx_ultimately, blawx_as_of, blawx_during): a value that events change belongs in an LPS twin (a fluent), or in lib/temporal's periods; not translated automatically
+%   s(CASP), as Blawx generated it:
+%   | blawx_initially(-alive(_)).
+%   | 
+% RESIDUE section_2_events END
+
+% RESIDUE section_3_events BEGIN: the events of section 3 of the Life Act
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: section 3
+% Blawx's event calculus (blawx_becomes, blawx_initially, blawx_ultimately, blawx_as_of, blawx_during): a value that events change belongs in an LPS twin (a fluent), or in lib/temporal's periods; not translated automatically
+%   s(CASP), as Blawx generated it:
+%   | according_to(sec_3_section, blawx_becomes, -alive(A), B) :-
+%   |     person(A),
+%   |     dod(A, B).
+%   | blawx_ultimately(-alive(_)).
+%   | 
+% RESIDUE section_3_events END
+
+scenario when_did_bob_live is, as stated in the Blawx project at test when_did_bob_live:
+    bob is a person.
+    bob was born on 946710000.
+    bob died on 1577862000.
+
+scenario when_is_bob_not_alive is, as stated in the Blawx project at test when_is_bob_not_alive:
+    bob is a person.
+    bob was born on 946710000.
+    bob died on 1577862000.
+

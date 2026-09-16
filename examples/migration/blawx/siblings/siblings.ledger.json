@@ -1,0 +1,172 @@
+{
+  "counts": {"approximated":1,"encoded":13,"residue":0},
+  "entries": [
+    {
+      "element":"sibling/2",
+      "in_program":"*a person* is a sibling of *a second person*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"person/1",
+      "in_program":"*a person* is a person",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"parent/2",
+      "in_program":"*a person* is a parent of *a second person*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"ward/1",
+      "in_program":"*a person* is a ward of the state",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_1_section, sibling, ...) :- ...",
+      "in_program":"section_1",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"person(opg)",
+      "in_program":"person(opg)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_2_section, parent, ...) :- ...",
+      "in_program":"section_2",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"0 blawx_as_of / blawx_during clauses",
+      "in_program":"nothing",
+      "kind":"temporal boilerplate",
+      "mapping":"left out: nothing reads it",
+      "note":"Blawx writes these for every attribute and relationship; no rule or test of this project reads them0",
+      "verdict":"encoded"
+    },
+    {
+      "element":"36 #pred annotations",
+      "in_program":"the templates",
+      "kind":"natural language",
+      "mapping":"the wording of each template; the holds / according_to / defeated forms are the rules themselves",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest broken_test",
+      "in_program":"broken_test",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest broken_code",
+      "in_program":"broken_code",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest broken_rule",
+      "in_program":"broken_rule",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"abductive: the test lets s(CASP) assume ward/1 (#abducible); Blawx's answers are hypotheses, which an LE scenario states as facts or not at all",
+      "verdict":"approximated"
+    },
+    {
+      "element":"blawxtest automation",
+      "in_program":"automation",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"7 cases generated from the rules",
+      "in_program":"the case_ scenarios",
+      "kind":"generated cases",
+      "mapping":"each rule met by facts, each near miss, each defeat: Blawx's answers as the expectations",
+      "note":"not Blawx's tests: written by blawx_cases.pl from the encoding; the answers are Blawx's own",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":10,
+    "tests": [
+      {"detail":"","query":"broken_test","result":"pass","scenario":"broken_test"},
+      {"detail":"","query":"broken_code","result":"pass","scenario":"broken_code"},
+      {"detail":"","query":"automation","result":"pass","scenario":"automation"},
+      {"detail":"","query":"which_is_a_sibling_of","result":"pass","scenario":"case_1"},
+      {
+	"detail":"",
+	"query":"which_is_a_sibling_of",
+	"result":"pass",
+	"scenario":"case_1_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_is_a_sibling_of",
+	"result":"pass",
+	"scenario":"case_1_without_fact_2"
+      },
+      {
+	"detail":"",
+	"query":"which_is_a_sibling_of",
+	"result":"pass",
+	"scenario":"case_1_without_fact_3"
+      },
+      {
+	"detail":"",
+	"query":"which_is_a_sibling_of",
+	"result":"pass",
+	"scenario":"case_1_without_fact_4"
+      },
+      {
+	"detail":"",
+	"query":"which_is_a_sibling_of",
+	"result":"pass",
+	"scenario":"case_1_without_fact_5"
+      },
+      {"detail":"","query":"which_is_a_parent_of","result":"pass","scenario":"case_2"}
+    ]
+  },
+  "meta": {
+    "artifacts": [
+      "sources/siblings.yaml",
+      "https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418"
+    ],
+    "date":"2026-09-15",
+    "licence":"Blawx: MIT",
+    "program":"siblings",
+    "source":"Siblings Act",
+    "translator":"InsurLE2/migration/blawx (blawx_twin.pl)"
+  },
+  "pending_expectations":1,
+  "source_tests":11
+}

@@ -1,0 +1,42 @@
+% The Logical English twin of an s(CASP) program, written by the s(CASP) translator
+% (InsurLE2/migration/scasp) from impossibleancestor-scasp.pl (kept in sources/).
+% Every expected answer in the scenarios is s(CASP)'s own answer on the source.
+
+the target language is: prolog.
+
+the templates are:
+    *a person* is a grandparent of *a person*.
+    *a person* is an ancestor of *a person*.
+    *a person* is a parent of *a person*.
+    *a person* is impossible.
+
+the knowledge base impossibleancestor includes:
+
+the text of the source program is at "sources/impossibleancestor-scasp.pl".
+
+a person is a grandparent of a second person if
+    the person is a parent of a third person
+    and the third person is a parent of the second person.
+
+a person is an ancestor of a second person if
+    the person is a parent of the second person.
+
+a person is an ancestor of a second person if
+    the person is a parent of a third person
+    and the third person is an ancestor of the second person.
+
+scenario one is, as stated in the source program at scenario one:
+    john is a parent of mary.
+    mary is a parent of alice.
+    query_1 expects answers [].
+
+scenario two is, as stated in the source program at scenario two:
+    john is a parent of mary.
+    mary is a parent of john.
+    a person is impossible if
+        the person is an ancestor of the person.
+    query_1 expects answers ["john is impossible", "mary is impossible"].
+
+query query_1 is:
+    which person is impossible.
+

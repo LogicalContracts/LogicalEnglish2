@@ -21,7 +21,7 @@
 :- dynamic received/2.          % Headers, Body
 
 vars(['LE_SENTRY_DSN', 'LE_SENTRY_ENVIRONMENT', 'LE_SENTRY_RELEASE',
-      'LE_POSTHOG_KEY', 'LE_POSTHOG_HOST', 'LE_POSTHOG_PERSISTENCE']).
+      'LE_CLOUDFLARE_ANALYTICS_TOKEN']).
 
 clear_vars :-
     vars(Vs), forall(member(V, Vs), unsetenv(V)),
@@ -65,10 +65,10 @@ test(dsn_without_project, [fail]) :-
 test(off_by_default) :-
     telemetry_status(S),
     assertion(S.sentry == false),
-    assertion(S.posthog == false),
+    assertion(S.web_analytics == false),
     telemetry_js(JS),
     assertion(\+ sub_string(JS, _, _, _, "sentry-cdn")),
-    assertion(\+ sub_string(JS, _, _, _, "posthog")),
+    assertion(\+ sub_string(JS, _, _, _, "cloudflareinsights")),
     telemetry_report(error(type_error(integer, a), _), [operation(answeringQuery)]),
     assertion(\+ le_telemetry:sent(_, _)).
 
@@ -92,7 +92,7 @@ test(envelope) :-
 
 test(configured_script) :-
     setenv('LE_SENTRY_DSN', 'https://pub@o1.ingest.sentry.io/77'),
-    setenv('LE_POSTHOG_KEY', 'phc_test'),
+    setenv('LE_CLOUDFLARE_ANALYTICS_TOKEN', '1b82e2b050984555b84cbcbd02983d7a'),
     le_i18n:set_le_language(pt),
     telemetry_js(JS),
     le_i18n:set_le_language(default),
@@ -104,11 +104,24 @@ test(configured_script) :-
     assertion(C.sentry.dsn == "https://pub@o1.ingest.sentry.io/77"),
     assertion(sub_string(C.sentry.bundle, 0, _, _, "https://browser.sentry-cdn.com/")),
     assertion(C.sentry.labels.trigger == "Comentários"),
-    assertion(C.posthog.key == "phc_test"),
-    assertion(C.posthog.host == "https://eu.i.posthog.com"),
-    assertion(C.posthog.persistence == "memory"),
-    assertion(C.events.exportForeign.props.format == "exporter"),
-    assertion(sub_string(JS, _, _, _, "watchApi")).
+    assertion(C.webAnalytics.token == "1b82e2b050984555b84cbcbd02983d7a"),
+    assertion(C.webAnalytics.beacon == "https://static.cloudflareinsights.com/beacon.min.js"),
+    assertion(sub_string(JS, _, _, _, "data-cf-beacon")),
+    assertion(\+ sub_string(JS, _, _, _, "posthog")).
+
+test(web_analytics_alone) :-
+    setenv('LE_CLOUDFLARE_ANALYTICS_TOKEN', 'tok'),
+    telemetry_status(S),
+    telemetry_js(JS),
+    clear_vars,
+    assertion(S.sentry == false),
+    assertion(S.web_analytics == true),
+    split_string(JS, "\n", "", [Line|_]),
+    string_concat("var TELEMETRY = ", Json0, Line),
+    string_concat(Json, ";", Json0),
+    atom_json_dict(Json, C, []),
+    assertion(C.sentry == null),
+    assertion(C.webAnalytics.token == "tok").
 
 test(report_reaches_sentry_once, [setup(start_mock(Port)), cleanup((stop_mock(Port), clear_vars))]) :-
     format(atom(DSN), 'http://pubkey@localhost:~w/5', [Port]),

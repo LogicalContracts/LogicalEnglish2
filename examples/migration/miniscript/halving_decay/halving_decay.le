@@ -1,0 +1,861 @@
+% A 4-of-4 that decays to 3, 2 and 1 of 4 at each of the next halvings
+%
+% The Logical English twin of a Bitcoin spending policy, written by the
+% Miniscript translator (InsurLE2/migration/miniscript). Who can spend the
+% coin, when, and why: each rule is one spending path of the policy.
+%
+% Source: the Bitcoin Core descriptor documentation
+%         https://github.com/bitcoin/bitcoin/blob/master/doc/descriptors.md
+%
+% The source, as written (cut into lines of 100 characters: join them for the text):
+%     wsh(thresh(4,pk([7258e4f9/44h/1h/0h]tpubDCZrkQoEU3845aFKUu9VQBYWZtrTwxMzcxnBwKFCYXHD6gEXvtFcxddCCLFs
+%     EwmxQaG15izcHxj48SXg1QS5FQGMBx5Ak6deXKPAL7wauBU/<0;1>/*),s:pk([c80b1469/44h/1h/0h]tpubDD3UwwHoNUF4F3
+%     Vi5PiUVTc3ji1uThuRfFyBexTSHoAcHuWW2z8qEE2YujegcLtgthr3wMp3ZauvNG9eT9xfJyxXCfNty8h6rDBYU8UU1qq/<0;1>/
+%     *),s:pk([4e5024fe/44h/1h/0h]tpubDDLrpPymPLSCJyCMLQdmcWxrAWwsqqssm5NdxT2WSdEBPSXNXxwbeKtsHAyXPpLkhUyK
+%     ovtZgCi47QxVpw9iVkg95UUgeevyAqtJ9dqBqa1/<0;1>/*),s:pk([3b1d1ee9/44h/1h/0h]tpubDCmDTANBWPzf6d8Ap1J5Ku
+%     7J1Ay92MpHMrEV7M5muWxCrTBN1g5f1NPcjMEL6dJHxbvEKNZtYCdowaSTN81DAyLsmv6w6xjJHCQNkxrsrfu/<0;1>/*),sln:a
+%     fter(840000),sln:after(1050000),sln:after(1260000)))
+%
+% The source, laid out (keys and hashes by their role, <like this>):
+%     wsh(
+%       thresh(4,
+%         pk(<key 1>),
+%         s:pk(<key 2>),
+%         s:pk(<key 3>),
+%         s:pk(<key 4>),
+%         sln:after(840000),
+%         sln:after(1050000),
+%         sln:after(1260000)))
+%
+% The legend (role <- key or hash as written in the source):
+%     key 1 <- [7258e4f9/44h/1h/0h]tpubDCZrkQoEU3845aFKUu9VQBYWZtrTwxMzcxnBwKFCYXHD6gEXvtFcxddCCLFsEwmxQaG15izcHxj48SXg1QS5FQGMBx5Ak6deXKPAL7wauBU/<0;1>/*
+%     key 2 <- [c80b1469/44h/1h/0h]tpubDD3UwwHoNUF4F3Vi5PiUVTc3ji1uThuRfFyBexTSHoAcHuWW2z8qEE2YujegcLtgthr3wMp3ZauvNG9eT9xfJyxXCfNty8h6rDBYU8UU1qq/<0;1>/*
+%     key 3 <- [4e5024fe/44h/1h/0h]tpubDDLrpPymPLSCJyCMLQdmcWxrAWwsqqssm5NdxT2WSdEBPSXNXxwbeKtsHAyXPpLkhUyKovtZgCi47QxVpw9iVkg95UUgeevyAqtJ9dqBqa1/<0;1>/*
+%     key 4 <- [3b1d1ee9/44h/1h/0h]tpubDCmDTANBWPzf6d8Ap1J5Ku7J1Ay92MpHMrEV7M5muWxCrTBN1g5f1NPcjMEL6dJHxbvEKNZtYCdowaSTN81DAyLsmv6w6xjJHCQNkxrsrfu/<0;1>/*
+%
+% What it says (the spending policy, by BIP 379's semantics):
+%     at least 4 of these 7:
+%       a signature by key 1
+%       a signature by key 2
+%       a signature by key 3
+%       a signature by key 4
+%       a lock time of block height 840000 or later (after(840000))
+%       a lock time of block height 1050000 or later (after(1050000))
+%       a lock time of block height 1260000 or later (after(1260000))
+%
+% Try it in Minsc (the policy compiled to Miniscript, Script and an address,
+% in the browser): the document "the policy in Minsc" below.
+
+the target language is: prolog.
+
+the knowledge base halving_decay includes these resources:
+    temporal.
+
+the templates are:
+    the coin can be spent.
+    the spending transaction has the lock time *a number*; scenario element.
+    the spending transaction is in block *a height*; scenario element.
+    the witness contains a signature by *a key*; scenario element.
+    the condition *a condition* is met.
+    the public key of *a key* is *a text*.
+
+the knowledge base halving_decay includes:
+
+the Bitcoin Core descriptor documentation is published at "https://github.com/bitcoin/bitcoin/blob/master/doc/descriptors.md".
+the text of the Bitcoin Core descriptor documentation is at "sources/core_descriptors.txt".
+
+the policy in Minsc is published at "https://min.sc/#c=//%20A%204-of-4%20that%20decays%20to%203,%202%20and%201%20of%204%20at%20each%20of%20the%20next%20halvings%0A//%20The%20Logical%20English%20twin's%20policy%20(InsurLE2/migration/miniscript).%0A$key_1%20=%20%5B7258e4f9/44h/1h/0h%5DtpubDCZrkQoEU3845aFKUu9VQBYWZtrTwxMzcxnBwKFCYXHD6gEXvtFcxddCCLFsEwmxQaG15izcHxj48SXg1QS5FQGMBx5Ak6deXKPAL7wauBU/0/*;%20%20%20//%20key%201%20(as%20in%20the%20source)%0A$key_2%20=%20%5Bc80b1469/44h/1h/0h%5DtpubDD3UwwHoNUF4F3Vi5PiUVTc3ji1uThuRfFyBexTSHoAcHuWW2z8qEE2YujegcLtgthr3wMp3ZauvNG9eT9xfJyxXCfNty8h6rDBYU8UU1qq/0/*;%20%20%20//%20key%202%20(as%20in%20the%20source)%0A$key_3%20=%20%5B4e5024fe/44h/1h/0h%5DtpubDDLrpPymPLSCJyCMLQdmcWxrAWwsqqssm5NdxT2WSdEBPSXNXxwbeKtsHAyXPpLkhUyKovtZgCi47QxVpw9iVkg95UUgeevyAqtJ9dqBqa1/0/*;%20%20%20//%20key%203%20(as%20in%20the%20source)%0A$key_4%20=%20%5B3b1d1ee9/44h/1h/0h%5DtpubDCmDTANBWPzf6d8Ap1J5Ku7J1Ay92MpHMrEV7M5muWxCrTBN1g5f1NPcjMEL6dJHxbvEKNZtYCdowaSTN81DAyLsmv6w6xjJHCQNkxrsrfu/0/*;%20%20%20//%20key%204%20(as%20in%20the%20source)%0A%0Athresh(4,pk($key_1),pk($key_2),pk($key_3),pk($key_4),after(840000),after(1050000),after(1260000))%0A".
+
+the Tape run of 2026-09-14 is published at "https://tape.rewindbitcoin.com/explorer/address/bcrt1qkmm0tykhfm3k9mm2pljz476ysuuh8uuurcluyn5fk4te74v4jnesj9y0zj".
+the text of the Tape run of 2026-09-14 is at "sources/halving_decay.chain.json".
+
+% The keys and hashes of the policy, as the source writes them.
+the public key of key 1 is "[7258e4f9/44h/1h/0h]tpubDCZrkQoEU3845aFKUu9VQBYWZtrTwxMzcxnBwKFCYXHD6gEXvtFcxddCCLFsEwmxQaG15izcHxj48SXg1QS5FQGMBx5Ak6deXKPAL7wauBU/<0;1>/*".
+
+the public key of key 2 is "[c80b1469/44h/1h/0h]tpubDD3UwwHoNUF4F3Vi5PiUVTc3ji1uThuRfFyBexTSHoAcHuWW2z8qEE2YujegcLtgthr3wMp3ZauvNG9eT9xfJyxXCfNty8h6rDBYU8UU1qq/<0;1>/*".
+
+the public key of key 3 is "[4e5024fe/44h/1h/0h]tpubDDLrpPymPLSCJyCMLQdmcWxrAWwsqqssm5NdxT2WSdEBPSXNXxwbeKtsHAyXPpLkhUyKovtZgCi47QxVpw9iVkg95UUgeevyAqtJ9dqBqa1/<0;1>/*".
+
+the public key of key 4 is "[3b1d1ee9/44h/1h/0h]tpubDCmDTANBWPzf6d8Ap1J5Ku7J1Ay92MpHMrEV7M5muWxCrTBN1g5f1NPcjMEL6dJHxbvEKNZtYCdowaSTN81DAyLsmv6w6xjJHCQNkxrsrfu/<0;1>/*".
+
+% The spending paths of the policy.
+rule decaying_threshold with provenance the Bitcoin Core descriptor documentation,
+        confer "and finally 1-of-4 at each future halvening block height":
+the coin can be spent if
+    a number N is the count of each C such that
+        a condition C is in [the signature of key 1, the signature of key 2, the signature of key 3, the signature of key 4, the lock at block 840000, the lock at block 1050000, the lock at block 1260000]
+        and the condition C is met
+    and N >= 4.
+
+rule decaying_threshold_condition_1 with provenance the Bitcoin Core descriptor documentation,
+        confer "and finally 1-of-4 at each future halvening block height":
+the condition the signature of key 1 is met if
+    the witness contains a signature by key 1.
+
+rule decaying_threshold_condition_2 with provenance the Bitcoin Core descriptor documentation,
+        confer "and finally 1-of-4 at each future halvening block height":
+the condition the signature of key 2 is met if
+    the witness contains a signature by key 2.
+
+rule decaying_threshold_condition_3 with provenance the Bitcoin Core descriptor documentation,
+        confer "and finally 1-of-4 at each future halvening block height":
+the condition the signature of key 3 is met if
+    the witness contains a signature by key 3.
+
+rule decaying_threshold_condition_4 with provenance the Bitcoin Core descriptor documentation,
+        confer "and finally 1-of-4 at each future halvening block height":
+the condition the signature of key 4 is met if
+    the witness contains a signature by key 4.
+
+rule decaying_threshold_condition_5 with provenance the Bitcoin Core descriptor documentation,
+        confer "and finally 1-of-4 at each future halvening block height":
+the condition the lock at block 840000 is met if
+    the spending transaction has the lock time a number N
+    and the lock time N is a block height
+    and N >= 840000
+    and the spending transaction is in block a height H
+    and N < H.
+
+rule decaying_threshold_condition_6 with provenance the Bitcoin Core descriptor documentation,
+        confer "and finally 1-of-4 at each future halvening block height":
+the condition the lock at block 1050000 is met if
+    the spending transaction has the lock time a number N
+    and the lock time N is a block height
+    and N >= 1050000
+    and the spending transaction is in block a height H
+    and N < H.
+
+rule decaying_threshold_condition_7 with provenance the Bitcoin Core descriptor documentation,
+        confer "and finally 1-of-4 at each future halvening block height":
+the condition the lock at block 1260000 is met if
+    the spending transaction has the lock time a number N
+    and the lock time N is a block height
+    and N >= 1260000
+    and the spending transaction is in block a height H
+    and N < H.
+
+scenario path_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 1 — the path needs: a lock time of at least 840000, a lock time of at least 1050000, a lock time of at least 1260000, a signature by key 4
+    the witness contains a signature by key 4.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_1_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 1 without requirement 1 — the path needs: a lock time of at least 840000, a lock time of at least 1050000, a lock time of at least 1260000, a signature by key 4
+    the witness contains a signature by key 4.
+    the spending transaction is in block 850000.
+    the spending transaction has the lock time 839999.
+    spendable expects answers [].
+
+scenario path_1_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 1 without requirement 2 — the path needs: a lock time of at least 840000, a lock time of at least 1050000, a lock time of at least 1260000, a signature by key 4
+    the witness contains a signature by key 4.
+    the spending transaction is in block 1050000.
+    the spending transaction has the lock time 1049999.
+    spendable expects answers [].
+
+scenario path_1_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path 1 without requirement 3 — the path needs: a lock time of at least 840000, a lock time of at least 1050000, a lock time of at least 1260000, a signature by key 4
+    the witness contains a signature by key 4.
+    the spending transaction is in block 1260000.
+    the spending transaction has the lock time 1259999.
+    spendable expects answers [].
+
+scenario path_1_without_4 is, as stated in the satisfaction analysis of the policy:
+    % spending path 1 without requirement 4 — the path needs: a lock time of at least 840000, a lock time of at least 1050000, a lock time of at least 1260000, a signature by key 4
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers [].
+
+scenario path_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 2 — the path needs: a lock time of at least 840000, a lock time of at least 1050000, a lock time of at least 1260000, a signature by key 1
+    the witness contains a signature by key 1.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_2_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 2 without requirement 1 — the path needs: a lock time of at least 840000, a lock time of at least 1050000, a lock time of at least 1260000, a signature by key 1
+    the witness contains a signature by key 1.
+    the spending transaction is in block 850000.
+    the spending transaction has the lock time 839999.
+    spendable expects answers [].
+
+scenario path_2_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 2 without requirement 2 — the path needs: a lock time of at least 840000, a lock time of at least 1050000, a lock time of at least 1260000, a signature by key 1
+    the witness contains a signature by key 1.
+    the spending transaction is in block 1050000.
+    the spending transaction has the lock time 1049999.
+    spendable expects answers [].
+
+scenario path_2_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path 2 without requirement 3 — the path needs: a lock time of at least 840000, a lock time of at least 1050000, a lock time of at least 1260000, a signature by key 1
+    the witness contains a signature by key 1.
+    the spending transaction is in block 1260000.
+    the spending transaction has the lock time 1259999.
+    spendable expects answers [].
+
+scenario path_2_without_4 is, as stated in the satisfaction analysis of the policy:
+    % spending path 2 without requirement 4 — the path needs: a lock time of at least 840000, a lock time of at least 1050000, a lock time of at least 1260000, a signature by key 1
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers [].
+
+scenario path_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path 3 — the path needs: a lock time of at least 840000, a lock time of at least 1050000, a signature by key 4, a signature by key 1
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 1050001.
+    the spending transaction has the lock time 1050000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_3_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 3 without requirement 1 — the path needs: a lock time of at least 840000, a lock time of at least 1050000, a signature by key 4, a signature by key 1
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 850000.
+    the spending transaction has the lock time 839999.
+    spendable expects answers [].
+
+scenario path_3_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 3 without requirement 2 — the path needs: a lock time of at least 840000, a lock time of at least 1050000, a signature by key 4, a signature by key 1
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 1050000.
+    the spending transaction has the lock time 1049999.
+    spendable expects answers [].
+
+scenario path_3_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path 3 without requirement 3 — the path needs: a lock time of at least 840000, a lock time of at least 1050000, a signature by key 4, a signature by key 1
+    the witness contains a signature by key 1.
+    the spending transaction is in block 1050001.
+    the spending transaction has the lock time 1050000.
+    spendable expects answers [].
+
+scenario path_3_without_4 is, as stated in the satisfaction analysis of the policy:
+    % spending path 3 without requirement 4 — the path needs: a lock time of at least 840000, a lock time of at least 1050000, a signature by key 4, a signature by key 1
+    the witness contains a signature by key 4.
+    the spending transaction is in block 1050001.
+    the spending transaction has the lock time 1050000.
+    spendable expects answers [].
+
+scenario path_4 is, as stated in the satisfaction analysis of the policy:
+    % spending path 4 — the path needs: a lock time of at least 840000, a lock time of at least 1050000, a signature by key 3, a signature by key 2
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 1050001.
+    the spending transaction has the lock time 1050000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_4_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 4 without requirement 1 — the path needs: a lock time of at least 840000, a lock time of at least 1050000, a signature by key 3, a signature by key 2
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 850000.
+    the spending transaction has the lock time 839999.
+    spendable expects answers [].
+
+scenario path_4_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 4 without requirement 2 — the path needs: a lock time of at least 840000, a lock time of at least 1050000, a signature by key 3, a signature by key 2
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 1050000.
+    the spending transaction has the lock time 1049999.
+    spendable expects answers [].
+
+scenario path_4_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path 4 without requirement 3 — the path needs: a lock time of at least 840000, a lock time of at least 1050000, a signature by key 3, a signature by key 2
+    the witness contains a signature by key 2.
+    the spending transaction is in block 1050001.
+    the spending transaction has the lock time 1050000.
+    spendable expects answers [].
+
+scenario path_4_without_4 is, as stated in the satisfaction analysis of the policy:
+    % spending path 4 without requirement 4 — the path needs: a lock time of at least 840000, a lock time of at least 1050000, a signature by key 3, a signature by key 2
+    the witness contains a signature by key 3.
+    the spending transaction is in block 1050001.
+    the spending transaction has the lock time 1050000.
+    spendable expects answers [].
+
+scenario path_5 is, as stated in the satisfaction analysis of the policy:
+    % spending path 5 — the path needs: a lock time of at least 840000, a lock time of at least 1260000, a signature by key 4, a signature by key 1
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_5_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 5 without requirement 1 — the path needs: a lock time of at least 840000, a lock time of at least 1260000, a signature by key 4, a signature by key 1
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 850000.
+    the spending transaction has the lock time 839999.
+    spendable expects answers [].
+
+scenario path_5_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 5 without requirement 2 — the path needs: a lock time of at least 840000, a lock time of at least 1260000, a signature by key 4, a signature by key 1
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 1260000.
+    the spending transaction has the lock time 1259999.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_5_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path 5 without requirement 3 — the path needs: a lock time of at least 840000, a lock time of at least 1260000, a signature by key 4, a signature by key 1
+    the witness contains a signature by key 1.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_5_without_4 is, as stated in the satisfaction analysis of the policy:
+    % spending path 5 without requirement 4 — the path needs: a lock time of at least 840000, a lock time of at least 1260000, a signature by key 4, a signature by key 1
+    the witness contains a signature by key 4.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_6 is, as stated in the satisfaction analysis of the policy:
+    % spending path 6 — the path needs: a lock time of at least 840000, a lock time of at least 1260000, a signature by key 3, a signature by key 2
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_6_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 6 without requirement 1 — the path needs: a lock time of at least 840000, a lock time of at least 1260000, a signature by key 3, a signature by key 2
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 850000.
+    the spending transaction has the lock time 839999.
+    spendable expects answers [].
+
+scenario path_6_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 6 without requirement 2 — the path needs: a lock time of at least 840000, a lock time of at least 1260000, a signature by key 3, a signature by key 2
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 1260000.
+    the spending transaction has the lock time 1259999.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_6_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path 6 without requirement 3 — the path needs: a lock time of at least 840000, a lock time of at least 1260000, a signature by key 3, a signature by key 2
+    the witness contains a signature by key 2.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_6_without_4 is, as stated in the satisfaction analysis of the policy:
+    % spending path 6 without requirement 4 — the path needs: a lock time of at least 840000, a lock time of at least 1260000, a signature by key 3, a signature by key 2
+    the witness contains a signature by key 3.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_7 is, as stated in the satisfaction analysis of the policy:
+    % spending path 7 — the path needs: a lock time of at least 840000, a signature by key 4, a signature by key 3, a signature by key 2
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 850000.
+    the spending transaction has the lock time 840000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_7_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 7 without requirement 1 — the path needs: a lock time of at least 840000, a signature by key 4, a signature by key 3, a signature by key 2
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 850000.
+    the spending transaction has the lock time 839999.
+    spendable expects answers [].
+
+scenario path_7_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 7 without requirement 2 — the path needs: a lock time of at least 840000, a signature by key 4, a signature by key 3, a signature by key 2
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 850000.
+    the spending transaction has the lock time 840000.
+    spendable expects answers [].
+
+scenario path_7_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path 7 without requirement 3 — the path needs: a lock time of at least 840000, a signature by key 4, a signature by key 3, a signature by key 2
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 850000.
+    the spending transaction has the lock time 840000.
+    spendable expects answers [].
+
+scenario path_7_without_4 is, as stated in the satisfaction analysis of the policy:
+    % spending path 7 without requirement 4 — the path needs: a lock time of at least 840000, a signature by key 4, a signature by key 3, a signature by key 2
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 3.
+    the spending transaction is in block 850000.
+    the spending transaction has the lock time 840000.
+    spendable expects answers [].
+
+scenario path_8 is, as stated in the satisfaction analysis of the policy:
+    % spending path 8 — the path needs: a lock time of at least 1050000, a lock time of at least 1260000, a signature by key 4, a signature by key 3
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 3.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_8_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 8 without requirement 1 — the path needs: a lock time of at least 1050000, a lock time of at least 1260000, a signature by key 4, a signature by key 3
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 3.
+    the spending transaction is in block 1050000.
+    the spending transaction has the lock time 1049999.
+    spendable expects answers [].
+
+scenario path_8_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 8 without requirement 2 — the path needs: a lock time of at least 1050000, a lock time of at least 1260000, a signature by key 4, a signature by key 3
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 3.
+    the spending transaction is in block 1260000.
+    the spending transaction has the lock time 1259999.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_8_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path 8 without requirement 3 — the path needs: a lock time of at least 1050000, a lock time of at least 1260000, a signature by key 4, a signature by key 3
+    the witness contains a signature by key 3.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_8_without_4 is, as stated in the satisfaction analysis of the policy:
+    % spending path 8 without requirement 4 — the path needs: a lock time of at least 1050000, a lock time of at least 1260000, a signature by key 4, a signature by key 3
+    the witness contains a signature by key 4.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_9 is, as stated in the satisfaction analysis of the policy:
+    % spending path 9 — the path needs: a lock time of at least 1050000, a lock time of at least 1260000, a signature by key 3, a signature by key 1
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_9_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 9 without requirement 1 — the path needs: a lock time of at least 1050000, a lock time of at least 1260000, a signature by key 3, a signature by key 1
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 1050000.
+    the spending transaction has the lock time 1049999.
+    spendable expects answers [].
+
+scenario path_9_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 9 without requirement 2 — the path needs: a lock time of at least 1050000, a lock time of at least 1260000, a signature by key 3, a signature by key 1
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 1260000.
+    the spending transaction has the lock time 1259999.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_9_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path 9 without requirement 3 — the path needs: a lock time of at least 1050000, a lock time of at least 1260000, a signature by key 3, a signature by key 1
+    the witness contains a signature by key 1.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_9_without_4 is, as stated in the satisfaction analysis of the policy:
+    % spending path 9 without requirement 4 — the path needs: a lock time of at least 1050000, a lock time of at least 1260000, a signature by key 3, a signature by key 1
+    the witness contains a signature by key 3.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_10 is, as stated in the satisfaction analysis of the policy:
+    % spending path 10 — the path needs: a lock time of at least 1050000, a signature by key 4, a signature by key 3, a signature by key 1
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 1050001.
+    the spending transaction has the lock time 1050000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_10_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 10 without requirement 1 — the path needs: a lock time of at least 1050000, a signature by key 4, a signature by key 3, a signature by key 1
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 1050000.
+    the spending transaction has the lock time 1049999.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_10_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 10 without requirement 2 — the path needs: a lock time of at least 1050000, a signature by key 4, a signature by key 3, a signature by key 1
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 1050001.
+    the spending transaction has the lock time 1050000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_10_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path 10 without requirement 3 — the path needs: a lock time of at least 1050000, a signature by key 4, a signature by key 3, a signature by key 1
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 1050001.
+    the spending transaction has the lock time 1050000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_10_without_4 is, as stated in the satisfaction analysis of the policy:
+    % spending path 10 without requirement 4 — the path needs: a lock time of at least 1050000, a signature by key 4, a signature by key 3, a signature by key 1
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 3.
+    the spending transaction is in block 1050001.
+    the spending transaction has the lock time 1050000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_11 is, as stated in the satisfaction analysis of the policy:
+    % spending path 11 — the path needs: a lock time of at least 1050000, a signature by key 3, a signature by key 1, a signature by key 2
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 1.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 1050001.
+    the spending transaction has the lock time 1050000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_11_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 11 without requirement 1 — the path needs: a lock time of at least 1050000, a signature by key 3, a signature by key 1, a signature by key 2
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 1.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 1050000.
+    the spending transaction has the lock time 1049999.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_11_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 11 without requirement 2 — the path needs: a lock time of at least 1050000, a signature by key 3, a signature by key 1, a signature by key 2
+    the witness contains a signature by key 1.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 1050001.
+    the spending transaction has the lock time 1050000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_11_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path 11 without requirement 3 — the path needs: a lock time of at least 1050000, a signature by key 3, a signature by key 1, a signature by key 2
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 1050001.
+    the spending transaction has the lock time 1050000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_11_without_4 is, as stated in the satisfaction analysis of the policy:
+    % spending path 11 without requirement 4 — the path needs: a lock time of at least 1050000, a signature by key 3, a signature by key 1, a signature by key 2
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 1050001.
+    the spending transaction has the lock time 1050000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_12 is, as stated in the satisfaction analysis of the policy:
+    % spending path 12 — the path needs: a lock time of at least 1260000, a signature by key 4, a signature by key 1, a signature by key 2
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 1.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_12_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 12 without requirement 1 — the path needs: a lock time of at least 1260000, a signature by key 4, a signature by key 1, a signature by key 2
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 1.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 1260000.
+    the spending transaction has the lock time 1259999.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_12_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 12 without requirement 2 — the path needs: a lock time of at least 1260000, a signature by key 4, a signature by key 1, a signature by key 2
+    the witness contains a signature by key 1.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_12_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path 12 without requirement 3 — the path needs: a lock time of at least 1260000, a signature by key 4, a signature by key 1, a signature by key 2
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_12_without_4 is, as stated in the satisfaction analysis of the policy:
+    % spending path 12 without requirement 4 — the path needs: a lock time of at least 1260000, a signature by key 4, a signature by key 1, a signature by key 2
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_13 is, as stated in the satisfaction analysis of the policy:
+    % spending path 13 — the path needs: a signature by key 4, a signature by key 3, a signature by key 1, a signature by key 2
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 1.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 850000.
+    the spending transaction has the lock time 0.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_13_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 13 without requirement 1 — the path needs: a signature by key 4, a signature by key 3, a signature by key 1, a signature by key 2
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 1.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 850000.
+    the spending transaction has the lock time 0.
+    spendable expects answers [].
+
+scenario path_13_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 13 without requirement 2 — the path needs: a signature by key 4, a signature by key 3, a signature by key 1, a signature by key 2
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 1.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 850000.
+    the spending transaction has the lock time 0.
+    spendable expects answers [].
+
+scenario path_13_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path 13 without requirement 3 — the path needs: a signature by key 4, a signature by key 3, a signature by key 1, a signature by key 2
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 850000.
+    the spending transaction has the lock time 0.
+    spendable expects answers [].
+
+scenario path_13_without_4 is, as stated in the satisfaction analysis of the policy:
+    % spending path 13 without requirement 4 — the path needs: a signature by key 4, a signature by key 3, a signature by key 1, a signature by key 2
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 850000.
+    the spending transaction has the lock time 0.
+    spendable expects answers [].
+
+scenario no_witness is, as stated in the satisfaction analysis of the policy:
+    % an empty witness
+    the spending transaction is in block 850000.
+    the spending transaction has the lock time 0.
+    spendable expects answers [].
+
+scenario flip_now is, as stated in the flip analysis of the policy:
+    % nothing signed, no delay passed
+    the spending transaction is in block 850000.
+    the spending transaction has the lock time 0.
+    flip_spend expects changes [].
+
+scenario flip_after_delays is, as stated in the flip analysis of the policy:
+    % nothing signed, every delay passed
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    flip_spend expects changes [["add: the witness contains a signature by key 4"], ["add: the witness contains a signature by key 3"], ["add: the witness contains a signature by key 1"], ["add: the witness contains a signature by key 2"]].
+
+scenario lost_key_1 is, as stated in the flip analysis of the policy:
+    % the key of key 1 lost, everything else given
+    the witness contains a signature by key 2.
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 4.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+    flip_block expects changes [["remove: the spending transaction has the lock time 1260000"], ["remove: the spending transaction is in block 1260001"]].
+
+scenario lost_key_2 is, as stated in the flip analysis of the policy:
+    % the key of key 2 lost, everything else given
+    the witness contains a signature by key 1.
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 4.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+    flip_block expects changes [["remove: the spending transaction has the lock time 1260000"], ["remove: the spending transaction is in block 1260001"]].
+
+scenario lost_key_3 is, as stated in the flip analysis of the policy:
+    % the key of key 3 lost, everything else given
+    the witness contains a signature by key 1.
+    the witness contains a signature by key 2.
+    the witness contains a signature by key 4.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+    flip_block expects changes [["remove: the spending transaction has the lock time 1260000"], ["remove: the spending transaction is in block 1260001"]].
+
+scenario lost_key_4 is, as stated in the flip analysis of the policy:
+    % the key of key 4 lost, everything else given
+    the witness contains a signature by key 1.
+    the witness contains a signature by key 2.
+    the witness contains a signature by key 3.
+    the spending transaction is in block 1260001.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers ["the coin can be spent"].
+    flip_block expects changes [["remove: the spending transaction has the lock time 1260000"], ["remove: the spending transaction is in block 1260001"]].
+
+scenario chain_path_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1:
+    % the chain refused the spend: non-final
+    the witness contains a signature by key 4.
+    the spending transaction is in block 122322.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers [].
+
+scenario chain_path_1_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_1:
+    % the chain refused the spend: non-final
+    the spending transaction is in block 122322.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers [].
+
+scenario chain_path_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2:
+    % the chain refused the spend: non-final
+    the witness contains a signature by key 1.
+    the spending transaction is in block 122322.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers [].
+
+scenario chain_path_3 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_3:
+    % the chain refused the spend: non-final
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 122322.
+    the spending transaction has the lock time 1050000.
+    spendable expects answers [].
+
+scenario chain_path_4 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_4:
+    % the chain refused the spend: non-final
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 122322.
+    the spending transaction has the lock time 1050000.
+    spendable expects answers [].
+
+scenario chain_path_4_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_4_without_1:
+    % the chain refused the spend: non-final
+    the witness contains a signature by key 2.
+    the spending transaction is in block 122322.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers [].
+
+scenario chain_path_4_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_4_without_2:
+    % the chain refused the spend: non-final
+    the witness contains a signature by key 3.
+    the spending transaction is in block 122322.
+    the spending transaction has the lock time 1260000.
+    spendable expects answers [].
+
+scenario chain_path_7 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_7:
+    % the chain refused the spend: non-final
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 122322.
+    the spending transaction has the lock time 840000.
+    spendable expects answers [].
+
+scenario chain_path_7_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_7_without_2:
+    % the chain refused the spend: non-final
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 2.
+    the spending transaction is in block 122322.
+    the spending transaction has the lock time 1050000.
+    spendable expects answers [].
+
+scenario chain_path_7_without_3 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_7_without_3:
+    % the chain refused the spend: non-final
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 3.
+    the spending transaction is in block 122322.
+    the spending transaction has the lock time 1050000.
+    spendable expects answers [].
+
+scenario chain_path_9 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_9:
+    % the chain refused the spend: non-final
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 122322.
+    the spending transaction has the lock time 1050000.
+    spendable expects answers [].
+
+scenario chain_path_10 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_10:
+    % the chain refused the spend: non-final
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 122322.
+    the spending transaction has the lock time 840000.
+    spendable expects answers [].
+
+scenario chain_path_11 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_11:
+    % the chain refused the spend: non-final
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 2.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 122322.
+    the spending transaction has the lock time 840000.
+    spendable expects answers [].
+
+scenario chain_path_11_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_11_without_1:
+    % the chain refused the spend: non-final
+    the witness contains a signature by key 2.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 122322.
+    the spending transaction has the lock time 1050000.
+    spendable expects answers [].
+
+scenario chain_path_12 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_12:
+    % the chain refused the spend: non-final
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 2.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 122322.
+    the spending transaction has the lock time 840000.
+    spendable expects answers [].
+
+scenario chain_path_13 is, as stated in the Tape run of 2026-09-14 at transaction 1d4fb6f1285584b283bf977cdd58454ec4c6c39b9d135314086f04b01992f0af:
+    % the chain accepted the spend: transaction 1d4fb6f1285584b283bf977cdd58454ec4c6c39b9d135314086f04b01992f0af
+    the witness contains a signature by key 4.
+    the witness contains a signature by key 3.
+    the witness contains a signature by key 2.
+    the witness contains a signature by key 1.
+    the spending transaction is in block 122322.
+    the spending transaction has the lock time 0.
+    spendable expects answers ["the coin can be spent"].
+
+query spendable is:
+    the coin can be spent.
+
+query flip_spend is:
+    which minimal change to the scenario makes it the case that
+        the coin can be spent.
+
+query flip_block is:
+    which minimal change to the scenario makes it the case that
+        it is not the case that the coin can be spent.
+
+query keys is:
+    the public key of which key is which text.
+
+the view custody explainer is:
+    the title is "Who can spend this coin: A 4-of-4 that decays to 3, 2 and 1 of 4 at each of the next halvings".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the witness" are
+        the witness contains a signature by a key.
+    the facts about "the timelocks" are
+        the spending transaction is in block a height,
+        the spending transaction has the lock time a number.
+    the result is whether the coin can be spent.
+    the result shows its reasons.
+    the result shows its citations.
+    the result can be flipped, as "What would let this coin be spent?".
+    the flip keeps the spending transaction is in block a height,
+        the spending transaction has the lock time a number.
+

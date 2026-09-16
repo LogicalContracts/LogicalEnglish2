@@ -1,0 +1,81 @@
+% The Logical English twin of an s(CASP) program, written by the s(CASP) translator
+% (InsurLE2/migration/scasp) from citizenshiptrust-scasp.pl (kept in sources/).
+% Every expected answer in the scenarios is s(CASP)'s own answer on the source.
+
+the target language is: prolog.
+
+the templates are:
+    *a person* acquires British citizenship on *a date*.
+    *a person* is a parent of *a second person*.
+    *a person* is citizen or settled *a date*.
+    *a person* is the father of *a person*.
+    *a person* is born in *a place* on *a date*.
+    *a date* isafter commencement.
+    *a person* is the mother of *a person*.
+    *a person* is a British citizen on *a date*.
+    *a person* is settled in the UK on *a date*.
+    *a person* says that *a sentence*.
+    *a person* is qualified to determine fatherhood.
+
+the knowledge base citizenshiptrust includes:
+
+the text of the source program is at "sources/citizenshiptrust-scasp.pl".
+
+a person acquires British citizenship on a date if
+    the person is born in the_UK on the date
+    and the date isafter commencement
+    and a second person is a parent of the person
+    and the second person is citizen or settled the date.
+
+a person is a parent of a second person if
+    the person is the mother of the second person.
+
+a person is a parent of a second person if
+    the person is the father of the second person.
+
+a person is citizen or settled a date if
+    the person is a British citizen on the date.
+
+a person is citizen or settled a date if
+    the person is settled in the UK on the date.
+
+a person is the father of a second person if
+    a third person says that the person is the father of the second person
+    and the third person is qualified to determine fatherhood.
+
+a person is the father of a second person if
+    the person says that the person is the father of the second person.
+
+scenario alice is, as stated in the source program at scenario alice:
+    John is born in the_UK on 2021-10-09.
+    2021-10-09 isafter commencement.
+    Alice is the mother of John.
+    Alice is a British citizen on 2021-10-09.
+    query_1 expects answers ["John acquires British citizenship on 2021-10-09"].
+
+scenario harry is, as stated in the source program at scenario harry:
+    John is born in the_UK on 2021-10-09.
+    2021-10-09 isafter commencement.
+    Harry is the father of John.
+    Harry is settled in the UK on 2021-10-09.
+    query_1 expects answers ["John acquires British citizenship on 2021-10-09"].
+
+scenario trust_harry is, as stated in the source program at scenario trust_harry:
+    John is born in the_UK on 2021-10-09.
+    2021-10-09 isafter commencement.
+    Harry says that Harry is the father of John.
+    Harry is settled in the UK on 2021-10-09.
+    query_1 expects answers ["John acquires British citizenship on 2021-10-09"].
+
+scenario alice_harry is, as stated in the source program at scenario alice_harry:
+    John is born in the_UK on 2021-10-09.
+    2021-10-09 isafter commencement.
+    Alice is the mother of John.
+    Alice says that Harry is the father of John.
+    Alice is qualified to determine fatherhood.
+    Harry is settled in the UK on 2021-10-09.
+    query_1 expects answers ["John acquires British citizenship on 2021-10-09"].
+
+query query_1 is:
+    which person acquires British citizenship on which date.
+

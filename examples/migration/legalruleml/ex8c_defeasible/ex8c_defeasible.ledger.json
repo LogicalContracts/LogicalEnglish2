@@ -1,0 +1,103 @@
+{
+  "counts": {"approximated":4,"encoded":6,"residue":0},
+  "entries": [
+    {
+      "element":"Rel rel1/1",
+      "in_program":"*a thing* is a rel1",
+      "kind":"relation",
+      "mapping":"Rel -> a template (a naive wording of its name, to be improved)",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Rel rel103/1",
+      "in_program":"*a thing* is a rel103",
+      "kind":"relation",
+      "mapping":"Rel -> a template (a naive wording of its name, to be improved)",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Rel rel2/1",
+      "in_program":"*a thing* is a rel2",
+      "kind":"relation",
+      "mapping":"Rel -> a template (a naive wording of its name, to be improved)",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Rel rel3/1",
+      "in_program":"*a thing* is a rel3",
+      "kind":"relation",
+      "mapping":"Rel -> a template (a naive wording of its name, to be improved)",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"constitutive statement cs1",
+      "in_program":"cs1",
+      "kind":"statement",
+      "mapping":"ConstitutiveStatement -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"prescriptive statement ps1",
+      "in_program":"ps1",
+      "kind":"statement",
+      "mapping":"PrescriptiveStatement -> rules concluding obligations, permissions or prohibitions (deontic.le)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"defeater cs2",
+      "in_program":"cs2",
+      "kind":"defeater",
+      "mapping":"a defeater -> an exception (it is not the case that ...) of the rules it attacks",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"defeater ps2",
+      "in_program":"ps2",
+      "kind":"defeater",
+      "mapping":"a defeater -> an exception (it is not the case that ...) of the rules it attacks",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Override cs2 over cs1",
+      "in_program":"cs1",
+      "kind":"override",
+      "mapping":"Override -> the under rule holds only when the over rule does not apply (E2)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Override ps2 over ps1",
+      "in_program":"ps1",
+      "kind":"override",
+      "mapping":"Override -> the under rule holds only when the over rule does not apply (E2)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":2,
+    "tests": [
+      {"detail":"","query":"not_rel3","result":"pass","scenario":"both_conditions"},
+      {"detail":"","query":"rel3","result":"pass","scenario":"both_conditions"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["ex8c-defeasible-normal.lrml" ],
+    "date":"2026-09-15",
+    "program":"ex8c_defeasible",
+    "source":"a LegalRuleML document (OASIS LegalRuleML Core 1.0)",
+    "translator":"InsurLE2/migration/legalruleml (lrml_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":1
+}

@@ -1,0 +1,87 @@
+% The Logical English twin of a LegalRuleML document, written by the LegalRuleML translator
+% (InsurLE2/migration/legalruleml) from ex9-alternatives-normal.lrml (kept in sources/).
+% Obligations, permissions and prohibitions are the deontic library's (deontic.le).
+% Every expected answer in the scenarios is SPINdle's (defeasible deontic logic) on the source.
+
+the target language is: prolog.
+
+the knowledge base ex9_alternatives includes these resources:
+    deontic.
+
+the templates are:
+    a holds.
+    b holds.
+    c holds.
+    d holds.
+    the interpretation adopted is *an interpretation*.
+
+the knowledge base ex9_alternatives includes:
+
+the text of the source document is at "sources/ex9-alternatives-normal.lrml".
+
+ref1 is published at "/akn/au/2012-05-30/C628-2012/eng@/!main#sec_2-2".
+
+ref2 is published at "ftp://ftp.cen.eu/CEN/Sectors/List/ICT/CWAs/CWA15710-2010-Metalex2.pdf".
+
+ref8 is published at "http://codes.lp.findlaw.com/uscode/18/I/3/47".
+
+ls3 is published at "ls3".
+
+% This example demonstrates the use of the Alternatives expression to indicate mutually incompatible formalizations. The compact serialization is used.
+rule ps1:
+everyone is obliged that b holds if
+    a holds
+    and the interpretation adopted is ps1.
+
+rule cs2:
+b holds if
+    a holds
+    and the interpretation adopted is cs2.
+
+rule cs_a_b_and_c_1:
+b holds if
+    a holds.
+
+rule cs_a_b_and_c_2:
+c holds if
+    a holds.
+
+rule cs_a_b:
+b holds if
+    a holds.
+
+rule cs_a_c:
+c holds if
+    a holds.
+
+rule cs_d_b_and_c_1:
+b holds if
+    d holds.
+
+rule cs_d_b_and_c_2:
+c holds if
+    d holds.
+
+rule cs_d_b:
+b holds if
+    d holds.
+
+rule cs_d_c:
+c holds if
+    a holds.
+
+query b is:
+    b holds.
+
+query c is:
+    c holds.
+
+query obligations is:
+    which party is obliged that which sentence.
+
+query violated_obligations is:
+    the obligation of which party that which sentence is violated.
+
+query breaches is:
+    which party is in breach.
+

@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-model href="../../relaxng/lrml-normal.rnc" type="application/relax-ng-normal-syntax"?>
+<lrml:LegalRuleML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://docs.oasis-open.org/legalruleml/examples/compactified/ex9-alternatives-compact#" xmlns:lrml="http://docs.oasis-open.org/legalruleml/ns/v1.0/" xmlns:ruleml="http://ruleml.org/spec" xmlns:rulemlmm="http://ruleml.org/1.0/metamodel#" xml:base="http://docs.oasis-open.org/legalruleml/examples/compactified/ex9-alternatives-compact" xsi:schemaLocation="http://docs.oasis-open.org/legalruleml/ns/v1.0/ ../../xsd-schema/normal/lrml-normal.xsd">
+  <lrml:hasComment>
+    <lrml:Comment> This example demonstrates the use of the Alternatives expression to indicate
+    mutually incompatible formalizations. The compact serialization is used. </lrml:Comment>
+  </lrml:hasComment>
+  <!-- IRIs for legal sources may be defined in a references block -->
+  <lrml:hasLegalReferences>
+    <lrml:LegalReferences refType="http://example.org/lrml#LegalSource">
+      <lrml:hasLegalReference>
+        <lrml:LegalReference refersTo="ref1" refID="/akn/au/2012-05-30/C628-2012/eng@/!main#sec_2-2" refIDSystemName="AkomaNtoso3.0-2016-10"/>
+      </lrml:hasLegalReference>
+    </lrml:LegalReferences>
+  </lrml:hasLegalReferences>
+  <!-- Some IRIs for legal sources are defined in legal sources blocks. -->
+  <lrml:hasLegalSources>
+    <lrml:LegalSources key="ls1">
+      <lrml:hasLegalSource>
+        <lrml:LegalSource key="ref2" sameAs="ftp://ftp.cen.eu/CEN/Sectors/List/ICT/CWAs/CWA15710-2010-Metalex2.pdf"/>
+      </lrml:hasLegalSource>
+    </lrml:LegalSources>
+  </lrml:hasLegalSources>
+  <!-- Legal source blocks can be nested. -->
+  <lrml:hasLegalSources>
+    <lrml:LegalSources key="ls2">
+      <lrml:hasLegalSource>
+        <lrml:LegalSource key="ref8" sameAs="http://codes.lp.findlaw.com/uscode/18/I/3/47"/>
+      </lrml:hasLegalSource>
+      <lrml:hasLegalSources>
+        <lrml:LegalSources key="ls3">
+          <!-- Legal source blocks can contain legal sources defined in a reference block. -->
+          <lrml:hasLegalSource>
+            <lrml:LegalSource keyref="#ref1"/>
+          </lrml:hasLegalSource>
+        </lrml:LegalSources>
+      </lrml:hasLegalSources>
+    </lrml:LegalSources>
+  </lrml:hasLegalSources>
+  <lrml:hasLegalSources>
+    <lrml:LegalSources key="ls4">
+      <lrml:hasLegalSource>
+        <lrml:LegalSource keyref="#ref1"/>
+      </lrml:hasLegalSource>
+      <lrml:hasLegalSources>
+        <lrml:LegalSources keyref="#ls1"/>
+      </lrml:hasLegalSources>
+      <lrml:hasLegalSource>
+        <lrml:LegalSource keyref="#ref8"/>
+      </lrml:hasLegalSource>
+    </lrml:LegalSources>
+  </lrml:hasLegalSources>
+  <lrml:hasLegalSources>
+    <lrml:LegalSources key="ls5">
+      <lrml:hasLegalSource>
+        <lrml:LegalSource keyref="#ref1"/>
+      </lrml:hasLegalSource>
+      <lrml:hasLegalSources>
+        <lrml:LegalSources keyref="#ls1"/>
+      </lrml:hasLegalSources>
+      <lrml:hasLegalSource>
+        <lrml:LegalSource keyref="#ref8"/>
+      </lrml:hasLegalSource>
+    </lrml:LegalSources>
+  </lrml:hasLegalSources>
+  <lrml:hasLegalSources>
+    <lrml:LegalSources key="ls6">
+      <lrml:hasLegalSource>
+        <lrml:LegalSource keyref="#ls1"/>
+      </lrml:hasLegalSource>
+      <lrml:hasLegalSource>
+        <lrml:LegalSource keyref="#ls2"/>
+      </lrml:hasLegalSource>
+    </lrml:LegalSources>
+  </lrml:hasLegalSources>
+  <lrml:hasAssociations>
+    <lrml:Associations>
+      <lrml:hasAssociation>
+        <lrml:Association key="assoc2">
+          <!-- The LegalSource ls1 is modelled (possiby in part) by each of the 
+             statements cs_a-b_and_c cs_a-b cs_a-c. -->
+          <lrml:appliesSource keyref="#ls1"/>
+          <lrml:toTarget keyref="#cs_a-b_and_c"/>
+          <lrml:toTarget keyref="#cs_a-b"/>
+          <lrml:toTarget keyref="#cs_a-c"/>
+        </lrml:Association>
+      </lrml:hasAssociation>
+      <lrml:hasAssociation>
+        <lrml:Association>
+          <!-- The LegalSource ls2 is modelled (possiby in part) by each of the 
+             statements cs_d-b_and_c cs_d-b cs_d-c. -->
+          <lrml:appliesSource keyref="#ls2"/>
+          <lrml:toTarget keyref="#cs_d-b_and_c"/>
+          <lrml:toTarget keyref="#cs_d-b"/>
+          <lrml:toTarget keyref="#cs_d-c"/>
+        </lrml:Association>
+      </lrml:hasAssociation>
+    </lrml:Associations>
+  </lrml:hasAssociations>
+  <!-- A block of alternatives can be defined independent of a context, but it is not
+          asserted until it is applied within some context. Usecase I. -->
+  <lrml:hasAlternatives>
+    <lrml:Alternatives key="alt1">
+      <lrml:fromLegalSources keyref="#ls5"/>
+      <lrml:hasAlternative keyref="#ps1"/>
+      <lrml:hasAlternative keyref="#cs2"/>
+    </lrml:Alternatives>
+  </lrml:hasAlternatives>
+  <lrml:hasAlternatives>
+    <lrml:Alternatives key="alt2">
+      <lrml:fromLegalSources keyref="#ls4"/>
+      <lrml:hasAlternative keyref="#ps1"/>
+      <lrml:hasAlternative keyref="#cs2"/>
+    </lrml:Alternatives>
+  </lrml:hasAlternatives>
+  <!-- Any alternative can be a collection of statmements. Usecase IIa.-->
+  <lrml:hasAlternatives>
+    <lrml:Alternatives key="alt3">
+      <lrml:fromLegalSources keyref="#ls1"/>
+      <lrml:hasAlternative keyref="#s_a-b_and_c"/>
+      <lrml:hasAlternative keyref="#s_a-b_and_a-c"/>
+    </lrml:Alternatives>
+  </lrml:hasAlternatives>
+  <lrml:hasAlternatives>
+    <lrml:Alternatives key="alt4">
+      <!-- The alternatives in this case each include multiple norms
+             from distinct sources. -->
+      <lrml:fromLegalSources keyref="#ls6"/>
+      <lrml:hasAlternative keyref="#ss1"/>
+      <lrml:hasAlternative keyref="#ss2"/>
+    </lrml:Alternatives>
+  </lrml:hasAlternatives>
+  <lrml:hasContext>
+    <lrml:Context key="ruleInfo1a">
+      <lrml:appliesAlternatives keyref="#alt2"/>
+      <!-- When an alternatives block is applied within a context, the "inScope" edge element is optional. 
+         Such a context does not generate a
+         ruleml:Rule, but establishes constraints for the rulebase as a whole (see next Context).-->
+    </lrml:Context>
+  </lrml:hasContext>
+  <lrml:hasContext>
+    <lrml:Context key="ruleInfo1b">
+      <!-- A context can select an alternative with the "inScope" edge. 
+         This context would be used together with ruleInfo1a, and 
+         cannot be used together with ruleInfo1c. Usecase I.-->
+      <lrml:inScope keyref="#ps1"/>
+    </lrml:Context>
+  </lrml:hasContext>
+  <lrml:hasContext>
+    <lrml:Context key="ruleInfo1c">
+      <!-- A different context can select a different alternative with the "inScope" edge.
+         This context would be used together with ruleInfo1a, and 
+         cannot be used together with ruleInfo1b. Usecase I.-->
+      <lrml:inScope keyref="#cs2"/>
+    </lrml:Context>
+  </lrml:hasContext>
+  <lrml:hasContext>
+    <lrml:Context key="ruleInfo2">
+      <!-- A context can apply alternatives blocks defined elsewhere. 
+         This context selects the alternative #cs2 and asserts a
+          constraint that no interpretation of #ps1 can appear in the same
+          rulebase as this interpretation of #cs2. Usecase I.-->
+      <lrml:appliesAlternatives keyref="#alt2"/>
+      <lrml:inScope keyref="#cs2"/>
+    </lrml:Context>
+  </lrml:hasContext>
+  <lrml:hasContext>
+    <lrml:Context key="ruleInfo3">
+      <!-- A context can apply associations and alternatives simultaneously.
+         The schema requires the Associations to be listed first. Usecase I.-->
+      <lrml:appliesAssociations keyref="#assoc1"/>
+      <lrml:appliesAlternatives keyref="#alt2"/>
+      <lrml:inScope keyref="#ps1"/>
+    </lrml:Context>
+  </lrml:hasContext>
+  <lrml:hasContext>
+    <lrml:Context key="ruleInfo4">
+      <!-- Any alternative can be a collection of statmements. Usecase IIa.-->
+      <lrml:appliesAlternatives keyref="#alt3"/>
+      <lrml:inScope keyref="#s_a-b_and_c"/>
+    </lrml:Context>
+  </lrml:hasContext>
+  <lrml:hasContext>
+    <lrml:Context key="ruleInfo5">
+      <!-- Alternatives can cover multiple norms. Usecase III.-->
+      <lrml:appliesAssociations keyref="#assoc2"/>
+      <lrml:appliesAlternatives keyref="#alt4"/>
+      <lrml:inScope keyref="#ss1"/>
+    </lrml:Context>
+  </lrml:hasContext>
+  <!-- Usecase I. Prescriptive and Constitutive alternatives of rule. -->
+  <lrml:hasStatements>
+    <lrml:Statements>
+      <lrml:hasStatement>
+        <lrml:PrescriptiveStatement key="ps1">
+          <lrml:hasTemplate>
+            <ruleml:Rule>
+              <ruleml:if>
+                <ruleml:Atom>
+                  <ruleml:op><ruleml:Rel>A</ruleml:Rel></ruleml:op>
+                </ruleml:Atom>
+              </ruleml:if>
+              <ruleml:then>
+                <lrml:Obligation>
+                  <ruleml:formula>
+                    <ruleml:Atom>
+                      <ruleml:op><ruleml:Rel>B</ruleml:Rel></ruleml:op>
+                    </ruleml:Atom>
+                  </ruleml:formula>
+                </lrml:Obligation>
+              </ruleml:then>
+            </ruleml:Rule>
+          </lrml:hasTemplate>
+        </lrml:PrescriptiveStatement>
+      </lrml:hasStatement>
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement key="cs2">
+          <lrml:hasTemplate>
+            <ruleml:Rule>
+              <ruleml:if>
+                <ruleml:Atom>
+                  <ruleml:op><ruleml:Rel>A</ruleml:Rel></ruleml:op>
+                </ruleml:Atom>
+              </ruleml:if>
+              <ruleml:then>
+                <ruleml:Atom>
+                  <ruleml:op><ruleml:Rel>B</ruleml:Rel></ruleml:op>
+                </ruleml:Atom>
+              </ruleml:then>
+            </ruleml:Rule>
+          </lrml:hasTemplate>
+        </lrml:ConstitutiveStatement>
+      </lrml:hasStatement>
+    </lrml:Statements>
+  </lrml:hasStatements>
+  <!-- Usecase IIa. Alternatives between a rule with a conjunctive head or two rules. -->
+  <lrml:hasStatements>
+    <lrml:Statements key="s_a-b_and_c">
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement key="cs_a-b_and_c">
+          <lrml:hasTemplate>
+            <ruleml:Rule>
+              <ruleml:if>
+                <ruleml:Atom>
+                  <ruleml:op><ruleml:Rel>A</ruleml:Rel></ruleml:op>
+                </ruleml:Atom>
+              </ruleml:if>
+              <ruleml:then>
+                <ruleml:And>
+                  <ruleml:formula index="1">
+                    <ruleml:Atom>
+                      <ruleml:op><ruleml:Rel>B</ruleml:Rel></ruleml:op>
+                    </ruleml:Atom>
+                  </ruleml:formula>
+                  <ruleml:formula index="2">
+                    <ruleml:Atom>
+                      <ruleml:op><ruleml:Rel>C</ruleml:Rel></ruleml:op>
+                    </ruleml:Atom>
+                  </ruleml:formula>
+                </ruleml:And>
+              </ruleml:then>
+            </ruleml:Rule>
+          </lrml:hasTemplate>
+        </lrml:ConstitutiveStatement>
+      </lrml:hasStatement>
+    </lrml:Statements>
+  </lrml:hasStatements>
+  <lrml:hasStatements>
+    <lrml:Statements key="s_a-b_and_a-c">
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement key="cs_a-b">
+          <lrml:hasTemplate>
+            <ruleml:Rule>
+              <ruleml:if>
+                <ruleml:Atom>
+                  <ruleml:op><ruleml:Rel>A</ruleml:Rel></ruleml:op>
+                </ruleml:Atom>
+              </ruleml:if>
+              <ruleml:then>
+                <ruleml:Atom>
+                  <ruleml:op><ruleml:Rel>B</ruleml:Rel></ruleml:op>
+                </ruleml:Atom>
+              </ruleml:then>
+            </ruleml:Rule>
+          </lrml:hasTemplate>
+        </lrml:ConstitutiveStatement>
+      </lrml:hasStatement>
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement key="cs_a-c">
+          <lrml:hasTemplate>
+            <ruleml:Rule>
+              <ruleml:if>
+                <ruleml:Atom>
+                  <ruleml:op><ruleml:Rel>A</ruleml:Rel></ruleml:op>
+                </ruleml:Atom>
+              </ruleml:if>
+              <ruleml:then>
+                <ruleml:Atom>
+                  <ruleml:op><ruleml:Rel>C</ruleml:Rel></ruleml:op>
+                </ruleml:Atom>
+              </ruleml:then>
+            </ruleml:Rule>
+          </lrml:hasTemplate>
+        </lrml:ConstitutiveStatement>
+      </lrml:hasStatement>
+    </lrml:Statements>
+  </lrml:hasStatements>
+  <!-- Usecase IIb. Another pair of alternatives between a rule with a conjunctive head or two rules. -->
+  <lrml:hasStatements>
+    <lrml:Statements key="s_d-b_and_c">
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement key="cs_d-b_and_c">
+          <lrml:hasTemplate>
+            <ruleml:Rule>
+              <ruleml:if>
+                <ruleml:Atom>
+                  <ruleml:op><ruleml:Rel>D</ruleml:Rel></ruleml:op>
+                </ruleml:Atom>
+              </ruleml:if>
+              <ruleml:then>
+                <ruleml:And>
+                  <ruleml:formula index="1">
+                    <ruleml:Atom>
+                      <ruleml:op><ruleml:Rel>B</ruleml:Rel></ruleml:op>
+                    </ruleml:Atom>
+                  </ruleml:formula>
+                  <ruleml:formula index="2">
+                    <ruleml:Atom>
+                      <ruleml:op><ruleml:Rel>C</ruleml:Rel></ruleml:op>
+                    </ruleml:Atom>
+                  </ruleml:formula>
+                </ruleml:And>
+              </ruleml:then>
+            </ruleml:Rule>
+          </lrml:hasTemplate>
+        </lrml:ConstitutiveStatement>
+      </lrml:hasStatement>
+    </lrml:Statements>
+  </lrml:hasStatements>
+  <lrml:hasStatements>
+    <lrml:Statements key="s_d-b_and_a-c">
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement key="cs_d-b">
+          <lrml:hasTemplate>
+            <ruleml:Rule>
+              <ruleml:if>
+                <ruleml:Atom>
+                  <ruleml:op><ruleml:Rel>D</ruleml:Rel></ruleml:op>
+                </ruleml:Atom>
+              </ruleml:if>
+              <ruleml:then>
+                <ruleml:Atom>
+                  <ruleml:op><ruleml:Rel>B</ruleml:Rel></ruleml:op>
+                </ruleml:Atom>
+              </ruleml:then>
+            </ruleml:Rule>
+          </lrml:hasTemplate>
+        </lrml:ConstitutiveStatement>
+      </lrml:hasStatement>
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement key="cs_d-c">
+          <lrml:hasTemplate>
+            <ruleml:Rule>
+              <ruleml:if>
+                <ruleml:Atom>
+                  <ruleml:op><ruleml:Rel>A</ruleml:Rel></ruleml:op>
+                </ruleml:Atom>
+              </ruleml:if>
+              <ruleml:then>
+                <ruleml:Atom>
+                  <ruleml:op><ruleml:Rel>C</ruleml:Rel></ruleml:op>
+                </ruleml:Atom>
+              </ruleml:then>
+            </ruleml:Rule>
+          </lrml:hasTemplate>
+        </lrml:ConstitutiveStatement>
+      </lrml:hasStatement>
+    </lrml:Statements>
+  </lrml:hasStatements>
+  <!-- Usecase III. Consistent selection of alternatives between rules with conjunctive heads or pairs of rules. -->
+  <lrml:hasStatements>
+    <lrml:Statements key="ss1">
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement keyref="#cs_a-b_and_c"/>
+      </lrml:hasStatement>
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement keyref="#cs_d-b_and_c"/>
+      </lrml:hasStatement>
+    </lrml:Statements>
+  </lrml:hasStatements>
+  <lrml:hasStatements>
+    <lrml:Statements key="ss2">
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement keyref="#cs_a-b"/>
+      </lrml:hasStatement>
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement keyref="#cs_a-c"/>
+      </lrml:hasStatement>
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement keyref="#cs_d-b"/>
+      </lrml:hasStatement>
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement keyref="#cs_d-c"/>
+      </lrml:hasStatement>
+    </lrml:Statements>
+  </lrml:hasStatements>
+</lrml:LegalRuleML>

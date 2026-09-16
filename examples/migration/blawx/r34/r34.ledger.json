@@ -1,0 +1,1514 @@
+{
+  "counts": {"approximated":1,"encoded":142,"residue":2},
+  "entries": [
+    {
+      "element":"legal_practitioner/1",
+      "in_program":"*a legal practitioner* is a legal practitioner",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"law_practice/1",
+      "in_program":"*a law practice* is a law practice",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"practice_jurisdiction/2",
+      "in_program":"*a law practice* is located in *a jurisdiction*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"practitioners/2",
+      "in_program":"*a legal practitioner* is a legal practitioner in *a law practice*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"corporation/1",
+      "in_program":"*a thing* is a corporation",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"position/1",
+      "in_program":"*a position* is a category name",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"entitles_holder_to_executive_authority/1",
+      "in_program":"*a position* entitles the holder to executive authority",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"in_a_business_entity/2",
+      "in_program":"*a position* is in *a business entity*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"business/1",
+      "in_program":"*a business* is a business",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"carries_on/2",
+      "in_program":"*an entity* carries on *a business*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"must_not_accept/2",
+      "in_program":"*a legal practitioner* must not accept the EA *an executive appointment*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"executive_appointment/1",
+      "in_program":"*an executive appointment* is an executive appointment",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"associated_with/2",
+      "in_program":"the EA *an executive appointment* is associated with *a business*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"described_in_s1/1",
+      "in_program":"*a business* is described in section 1",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"detracts/1",
+      "in_program":"*a business* detracts from the dignity of the legal profession",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"incompatible/1",
+      "in_program":"*a business* is incompatible with the dignity of the legal profession",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"derogates/1",
+      "in_program":"*a business* derogates from the dignity of the legal profession",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"occupation/1",
+      "in_program":"*an occupation* is an occupation",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"primary_occupation/2",
+      "in_program":"the primary occupation of *a legal practitioner* is *an occupation*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"materially_interferes_occupation_of/2",
+      "in_program":"*a business* materially interferes with the primary occupation of *a legal practitioner*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"materially_interferes_availability_of/2",
+      "in_program":"*a business* materially interferes with the availability to practice law of *a legal practitioner*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"first_schedule/1",
+      "in_program":"*a business* is described in the first schedule",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"prohibited/1",
+      "in_program":"*a business* is prohibited",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"unfair/1",
+      "in_program":"*a business* is likely to unfairly attract business",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"materially_interferes_representation_by/2",
+      "in_program":"*a business* materially interferes with the representation of their clients of *a legal practitioner*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"payment_type/1",
+      "in_program":"*a payment type* is a payment type",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"compensation_type/1",
+      "in_program":"*a compensation type* is a compensation type",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"person/1",
+      "in_program":"*a person* is a person",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"payment_reason/1",
+      "in_program":"*a payment reason* is a payment reason",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"legal_work/1",
+      "in_program":"*a legal work* is legal work",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"payment/1",
+      "in_program":"*a payment* is a payment",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"involves_payment/2",
+      "in_program":"*a business* involves *a payment*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"recipient/2",
+      "in_program":"*a person* is the recipient of *a payment*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"authorized/1",
+      "in_program":"*a person* is authorized to provide legal services",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"payment_reason/2",
+      "in_program":"*a payment* is for *a payment reason*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"performed_by/2",
+      "in_program":"*a legal work* was done by *a person*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"payment_type/2",
+      "in_program":"*a payment* is of payment type *a payment type*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"compensation_type/2",
+      "in_program":"*a payment* has *a compensation type*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"may_accept/2",
+      "in_program":"*a legal practitioner* may accept the EA *an executive appointment*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"business_entity/1",
+      "in_program":"*a business entity* is a business entity",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"service/1",
+      "in_program":"*a service* is a service",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"appointment_in/2",
+      "in_program":"*an executive appointment* is an executive appointment in *a business entity*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"provides/2",
+      "in_program":"*a business entity* provides *a service*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"law_related/1",
+      "in_program":"*a service* is a law related service",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"singapore_law_practice/1",
+      "in_program":"*a thing* is a singapore law practice",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"shares_owners/2",
+      "in_program":"every owner of *a law practice* is sole prop, partner, or director of *a second law practice*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"accepts_as_representative/2",
+      "in_program":"*a legal practitioner* accepts *an executive appointment* as a representative",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"prohibited_involvement/2",
+      "in_program":"it is prohibited for *a law practice* to be involved in *a second law practice*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"globe/1",
+      "in_program":"*a globe* is a globe",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"jurisdiction/1",
+      "in_program":"*a jurisdiction* is a jurisdiction",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"lp_executive_appointments/2",
+      "in_program":"*an executive appointment* is an executive appointment in law practice *a law practice*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_executive_directorship/1",
+      "in_program":"*a position* is an executive directorship",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_independent_directorship/1",
+      "in_program":"*a position* is an independent directorship",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"associated_with_a_business/2",
+      "in_program":"*a position* is associated with *a business*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"in_a_law_practice/2",
+      "in_program":"*a position* is in the law practice *a business entity*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"trade/1",
+      "in_program":"*a thing* is a trade",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"calling/1",
+      "in_program":"*a thing* is a calling",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"entity/1",
+      "in_program":"*an entity* is an entity",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"company/1",
+      "in_program":"*a thing* is a company",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"partnership/1",
+      "in_program":"*a thing* is a partnership",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"llp/1",
+      "in_program":"*a thing* is an llp",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"sole_proprietorship/1",
+      "in_program":"*a thing* is a sole proprietorship",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"business_trust/1",
+      "in_program":"*a thing* is a business trust",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"joint_law_venture/1",
+      "in_program":"*a thing* is a joint law venture",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"formal_law_alliance/1",
+      "in_program":"*a thing* formal law alliance",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_34__subsec_1__para_b__subpara_i_section, described_in_s1, ...)",
+      "in_program":"*a business* is described in section 1 under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_34__subsec_1__para_b__subpara_ii_section, described_in_s1, ...)",
+      "in_program":"*a business* is described in section 1 under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_34__subsec_1__para_b__subpara_iii_section, described_in_s1, ...)",
+      "in_program":"*a business* is described in section 1 under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_34__subsec_1_section, must_not_accept, ...)",
+      "in_program":"*a legal practitioner* must not accept the EA *an executive appointment* under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_34__subsec_5_section, may_accept, ...)",
+      "in_program":"*a legal practitioner* may accept the EA *an executive appointment* under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_34__subsec_1__para_a_section, must_not_accept, ...)",
+      "in_program":"*a legal practitioner* must not accept the EA *an executive appointment* under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_34__subsec_1__para_c_section, must_not_accept, ...)",
+      "in_program":"*a legal practitioner* must not accept the EA *an executive appointment* under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_34__subsec_1__para_d_section, must_not_accept, ...)",
+      "in_program":"*a legal practitioner* must not accept the EA *an executive appointment* under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_34__subsec_1__para_e_section, must_not_accept, ...)",
+      "in_program":"*a legal practitioner* must not accept the EA *an executive appointment* under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_34__subsec_1__para_f_section, must_not_accept, ...)",
+      "in_program":"*a legal practitioner* must not accept the EA *an executive appointment* under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_34__subsec_2_section, may_accept, ...)",
+      "in_program":"*a legal practitioner* may accept the EA *an executive appointment* under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_34__subsec_3_section, may_accept, ...)",
+      "in_program":"*a legal practitioner* may accept the EA *an executive appointment* under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_34__subsec_4_section, may_accept, ...)",
+      "in_program":"*a legal practitioner* may accept the EA *an executive appointment* under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"legal_practitioner(jason)",
+      "in_program":"legal_practitioner(jason)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"law_practice(abc_llp)",
+      "in_program":"law_practice(abc_llp)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"practice_jurisdiction(abc_llp,singapore)",
+      "in_program":"practice_jurisdiction(abc_llp,singapore)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"practitioners(abc_llp,jason)",
+      "in_program":"practitioners(abc_llp,jason)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"corporation(megaCorp)",
+      "in_program":"corporation(megaCorp)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"position(ceo_megaCorp)",
+      "in_program":"position(ceo_megaCorp)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"entitles_holder_to_executive_authority(ceo_megaCorp)",
+      "in_program":"entitles_holder_to_executive_authority(ceo_megaCorp)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"in_a_business_entity(ceo_megaCorp,megaCorp)",
+      "in_program":"in_a_business_entity(ceo_megaCorp,megaCorp)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"business(widget_sales)",
+      "in_program":"business(widget_sales)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"carries_on(megaCorp,widget_sales)",
+      "in_program":"carries_on(megaCorp,widget_sales)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_1_section, must_not_accept, ...) :- ...",
+      "in_program":"section_34_1",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_1__para_a_section, described_in_s1, ...) :- ...",
+      "in_program":"section_34_1_a",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_1__para_a_section, described_in_s1, ...) :- ...",
+      "in_program":"section_34_1_a_2",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_1__para_a_section, described_in_s1, ...) :- ...",
+      "in_program":"section_34_1_a_3",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_1__para_b_section, described_in_s1, ...) :- ...",
+      "in_program":"section_34_1_b",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_1__para_b_section, described_in_s1, ...) :- ...",
+      "in_program":"section_34_1_b_2",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_1__para_b_section, described_in_s1, ...) :- ...",
+      "in_program":"section_34_1_b_3",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"occupation(practicing_as_a_lawyer)",
+      "in_program":"occupation(practicing_as_a_lawyer)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_1__para_b__subpara_i_section, described_in_s1, ...) :- ...",
+      "in_program":"section_34_1_b_i",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_1__para_b__subpara_ii_section, described_in_s1, ...) :- ...",
+      "in_program":"section_34_1_b_ii",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_1__para_e_section, described_in_s1, ...) :- ...",
+      "in_program":"section_34_1_e",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_1__para_f_section, described_in_s1, ...) :- ...",
+      "in_program":"section_34_1_f",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_1__para_c_section, described_in_s1, ...) :- ...",
+      "in_program":"section_34_1_c",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_1__para_b__subpara_iii_section, described_in_s1, ...) :- ...",
+      "in_program":"section_34_1_b_iii",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"payment_type(sharing)",
+      "in_program":"payment_type(sharing)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"payment_type(paying)",
+      "in_program":"payment_type(paying)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"compensation_type(fees)",
+      "in_program":"compensation_type(fees)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"compensation_type(commission)",
+      "in_program":"compensation_type(commission)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"person(_172654) :- ...",
+      "in_program":"section_34_1_d",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"payment_reason(_172626) :- ...",
+      "in_program":"section_34_1_d_2",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_1__para_d_section, described_in_s1, ...) :- ...",
+      "in_program":"section_34_1_d_3",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_1__para_d_section, described_in_s1, ...) :- ...",
+      "in_program":"section_34_1_d_4",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_3_section, may_accept, ...) :- ...",
+      "in_program":"section_34_3",
+      "kind":"rule",
+      "mapping":"a defeasible rule: guarded by the failure of its defeaters under their sections",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"appointment_in(_171820,_171822) :- ...",
+      "in_program":"section_34_3_2",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_2_section, may_accept, ...) :- ...",
+      "in_program":"section_34_2",
+      "kind":"rule",
+      "mapping":"a defeasible rule: guarded by the failure of its defeaters under their sections",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_2_section, may_accept, ...) :- ...",
+      "in_program":"section_34_2_2",
+      "kind":"rule",
+      "mapping":"a defeasible rule: guarded by the failure of its defeaters under their sections",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"globe(global)",
+      "in_program":"globe(global)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"syntax_error(\"according_to(sec_34__subsec_4_section,may_accept,LP,EA) :- legal_practitioner(LP), executive_appointment(E...",
+      "in_program":"section_34_4_residue",
+      "kind":"rule",
+      "mapping":"not translated: kept verbatim as a residue block",
+      "note":"Blawx wrote this clause with a syntax error, so s(CASP) cannot load it and it never applies in Blawx: according_to(sec_34__subsec_4_section,may_accept,LP,EA) :- legal_practitioner(LP), executive_appointment(EA), business_entity(BE), appointment_in(BE,EA), not service(S)provides(BE,S)law_related(S), not service(S)provides(BE,S)law_related(S), not locum_solicitor(LP), second_schedule_satisfied(global). % BLAWX CHECK DUPLICATES holds(sec_34__subsec_4_section,may_accept,LP,EA) :- according_to(sec_34__subsec_4_section,may_accept,LP,EA), not blawx_defeated(sec_34__subsec_4_section,may_accept,LP,EA).",
+      "verdict":"residue"
+    },
+    {
+      "element":"syntax_error(\"according_to(sec_34__subsec_5_section,may_accept,LP,EA) :- legal_practitioner(LP), executive_appointment(E...",
+      "in_program":"section_34_5_residue",
+      "kind":"rule",
+      "mapping":"not translated: kept verbatim as a residue block",
+      "note":"Blawx wrote this clause with a syntax error, so s(CASP) cannot load it and it never applies in Blawx: according_to(sec_34__subsec_5_section,may_accept,LP,EA) :- legal_practitioner(LP), executive_appointment(EA), business_entity(BE), appointment_in(BE,EA), not service(S)provides(BE,S)law_related(S), not service(S)provides(BE,S)law_related(S), locum_solicitor(LP), second_schedule_satisfied(global). % BLAWX CHECK DUPLICATES holds(sec_34__subsec_5_section,may_accept,LP,EA) :- according_to(sec_34__subsec_5_section,may_accept,LP,EA), not blawx_defeated(sec_34__subsec_5_section,may_accept,LP,EA).",
+      "verdict":"residue"
+    },
+    {
+      "element":"jurisdiction(singapore)",
+      "in_program":"jurisdiction(singapore)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_6__para_a_section, must_not_accept, ...) :- ...",
+      "in_program":"section_34_6_a",
+      "kind":"rule",
+      "mapping":"a defeasible rule: guarded by the failure of its defeaters under their sections",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_6__para_b_section, must_not_accept, ...) :- ...",
+      "in_program":"section_34_6_b",
+      "kind":"rule",
+      "mapping":"a defeasible rule: guarded by the failure of its defeaters under their sections",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_9__para_c_section, executive_appointment, ...) :- ...",
+      "in_program":"section_34_9_c",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_9__para_c_section, executive_appointment, ...) :- ...",
+      "in_program":"section_34_9_c_2",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_9__para_c_section, executive_appointment, ...) :- ...",
+      "in_program":"section_34_9_c_3",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_9__para_a_section, business, ...) :- ...",
+      "in_program":"section_34_9_a",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_9__para_a_section, business, ...) :- ...",
+      "in_program":"section_34_9_a_2",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_9__para_a_section, business, ...) :- ... business ...",
+      "in_program":"nothing",
+      "kind":"rule",
+      "mapping":"a rule that needs its own conclusion: it adds nothing (least model, and stable models alike), so it is left out",
+      "note":"a Prolog reading of it would loop; s(CASP) finds no support for it",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_9__para_b_section, singapore_law_practice, ...) :- ...",
+      "in_program":"section_34_9_b",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_9__para_b_section, entity, ...) :- ...",
+      "in_program":"section_34_9_b_2",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_9__para_b_section, entity, ...) :- ...",
+      "in_program":"section_34_9_b_3",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_9__para_b_section, entity, ...) :- ...",
+      "in_program":"section_34_9_b_4",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_9__para_b_section, entity, ...) :- ...",
+      "in_program":"section_34_9_b_5",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_9__para_b_section, entity, ...) :- ...",
+      "in_program":"section_34_9_b_6",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_9__para_b_section, entity, ...) :- ...",
+      "in_program":"section_34_9_b_7",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_9__para_b_section, entity, ...) :- ...",
+      "in_program":"section_34_9_b_8",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_9__para_b_section, entity, ...) :- ...",
+      "in_program":"section_34_9_b_9",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_9__para_b_section, entity, ...) :- ...",
+      "in_program":"section_34_9_b_10",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_9__para_b_section, entity, ...) :- ...",
+      "in_program":"section_34_9_b_11",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_9__para_b_section, entity, ...) :- ...",
+      "in_program":"section_34_9_b_12",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_9__para_b_section, entity, ...) :- ...",
+      "in_program":"section_34_9_b_13",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_34__subsec_9__para_b_section, business_entity, ...) :- ...",
+      "in_program":"section_34_9_b_14",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"0 blawx_as_of / blawx_during clauses",
+      "in_program":"nothing",
+      "kind":"temporal boilerplate",
+      "mapping":"left out: nothing reads it",
+      "note":"Blawx writes these for every attribute and relationship; no rule or test of this project reads them2 (2 of them do not parse: typos of Blawx's generator)",
+      "verdict":"encoded"
+    },
+    {
+      "element":"621 #pred annotations",
+      "in_program":"the templates",
+      "kind":"natural language",
+      "mapping":"the wording of each template; the holds / according_to / defeated forms are the rules themselves",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest MaterialInterference",
+      "in_program":"materialinterference",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"Blawx proves `not <the query>`: the twin's query expects no answer",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the oracle for the cases",
+      "in_program":"the case_ scenarios",
+      "kind":"oracle",
+      "mapping":"Blawx's program without its rules that need their own conclusion",
+      "note":"s(CASP) 1.1.4 proves nothing at all of a predicate caught in such a rule (with it, nothing is a business in Rule 34, not even a business stated as a fact); without it, the stated ones. The rule adds nothing in the least model or the stable models, and the twin leaves it out too",
+      "verdict":"approximated"
+    },
+    {
+      "element":"90 cases generated from the rules",
+      "in_program":"the case_ scenarios",
+      "kind":"generated cases",
+      "mapping":"each rule met by facts, each near miss, each defeat: Blawx's answers as the expectations",
+      "note":"not Blawx's tests: written by blawx_cases.pl from the encoding; the answers are Blawx's own",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":64,
+    "tests": [
+      {
+	"detail":"",
+	"query":"materialinterference",
+	"result":"pass",
+	"scenario":"materialinterference"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_2"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_2_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_2_without_fact_2"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_3_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_4"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_4_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_5_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_5_without_fact_2"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_5_without_fact_3"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_6"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_6_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_6_without_fact_2"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_7"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_7_without_fact_2"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_7_without_fact_3"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_10_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_11"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_11_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_12_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_14"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_14_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_14_without_fact_3"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_14_without_fact_4"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_14_without_fact_5"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_14_without_fact_7"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_14_without_fact_8"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_14_without_fact_9"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_15_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_15_without_fact_2"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_15_without_fact_3"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_15_without_fact_5"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_15_without_fact_6"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_15_without_fact_8"
+      },
+      {
+	"detail":"",
+	"query":"which_is_described_in_section_1",
+	"result":"pass",
+	"scenario":"case_15_without_fact_9"
+      },
+      {
+	"detail":"",
+	"query":"which_may_accept_the_EA",
+	"result":"pass",
+	"scenario":"case_16_without_fact_2"
+      },
+      {
+	"detail":"",
+	"query":"which_may_accept_the_EA",
+	"result":"pass",
+	"scenario":"case_16_without_fact_3"
+      },
+      {
+	"detail":"",
+	"query":"which_may_accept_the_EA",
+	"result":"pass",
+	"scenario":"case_16_without_fact_4"
+      },
+      {
+	"detail":"",
+	"query":"which_may_accept_the_EA",
+	"result":"pass",
+	"scenario":"case_16_without_fact_6"
+      },
+      {
+	"detail":"",
+	"query":"which_may_accept_the_EA",
+	"result":"pass",
+	"scenario":"case_16_without_fact_7"
+      },
+      {
+	"detail":"",
+	"query":"which_may_accept_the_EA",
+	"result":"pass",
+	"scenario":"case_17_without_fact_2"
+      },
+      {
+	"detail":"",
+	"query":"which_may_accept_the_EA",
+	"result":"pass",
+	"scenario":"case_17_without_fact_3"
+      },
+      {
+	"detail":"",
+	"query":"which_may_accept_the_EA",
+	"result":"pass",
+	"scenario":"case_17_without_fact_4"
+      },
+      {
+	"detail":"",
+	"query":"which_may_accept_the_EA",
+	"result":"pass",
+	"scenario":"case_17_without_fact_6"
+      },
+      {
+	"detail":"",
+	"query":"which_may_accept_the_EA",
+	"result":"pass",
+	"scenario":"case_17_without_fact_7"
+      },
+      {"detail":"","query":"which_may_accept_the_EA","result":"pass","scenario":"case_18"},
+      {
+	"detail":"",
+	"query":"which_may_accept_the_EA",
+	"result":"pass",
+	"scenario":"case_18_without_fact_2"
+      },
+      {
+	"detail":"",
+	"query":"which_may_accept_the_EA",
+	"result":"pass",
+	"scenario":"case_18_without_fact_3"
+      },
+      {
+	"detail":"",
+	"query":"which_may_accept_the_EA",
+	"result":"pass",
+	"scenario":"case_18_without_fact_4"
+      },
+      {
+	"detail":"",
+	"query":"which_may_accept_the_EA",
+	"result":"pass",
+	"scenario":"case_18_without_fact_6"
+      },
+      {"detail":"","query":"which_is_a_business","result":"pass","scenario":"case_25"},
+      {
+	"detail":"",
+	"query":"which_is_a_singapore_law_practice",
+	"result":"pass",
+	"scenario":"case_26"
+      },
+      {
+	"detail":"",
+	"query":"which_is_a_singapore_law_practice",
+	"result":"pass",
+	"scenario":"case_26_without_fact_1"
+      },
+      {"detail":"","query":"which_is_an_entity","result":"pass","scenario":"case_27"},
+      {"detail":"","query":"which_is_an_entity","result":"pass","scenario":"case_28"},
+      {"detail":"","query":"which_is_an_entity","result":"pass","scenario":"case_29"},
+      {"detail":"","query":"which_is_an_entity","result":"pass","scenario":"case_31"},
+      {"detail":"","query":"which_is_an_entity","result":"pass","scenario":"case_32"},
+      {"detail":"","query":"which_is_an_entity","result":"pass","scenario":"case_33"},
+      {"detail":"","query":"which_is_an_entity","result":"pass","scenario":"case_35"},
+      {"detail":"","query":"which_is_an_entity","result":"pass","scenario":"case_37"},
+      {"detail":"","query":"which_is_an_entity","result":"pass","scenario":"case_38"},
+      {
+	"detail":"",
+	"query":"which_is_a_business_entity",
+	"result":"pass",
+	"scenario":"case_39_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_is_a_business_entity",
+	"result":"pass",
+	"scenario":"case_39_without_fact_2"
+      }
+    ]
+  },
+  "meta": {
+    "artifacts": [
+      "sources/r34.yaml",
+      "https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418"
+    ],
+    "date":"2026-09-15",
+    "licence":"Blawx: MIT",
+    "program":"r34",
+    "source":"Legal Profession Professional Conduct Rules",
+    "translator":"InsurLE2/migration/blawx (blawx_twin.pl)"
+  },
+  "pending_expectations":16,
+  "source_tests":91
+}

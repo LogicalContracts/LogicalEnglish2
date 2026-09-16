@@ -1,0 +1,43 @@
+% The Logical English twin of an s(CASP) program, written by the s(CASP) translator
+% (InsurLE2/migration/scasp) from itispermittedthat-scasp.pl (kept in sources/).
+% Every expected answer in the scenarios is s(CASP)'s own answer on the source.
+
+the target language is: prolog.
+
+the templates are:
+    It is permitted that *an eventuality*.
+    the Schedule specifies that *a specification*.
+    *an event* of Default occurs with respect to *a party* at *a time*.
+    *an event* is continuing at *a time*.
+    *a party* gives notice to *a party* at *a time* that *a message*.
+    *a date* isonorbefore *a date*.
+    *a date* and are at most days apart *a time* with *a thing*.
+    Automatic Early Termination applies to *a party* for *an event* of Default.
+    *a party* designates at *a time* that *an eventuality*.
+    *an event* occurs at *a time*.
+
+the knowledge base itispermittedthat includes:
+
+the text of the source program is at "sources/itispermittedthat-scasp.pl".
+
+It is permitted that a party designates at a time that Early_Termination_in_respect_of_all_outstanding_Transactions occurs at a second time if
+    an event of Default occurs with respect to a second party at a third time
+    and the event is continuing at the time
+    and the party gives notice to the second party at the time that the event occurs at the third time
+    and the time isonorbefore the second time
+    and the second time and are at most days apart the time with 20
+    and it is not the case that the Schedule specifies that Automatic Early Termination applies to the second party for the event of Default.
+
+the Schedule specifies that Automatic Early Termination applies to the_other_party for the_Event of Default.
+
+scenario one is, as stated in the source program at scenario one:
+    event001 of Default occurs with respect to Bob at Monday.
+    event001 is continuing at Tuesday.
+    Alice gives notice to Bob at Tuesday that event001 occurs at Monday.
+    Tuesday isonorbefore Friday.
+    Friday and are at most days apart Tuesday with 20.
+    query_1 expects answers ["It is permitted that Alice designates at Tuesday that Early_Termination_in_respect_of_all_outstanding_Transactions occurs at Friday"].
+
+query query_1 is:
+    It is permitted that which party designates at which time that which event occurs at which second time.
+

@@ -1,0 +1,188 @@
+% Two of a signature, a SHA-256 preimage and a HASH160 preimage
+%
+% The Logical English twin of a Bitcoin spending policy, written by the
+% Miniscript translator (InsurLE2/migration/miniscript). Who can spend the
+% coin, when, and why: each rule is one spending path of the policy.
+%
+% Source: the Bitcoin Core Miniscript tests
+%         https://github.com/bitcoin/bitcoin/blob/master/src/test/miniscript_tests.cpp
+%
+% The source, as written (cut into lines of 100 characters: join them for the text):
+%     thresh(2,c:pk_h(025cbdf0646e5db4eaa398f365f2ea7a0e3d419b7e0330e39ce92bddedcac4f9bc),s:sha256(e38990d
+%     0c7fc009880a9c07c23842e886c6bbdc964ce6bdd5817ad357335ee6f),a:hash160(dd69735817e0e3f6f826a9238dc2e29
+%     1184f0131))
+%
+% The source, laid out (keys and hashes by their role, <like this>):
+%     thresh(2,
+%       c:pk_h(<the key holder>),
+%       s:sha256(<the payment secret>),
+%       a:hash160(<the release secret>))
+%
+% The legend (role <- key or hash as written in the source):
+%     the key holder     <- 025cbdf0646e5db4eaa398f365f2ea7a0e3d419b7e0330e39ce92bddedcac4f9bc
+%     the payment secret <- e38990d0c7fc009880a9c07c23842e886c6bbdc964ce6bdd5817ad357335ee6f
+%     the release secret <- dd69735817e0e3f6f826a9238dc2e291184f0131
+%
+% What it says (the spending policy, by BIP 379's semantics):
+%     at least 2 of these 3:
+%       a signature by the key holder
+%       the preimage of the payment secret (sha256)
+%       the preimage of the release secret (hash160)
+%
+% Try it in Minsc (the policy compiled to Miniscript, Script and an address,
+% in the browser): the document "the policy in Minsc" below.
+
+the target language is: prolog.
+
+the knowledge base hash_threshold includes these resources:
+    temporal.
+
+the templates are:
+    the coin can be spent.
+    the witness reveals the preimage of *a hash*; scenario element.
+    the witness contains a signature by *a key*; scenario element.
+    the condition *a condition* is met.
+    the public key of *a key* is *a text*.
+    the hash function of *a hash* is *a function*.
+    the hash value of *a hash* is *a text*.
+
+the knowledge base hash_threshold includes:
+
+the Bitcoin Core Miniscript tests is published at "https://github.com/bitcoin/bitcoin/blob/master/src/test/miniscript_tests.cpp".
+the text of the Bitcoin Core Miniscript tests is at "sources/core_miniscript_tests.txt".
+
+the policy in Minsc is published at "https://min.sc/#c=//%20Two%20of%20a%20signature,%20a%20SHA-256%20preimage%20and%20a%20HASH160%20preimage%0A//%20The%20Logical%20English%20twin's%20policy%20(InsurLE2/migration/miniscript).%0A$key_holder%20=%20025cbdf0646e5db4eaa398f365f2ea7a0e3d419b7e0330e39ce92bddedcac4f9bc;%20%20%20//%20the%20key%20holder%20(as%20in%20the%20source)%0A$payment_secret%20=%20e38990d0c7fc009880a9c07c23842e886c6bbdc964ce6bdd5817ad357335ee6f;%20%20%20//%20the%20payment%20secret,%20sha256%20(as%20in%20the%20source)%0A$release_secret%20=%20dd69735817e0e3f6f826a9238dc2e291184f0131;%20%20%20//%20the%20release%20secret,%20hash160%20(as%20in%20the%20source)%0A%0Athresh(2,pk($key_holder),sha256($payment_secret),hash160($release_secret))%0A".
+
+% The keys and hashes of the policy, as the source writes them.
+the public key of the key holder is "025cbdf0646e5db4eaa398f365f2ea7a0e3d419b7e0330e39ce92bddedcac4f9bc".
+
+the hash function of the payment secret is sha256.
+
+the hash function of the release secret is hash160.
+
+the hash value of the payment secret is "e38990d0c7fc009880a9c07c23842e886c6bbdc964ce6bdd5817ad357335ee6f".
+
+the hash value of the release secret is "dd69735817e0e3f6f826a9238dc2e291184f0131".
+
+% The spending paths of the policy.
+rule two_of_three with provenance the Bitcoin Core Miniscript tests,
+        confer "thresh(2,c:pk_h(025cbdf0646e5db4eaa398f365f2ea7a0e3d419b7e0330e39ce92bddedcac4f9bc),s:sha256(e38990d0c7fc009880a9c07c23842e886c6bbdc964ce6bdd5817ad357335ee6f),a:hash160(dd69735817e0e3f6f826a9238dc2e291184f0131))":
+the coin can be spent if
+    a number N is the count of each C such that
+        a condition C is in [the signature of the key holder, the preimage of the payment secret, the preimage of the release secret]
+        and the condition C is met
+    and N >= 2.
+
+rule two_of_three_condition_1 with provenance the Bitcoin Core Miniscript tests,
+        confer "thresh(2,c:pk_h(025cbdf0646e5db4eaa398f365f2ea7a0e3d419b7e0330e39ce92bddedcac4f9bc),s:sha256(e38990d0c7fc009880a9c07c23842e886c6bbdc964ce6bdd5817ad357335ee6f),a:hash160(dd69735817e0e3f6f826a9238dc2e291184f0131))":
+the condition the signature of the key holder is met if
+    the witness contains a signature by the key holder.
+
+rule two_of_three_condition_2 with provenance the Bitcoin Core Miniscript tests,
+        confer "thresh(2,c:pk_h(025cbdf0646e5db4eaa398f365f2ea7a0e3d419b7e0330e39ce92bddedcac4f9bc),s:sha256(e38990d0c7fc009880a9c07c23842e886c6bbdc964ce6bdd5817ad357335ee6f),a:hash160(dd69735817e0e3f6f826a9238dc2e291184f0131))":
+the condition the preimage of the payment secret is met if
+    the witness reveals the preimage of the payment secret.
+
+rule two_of_three_condition_3 with provenance the Bitcoin Core Miniscript tests,
+        confer "thresh(2,c:pk_h(025cbdf0646e5db4eaa398f365f2ea7a0e3d419b7e0330e39ce92bddedcac4f9bc),s:sha256(e38990d0c7fc009880a9c07c23842e886c6bbdc964ce6bdd5817ad357335ee6f),a:hash160(dd69735817e0e3f6f826a9238dc2e291184f0131))":
+the condition the preimage of the release secret is met if
+    the witness reveals the preimage of the release secret.
+
+scenario path_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 1 — the path needs: the preimage of the release secret, the preimage of the payment secret
+    the witness reveals the preimage of the release secret.
+    the witness reveals the preimage of the payment secret.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_1_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 1 without requirement 1 — the path needs: the preimage of the release secret, the preimage of the payment secret
+    the witness reveals the preimage of the payment secret.
+    spendable expects answers [].
+
+scenario path_1_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 1 without requirement 2 — the path needs: the preimage of the release secret, the preimage of the payment secret
+    the witness reveals the preimage of the release secret.
+    spendable expects answers [].
+
+scenario path_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 2 — the path needs: the preimage of the release secret, a signature by the key holder
+    the witness contains a signature by the key holder.
+    the witness reveals the preimage of the release secret.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_2_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 2 without requirement 1 — the path needs: the preimage of the release secret, a signature by the key holder
+    the witness contains a signature by the key holder.
+    spendable expects answers [].
+
+scenario path_2_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 2 without requirement 2 — the path needs: the preimage of the release secret, a signature by the key holder
+    the witness reveals the preimage of the release secret.
+    spendable expects answers [].
+
+scenario path_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path 3 — the path needs: the preimage of the payment secret, a signature by the key holder
+    the witness contains a signature by the key holder.
+    the witness reveals the preimage of the payment secret.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_3_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 3 without requirement 1 — the path needs: the preimage of the payment secret, a signature by the key holder
+    the witness contains a signature by the key holder.
+    spendable expects answers [].
+
+scenario path_3_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 3 without requirement 2 — the path needs: the preimage of the payment secret, a signature by the key holder
+    the witness reveals the preimage of the payment secret.
+    spendable expects answers [].
+
+scenario no_witness is, as stated in the satisfaction analysis of the policy:
+    % an empty witness
+    spendable expects answers [].
+
+scenario flip_now is, as stated in the flip analysis of the policy:
+    % nothing signed, no delay passed
+    flip_spend expects changes [["add: the witness reveals the preimage of the payment secret", "add: the witness reveals the preimage of the release secret"], ["add: the witness contains a signature by the key holder", "add: the witness reveals the preimage of the release secret"], ["add: the witness contains a signature by the key holder", "add: the witness reveals the preimage of the payment secret"]].
+
+scenario flip_after_delays is, as stated in the flip analysis of the policy:
+    % nothing signed, every delay passed
+    flip_spend expects changes [["add: the witness reveals the preimage of the payment secret", "add: the witness reveals the preimage of the release secret"], ["add: the witness contains a signature by the key holder", "add: the witness reveals the preimage of the release secret"], ["add: the witness contains a signature by the key holder", "add: the witness reveals the preimage of the payment secret"]].
+
+scenario lost_the_key_holder is, as stated in the flip analysis of the policy:
+    % the key of the key holder lost, everything else given
+    the witness reveals the preimage of the payment secret.
+    the witness reveals the preimage of the release secret.
+    spendable expects answers ["the coin can be spent"].
+    flip_block expects changes [["remove: the witness reveals the preimage of the payment secret"], ["remove: the witness reveals the preimage of the release secret"]].
+
+query spendable is:
+    the coin can be spent.
+
+query flip_spend is:
+    which minimal change to the scenario makes it the case that
+        the coin can be spent.
+
+query flip_block is:
+    which minimal change to the scenario makes it the case that
+        it is not the case that the coin can be spent.
+
+query keys is:
+    the public key of which key is which text.
+
+query hash_functions is:
+    the hash function of which hash is which function.
+
+query hashes is:
+    the hash value of which hash is which text.
+
+the view custody explainer is:
+    the title is "Who can spend this coin: Two of a signature, a SHA-256 preimage and a HASH160 preimage".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the witness" are
+        the witness reveals the preimage of a hash,
+        the witness contains a signature by a key.
+    the result is whether the coin can be spent.
+    the result shows its reasons.
+    the result shows its citations.
+    the result can be flipped, as "What would let this coin be spent?".
+

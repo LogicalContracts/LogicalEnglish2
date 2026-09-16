@@ -1,0 +1,100 @@
+% Covid Test Rule
+%
+% The Logical English twin of a Blawx encoding, written by the Blawx translator
+% (InsurLE2/migration/blawx). Each rule is a rule of the Act as Blawx encodes it,
+% in the words of Blawx's own sentence forms, citing its section; the project's
+% tests are the scenarios, with Blawx's own answers as the expectations.
+%
+% Source: the Blawx project "Covid Test" (covid_test.yaml, 2 sections), an example of
+%         Blawx v1.6.22-alpha (Lexpedite, MIT licence), commit 3de892f67854292b304c9a55c5e2cd2058d3d418.
+
+the target language is: prolog.
+
+the templates are:
+    *a test result* is a test result.
+    *a person* is permitted to board *a flight*.
+    *a person* is a person; scenario element.
+    *a flight* is a flight; scenario element.
+    *a test* is a test; scenario element.
+    *a person* has a ticket for *a flight*; scenario element.
+    *a person* took a covid test *a test*; scenario element.
+    *a flight* is scheduled to depart at *a time*; scenario element.
+    the result of *a test* was *a test result*; scenario element.
+    *a test* was administered at *a time*; scenario element.
+
+the knowledge base covid_test includes:
+
+the text of the Covid Test Rule is at "sources/covid_test.md".
+
+the text of the Blawx project is at "sources/covid_test.yaml".
+
+% The Act, section by section.
+positive is a test result, as stated in the Covid Test Rule at section 1.
+
+negative is a test result, as stated in the Covid Test Rule at section 1.
+
+rule section_1 with provenance the Covid Test Rule at section 1:
+a person is permitted to board a flight if
+    the person is a person
+    and the flight is a flight
+    and a test is a test
+    and the person has a ticket for the flight
+    and the person took a covid test the test
+    and the flight is scheduled to depart at a time T
+    and the result of the test was negative
+    and the test was administered at a time N
+    and a number M = T - N
+    and M <= 259200.
+
+scenario can_fly is, as stated in the Blawx project at test can_fly:
+    % This test is for use in the scenario editor.
+    can_fly expects answers [].
+
+scenario good_test is, as stated in the Blawx project at test good_test:
+    bob is a person.
+    flight_to_hawaii is a flight.
+    bobs_test is a test.
+    bob has a ticket for flight_to_hawaii.
+    bob took a covid test bobs_test.
+    the result of bobs_test was negative.
+    bobs_test was administered at 946710000.
+    flight_to_hawaii is scheduled to depart at 946796400.
+    good_test expects answers ["bob is permitted to board flight_to_hawaii"].
+
+scenario old_test is, as stated in the Blawx project at test old_test:
+    bob is a person.
+    flight_to_hawaii is a flight.
+    bobs_test is a test.
+    bob has a ticket for flight_to_hawaii.
+    bob took a covid test bobs_test.
+    the result of bobs_test was negative.
+    flight_to_hawaii is scheduled to depart at "datetime(2000,1,5,0,0,0)".
+    bobs_test was administered at "datetime(2000,1,1,0,0,0)".
+    old_test expects answers [].
+
+query can_fly is:
+    which person is permitted to board which flight.
+
+query good_test is:
+    bob is permitted to board flight_to_hawaii.
+
+query old_test is:
+    bob is permitted to board flight_to_hawaii.
+
+the view the act is:
+    the title is "Covid Test Rule, as Blawx encodes it".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the case" are
+        a person is a person,
+        a flight is a flight,
+        a test is a test,
+        a person has a ticket for a flight,
+        a person took a covid test a test,
+        a flight is scheduled to depart at a time,
+        the result of a test was a test result,
+        a test was administered at a time.
+    the result is the answer to query can_fly.
+    the result shows its reasons.
+    the result shows its citations.
+    the result can be flipped.
+

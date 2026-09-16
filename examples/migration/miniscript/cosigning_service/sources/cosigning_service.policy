@@ -1,0 +1,17 @@
+# The spending policy of the Logical English twin cosigning_service.
+#
+# source: the Miniscript page
+#         https://bitcoin.sipa.be/miniscript/
+#
+# sipa's compiler (P2WSH) makes it the Miniscript:
+#     and_v(v:pk(key_user),or_d(pk(key_service),older(12960)))
+# try it in Minsc (policy -> Miniscript -> Script -> address, in the browser):
+#     https://min.sc/#c=//%20A%20user%20and%20a%20co-signing%20service,%20the%20user%20alone%20after%2090%20days%0A//%20The%20Logical%20English%20twin's%20policy%20(InsurLE2/migration/miniscript).%0A$user%20=%20034717e21c064758996df901f1d7a39c9e348a42972c9fc948fc84403d7710d1cb;%20%20%20//%20the%20user%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$cosigning_service%20=%20020191eb77be97634004cb0fa44285d455ae325456cbe3288406b2576c316e5f53;%20%20%20//%20the%20cosigning%20service%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A%0Aand(pk($user),or(pk($cosigning_service),older(12960)))%0A
+#
+# File > Open in the Logical English editor translates this file into the twin.
+
+key_user = the user
+key_service = the cosigning service
+
+# A user and a co-signing service, the user alone after 90 days
+and(pk(key_user),or(99@pk(key_service),older(12960)))

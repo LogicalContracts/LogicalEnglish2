@@ -1,0 +1,39 @@
+% The Logical English twin of an s(CASP) program, written by the s(CASP) translator
+% (InsurLE2/migration/scasp) from minicontract-scasp.pl (kept in sources/).
+% Every expected answer in the scenarios is s(CASP)'s own answer on the source.
+
+the target language is: prolog.
+
+the templates are:
+    *a contract* is a valid contract.
+    The terms of the contract are met.
+    the service is delivered before *a date*.
+    the service recipient maintains all communication within the confines of *a domain*.
+    the service recipient delivers requested information before *a date*.
+    *a contract* is signed by the service provider.
+    *a contract* is also signed by the service recipient.
+
+the knowledge base minicontract includes:
+
+the text of the source program is at "sources/minicontract-scasp.pl".
+
+a contract is a valid contract if
+    the contract is signed by the service provider
+    and the contract is also signed by the service recipient.
+
+The terms of the contract are met if
+    the service is delivered before 2022-06-05
+    and the service recipient maintains all communication within the confines of domain
+    and the service recipient delivers requested information before 2022-06-01.
+
+scenario one is, as stated in the source program at scenario one:
+    the service is delivered before 2022-06-05.
+    the service recipient maintains all communication within the confines of domain.
+    the service recipient delivers requested information before 2022-06-01.
+    the_contract is signed by the service provider.
+    the_contract is also signed by the service recipient.
+    query_1 expects answers ["the_contract is a valid contract"].
+
+query query_1 is:
+    which contract is a valid contract.
+

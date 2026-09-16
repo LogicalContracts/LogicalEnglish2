@@ -1,0 +1,61 @@
+% The Logical English twin of an s(CASP) program, written by the s(CASP) translator
+% (InsurLE2/migration/scasp) from loanwithcure-scasp.pl (kept in sources/).
+% Every expected answer in the scenarios is s(CASP)'s own answer on the source.
+
+the target language is: prolog.
+
+the templates are:
+    *a date* is on or before *a second date*.
+    *a person* has *an obligation*.
+    *an obligation* is that *a description*.
+    *a borrower* defaults on *a date*.
+    *a borrower* cures the failure of *an obligation* onorbefore *a date*.
+    *a borrower* fails on *a date* to fulfil *an obligation*.
+    *a lender* notifies *a borrower* on *a date* that *a message*.
+    *a borrower* pays *an amount* to *a lender* on *a date*.
+    the loan is accelerated on *a date*.
+
+the knowledge base loanwithcure includes:
+
+the text of the source program is at "sources/loanwithcure-scasp.pl".
+
+a date is on or before a second date if
+    the second date is a number N days after the date
+    and N >= 0.
+
+the_borrower has obligation1.
+
+obligation1 is that the_borrower pays 550 to the_lender on 2015-06-01.
+
+the_borrower has obligation2.
+
+obligation2 is that the_borrower pays 525 to the_lender on 2016-06-01.
+
+the_borrower defaults on a date if
+    the_borrower has an obligation
+    and the_borrower fails on a second date to fulfil the obligation
+    and the_lender notifies the_borrower on a third date that the_borrower fails on the second date to fulfil the obligation
+    and the date is 2 days after the third date
+    and it is not the case that the_borrower cures the failure of the obligation onorbefore the date.
+
+the_borrower cures the failure of an obligation onorbefore a date if
+    the obligation is that the_borrower pays an amount to the_lender on a second date
+    and the_borrower pays the amount to the_lender on a third date
+    and the_borrower notifies the_lender on a fourth date that the_borrower pays the amount to the_lender on the third date
+    and the third date is on or before the date
+    and the fourth date is on or before the date.
+
+the_borrower fails on a date to fulfil an obligation if
+    the obligation is that the_borrower pays an amount to the_lender on the date
+    and it is not the case that the_borrower pays the amount to the_lender on the date.
+
+scenario payment is, as stated in the source program at scenario payment:
+    the_lender notifies the_borrower on 2016-06-04 that the_borrower fails on 2016-06-01 to fulfil obligation2.
+    the_borrower pays 525 to the_lender on 2016-06-05.
+    the_borrower notifies the_lender on 2016-06-06 that the_borrower pays 525 to the_lender on 2016-06-05.
+    % pending — adjudicated: s(CASP) (sCASP pack, scasp_forall prev or not) answers that the borrower defaults on 2016-06-06, yet cures_the_failure_of_on_or_before(the_borrower, obligation2, 2016-06-06) succeeds on its own (payment on 2016-06-05, notice on 2016-06-06), so by the program's rules the default's not-cured condition fails: constructive negation over the anonymous variable in is_that/2. The twin follows the rules (no default):
+    % query_1 expects answers ["the_borrower defaults on 2016-06-06"].
+
+query query_1 is:
+    which borrower defaults on which date.
+

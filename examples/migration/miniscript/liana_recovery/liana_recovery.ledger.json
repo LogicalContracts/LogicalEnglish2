@@ -1,0 +1,124 @@
+{
+  "counts": {"approximated":1,"encoded":10,"residue":0},
+  "entries": [
+    {
+      "element":"pk([a5c6b76e/48'/1'/0'/2']tpubDF5861hj6vR3iJr3aPjGJz4rNbqDCRujQ21mczzKT5SiedaQqNVgHC8HT9ceyxvMFRoPMx4P6HAcL3NZrUPhRUbwCyj3TKSa64bAfnE3sLh/<0;1>/*)",
+      "in_program":"the primary key",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pk([c477fd13/48'/1'/0'/2']tpubDFn7iPbFqGrTQ2aRACNsUK1MXQR4Z6dYfU2nD1WA9ifSaia642j3Wah4n5pBUEpERNWGJsyv3Dv5qwBabC9TLQrwSboKzukw9wmurGu7XVH/<0;1>/*)",
+      "in_program":"the recovery key",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pk([a5c6b76e/48'/1'/0'/2']tpubDF5861hj6vR3iJr3aPjGJz4rNbqDCRujQ21mczzKT5SiedaQqNVgHC8HT9ceyxvMFRoPMx4P6HAcL3NZrUPhRUbwCyj3TKSa64bAfnE3sLh/<0;1>/*)",
+      "in_program":"primary",
+      "kind":"spending path",
+      "mapping":"a branch of the top-level or -> a rule concluding the coin can be spent",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"and(pk([c477fd13/48'/1'/0'/2']tpubDFn7iPbFqGrTQ2aRACNsUK1MXQR4Z6dYfU2nD1WA9ifSaia642j3Wah4n5pBUEpERNWGJsyv3Dv5qwBabC9TLQrwSboKzukw9wmurGu7XVH/<0;1>/*),older(3))",
+      "in_program":"recovery",
+      "kind":"spending path",
+      "mapping":"a branch of the top-level or -> a rule concluding the coin can be spent",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"older(3)",
+      "in_program":"the delay of 3 blocks",
+      "kind":"timelock",
+      "mapping":"older(n) -> the coin has been confirmed for N blocks and N >= n (N from the blocks of the coin and of the spending transaction)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"and_v",
+      "in_program":"the rules",
+      "kind":"fragment",
+      "mapping":"X and Y (BIP 379) -> and",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"or_d",
+      "in_program":"the rules",
+      "kind":"fragment",
+      "mapping":"X or Z (BIP 379) -> or",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pkh",
+      "in_program":"the rules",
+      "kind":"fragment",
+      "mapping":"a key check -> a signature",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"v:",
+      "in_program":"the rules",
+      "kind":"fragment",
+      "mapping":"a wrapper: no effect on the policy (BIP 379)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"wsh",
+      "in_program":"the rules",
+      "kind":"fragment",
+      "mapping":"the P2WSH wrapper: no effect on the policy",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the Script encoding",
+      "in_program":"the whole program",
+      "kind":"script",
+      "mapping":"the twin is the spending policy (BIP 379, the semantics column), not the Script",
+      "note":"witness sizes, fees, malleability and the choice of fragments (or_d / or_i, wrappers) do not change who can spend, and are not in the twin",
+      "verdict":"approximated"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":15,
+    "tests": [
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_2_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"no_witness"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"lost_the_primary_key"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"lost_the_recovery_key"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_2"},
+      {"detail":"","query":"flip_spend","result":"pass","scenario":"flip_now"},
+      {"detail":"","query":"flip_spend","result":"pass","scenario":"flip_after_delays"},
+      {"detail":"","query":"flip_block","result":"pass","scenario":"lost_the_primary_key"},
+      {"detail":"","query":"flip_block","result":"pass","scenario":"lost_the_recovery_key"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["https://github.com/wizardsardine/liana/blob/master/doc/RECOVER.md" ],
+    "date":"2026-09-15",
+    "program":"liana_recovery",
+    "source":"A Liana wallet: a primary key, or a recovery key after a delay",
+    "translator":"InsurLE2/migration/miniscript (ms_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":13
+}

@@ -1,0 +1,151 @@
+{
+  "counts": {"approximated":4,"encoded":12,"residue":1},
+  "entries": [
+    {
+      "element":"Rel P/0",
+      "in_program":"p holds",
+      "kind":"relation",
+      "mapping":"Rel -> a template (a naive wording of its name, to be improved)",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Rel Q/0",
+      "in_program":"q holds",
+      "kind":"relation",
+      "mapping":"Rel -> a template (a naive wording of its name, to be improved)",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"constitutive statement statement_5",
+      "in_program":"statement_5",
+      "kind":"statement",
+      "mapping":"ConstitutiveStatement -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ref1",
+      "in_program":"ref1",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ref6",
+      "in_program":"ref6",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ref2",
+      "in_program":"ref2",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ref3",
+      "in_program":"ref3",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ref4",
+      "in_program":"ref4",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ref5",
+      "in_program":"ref5",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ref7",
+      "in_program":"ref7",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ref8",
+      "in_program":"ref8",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ref9",
+      "in_program":"ref9",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ex-rule_1b",
+      "in_program":"ex-rule_1b",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source oasis-rule_1b",
+      "in_program":"oasis-rule_1b",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"association_2 -> ex-rule_1b",
+      "in_program":"ex-rule_1b",
+      "kind":"context",
+      "mapping":"an Association or Context of an element inside a rule (an atom, a deontic formula): LE cites sources per rule, so it is not carried",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"association_4 -> oasis-rule_1b",
+      "in_program":"oasis-rule_1b",
+      "kind":"context",
+      "mapping":"an Association or Context of an element inside a rule (an atom, a deontic formula): LE cites sources per rule, so it is not carried",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"ruleInfo2 -> stmt_1a",
+      "in_program":"stmt_1a",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    }
+  ],
+  "fidelity":null,
+  "meta": {
+    "artifacts": ["ex2-references-normal.lrml" ],
+    "date":"2026-09-15",
+    "program":"ex2_references",
+    "source":"a LegalRuleML document (OASIS LegalRuleML Core 1.0)",
+    "translator":"InsurLE2/migration/legalruleml (lrml_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":0
+}

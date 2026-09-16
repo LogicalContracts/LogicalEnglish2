@@ -1,0 +1,218 @@
+{
+  "counts": {"approximated":1,"encoded":20,"residue":0},
+  "entries": [
+    {
+      "element":"pk(tpubD6NzVbkrYhZ4YPAbyf6urxqqnmJF79PzQtyERAmvkSVS9fweCTjxjDh22Z5St9fGb1a5DUCv8G27nYupKP1Ctr1pkamJossoetzws1moNRn/*)",
+      "in_program":"manager 1",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pk(tpubD6NzVbkrYhZ4YMQC15JS7QcrsAyfGrGiykweqMmPxTkEVScu7vCZLNpPXW1XphHwzsgmqdHWDQAfucbM72EEB1ZEyfgZxYvkZjYVXx1xS9p/*)",
+      "in_program":"manager 2",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pk(02aebf2d10b040eb936a6f02f44ee82f8b34f5c1ccb20ff3949c2b28206b7c1068)",
+      "in_program":"cosigning server 1",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pk(030f64b922aee2fd597f104bc6cb3b670f1ca2c6c49b1071a1a6c010575d94fe5a)",
+      "in_program":"cosigning server 2",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pk(02abe475b199ec3d62fa576faee16a334fdb86ffb26dce75becebaaedf328ac3fe)",
+      "in_program":"cosigning server 3",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pk(0314f3dc33595b0d016bb522f6fe3a67680723d842c1b9b8ae6b59fdd8ab5cccb4)",
+      "in_program":"cosigning server 4",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pk(tpubD6NzVbkrYhZ4YU9vM1s53UhD75UyJatx8EMzMZ3VUjR2FciNfLLkAw6a4pWACChzobTseNqdWk4G7ZdBqRDLtLSACKykTScmqibb1ZrCvJu/*)",
+      "in_program":"stakeholder 1",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pk(tpubD6NzVbkrYhZ4XRMcMFMMFvzVt6jaDAtjZhD7JLwdPdMm9xa76DnxYYP7w9TZGJDVFkek3ArwVsuacheqqPog8TH5iBCX1wuig8PLXim4n9a/*)",
+      "in_program":"stakeholder 2",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pk(tpubD6NzVbkrYhZ4WsqRzDmkL82SWcu42JzUvKWzrJHQ8EC2vEHRHkXj1De93sD3biLrKd8XGnamXURGjMbYavbszVDXpjXV2cGUERucLJkE6cy/*)",
+      "in_program":"stakeholder 3",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pk(tpubDEFLeBkKTm8aiYkySz8hXAXPVnPSfxMi7Fxhg9sejUrkwJuRWvPdLEiXjTDbhGbjLKCZUDUUibLxTnK5UP1q7qYrSnPqnNe7M8mvAW1STcc/*)",
+      "in_program":"stakeholder 4",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"and(and(pk(tpubD6NzVbkrYhZ4YPAbyf6urxqqnmJF79PzQtyERAmvkSVS9fweCTjxjDh22Z5St9fGb1a5DUCv8G27nYupKP1Ctr1pkamJossoetzws1moNRn/*),pk(tpubD6NzVbkrYhZ4YMQC15JS7QcrsAyfGrGiykweqMmPxTkEVScu7vCZLNpPXW1XphHwzsgmqdHWDQAfucbM72EEB1ZEyfgZxYvkZjYVXx1xS9p/*)),and(and(and(and(pk(02aebf2d10b040eb936a6f02f44ee82f8b34f5c1ccb20ff3949c2b28206b7c1068),pk(030f64b922aee2fd597f104bc6cb3b670f1ca2c6c49b1071a1a6c010575d94fe5a)),pk(02abe475b199ec3d62fa576faee16a334fdb86ffb26dce75becebaaedf328ac3fe)),pk(0314f3dc33595b0d016bb522f6fe3a67680723d842c1b9b8ae6b59fdd8ab5cccb4)),after(424242)))",
+      "in_program":"managers",
+      "kind":"spending path",
+      "mapping":"a branch of the top-level or -> a rule concluding the coin can be spent",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"and(and(and(pk(tpubD6NzVbkrYhZ4YU9vM1s53UhD75UyJatx8EMzMZ3VUjR2FciNfLLkAw6a4pWACChzobTseNqdWk4G7ZdBqRDLtLSACKykTScmqibb1ZrCvJu/*),pk(tpubD6NzVbkrYhZ4XRMcMFMMFvzVt6jaDAtjZhD7JLwdPdMm9xa76DnxYYP7w9TZGJDVFkek3ArwVsuacheqqPog8TH5iBCX1wuig8PLXim4n9a/*)),pk(tpubD6NzVbkrYhZ4WsqRzDmkL82SWcu42JzUvKWzrJHQ8EC2vEHRHkXj1De93sD3biLrKd8XGnamXURGjMbYavbszVDXpjXV2cGUERucLJkE6cy/*)),pk(tpubDEFLeBkKTm8aiYkySz8hXAXPVnPSfxMi7Fxhg9sejUrkwJuRWvPdLEiXjTDbhGbjLKCZUDUUibLxTnK5UP1q7qYrSnPqnNe7M8mvAW1STcc/*))",
+      "in_program":"stakeholders",
+      "kind":"spending path",
+      "mapping":"a branch of the top-level or -> a rule concluding the coin can be spent",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"after(424242)",
+      "in_program":"the lock time 424242",
+      "kind":"timelock",
+      "mapping":"after(t) -> the lock time L is a block height and L >= t (lib/temporal)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a:",
+      "in_program":"the rules",
+      "kind":"fragment",
+      "mapping":"a wrapper: no effect on the policy (BIP 379)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"and_v",
+      "in_program":"the rules",
+      "kind":"fragment",
+      "mapping":"X and Y (BIP 379) -> and",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"andor",
+      "in_program":"the rules",
+      "kind":"fragment",
+      "mapping":"andor(X,Y,Z) = (X and Y) or Z -> or of two branches",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"multi",
+      "in_program":"the rules",
+      "kind":"fragment",
+      "mapping":"multi(k, keys) -> thresh(k) of the keys' signatures",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pkh",
+      "in_program":"the rules",
+      "kind":"fragment",
+      "mapping":"a key check -> a signature",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"v:",
+      "in_program":"the rules",
+      "kind":"fragment",
+      "mapping":"a wrapper: no effect on the policy (BIP 379)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"wsh",
+      "in_program":"the rules",
+      "kind":"fragment",
+      "mapping":"the P2WSH wrapper: no effect on the policy",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the Script encoding",
+      "in_program":"the whole program",
+      "kind":"script",
+      "mapping":"the twin is the spending policy (BIP 379, the semantics column), not the Script",
+      "note":"witness sizes, fees, malleability and the choice of fragments (or_d / or_i, wrappers) do not change who can spend, and are not in the twin",
+      "verdict":"approximated"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":29,
+    "tests": [
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_3"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_4"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_5"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_6"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_7"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_2_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_2_without_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_2_without_3"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_2_without_4"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"no_witness"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1_without_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1_without_3"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1_without_4"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1_without_5"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1_without_6"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_2_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_2_without_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_2_without_3"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_2_without_4"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_no_witness"},
+      {"detail":"","query":"flip_spend","result":"pass","scenario":"flip_now"},
+      {"detail":"","query":"flip_spend","result":"pass","scenario":"flip_after_delays"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["https://github.com/bitcoin/bitcoin/blob/master/test/functional/wallet_miniscript.py" ],
+    "date":"2026-09-15",
+    "program":"revault_unvault",
+    "source":"A Revault unvault output: the managers with the cosigning servers after a lock time, or all four stakeholders",
+    "translator":"InsurLE2/migration/miniscript (ms_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":29
+}

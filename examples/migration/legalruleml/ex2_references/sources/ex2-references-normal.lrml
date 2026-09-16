@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-model href="../../relaxng/lrml-normal.rnc" type="application/relax-ng-normal-syntax"?>
+<lrml:LegalRuleML xmlns="http://docs.oasis-open.org/legalruleml/examples/compactified/ex2-references-compact#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:lrml="http://docs.oasis-open.org/legalruleml/ns/v1.0/" xmlns:ruleml="http://ruleml.org/spec" key="doc" xml:base="http://docs.oasis-open.org/legalruleml/examples/compactified/ex2-references-compact" xsi:schemaLocation="http://docs.oasis-open.org/legalruleml/ns/v1.0/ ../../xsd-schema/normal/lrml-normal.xsd">
+  <lrml:hasComment>
+    <lrml:Comment> This example demonstrates the specification of Reference(s) and LegalSource(s)
+    without the use of CURIEs to abbreviate IRIs. The compact serialization is used. </lrml:Comment>
+  </lrml:hasComment>
+  <lrml:hasLegalReferences>
+    <lrml:LegalReferences xmlns:appex="http://docs.oasis-open.org/legalruleml/examples/compactified/" refType="http://example.org/lrml#LegalSource">
+      <lrml:hasLegalReference>
+        <lrml:LegalReference refersTo="ref1" refID="/akn/au/2012-05-30/C628-2012/eng@/!main#sec_2-2" refIDSystemName="AkomaNtoso3.0-2016-04"/>
+      </lrml:hasLegalReference>
+      <lrml:hasLegalReference>
+        <lrml:LegalReference refersTo="ref6" refID="ECLI:EU:C:2015:650" refIDSystemName="European Case Law Identifier" refIDSystemSource="OJ:C:2011:127:0001:0007:EN:PDF"/>
+      </lrml:hasLegalReference>
+    </lrml:LegalReferences>
+  </lrml:hasLegalReferences>
+  <lrml:hasLegalSources>
+    <lrml:LegalSources memberType="TBD">
+      <lrml:hasLegalSource>
+        <lrml:LegalSource key="ref2" sameAs="http://www.legislation.gov.uk/ukpga/1998/42/contents"/>
+      </lrml:hasLegalSource>
+      <lrml:hasLegalSource>
+        <lrml:LegalSource key="ref3" sameAs="http://www.senato.it/uri-res/N2Ls?urn:nir:senato.repubblica:disegno.legge:15.legislatura;1014"/>
+      </lrml:hasLegalSource>
+      <lrml:hasLegalSource>
+        <lrml:LegalSource key="ref4" sameAs="http://www.lexml.gov.br/urn/urn:lex:br:federal:constituicao:1988-10-05;1988"/>
+      </lrml:hasLegalSource>
+      <lrml:hasLegalSource>
+        <lrml:LegalSource key="ref5" sameAs="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:C:2011:127:0001:0007:IT:PDF"/>
+      </lrml:hasLegalSource>
+      <lrml:hasLegalSource>
+        <lrml:LegalSource key="ref7" sameAs="https://www.gpo.gov/fdsys/pkg/PLAW-112publ61/html/PLAW-112publ61.htm"/>
+      </lrml:hasLegalSource>
+      <lrml:hasLegalSource>
+        <lrml:LegalSource key="ref8" sameAs="http://codes.lp.findlaw.com/uscode/18/I/3/47">
+          <lrml:hasType iri="abc"/>
+        </lrml:LegalSource>
+      </lrml:hasLegalSource>
+      <lrml:hasLegalSource>
+        <lrml:LegalSource key="ref9" sameAs="http://www.law.cornell.edu/uscode/text/17/504#psection-1"/>
+      </lrml:hasLegalSource>
+    </lrml:LegalSources>
+  </lrml:hasLegalSources>
+  <lrml:hasSources>
+    <lrml:Sources>
+      <lrml:hasSource>
+        <lrml:Source key="ex-rule_1b" sameAs="http://example.org/ex2.1.1-references-b#rule_1b"/>
+      </lrml:hasSource>
+      <lrml:hasSource>
+        <lrml:Source key="oasis-rule_1b" sameAs="http://docs.oasis-open.org/legalruleml/examples/approved/ex2-references-b#rule_1b"/>
+      </lrml:hasSource>
+    </lrml:Sources>
+  </lrml:hasSources>
+  <lrml:hasAssociations>
+    <lrml:Associations key="sourceBlock1">
+      <lrml:hasAssociation>
+        <lrml:Association>
+          <lrml:appliesSource keyref="#ref1"/>
+          <lrml:toTarget keyref="#rule_1a"/>
+        </lrml:Association>
+      </lrml:hasAssociation>
+      <lrml:hasAssociation>
+        <lrml:Association>
+          <lrml:appliesSource keyref="#ref2"/>
+          <lrml:toTarget keyref="#ex-rule_1b"/>
+        </lrml:Association>
+      </lrml:hasAssociation>
+    </lrml:Associations>
+  </lrml:hasAssociations>
+  <lrml:hasAssociations>
+    <lrml:Associations key="sourceBlock2">
+      <lrml:hasAssociation>
+        <lrml:Association>
+          <lrml:appliesSource keyref="#ref2"/>
+          <lrml:toTarget keyref="#rule_1a"/>
+        </lrml:Association>
+      </lrml:hasAssociation>
+      <lrml:hasAssociation>
+        <lrml:Association>
+          <lrml:appliesSource keyref="#ref2"/>
+          <lrml:toTarget keyref="#oasis-rule_1b"/>
+        </lrml:Association>
+      </lrml:hasAssociation>
+    </lrml:Associations>
+  </lrml:hasAssociations>
+  <lrml:hasContext>
+    <lrml:Context key="ruleInfo1">
+      <lrml:appliesAssociations keyref="#sourceBlock1"/>
+      <lrml:inScope keyref="#stmts_1a"/>
+    </lrml:Context>
+  </lrml:hasContext>
+  <lrml:hasContext>
+    <lrml:Context key="ruleInfo2">
+      <lrml:appliesAssociations keyref="#sourceBlock2"/>
+      <lrml:inScope keyref="#stmt_1a"/>
+    </lrml:Context>
+  </lrml:hasContext>
+  <lrml:hasStatements>
+    <lrml:Statements key="stmts_1a">
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement>
+          <lrml:hasTemplate>
+            <ruleml:Rule key=":rule_1a">
+              <ruleml:if>
+                <ruleml:Atom>
+                  <ruleml:op><ruleml:Rel>P</ruleml:Rel></ruleml:op>
+                </ruleml:Atom>
+              </ruleml:if>
+              <ruleml:then>
+                <ruleml:Atom>
+                  <ruleml:op><ruleml:Rel>Q</ruleml:Rel></ruleml:op>
+                </ruleml:Atom>
+              </ruleml:then>
+            </ruleml:Rule>
+          </lrml:hasTemplate>
+        </lrml:ConstitutiveStatement>
+      </lrml:hasStatement>
+    </lrml:Statements>
+  </lrml:hasStatements>
+</lrml:LegalRuleML>

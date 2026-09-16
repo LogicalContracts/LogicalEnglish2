@@ -1,0 +1,131 @@
+% Sucker Act
+%
+% The Logical English twin of a Blawx encoding, written by the Blawx translator
+% (InsurLE2/migration/blawx). Each rule is a rule of the Act as Blawx encodes it,
+% in the words of Blawx's own sentence forms, citing its section; the project's
+% tests are the scenarios, with Blawx's own answers as the expectations.
+%
+% Source: the Blawx project "Numerical Constraints" (numerical_constraints.yaml, 4 sections), an example of
+%         Blawx v1.6.22-alpha (Lexpedite, MIT licence), commit 3de892f67854292b304c9a55c5e2cd2058d3d418.
+
+the target language is: prolog.
+
+the templates are:
+    *a person* may vote at *a number* years of age.
+    *a person* is a person; scenario element.
+    *a person* is *a number* years of age; scenario element.
+    *a person* must pay taxes at *a number* years of age.
+    *a person* is a sucker.
+
+the knowledge base numerical_constraints includes:
+
+the text of the Sucker Act is at "sources/numerical_constraints.md".
+
+the text of the Blawx project is at "sources/numerical_constraints.yaml".
+
+% The Act, section by section.
+rule section_1 with provenance the Sucker Act at section 1:
+a person may vote at a number N years of age if
+    the person is a person
+    and the person is N years of age
+    and N >= 18.
+
+rule section_2 with provenance the Sucker Act at section 2:
+a person must pay taxes at a number N years of age if
+    the person is a person
+    and the person is N years of age
+    and N >= 16.
+
+rule section_3 with provenance the Sucker Act at section 3:
+a person is a sucker if
+    the person is a person
+    and the person must pay taxes at a number years of age
+    and it is not the case that the person may vote at the number years of age.
+
+scenario sucker is, as stated in the Blawx project at test sucker:
+    % pending — abductive: the test lets s(CASP) assume person/1, age/2 (#abducible); Blawx's answers are hypotheses, which an LE scenario states as facts or not at all:
+    % sucker expects answers ["a person is a sucker"].
+
+scenario case_1 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    person_a is 18 years of age.
+    which_may_vote_at_years_of_age expects answers ["person_a may vote at 18 years of age"].
+
+scenario case_1_without_fact_1 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_a is 18 years of age.
+    which_may_vote_at_years_of_age expects answers [].
+
+scenario case_1_without_fact_2 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    which_may_vote_at_years_of_age expects answers [].
+
+scenario case_1_missing_comparison_1 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    person_a is 17 years of age.
+    which_may_vote_at_years_of_age expects answers [].
+
+scenario case_2 is, as stated in the case analysis of the encoding at section 2:
+    % a case of the rule of section 2 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    person_a is 16 years of age.
+    which_must_pay_taxes_at_years_of_age expects answers ["person_a must pay taxes at 16 years of age"].
+
+scenario case_2_without_fact_1 is, as stated in the case analysis of the encoding at section 2:
+    % a case of the rule of section 2 (blawx_cases.pl), answered by Blawx
+    person_a is 16 years of age.
+    which_must_pay_taxes_at_years_of_age expects answers [].
+
+scenario case_2_without_fact_2 is, as stated in the case analysis of the encoding at section 2:
+    % a case of the rule of section 2 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    which_must_pay_taxes_at_years_of_age expects answers [].
+
+scenario case_2_missing_comparison_1 is, as stated in the case analysis of the encoding at section 2:
+    % a case of the rule of section 2 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    person_a is 15 years of age.
+    which_must_pay_taxes_at_years_of_age expects answers [].
+
+scenario case_3 is, as stated in the case analysis of the encoding at section 3:
+    % a case of the rule of section 3 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    person_a must pay taxes at 1000 years of age.
+    which_is_a_sucker expects answers ["person_a is a sucker"].
+
+scenario case_3_without_fact_1 is, as stated in the case analysis of the encoding at section 3:
+    % a case of the rule of section 3 (blawx_cases.pl), answered by Blawx
+    person_a must pay taxes at 1000 years of age.
+    which_is_a_sucker expects answers [].
+
+scenario case_3_without_fact_2 is, as stated in the case analysis of the encoding at section 3:
+    % a case of the rule of section 3 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    which_is_a_sucker expects answers [].
+
+query sucker is:
+    which person is a sucker.
+
+query which_may_vote_at_years_of_age is:
+    which person may vote at which number years of age.
+
+query which_must_pay_taxes_at_years_of_age is:
+    which person must pay taxes at which number years of age.
+
+query which_is_a_sucker is:
+    which person is a sucker.
+
+the view the act is:
+    the title is "Sucker Act, as Blawx encodes it".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the case" are
+        a person is a person,
+        a person is a number years of age.
+    the result is the answer to query which_must_pay_taxes_at_years_of_age.
+    the result shows its reasons.
+    the result shows its citations.
+    the result can be flipped.
+

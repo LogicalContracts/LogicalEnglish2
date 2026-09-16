@@ -1,0 +1,461 @@
+% Old Age Security Act
+%
+% The Logical English twin of a Blawx encoding, written by the Blawx translator
+% (InsurLE2/migration/blawx). Each rule is a rule of the Act as Blawx encodes it,
+% in the words of Blawx's own sentence forms, citing its section; the project's
+% tests are the scenarios, with Blawx's own answers as the expectations.
+%
+% Source: the Blawx project "Old Age Security Act" (oasa.yaml, 17 sections), an example of
+%         Blawx v1.6.22-alpha (Lexpedite, MIT licence), commit 3de892f67854292b304c9a55c5e2cd2058d3d418.
+
+the target language is: prolog.
+
+the templates are:
+    *a person* qualifies under s3_1_a.
+    *a person* is a person; scenario element.
+    *a person* was a pensioner on July 1 1977; scenario element.
+    *a person* meets the residence requirements of section 3_1_b_i.
+    *a person* was born on *a time*; scenario element.
+    as of July 1977 *a person* resided in Canada; scenario element.
+    as of July 1977 *a person* possessed a valid immigration visa; scenario element.
+    as of July 1977 *a person* had resided in Canada after 18 years of age; scenario element.
+    *a person* meets the age requirement of section 3_1_b_ii.
+    the date today is *a time*.
+    *a person* qualifies under s3_1_b.
+    *a person* meets the residence duration requirement of section 3_1_b_iii.
+    *a person* qualifies under s3_1_c.
+    *a person* satisfies the non pensioner requirement of s3_1_c_i.
+    *a person* satisfies the age requirement of s3_1_c_ii.
+    *a person* satisfies the residency requirement of s3_1_c_iii.
+    a full monthly pension may be paid to *a person*; opposite: a full monthly pension may not be paid to *a person*.
+    *a person* resided in canada for 10 years prior to approval; scenario element.
+    *a person* was in Canada more than away between 18 and 10 years prior to approval; scenario element.
+    *a person* resided in Canada for the year prior to approval; scenario element.
+    *a person* resided in Canada at least 40 years since the age of 18; scenario element.
+    *a person* satisfies section 4_1_a.
+    *a person* satisfies section 4_1_b.
+    *a person* was a citizen or legal resident the day before approval; scenario element.
+    *a person* meets the residence requirements of section 3_1_b_i under *a provision*.
+    *a person* meets the age requirement of section 3_1_b_ii under *a provision*.
+    *a person* meets the residence duration requirement of section 3_1_b_iii under *a provision*.
+    *a person* satisfies the non pensioner requirement of s3_1_c_i under *a provision*.
+    *a person* satisfies the age requirement of s3_1_c_ii under *a provision*.
+    *a person* satisfies the residency requirement of s3_1_c_iii under *a provision*.
+    *a person* qualifies under s3_1_a under *a provision*.
+    *a person* qualifies under s3_1_b under *a provision*.
+    *a person* qualifies under s3_1_c under *a provision*.
+    a full monthly pension may not be paid to *a person* under *a provision*.
+    *a person* satisfies section 4_1_a under *a provision*.
+    *a person* satisfies section 4_1_b under *a provision*.
+
+the knowledge base oasa includes:
+
+the text of the Old Age Security Act is at "sources/oasa.md".
+
+the text of the Blawx project is at "sources/oasa.yaml".
+
+% Blawx's clock, fixed at 2026-09-14 (00:00 UTC, 1789344000 seconds since 1970), the day the twin was built.
+the date today is 1789344000.
+
+% The Act, section by section.
+rule section_3_1_a with provenance the Old Age Security Act at section 3 1 a:
+a person qualifies under s3_1_a under section_3_1_a if
+    the person is a person
+    and the person was a pensioner on July 1 1977.
+
+% What section 3(1)(a) concludes holds.
+rule section_3_1_a_conclusion with provenance the Old Age Security Act at section 3 1 a:
+a person qualifies under s3_1_a if
+    the person qualifies under s3_1_a under section_3_1_a.
+
+% RESIDUE section_3_1_b_i_residue BEGIN: section 3(1)(b)(i) of the Old Age Security Act
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: section 3(1)(b)(i)
+% calls datetime_add, which Blawx v1.6.22's reasoner does not define: the rule never applies in Blawx
+%   s(CASP), as Blawx generated it:
+%   | according_to(sec_3__subsec_1__para_b__subpara_i_section, meets_residence_requirement_s3_1_b_i, A) :-
+%   |     not(pensioner_july(A)),
+%   |     birthdate(A, B),
+%   |     datetime_add(B, duration(1, 25, 0, 0, 0, 0, 0), C),
+%   |     not_after(C, date(1977, 7, 1)),
+%   |     resided_in_canada_july(A).
+%   | 
+% RESIDUE section_3_1_b_i_residue END
+
+% RESIDUE section_3_1_b_i_residue_2 BEGIN: section 3(1)(b)(i) of the Old Age Security Act
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: section 3(1)(b)(i)
+% calls datetime_add, which Blawx v1.6.22's reasoner does not define: the rule never applies in Blawx
+%   s(CASP), as Blawx generated it:
+%   | according_to(sec_3__subsec_1__para_b__subpara_i_section, meets_residence_requirement_s3_1_b_i, A) :-
+%   |     not(pensioner_july(A)),
+%   |     not(resided_in_canada_july(A)),
+%   |     birthdate(A, B),
+%   |     datetime_add(B, duration(1, 25, 0, 0, 0, 0, 0), C),
+%   |     not_after(C, date(1977, 7, 1)),
+%   |     possessed_valid_immigration_visa_july(A).
+%   | 
+% RESIDUE section_3_1_b_i_residue_2 END
+
+% RESIDUE section_3_1_b_i_residue_3 BEGIN: section 3(1)(b)(i) of the Old Age Security Act
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: section 3(1)(b)(i)
+% calls datetime_add, which Blawx v1.6.22's reasoner does not define: the rule never applies in Blawx
+%   s(CASP), as Blawx generated it:
+%   | according_to(sec_3__subsec_1__para_b__subpara_i_section, meets_residence_requirement_s3_1_b_i, A) :-
+%   |     not(pensioner_july(A)),
+%   |     not(resided_in_canada_july(A)),
+%   |     birthdate(A, B),
+%   |     datetime_add(B, duration(1, 25, 0, 0, 0, 0, 0), C),
+%   |     not_after(C, date(1977, 7, 1)),
+%   |     resided_in_canada_after_18_as_of_july(A).
+%   | 
+% RESIDUE section_3_1_b_i_residue_3 END
+
+% RESIDUE section_3_1_b_ii_residue BEGIN: section 3(1)(b)(ii) of the Old Age Security Act
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: section 3(1)(b)(ii)
+% calls datetime_add, which Blawx v1.6.22's reasoner does not define: the rule never applies in Blawx
+%   s(CASP), as Blawx generated it:
+%   | according_to(sec_3__subsec_1__para_b__subpara_ii_section, meets_age_requirement_s3_1_b_ii, A) :-
+%   |     blawx_today(B),
+%   |     birthdate(A, C),
+%   |     datetime_add(C, duration(1, 65, 0, 0, 0, 0, 0), D),
+%   |     not_after(D, B).
+%   | 
+% RESIDUE section_3_1_b_ii_residue END
+
+rule section_3_1_b with provenance the Old Age Security Act at section 3 1 b:
+a person qualifies under s3_1_b under section_3_1_b if
+    the person is a person
+    and the person meets the residence requirements of section 3 _ 1 _ b_i under section_3_1_b_i
+    and the person meets the age requirement of section 3 _ 1 _ b_ii under section_3_1_b_ii
+    and the person meets the residence duration requirement of section 3 _ 1 _ b_iii under section_3_1_b_iii.
+
+% What section 3(1)(b) concludes holds.
+rule section_3_1_b_conclusion with provenance the Old Age Security Act at section 3 1 b:
+a person qualifies under s3_1_b if
+    the person qualifies under s3_1_b under section_3_1_b.
+
+rule section_3_1_c with provenance the Old Age Security Act at section 3 1 c:
+a person qualifies under s3_1_c under section_3_1_c if
+    the person is a person
+    and the person satisfies the non pensioner requirement of s3_1_c_i under section_3_1_c_i
+    and the person satisfies the age requirement of s3_1_c_ii under section_3_1_c_ii
+    and the person satisfies the residency requirement of s3_1_c_iii under section_3_1_c_iii.
+
+% What section 3(1)(c) concludes holds.
+rule section_3_1_c_conclusion with provenance the Old Age Security Act at section 3 1 c:
+a person qualifies under s3_1_c if
+    the person qualifies under s3_1_c under section_3_1_c.
+
+rule section_3_1 with provenance the Old Age Security Act at section 3 1:
+a full monthly pension may be paid to a person if
+    the person qualifies under s3_1_a under section_3_1_a
+    and it is not the case that a full monthly pension may not be paid to the person under section_4_1.
+
+rule section_3_1_2 with provenance the Old Age Security Act at section 3 1:
+a full monthly pension may be paid to a person if
+    the person qualifies under s3_1_b under section_3_1_b
+    and it is not the case that a full monthly pension may not be paid to the person under section_4_1.
+
+rule section_3_1_3 with provenance the Old Age Security Act at section 3 1:
+a full monthly pension may be paid to a person if
+    the person qualifies under s3_1_c under section_3_1_c
+    and it is not the case that a full monthly pension may not be paid to the person under section_4_1.
+
+rule section_3_1_b_iii with provenance the Old Age Security Act at section 3 1 b iii:
+a person meets the residence duration requirement of section 3 _ 1 _ b_iii under section_3_1_b_iii if
+    the person resided in canada for 10 years prior to approval.
+
+% What section 3(1)(b)(iii) concludes holds.
+rule section_3_1_b_iii_conclusion with provenance the Old Age Security Act at section 3 1 b iii:
+a person meets the residence duration requirement of section 3 _ 1 _ b_iii if
+    the person meets the residence duration requirement of section 3 _ 1 _ b_iii under section_3_1_b_iii.
+
+rule section_3_1_b_iii_2 with provenance the Old Age Security Act at section 3 1 b iii:
+a person meets the residence duration requirement of section 3 _ 1 _ b_iii under section_3_1_b_iii if
+    it is not the case that the person resided in canada for 10 years prior to approval
+    and the person was in Canada more than away between 18 and 10 years prior to approval
+    and the person resided in Canada for the year prior to approval.
+
+% RESIDUE section_3_1_c_ii_residue BEGIN: section 3(1)(c)(ii) of the Old Age Security Act
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: section 3(1)(c)(ii)
+% calls datetime_add, which Blawx v1.6.22's reasoner does not define: the rule never applies in Blawx
+%   s(CASP), as Blawx generated it:
+%   | according_to(sec_3__subsec_1__para_c__subpara_ii_section, meets_s3_1_c_ii, A) :-
+%   |     blawx_today(B),
+%   |     birthdate(A, C),
+%   |     datetime_add(C, duration(1, 65, 0, 0, 0, 0, 0), D),
+%   |     not_after(D, B).
+%   | 
+% RESIDUE section_3_1_c_ii_residue END
+
+rule section_3_1_c_i with provenance the Old Age Security Act at section 3 1 c i:
+a person satisfies the non pensioner requirement of s3_1_c_i under section_3_1_c_i if
+    it is not the case that the person was a pensioner on July 1 1977.
+
+% What section 3(1)(c)(i) concludes holds.
+rule section_3_1_c_i_conclusion with provenance the Old Age Security Act at section 3 1 c i:
+a person satisfies the non pensioner requirement of s3_1_c_i if
+    the person satisfies the non pensioner requirement of s3_1_c_i under section_3_1_c_i.
+
+rule section_3_1_c_iii with provenance the Old Age Security Act at section 3 1 c iii:
+a person satisfies the residency requirement of s3_1_c_iii under section_3_1_c_iii if
+    the person resided in Canada at least 40 years since the age of 18.
+
+% What section 3(1)(c)(iii) concludes holds.
+rule section_3_1_c_iii_conclusion with provenance the Old Age Security Act at section 3 1 c iii:
+a person satisfies the residency requirement of s3_1_c_iii if
+    the person satisfies the residency requirement of s3_1_c_iii under section_3_1_c_iii.
+
+% "Eligible" and "full monthly pension may be paid to" have been
+% combined into a single statement. Therefore, this section
+% says that if your are not a pensioner, and neither a
+% nor b is true, a full monthly pension may not be paid.
+rule section_4_1 with provenance the Old Age Security Act at section 4 1:
+a full monthly pension may not be paid to a person under section_4_1 if
+    the person is a person
+    and it is not the case that the person was a pensioner on July 1 1977
+    and it is not the case that the person satisfies section 4 _ 1 _ a under section_4_1_a
+    and it is not the case that the person satisfies section 4 _ 1 _ b under section_4_1_b.
+
+% What section 4(1) concludes holds.
+rule section_4_1_conclusion with provenance the Old Age Security Act at section 4 1:
+a full monthly pension may not be paid to a person if
+    a full monthly pension may not be paid to the person under section_4_1.
+
+rule section_4_1_a with provenance the Old Age Security Act at section 4 1 a:
+a person satisfies section 4 _ 1 _ a under section_4_1_a if
+    the person was a citizen or legal resident the day before approval.
+
+% What section 4(1)(a) concludes holds.
+rule section_4_1_a_conclusion with provenance the Old Age Security Act at section 4 1 a:
+a person satisfies section 4 _ 1 _ a if
+    the person satisfies section 4 _ 1 _ a under section_4_1_a.
+
+rule section_4_1_b with provenance the Old Age Security Act at section 4 1 b:
+a person satisfies section 4 _ 1 _ b under section_4_1_b if
+    the person was a citizen or legal resident the day before approval.
+
+% What section 4(1)(b) concludes holds.
+rule section_4_1_b_conclusion with provenance the Old Age Security Act at section 4 1 b:
+a person satisfies section 4 _ 1 _ b if
+    the person satisfies section 4 _ 1 _ b under section_4_1_b.
+
+scenario generic_3_1 is, as stated in the Blawx project at test generic_3_1:
+    generic_3_1 expects answers [].
+
+scenario generic_3_1_a is, as stated in the Blawx project at test generic_3_1_a:
+    generic_3_1_a expects answers [].
+
+scenario generic_3_1_b is, as stated in the Blawx project at test generic_3_1_b:
+
+scenario generic_3_1_c is, as stated in the Blawx project at test generic_3_1_c:
+
+scenario generic_3_1_b_i is, as stated in the Blawx project at test generic_3_1_b_i:
+
+scenario generic_3_1_b_ii is, as stated in the Blawx project at test generic_3_1_b_ii:
+
+scenario generic_3_1_c_i is, as stated in the Blawx project at test generic_3_1_c_i:
+
+scenario generic_3_1_c_ii is, as stated in the Blawx project at test generic_3_1_c_ii:
+
+scenario generic_3_1_b_iii is, as stated in the Blawx project at test generic_3_1_b_iii:
+
+scenario generic_3_1_c_iii is, as stated in the Blawx project at test generic_3_1_c_iii:
+
+scenario generic_4_1 is, as stated in the Blawx project at test generic_4_1:
+    generic_4_1 expects answers [].
+
+scenario generic_4_1_a is, as stated in the Blawx project at test generic_4_1_a:
+
+scenario generic_4_1_b is, as stated in the Blawx project at test generic_4_1_b:
+
+scenario generic_eligible is, as stated in the Blawx project at test generic_eligible:
+    generic_eligible expects answers [].
+
+scenario true_or_false is, as stated in the Blawx project at test true_or_false:
+    bob is a person.
+    true_or_false expects answers [].
+
+scenario search is, as stated in the Blawx project at test search:
+    search expects answers [].
+
+scenario case_1 is, as stated in the case analysis of the encoding at section 3 1 a:
+    % a case of the rule of section 3(1)(a) (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    person_a was a pensioner on July 1 1977.
+    which_qualifies_under_s3_1_a expects answers ["person_a qualifies under s3_1_a"].
+
+scenario case_1_without_fact_1 is, as stated in the case analysis of the encoding at section 3 1 a:
+    % a case of the rule of section 3(1)(a) (blawx_cases.pl), answered by Blawx
+    person_a was a pensioner on July 1 1977.
+    which_qualifies_under_s3_1_a expects answers [].
+
+scenario case_1_without_fact_2 is, as stated in the case analysis of the encoding at section 3 1 a:
+    % a case of the rule of section 3(1)(a) (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    which_qualifies_under_s3_1_a expects answers [].
+
+scenario case_8 is, as stated in the case analysis of the encoding at section 3 1:
+    % a case of the rule of section 3(1) (blawx_cases.pl), answered by Blawx
+    person_a was a pensioner on July 1 1977.
+    person_a is a person.
+    which_a_full_monthly_pension_may_be_paid_to expects answers ["a full monthly pension may be paid to person_a"].
+
+scenario case_8_without_fact_1 is, as stated in the case analysis of the encoding at section 3 1:
+    % a case of the rule of section 3(1) (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    which_a_full_monthly_pension_may_be_paid_to expects answers [].
+
+scenario case_8_without_fact_2 is, as stated in the case analysis of the encoding at section 3 1:
+    % a case of the rule of section 3(1) (blawx_cases.pl), answered by Blawx
+    person_a was a pensioner on July 1 1977.
+    which_a_full_monthly_pension_may_be_paid_to expects answers [].
+
+scenario case_11 is, as stated in the case analysis of the encoding at section 3 1 b iii:
+    % a case of the rule of section 3(1)(b)(iii) (blawx_cases.pl), answered by Blawx
+    person_a resided in canada for 10 years prior to approval.
+    which_meets_the_residence_duration_requirement_of_section_3_1_b_iii expects answers ["person_a meets the residence duration requirement of section 3 _ 1 _ b_iii"].
+
+scenario case_12 is, as stated in the case analysis of the encoding at section 3 1 b iii:
+    % a case of the rule of section 3(1)(b)(iii) (blawx_cases.pl), answered by Blawx
+    person_a was in Canada more than away between 18 and 10 years prior to approval.
+    person_a resided in Canada for the year prior to approval.
+    which_meets_the_residence_duration_requirement_of_section_3_1_b_iii expects answers ["person_a meets the residence duration requirement of section 3 _ 1 _ b_iii"].
+
+scenario case_12_without_fact_1 is, as stated in the case analysis of the encoding at section 3 1 b iii:
+    % a case of the rule of section 3(1)(b)(iii) (blawx_cases.pl), answered by Blawx
+    person_a resided in Canada for the year prior to approval.
+    which_meets_the_residence_duration_requirement_of_section_3_1_b_iii expects answers [].
+
+scenario case_12_without_fact_2 is, as stated in the case analysis of the encoding at section 3 1 b iii:
+    % a case of the rule of section 3(1)(b)(iii) (blawx_cases.pl), answered by Blawx
+    person_a was in Canada more than away between 18 and 10 years prior to approval.
+    which_meets_the_residence_duration_requirement_of_section_3_1_b_iii expects answers [].
+
+scenario case_14 is, as stated in the case analysis of the encoding at section 3 1 c i:
+    % a case of the rule of section 3(1)(c)(i) (blawx_cases.pl), answered by Blawx
+    % pending — the answer is symbolic (a variable or a constraint), which LE's answers are not:
+    % which_satisfies_the_non_pensioner_requirement_of_s3_1_c_i expects answers ["a person satisfies the non pensioner requirement of s3_1_c_i"].
+
+scenario case_15 is, as stated in the case analysis of the encoding at section 3 1 c iii:
+    % a case of the rule of section 3(1)(c)(iii) (blawx_cases.pl), answered by Blawx
+    person_a resided in Canada at least 40 years since the age of 18.
+    which_satisfies_the_residency_requirement_of_s3_1_c_iii expects answers ["person_a satisfies the residency requirement of s3_1_c_iii"].
+
+scenario case_16 is, as stated in the case analysis of the encoding at section 4 1:
+    % a case of the rule of section 4(1) (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    which_a_full_monthly_pension_may_not_be_paid_to expects answers ["a full monthly pension may not be paid to person_a"].
+
+scenario case_17 is, as stated in the case analysis of the encoding at section 4 1 a:
+    % a case of the rule of section 4(1)(a) (blawx_cases.pl), answered by Blawx
+    person_a was a citizen or legal resident the day before approval.
+    which_satisfies_section_4_1_a expects answers ["person_a satisfies section 4 _ 1 _ a"].
+
+scenario case_18 is, as stated in the case analysis of the encoding at section 4 1 b:
+    % a case of the rule of section 4(1)(b) (blawx_cases.pl), answered by Blawx
+    person_a was a citizen or legal resident the day before approval.
+    which_satisfies_section_4_1_b expects answers ["person_a satisfies section 4 _ 1 _ b"].
+
+query generic_3_1 is:
+    a full monthly pension may be paid to which person.
+
+query generic_3_1_a is:
+    which person qualifies under s3_1_a under section_3_1_a.
+
+query generic_3_1_b is:
+    which person qualifies under s3_1_b under section_3_1_b.
+
+query generic_3_1_c is:
+    which person qualifies under s3_1_c under section_3_1_c.
+
+query generic_3_1_b_i is:
+    which person meets the residence requirements of section 3 _ 1 _ b_i under section_3_1_b_i.
+
+query generic_3_1_b_ii is:
+    which person meets the age requirement of section 3 _ 1 _ b_ii under section_3_1_b_ii.
+
+query generic_3_1_c_i is:
+    which person satisfies the non pensioner requirement of s3_1_c_i under section_3_1_c_i.
+
+query generic_3_1_c_ii is:
+    which person satisfies the age requirement of s3_1_c_ii under section_3_1_c_ii.
+
+query generic_3_1_b_iii is:
+    which person meets the residence duration requirement of section 3 _ 1 _ b_iii under section_3_1_b_iii.
+
+query generic_3_1_c_iii is:
+    which person satisfies the residency requirement of s3_1_c_iii under section_3_1_c_iii.
+
+query generic_4_1 is:
+    a full monthly pension may not be paid to which person under section_4_1.
+
+query generic_4_1_a is:
+    which person satisfies section 4 _ 1 _ a under section_4_1_a.
+
+query generic_4_1_b is:
+    which person satisfies section 4 _ 1 _ b under section_4_1_b.
+
+query generic_eligible is:
+    a full monthly pension may be paid to which person.
+
+query true_or_false is:
+    a full monthly pension may be paid to bob.
+
+query search is:
+    a full monthly pension may be paid to which person.
+
+query which_qualifies_under_s3_1_a is:
+    which person qualifies under s3_1_a.
+
+query which_a_full_monthly_pension_may_be_paid_to is:
+    a full monthly pension may be paid to which person.
+
+query which_meets_the_residence_duration_requirement_of_section_3_1_b_iii is:
+    which person meets the residence duration requirement of section 3 _ 1 _ b_iii.
+
+query which_satisfies_the_non_pensioner_requirement_of_s3_1_c_i is:
+    which person satisfies the non pensioner requirement of s3_1_c_i.
+
+query which_satisfies_the_residency_requirement_of_s3_1_c_iii is:
+    which person satisfies the residency requirement of s3_1_c_iii.
+
+query which_a_full_monthly_pension_may_not_be_paid_to is:
+    a full monthly pension may not be paid to which person.
+
+query which_satisfies_section_4_1_a is:
+    which person satisfies section 4 _ 1 _ a.
+
+query which_satisfies_section_4_1_b is:
+    which person satisfies section 4 _ 1 _ b.
+
+query which_qualifies_under_s3_1_b is:
+    which person qualifies under s3_1_b.
+
+query which_qualifies_under_s3_1_c is:
+    which person qualifies under s3_1_c.
+
+the view the act is:
+    the title is "Old Age Security Act, as Blawx encodes it".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the case" are
+        a person is a person,
+        a person was a pensioner on July 1 1977,
+        a person was born on a time,
+        as of July 1977 a person resided in Canada,
+        as of July 1977 a person possessed a valid immigration visa,
+        as of July 1977 a person had resided in Canada after 18 years of age,
+        a person resided in canada for 10 years prior to approval,
+        a person was in Canada more than away between 18 and 10 years prior to approval,
+        a person resided in Canada for the year prior to approval,
+        a person resided in Canada at least 40 years since the age of 18,
+        a person was a citizen or legal resident the day before approval.
+    the result is the answer to query which_a_full_monthly_pension_may_be_paid_to.
+    the result shows its reasons.
+    the result shows its citations.
+    the result can be flipped.
+

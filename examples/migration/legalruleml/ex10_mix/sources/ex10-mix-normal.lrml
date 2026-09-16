@@ -1,0 +1,553 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-model href="../../relaxng/lrml-normal.rnc" type="application/relax-ng-normal-syntax"?>
+<lrml:LegalRuleML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://docs.oasis-open.org/legalruleml/examples/compactified/ex8-defeasible-compact#" xmlns:lrml="http://docs.oasis-open.org/legalruleml/ns/v1.0/" xmlns:ruleml="http://ruleml.org/spec" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://docs.oasis-open.org/legalruleml/ns/v1.0/ ../../xsd-schema/normal/lrml-normal.xsd">
+  <lrml:hasComment>
+    <lrml:Comment> Examples </lrml:Comment>
+  </lrml:hasComment>
+  <!-- Example 15 -->
+  <lrml:hasLegalReferences>
+    <lrml:LegalReferences xmlns:appex="http://docs.oasis-open.org/legalruleml/examples/compactified/" refType="http://example.org/lrml#LegalSource">
+      <lrml:hasLegalReference>
+        <lrml:LegalReference refersTo="ref1" refID="/akn/au/2012-05-30/C628-2012/eng@/!main#sec_2-2" refIDSystemName="AkomaNtoso3.0-2016-03"/>
+      </lrml:hasLegalReference>
+      <lrml:hasLegalReference>
+        <lrml:LegalReference refersTo="ref6" refID="ECLI:EU:C:2015:650" refIDSystemName="European Case Law Identifier" refIDSystemSource="OJ:C:2011:127:0001:0007:EN:PDF"/>
+      </lrml:hasLegalReference>
+    </lrml:LegalReferences>
+  </lrml:hasLegalReferences>
+  <!-- Example 10 -->
+  <lrml:hasLegalSources>
+    <lrml:LegalSources>
+      <lrml:hasLegalSource>
+        <lrml:LegalSource key="ls1" sameAs="http://example.org/external-legal-statement"/>
+      </lrml:hasLegalSource>
+    </lrml:LegalSources>
+  </lrml:hasLegalSources>
+  <!-- Example 12 Alternatives -->
+  <lrml:hasLegalSources>
+    <lrml:LegalSources key="ls6">
+      <lrml:hasLegalSource>
+        <lrml:LegalSource keyref="#ls1"/>
+      </lrml:hasLegalSource>
+      <lrml:hasLegalSource>
+        <lrml:LegalSource keyref="#ls2"/>
+      </lrml:hasLegalSource>
+    </lrml:LegalSources>
+  </lrml:hasLegalSources>
+  <lrml:hasLegalSources>
+    <lrml:LegalSources key="ls7">
+      <lrml:hasLegalSource>
+        <lrml:LegalSource keyref="#ls2"/>
+      </lrml:hasLegalSource>
+      <lrml:hasLegalSource>
+        <lrml:LegalSource keyref="#ls3"/>
+      </lrml:hasLegalSource>
+    </lrml:LegalSources>
+  </lrml:hasLegalSources>
+  <!-- Example 16 -->
+  <lrml:hasLegalSources>
+    <lrml:LegalSources>
+      <lrml:hasLegalSource>
+        <lrml:LegalSource key="ref2" sameAs="http://www.law.cornell.edu/uscode/text/17/504#psection-1"/>
+      </lrml:hasLegalSource>
+    </lrml:LegalSources>
+  </lrml:hasLegalSources>
+  <!-- Example 4  -->
+  <lrml:hasSources>
+    <lrml:Sources>
+      <lrml:hasSource>
+        <lrml:Source key="pen1-v1" sameAs="http://original-version-of-this-document#pen1"/>
+      </lrml:hasSource>
+      <lrml:hasSource>
+        <lrml:Source key="ps2-v1" sameAs="http://original-version-of-this-document#ps2"/>
+      </lrml:hasSource>
+    </lrml:Sources>
+  </lrml:hasSources>
+  <!-- Example 26 -->
+  <lrml:hasTimes>
+    <lrml:Times>
+      <lrml:hasTime>
+        <ruleml:Time key=":t1">
+          <ruleml:arg index="1"><ruleml:Data xsi:type="xs:dateTime">1978-01-01T00:00:00</ruleml:Data></ruleml:arg>
+        </ruleml:Time>
+      </lrml:hasTime>
+    </lrml:Times>
+  </lrml:hasTimes>
+  <!-- Example 27 -->
+  <lrml:hasTemporalCharacteristics>
+    <lrml:TemporalCharacteristics key="tblock1">
+      <lrml:hasTemporalCharacteristic>
+        <lrml:TemporalCharacteristic key="nev1">
+          <lrml:forStatus iri="http://docs.oasis-open.org/legalruleml/ns/v1.0/vocab#Efficacious"/>
+          <lrml:hasStatusDevelopment iri="http://docs.oasis-open.org/legalruleml/ns/v1.0/vocab#Starts"/>
+          <lrml:atTime keyref="#t1"/>
+        </lrml:TemporalCharacteristic>
+      </lrml:hasTemporalCharacteristic>
+      <lrml:hasTemporalCharacteristic>
+        <lrml:TemporalCharacteristic key="nev2">
+          <lrml:forStatus iri="http://docs.oasis-open.org/legalruleml/ns/v1.0/vocab#InForce"/>
+          <lrml:hasStatusDevelopment iri="http://docs.oasis-open.org/legalruleml/ns/v1.0/vocab#Starts"/>
+          <lrml:atTime keyref="#t2"/>
+        </lrml:TemporalCharacteristic>
+      </lrml:hasTemporalCharacteristic>
+    </lrml:TemporalCharacteristics>
+  </lrml:hasTemporalCharacteristics>
+  <!-- Example 20 -->
+  <lrml:hasAgents>
+    <lrml:Agents>
+      <lrml:hasAgent>
+        <lrml:Agent key="mp" sameAs="http:example.org/agents#MonicaPalmirani">
+          <lrml:hasType iri="http://example.org/types#Person"/>
+        </lrml:Agent>
+      </lrml:hasAgent>
+      <lrml:hasAgent>
+        <lrml:Agent key="ta" sameAs="http://example.org/agents#TaraAthan"/>
+      </lrml:hasAgent>
+    </lrml:Agents>
+  </lrml:hasAgents>
+  <!-- Example 21 -->
+  <lrml:hasFigures>
+    <lrml:Figures>
+      <lrml:hasMemberType iri="http://example.org/figure-types#LegislativeFigure"/>
+      <lrml:hasFigure>
+        <lrml:Figure key="fs">
+          <lrml:hasFunction iri="http://example.org/functions#Senator"/>
+          <lrml:hasActor keyref="#ta"/>
+        </lrml:Figure>
+      </lrml:hasFigure>
+    </lrml:Figures>
+  </lrml:hasFigures>
+  <!-- Example 22 -->
+  <lrml:hasRoles>
+    <lrml:Roles>
+      <lrml:hasRole>
+        <lrml:Role key="role1" iri="http://example.org/roles#author">
+          <lrml:filledBy keyref="#mp"/>
+          <lrml:filledBy keyref="#ta"/>
+          <lrml:forExpression keyref="#rule1a"/>
+        </lrml:Role>
+      </lrml:hasRole>
+      <lrml:hasRole>
+        <lrml:Role key="role2" iri="http://example.org/roles#author">
+          <lrml:filledBy keyref="#mp"/>
+          <lrml:forExpression keyref="#atom2a"/>
+          <lrml:forExpression keyref="#atom2b"/>
+        </lrml:Role>
+      </lrml:hasRole>
+    </lrml:Roles>
+  </lrml:hasRoles>
+  <!-- Example 25 -->
+  <lrml:hasAuthorities>
+    <lrml:Authorities>
+      <lrml:hasAuthority>
+        <lrml:Authority key="house" sameAs="http://example.org/authority#house-of-representatives"/>
+      </lrml:hasAuthority>
+    </lrml:Authorities>
+  </lrml:hasAuthorities>
+  <!-- Example 23 -->
+  <lrml:hasJurisdictions>
+    <lrml:Jurisdictions>
+      <lrml:hasJurisdiction>
+        <lrml:Jurisdiction key="us" sameAs="http://example.org/jurisdiction#unitedStatesOfAmerica"/>
+      </lrml:hasJurisdiction>
+    </lrml:Jurisdictions>
+  </lrml:hasJurisdictions>
+  <!-- Example 24 -->
+  <lrml:hasJurisdictions>
+    <lrml:Jurisdictions>
+      <lrml:hasJurisdiction>
+        <lrml:Jurisdiction key="exd" sameAs="http://example.org/jurisdiction#executiveDepartments"/>
+      </lrml:hasJurisdiction>
+    </lrml:Jurisdictions>
+  </lrml:hasJurisdictions>
+  <!-- Example 7 -->
+  <lrml:hasAssociations>
+    <lrml:Associations key="sourceBlock1">
+      <lrml:hasAssociation>
+        <lrml:Association>
+          <lrml:appliesModality iri="ex:maintenanaceObligation"/>
+          <lrml:toTarget keyref="#obl101"/>
+        </lrml:Association>
+      </lrml:hasAssociation>
+    </lrml:Associations>
+  </lrml:hasAssociations>
+  <!-- Example 12 -->
+  <lrml:hasAssociations>
+    <lrml:Associations key="s1">
+      <lrml:hasAssociation>
+        <lrml:Association>
+          <lrml:appliesSource keyref="#ref1"/>
+          <lrml:appliesSource keyref="#ref2"/>
+          <lrml:toTarget keyref="#rule1"/>
+        </lrml:Association>
+      </lrml:hasAssociation>
+    </lrml:Associations>
+  </lrml:hasAssociations>
+  <lrml:hasAssociations>
+    <lrml:Associations key="s2">
+      <lrml:hasAssociation>
+        <lrml:Association>
+          <lrml:appliesSource keyref="#ref3"/>
+          <lrml:appliesSource keyref="#ref2"/>
+          <lrml:toTarget keyref="#rule2"/>
+        </lrml:Association>
+      </lrml:hasAssociation>
+    </lrml:Associations>
+  </lrml:hasAssociations>
+  <!-- Example 14 -->
+  <lrml:hasAssociations>
+    <lrml:Associations key="s1">
+      <lrml:hasAssociation>
+        <lrml:Association>
+          <lrml:appliesSource keyref="#ref1"/>
+          <lrml:appliesSource keyref="#ref2"/>
+          <lrml:toTarget keyref="#rule1"/>
+          <lrml:toTarget keyref="#rule2"/>
+        </lrml:Association>
+      </lrml:hasAssociation>
+    </lrml:Associations>
+  </lrml:hasAssociations>
+  <lrml:hasAssociations>
+    <lrml:Associations key="s2">
+      <lrml:hasAssociation>
+        <lrml:Association>
+          <lrml:appliesSource keyref="#ref1"/>
+          <lrml:appliesSource keyref="#ref2"/>
+          <lrml:toTarget keyref="#rule2"/>
+          <lrml:toTarget keyref="#rule3"/>
+        </lrml:Association>
+      </lrml:hasAssociation>
+    </lrml:Associations>
+  </lrml:hasAssociations>
+  <!-- Example 18 -->
+  <lrml:hasAssociations>
+    <lrml:Associations key="sourceBlock2">
+      <lrml:hasAssociation>
+        <lrml:Association>
+          <lrml:appliesSource keyref="#ref1"/>
+          <lrml:toTarget keyref="#rule1"/>
+          <lrml:toTarget keyref="#rule2"/>
+        </lrml:Association>
+      </lrml:hasAssociation>
+    </lrml:Associations>
+  </lrml:hasAssociations>
+  <!-- Example 19 -->
+  <lrml:hasAssociations>
+    <lrml:Associations key="sourceBlock3">
+      <lrml:hasAssociation>
+        <lrml:Association>
+          <lrml:appliesSource keyref="#ref1"/>
+          <lrml:appliesSource keyref="#ref2"/>
+          <lrml:toTarget keyref="#rule1"/>
+        </lrml:Association>
+      </lrml:hasAssociation>
+    </lrml:Associations>
+  </lrml:hasAssociations>
+  <!-- Example 28  -->
+  <lrml:hasAssociations>
+    <lrml:Associations>
+      <lrml:hasAssociation>
+        <lrml:Association>
+          <lrml:appliesSource keyref="#ref1"/>
+          <lrml:toTarget keyref="#nev1"/>
+          <lrml:toTarget keyref="#nev2"/>
+        </lrml:Association>
+      </lrml:hasAssociation>
+    </lrml:Associations>
+  </lrml:hasAssociations>
+  <!-- Example 29  -->
+  <lrml:hasAssociations>
+    <lrml:Associations key="ascs1">
+      <lrml:hasAssociation>
+        <lrml:Association>
+          <lrml:appliesTemporalCharacteristics keyref="#tblock1"/>
+          <lrml:toTarget keyref="#rule1"/>
+          <lrml:toTarget keyref="#atom1"/>
+          <lrml:toTarget keyref="#body1"/>
+        </lrml:Association>
+      </lrml:hasAssociation>
+    </lrml:Associations>
+  </lrml:hasAssociations>
+  <!-- Example 30  -->
+  <lrml:hasAssociations>
+    <lrml:Associations key="sourceBlock1">
+      <lrml:hasAssociation>
+        <lrml:Association>
+          <lrml:appliesTemporalCharacteristics keyref="#tblock1"/>
+          <lrml:toTarget keyref="#ps1"/>
+          <lrml:toTarget keyref="#ps2"/>
+        </lrml:Association>
+      </lrml:hasAssociation>
+      <lrml:hasAssociation>
+        <lrml:Association>
+          <lrml:appliesAuthority keyref="#congress"/>
+          <lrml:appliesJurisdiction keyref="#us"/>
+          <lrml:toTarget keyref="#ps1"/>
+          <lrml:toTarget keyref="#ps3"/>
+        </lrml:Association>
+      </lrml:hasAssociation>
+    </lrml:Associations>
+  </lrml:hasAssociations>
+  <!-- Example 31-36  -->
+  <lrml:hasAssociations>
+    <lrml:Associations key="sourceBlock1">
+      <lrml:hasAssociation>
+        <lrml:Association>
+          <lrml:appliesSource keyref="#sec504-clsc-pnt1"/>
+          <lrml:appliesTemporalCharacteristics keyref="#tblock1"/>
+          <lrml:appliesModality iri="/ontology/deontic/"/>
+          <lrml:appliesStrength iri="/ontology/defeasible"/>
+          <lrml:appliesAuthority keyref="#congress"/>
+          <lrml:appliesJurisdiction keyref="#us"/>
+          <lrml:toTarget keyref="#ps1"/>
+        </lrml:Association>
+      </lrml:hasAssociation>
+    </lrml:Associations>
+  </lrml:hasAssociations>
+  <!-- Example 11 Alternatives -->
+  <lrml:hasAlternatives>
+    <lrml:Alternatives key="alt1">
+      <lrml:fromLegalSources keyref="#t1"/>
+      <lrml:hasAlternative keyref="#rule1"/>
+      <lrml:hasAlternative keyref="#rule2"/>
+    </lrml:Alternatives>
+  </lrml:hasAlternatives>
+  <!-- Example 12 Alternatives -->
+  <lrml:hasAlternatives>
+    <lrml:Alternatives key="alt1">
+      <lrml:hasAlternative keyref="#s1"/>
+      <lrml:hasAlternative keyref="#s2"/>
+    </lrml:Alternatives>
+  </lrml:hasAlternatives>
+  <!-- Example 13 Alternatives -->
+  <lrml:hasAlternatives>
+    <lrml:Alternatives key="alt3">
+      <lrml:fromLegalSources keyref="#ref1"/>
+      <lrml:hasAlternative keyref="#ss1"/>
+      <lrml:hasAlternative keyref="#ss2"/>
+    </lrml:Alternatives>
+  </lrml:hasAlternatives>
+  <!-- Example 14 Alternatives -->
+  <lrml:hasAlternatives>
+    <lrml:Alternatives key="alt4">
+      <lrml:hasAlternative keyref="#s1"/>
+      <lrml:hasAlternative keyref="#s2"/>
+    </lrml:Alternatives>
+  </lrml:hasAlternatives>
+  <!-- Example 2 -->
+  <lrml:hasContext>
+    <lrml:Context key="ruleInfo2">
+      <lrml:appliesStrength iri="defvo:defeasibleType2"/>
+      <lrml:inScope keyref="#cs1"/>
+    </lrml:Context>
+  </lrml:hasContext>
+  <!-- Example 3 -->
+  <lrml:hasContext>
+    <lrml:Context key="ruleInfo1">
+      <lrml:appliesStrength iri="http://www.w3.org/2001/XMLSchema#defeasible2"/>
+      <lrml:inScope keyref="#cs1"/>
+    </lrml:Context>
+  </lrml:hasContext>
+  <!-- Example 29 -->
+  <lrml:hasContext>
+    <lrml:Context key="ruleContext1">
+      <lrml:appliesAssociations keyref="#ascs1"/>
+      <lrml:inScope keyref="#stmt1"/>
+    </lrml:Context>
+  </lrml:hasContext>
+  <!-- Example 37 -->
+  <lrml:hasContext>
+    <lrml:Context key="Context1">
+      <lrml:appliesAssociations keyref="#assoc1"/>
+      <lrml:appliesAlternatives keyref="#alt2"/>
+      <lrml:inScope keyref="#ps1"/>
+    </lrml:Context>
+  </lrml:hasContext>
+  <!-- Example 38 -->
+  <lrml:hasContext>
+    <lrml:Context key="ruleInfo4" hasCreationDate="#t1">
+      <lrml:appliesSource keyref="#sec504-clsc-pnt2"/>
+      <lrml:appliesTemporalCharacteristics keyref="#tblock1"/>
+      <lrml:appliesStrength iri="/ontology/defeater"/>
+      <lrml:appliesAuthority keyref="#congress"/>
+      <lrml:appliesJurisdiction keyref="#us"/>
+      <lrml:appliesAssociations keyref="#assoc1"/>
+      <lrml:appliesAlternatives keyref="#alt2"/>
+      <lrml:inScope keyref="#rule1"/>
+      <lrml:inScope keyref="#rule4"/>
+    </lrml:Context>
+  </lrml:hasContext>
+  <!-- Example 1-->
+  <lrml:hasStatements>
+    <lrml:Statements key="textblock1">
+      <lrml:hasStatement>
+        <lrml:OverrideStatement>
+          <lrml:hasTemplate>
+            <lrml:Override over="#cs2" under="#cs1"/>
+          </lrml:hasTemplate>
+        </lrml:OverrideStatement>
+      </lrml:hasStatement>
+    </lrml:Statements>
+  </lrml:hasStatements>
+  <!-- Example 3 -->
+  <lrml:hasStatements>
+    <lrml:Statements key="textblock2">
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement key="cs1">
+          <lrml:hasTemplate>
+            <ruleml:Rule key=":ruletemplate1" closure="universal">
+              <lrml:hasStrength>
+                <lrml:DefeasibleStrength key="str1" iri="http://example.org/legalruleml/ontology#defeasible1"/>
+              </lrml:hasStrength>
+            </ruleml:Rule>
+          </lrml:hasTemplate>
+        </lrml:ConstitutiveStatement>
+      </lrml:hasStatement>
+    </lrml:Statements>
+  </lrml:hasStatements>
+  <!-- Example 4 Prescriptive -->
+  <lrml:hasStatements>
+    <lrml:Statements>
+      <lrml:hasStatement>
+        <lrml:PrescriptiveStatement key="ps2">
+          <lrml:hasTemplate>
+            <ruleml:Rule key=":ruletemplate3" keyref=":ruletemplate2">
+              <lrml:hasStrength>
+                <lrml:Defeater key="str4"/>
+              </lrml:hasStrength>
+              <ruleml:then>
+                <ruleml:Atom key=":atom26">
+                  <ruleml:op><ruleml:Rel iri=":rel3"/></ruleml:op>
+                  <ruleml:arg index="1"><ruleml:Ind>X</ruleml:Ind></ruleml:arg>
+                </ruleml:Atom>
+              </ruleml:then>
+            </ruleml:Rule>
+          </lrml:hasTemplate>
+        </lrml:PrescriptiveStatement>
+      </lrml:hasStatement>
+    </lrml:Statements>
+  </lrml:hasStatements>
+  <!-- Example 5 ConstitutiveStatement -->
+  <lrml:hasStatements>
+    <lrml:Statements>
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement key="ps1">
+          <lrml:hasTemplate>
+            <ruleml:Rule key="ruleml:key1">
+              <lrml:hasStrength>
+                <lrml:DefeasibleStrength key="str1" iri="http://www.w3.org/2001/XMLSchema#defeasible1"/>
+              </lrml:hasStrength>
+              <ruleml:if>
+                <ruleml:Atom key=":atom1"/>
+              </ruleml:if>
+              <ruleml:then>
+                <ruleml:Atom key=":atom1"/>
+              </ruleml:then>
+            </ruleml:Rule>
+          </lrml:hasTemplate>
+        </lrml:ConstitutiveStatement>
+      </lrml:hasStatement>
+    </lrml:Statements>
+  </lrml:hasStatements>
+  <!-- Example 6-8 Obbligation -->
+  <lrml:hasStatements>
+    <lrml:Statements>
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement key="ps1">
+          <lrml:hasTemplate>
+            <ruleml:Rule key="ruleml:key1">
+              <lrml:hasStrength>
+                <lrml:Defeater key="str4"/>
+              </lrml:hasStrength>
+              <ruleml:if>
+                <ruleml:And>
+                  <!-- Example 6 Obbligation -->
+                  <!-- Example 8 Obbligation -->
+                  <ruleml:formula index="1">
+                    <lrml:Obligation key="oblig1" iri="ex:achievementObligation"/>
+                  </ruleml:formula>
+                  <ruleml:formula index="2">
+                    <lrml:Obligation iri="ex:obl1">
+                      <ruleml:slot><lrml:Bearer iri="ex:oblBearer"/><ruleml:Ind>Y</ruleml:Ind></ruleml:slot>
+                      <ruleml:formula>
+                        <ruleml:Atom key="ex:atom2">
+                          <ruleml:op><ruleml:Rel iri="ex:rel2"/></ruleml:op>
+                          <ruleml:arg index="1"><ruleml:Ind>X</ruleml:Ind></ruleml:arg>
+                        </ruleml:Atom>
+                      </ruleml:formula>
+                    </lrml:Obligation>
+                  </ruleml:formula>
+                </ruleml:And>
+              </ruleml:if>
+            </ruleml:Rule>
+          </lrml:hasTemplate>
+        </lrml:ConstitutiveStatement>
+      </lrml:hasStatement>
+    </lrml:Statements>
+  </lrml:hasStatements>
+  <!-- Example 9 Penalty -->
+  <lrml:hasStatements>
+    <lrml:Statements>
+      <lrml:hasStatement>
+        <lrml:PenaltyStatement key="pen1">
+          <lrml:hasTemplate>
+            <lrml:SuborderList/>
+          </lrml:hasTemplate>
+        </lrml:PenaltyStatement>
+      </lrml:hasStatement>
+    </lrml:Statements>
+  </lrml:hasStatements>
+  <!-- Example 10 Reparation -->
+  <lrml:hasStatements>
+    <lrml:Statements>
+      <lrml:hasStatement>
+        <lrml:ReparationStatement>
+          <lrml:hasTemplate>
+            <lrml:Reparation key="rep1">
+              <lrml:appliesPenalty keyref="#pen1"/>
+              <lrml:toPrescriptiveStatement keyref="#ps1"/>
+            </lrml:Reparation>
+          </lrml:hasTemplate>
+        </lrml:ReparationStatement>
+      </lrml:hasStatement>
+    </lrml:Statements>
+  </lrml:hasStatements>
+  <!-- Example 13 Alternatives -->
+  <lrml:hasStatements>
+    <lrml:Statements key="ss1">
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement keyref="#ps1"/>
+      </lrml:hasStatement>
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement keyref="#ps2"/>
+      </lrml:hasStatement>
+    </lrml:Statements>
+  </lrml:hasStatements>
+  <lrml:hasStatements>
+    <lrml:Statements key="ss2">
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement keyref="#ps3"/>
+      </lrml:hasStatement>
+    </lrml:Statements>
+  </lrml:hasStatements>
+  <!-- Example 14 Alternatives -->
+  <lrml:hasStatements>
+    <lrml:Statements key="ss1">
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement keyref="#ps1"/>
+      </lrml:hasStatement>
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement keyref="#ps2"/>
+      </lrml:hasStatement>
+    </lrml:Statements>
+  </lrml:hasStatements>
+  <lrml:hasStatements>
+    <lrml:Statements key="ss2">
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement keyref="#ps1"/>
+      </lrml:hasStatement>
+      <lrml:hasStatement>
+        <lrml:ConstitutiveStatement keyref="#ps3"/>
+      </lrml:hasStatement>
+    </lrml:Statements>
+  </lrml:hasStatements>
+</lrml:LegalRuleML>

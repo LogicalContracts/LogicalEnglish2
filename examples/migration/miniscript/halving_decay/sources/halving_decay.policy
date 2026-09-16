@@ -1,0 +1,18 @@
+# The spending policy of the Logical English twin halving_decay.
+#
+# source: the Bitcoin Core descriptor documentation
+#         https://github.com/bitcoin/bitcoin/blob/master/doc/descriptors.md
+#
+# it is Miniscript (or a descriptor) as it stands.
+# try it in Minsc (policy -> Miniscript -> Script -> address, in the browser):
+#     https://min.sc/#c=//%20A%204-of-4%20that%20decays%20to%203,%202%20and%201%20of%204%20at%20each%20of%20the%20next%20halvings%0A//%20The%20Logical%20English%20twin's%20policy%20(InsurLE2/migration/miniscript).%0A$key_1%20=%20%5B7258e4f9/44h/1h/0h%5DtpubDCZrkQoEU3845aFKUu9VQBYWZtrTwxMzcxnBwKFCYXHD6gEXvtFcxddCCLFsEwmxQaG15izcHxj48SXg1QS5FQGMBx5Ak6deXKPAL7wauBU/0/*;%20%20%20//%20key%201%20(as%20in%20the%20source)%0A$key_2%20=%20%5Bc80b1469/44h/1h/0h%5DtpubDD3UwwHoNUF4F3Vi5PiUVTc3ji1uThuRfFyBexTSHoAcHuWW2z8qEE2YujegcLtgthr3wMp3ZauvNG9eT9xfJyxXCfNty8h6rDBYU8UU1qq/0/*;%20%20%20//%20key%202%20(as%20in%20the%20source)%0A$key_3%20=%20%5B4e5024fe/44h/1h/0h%5DtpubDDLrpPymPLSCJyCMLQdmcWxrAWwsqqssm5NdxT2WSdEBPSXNXxwbeKtsHAyXPpLkhUyKovtZgCi47QxVpw9iVkg95UUgeevyAqtJ9dqBqa1/0/*;%20%20%20//%20key%203%20(as%20in%20the%20source)%0A$key_4%20=%20%5B3b1d1ee9/44h/1h/0h%5DtpubDCmDTANBWPzf6d8Ap1J5Ku7J1Ay92MpHMrEV7M5muWxCrTBN1g5f1NPcjMEL6dJHxbvEKNZtYCdowaSTN81DAyLsmv6w6xjJHCQNkxrsrfu/0/*;%20%20%20//%20key%204%20(as%20in%20the%20source)%0A%0Athresh(4,pk($key_1),pk($key_2),pk($key_3),pk($key_4),after(840000),after(1050000),after(1260000))%0A
+#
+# File > Open in the Logical English editor translates this file into the twin.
+
+7258e4f9 = key 1
+c80b1469 = key 2
+4e5024fe = key 3
+3b1d1ee9 = key 4
+
+# A 4-of-4 that decays to 3, 2 and 1 of 4 at each of the next halvings
+wsh(thresh(4,pk([7258e4f9/44h/1h/0h]tpubDCZrkQoEU3845aFKUu9VQBYWZtrTwxMzcxnBwKFCYXHD6gEXvtFcxddCCLFsEwmxQaG15izcHxj48SXg1QS5FQGMBx5Ak6deXKPAL7wauBU/<0;1>/*),s:pk([c80b1469/44h/1h/0h]tpubDD3UwwHoNUF4F3Vi5PiUVTc3ji1uThuRfFyBexTSHoAcHuWW2z8qEE2YujegcLtgthr3wMp3ZauvNG9eT9xfJyxXCfNty8h6rDBYU8UU1qq/<0;1>/*),s:pk([4e5024fe/44h/1h/0h]tpubDDLrpPymPLSCJyCMLQdmcWxrAWwsqqssm5NdxT2WSdEBPSXNXxwbeKtsHAyXPpLkhUyKovtZgCi47QxVpw9iVkg95UUgeevyAqtJ9dqBqa1/<0;1>/*),s:pk([3b1d1ee9/44h/1h/0h]tpubDCmDTANBWPzf6d8Ap1J5Ku7J1Ay92MpHMrEV7M5muWxCrTBN1g5f1NPcjMEL6dJHxbvEKNZtYCdowaSTN81DAyLsmv6w6xjJHCQNkxrsrfu/<0;1>/*),sln:after(840000),sln:after(1050000),sln:after(1260000)))

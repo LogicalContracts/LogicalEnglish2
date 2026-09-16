@@ -1,0 +1,143 @@
+{
+  "counts": {"approximated":0,"encoded":16,"residue":0},
+  "entries": [
+    {
+      "element":"is_on_or_before/2",
+      "in_program":"*a date* is on or before *a second date*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"has/2",
+      "in_program":"*a person* has *an obligation*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_that/2",
+      "in_program":"*an obligation* is that *a description*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"defaults_on/2",
+      "in_program":"*a borrower* defaults on *a date*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"cures_the_failure_of_on_or_before/3",
+      "in_program":"*a borrower* cures the failure of *an obligation* onorbefore *a date*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"fails_on_to_fulfil/3",
+      "in_program":"*a borrower* fails on *a date* to fulfil *an obligation*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"notifies_on_that/4",
+      "in_program":"*a lender* notifies *a borrower* on *a date* that *a message*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pays_to_on/4",
+      "in_program":"*a borrower* pays *an amount* to *a lender* on *a date*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the_loan_is_accelerated_on/1",
+      "in_program":"the loan is accelerated on *a date*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of is_on_or_before/2",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of defaults_on/2",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of cures_the_failure_of_on_or_before/3",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of fails_on_to_fulfil/3",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Scenario payment",
+      "in_program":"payment",
+      "kind":"scenario",
+      "mapping":"an LE1 scenario -> a scenario",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"?- defaults_on(_80626,_80628)",
+      "in_program":"the queries",
+      "kind":"query",
+      "mapping":"a ?- query -> a query, asked in every scenario",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_days_after/3, which LE1's programs call but do not define, is LE2's built-in *a date* is *a number* days after *a date*",
+      "in_program":"the program",
+      "kind":"dates",
+      "mapping":"LE1 dates and date arithmetic -> LE2 dates and built-ins",
+      "note":"is_days_after/3, which LE1's programs call but do not define, is LE2's built-in *a date* is *a number* days after *a date*",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {"errors":0,"failed":0,"passed":0,"tests": []},
+  "meta": {
+    "artifacts": ["loanwithcure-scasp.pl" ],
+    "date":"2026-09-15",
+    "program":"loanwithcure",
+    "source":"an s(CASP) program",
+    "translator":"InsurLE2/migration/scasp (scasp_twin.pl)"
+  },
+  "pending_expectations":1,
+  "source_tests":1
+}

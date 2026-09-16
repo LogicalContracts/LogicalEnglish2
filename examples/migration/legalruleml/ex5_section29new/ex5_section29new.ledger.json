@@ -1,0 +1,201 @@
+{
+  "counts": {"approximated":0,"encoded":13,"residue":4},
+  "entries": [
+    {
+      "element":"Rel engageCreditActivity/1",
+      "in_program":"*a person* engages in a credit activity",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rel hasLicence/1",
+      "in_program":"*a person* holds a credit licence",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rel imprisonment/2",
+      "in_program":"*a person* is imprisoned for *a term*",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rel payCivilUnits/2",
+      "in_program":"*a person* pays *a number* civil penalty units",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rel payPebnalUnitPlusImprisonment/3",
+      "in_program":"*a person* pays *a number* penalty units and is imprisoned for *a term*",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rel payPenalUnits/2",
+      "in_program":"*a person* pays *a number* penalty units",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rel person/1",
+      "in_program":"*a person* is a person",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"prescriptive statement ps1",
+      "in_program":"ps1",
+      "kind":"statement",
+      "mapping":"PrescriptiveStatement -> rules concluding obligations, permissions or prohibitions (deontic.le)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"prescriptive statement ps2",
+      "in_program":"ps2",
+      "kind":"statement",
+      "mapping":"PrescriptiveStatement -> rules concluding obligations, permissions or prohibitions (deontic.le)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Override ps2 over ps1",
+      "in_program":"ps1",
+      "kind":"override",
+      "mapping":"Override -> the under rule holds only when the over rule does not apply (E2)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Reparation reparation_1 (pen2 for ps1)",
+      "in_program":"reparation_1",
+      "kind":"reparation",
+      "mapping":"Reparation -> the penalty's chain of obligations on the violation",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Reparation assoc1 (pen1 for ps1)",
+      "in_program":"assoc1",
+      "kind":"reparation",
+      "mapping":"Reparation -> the penalty's chain of obligations on the violation",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ls1",
+      "in_program":"ls1",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"ascs0 -> atom1",
+      "in_program":"atom1",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"ascs0 -> atom2",
+      "in_program":"atom2",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"ascs0 -> atom3",
+      "in_program":"atom3",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"ascs1 -> oblig1",
+      "in_program":"oblig1",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":24,
+    "tests": [
+      {"detail":"","query":"prohibitions","result":"pass","scenario":"unlicensed_trader"},
+      {"detail":"","query":"obligations","result":"pass","scenario":"unlicensed_trader"},
+      {"detail":"","query":"permissions","result":"pass","scenario":"unlicensed_trader"},
+      {
+	"detail":"",
+	"query":"violated_obligations",
+	"result":"pass",
+	"scenario":"unlicensed_trader"
+      },
+      {
+	"detail":"",
+	"query":"violated_prohibitions",
+	"result":"pass",
+	"scenario":"unlicensed_trader"
+      },
+      {"detail":"","query":"breaches","result":"pass","scenario":"unlicensed_trader"},
+      {"detail":"","query":"prohibitions","result":"pass","scenario":"licensed_trader"},
+      {"detail":"","query":"obligations","result":"pass","scenario":"licensed_trader"},
+      {"detail":"","query":"permissions","result":"pass","scenario":"licensed_trader"},
+      {
+	"detail":"",
+	"query":"violated_obligations",
+	"result":"pass",
+	"scenario":"licensed_trader"
+      },
+      {
+	"detail":"",
+	"query":"violated_prohibitions",
+	"result":"pass",
+	"scenario":"licensed_trader"
+      },
+      {"detail":"","query":"breaches","result":"pass","scenario":"licensed_trader"},
+      {"detail":"","query":"prohibitions","result":"pass","scenario":"no_activity"},
+      {"detail":"","query":"obligations","result":"pass","scenario":"no_activity"},
+      {"detail":"","query":"permissions","result":"pass","scenario":"no_activity"},
+      {"detail":"","query":"violated_obligations","result":"pass","scenario":"no_activity"},
+      {"detail":"","query":"violated_prohibitions","result":"pass","scenario":"no_activity"},
+      {"detail":"","query":"breaches","result":"pass","scenario":"no_activity"},
+      {"detail":"","query":"prohibitions","result":"pass","scenario":"defaulter"},
+      {"detail":"","query":"obligations","result":"pass","scenario":"defaulter"},
+      {"detail":"","query":"permissions","result":"pass","scenario":"defaulter"},
+      {"detail":"","query":"violated_obligations","result":"pass","scenario":"defaulter"},
+      {"detail":"","query":"violated_prohibitions","result":"pass","scenario":"defaulter"},
+      {"detail":"","query":"breaches","result":"pass","scenario":"defaulter"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["ex5-section29new-normal.lrml" ],
+    "date":"2026-09-15",
+    "program":"ex5_section29new",
+    "source":"a LegalRuleML document (OASIS LegalRuleML Core 1.0)",
+    "translator":"InsurLE2/migration/legalruleml (lrml_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":4
+}

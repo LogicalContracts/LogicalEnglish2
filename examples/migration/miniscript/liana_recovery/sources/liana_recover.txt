@@ -1,0 +1,20 @@
+Liana doc/RECOVER.md (https://github.com/wizardsardine/liana/blob/master/doc/RECOVER.md, BSD-3-Clause), retrieved 2026-09-13.
+
+# Recover your Liana wallet using Bitcoin Core
+
+This document walks you through the step of recovering a Liana wallet using `bitcoind` and
+`bitcoin-cli`. You will need a couple things in order to follow this guide:
+- Your Liana wallet descriptor.
+- The date at which you created the Liana wallet (approximately).
+- The necessary signing devices. In this example we'll use a Ledger Nano S and [HWI](ht
+...
+## Create a Bitcoin Core wallet and import the Liana descriptor
+
+Your Liana wallet descriptor is probably of the form:
+```
+wsh(or_d(pk([a5c6b76e/48'/1'/0'/2']tpubDF5861hj6vR3iJr3aPjGJz4rNbqDCRujQ21mczzKT5SiedaQqNVgHC8HT9ceyxvMFRoPMx4P6HAcL3NZrUPhRUbwCyj3TKSa64bAfnE3sLh/<0;1>/\*),and_v(v:pkh([c477fd13/48'/1'/0'/2']tpubDFn7iPbFqGrTQ2aRACNsUK1MXQR4Z6dYfU2nD1WA9ifSaia642j3Wah4n5pBUEpERNWGJsyv3Dv5qwBabC9TLQrwSboKzukw9wmurGu7XVH/<0;1>/\*),older(3))))#8ldsjayd
+```
+Note the curious `<0;1>` step in the xpubs' derivation path. It's called a
+[multipath](https://github.com/bitcoin/bips/blob/master/bip-0389.mediawiki), a way to compress two
+derivation steps in a single expression so you only have to backup a single descriptor instead of
+two (one for deriving receive addresses and the other for change addresses).

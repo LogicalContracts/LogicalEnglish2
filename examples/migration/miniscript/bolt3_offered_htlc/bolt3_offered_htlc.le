@@ -1,0 +1,212 @@
+% A Lightning offered HTLC (BOLT #3)
+%
+% The Logical English twin of a Bitcoin spending policy, written by the
+% Miniscript translator (InsurLE2/migration/miniscript). Who can spend the
+% coin, when, and why: each rule is one spending path of the policy.
+%
+% Source: the Miniscript page
+%         https://bitcoin.sipa.be/miniscript/
+%
+% The source, as written:
+%     or(pk(key_revocation),and(pk(key_remote),or(pk(key_local),hash160(H))))
+%
+% The source, laid out (keys and hashes by their role, <like this>):
+%     or(
+%       pk(<the revocation key>),
+%       and(
+%         pk(<the remote node>),
+%         or(pk(<the local node>),hash160(<the payment hash>))))
+%
+% The legend (role <- key or hash as written in the source):
+%     the revocation key <- key_revocation
+%     the remote node    <- key_remote
+%     the local node     <- key_local
+%     the payment hash   <- H
+%
+% What it says (the spending policy, by BIP 379's semantics):
+%     any one of these:
+%       a signature by the revocation key
+%       all of these:
+%         a signature by the remote node
+%         any one of these:
+%           a signature by the local node
+%           the preimage of the payment hash (hash160)
+%
+% Try it in Minsc (the policy compiled to Miniscript, Script and an address,
+% in the browser): the document "the policy in Minsc" below.
+
+the target language is: prolog.
+
+the knowledge base bolt3_offered_htlc includes these resources:
+    temporal.
+
+the templates are:
+    the coin can be spent.
+    the witness reveals the preimage of *a hash*; scenario element.
+    the witness contains a signature by *a key*; scenario element.
+    the hash function of *a hash* is *a function*.
+
+the knowledge base bolt3_offered_htlc includes:
+
+the Miniscript page is published at "https://bitcoin.sipa.be/miniscript/".
+the text of the Miniscript page is at "sources/sipa_miniscript.txt".
+
+the policy in Minsc is published at "https://min.sc/#c=//%20A%20Lightning%20offered%20HTLC%20(BOLT%20%233)%0A//%20The%20Logical%20English%20twin's%20policy%20(InsurLE2/migration/miniscript).%0A$revocation_key%20=%20028071f961bf66967e8b92b2564cca5590e958305ce382ebeeb56e866b6baf3edc;%20%20%20//%20the%20revocation%20key%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$remote_node%20=%20020df516861bd00658af8cf7c4655ceb20f61ba23075a37244dff7db5676c93234;%20%20%20//%20the%20remote%20node%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$local_node%20=%20038fed93f74b169ba9410f1a39dde6b9c6eea84650dc79967a27f52757c197fbc8;%20%20%20//%20the%20local%20node%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$payment_hash%20=%2005e3ba7e31a630b74c699bd5ddd19be207987f26;%20%20%20//%20the%20payment%20hash,%20hash160%20(the%20hash%20of%20a%20test%20preimage:%20the%20source%20names%20no%20hash)%0A%0Aor(pk($revocation_key),and(pk($remote_node),or(pk($local_node),hash160($payment_hash))))%0A".
+
+the Tape run of 2026-09-14 is published at "https://tape.rewindbitcoin.com/explorer/address/bcrt1qm8sw9929w2rr3lch764hw3mzehxwlg7xeyd00xkey4l2k07zshzs0cdyq2".
+the text of the Tape run of 2026-09-14 is at "sources/bolt3_offered_htlc.chain.json".
+
+% The keys and hashes of the policy, as the source writes them.
+the hash function of the payment hash is hash160.
+
+% The spending paths of the policy.
+rule revocation with provenance the Miniscript page,
+        confer "The BOLT #3 offered HTLC policy: or(pk(key_revocation),and(pk(key_remote),or(pk(key_local),hash160(H))))":
+the coin can be spent if
+    the witness contains a signature by the revocation key.
+
+rule remote_with_local_or_preimage with provenance the Miniscript page,
+        confer "The BOLT #3 offered HTLC policy: or(pk(key_revocation),and(pk(key_remote),or(pk(key_local),hash160(H))))":
+the coin can be spent if
+    the witness contains a signature by the remote node
+    and the witness contains a signature by the local node
+        or the witness reveals the preimage of the payment hash.
+
+scenario path_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 1 — the path needs: the preimage of the payment hash, a signature by the remote node
+    the witness contains a signature by the remote node.
+    the witness reveals the preimage of the payment hash.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_1_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 1 without requirement 1 — the path needs: the preimage of the payment hash, a signature by the remote node
+    the witness contains a signature by the remote node.
+    spendable expects answers [].
+
+scenario path_1_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 1 without requirement 2 — the path needs: the preimage of the payment hash, a signature by the remote node
+    the witness reveals the preimage of the payment hash.
+    spendable expects answers [].
+
+scenario path_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 2 — the path needs: a signature by the local node, a signature by the remote node
+    the witness contains a signature by the local node.
+    the witness contains a signature by the remote node.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_2_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 2 without requirement 1 — the path needs: a signature by the local node, a signature by the remote node
+    the witness contains a signature by the remote node.
+    spendable expects answers [].
+
+scenario path_2_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 2 without requirement 2 — the path needs: a signature by the local node, a signature by the remote node
+    the witness contains a signature by the local node.
+    spendable expects answers [].
+
+scenario path_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path 3 — the path needs: a signature by the revocation key
+    the witness contains a signature by the revocation key.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_3_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 3 without requirement 1 — the path needs: a signature by the revocation key
+    spendable expects answers [].
+
+scenario no_witness is, as stated in the satisfaction analysis of the policy:
+    % an empty witness
+    spendable expects answers [].
+
+scenario flip_now is, as stated in the flip analysis of the policy:
+    % nothing signed, no delay passed
+    flip_spend expects changes [["add: the witness contains a signature by the revocation key"]].
+
+scenario flip_after_delays is, as stated in the flip analysis of the policy:
+    % nothing signed, every delay passed
+    flip_spend expects changes [["add: the witness contains a signature by the revocation key"]].
+
+scenario lost_the_revocation_key is, as stated in the flip analysis of the policy:
+    % the key of the revocation key lost, everything else given
+    the witness contains a signature by the remote node.
+    the witness contains a signature by the local node.
+    the witness reveals the preimage of the payment hash.
+    spendable expects answers ["the coin can be spent"].
+    flip_block expects changes [["remove: the witness contains a signature by the remote node"]].
+
+scenario lost_the_remote_node is, as stated in the flip analysis of the policy:
+    % the key of the remote node lost, everything else given
+    the witness contains a signature by the revocation key.
+    the witness contains a signature by the local node.
+    the witness reveals the preimage of the payment hash.
+    spendable expects answers ["the coin can be spent"].
+    flip_block expects changes [["remove: the witness contains a signature by the revocation key"]].
+
+scenario lost_the_local_node is, as stated in the flip analysis of the policy:
+    % the key of the local node lost, everything else given
+    the witness contains a signature by the revocation key.
+    the witness contains a signature by the remote node.
+    the witness reveals the preimage of the payment hash.
+    spendable expects answers ["the coin can be spent"].
+    flip_block expects changes [["remove: the witness contains a signature by the remote node", "remove: the witness contains a signature by the revocation key"], ["remove: the witness contains a signature by the revocation key", "remove: the witness reveals the preimage of the payment hash"]].
+
+scenario chain_path_1 is, as stated in the Tape run of 2026-09-14 at transaction ee8f879ae37a7abee26fb39c2a3a602459dfbf8215e3b130b293012a31b7e755:
+    % the chain accepted the spend: transaction ee8f879ae37a7abee26fb39c2a3a602459dfbf8215e3b130b293012a31b7e755
+    the witness contains a signature by the remote node.
+    the witness reveals the preimage of the payment hash.
+    spendable expects answers ["the coin can be spent"].
+
+scenario chain_path_1_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_1:
+    % the chain refused the spend: mempool-script-verify-flag-failed (Script failed an OP_CHECKSIGVERIFY operation)
+    the witness reveals the preimage of the payment hash.
+    spendable expects answers [].
+
+scenario chain_path_1_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_2:
+    % the chain refused the spend: mempool-script-verify-flag-failed (Script failed an OP_EQUALVERIFY operation)
+    the witness contains a signature by the remote node.
+    spendable expects answers [].
+
+scenario chain_path_2 is, as stated in the Tape run of 2026-09-14 at transaction d648dfa1acedd8592fe4eaf469cc0cbead5e4b8995055e24398a3b01fa86a57b:
+    % the chain accepted the spend: transaction d648dfa1acedd8592fe4eaf469cc0cbead5e4b8995055e24398a3b01fa86a57b
+    the witness contains a signature by the local node.
+    the witness contains a signature by the remote node.
+    spendable expects answers ["the coin can be spent"].
+
+scenario chain_path_2_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_2:
+    % the chain refused the spend: mempool-script-verify-flag-failed (Script failed an OP_CHECKSIGVERIFY operation)
+    the witness contains a signature by the local node.
+    spendable expects answers [].
+
+scenario chain_path_3 is, as stated in the Tape run of 2026-09-14 at transaction e8c75778ecdf7e9a3c2c4b59000023966aa73b0196bc5162260f70bb0c870e11:
+    % the chain accepted the spend: transaction e8c75778ecdf7e9a3c2c4b59000023966aa73b0196bc5162260f70bb0c870e11
+    the witness contains a signature by the revocation key.
+    spendable expects answers ["the coin can be spent"].
+
+scenario chain_path_3_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_3_without_1:
+    % the chain refused the spend: mempool-script-verify-flag-failed (Operation not valid with the current stack size)
+    spendable expects answers [].
+
+query spendable is:
+    the coin can be spent.
+
+query flip_spend is:
+    which minimal change to the scenario makes it the case that
+        the coin can be spent.
+
+query flip_block is:
+    which minimal change to the scenario makes it the case that
+        it is not the case that the coin can be spent.
+
+query hash_functions is:
+    the hash function of which hash is which function.
+
+the view custody explainer is:
+    the title is "Who can spend this coin: A Lightning offered HTLC (BOLT #3)".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the witness" are
+        the witness reveals the preimage of a hash,
+        the witness contains a signature by a key.
+    the result is whether the coin can be spent.
+    the result shows its reasons.
+    the result shows its citations.
+    the result can be flipped, as "What would let this coin be spent?".
+
