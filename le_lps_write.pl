@@ -1,6 +1,6 @@
 /** <module> LPS internal syntax back to Logical English
 
-    `dump_le`: the direction docs/LPSplusLLM.md §I.9.5 asks for, and the reason
+    `dump_le`: the direction lps2's docs/LPSplusLLM.md §I.9.5 asks for, and the reason
     it lives here rather than in LPS(2) — LE2 owns the template dictionary, so
     LE2 owns the only mapping that can be inverted. A template is what tells
     `played(miguel, rock)` from `beats(rock, scissors)`; without one there is

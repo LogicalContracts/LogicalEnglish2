@@ -3283,7 +3283,9 @@ handle_docs(Request) :-
     atom_concat('/docs/', Rel0, Path),
     ( sub_atom(Rel0, _, _, 0, '/') -> atom_concat(Rel, '/', Rel0 ) ; Rel = Rel0 ),
     docs_dir(DocsDir),
-    (   safe_docs_path(DocsDir, Rel, AbsFile), exists_file(AbsFile)
+    (   \+ public_doc(Rel)
+    ->  throw(http_reply(not_found(Path)))
+    ;   safe_docs_path(DocsDir, Rel, AbsFile), exists_file(AbsFile)
     ->  http_reply_file(AbsFile, [unsafe(true)], Request)   % image, or raw .md; safe_docs_path already vetted it
     ;   atom_concat(Rel, '.md', RelMd),
         safe_docs_path(DocsDir, RelMd, AbsMd), exists_file(AbsMd)
@@ -3292,6 +3294,34 @@ handle_docs(Request) :-
     ).
 
 docs_dir(Dir) :- absolute_file_name('docs', Dir, [file_type(directory), access(read)]).
+
+%!  public_doc(+Rel:atom) is semidet.
+%
+%   Rel (a path under docs/, with or without its `.md`) is a document the
+%   server publishes: the user documentation and what it links to. Plans,
+%   reviews, papers, research material and private notes are in the
+%   repository, not on the web (docs/NewDocumentationStructure.md §1.3).
+public_doc(Rel) :-
+    (   file_name_extension(Base, md, Rel) -> true ; Base = Rel ),
+    public_doc_entry(Entry),
+    (   sub_atom(Entry, _, 1, 0, '/')
+    ->  sub_atom(Rel, 0, _, _, Entry)
+    ;   Base == Entry
+    ), !.
+
+public_doc_entry('tutorial0/').
+public_doc_entry('images/').
+public_doc_entry('IntroducingLEViews/').
+public_doc_entry(le_summary).
+public_doc_entry('le_summary.pt').
+public_doc_entry(howToUse).
+public_doc_entry('IntroducingLEViews').
+public_doc_entry('ProofGame').
+public_doc_entry('sCASP_on_LE').
+public_doc_entry(warningsSummary).
+public_doc_entry(api).
+public_doc_entry(le_migration).
+public_doc_entry(telemetry).
 
 %!  handle_executive(+Request) is det.
 %

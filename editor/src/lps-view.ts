@@ -8,7 +8,7 @@
  * ## Two backends, and no proxy
  *
  * This page talks to BOTH servers and picks by what it is doing, exactly as
- * docs/le_lps_design.md §3 argues it should:
+ * lps2's docs/le_lps_design.md §3 argues it should:
  *
  *     /leapi   (LE2, :3050)   parses Logical English  ->  getLps
  *     /lpsapi  (LPS 2, :3060) runs LPS                ->  compile, run, ...

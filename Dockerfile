@@ -47,7 +47,7 @@ COPY llm/ ./llm/
 COPY editor/ ./editor/
 COPY web_extras/ ./web_extras/
 COPY docs/ ./docs/
-COPY AGENTS_LE_template.md ./
+COPY AGENTS_LE_template.md AGENTS_LE_template.pt.md ./
 COPY opencode.json ./
 
 # Set environment variables for opencode
