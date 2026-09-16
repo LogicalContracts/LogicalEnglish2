@@ -6,7 +6,7 @@
     `library(scasp)`, and normalises the resulting justification tree into the
     same explanation-tree JSON the existing UI consumes.
 
-    Design notes (see docs/sCASP_plan.md):
+    Design notes (see docs/project/plans/sCASP_plan.md):
       - The LE clause bodies are trees of and/2, or/2, not/1 and le_at/3 wrappers
         over leaf goals; we strip le_at, translate the connectives, and lower
         each leaf.

@@ -344,7 +344,7 @@ global_name_of(KB, Term, V-M0, V-M) :-
 %!  shorten_times(!Term) is det.
 %
 %   The times a sentence need not name, bound to markers the renderer leaves
-%   out (docs/le_lps_surface.md §3.1):
+%   out (lps2's docs/user/reference/le-for-lps.md §3.1):
 %
 %     - a causal law or a constraint whose conditions all read the state at
 %       the start of its one event, and which uses the event's end nowhere,
@@ -485,7 +485,7 @@ sentence(KB, Ns, terminated(Trigger, F, Conds), Text) :- !,
 	format(atom(Text), '~w\nthen it is not the case that ~w.', [Head, S]).
 
 %   Several effects of one event under the same conditions, one sentence
-%   (docs/le_lps_surface.md §3.4: "several may be joined with `and`"; read
+%   (lps2's docs/user/reference/le-for-lps.md §3.4: "several may be joined with `and`"; read
 %   back, one law per effect): `effects(Trigger, Conds, [initiated(F),
 %   terminated(G), ...])`, a writer's form, not an LPS term. The additions
 %   come first.

@@ -50,7 +50,7 @@ test(later_mentions_are_definite) :-
     T1 = T1.
 
 %   A constraint whose conditions all read the state at the start of its one
-%   event needs no times (docs/le_lps_surface.md §3.1); it reads back as the
+%   event needs no times (lps2's docs/user/reference/le-for-lps.md §3.1); it reads back as the
 %   same term.
 test(times_elided) :-
     T = d_pre([happens(transfer(S, A, R), T1, _), holds(balance(S, B), T1), B < A, R = zero]),

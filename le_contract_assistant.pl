@@ -4632,9 +4632,9 @@ prompt_text(Name, Text) :-
 :- prolog_load_context(directory, D), retractall(ca_source_dir(_)), assertz(ca_source_dir(D)).
 
 le_syntax_summary(Text) :-
-    % The active language's variant (docs/le_summary.<lang>.md) when present;
+    % The active language's variant (docs/user/reference/language.<lang>.md) when present;
     % see set_request_language/1 — the request's ?lang= parameter selects it.
-    le_i18n:localized_asset('docs/le_summary', md, Path),
+    le_i18n:localized_asset('docs/user/reference/language', md, Path),
     (   exists_file(Path) -> read_file_to_string(Path, Text0, [])
     ;   % Without the syntax reference every generated program would be
         % garbage in mysterious ways: fail loudly, like a missing stage prompt.

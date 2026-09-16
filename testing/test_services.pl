@@ -1,6 +1,6 @@
 /** <module> Services: call once, cache, attribute (semantic predicates over text)
 
-    LE_extensions_proposal §3.6 and §4.1, docs/le_summary.md §17.6. Covers
+    LE_extensions_proposal §3.6 and §4.1, docs/user/reference/language.md §17.6. Covers
     canonicalisation, the session cache, the persistent cache (hit, version
     refusal, warm cache with the service down), the HTTP backend against a
     live stub server, attribution in explanations and scoped proofs,

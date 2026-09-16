@@ -1,6 +1,6 @@
 # Extension constructs (need le_extensions.pl)
 
-Programs using the constructs of docs/le_summary.md §15 that the proprietary
+Programs using the constructs of docs/user/reference/language.md §15 that the proprietary
 `le_extensions.pl` implements; they run where it is installed (the hosted
 service), and are left out of the core test suite.
 

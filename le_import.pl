@@ -2,7 +2,7 @@
 
     File ▸ Open in the editor accepts, besides `.le`, the files of the
     systems a translator is registered for (InsurLE2/docs/
-    MiggratingFromOtherSystems.md, docs/le_migration.md). This module is the
+    MiggratingFromOtherSystems.md, docs/dev/migration.md). This module is the
     door they all go through; it knows no source system. A translator
     registers itself with one clause of importer/6:
 
@@ -495,7 +495,7 @@ export_refusal(Target, Problems0, Options, Reply) :-
 %!  kb_constraint_problems(+KB, +Target, -Problems) is det.
 %
 %   A problem for each integrity constraint of the program (`it must not be
-%   true that …`, le_constraint/1 clauses: docs/le_summary.md), for an
+%   true that …`, le_constraint/1 clauses: docs/user/reference/language.md), for an
 %   exporter whose target has no constraints: the Migration IR does not
 %   carry them (they are LE's own predicate), so an exporter that reads only
 %   the IR would drop them without a word.

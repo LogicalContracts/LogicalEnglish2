@@ -1,7 +1,7 @@
 # Regulatory decisions: provenance, tables, sections, views
 
-The programs of the regulatory-decision constructs, docs/le_summary.md §17,
-and of LE Views (docs/IntroducingLEViews.md):
+The programs of the regulatory-decision constructs, docs/user/reference/language.md §17,
+and of LE Views (docs/user/tutorials/views.md):
 
 - `judged_damage.le` — provenance-bearing facts and judged templates (§17.1).
 - `otherwise_table.le`, `loaded_table.le` (+ `shipping.csv`) — `otherwise` and decision tables (§17.2, §17.3).

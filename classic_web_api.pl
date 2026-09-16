@@ -48,7 +48,7 @@
 :- http_handler(root(leapi), handle_leapi, [method(post)]).
 :- http_handler(root(build_info), handle_build_info, [method(get)]).
 % Error reports and analytics, when the environment configures them
-% (le_telemetry.pl, docs/telemetry.md): every page loads /telemetry.js.
+% (le_telemetry.pl, docs/dev/telemetry.md): every page loads /telemetry.js.
 :- http_handler(root('telemetry.js'), handle_telemetry_js, [method(get)]).
 :- http_handler(root(telemetry_test), handle_telemetry_test, [method(get)]).
 % Stub services for tests of programs that declare services (le_services.pl):
@@ -346,12 +346,7 @@ handle_landing_page(Request) :-
     uit('A minimalist, mobile-friendly way to pick a program, choose a scenario and question, and see the answer — no editing.', ExecBlurb),
     uit('GitHub Repository', GitHubRepo),
     uit('Documentation', DocumentationTxt),
-    uit('A Gentle Introduction to Logical English 2', IntroTxt),
-    uit('Start here: a hands-on tutorial that builds three small programs — a tea party, a flying dragon, and a slice of British nationality law — teaching how to write, query and debug LE in the editor.', IntroBlurb),
-    uit('How to use the LE2 web application', HowToTxt),
-    uit('The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.', HowToBlurb),
-    uit('Logical English syntax summary', SyntaxTxt),
-    uit('The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.', SyntaxBlurb),
+    landing_doc_items(DocItems),
     uit('Test Suite', TestSuiteTxt),
     uit('Run All Tests', RunAllTests),
     reply_html_page(
@@ -394,26 +389,7 @@ handle_landing_page(Request) :-
                 li(a(href('https://github.com/mcalejo/LogicalEnglish2'), GitHubRepo))
             ]),
             h2(DocumentationTxt),
-            ul([
-                li([
-                    a([href('/docs/tutorial0/IntroToLE2'), target('_blank')],
-                      IntroTxt),
-                    br([]),
-                    small(IntroBlurb)
-                ]),
-                li([
-                    a([href('/docs/howToUse'), target('_blank')],
-                      HowToTxt),
-                    br([]),
-                    small(HowToBlurb)
-                ]),
-                li([
-                    a([href('/docs/le_summary'), target('_blank')],
-                      SyntaxTxt),
-                    br([]),
-                    small(SyntaxBlurb)
-                ])
-            ]),
+            ul(DocItems),
             h2(TestSuiteTxt),
             form([action('/'), method('get')], [
                 input([type(hidden), name(run_tests), value(true)]),
@@ -727,13 +703,13 @@ multilingual_landing_page(Lang, LangDir) :-
     build_info(BuildInfo),
     landing_folders_script(FolderScript),
     ui_lang_pref_script(Lang, PrefScript),
-    % The syntax summary, when a translation exists (docs/le_summary.<lang>.md).
-    (   atomic_list_concat(['docs/le_summary.', Lang, '.md'], SummaryFile),
+    % The syntax summary, when a translation exists (docs/user/reference/language.<lang>.md).
+    (   atomic_list_concat(['docs/user/reference/language.', Lang, '.md'], SummaryFile),
         exists_file(SummaryFile)
     ->  uit('Documentation', DocumentationTxt),
         uit('Logical English syntax summary', SyntaxTxt),
         uit('The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.', SyntaxBlurb),
-        format(atom(SummaryUrl), '/docs/le_summary.~w', [Lang]),
+        format(atom(SummaryUrl), '/docs/user/reference/language.~w', [Lang]),
         DocsSection = [h2(DocumentationTxt),
                        ul([li([a([href(SummaryUrl), target('_blank')], SyntaxTxt),
                                br([]),
@@ -2389,7 +2365,7 @@ convert_why_deduped(Why, KB, JSON) :-
 %!  add_provenance_json(+KB, +JSON0, -JSON) is det.
 %
 %   A node proved by a fact or a rule that carries provenance (a fact's
-%   trailers, a rule label's `with provenance`, docs/le_summary.md §15.5 and
+%   trailers, a rule label's `with provenance`, docs/user/reference/language.md §15.5 and
 %   §17.1) gets a `provenance` dict — who, which document, where, why, and the
 %   addresses to open the document and its text — so the editor can take the
 %   reader to the source (le_provenance:provenance_dict/4); a labelled rule's
@@ -2734,7 +2710,7 @@ handle_get_prolog(Dict, Response) :-
 % "See PROLOG" which shows one clause), together with any compile-time issues.
 %!  handle_get_lps(+Dict, -Response) is det.
 %
-%   docs/le_lps_interface.md §3.1: translate a Logical English document to LPS
+%   lps2's docs/dev/le-lps-interface.md §3.1: translate a Logical English document to LPS
 %   internal syntax, and answer with the §2 object
 %   `{lps, provenance, issues}`.
 %
@@ -3272,8 +3248,8 @@ is_interesting_term(Head) :-
 %   chrome), from the docs/ tree:
 %   - a request for an EXISTING file under docs/ (an image, or a raw .md that
 %     the viewer fetches) is served directly;
-%   - a request for a doc NAME (e.g. /docs/tutorial0/IntroToLE2, where
-%     docs/tutorial0/IntroToLE2.md exists) returns the Markdown viewer shell,
+%   - a request for a doc NAME (e.g. /docs/user/tutorials/intro-to-le/intro-to-le, where
+%     docs/user/tutorials/intro-to-le/intro-to-le.md exists) returns the Markdown viewer shell,
 %     which fetches that same path + ".md" and renders it client-side.
 %   The rendered page sits at the same path depth as its .md source, so the
 %   document's relative image references resolve to the right files under docs/.
@@ -3283,7 +3259,11 @@ handle_docs(Request) :-
     atom_concat('/docs/', Rel0, Path),
     ( sub_atom(Rel0, _, _, 0, '/') -> atom_concat(Rel, '/', Rel0 ) ; Rel = Rel0 ),
     docs_dir(DocsDir),
-    (   \+ public_doc(Rel)
+    (   ( file_name_extension(Old, md, Rel) -> Ext = '.md' ; Old = Rel, Ext = '' ),
+        doc_moved(Old, New)
+    ->  format(atom(To), '/docs/~w~w', [New, Ext]),
+        http_redirect(moved, To, Request)
+    ;   \+ public_doc(Rel)
     ->  throw(http_reply(not_found(Path)))
     ;   safe_docs_path(DocsDir, Rel, AbsFile), exists_file(AbsFile)
     ->  http_reply_file(AbsFile, [unsafe(true)], Request)   % image, or raw .md; safe_docs_path already vetted it
@@ -3297,31 +3277,51 @@ docs_dir(Dir) :- absolute_file_name('docs', Dir, [file_type(directory), access(r
 
 %!  public_doc(+Rel:atom) is semidet.
 %
-%   Rel (a path under docs/, with or without its `.md`) is a document the
-%   server publishes: the user documentation and what it links to. Plans,
-%   reviews, papers, research material and private notes are in the
-%   repository, not on the web (docs/NewDocumentationStructure.md §1.3).
+%   Rel (a path under docs/) is a document the server publishes: everything
+%   under docs/user/, the user documentation. docs/dev and docs/project (and
+%   the private notes) are in the repository, not on the web.
 public_doc(Rel) :-
-    (   file_name_extension(Base, md, Rel) -> true ; Base = Rel ),
-    public_doc_entry(Entry),
-    (   sub_atom(Entry, _, 1, 0, '/')
-    ->  sub_atom(Rel, 0, _, _, Entry)
-    ;   Base == Entry
-    ), !.
+    sub_atom(Rel, 0, _, _, 'user/').
 
-public_doc_entry('tutorial0/').
-public_doc_entry('images/').
-public_doc_entry('IntroducingLEViews/').
-public_doc_entry(le_summary).
-public_doc_entry('le_summary.pt').
-public_doc_entry(howToUse).
-public_doc_entry('IntroducingLEViews').
-public_doc_entry('ProofGame').
-public_doc_entry('sCASP_on_LE').
-public_doc_entry(warningsSummary).
-public_doc_entry(api).
-public_doc_entry(le_migration).
-public_doc_entry(telemetry).
+%!  doc_moved(?Old:atom, ?New:atom) is nondet.
+%
+%   The documents' addresses before docs/ was reorganised
+%   (docs/project/plans/NewDocumentationStructure.md): links to them redirect.
+doc_moved(le_summary, 'user/reference/language').
+doc_moved('le_summary.pt', 'user/reference/language.pt').
+doc_moved(howToUse, 'user/guide/editor').
+doc_moved('tutorial0/IntroToLE2', 'user/tutorials/intro-to-le/intro-to-le').
+doc_moved('IntroducingLEViews', 'user/tutorials/views').
+doc_moved('ProofGame', 'user/guide/proof-game').
+doc_moved(warningsSummary, 'user/guide/warnings').
+doc_moved('sCASP_on_LE', 'user/reference/scasp').
+doc_moved(api, 'user/api/web-api').
+
+%!  landing_doc_items(-Items:list) is det.
+%
+%   The landing page's Documentation list: the documents nav.json marks
+%   `landing`, each with its blurb, in the UI language.
+landing_doc_items(Items) :-
+    (   doc_nav(Nav)
+    ->  findall(li([a([href(Url), target('_blank')], Title), br([]), small(Blurb)]),
+                ( member(Section, Nav.sections), member(Item, Section.items),
+                  get_dict(landing, Item, true),
+                  atom_string(Path, Item.path),
+                  atom_concat('/docs/user/', Path, Url),
+                  atom_string(T0, Item.title), uit(T0, Title),
+                  atom_string(B0, Item.blurb), uit(B0, Blurb) ),
+                Items)
+    ;   Items = []
+    ).
+
+%!  doc_nav(-Nav:dict) is semidet.
+%
+%   docs/user/nav.json: the table of contents the Help menu, the landing page
+%   and the documentation viewer are built from.
+doc_nav(Nav) :-
+    catch(( setup_call_cleanup(open('docs/user/nav.json', read, In, [encoding(utf8)]),
+                               json_read_dict(In, Nav),
+                               close(In)) ), _, fail).
 
 %!  handle_executive(+Request) is det.
 %

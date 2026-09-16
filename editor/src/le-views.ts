@@ -1,4 +1,4 @@
-// LE Views (docs/le_summary.md §17.10): a screen for one program, composed of
+// LE Views (docs/user/reference/language.md §17.10): a screen for one program, composed of
 // generic widgets as the program's view section says — which facts the case
 // states and how they are grouped, which query is the result, what is shown
 // beside it. The server compiles the view (le_views.pl) into the `views` of

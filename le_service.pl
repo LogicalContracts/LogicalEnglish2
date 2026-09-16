@@ -17,7 +17,7 @@
 
       1. **The payload** — le_lps_text/4, le_lps_file/4, le_lps_module/5,
          le_lps_dict/4, le_lps_json/1, le_lps_json_text/1, re-exported from
-         le_lps unchanged. This is the §2 object of docs/le_lps_interface.md
+         le_lps unchanged. This is the §2 object of lps2's docs/dev/le-lps-interface.md
          and it does not change shape because it is now reached differently.
       2. **Lifecycle and containment** — le_kb_of_text/3, le_kb_dispose/1,
          and the network switch re-exported from le_kbs.
@@ -363,7 +363,7 @@ le_languages(Languages) :-
 %   Type the head noun the author typed the slot with (`unknown` when the
 %   slot is untyped). `Position` is `pos(Start, End, Line, Col)` with Start
 %   and End character offsets and Line/Col 1-based and 0-based respectively —
-%   the convention docs/le_lps_interface.md §2 fixes for everything crossing
+%   the convention lps2's docs/dev/le-lps-interface.md §2 fixes for everything crossing
 %   this boundary — or `pos(none, none, 0, 0)` for a template with no source.
 %
 %   `Flags` carries what the additions said: `prepositional`, `unknown`,

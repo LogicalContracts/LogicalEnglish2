@@ -3,7 +3,7 @@ the target language is: lps.
 % Two agents disagreeing about the lights.
 % Source: legacy_lps1/examples/CLOUT_workshop/badlight.pl
 %
-% The 2-D visual mapping is NOT in this language (docs/le_lps_surface.md
+% The 2-D visual mapping is NOT in this language (lps2's docs/user/reference/le-for-lps.md
 % §3.10): display/2 is a property list of shapes and coordinates and reads no
 % better in English than in Prolog. It lives in the companion file
 % badlight.lps, which compiles together with this one.

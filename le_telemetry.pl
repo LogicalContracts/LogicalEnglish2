@@ -6,7 +6,7 @@
     /telemetry.js (web_extras/telemetry/telemetry.js behind the configuration
     built here), which reports the page's own errors, offers Sentry's
     feedback form, and loads Cloudflare's Web Analytics beacon.
-    docs/telemetry.md says how to set them up.
+    docs/dev/telemetry.md says how to set them up.
 
         LE_SENTRY_DSN                   the Sentry project's DSN
         LE_SENTRY_ENVIRONMENT           default `production`
@@ -126,7 +126,7 @@ telemetry_js(JS) :-
     ->  with_output_to(string(CJ), json_write_dict(current_output, Config, [width(0)])),
         client_script(Client),
         format(string(JS), "var TELEMETRY = ~w;~n~w", [CJ, Client])
-    ;   JS = "/* telemetry: off (docs/telemetry.md) */\n"
+    ;   JS = "/* telemetry: off (docs/dev/telemetry.md) */\n"
     ).
 
 client_script(Text) :-

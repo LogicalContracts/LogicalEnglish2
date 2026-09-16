@@ -1,4 +1,4 @@
-/** <module> Views (docs/le_summary.md §17.10)
+/** <module> Views (docs/user/reference/language.md §17.10)
 
     A view is a section of sentences saying how a screen shows the program:
     compiled by le_views.pl into the load's `views`, checked by the verifier,

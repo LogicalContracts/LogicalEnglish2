@@ -43,7 +43,7 @@ scenario undecided is:
 query payable is:
     which claim is payable.
 
-% A view (docs/le_summary.md §17.10): the claim file a claims handler works
+% A view (docs/user/reference/language.md §17.10): the claim file a claims handler works
 % from — the facts with who states them, the judgment apart, what is still
 % open, every claim with its outcome.
 the view claim file is:

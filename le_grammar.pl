@@ -397,7 +397,7 @@ sections([S|Ss]) --> section(S), !, sections(Ss).
 sections([]) --> [].
 
 % section(extends(...)) parses "the knowledge base <name> extends <base>, <base>."
-% (docs/le_lps_surface.md §1.1): the bases are found the way included resources
+% (lps2's docs/user/reference/le-for-lps.md §1.1): the bases are found the way included resources
 % are, and give their templates, laws, constraints and timeless rules — never
 % their `initially`, settings, scenarios or queries (le_kbs:fetch_resources/3).
 % Tried before the kb sections, whose name would otherwise run on to the next
@@ -419,7 +419,7 @@ section(resources(Name, Resources, Start, End)) -->
     { reconstruct_name(Tokens, Name) },
     resource_list(Resources, End).
 
-% section(services(...)) parses a services declaration (docs/le_summary.md §17.6):
+% section(services(...)) parses a services declaration (docs/user/reference/language.md §17.6):
 %     the knowledge base kb includes these services:
 %         matcher at https://models.example.org/embed as a semantic matcher,
 %         judge at llm:openai/gpt-oss-120b as a judgment assistant.
@@ -474,7 +474,7 @@ section(provenance_required(Start, End)) -->
 
 % section(scenario(...)) parses a scenario section.
 % "scenario <name> is, as stated in <document>:" gives its facts a default
-% provenance (docs/le_summary.md §17.1): the header's trailers are kept as a
+% provenance (docs/user/reference/language.md §17.1): the header's trailers are kept as a
 % scenario_provenance(Tokens, Start, End) item ahead of the facts.
 section(scenario(Name, Content, Start, End)) -->
     any_indent, kw_start(scenario, Start), section_name_tokens(Tokens), kw(marker_is),
@@ -498,7 +498,7 @@ section(query(Name, [query_raw(BodyTokens, BStart, End)], Start, End)) -->
     body(BodyTokens, End),
     { ( body_first_start(BodyTokens, BStart) -> true ; BStart = Start ) }.
 
-% section(table(...)) parses a decision table (docs/le_summary.md §17.3):
+% section(table(...)) parses a decision table (docs/user/reference/language.md §17.3):
 %     the table shipping is, with first match:
 %         band | weight kg | cost
 %         s    | <= 1      | 5
@@ -540,7 +540,7 @@ section(Section) -->
         ( ProvTokens == [] -> Section = Table ; Section = table_prov(Table, ProvTokens) )
     }.
 
-% section(view(...)) parses a view (docs/le_summary.md §17.10): "the view <name>
+% section(view(...)) parses a view (docs/user/reference/language.md §17.10): "the view <name>
 % is:" and its sentences, which say how a screen shows the program — which
 % facts the case states, which query is the result, what is shown beside it.
 % The lines are kept as tokens and interpreted by le_views.pl against the whole
@@ -570,7 +570,7 @@ section(templates(Dicts)) -->
     any_indent, kw(templates), t(punctuation(':', _)),
     templates(Dicts).
 
-% section(constants(...)) parses "the constants are:" (docs/le_summary.md §2.2).
+% section(constants(...)) parses "the constants are:" (docs/user/reference/language.md §2.2).
 % Each line names one value — `the unlimited allowance is 115…` — and is short
 % for a template with a `defines global` name and one fact:
 %     the value of the unlimited allowance is *a number*; defines global the unlimited allowance.
@@ -593,7 +593,7 @@ section(events(Dicts)) -->
     templates(Dicts).
 
 % section(actions(...)) and section(prolog_events(...)) are the two declaration
-% sections LPS needs and plain LE has no use for (docs/le_lps_surface.md §2).
+% sections LPS needs and plain LE has no use for (lps2's docs/user/reference/le-for-lps.md §2).
 % LPS distinguishes ACTIONS, which the agent performs and whose preconditions
 % are checked, from EVENTS, which happen to it; that distinction is
 % load-bearing in the engine and cannot be inferred from use. Both are ordinary
@@ -698,7 +698,7 @@ view_header_ -->
 le_allowed_target(prolog).
 le_allowed_target(scasp).
 % LPS: the document is a reactive program, not a query-answering knowledge
-% base. See docs/le_lps_surface.md and le_lps.pl.
+% base. See lps2's docs/user/reference/le-for-lps.md and le_lps.pl.
 le_allowed_target(lps).
 
 % body_first_start(+BodyTokens, -Start): source start of a query body (its first
@@ -950,7 +950,7 @@ kb_item(section_marker(annexes, Start, End)) -->
     kw_start(annexes, Start), t(punctuation(':', loc(_, End))).
 
 % kb_item(expected_changes(QueryName, Sets, Start, End)) parses the expectation
-% of a flip query (docs/le_summary.md §17.7): the minimal change sets, as lists
+% of a flip query (docs/user/reference/language.md §17.7): the minimal change sets, as lists
 % of "add: <fact>" / "remove: <fact>" strings:
 %     flip_bob expects changes [["remove: bob is on a low income"], ["remove: bob is on other benefits"]].
 kb_item(expected_changes(QueryName, Sets, Start, End)) -->
@@ -988,7 +988,7 @@ kb_item(expected(QueryName, Answers, Unknowns, Start, End)) -->
 
 
 % ---------------------------------------------------------------------------
-% LPS sentence forms (docs/le_lps_surface.md §3).
+% LPS sentence forms (lps2's docs/user/reference/le-for-lps.md §3).
 %
 % Every one of these is gated on `lps_target`, so a plain-LE document keeps
 % exactly the grammar it has today: none of these clauses can even be tried.
@@ -1079,7 +1079,7 @@ kb_item(lps_setting(Key, Value, Start, End)) -->
     any_indent, t(punctuation('.', loc(_, End))).
 
 % kb_item(rule_prov(Rule, ProvTokens)) parses a labelled rule whose label
-% carries its provenance (docs/le_summary.md §15.5):
+% carries its provenance (docs/user/reference/language.md §15.5):
 %     rule note_61_4 with provenance as stated in HTSUS Chapter 61 note 4
 %         at "https://hts.usitc.gov/...#page=2":
 %     a garment is excluded from heading a heading if ...
@@ -1122,7 +1122,7 @@ kb_item(unknown_fact(Head, Start, End)) -->
     any_indent, t(punctuation('.', loc(_, End))).
 
 % kb_item(fact_prov(Head, Trailers, Full, Start, End)) parses a fact carrying
-% provenance trailers (docs/le_summary.md §17.1):
+% provenance trailers (docs/user/reference/language.md §17.1):
 %     the burst pipe is accidental,
 %         according to the loss adjuster, as stated in report LA-17 at page 3,
 %         because "corrosion was not visible on inspection".
@@ -1549,7 +1549,7 @@ template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, 
         template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, FunctorArgs, TStart, TEnd)
     ;   kw(known_as) ->
         % "; known as played" binds this template to an LPS functor
-        % (docs/le_lps_surface.md §2). The generated internal syntax, the
+        % (lps2's docs/user/reference/le-for-lps.md §2). The generated internal syntax, the
         % timeline lanes, the state-transitions diagram and any companion .lps
         % file all name the predicate, so the author needs to be able to
         % choose it rather than accept LE2's derived `has_played`.
@@ -1557,7 +1557,7 @@ template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, 
         { record_template_functor(FunctorArgs, Functor, TStart, TEnd) },
         template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, FunctorArgs, TStart, TEnd)
     ;   default_value(Value), kw(by_default) ->
-        % "; 0 by default" on a fluent (docs/le_lps_surface.md §2): the value
+        % "; 0 by default" on a fluent (lps2's docs/user/reference/le-for-lps.md §2): the value
         % its LAST place holds for every key no fact is stored for — a
         % Solidity mapping's zero, a C+ `default`. Recorded like `known as`.
         { record_template_default(FunctorArgs, Value, TStart, TEnd) },
@@ -3169,7 +3169,7 @@ second_pass_scenario_item(_Templates, expected(QueryName, Answers, Unknowns, Sta
     maplist(extract_answer_string, Unknowns, UnknownStrings),
     maplist(extract_answer_string, Answers, AnswerStrings).
 
-% A flip query (docs/le_summary.md §17.7): "which minimal change to the
+% A flip query (docs/user/reference/language.md §17.7): "which minimal change to the
 % scenario makes it the case that <goal>". The goal is parsed as any query
 % body; the query asks le_flip/2 for the minimal change sets that make it hold.
 second_pass_query_item(Templates, query_raw(BodyTokens, Start, End), Item, M) :-
@@ -3885,7 +3885,7 @@ subtree_has_marker(Nodes) :-
     !.
 
 fold_nodes(Acc, [], _, VM, VM, Acc).
-% "otherwise" (docs/le_summary.md §17.2): a line opening with it starts a new
+% "otherwise" (docs/user/reference/language.md §17.2): a line opening with it starts a new
 % alternative, of lower precedence than and/or. Everything folded so far is the
 % previous alternative; the rest of the sibling list, from this line on, is the
 % next one (which may itself contain further "otherwise" lines). An
@@ -3898,7 +3898,7 @@ fold_nodes(Acc, [node(N, Tokens, Children)|Rest], Templates, VMIn, VMOut, Logic)
     % The guard's explanation node points at the "otherwise" line.
     ( tokens_range(Tokens, S, E) -> NegGuard = le_at(not(G), S, E) ; NegGuard = not(G) ),
     Logic = or(Acc, and(NegGuard, AltLogic)).
-% "according to <scope>" (docs/le_summary.md §17.5), on a line of its own
+% "according to <scope>" (docs/user/reference/language.md §17.5), on a line of its own
 % under a condition or after it: the conditions folded so far are to be proved
 % from the evidence of that source only.
 fold_nodes(Acc, [node(_, Tokens, [])|Rest], Templates, VMIn, VMOut, Logic) :-

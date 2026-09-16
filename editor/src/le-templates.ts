@@ -34,7 +34,7 @@ function kwAltAll(key: string): string {
     return kwAltFor(languageList().map(l => l.code), key);
 }
 
-// A fact's provenance trailers (docs/le_summary.md §17.1): the first comma,
+// A fact's provenance trailers (docs/user/reference/language.md §17.1): the first comma,
 // outside a quoted string, followed by "according to", "as stated in" or
 // "because" (in the program's language, or English) starts them. Returns the
 // fact without them and the trailers (without the leading comma), '' if none.

@@ -1,6 +1,6 @@
 /** <module> Source-scoped proof ("according to <scope>" in a rule body)
 
-    LE_extensions_proposal §3.5, docs/le_summary.md §17.5.
+    LE_extensions_proposal §3.5, docs/user/reference/language.md §17.5.
 
     Run with:  swipl -q -g run_tests -t halt testing/test_scoped_proof.pl
     (or via testing/run_tests.sh unit)

@@ -1,12 +1,17 @@
 # Logical English 2 Agent Guidelines
 
 You are an expert in both Logical English (LE) and SWI-PROLOG. 
-Refer to `docs/le_summary.md` for language syntax and `examples/moreExamples` for inspiring examples
+Refer to `docs/user/reference/language.md` for language syntax and `examples/moreExamples` for inspiring examples
 (`examples/README.md` says what each example tree holds; `language/` has one program per feature).
 Translators from other systems into LE (migrations) share `le_writer.pl` (Migration IR -> LE
 text), `le_migration.pl` (ledger, source tests as scenarios) and `lib/` (shared LE libraries);
-see `docs/le_migration.md`.
+see `docs/dev/migration.md`.
 Ignore docs/vibeCodingNotes.md, it contains the user's private notes.
+Documentation lives in `docs/` by kind (`docs/README.md`): `docs/user/` is the
+published user documentation (its table of contents, `docs/user/nav.json`,
+builds the Help menu, the landing page and the viewer), `docs/dev/` is for
+developers, `docs/project/` holds plans, papers and archived documents. A new
+user document goes under `docs/user/` and into `nav.json`.
 If /lps2 exists, it contains the Logic Production Systems repository, which depends on ours.
 
 ## Build, Lint, and Test
@@ -65,8 +70,8 @@ The three suites it wraps (also runnable directly):
   `examples/<lang>/` (e.g. `examples/pt/`) and are run by the same suite, as are
   the extra trees of `le_extra_examples_dir/2` in `le_kbs.pl` — currently
   `examples/regulatory/`, the programs of the regulatory-decision constructs,
-  docs/le_summary.md §17, `examples/migration/`, the twins that the
-  translators of other systems wrote, docs/le_migration.md, and
+  docs/user/reference/language.md §17, `examples/migration/`, the twins that the
+  translators of other systems wrote, docs/dev/migration.md, and
   `testing/fixtures/le/`, the programs the test suites load by name — put a new
   test fixture there, not among the examples.)
   **Moving or renaming an example:** add a row to `example_alias/2` (or

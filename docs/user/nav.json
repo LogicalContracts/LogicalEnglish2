@@ -1,0 +1,82 @@
+{
+  "title": "Logical English documentation",
+  "sections": [
+    {
+      "title": "Tutorials",
+      "items": [
+        {
+          "path": "tutorials/intro-to-le/intro-to-le",
+          "title": "A Gentle Introduction to Logical English 2",
+          "blurb": "Start here: a hands-on tutorial that builds three small programs — a tea party, a flying dragon, and a slice of British nationality law — teaching how to write, query and debug LE in the editor.",
+          "menu": "Introduction to Logical English (tutorial)",
+          "menuTip": "A hands-on tutorial: write, query and debug three small LE programs.",
+          "landing": true
+        },
+        {
+          "path": "tutorials/views",
+          "title": "LE Views: screens written in Logical English",
+          "blurb": "How a program says how a screen shows it — a caseworker's desk, a citizen's check — with the programs of examples/regulatory."
+        }
+      ]
+    },
+    {
+      "title": "Guides",
+      "items": [
+        {
+          "path": "guide/editor",
+          "title": "How to use the LE2 web application",
+          "blurb": "The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.",
+          "menu": "Using this editor (manual)",
+          "menuTip": "The editor manual: files, queries, scenario/query editors, explanations.",
+          "landing": true
+        },
+        {
+          "path": "guide/proof-game",
+          "title": "The Proof Game",
+          "blurb": "A teacher's guide to the game that builds a proof of an answer, step by step."
+        },
+        {
+          "path": "guide/warnings",
+          "title": "The verifier's warnings",
+          "blurb": "What each warning shown while writing a program means, and how to fix it."
+        }
+      ]
+    },
+    {
+      "title": "Reference",
+      "items": [
+        {
+          "path": "reference/language",
+          "title": "Logical English syntax summary",
+          "blurb": "The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.",
+          "menu": "Logical English syntax (reference)",
+          "menuTip": "The language reference: every LE construct.",
+          "landing": true,
+          "translations": {
+            "pt": "reference/language.pt"
+          }
+        },
+        {
+          "path": "reference/scasp",
+          "title": "s(CASP): the second engine",
+          "blurb": "Running programs with s(CASP): constraint answers, possible worlds, abduction, and what it does not support."
+        },
+        {
+          "path": "reference/lps-target",
+          "title": "Logical English for LPS",
+          "blurb": "What `the target language is: lps.` means, and where its reference lives (LPS2)."
+        }
+      ]
+    },
+    {
+      "title": "API",
+      "items": [
+        {
+          "path": "api/web-api",
+          "title": "The web API",
+          "blurb": "The /leapi operations, MCP and REST, for programs that use Logical English."
+        }
+      ]
+    }
+  ]
+}

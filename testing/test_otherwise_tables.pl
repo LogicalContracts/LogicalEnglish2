@@ -1,6 +1,6 @@
 /** <module> "otherwise" cascades and decision tables
 
-    LE_extensions_proposal §3.3, docs/le_summary.md §17.2-17.3.
+    LE_extensions_proposal §3.3, docs/user/reference/language.md §17.2-17.3.
 
     Run with:  swipl -q -g run_tests -t halt testing/test_otherwise_tables.pl
     (or via testing/run_tests.sh unit)

@@ -319,7 +319,7 @@ test.describe('Logical English Editor', () => {
     await page.waitForTimeout(500);
 
     // Take screenshot of the selection in editor
-    await page.screenshot({ path: '../docs/images/editor_selection.png' });
+    await page.screenshot({ path: '../docs/user/guide/images/editor_selection.png' });
 
     // 11. Verify selection in Monaco
     const selectionInfo = await page.evaluate(() => {

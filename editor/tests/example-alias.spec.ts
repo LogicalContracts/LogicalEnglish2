@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 // Examples that were merged or regrouped keep their old names
-// (le_kbs:example_alias/2, docs/NewExamplesStructure.md): an old ?example=
+// (le_kbs:example_alias/2, docs/project/plans/NewExamplesStructure.md): an old ?example=
 // link opens the example as it is now, and the API answers the old name.
 const modelText = () => {
     const ed = (window as any).monaco?.editor?.getEditors()[0];

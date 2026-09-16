@@ -252,7 +252,7 @@ shown_values(Values, Shown) :-
     ;   atomic_list_concat(Values, ', ', Shown)
     ).
 
-% --- Quoted locators (docs/le_summary.md §15.5, §17.1) ---
+% --- Quoted locators (docs/user/reference/language.md §15.5, §17.1) ---
 % A fact or rule cites a passage of a document ("as stated in <document> at
 % "<quotation>"") and the program says where the document's text is, in a
 % file beside it ("the text of <document> is at "sources/x.txt""): the
@@ -297,7 +297,7 @@ quoted_citation(KB, Doc, Quote, Start, End, What) :-
     ( clause(KB:le_source_info(_, Start, End, ID), true) -> true ; Start = 0, End = 0 ),
     format(string(What), "rule ~w", [ID]).
 
-% --- Services (docs/le_summary.md §17.6) ---
+% --- Services (docs/user/reference/language.md §17.6) ---
 % "; via service X" naming no declared service, or a built-in semantic
 % template used with no service declared "as a semantic matcher".
 service_undeclared(KB, issue(service_undeclared, Description, Fix, Start, End)) :-
@@ -324,7 +324,7 @@ semantic_matcher_declared(KB) :-
     catch(le_services:semantic_matcher(KB, _), _, fail).
 
 
-% --- Judged templates and provenance (docs/le_summary.md §3.3) ---
+% --- Judged templates and provenance (docs/user/reference/language.md §3.3) ---
 
 %!  is_judged_functor(+KB, ?F, ?A) is nondet.
 %

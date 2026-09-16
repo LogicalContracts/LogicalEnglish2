@@ -1,7 +1,7 @@
 # Start here: the first programs
 
 The top of the main tree holds the programs the tutorial
-(docs/tutorial0/IntroToLE2.md) walks through: `tea_party`, `happy_dragon`,
+(docs/user/tutorials/intro-to-le/intro-to-le.md) walks through: `tea_party`, `happy_dragon`,
 `citizenship` (British citizenship, the classic), `alice`, `dates`, `numbers`
 and `royal_family`. The folders below go further:
 

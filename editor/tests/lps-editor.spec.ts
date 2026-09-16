@@ -84,7 +84,7 @@ test.describe('Logical English -> LPS', () => {
         // A program with no reactive rule draws an LPS-side warning
         // (no_reactive_rules); what matters is that it lands on a line of THIS
         // document, not of the internal text LE2 generated
-        // (docs/le_lps_interface.md §4). (A goal is no longer an example: LE2
+        // (lps2's docs/dev/le-lps-interface.md §4). (A goal is no longer an example: LE2
         // declares the planning mode it needs, and LPS2 plans.)
         // Monaco arrives by its AMD loader: wait for the page's model.
         await page.waitForFunction(() => ((window as any).monaco?.editor.getModels() || []).length > 0, null, { timeout: 30000 });

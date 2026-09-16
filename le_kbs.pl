@@ -83,9 +83,9 @@ language_examples_dir(Lang, Dir) :-
 %   like the main tree.
 %     - examples/regulatory/: the regulatory-decision constructs (provenance,
 %       judged templates, otherwise, decision tables, sections, scoped proof,
-%       services, flip queries, views), docs/le_summary.md §17;
+%       services, flip queries, views), docs/user/reference/language.md §17;
 %     - examples/migration/: the twins the translators of other systems wrote
-%       (docs/le_migration.md), one directory per source system;
+%       (docs/dev/migration.md), one directory per source system;
 %     - testing/fixtures/le/: the programs the test suites load, listed only
 %       to logged-in users (restricted_paths.pl).
 le_extra_examples_dir(regulatory, 'examples/regulatory').
@@ -96,7 +96,7 @@ le_extra_examples_dir(fixtures, 'testing/fixtures/le').
 %!  example_dir_alias(?OldDir:atom, ?NewDir:atom) is nondet.
 %
 %   Names an example had before the example trees were regrouped
-%   (docs/NewExamplesStructure.md), and the name it has now: links, QR codes,
+%   (docs/project/plans/NewExamplesStructure.md), and the name it has now: links, QR codes,
 %   papers and videos keep working. A name is what ?example= and
 %   le_example_relpath/2 take ('citizenship', 'domains/tax/payg', 'regulatory/x');
 %   a directory alias renames every example under it.
@@ -688,7 +688,7 @@ fetch_all_wanted([W|Ws], M, AllSections) :-
 %!  fetch_base(+Child, +Resource, +M, -Sections) is det.
 %
 %   A base of `the knowledge base <child> extends <base>, ...`
-%   (docs/le_lps_surface.md §1.1): found and read as an included resource,
+%   (lps2's docs/user/reference/le-for-lps.md §1.1): found and read as an included resource,
 %   but only the contract is taken — its templates, laws, constraints and
 %   timeless rules; its `initially` and its settings (the maximum time)
 %   describe an instance, and are left out, as its scenarios and queries are
@@ -2819,7 +2819,7 @@ is_system_predicate(le_template_image/2).
 is_system_predicate(le_included_resource/3).
 is_system_predicate(le_resource_stats/3).
 is_system_predicate(le_prolog_resource/2).
-% LPS target (docs/le_lps_surface.md). le_lps_role/2 says which declaration
+% LPS target (lps2's docs/user/reference/le-for-lps.md). le_lps_role/2 says which declaration
 % section a predicate was declared in — fluent, event, action or prolog_event —
 % which is what decides holds/2 versus happens/3 downstream. le_lps_functor/2
 % is the `; known as f` binding. le_lps_item/3 is one LPS sentence, still

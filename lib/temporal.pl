@@ -8,7 +8,7 @@
     names LE gives them (a template's words, its slots left out), with their
     arguments in the order of the slots: LE calls them directly.
 
-    Loaded assert-only as a Prolog resource (docs/le_summary.md §14.1).
+    Loaded assert-only as a Prolog resource (docs/user/reference/language.md §14.1).
 */
 
 %   Days since 1970-01-01 of a civil date (Howard Hinnant's algorithm).

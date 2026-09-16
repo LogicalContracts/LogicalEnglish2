@@ -1,6 +1,6 @@
 /** <module> The decision skeleton: reserved section names
 
-    LE_extensions_proposal §3.4, docs/le_summary.md §17.4. Sections named
+    LE_extensions_proposal §3.4, docs/user/reference/language.md §17.4. Sections named
     applicability / question / remedy change nothing about solving; a failed
     query is read against them: "the query fails at section *a section*" and
     the checklist that failure explanations lead with.

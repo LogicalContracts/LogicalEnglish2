@@ -12,7 +12,7 @@ predicate, returning it in the answer's unknowns list. Each answer plus its
 unknowns is one abductive explanation — equivalently a *conditional answer*
 (slide 26): "the grass is wet IF it rained". In the editor, assumed conditions
 show as yellow (unknown) nodes in the explanation tree. It also has
-**integrity constraints** (`it must not be true that …`, docs/le_summary.md
+**integrity constraints** (`it must not be true that …`, docs/user/reference/language.md
 §3.3), which reject the answers whose assumptions break them.
 
 | File | Origin | What it shows |
@@ -32,7 +32,7 @@ broken". LE can now say that directly:
         the sprinkler was on
         and the sprinkler is broken.
 
-(see docs/le_summary.md §3.3, and `../assumption_constraints.le`). These
+(see docs/user/reference/language.md §3.3, and `../assumption_constraints.le`). These
 examples predate constraints and obtain the same effect another way, which is
 still useful: guarding the rules that USE an assumable with negation as
 failure over **closed** (scenario) predicates —
