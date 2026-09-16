@@ -1,11 +1,11 @@
 # Logical English for LPS — the surface language
 
-**M8b.** This is the language the programs in `examples/lps/` (of the
-LE2 repository) are written in, and the language `le_lps.pl` implements. It is
+**M8b.** This is the language the programs in `examples/le/` (of the
+LPS2 repository) are written in, and the language `le_lps.pl` implements. It is
 duplicated verbatim in both repositories, like `le_lps_interface.md`.
 
 Every construct here has a written mapping to the internal term set of
-`le_lps_interface.md` §5, and a program in `examples/lps/` that exercises it.
+`le_lps_interface.md` §5, and a program in `examples/le/` that exercises it.
 
 **Contents**
 
@@ -487,7 +487,7 @@ worse than saying so.
 
 is **not** in this language. `display/2` is a Prolog term with a property list;
 rendering it in English buys nothing, and a companion `.lps` file (§7) is the
-right home for it. `examples/lps/badlight.le` therefore has a `badlight.lps`
+right home for it. `examples/le/badlight.le` therefore has a `badlight.lps`
 beside it, and that is the documented answer.
 
 ---
@@ -564,7 +564,7 @@ So the acceptance test is met, and §I.9.6's scope limit is narrower than
 
 ## 6. The programs
 
-In the LE2 repository, `examples/lps/`: the fifteen below, and `token.le` and
+In the LPS2 repository, `examples/le/` (until 2026-09 LE2's `examples/lps/`; LE2 keeps their expected translations in `testing/fixtures/lps/`): the fifteen below, and `token.le` and
 `fee_token.le`. Each `NAME.le` has a `NAME.expected.lpsw`
 beside it: the internal syntax `le_lps.pl` must produce, compared `variant/2`
 term by term.
@@ -598,7 +598,7 @@ does and does not claim). The two that do not are `delivery_delay.le` and
 it: a calendar date appears as a *constant* (`2018-04-01`), and a date constant
 has no LE surface form of its own, so the writer cannot put it back.
  Fifteen also *run* to `success` under LPS2
-(`./lps run examples/lps/NAME.le` with `LPS_LE2_DIR` set). The two that do not:
+(`./lps run examples/le/NAME.le` with `LPS_LE2_DIR` set). The two that do not:
 
 - `prospective_goat.le` ends in `failure` — and so does the original
   `legacy_lps1/examples/forTesting/prospectiveGoat.pl` under the same engine.
