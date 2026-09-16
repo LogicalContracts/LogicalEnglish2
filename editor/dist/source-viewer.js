@@ -2685,12 +2685,12 @@ function openSourceViewer(p, rule, ctx = {}) {
     if (e.target === overlay)
       done();
   });
-  if (!p.text) {
+  if (!p.text && typeof p.content !== "string") {
     status.textContent = p.document ? `${t("The program does not say where the text of this document is")}: the text of ${p.document} is at "\u2026".` : "";
     return;
   }
   status.textContent = t("Loading the document\u2026");
-  fetchDocumentText(p.text, ctx).then((res) => {
+  (typeof p.content === "string" ? Promise.resolve({ text: p.content }) : fetchDocumentText(p.text || "", ctx)).then((res) => {
     if (!res || res.error || typeof res.text !== "string") {
       status.textContent = `${t("Error: ")}${res && res.error || ""}`;
       return;

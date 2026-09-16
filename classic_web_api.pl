@@ -241,6 +241,19 @@ validate_token(Dict) :-
     get_dict(token, Dict, Token),
     Token == "myToken123".
 
+%   An operation on a session the server no longer has (the idle-session
+%   reaper reclaimed it, or the server restarted since the editor loaded the
+%   program) replies that the session expired, so the editor reloads the
+%   program and retries, rather than throwing an existence error from the
+%   session's missing module.
+handle_operation(Dict, _{error: "Session expired", session_expired: true}) :-
+    get_dict(operation, Dict, Op),
+    Op \== "interruptQuery",
+    get_dict(sessionModule, Dict, SMStr),
+    ( string(SMStr) ; atom(SMStr) ), SMStr \== "", SMStr \== '',
+    atom_string(SM, SMStr),
+    \+ valid_session(SM),
+    !.
 handle_operation(Dict, Response) :-
     get_dict(operation, Dict, Op),
     (   Op == "examples" -> handle_examples(Dict, Response)
@@ -269,6 +282,7 @@ handle_operation(Dict, Response) :-
         ; Op == "getProlog" -> handle_get_prolog(Dict, Response)
         ; Op == "documentText" -> handle_document_text(Dict, Response)
         ; Op == "originals" -> handle_originals(Dict, Response)
+        ; Op == "resourceAt" -> handle_resource_at(Dict, Response)
         ; Op == "predicateAt" -> handle_predicate_at(Dict, Response)
         ; Op == "predicateOccurrences" -> handle_predicate_occurrences(Dict, Response)
         ; Op == "provenanceAt" -> handle_provenance_at(Dict, Response)
@@ -1284,6 +1298,53 @@ handle_originals(Dict, _{files: Files}) :-
     load_base_of(Dict, Base),
     (   http_in_session(_), http_session_data(user(_, Roles)) -> true ; Roles = [] ),
     le_original_text:original_files(Base, Roles, Files).
+
+%!  handle_resource_at(+Dict, -Response) is det.
+%
+%   An included resource or extended base, named as the program writes it
+%   (`resource`), resolved as a load resolves it (le_kbs:resolve_resource/4,
+%   relative to the program's folder or URL: `source`/`base`), for the
+%   editor's Show definition on a resource's name. Replies one of
+%   {kind: "example", resource, example}: a Logical English example the
+%   editor opens in a tab (the examples operation checks access);
+%   {kind: "text", resource, language: "le"|"prolog", text[, url]}: a
+%   resource elsewhere, its text; or {error}.
+handle_resource_at(Dict, Response) :-
+    get_dict(resource, Dict, R0),
+    atom_string(R, R0),
+    load_base_of(Dict, Base0),
+    ( Base0 == (-) -> working_directory(Base, Base) ; Base = Base0 ),
+    (   http_in_session(_), http_session_data(user(_, Roles)) -> true ; Roles = [] ),
+    catch(le_kbs:resolve_resource(R, Base, Kind, _), _, fail),
+    !,
+    resource_reply(Kind, Base, Roles, Response).
+handle_resource_at(Dict, _{error: Msg}) :-
+    ( get_dict(resource, Dict, R) -> true ; R = "" ),
+    format(string(Msg), "No resource named ~w could be resolved", [R]).
+
+resource_reply(Kind, Base, Roles, Response) :-
+    (   Kind = le_file(F) -> Lang = "le", File = F
+    ;   Kind = pl_file(F) -> Lang = "prolog", File = F
+    ;   Kind = le_url(U) -> Lang = "le", URL = U
+    ;   Kind = pl_url(U) -> Lang = "prolog", URL = U
+    ),
+    (   nonvar(URL)
+    ->  file_base_name(URL, Name),
+        catch(( le_documents:document_text(URL, Base, Roles, Text),
+                Response = _{kind: "text", resource: Name, language: Lang, text: Text, url: URL} ),
+              error(document_error(Reason), _), Response = _{error: Reason})
+    ;   file_base_name(File, Name),
+        (   \+ exists_file(File)
+        ->  format(string(Msg), "Resource not found: ~w", [Name]), Response = _{error: Msg}
+        ;   \+ ( le_kbs:local_resource_allowed(File, Base),
+                 catch(restricted_paths:is_path_allowed(File, Roles), _, true) )
+        ->  format(string(Msg), "Access to the resource ~w is restricted", [Name]), Response = _{error: Msg}
+        ;   Lang == "le", le_kbs:example_name_for_file(File, Example)
+        ->  Response = _{kind: "example", resource: Name, example: Example}
+        ;   read_file_to_string(File, Text, [encoding(utf8)]),
+            Response = _{kind: "text", resource: Name, language: Lang, text: Text}
+        )
+    ).
 
 %!  handle_document_text(+Dict, -Response) is det.
 %

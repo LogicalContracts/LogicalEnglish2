@@ -13388,12 +13388,12 @@ function openSourceViewer(p, rule, ctx = {}) {
     if (e.target === overlay)
       done();
   });
-  if (!p.text) {
+  if (!p.text && typeof p.content !== "string") {
     status.textContent = p.document ? `${t("The program does not say where the text of this document is")}: the text of ${p.document} is at "\u2026".` : "";
     return;
   }
   status.textContent = t("Loading the document\u2026");
-  fetchDocumentText(p.text, ctx).then((res) => {
+  (typeof p.content === "string" ? Promise.resolve({ text: p.content }) : fetchDocumentText(p.text || "", ctx)).then((res) => {
     if (!res || res.error || typeof res.text !== "string") {
       status.textContent = `${t("Error: ")}${res && res.error || ""}`;
       return;
@@ -14689,7 +14689,7 @@ ${err}`, "See s(CASP)");
     const model = ed.getModel();
     const position = ed.getPosition();
     try {
-      const response = await fetch("/leapi", {
+      const ask = () => fetch("/leapi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -14704,8 +14704,14 @@ ${err}`, "See s(CASP)");
           // with it (see on_head_line/3 in classic_web_api.pl).
           lineStart: model.getOffsetAt({ lineNumber: position.lineNumber, column: 1 })
         })
-      });
-      const data = await response.json();
+      }).then((r) => r.json());
+      let data = await ask();
+      if (data && data.session_expired) {
+        isLoaded = false;
+        if (!await loadModule())
+          return null;
+        data = await ask();
+      }
       if (data.error) {
         console.log(operation + ":", data.error);
         return null;
@@ -14787,6 +14793,82 @@ ${err}`, "See s(CASP)");
     }]);
     setTimeout(() => ed.deltaDecorations(decorations, []), 1200);
   }
+  function resourceNameAt(model, position) {
+    if (!model || !position)
+      return null;
+    const lang = detectProgramLanguage(model.getValue());
+    const phrases = (key) => [...kwPhrases(lang, key), ...kwPhrases("en", key)].filter(Boolean).map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+"));
+    const includes = new RegExp(`(?:${phrases("resources_include").join("|")})\\s*:`, "i");
+    const extendsKw = new RegExp(`(?:${phrases("kb_open").join("|")})\\b.*?\\b(?:${phrases("kb_extends").join("|")})\\b`, "i");
+    const line = model.getLineContent(position.lineNumber);
+    const col = position.column - 1;
+    let from = -1;
+    const own = includes.exec(line) || extendsKw.exec(line);
+    if (own) {
+      from = own.index + own[0].length;
+      if (col < from)
+        return null;
+    } else {
+      for (let n = position.lineNumber - 1; n >= 1 && n >= position.lineNumber - 200; n--) {
+        const l = model.getLineContent(n);
+        if (/\.\s*(%.*)?$/.test(l) || l.trim() === "")
+          return null;
+        if (includes.test(l)) {
+          from = 0;
+          break;
+        }
+        if (/:\s*$/.test(l))
+          return null;
+      }
+      if (from < 0)
+        return null;
+    }
+    const text = line.replace(/%.*$/, "");
+    let start2 = from;
+    for (const part of text.slice(from).split(",")) {
+      const end = start2 + part.length;
+      if (col >= start2 && col <= end) {
+        const name = part.trim().replace(/[.:]\s*$/, "").trim();
+        return name && !/\s/.test(name) ? name : null;
+      }
+      start2 = end + 1;
+    }
+    return null;
+  }
+  async function openResourceNamed(name) {
+    const doc = activeDoc;
+    let data;
+    try {
+      const r = await fetch("/leapi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: "myToken123",
+          operation: "resourceAt",
+          resource: name,
+          source: doc.example || "",
+          base: doc.baseUrl || ""
+        })
+      });
+      data = await r.json();
+    } catch (err) {
+      data = { error: String(err) };
+    }
+    const open = window.leOpenResourceTab;
+    if (data.kind === "example" && typeof open === "function") {
+      await open({ resource: data.resource, resourceExample: data.example, resourceLine: 1 });
+    } else if (data.kind === "text" && data.language === "le" && typeof open === "function") {
+      await open({ resource: data.resource, resourceText: data.text, resourceUrl: data.url || "", resourceLine: 1 });
+    } else if (data.kind === "text") {
+      openSourceViewer(
+        { document: data.resource, content: data.text, url: data.url || null },
+        void 0,
+        { source: doc.example || "", base: doc.baseUrl || "" }
+      );
+    } else {
+      alert(`${t("Could not open the included resource")} ${name}: ${data.error || ""}`);
+    }
+  }
   editor.addAction({
     id: "le-show-definition",
     label: t("Show definition"),
@@ -14794,6 +14876,11 @@ ${err}`, "See s(CASP)");
     contextMenuGroupId: "navigation",
     contextMenuOrder: 2.1,
     run: async (ed) => {
+      const resource = resourceNameAt(ed.getModel(), ed.getPosition());
+      if (resource) {
+        await openResourceNamed(resource);
+        return;
+      }
       adoptActiveAsProgram();
       if (!isLoaded)
         await loadModule();
@@ -18136,8 +18223,17 @@ ${t("It lists every fact a case can state as one group, and shows the result of 
     refreshTabs();
   }
   async function openResourceTab(info) {
-    let doc = docs.find((d) => d.example === info.resourceExample);
-    if (!doc) {
+    let doc = info.resourceExample ? docs.find((d) => d.example === info.resourceExample) : void 0;
+    if (!doc && typeof info.resourceText === "string") {
+      const url = info.resourceUrl || "";
+      doc = createDoc(
+        info.resourceText,
+        info.resource || "resource.le",
+        url ? { baseUrl: url.slice(0, url.lastIndexOf("/") + 1) } : {}
+      );
+      doc.dirty = false;
+      lspOpen(doc);
+    } else if (!doc) {
       try {
         const response = await fetch("/leapi", {
           method: "POST",

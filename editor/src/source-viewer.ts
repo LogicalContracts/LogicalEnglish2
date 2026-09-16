@@ -28,6 +28,9 @@ export interface Provenance {
     at?: [number, number] | null;
     // why this document is shown (View Original Text found no passage)
     note?: string | null;
+    // the document's text itself, when the caller already has it (a
+    // Prolog resource opened by Show definition): not fetched from `text`
+    content?: string | null;
 }
 
 // Where the program was opened from, so the server can resolve a text address
@@ -229,14 +232,15 @@ export function openSourceViewer(p: Provenance, rule: string | undefined, ctx: D
     close.addEventListener('click', done);
     overlay.addEventListener('click', (e) => { if (e.target === overlay) done(); });
 
-    if (!p.text) {
+    if (!p.text && typeof p.content !== 'string') {
         status.textContent = p.document
             ? `${t('The program does not say where the text of this document is')}: the text of ${p.document} is at "…".`
             : '';
         return;
     }
     status.textContent = t('Loading the document…');
-    fetchDocumentText(p.text, ctx).then(res => {
+    (typeof p.content === 'string' ? Promise.resolve({ text: p.content } as { text?: string; error?: string })
+                                    : fetchDocumentText(p.text || '', ctx)).then(res => {
         if (!res || res.error || typeof res.text !== 'string') {
             status.textContent = `${t('Error: ')}${(res && res.error) || ''}`;
             return;
