@@ -81,6 +81,7 @@ flowchart LR
   LE <--> LR
   LE <--> MS
   LPS <--> SOL
+  LPS -- "as norms" --> LR
   LPS <--> DA
 
   click SO "socotra" "Socotra and Logical English"
