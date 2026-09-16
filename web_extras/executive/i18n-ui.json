@@ -572,7 +572,8 @@
    "Help: running queries, scenarios and the engines": "Ajuda: executar consultas, cenários e os motores",
    "Step over": "Saltar por cima",
    "Step over (F10) — advance to the next goal at this level or above, without stopping inside the goals the current one calls.": "Saltar por cima (F10) — avança até ao próximo objetivo a este nível ou acima, sem parar dentro dos objetivos que o atual chama.",
-   "Breakpoint": "Ponto de paragem"
+   "Breakpoint": "Ponto de paragem",
+   "The query did not finish within {n} seconds and was stopped: a rule may loop, or the search may be too large.": "A consulta não terminou em {n} segundos e foi parada: uma regra pode estar em ciclo, ou a pesquisa ser grande demais."
   },
   "es": {
    "+ Add": "+ Añadir",
@@ -1143,7 +1144,8 @@
    "Help: running queries, scenarios and the engines": "Ayuda: ejecutar consultas, escenarios y los motores",
    "Step over": "Saltar por encima",
    "Step over (F10) — advance to the next goal at this level or above, without stopping inside the goals the current one calls.": "Saltar por encima (F10) — avanza hasta el siguiente objetivo en este nivel o superior, sin detenerse dentro de los objetivos que llama el actual.",
-   "Breakpoint": "Punto de interrupción"
+   "Breakpoint": "Punto de interrupción",
+   "The query did not finish within {n} seconds and was stopped: a rule may loop, or the search may be too large.": "La consulta no terminó en {n} segundos y se detuvo: una regla puede estar en bucle, o la búsqueda ser demasiado grande."
   },
   "fr": {
    "+ Add": "+ Ajouter",
@@ -1714,7 +1716,8 @@
    "Help: running queries, scenarios and the engines": "Aide : exécuter des requêtes, scénarios et moteurs",
    "Step over": "Pas à pas principal",
    "Step over (F10) — advance to the next goal at this level or above, without stopping inside the goals the current one calls.": "Pas à pas principal (F10) — avance jusqu'au prochain objectif à ce niveau ou au-dessus, sans s'arrêter dans les objectifs que l'actuel appelle.",
-   "Breakpoint": "Point d'arrêt"
+   "Breakpoint": "Point d'arrêt",
+   "The query did not finish within {n} seconds and was stopped: a rule may loop, or the search may be too large.": "La requête ne s'est pas terminée en {n} secondes et a été arrêtée : une règle boucle peut-être, ou la recherche est trop vaste."
   },
   "it": {
    "+ Add": "+ Aggiungi",
@@ -2285,7 +2288,8 @@
    "Help: running queries, scenarios and the engines": "Aiuto: eseguire query, scenari e motori",
    "Step over": "Salta",
    "Step over (F10) — advance to the next goal at this level or above, without stopping inside the goals the current one calls.": "Salta (F10) — avanza fino al prossimo obiettivo a questo livello o superiore, senza fermarsi dentro gli obiettivi chiamati da quello attuale.",
-   "Breakpoint": "Punto di interruzione"
+   "Breakpoint": "Punto di interruzione",
+   "The query did not finish within {n} seconds and was stopped: a rule may loop, or the search may be too large.": "L'interrogazione non è terminata entro {n} secondi ed è stata fermata: una regola potrebbe essere in ciclo, o la ricerca troppo ampia."
   }
  },
  "languages": [

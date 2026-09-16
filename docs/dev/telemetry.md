@@ -23,6 +23,12 @@ site (`/lps2/docs/dev/telemetry.md`, variables `LPS_…`).
 | Server → Sentry | the API operation's name (`answeringQuery`, `load`, …), the error's type and message (at most 1000 characters), the Prolog backtrace when the error carries one, environment, release | the program, the query, the scenario, any other field of the request, the user's name or IP |
 | Browser → Sentry | uncaught errors of the page, with the SDK's default context (browser, URL) and `sendDefaultPii: false` | console output (a page may log a program), screenshots (the feedback form has none: it would show the program) |
 | Feedback form → Sentry | the message typed, and a name and email **only if** the user types them | — |
+
+A query that runs out of time (`answeringQuery`, 240 seconds) is not a server
+fault: it is reported as a message at level *info*, "The query did not finish
+within 240 seconds and was stopped.", tagged `operation: answeringQuery`, and
+the editor is told so. A `time_limit_exceeded` *error* in Sentry is some other
+operation exceeding its 300 seconds.
 | Browser → Cloudflare Web Analytics | Cloudflare's beacon: page views (the page's path, referrer, country, browser and device class) and page-load performance | cookies, local storage, fingerprinting, the page's contents, clicks, programs typed in the editor |
 
 Every page address Sentry reports — an error's, the feedback form's — loses

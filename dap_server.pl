@@ -59,10 +59,19 @@ dap_tracer_hook(Port, SM, Goal, ID, Anc, Depth) :-
         ;   Command = none
         ),
         E,
-        (debug(dap, 'Error in tracer hook: ~w', [E]), Command = none)
+        (   stops_the_query(E)
+        ->  throw(E)
+        ;   debug(dap, 'Error in tracer hook: ~w', [E]), Command = none
+        )
     ),
     %  Outside the catch: Stop's exception must reach the query and end it.
     execute_command(Command, SM, Depth).
+
+%   What arrives while the hook waits and must end the query, not the wait:
+%   the Interrupt button's signal and the query's time limit.
+stops_the_query(query_interrupted).
+stops_the_query(time_limit_exceeded).
+stops_the_query('$aborted').
 
 %!  should_stop(+Port, +SM, +Goal, +ID, +Anc, +Depth, -Reason) is semidet.
 %
@@ -71,8 +80,9 @@ dap_tracer_hook(Port, SM, Goal, ID, Anc, Depth) :-
 %   port no deeper than where it was given; `continue` at a breakpoint's call,
 %   and when the query's own goal exits (an answer) or fails. An exception
 %   always stops.
-should_stop(exception(query_interrupted), _SM, _Goal, _ID, _Anc, _Depth, _) :- !,
-    fail.       % the trace being stopped: the query ends, nothing to show
+should_stop(exception(E), _SM, _Goal, _ID, _Anc, _Depth, _) :-
+    stops_the_query(E), !,
+    fail.       % the query being ended (Stop, Interrupt, its time limit): nothing to show
 should_stop(exception(_), _SM, _Goal, _ID, _Anc, _Depth, exception) :- !.
 should_stop(Port, SM, Goal, _ID, Anc, Depth, Reason) :-
     ( run_mode(SM, Mode) -> true ; Mode = step ),

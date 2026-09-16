@@ -283,6 +283,10 @@ export class ExplanationView {
         } else if (res && res.interrupted) {
             answersList.textContent = t('Query interrupted.');
             this.setStrongestReason();
+        } else if (res && res.timedOut) {
+            answersList.textContent = t('The query did not finish within {n} seconds and was stopped: a rule may loop, or the search may be too large.')
+                .replace('{n}', String(res.timeLimit));
+            this.setStrongestReason();
         } else if (res && res.error) {
             answersList.textContent = t('Error: ') + res.error;
             this.setStrongestReason();
