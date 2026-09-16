@@ -28,7 +28,7 @@
    "Collapse All": "Recolher tudo",
    "condition": "condição",
    "Continue": "Continuar",
-   "Continue (F5) — resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them.": "Continuar (F5) — retoma a execução até encontrar a próxima resposta (ou a consulta terminar). Se restarem soluções, avançar/continuar de novo explora-as.",
+   "Continue (F5) — resume running until a breakpoint (click the margin left of a line number to set one), the next answer, or the end of the query.": "Continuar (F5) — retoma a execução até um ponto de paragem (clique na margem à esquerda do número de uma linha para o pôr), a próxima resposta ou o fim da consulta.",
    "Copy": "Copiar",
    "Copy Answer": "Copiar resposta",
    "Copy Explanation": "Copiar explicação",
@@ -145,7 +145,7 @@
    "Step": "Avançar",
    "Step (F11) — advance one step to the next goal being proved. The call stack and the VARIABLES panel update to show the new position and any bindings made so far.": "Avançar (F11) — avança um passo até ao próximo objetivo a provar. A pilha de chamadas e o painel VARIÁVEIS atualizam-se com a nova posição e as ligações feitas até aí.",
    "Stop": "Parar",
-   "Stop — end the trace and detach the debugger. The query keeps running to completion in the background.": "Parar — termina o rastreio e desliga o depurador. A consulta continua a correr até ao fim em segundo plano.",
+   "Stop — end the trace and the query.": "Parar — termina o rastreio e a consulta.",
    "The editor manual: files, queries, scenario/query editors, explanations.": "O manual do editor: ficheiros, consultas, editores de cenários/consultas, explicações.",
    "The language reference: every LE construct.": "A referência da linguagem: todas as construções LE.",
    "This prefix is prepended to failed nodes when copying explanations to plain text or HTML.": "Este prefixo é anteposto aos nós falhados ao copiar explicações para texto simples ou HTML.",
@@ -569,7 +569,10 @@
    "(required)": "(obrigatório)",
    "reference": "referência",
    "warnings guide": "guia dos avisos",
-   "Help: running queries, scenarios and the engines": "Ajuda: executar consultas, cenários e os motores"
+   "Help: running queries, scenarios and the engines": "Ajuda: executar consultas, cenários e os motores",
+   "Step over": "Saltar por cima",
+   "Step over (F10) — advance to the next goal at this level or above, without stopping inside the goals the current one calls.": "Saltar por cima (F10) — avança até ao próximo objetivo a este nível ou acima, sem parar dentro dos objetivos que o atual chama.",
+   "Breakpoint": "Ponto de paragem"
   },
   "es": {
    "+ Add": "+ Añadir",
@@ -598,7 +601,7 @@
    "Collapse All": "Contraer todo",
    "condition": "condición",
    "Continue": "Continuar",
-   "Continue (F5) — resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them.": "Continuar (F5) — reanuda la ejecución hasta encontrar la siguiente respuesta (o hasta que la consulta termine). Si quedan más soluciones, avanzar/continuar de nuevo las explora.",
+   "Continue (F5) — resume running until a breakpoint (click the margin left of a line number to set one), the next answer, or the end of the query.": "Continuar (F5) — reanuda la ejecución hasta un punto de interrupción (haga clic en el margen a la izquierda del número de una línea para ponerlo), la siguiente respuesta o el final de la consulta.",
    "Copy": "Copiar",
    "Copy Answer": "Copiar respuesta",
    "Copy Explanation": "Copiar explicación",
@@ -715,7 +718,7 @@
    "Step": "Avanzar",
    "Step (F11) — advance one step to the next goal being proved. The call stack and the VARIABLES panel update to show the new position and any bindings made so far.": "Avanzar (F11) — avanza un paso hasta el siguiente objetivo a probar. La pila de llamadas y el panel VARIABLES se actualizan para mostrar la nueva posición y las ligaduras hechas hasta el momento.",
    "Stop": "Parar",
-   "Stop — end the trace and detach the debugger. The query keeps running to completion in the background.": "Parar — termina el rastreo y desconecta el depurador. La consulta sigue ejecutándose hasta el final en segundo plano.",
+   "Stop — end the trace and the query.": "Parar — termina el rastreo y la consulta.",
    "The editor manual: files, queries, scenario/query editors, explanations.": "El manual del editor: archivos, consultas, editores de escenarios/consultas, explicaciones.",
    "The language reference: every LE construct.": "La referencia del lenguaje: todas las construcciones LE.",
    "This prefix is prepended to failed nodes when copying explanations to plain text or HTML.": "Este prefijo se antepone a los nodos fallidos al copiar explicaciones a texto plano o HTML.",
@@ -1137,7 +1140,10 @@
    "(required)": "(obligatorio)",
    "reference": "referencia",
    "warnings guide": "guía de los avisos",
-   "Help: running queries, scenarios and the engines": "Ayuda: ejecutar consultas, escenarios y los motores"
+   "Help: running queries, scenarios and the engines": "Ayuda: ejecutar consultas, escenarios y los motores",
+   "Step over": "Saltar por encima",
+   "Step over (F10) — advance to the next goal at this level or above, without stopping inside the goals the current one calls.": "Saltar por encima (F10) — avanza hasta el siguiente objetivo en este nivel o superior, sin detenerse dentro de los objetivos que llama el actual.",
+   "Breakpoint": "Punto de interrupción"
   },
   "fr": {
    "+ Add": "+ Ajouter",
@@ -1166,7 +1172,7 @@
    "Collapse All": "Tout replier",
    "condition": "condition",
    "Continue": "Continuer",
-   "Continue (F5) — resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them.": "Continuer (F5) — reprend l'exécution jusqu'à ce que la prochaine réponse soit trouvée (ou que la requête se termine). S'il reste des solutions, avancer/continuer de nouveau les explore.",
+   "Continue (F5) — resume running until a breakpoint (click the margin left of a line number to set one), the next answer, or the end of the query.": "Continuer (F5) — reprend l'exécution jusqu'à un point d'arrêt (cliquez dans la marge à gauche du numéro d'une ligne pour en poser un), la réponse suivante ou la fin de la requête.",
    "Copy": "Copier",
    "Copy Answer": "Copier la réponse",
    "Copy Explanation": "Copier l'explication",
@@ -1283,7 +1289,7 @@
    "Step": "Avancer",
    "Step (F11) — advance one step to the next goal being proved. The call stack and the VARIABLES panel update to show the new position and any bindings made so far.": "Avancer (F11) — avance d'un pas jusqu'au prochain objectif à prouver. La pile d'appels et le panneau VARIABLES se mettent à jour pour montrer la nouvelle position et les liaisons établies jusque-là.",
    "Stop": "Arrêter",
-   "Stop — end the trace and detach the debugger. The query keeps running to completion in the background.": "Arrêter — termine le traçage et détache le débogueur. La requête continue de s'exécuter jusqu'au bout en arrière-plan.",
+   "Stop — end the trace and the query.": "Arrêter — termine le traçage et la requête.",
    "The editor manual: files, queries, scenario/query editors, explanations.": "Le manuel de l'éditeur : fichiers, requêtes, éditeurs de scénarios/requêtes, explications.",
    "The language reference: every LE construct.": "La référence du langage : toutes les constructions LE.",
    "This prefix is prepended to failed nodes when copying explanations to plain text or HTML.": "Ce préfixe est ajouté devant les nœuds en échec lors de la copie des explications en texte brut ou en HTML.",
@@ -1705,7 +1711,10 @@
    "(required)": "(obligatoire)",
    "reference": "référence",
    "warnings guide": "guide des avertissements",
-   "Help: running queries, scenarios and the engines": "Aide : exécuter des requêtes, scénarios et moteurs"
+   "Help: running queries, scenarios and the engines": "Aide : exécuter des requêtes, scénarios et moteurs",
+   "Step over": "Pas à pas principal",
+   "Step over (F10) — advance to the next goal at this level or above, without stopping inside the goals the current one calls.": "Pas à pas principal (F10) — avance jusqu'au prochain objectif à ce niveau ou au-dessus, sans s'arrêter dans les objectifs que l'actuel appelle.",
+   "Breakpoint": "Point d'arrêt"
   },
   "it": {
    "+ Add": "+ Aggiungi",
@@ -1734,7 +1743,7 @@
    "Collapse All": "Comprimi tutto",
    "condition": "condizione",
    "Continue": "Continua",
-   "Continue (F5) — resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them.": "Continua (F5) — riprende l'esecuzione fino a trovare la prossima risposta (o fino al termine dell'interrogazione). Se restano altre soluzioni, avanzare/continuare di nuovo le esplora.",
+   "Continue (F5) — resume running until a breakpoint (click the margin left of a line number to set one), the next answer, or the end of the query.": "Continua (F5) — riprende l'esecuzione fino a un punto di interruzione (clic sul margine a sinistra del numero di una riga per impostarlo), alla risposta successiva o alla fine dell'interrogazione.",
    "Copy": "Copia",
    "Copy Answer": "Copia risposta",
    "Copy Explanation": "Copia spiegazione",
@@ -1851,7 +1860,7 @@
    "Step": "Avanza",
    "Step (F11) — advance one step to the next goal being proved. The call stack and the VARIABLES panel update to show the new position and any bindings made so far.": "Avanza (F11) — avanza di un passo fino al prossimo obiettivo da provare. La pila delle chiamate e il pannello VARIABILI si aggiornano mostrando la nuova posizione e le associazioni fatte finora.",
    "Stop": "Ferma",
-   "Stop — end the trace and detach the debugger. The query keeps running to completion in the background.": "Ferma — termina il tracciamento e scollega il debugger. L'interrogazione continua a essere eseguita fino al termine in background.",
+   "Stop — end the trace and the query.": "Ferma — termina il tracciamento e l'interrogazione.",
    "The editor manual: files, queries, scenario/query editors, explanations.": "Il manuale dell'editor: file, interrogazioni, editor di scenari/interrogazioni, spiegazioni.",
    "The language reference: every LE construct.": "Il riferimento del linguaggio: tutti i costrutti LE.",
    "This prefix is prepended to failed nodes when copying explanations to plain text or HTML.": "Questo prefisso viene anteposto ai nodi falliti quando si copiano le spiegazioni in testo semplice o HTML.",
@@ -2273,7 +2282,10 @@
    "(required)": "(obbligatorio)",
    "reference": "riferimento",
    "warnings guide": "guida agli avvisi",
-   "Help: running queries, scenarios and the engines": "Aiuto: eseguire query, scenari e motori"
+   "Help: running queries, scenarios and the engines": "Aiuto: eseguire query, scenari e motori",
+   "Step over": "Salta",
+   "Step over (F10) — advance to the next goal at this level or above, without stopping inside the goals the current one calls.": "Salta (F10) — avanza fino al prossimo obiettivo a questo livello o superiore, senza fermarsi dentro gli obiettivi chiamati da quello attuale.",
+   "Breakpoint": "Punto di interruzione"
   }
  },
  "languages": [

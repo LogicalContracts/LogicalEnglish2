@@ -325,7 +325,7 @@ The [executive view](executive-view.md#when-there-is-no-answer-why-not), and a v
 *   **LE Assistant:** Use the **LE Assistant** tab to ask questions about your code or request help with drafting new rules. The **Light Mode** checkbox in its header chooses between a fast assistant that runs on the server (Light, the default) and a full coding agent (Deep). It needs a model and an API key, set in **Misc → API Keys & Assistant Settings…**. See [The assistants](assistants.md), which also covers the Contract Assistant web page.
 *   **s(CASP) engine:** the **Engine** picker beside the query (shown according to **Misc → ENGINE PICKER**) runs a query with s(CASP) instead of Prolog; right-click in the editor and select **See s(CASP)** to view the translation. A program s(CASP) cannot state faithfully is refused, with the list of problems. See [s(CASP)](../reference/scasp.md).
 *   **Proof Game:** the **Proof Game** button in the Query tab opens a game in which you build the proof of the selected query yourself. See [the Proof Game](proof-game.md).
-*   **Debugger:** Right-click in the editor and select **See PROLOG** to view the translated logic, or use the **Trace** button in the Query tab for step-by-step execution.
+*   **Debugger:** Right-click in the editor and select **See PROLOG** to view the translated logic, or use the **Trace** button in the Query tab for step-by-step execution. Click in the margin left of a line number to set a breakpoint (a red dot). In the debug panel, **Step** (F11) goes to the next goal, **Step over** (F10) to the next one at the same level or above, **Continue** (F5) to the next breakpoint or answer, and **Stop** ends the query. The call stack and the current goal's variables follow each stop.
 
 ## More guides
 

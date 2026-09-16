@@ -139329,7 +139329,7 @@ var uiCatalog = {
     "Collapse All": "Recolher tudo",
     "condition": "condi\xE7\xE3o",
     "Continue": "Continuar",
-    "Continue (F5) \u2014 resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them.": "Continuar (F5) \u2014 retoma a execu\xE7\xE3o at\xE9 encontrar a pr\xF3xima resposta (ou a consulta terminar). Se restarem solu\xE7\xF5es, avan\xE7ar/continuar de novo explora-as.",
+    "Continue (F5) \u2014 resume running until a breakpoint (click the margin left of a line number to set one), the next answer, or the end of the query.": "Continuar (F5) \u2014 retoma a execu\xE7\xE3o at\xE9 um ponto de paragem (clique na margem \xE0 esquerda do n\xFAmero de uma linha para o p\xF4r), a pr\xF3xima resposta ou o fim da consulta.",
     "Copy": "Copiar",
     "Copy Answer": "Copiar resposta",
     "Copy Explanation": "Copiar explica\xE7\xE3o",
@@ -139446,7 +139446,7 @@ var uiCatalog = {
     "Step": "Avan\xE7ar",
     "Step (F11) \u2014 advance one step to the next goal being proved. The call stack and the VARIABLES panel update to show the new position and any bindings made so far.": "Avan\xE7ar (F11) \u2014 avan\xE7a um passo at\xE9 ao pr\xF3ximo objetivo a provar. A pilha de chamadas e o painel VARI\xC1VEIS atualizam-se com a nova posi\xE7\xE3o e as liga\xE7\xF5es feitas at\xE9 a\xED.",
     "Stop": "Parar",
-    "Stop \u2014 end the trace and detach the debugger. The query keeps running to completion in the background.": "Parar \u2014 termina o rastreio e desliga o depurador. A consulta continua a correr at\xE9 ao fim em segundo plano.",
+    "Stop \u2014 end the trace and the query.": "Parar \u2014 termina o rastreio e a consulta.",
     "The editor manual: files, queries, scenario/query editors, explanations.": "O manual do editor: ficheiros, consultas, editores de cen\xE1rios/consultas, explica\xE7\xF5es.",
     "The language reference: every LE construct.": "A refer\xEAncia da linguagem: todas as constru\xE7\xF5es LE.",
     "This prefix is prepended to failed nodes when copying explanations to plain text or HTML.": "Este prefixo \xE9 anteposto aos n\xF3s falhados ao copiar explica\xE7\xF5es para texto simples ou HTML.",
@@ -139870,7 +139870,10 @@ var uiCatalog = {
     "(required)": "(obrigat\xF3rio)",
     "reference": "refer\xEAncia",
     "warnings guide": "guia dos avisos",
-    "Help: running queries, scenarios and the engines": "Ajuda: executar consultas, cen\xE1rios e os motores"
+    "Help: running queries, scenarios and the engines": "Ajuda: executar consultas, cen\xE1rios e os motores",
+    "Step over": "Saltar por cima",
+    "Step over (F10) \u2014 advance to the next goal at this level or above, without stopping inside the goals the current one calls.": "Saltar por cima (F10) \u2014 avan\xE7a at\xE9 ao pr\xF3ximo objetivo a este n\xEDvel ou acima, sem parar dentro dos objetivos que o atual chama.",
+    "Breakpoint": "Ponto de paragem"
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -139899,7 +139902,7 @@ var uiCatalog = {
     "Collapse All": "Contraer todo",
     "condition": "condici\xF3n",
     "Continue": "Continuar",
-    "Continue (F5) \u2014 resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them.": "Continuar (F5) \u2014 reanuda la ejecuci\xF3n hasta encontrar la siguiente respuesta (o hasta que la consulta termine). Si quedan m\xE1s soluciones, avanzar/continuar de nuevo las explora.",
+    "Continue (F5) \u2014 resume running until a breakpoint (click the margin left of a line number to set one), the next answer, or the end of the query.": "Continuar (F5) \u2014 reanuda la ejecuci\xF3n hasta un punto de interrupci\xF3n (haga clic en el margen a la izquierda del n\xFAmero de una l\xEDnea para ponerlo), la siguiente respuesta o el final de la consulta.",
     "Copy": "Copiar",
     "Copy Answer": "Copiar respuesta",
     "Copy Explanation": "Copiar explicaci\xF3n",
@@ -140016,7 +140019,7 @@ var uiCatalog = {
     "Step": "Avanzar",
     "Step (F11) \u2014 advance one step to the next goal being proved. The call stack and the VARIABLES panel update to show the new position and any bindings made so far.": "Avanzar (F11) \u2014 avanza un paso hasta el siguiente objetivo a probar. La pila de llamadas y el panel VARIABLES se actualizan para mostrar la nueva posici\xF3n y las ligaduras hechas hasta el momento.",
     "Stop": "Parar",
-    "Stop \u2014 end the trace and detach the debugger. The query keeps running to completion in the background.": "Parar \u2014 termina el rastreo y desconecta el depurador. La consulta sigue ejecut\xE1ndose hasta el final en segundo plano.",
+    "Stop \u2014 end the trace and the query.": "Parar \u2014 termina el rastreo y la consulta.",
     "The editor manual: files, queries, scenario/query editors, explanations.": "El manual del editor: archivos, consultas, editores de escenarios/consultas, explicaciones.",
     "The language reference: every LE construct.": "La referencia del lenguaje: todas las construcciones LE.",
     "This prefix is prepended to failed nodes when copying explanations to plain text or HTML.": "Este prefijo se antepone a los nodos fallidos al copiar explicaciones a texto plano o HTML.",
@@ -140438,7 +140441,10 @@ var uiCatalog = {
     "(required)": "(obligatorio)",
     "reference": "referencia",
     "warnings guide": "gu\xEDa de los avisos",
-    "Help: running queries, scenarios and the engines": "Ayuda: ejecutar consultas, escenarios y los motores"
+    "Help: running queries, scenarios and the engines": "Ayuda: ejecutar consultas, escenarios y los motores",
+    "Step over": "Saltar por encima",
+    "Step over (F10) \u2014 advance to the next goal at this level or above, without stopping inside the goals the current one calls.": "Saltar por encima (F10) \u2014 avanza hasta el siguiente objetivo en este nivel o superior, sin detenerse dentro de los objetivos que llama el actual.",
+    "Breakpoint": "Punto de interrupci\xF3n"
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -140467,7 +140473,7 @@ var uiCatalog = {
     "Collapse All": "Tout replier",
     "condition": "condition",
     "Continue": "Continuer",
-    "Continue (F5) \u2014 resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them.": "Continuer (F5) \u2014 reprend l'ex\xE9cution jusqu'\xE0 ce que la prochaine r\xE9ponse soit trouv\xE9e (ou que la requ\xEAte se termine). S'il reste des solutions, avancer/continuer de nouveau les explore.",
+    "Continue (F5) \u2014 resume running until a breakpoint (click the margin left of a line number to set one), the next answer, or the end of the query.": "Continuer (F5) \u2014 reprend l'ex\xE9cution jusqu'\xE0 un point d'arr\xEAt (cliquez dans la marge \xE0 gauche du num\xE9ro d'une ligne pour en poser un), la r\xE9ponse suivante ou la fin de la requ\xEAte.",
     "Copy": "Copier",
     "Copy Answer": "Copier la r\xE9ponse",
     "Copy Explanation": "Copier l'explication",
@@ -140584,7 +140590,7 @@ var uiCatalog = {
     "Step": "Avancer",
     "Step (F11) \u2014 advance one step to the next goal being proved. The call stack and the VARIABLES panel update to show the new position and any bindings made so far.": "Avancer (F11) \u2014 avance d'un pas jusqu'au prochain objectif \xE0 prouver. La pile d'appels et le panneau VARIABLES se mettent \xE0 jour pour montrer la nouvelle position et les liaisons \xE9tablies jusque-l\xE0.",
     "Stop": "Arr\xEAter",
-    "Stop \u2014 end the trace and detach the debugger. The query keeps running to completion in the background.": "Arr\xEAter \u2014 termine le tra\xE7age et d\xE9tache le d\xE9bogueur. La requ\xEAte continue de s'ex\xE9cuter jusqu'au bout en arri\xE8re-plan.",
+    "Stop \u2014 end the trace and the query.": "Arr\xEAter \u2014 termine le tra\xE7age et la requ\xEAte.",
     "The editor manual: files, queries, scenario/query editors, explanations.": "Le manuel de l'\xE9diteur : fichiers, requ\xEAtes, \xE9diteurs de sc\xE9narios/requ\xEAtes, explications.",
     "The language reference: every LE construct.": "La r\xE9f\xE9rence du langage : toutes les constructions LE.",
     "This prefix is prepended to failed nodes when copying explanations to plain text or HTML.": "Ce pr\xE9fixe est ajout\xE9 devant les n\u0153uds en \xE9chec lors de la copie des explications en texte brut ou en HTML.",
@@ -141006,7 +141012,10 @@ var uiCatalog = {
     "(required)": "(obligatoire)",
     "reference": "r\xE9f\xE9rence",
     "warnings guide": "guide des avertissements",
-    "Help: running queries, scenarios and the engines": "Aide : ex\xE9cuter des requ\xEAtes, sc\xE9narios et moteurs"
+    "Help: running queries, scenarios and the engines": "Aide : ex\xE9cuter des requ\xEAtes, sc\xE9narios et moteurs",
+    "Step over": "Pas \xE0 pas principal",
+    "Step over (F10) \u2014 advance to the next goal at this level or above, without stopping inside the goals the current one calls.": "Pas \xE0 pas principal (F10) \u2014 avance jusqu'au prochain objectif \xE0 ce niveau ou au-dessus, sans s'arr\xEAter dans les objectifs que l'actuel appelle.",
+    "Breakpoint": "Point d'arr\xEAt"
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -141035,7 +141044,7 @@ var uiCatalog = {
     "Collapse All": "Comprimi tutto",
     "condition": "condizione",
     "Continue": "Continua",
-    "Continue (F5) \u2014 resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them.": "Continua (F5) \u2014 riprende l'esecuzione fino a trovare la prossima risposta (o fino al termine dell'interrogazione). Se restano altre soluzioni, avanzare/continuare di nuovo le esplora.",
+    "Continue (F5) \u2014 resume running until a breakpoint (click the margin left of a line number to set one), the next answer, or the end of the query.": "Continua (F5) \u2014 riprende l'esecuzione fino a un punto di interruzione (clic sul margine a sinistra del numero di una riga per impostarlo), alla risposta successiva o alla fine dell'interrogazione.",
     "Copy": "Copia",
     "Copy Answer": "Copia risposta",
     "Copy Explanation": "Copia spiegazione",
@@ -141152,7 +141161,7 @@ var uiCatalog = {
     "Step": "Avanza",
     "Step (F11) \u2014 advance one step to the next goal being proved. The call stack and the VARIABLES panel update to show the new position and any bindings made so far.": "Avanza (F11) \u2014 avanza di un passo fino al prossimo obiettivo da provare. La pila delle chiamate e il pannello VARIABILI si aggiornano mostrando la nuova posizione e le associazioni fatte finora.",
     "Stop": "Ferma",
-    "Stop \u2014 end the trace and detach the debugger. The query keeps running to completion in the background.": "Ferma \u2014 termina il tracciamento e scollega il debugger. L'interrogazione continua a essere eseguita fino al termine in background.",
+    "Stop \u2014 end the trace and the query.": "Ferma \u2014 termina il tracciamento e l'interrogazione.",
     "The editor manual: files, queries, scenario/query editors, explanations.": "Il manuale dell'editor: file, interrogazioni, editor di scenari/interrogazioni, spiegazioni.",
     "The language reference: every LE construct.": "Il riferimento del linguaggio: tutti i costrutti LE.",
     "This prefix is prepended to failed nodes when copying explanations to plain text or HTML.": "Questo prefisso viene anteposto ai nodi falliti quando si copiano le spiegazioni in testo semplice o HTML.",
@@ -141574,7 +141583,10 @@ var uiCatalog = {
     "(required)": "(obbligatorio)",
     "reference": "riferimento",
     "warnings guide": "guida agli avvisi",
-    "Help: running queries, scenarios and the engines": "Aiuto: eseguire query, scenari e motori"
+    "Help: running queries, scenarios and the engines": "Aiuto: eseguire query, scenari e motori",
+    "Step over": "Salta",
+    "Step over (F10) \u2014 advance to the next goal at this level or above, without stopping inside the goals the current one calls.": "Salta (F10) \u2014 avanza fino al prossimo obiettivo a questo livello o superiore, senza fermarsi dentro gli obiettivi chiamati da quello attuale.",
+    "Breakpoint": "Punto di interruzione"
   }
 };
 var languages = [

@@ -17,14 +17,17 @@
 :- use_module(library(debug)).
 
 :- dynamic dap_session/3. % SM, WebSocket, ThreadID
-:- dynamic breakpoint/2. % Module, Line
+:- dynamic breakpoint/4. % SM, Line, StartOffset, EndOffset
+:- dynamic run_mode/2.   % SM, step | next(Depth) | continue
 :- dynamic stopped_state/5. % ID, Goal, SM, Anc, Depth
 
 % Test seam: when dap_test_capture is set, the tracer records each stop as
-% dap_test_stop(Port, Goal, Anc) and auto-continues (no websocket), so the trace
+% dap_test_stop(Port, Goal, Anc) and goes on with the next dap_test_command/1
+% (stepIn when there is none; no websocket), so the trace
 % behaviour can be checked from a plunit test. Never set in production.
 :- dynamic dap_test_capture/0.
 :- dynamic dap_test_stop/3.
+:- dynamic dap_test_command/1.   % the commands the test gives at the stops, in order
 
 % Enable DAP debugging
 :- debug(dap).
@@ -32,37 +35,63 @@
 % Tracer hook — runs in interpreter thread
 dap_tracer_hook(Port, SM, Goal, ID, Anc, Depth) :-
     dap_test_capture, !,
-    ( should_stop(Port, SM, Goal, ID, Anc, Depth)
-    ->  assertz(dap_test_stop(Port, Goal, Anc))
+    (   should_stop(Port, SM, Goal, ID, Anc, Depth, _Reason)
+    ->  assertz(dap_test_stop(Port, Goal, Anc)),
+        ( retract(dap_test_command(Command)) -> true ; Command = stepIn ),
+        execute_command(Command, SM, Depth)
     ;   true
     ).
 dap_tracer_hook(Port, SM, Goal, ID, Anc, Depth) :-
     catch(
-        (   should_stop(Port, SM, Goal, ID, Anc, Depth)
+        (   should_stop(Port, SM, Goal, ID, Anc, Depth, Reason)
         ->  debug(dap, 'Tracer stop at ~w: ~w', [Port, Goal]),
             retractall(stopped_state(_, _, SM, _, _)),
             assertz(stopped_state(ID, Goal, SM, Anc, Depth)),
-            build_stopped_event(Port, ID, Event),
+            build_stopped_event(Reason, ID, Event),
             (   send_dap_event(SM, Event)
             ->  debug(dap, 'Waiting for command for session ~w...', [SM]),
                 wait_for_command(SM, Command),
-                debug(dap, 'Received command: ~w', [Command]),
-                execute_command(Command, SM, Goal, ID, Anc, Depth)
+                debug(dap, 'Received command: ~w', [Command])
             ;   debug(dap, 'Failed to send event, disabling debug for ~w', [SM]),
-                retractall(SM:debug_mode)
+                retractall(SM:debug_mode),
+                Command = none
             )
-        ;   true
+        ;   Command = none
         ),
         E,
-        (debug(dap, 'Error in tracer hook: ~w', [E]), true)
-    ).
+        (debug(dap, 'Error in tracer hook: ~w', [E]), Command = none)
+    ),
+    %  Outside the catch: Stop's exception must reach the query and end it.
+    execute_command(Command, SM, Depth).
 
-should_stop(call, _SM, _Goal, _ID, _Anc, _Depth) :- !.
-should_stop(fail, _SM, _Goal, _ID, _Anc, _Depth) :- !.
-should_stop(exit, _SM, _Goal, _ID, _Anc, _Depth) :- !.
-should_stop(exception(_), _SM, _Goal, _ID, _Anc, _Depth) :- !.
+%!  should_stop(+Port, +SM, +Goal, +ID, +Anc, +Depth, -Reason) is semidet.
+%
+%   Whether the trace stops here, and why, by the session's run mode (the
+%   last command): `step` stops at every port; `next` (step over) only at a
+%   port no deeper than where it was given; `continue` at a breakpoint's call,
+%   and when the query's own goal exits (an answer) or fails. An exception
+%   always stops.
+should_stop(exception(query_interrupted), _SM, _Goal, _ID, _Anc, _Depth, _) :- !,
+    fail.       % the trace being stopped: the query ends, nothing to show
+should_stop(exception(_), _SM, _Goal, _ID, _Anc, _Depth, exception) :- !.
+should_stop(Port, SM, Goal, _ID, Anc, Depth, Reason) :-
+    ( run_mode(SM, Mode) -> true ; Mode = step ),
+    stop_in_mode(Mode, Port, SM, Goal, Anc, Depth, Reason).
 
-build_stopped_event(Port, _ID, _{
+stop_in_mode(step, _Port, _SM, _Goal, _Anc, _Depth, step).
+stop_in_mode(next(D0), _Port, _SM, _Goal, _Anc, Depth, step) :-
+    Depth =< D0.
+stop_in_mode(continue, call, SM, Goal, _Anc, _Depth, breakpoint) :-
+    breakpoint(SM, _, _, _),
+    ( SM:le_kb_module_fact(KB) -> true ; KB = none ),
+    frame_offsets(Goal, SM, KB, Offset, _),
+    Offset > 0,
+    breakpoint(SM, _Line, Start, End),
+    Offset >= Start, Offset < End, !.
+stop_in_mode(continue, Port, _SM, _Goal, [], _Depth, Reason) :-
+    memberchk(Port-Reason, [exit-entry, fail-step]).
+
+build_stopped_event(Reason, _ID, _{
     type: event,
     event: stopped,
     body: _{
@@ -71,13 +100,7 @@ build_stopped_event(Port, _ID, _{
         preserveFocusHint: false,
         allThreadsStopped: true
     }
-}) :-
-    port_to_reason(Port, Reason).
-
-port_to_reason(call, step).
-port_to_reason(exit, step).
-port_to_reason(fail, step).
-port_to_reason(exception(_), exception).
+}).
 
 send_dap_event(SM, Event) :-
     dap_session(SM, WS, _),
@@ -102,12 +125,24 @@ wait_for_command(SM, Command) :-
         Command = disconnect
     ).
 
-execute_command(continue, _, _, _, _, _) :- !.
-execute_command(stepIn, _, _, _, _, _) :- !.
-execute_command(next, _, _, _, _, _) :- !.
-execute_command(disconnect, SM, _, _, _, _) :-
+%!  execute_command(+Command, +SM, +Depth) is det.
+%
+%   The command received at a stop sets how the trace goes on. Stop
+%   (disconnect, also sent when the panel's socket closes or no command comes
+%   in time) ends the query itself: it is interrupted as by the Interrupt
+%   button (classic_web_api:run_interruptible_query/4), not left running.
+execute_command(none, _, _) :- !.
+execute_command(continue, SM, _) :- !, set_run_mode(SM, continue).
+execute_command(stepIn, SM, _) :- !, set_run_mode(SM, step).
+execute_command(next, SM, Depth) :- !, set_run_mode(SM, next(Depth)).
+execute_command(disconnect, SM, _) :-
     retractall(SM:debug_mode),
-    throw(dap_disconnect).
+    retractall(run_mode(SM, _)),
+    throw(query_interrupted).
+
+set_run_mode(SM, Mode) :-
+    retractall(run_mode(SM, _)),
+    assertz(run_mode(SM, Mode)).
 
 % WebSocket Handler
 dap_websocket_handler(Request) :-
@@ -137,6 +172,7 @@ dap_loop(SM, WebSocket) :-
     % worker thread is released immediately, rather than only after the timeout.
     catch(thread_send_message(Queue, disconnect), _, true),
     message_queue_destroy(Queue),
+    retractall(breakpoint(SM, _, _, _)),
     retractall(dap_session(SM, WebSocket, Me)).
 
 dap_receive_loop(SM, WebSocket) :-
@@ -199,14 +235,18 @@ handle_command(_SM, initialize, _Dict, _{
     supportsStepBack: false
 }).
 
-handle_command(_SM, launch, _Dict, _{}).
+handle_command(SM, launch, _Dict, _{}) :-
+    set_run_mode(SM, step).
 
-handle_command(_SM, setBreakpoints, Dict, _{breakpoints: BPs}) :-
+%   A breakpoint is a line; the editor sends the character offsets the line
+%   spans (`startOffset`, `endOffset`, beside DAP's `line`), which is how the
+%   goals' source positions are kept. A call proved from a goal written on
+%   that line stops a `continue`.
+handle_command(SM, setBreakpoints, Dict, _{breakpoints: BPs}) :-
     get_dict(arguments, Dict, Args),
-    get_dict(source, Args, Source),
-    get_dict(path, Source, Path),
     get_dict(breakpoints, Args, RequestedBPs),
-    maplist(verify_breakpoint(Path), RequestedBPs, BPs).
+    retractall(breakpoint(SM, _, _, _)),
+    maplist(set_breakpoint(SM), RequestedBPs, BPs).
 
 handle_command(SM, stackTrace, _Dict, _{
     stackFrames: Frames,
@@ -265,8 +305,14 @@ handle_command(SM, disconnect, _Dict, _{}) :-
 
 % --- Helpers ---
 
-verify_breakpoint(_Path, BP, _{verified: true, line: Line}) :-
-    get_dict(line, BP, Line).
+set_breakpoint(SM, BP, _{verified: Verified, line: Line}) :-
+    get_dict(line, BP, Line),
+    (   get_dict(startOffset, BP, Start), integer(Start),
+        get_dict(endOffset, BP, End), integer(End)
+    ->  assertz(breakpoint(SM, Line, Start, End)),
+        Verified = true
+    ;   Verified = false
+    ).
 
 % The call-stack frames, ordered innermost-first (DAP convention): the current
 % goal is frame 1, its caller frame 2, ... the root query last. The UI renders them

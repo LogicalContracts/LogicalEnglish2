@@ -134,7 +134,7 @@ function calling; the model answers with one JSON action:
 | Action | Effect |
 |---|---|
 | `{"action": "verify"}` | `le_tools:le_tool_verify/2` on the current program; the issues and test results go back as the next user message. With no issues and no test results, the message tells the model to finish |
-| `{"action": "query", "query", "scenario", "facts"}` | `le_tools:le_tool_query/2` on the current program; the answers go back. That predicate reads the scenario from `scenario_name`, so the `scenario` the protocol names is currently ignored |
+| `{"action": "query", "query", "scenario", "facts"}` | `le_tools:le_tool_query/2` on the current program (an `example_name` the model adds is dropped); the answers go back. The scenario is read from `scenario` (or `scenario_name`) |
 | `{"action": "edit", "new_content"}` | replaces the in-memory program; the reply asks the model to verify |
 | `{"action": "finish", "explanation", "new_content"}` | ends the job |
 

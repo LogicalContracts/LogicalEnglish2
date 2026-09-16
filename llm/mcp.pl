@@ -466,20 +466,32 @@ call_tool("get_example_details", Args, Result) :-
     get_dict(example_name, Args, ExampleName),
     % le_example_relpath also resolves per-language names ('pt/cidadania' ->
     % examples/pt/cidadania); relative paths are fine, the server runs from
-    % the repo root.
-    le_kbs:le_example_relpath(ExampleName, Path0),
-    (exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', Path), exists_file(Path)),
-    % Read the metadata under a module reference (and retry if the module was
-    % reclaimed between load and reference) — same race as the listing above.
-    % The goal is explicitly mcp-qualified: relying on compile-time
-    % meta-argument qualification across the explicit le_kbs: call proved
-    % fragile (the goal ran in the wrong module and the catch masked it).
+    % the repo root. A restricted example (restricted_paths.pl) is not read for
+    % an MCP/REST client, which has no session and so no roles.
+    catch(( le_tools:example_path_for(ExampleName, [], Path) -> Outcome = path(Path) ; Outcome = missing ),
+          error(permission_error(access, example, _), _),
+          Outcome = restricted),
+    (   Outcome = path(P)
+    ->  example_details(P, Result)
+    ;   Outcome == restricted
+    ->  format(string(Msg), "Example '~w' requires login", [ExampleName]),
+        Result = _{error: Msg}
+    ;   format(string(Msg), "Example '~w' not found", [ExampleName]),
+        Result = _{error: Msg}
+    ).
+
+%   Read the metadata under a module reference (and retry if the module was
+%   reclaimed between load and reference) — same race as the listing above.
+%   The goal is explicitly mcp-qualified: relying on compile-time
+%   meta-argument qualification across the explicit le_kbs: call proved
+%   fragile (the goal ran in the wrong module and the catch masked it).
+example_details(Path, Result) :-
     between(1, 3, _),
     le_kbs:load(Path, KB),
-    (   catch(le_kbs:with_kb_reference(KB, mcp:example_details_result(KB, Result0)), _, fail)
-    ->  !, Result = Result0
-    ;   fail
-    ).
+    catch(le_kbs:with_kb_reference(KB, mcp:example_details_result(KB, Result0)), _, fail),
+    !,
+    read_file_to_string(Path, Text, [encoding(utf8)]),
+    Result = Result0.put(program_text, Text).
 
 call_tool("query", Args, Result) :-
     le_tools:le_tool_query(Args, Result).

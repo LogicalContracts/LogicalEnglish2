@@ -112,7 +112,7 @@ JSON reply, serialised as the text of one `text` content item; a reply with an
 | Tool | Arguments | Reply |
 |---|---|---|
 | `list_examples` | – | `{examples: [{name, summary}]}` |
-| `get_example_details` | `example_name` (required) | the program's metadata |
+| `get_example_details` | `example_name` (required) | the program's text and metadata |
 | `query` | `query` (required), `example_name`, `program_text`, `scenario_name`, `facts` | `{results: [{answer, explanation}]}` |
 | `verify` | `program_text` (required) | `{issues, test_results}` |
 
@@ -128,11 +128,13 @@ by their opening comment.
 `kb`, `templates`, `template_defs`, `queries` (`{name, template, le}`),
 `scenarios` and `examples` (`{name}`), `included_resources`, `views`, and the
 image lists — the fields of `load`'s reply in [web-api.md](web-api.md#load--load-a-program-into-a-new-session)
-without the session. The program's text is not included, although the tool's
-description says so.
+without the session, and `program_text`, the program itself. An example of a
+role-restricted tree answers `{error: "Example '…' requires login"}`: an MCP
+client has no login.
 
 **`query`** loads the program named by `example_name`, or `program_text`, into
-a single-use session; sets the scenario `scenario_name` if given; adds `facts`
+a single-use session (a role-restricted example answers `error`, as above);
+sets the scenario `scenario_name` if given; adds `facts`
 (LE sentences, each ending with a period, parsed against the program's
 templates); and runs `query`, a query name of the program or an LE query that
 matches its templates. Each answer is `{answer, explanation}` (explanation
@@ -143,10 +145,10 @@ that do not parse reply `error`.
 
 **`verify`** loads `program_text` and replies `issues`, the verifier's
 diagnostics (`{severity, type, message, fix, start, end}`, see
-[the warnings guide](../guide/warnings.md)), and `test_results`. As of this
-writing `test_results` is always empty: `le_tools.pl` looks for the tests
-under an older predicate than the one the loader now asserts. Use the web
-API's `testReport` to run a program's tests.
+[the warnings guide](../guide/warnings.md)), and `test_results`: the program's
+embedded tests (`expects answers` and `expects changes`), each
+`{status: "pass"|"fail"|"error", query, scenario}`, with `expected` and
+`actual` (and the unknowns) for a failure, or `message` for an error.
 
 A server with the flag `mcp:mcp_only_query_verify` asserted lists only `query`
 and `verify`.

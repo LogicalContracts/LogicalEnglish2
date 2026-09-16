@@ -134,8 +134,10 @@ agent_loop(JobID, Model, Keys, Messages, Program, Step, LastVerifyStatus, MaxSte
                     le_i18n:le_msg(assistant_running_query, [], QueryingMsg),
                     format(string(QueryingLine), "~w\n", [QueryingMsg]),
                     assertz(le_assistant:assistant_job_output(JobID, stdout, QueryingLine)),
-                    % We need to pass program_text to le_tool_query
-                    QueryArgs = ActionDict.put(program_text, Program),
+                    % The query runs against the program being edited: its text,
+                    % never an example the model might name.
+                    (   del_dict(example_name, ActionDict, _, ActionDict1) -> true ; ActionDict1 = ActionDict ),
+                    QueryArgs = ActionDict1.put(program_text, Program),
                     le_tools:le_tool_query(QueryArgs, QueryResult),
                     with_output_to(string(ResultStr), json_write_dict(current_output, QueryResult, [width(0)])),
                     % Append to messages and loop

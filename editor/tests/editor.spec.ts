@@ -88,7 +88,8 @@ test.describe('Logical English Editor', () => {
     // Elaborate button tooltips.
     await expect(page.locator('#debug-step')).toHaveAttribute('title', /advance one step/i);
     await expect(page.locator('#debug-continue')).toHaveAttribute('title', /next answer/i);
-    await expect(page.locator('#debug-stop')).toHaveAttribute('title', /end the trace/i);
+    await expect(page.locator('#debug-stop')).toHaveAttribute('title', /end the trace and the query/i);
+    await expect(page.locator('#debug-next')).toHaveAttribute('title', /step over/i);
 
     await page.click('#btn-trace');
     await expect(page.locator('#debug-panel')).toBeVisible();
@@ -113,6 +114,40 @@ test.describe('Logical English Editor', () => {
     // Stop detaches the debugger.
     await page.click('#debug-stop');
     await expect(page.locator('#debug-status')).toContainText('stopped', { ignoreCase: true });
+  });
+
+  test('LE Debugger: a breakpoint stops Continue there, and Stop ends the query', async ({ page }) => {
+    test.setTimeout(60000);
+    await page.goto('index.html?text=' + encodeURIComponent(TRACE_PROG));
+    await page.waitForFunction(() => (window as any).monaco?.editor?.getEditors().length > 0);
+    await page.locator('#scenario-select').hover();
+    await expect.poll(() => page.locator('#query-select option').count(), { timeout: 30000 }).toBeGreaterThan(1);
+    await page.selectOption('#scenario-select', 's');
+    await page.selectOption('#query-select', 'happy');
+
+    // A click in the glyph margin of line 7 ("if the person is rich") sets a breakpoint.
+    const at = await page.evaluate(() => {
+      const ed = (window as any).monaco.editor.getEditors()[0];
+      const pos = ed.getScrolledVisiblePosition({ lineNumber: 7, column: 1 });
+      const box = ed.getDomNode().getBoundingClientRect();
+      return { x: box.left + 8, y: box.top + pos.top + pos.height / 2 };
+    });
+    await page.mouse.click(at.x, at.y);
+    await expect(page.locator('.debug-breakpoint-glyph')).toHaveCount(1);
+
+    await page.click('#btn-trace');
+    const frames = page.locator('#debug-stack .stack-frame');
+    await expect.poll(() => frames.count(), { timeout: 30000 }).toBeGreaterThan(0);
+    await expect(page.locator('#debug-status')).toContainText('step');
+    // Continue runs to the breakpoint: the executing goal is on line 7.
+    await page.click('#debug-continue');
+    await expect(page.locator('#debug-status')).toContainText('breakpoint', { timeout: 15000 });
+    await expect(frames.last().locator('.stack-frame-source')).toContainText(":7");
+
+    // Stop ends the query itself.
+    await page.click('#debug-stop');
+    await expect(page.locator('#debug-status')).toContainText('stopped', { ignoreCase: true });
+    await expect(page.locator('#debug-step')).toBeDisabled();
   });
 
   test('truncates a long query in the picker and keeps the full text as a tooltip', async ({ page }) => {
