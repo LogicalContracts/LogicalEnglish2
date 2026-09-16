@@ -1005,7 +1005,7 @@ lower(KB, Agg, Ctx, goals(Out), Is) :-
 	lower_all(KB, Gs, Ctx, Inner, Is),
 	agg_var(Elems, Elem),
 	agg_var(Results, Result),
-	ctx_time(Ctx, T),
+	aggregate_time(Inner, Ctx, T),
 	aggregate_goal(Op, Elem, Inner, Result, T, Out).
 
 %   A conjunction or disjunction that survived flattening -- which happens when
@@ -1097,6 +1097,17 @@ aggregate_goal(Op, Elem, Inner, Result, T,
 	       [holds(findall(Elem, Inner, L), T), Goal]) :-
 	memberchk(Op-Pred, [average-mean_list, min-min_list, max-max_list]),
 	Goal =.. [Pred, L, Result].
+
+%   The time the findall of an aggregate is evaluated at: the time its goals
+%   read the state at. That is the context's time when they are untimed, and
+%   the time they name when they say `at the time` — the context's time is
+%   then a fresh variable (in a sentence whose other conditions name their
+%   times too) that nothing binds, and the findall ran at no particular time.
+aggregate_time(Inner, _, T) :-
+	sub_term(S, Inner), compound(S), S = holds(_, T0), !,
+	T = T0.
+aggregate_time(_, Ctx, T) :-
+	ctx_time(Ctx, T).
 
 %   LE's built-ins, lowered to the Prolog LPS already runs.
 builtin(le_ge(X, Y),          X >= Y).

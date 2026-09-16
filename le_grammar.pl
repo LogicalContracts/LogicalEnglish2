@@ -3238,7 +3238,12 @@ parse_query_body(Tokens, Templates, Goal) :-
     % and "under" (e.g. "*an amount* for all relevant claims or losses covered
     % under *a section* ..."); without this guard parse_body would mistake those
     % words for a for/or/under body structure and split the template apart.
-    \+ single_template_query(Tokens, Templates),
+    %  An aggregate line ("N is the sum of each I such that", its goal on the
+    %  nested lines) is never one template instance, though a template may
+    %  match the flattened text by swallowing the aggregate into a place.
+    (   body_has_aggregate_line(Tokens) -> true
+    ;   \+ single_template_query(Tokens, Templates)
+    ),
     % Baseline indent = that of the body's continuation lines (the first indent
     % token), mirroring the N a rule passes to parse_body — needed so that, e.g.,
     % the goal under "it is not the case that" nests correctly.
@@ -3253,6 +3258,25 @@ parse_query_body(Tokens, Templates, Goal) :-
         ->  Goal = G2
         ),
         retractall(in_query_body_parse)).
+
+% body_has_aggregate_line(+Tokens): some line of the body (the tokens between
+% two indent tokens) is an aggregate header ending in "such that".
+body_has_aggregate_line(Tokens) :-
+    body_token_lines(Tokens, Lines),
+    member(Line, Lines),
+    is_aggregate(Line, _, _, _), !.
+
+body_token_lines(Tokens, Lines) :-
+    exclude([T]>>(T = line_comment(_, _) ; T = multi_comment(_, _)), Tokens, Tokens1),
+    body_token_lines_(Tokens1, [], Lines).
+
+body_token_lines_([], Acc, Lines) :- !, line_acc(Acc, [], Lines).
+body_token_lines_([indent(_, _)|Ts], Acc, Lines) :- !,
+    line_acc(Acc, Rest, Lines), body_token_lines_(Ts, [], Rest).
+body_token_lines_([T|Ts], Acc, Lines) :- body_token_lines_(Ts, [T|Acc], Lines).
+
+line_acc([], Rest, Rest) :- !.
+line_acc(Acc, Rest, [Line|Rest]) :- reverse(Acc, Line).
 
 % single_template_query(+Tokens, +Templates): the query body, taken whole, is a
 % single instance of ONE defined template (matched directly, without prepositional
@@ -3333,6 +3357,11 @@ has_query_connective(or(_, _)).
 has_query_connective((_ ; _)).
 has_query_connective(not(_)).
 has_query_connective(forall(_, _)).
+%   An aggregate (`N is the sum of each I such that` over its nested lines) is
+%   a body structure too: read as one literal it falls to the generic `is`.
+has_query_connective(G) :-
+    compound(G), G =.. [Op, [each|_], _, _],
+    memberchk(Op, [sum, count, average, min, max]).
 
 second_pass_query_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), query_clause(NewHead, Head, BodyTokens, Instance, Indent, Start, End, ActualID), _M) :-
     (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
@@ -3651,12 +3680,52 @@ token_span(Token, Start, End) :- compound(Token), arg(2, Token, loc(Start, End))
 % Structured Body Parsing
 
 parse_body(Tokens, Indent, Templates, VMIn, VMOut, StructuredBody) :-
-    once(tokens_to_lines(Tokens, Indent, Lines)), % removing this once(..) causes nontermination in moreExamples/domains/tax/sbpp_0.le
+    first_line_indent(Tokens, Indent, Indent1),
+    once(tokens_to_lines(Tokens, Indent1, Lines)), % removing this once(..) causes nontermination in moreExamples/domains/tax/sbpp_0.le
     (   lines_to_tree(Tokens, Lines, Templates, VMIn, VMOut, StructuredBody) ->  
         ( le_kbs:do_log -> print_message(informational,'  Body succeeded~n'); true)
         ;   
         ( le_kbs:do_log -> print_message(informational,'  Body failed to parse~n'); true), fail
     ).
+
+%!  first_line_indent(+Tokens, +Indent, -Indent1) is det.
+%
+%   The indentation the first line of a body counts as. A body that begins on
+%   its header's line (`the total is N if N is the sum of each I such that`,
+%   LE for LPS's `if … then`, `when … then`) has no indent token of its own
+%   and takes the header's, which puts every following line, the `and`
+%   conditions at the body's level included, among its children. For a line
+%   whose children are a scope (an aggregate's `such that`, `it is not the
+%   case that`, `for all cases in which`) that would swallow those conditions.
+%   So such a first line counts as being at the indentation of the body's
+%   connective lines (the least of the lines beginning with and/or), when its
+%   own scope is indented deeper than that — as the plain layout, with the
+%   header on a line of its own, reads it.
+first_line_indent(Tokens, Indent, Indent1) :-
+    Tokens \= [indent(_, _)|_],
+    get_line_tokens(Tokens, First0, Rest),
+    exclude(is_indent_or_comment, First0, First), First \== [],
+    (   is_aggregate(First, _, _, _) -> true
+    ;   is_not_the_case(First) -> true
+    ;   is_forall(First)
+    ),
+    body_line_indents(Rest, LineIndents),
+    LineIndents = [NextIndent-_|_],
+    findall(K, ( member(K-[word(W, _)|_], LineIndents), K > Indent,
+                 ( le_i18n:class_member(and, W) ; le_i18n:class_member(or, W) ) ), Ks),
+    Ks \== [],
+    min_list(Ks, Indent1),
+    NextIndent > Indent1, !.
+first_line_indent(_, Indent, Indent).
+
+%   The lines after the first: Indent-Tokens, comments left out.
+body_line_indents([], []).
+body_line_indents([indent(N, _)|Ts], Lines) :- !,
+    get_line_tokens(Ts, LTs0, Rest),
+    exclude(is_indent_or_comment, LTs0, LTs),
+    (   LTs == [] -> Lines = Lines1 ; Lines = [N-LTs|Lines1] ),
+    body_line_indents(Rest, Lines1).
+body_line_indents([_|Ts], Lines) :- body_line_indents(Ts, Lines).
 
 %!  parse_inline_body(+Tokens, +Templates, +VMIn, -VMOut, -Logic) is semidet.
 %
@@ -4119,17 +4188,28 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
 
 %!  swallowed_connective(+Literal, +Tokens, +Templates, +VMIn) is semidet.
 %
-%   Literal came from the generic "X is a Y" or "X is Y" fallback with a
-%   constant Y containing an and/or word — the tell-tale of a connective
-%   swallowed into a constant (the same sign suspicious_is_a / suspicious_is
-%   warn about) — and the line's conjuncts parse on their own.
+%   Literal came from a generic fallback — "X is a Y", "X is Y", or a
+%   comparison "X = Y", "X > Y", ... — with a constant on EITHER side (or
+%   inside a sentence taken as its value) containing an and/or word — the
+%   tell-tale of a connective swallowed into a constant (the same sign
+%   suspicious_is_a / suspicious_is warn about) — and the line's conjuncts
+%   parse on their own. The left side swallows it when the line's LAST
+%   condition is the fallback: "otherwise the guest has an unbirthday today
+%   and the percentage is 10" read le_is('the guest has an unbirthday today
+%   and the percentage', 10), and "... and N mod 3 = 2" a comparison of the
+%   whole line before the `=`; that alternative then never applied.
 swallowed_connective(Literal, Tokens, Templates, VMIn) :-
-    ( Literal = is_a(_, T) ; Literal = le_is(_, T) ),
+    fallback_literal(Literal),
+    sub_term(T, Literal),
     ( atom(T) ; string(T) ),
     atomic_list_concat(Ws, ' ', T),
     member(W, Ws),
     ( le_i18n:class_member(and, W) ; le_i18n:class_member(or, W) ), !,
     \+ \+ parse_inline_connective(Tokens, Templates, VMIn, _, _).
+
+fallback_literal(Literal) :-
+    compound(Literal), functor(Literal, F, 2),
+    memberchk(F, [is_a, le_is, le_assign, le_equal_to, le_not_equal_to, le_gt, le_ge, le_lt, le_le]), !.
 
 % is_aggregate(+Tokens, -Op, -ElementTokens, -ResultTokens): matches
 % "<result> is the <op> of each <element> such that" (with each phrase piece —

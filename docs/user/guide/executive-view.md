@@ -149,7 +149,8 @@ Everything is in the address, so a result can be bookmarked or shared:
 | `query=<name>` | the query to select |
 | `view=<name>` | a view of the program to open; `view=*` opens the automatic view |
 
-The pickers keep the address up to date as you change them. A link that
+The pickers keep the address up to date as you change them, and so does a
+view's case picker (`scenario=`). A link that
 names a program, a scenario and a query runs that query when it opens, for
 example:
 

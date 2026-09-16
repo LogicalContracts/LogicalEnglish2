@@ -2,7 +2,7 @@
 
 Source: A Liana wallet: a primary key, or a recovery key after a delay — https://github.com/wizardsardine/liana/blob/master/doc/RECOVER.md
 Translator: InsurLE2/migration/miniscript (ms_twin.pl)
-Date: 2026-09-15
+Date: 2026-09-16
 
 ## Summary
 
@@ -37,17 +37,17 @@ A source element is **encoded** when a documented mapping rule translated it wit
 
 | Source test | Query | Result | Detail |
 |---|---|---|---|
-| path_1 | spendable | pass |  |
-| path_1_without_1 | spendable | pass |  |
-| path_1_without_2 | spendable | pass |  |
-| path_2 | spendable | pass |  |
-| path_2_without_1 | spendable | pass |  |
+| recovery | spendable | pass |  |
+| recovery_without_1 | spendable | pass |  |
+| recovery_without_2 | spendable | pass |  |
+| primary | spendable | pass |  |
+| primary_without_1 | spendable | pass |  |
 | no_witness | spendable | pass |  |
 | lost_the_primary_key | spendable | pass |  |
 | lost_the_recovery_key | spendable | pass |  |
-| chain_path_1 | spendable | pass |  |
-| chain_path_1_without_1 | spendable | pass |  |
-| chain_path_2 | spendable | pass |  |
+| chain_recovery | spendable | pass |  |
+| chain_recovery_without_1 | spendable | pass |  |
+| chain_primary | spendable | pass |  |
 | flip_now | flip_spend | pass |  |
 | flip_after_delays | flip_spend | pass |  |
 | lost_the_primary_key | flip_block | pass |  |

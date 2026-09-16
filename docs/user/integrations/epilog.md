@@ -126,6 +126,9 @@ play (`<name>.epilog.json`: the state and the legal moves after every move).
 | `evaluate(plus(X,times(Y,2)),Z)` | `Z = X + Y * 2` (`plus`, `times`, `minus`, `quotient`) |
 | `mutex(X1,…,Xn)` | the values pairwise different |
 | `countofall(X, p(X) & q(X), N)` | an aggregate: the number of each X such that … |
+| `max(A,B)`, `min(A,B)` in an evaluation | two rules, one for `A >= B` and one for `A < B` |
+| `symless`, `symleq` | dropped; the ledger marks the view *approximated* |
+| a sentence with a functional term, a function definition `f(X) := …`, or a list pattern | a residue block (below) |
 | each view | a query `which thing is …` |
 
 From the kinship twin:
@@ -211,33 +214,34 @@ under LPS2, in the state EpilogJS ends in after the same play.
 - **The final state is not a checked expectation.** In a game twin it is a
   comment. Compare it with the run's last state yourself; **Misc ▸ Run the
   Program's Tests…** does not check it.
-- **Functional terms are not supported.** A Logical English place holds a
+- **Functional terms are residue.** A Logical English place holds a
   constant, not a term such as `and(p,q)`, `not(X)` or
-  `location(cell(a,1), piece(white,rook,1))`. The importer does not flag them
-  as residue: the rules that use them come out wrong (a head `negation(not(X))`
-  becomes a negated conclusion, and variables appear as `_123`), and the
-  ledger still counts them as *encoded*. Rulesets such as boolean,
-  satisfiability, schedule and zebra, and games that keep terms in the state,
-  cannot be translated.
-- **Function definitions (`f(X) := …`)** are *residue* in the ledger, but no
-  residue block is written in the program, and the expressions that call the
-  function are left in an unreadable form. Rewrite them by hand.
-- **Lists.** A clause that takes a list apart (`mem(X,X!Y)`) is written as a
-  `% RESIDUE … BEGIN … END` block, with the clause in Prolog. The ledger's
-  counts do not include these blocks: look for `RESIDUE` in the program.
-  Open queries over infinite relations (lists, sets) have no finite answer.
-- **`symless` and `symleq`** in a game's views are dropped. They list a pair
-  once in Epilog; the twin lists it in both orders. The ledger marks each
-  such view *approximated*.
+  `location(cell(a,1), piece(white,rook,1))`. Each sentence that holds one is
+  written as a `% RESIDUE functional_term_… BEGIN … END` block with the
+  Epilog sentence, and counted as *residue* in the ledger and the note. A
+  relation stated only by such sentences keeps its template and its query,
+  which finds nothing until the block is translated. Rulesets such as
+  boolean, satisfiability, schedule and zebra, and games that keep terms in
+  the state (skirmish), come out mostly as residue.
+- **Functions.** A function definition (`f(X) := …`) is a residue block, and
+  so is every sentence whose `evaluate(…)` calls it, or calls an Epilog
+  function other than `plus`, `times`, `minus`, `quotient`, `max` and `min`.
+- **Lists.** A clause that takes a list apart (`mem(X,X!Y)`) is a residue
+  block with the Epilog clause, counted in the ledger. Open queries over
+  infinite relations (lists, sets) have no finite answer.
+- **`symless` and `symleq`** are dropped, in rulesets and in games. They list
+  a pair once in Epilog; the program lists it in both orders. The ledger
+  marks each such view *approximated*.
 - **Symbols that are Logical English words.** A constant `a` (a board column,
   a person in Bridge crossing) is written as the text `"a"` in a game, so that
   it is not read as an article. Write it the same way in your scenario:
   `the move right with "a" is made from 1 to 2.`
 - **One name, two arities.** A relation used with one and with two arguments
   is two templates, known as `left_1` and `left_2` in LPS.
-- **Sub-operations are inlined** to a depth of five. A chain of operations
-  calling operations that goes deeper gives no law at all, and no note says
-  so.
+- **Sub-operations are inlined** to a depth of five. When a move's chain of
+  operations calling operations goes deeper (or an operation calls itself),
+  the effects beyond have no law: the program has a residue block with the
+  operations involved, and the ledger marks the move *approximated*.
 - **Rules without variables** (`reflexive if it is not the case that
   nonreflexive.`) are faithful to Epilog, but the verifier warns about each
   one.

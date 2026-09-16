@@ -194,7 +194,12 @@ written as plain words (`coverages[2]` becomes `coverages 2`).
 or LE's `le_gt/2` ...), `X is Expr` / `le_assign(X, Expr)` (arithmetic with
 `+ - * / // mod` and `round/floor/ceiling/truncate/integer/abs/sign/sqrt`),
 `X = Y`, `X \= Y`, `member(X, List)`, `min(X, Y, Z)`, `max(X, Y, Z)`, and
-literals of the IR's templates. LE's own internal forms (`le_at/3`, the
+literals of the IR's templates. `max(A, B)` and `min(A, B)` inside a formula
+or a comparison (`Z is max(X, Y) + 1`) are written as the conditions `the
+maximum of X and Y is M` before it (LE has no min/max functions); any other
+function LE has no form for (`**`, `^`) makes the rule an error issue
+(`rule_not_written`) and a `%` comment naming it — a rule, or constraint, the
+writer cannot write is never dropped without both. LE's own internal forms (`le_at/3`, the
 aggregate terms, `le_type_check/2`) are accepted too, which is how a loaded
 knowledge base becomes IR.
 
@@ -273,10 +278,14 @@ exact) and `testing/test_scasp_reader.pl` test it.
 
 **Plain Prolog and s(CASP) (§5.7).** `prolog_file_to_ir/3` reads a Prolog file
 (or an s(CASP) file: `#pred p(X) :: '@(X) is ...'` annotations give the
-wording) and verbalises the rest naively: `parent(X, Y)` becomes `*a person*
-is the parent of *a child*`, `age(X, N)` with numbers in the second place
-`the age of *a person* is *a number*`, the places named after the variables of
-the clauses. Built-in goals become `prolog` goals. The test
+wording) and verbalises the rest naively, each place named after the first
+variable found in it in the clauses (a one-letter variable, or none, says
+nothing: `*a thing*`, `*a second thing*`): `parent(X, Y)` becomes `*a thing*
+is the parent of *a second thing*`, `parent(Parent, Child)` `*a parent* is the
+parent of *a child*`. A two-place predicate with a number in its second place
+in some fact (`age(bob, 55)`) is worded as a value, `the age of *a thing* is
+*a second thing*`; the place is not typed `number` (its name still comes from
+the variables). Built-in goals become `prolog` goals. The test
 (`prolog_to_le` in `test_le_writer.pl`) runs the source in Prolog, turns its
 answers into expectations and checks the LE program reproduces them.
 

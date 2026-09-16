@@ -116,7 +116,7 @@ tokens_to_string_([T|Tokens],LastEnd,[S|Strings]) :-
                 format(string(S_), "*~w*", [WordsStr]),
                 Advance_ = Advance
             ; arg(1,T,X) -> 
-                ( X = date(Y,M,D) -> format(string(S_), "~w-~|~`0t~w~2|-~|~`0t~w~2|", [Y,M,D])
+                ( X = date(Y,M,D) -> format(string(S_), "~w-~|~`0t~w~2+-~|~`0t~w~2+", [Y,M,D])
                 ; (atom(X); string(X); number(X)) -> S_=X
                 ; term_string(X, S_)
                 ),

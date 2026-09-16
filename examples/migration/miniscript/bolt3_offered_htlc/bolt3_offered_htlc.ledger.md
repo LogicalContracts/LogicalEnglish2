@@ -2,7 +2,7 @@
 
 Source: A Lightning offered HTLC (BOLT #3) — https://bitcoin.sipa.be/miniscript/
 Translator: InsurLE2/migration/miniscript (ms_twin.pl)
-Date: 2026-09-15
+Date: 2026-09-16
 
 ## Summary
 
@@ -33,25 +33,25 @@ A source element is **encoded** when a documented mapping rule translated it wit
 
 | Source test | Query | Result | Detail |
 |---|---|---|---|
-| path_1 | spendable | pass |  |
-| path_1_without_1 | spendable | pass |  |
-| path_1_without_2 | spendable | pass |  |
-| path_2 | spendable | pass |  |
-| path_2_without_1 | spendable | pass |  |
-| path_2_without_2 | spendable | pass |  |
-| path_3 | spendable | pass |  |
-| path_3_without_1 | spendable | pass |  |
+| remote_with_local_or_preimage_1 | spendable | pass |  |
+| remote_with_local_or_preimage_1_without_1 | spendable | pass |  |
+| remote_with_local_or_preimage_1_without_2 | spendable | pass |  |
+| remote_with_local_or_preimage_2 | spendable | pass |  |
+| remote_with_local_or_preimage_2_without_1 | spendable | pass |  |
+| remote_with_local_or_preimage_2_without_2 | spendable | pass |  |
+| revocation | spendable | pass |  |
+| revocation_without_1 | spendable | pass |  |
 | no_witness | spendable | pass |  |
 | lost_the_revocation_key | spendable | pass |  |
 | lost_the_remote_node | spendable | pass |  |
 | lost_the_local_node | spendable | pass |  |
-| chain_path_1 | spendable | pass |  |
-| chain_path_1_without_1 | spendable | pass |  |
-| chain_path_1_without_2 | spendable | pass |  |
-| chain_path_2 | spendable | pass |  |
-| chain_path_2_without_2 | spendable | pass |  |
-| chain_path_3 | spendable | pass |  |
-| chain_path_3_without_1 | spendable | pass |  |
+| chain_remote_with_local_or_preimage_1 | spendable | pass |  |
+| chain_remote_with_local_or_preimage_1_without_1 | spendable | pass |  |
+| chain_remote_with_local_or_preimage_1_without_2 | spendable | pass |  |
+| chain_remote_with_local_or_preimage_2 | spendable | pass |  |
+| chain_remote_with_local_or_preimage_2_without_2 | spendable | pass |  |
+| chain_revocation | spendable | pass |  |
+| chain_revocation_without_1 | spendable | pass |  |
 | flip_now | flip_spend | pass |  |
 | flip_after_delays | flip_spend | pass |  |
 | lost_the_revocation_key | flip_block | pass |  |

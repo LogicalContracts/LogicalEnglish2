@@ -1,7 +1,7 @@
 % A Revault unvault output: the managers with the cosigning servers after a lock time, or all four stakeholders
 %
 % The Logical English twin of a Bitcoin spending policy, written by the
-% Miniscript translator (InsurLE2/migration/miniscript). Who can spend the
+% Miniscript translator. Who can spend the
 % coin, when, and why: each rule is one spending path of the policy.
 %
 % Source: the Bitcoin Core wallet Miniscript tests
@@ -85,7 +85,7 @@ the knowledge base revault_unvault includes:
 the Bitcoin Core wallet Miniscript tests is published at "https://github.com/bitcoin/bitcoin/blob/master/test/functional/wallet_miniscript.py".
 the text of the Bitcoin Core wallet Miniscript tests is at "sources/core_wallet_miniscript.txt".
 
-the policy in Minsc is published at "https://min.sc/#c=//%20A%20Revault%20unvault%20output:%20the%20managers%20with%20the%20cosigning%20servers%20after%20a%20lock%20time,%20or%20all%20four%20stakeholders%0A//%20The%20Logical%20English%20twin's%20policy%20(InsurLE2/migration/miniscript).%0A$manager_1%20=%20tpubD6NzVbkrYhZ4YPAbyf6urxqqnmJF79PzQtyERAmvkSVS9fweCTjxjDh22Z5St9fGb1a5DUCv8G27nYupKP1Ctr1pkamJossoetzws1moNRn/*;%20%20%20//%20manager%201%20(as%20in%20the%20source)%0A$manager_2%20=%20tpubD6NzVbkrYhZ4YMQC15JS7QcrsAyfGrGiykweqMmPxTkEVScu7vCZLNpPXW1XphHwzsgmqdHWDQAfucbM72EEB1ZEyfgZxYvkZjYVXx1xS9p/*;%20%20%20//%20manager%202%20(as%20in%20the%20source)%0A$cosigning_server_1%20=%2002aebf2d10b040eb936a6f02f44ee82f8b34f5c1ccb20ff3949c2b28206b7c1068;%20%20%20//%20cosigning%20server%201%20(as%20in%20the%20source)%0A$cosigning_server_2%20=%20030f64b922aee2fd597f104bc6cb3b670f1ca2c6c49b1071a1a6c010575d94fe5a;%20%20%20//%20cosigning%20server%202%20(as%20in%20the%20source)%0A$cosigning_server_3%20=%2002abe475b199ec3d62fa576faee16a334fdb86ffb26dce75becebaaedf328ac3fe;%20%20%20//%20cosigning%20server%203%20(as%20in%20the%20source)%0A$cosigning_server_4%20=%200314f3dc33595b0d016bb522f6fe3a67680723d842c1b9b8ae6b59fdd8ab5cccb4;%20%20%20//%20cosigning%20server%204%20(as%20in%20the%20source)%0A$stakeholder_1%20=%20tpubD6NzVbkrYhZ4YU9vM1s53UhD75UyJatx8EMzMZ3VUjR2FciNfLLkAw6a4pWACChzobTseNqdWk4G7ZdBqRDLtLSACKykTScmqibb1ZrCvJu/*;%20%20%20//%20stakeholder%201%20(as%20in%20the%20source)%0A$stakeholder_2%20=%20tpubD6NzVbkrYhZ4XRMcMFMMFvzVt6jaDAtjZhD7JLwdPdMm9xa76DnxYYP7w9TZGJDVFkek3ArwVsuacheqqPog8TH5iBCX1wuig8PLXim4n9a/*;%20%20%20//%20stakeholder%202%20(as%20in%20the%20source)%0A$stakeholder_3%20=%20tpubD6NzVbkrYhZ4WsqRzDmkL82SWcu42JzUvKWzrJHQ8EC2vEHRHkXj1De93sD3biLrKd8XGnamXURGjMbYavbszVDXpjXV2cGUERucLJkE6cy/*;%20%20%20//%20stakeholder%203%20(as%20in%20the%20source)%0A$stakeholder_4%20=%20tpubDEFLeBkKTm8aiYkySz8hXAXPVnPSfxMi7Fxhg9sejUrkwJuRWvPdLEiXjTDbhGbjLKCZUDUUibLxTnK5UP1q7qYrSnPqnNe7M8mvAW1STcc/*;%20%20%20//%20stakeholder%204%20(as%20in%20the%20source)%0A%0Aor(and(and(pk($manager_1),pk($manager_2)),and(and(and(and(pk($cosigning_server_1),pk($cosigning_server_2)),pk($cosigning_server_3)),pk($cosigning_server_4)),after(424242))),and(and(and(pk($stakeholder_1),pk($stakeholder_2)),pk($stakeholder_3)),pk($stakeholder_4)))%0A".
+the policy in Minsc is published at "https://min.sc/#c=//%20A%20Revault%20unvault%20output:%20the%20managers%20with%20the%20cosigning%20servers%20after%20a%20lock%20time,%20or%20all%20four%20stakeholders%0A//%20The%20Logical%20English%20twin's%20policy%20(the%20Miniscript%20translator%20of%20Logical%20English).%0A$manager_1%20=%20tpubD6NzVbkrYhZ4YPAbyf6urxqqnmJF79PzQtyERAmvkSVS9fweCTjxjDh22Z5St9fGb1a5DUCv8G27nYupKP1Ctr1pkamJossoetzws1moNRn/*;%20%20%20//%20manager%201%20(as%20in%20the%20source)%0A$manager_2%20=%20tpubD6NzVbkrYhZ4YMQC15JS7QcrsAyfGrGiykweqMmPxTkEVScu7vCZLNpPXW1XphHwzsgmqdHWDQAfucbM72EEB1ZEyfgZxYvkZjYVXx1xS9p/*;%20%20%20//%20manager%202%20(as%20in%20the%20source)%0A$cosigning_server_1%20=%2002aebf2d10b040eb936a6f02f44ee82f8b34f5c1ccb20ff3949c2b28206b7c1068;%20%20%20//%20cosigning%20server%201%20(as%20in%20the%20source)%0A$cosigning_server_2%20=%20030f64b922aee2fd597f104bc6cb3b670f1ca2c6c49b1071a1a6c010575d94fe5a;%20%20%20//%20cosigning%20server%202%20(as%20in%20the%20source)%0A$cosigning_server_3%20=%2002abe475b199ec3d62fa576faee16a334fdb86ffb26dce75becebaaedf328ac3fe;%20%20%20//%20cosigning%20server%203%20(as%20in%20the%20source)%0A$cosigning_server_4%20=%200314f3dc33595b0d016bb522f6fe3a67680723d842c1b9b8ae6b59fdd8ab5cccb4;%20%20%20//%20cosigning%20server%204%20(as%20in%20the%20source)%0A$stakeholder_1%20=%20tpubD6NzVbkrYhZ4YU9vM1s53UhD75UyJatx8EMzMZ3VUjR2FciNfLLkAw6a4pWACChzobTseNqdWk4G7ZdBqRDLtLSACKykTScmqibb1ZrCvJu/*;%20%20%20//%20stakeholder%201%20(as%20in%20the%20source)%0A$stakeholder_2%20=%20tpubD6NzVbkrYhZ4XRMcMFMMFvzVt6jaDAtjZhD7JLwdPdMm9xa76DnxYYP7w9TZGJDVFkek3ArwVsuacheqqPog8TH5iBCX1wuig8PLXim4n9a/*;%20%20%20//%20stakeholder%202%20(as%20in%20the%20source)%0A$stakeholder_3%20=%20tpubD6NzVbkrYhZ4WsqRzDmkL82SWcu42JzUvKWzrJHQ8EC2vEHRHkXj1De93sD3biLrKd8XGnamXURGjMbYavbszVDXpjXV2cGUERucLJkE6cy/*;%20%20%20//%20stakeholder%203%20(as%20in%20the%20source)%0A$stakeholder_4%20=%20tpubDEFLeBkKTm8aiYkySz8hXAXPVnPSfxMi7Fxhg9sejUrkwJuRWvPdLEiXjTDbhGbjLKCZUDUUibLxTnK5UP1q7qYrSnPqnNe7M8mvAW1STcc/*;%20%20%20//%20stakeholder%204%20(as%20in%20the%20source)%0A%0Aor(and(and(pk($manager_1),pk($manager_2)),and(and(and(and(pk($cosigning_server_1),pk($cosigning_server_2)),pk($cosigning_server_3)),pk($cosigning_server_4)),after(424242))),and(and(and(pk($stakeholder_1),pk($stakeholder_2)),pk($stakeholder_3)),pk($stakeholder_4)))%0A".
 
 the Tape run of 2026-09-14 is published at "https://tape.rewindbitcoin.com/explorer/address/bcrt1qfla64prsxacmhswtp8fje0rdkq6tcf09rdeu8p3458s0n9saefyq820cnw".
 the text of the Tape run of 2026-09-14 is at "sources/revault_unvault.chain.json".
@@ -135,8 +135,8 @@ the coin can be spent if
     and the witness contains a signature by stakeholder 3
     and the witness contains a signature by stakeholder 4.
 
-scenario path_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 — the path needs: a lock time of at least 424242, a signature by cosigning server 3, a signature by cosigning server 1, a signature by cosigning server 2, a signature by cosigning server 4, a signature by manager 2, a signature by manager 1
+scenario managers is, as stated in the satisfaction analysis of the policy:
+    % spending path managers — the path needs: a lock time of at least 424242, a signature by cosigning server 3, a signature by cosigning server 1, a signature by cosigning server 2, a signature by cosigning server 4, a signature by manager 2, a signature by manager 1
     the witness contains a signature by cosigning server 3.
     the witness contains a signature by cosigning server 1.
     the witness contains a signature by cosigning server 2.
@@ -147,8 +147,8 @@ scenario path_1 is, as stated in the satisfaction analysis of the policy:
     the spending transaction has the lock time 424242.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_1_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 1 — the path needs: a lock time of at least 424242, a signature by cosigning server 3, a signature by cosigning server 1, a signature by cosigning server 2, a signature by cosigning server 4, a signature by manager 2, a signature by manager 1
+scenario managers_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path managers without requirement 1 — the path needs: a lock time of at least 424242, a signature by cosigning server 3, a signature by cosigning server 1, a signature by cosigning server 2, a signature by cosigning server 4, a signature by manager 2, a signature by manager 1
     the witness contains a signature by cosigning server 3.
     the witness contains a signature by cosigning server 1.
     the witness contains a signature by cosigning server 2.
@@ -159,8 +159,8 @@ scenario path_1_without_1 is, as stated in the satisfaction analysis of the poli
     the spending transaction has the lock time 424241.
     spendable expects answers [].
 
-scenario path_1_without_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 2 — the path needs: a lock time of at least 424242, a signature by cosigning server 3, a signature by cosigning server 1, a signature by cosigning server 2, a signature by cosigning server 4, a signature by manager 2, a signature by manager 1
+scenario managers_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path managers without requirement 2 — the path needs: a lock time of at least 424242, a signature by cosigning server 3, a signature by cosigning server 1, a signature by cosigning server 2, a signature by cosigning server 4, a signature by manager 2, a signature by manager 1
     the witness contains a signature by cosigning server 1.
     the witness contains a signature by cosigning server 2.
     the witness contains a signature by cosigning server 4.
@@ -170,8 +170,8 @@ scenario path_1_without_2 is, as stated in the satisfaction analysis of the poli
     the spending transaction has the lock time 424242.
     spendable expects answers [].
 
-scenario path_1_without_3 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 3 — the path needs: a lock time of at least 424242, a signature by cosigning server 3, a signature by cosigning server 1, a signature by cosigning server 2, a signature by cosigning server 4, a signature by manager 2, a signature by manager 1
+scenario managers_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path managers without requirement 3 — the path needs: a lock time of at least 424242, a signature by cosigning server 3, a signature by cosigning server 1, a signature by cosigning server 2, a signature by cosigning server 4, a signature by manager 2, a signature by manager 1
     the witness contains a signature by cosigning server 3.
     the witness contains a signature by cosigning server 2.
     the witness contains a signature by cosigning server 4.
@@ -181,8 +181,8 @@ scenario path_1_without_3 is, as stated in the satisfaction analysis of the poli
     the spending transaction has the lock time 424242.
     spendable expects answers [].
 
-scenario path_1_without_4 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 4 — the path needs: a lock time of at least 424242, a signature by cosigning server 3, a signature by cosigning server 1, a signature by cosigning server 2, a signature by cosigning server 4, a signature by manager 2, a signature by manager 1
+scenario managers_without_4 is, as stated in the satisfaction analysis of the policy:
+    % spending path managers without requirement 4 — the path needs: a lock time of at least 424242, a signature by cosigning server 3, a signature by cosigning server 1, a signature by cosigning server 2, a signature by cosigning server 4, a signature by manager 2, a signature by manager 1
     the witness contains a signature by cosigning server 3.
     the witness contains a signature by cosigning server 1.
     the witness contains a signature by cosigning server 4.
@@ -192,8 +192,8 @@ scenario path_1_without_4 is, as stated in the satisfaction analysis of the poli
     the spending transaction has the lock time 424242.
     spendable expects answers [].
 
-scenario path_1_without_5 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 5 — the path needs: a lock time of at least 424242, a signature by cosigning server 3, a signature by cosigning server 1, a signature by cosigning server 2, a signature by cosigning server 4, a signature by manager 2, a signature by manager 1
+scenario managers_without_5 is, as stated in the satisfaction analysis of the policy:
+    % spending path managers without requirement 5 — the path needs: a lock time of at least 424242, a signature by cosigning server 3, a signature by cosigning server 1, a signature by cosigning server 2, a signature by cosigning server 4, a signature by manager 2, a signature by manager 1
     the witness contains a signature by cosigning server 3.
     the witness contains a signature by cosigning server 1.
     the witness contains a signature by cosigning server 2.
@@ -203,8 +203,8 @@ scenario path_1_without_5 is, as stated in the satisfaction analysis of the poli
     the spending transaction has the lock time 424242.
     spendable expects answers [].
 
-scenario path_1_without_6 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 6 — the path needs: a lock time of at least 424242, a signature by cosigning server 3, a signature by cosigning server 1, a signature by cosigning server 2, a signature by cosigning server 4, a signature by manager 2, a signature by manager 1
+scenario managers_without_6 is, as stated in the satisfaction analysis of the policy:
+    % spending path managers without requirement 6 — the path needs: a lock time of at least 424242, a signature by cosigning server 3, a signature by cosigning server 1, a signature by cosigning server 2, a signature by cosigning server 4, a signature by manager 2, a signature by manager 1
     the witness contains a signature by cosigning server 3.
     the witness contains a signature by cosigning server 1.
     the witness contains a signature by cosigning server 2.
@@ -214,8 +214,8 @@ scenario path_1_without_6 is, as stated in the satisfaction analysis of the poli
     the spending transaction has the lock time 424242.
     spendable expects answers [].
 
-scenario path_1_without_7 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 7 — the path needs: a lock time of at least 424242, a signature by cosigning server 3, a signature by cosigning server 1, a signature by cosigning server 2, a signature by cosigning server 4, a signature by manager 2, a signature by manager 1
+scenario managers_without_7 is, as stated in the satisfaction analysis of the policy:
+    % spending path managers without requirement 7 — the path needs: a lock time of at least 424242, a signature by cosigning server 3, a signature by cosigning server 1, a signature by cosigning server 2, a signature by cosigning server 4, a signature by manager 2, a signature by manager 1
     the witness contains a signature by cosigning server 3.
     the witness contains a signature by cosigning server 1.
     the witness contains a signature by cosigning server 2.
@@ -225,8 +225,8 @@ scenario path_1_without_7 is, as stated in the satisfaction analysis of the poli
     the spending transaction has the lock time 424242.
     spendable expects answers [].
 
-scenario path_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 — the path needs: a signature by stakeholder 3, a signature by stakeholder 2, a signature by stakeholder 1, a signature by stakeholder 4
+scenario stakeholders is, as stated in the satisfaction analysis of the policy:
+    % spending path stakeholders — the path needs: a signature by stakeholder 3, a signature by stakeholder 2, a signature by stakeholder 1, a signature by stakeholder 4
     the witness contains a signature by stakeholder 3.
     the witness contains a signature by stakeholder 2.
     the witness contains a signature by stakeholder 1.
@@ -235,8 +235,8 @@ scenario path_2 is, as stated in the satisfaction analysis of the policy:
     the spending transaction has the lock time 0.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_2_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 without requirement 1 — the path needs: a signature by stakeholder 3, a signature by stakeholder 2, a signature by stakeholder 1, a signature by stakeholder 4
+scenario stakeholders_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path stakeholders without requirement 1 — the path needs: a signature by stakeholder 3, a signature by stakeholder 2, a signature by stakeholder 1, a signature by stakeholder 4
     the witness contains a signature by stakeholder 2.
     the witness contains a signature by stakeholder 1.
     the witness contains a signature by stakeholder 4.
@@ -244,8 +244,8 @@ scenario path_2_without_1 is, as stated in the satisfaction analysis of the poli
     the spending transaction has the lock time 0.
     spendable expects answers [].
 
-scenario path_2_without_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 without requirement 2 — the path needs: a signature by stakeholder 3, a signature by stakeholder 2, a signature by stakeholder 1, a signature by stakeholder 4
+scenario stakeholders_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path stakeholders without requirement 2 — the path needs: a signature by stakeholder 3, a signature by stakeholder 2, a signature by stakeholder 1, a signature by stakeholder 4
     the witness contains a signature by stakeholder 3.
     the witness contains a signature by stakeholder 1.
     the witness contains a signature by stakeholder 4.
@@ -253,8 +253,8 @@ scenario path_2_without_2 is, as stated in the satisfaction analysis of the poli
     the spending transaction has the lock time 0.
     spendable expects answers [].
 
-scenario path_2_without_3 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 without requirement 3 — the path needs: a signature by stakeholder 3, a signature by stakeholder 2, a signature by stakeholder 1, a signature by stakeholder 4
+scenario stakeholders_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path stakeholders without requirement 3 — the path needs: a signature by stakeholder 3, a signature by stakeholder 2, a signature by stakeholder 1, a signature by stakeholder 4
     the witness contains a signature by stakeholder 3.
     the witness contains a signature by stakeholder 2.
     the witness contains a signature by stakeholder 4.
@@ -262,8 +262,8 @@ scenario path_2_without_3 is, as stated in the satisfaction analysis of the poli
     the spending transaction has the lock time 0.
     spendable expects answers [].
 
-scenario path_2_without_4 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 without requirement 4 — the path needs: a signature by stakeholder 3, a signature by stakeholder 2, a signature by stakeholder 1, a signature by stakeholder 4
+scenario stakeholders_without_4 is, as stated in the satisfaction analysis of the policy:
+    % spending path stakeholders without requirement 4 — the path needs: a signature by stakeholder 3, a signature by stakeholder 2, a signature by stakeholder 1, a signature by stakeholder 4
     the witness contains a signature by stakeholder 3.
     the witness contains a signature by stakeholder 2.
     the witness contains a signature by stakeholder 1.
@@ -289,7 +289,7 @@ scenario flip_after_delays is, as stated in the flip analysis of the policy:
     the spending transaction has the lock time 424242.
     flip_spend expects changes [].
 
-scenario chain_path_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1:
+scenario chain_managers is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1:
     % the chain refused the spend: non-final
     the witness contains a signature by cosigning server 1.
     the witness contains a signature by cosigning server 2.
@@ -301,7 +301,7 @@ scenario chain_path_1 is, as stated in the Tape run of 2026-09-14 at the refusal
     the spending transaction has the lock time 424242.
     spendable expects answers [].
 
-scenario chain_path_1_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_1:
+scenario chain_managers_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_1:
     % the chain refused the spend: non-final
     the witness contains a signature by cosigning server 1.
     the witness contains a signature by cosigning server 2.
@@ -312,7 +312,7 @@ scenario chain_path_1_without_1 is, as stated in the Tape run of 2026-09-14 at t
     the spending transaction has the lock time 424242.
     spendable expects answers [].
 
-scenario chain_path_1_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_2:
+scenario chain_managers_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_2:
     % the chain refused the spend: non-final
     the witness contains a signature by cosigning server 2.
     the witness contains a signature by cosigning server 3.
@@ -323,7 +323,7 @@ scenario chain_path_1_without_2 is, as stated in the Tape run of 2026-09-14 at t
     the spending transaction has the lock time 424242.
     spendable expects answers [].
 
-scenario chain_path_1_without_3 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_3:
+scenario chain_managers_without_3 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_3:
     % the chain refused the spend: non-final
     the witness contains a signature by cosigning server 1.
     the witness contains a signature by cosigning server 3.
@@ -334,7 +334,7 @@ scenario chain_path_1_without_3 is, as stated in the Tape run of 2026-09-14 at t
     the spending transaction has the lock time 424242.
     spendable expects answers [].
 
-scenario chain_path_1_without_4 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_4:
+scenario chain_managers_without_4 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_4:
     % the chain refused the spend: non-final
     the witness contains a signature by cosigning server 1.
     the witness contains a signature by cosigning server 2.
@@ -345,7 +345,7 @@ scenario chain_path_1_without_4 is, as stated in the Tape run of 2026-09-14 at t
     the spending transaction has the lock time 424242.
     spendable expects answers [].
 
-scenario chain_path_1_without_5 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_5:
+scenario chain_managers_without_5 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_5:
     % the chain refused the spend: non-final
     the witness contains a signature by cosigning server 1.
     the witness contains a signature by cosigning server 2.
@@ -356,7 +356,7 @@ scenario chain_path_1_without_5 is, as stated in the Tape run of 2026-09-14 at t
     the spending transaction has the lock time 424242.
     spendable expects answers [].
 
-scenario chain_path_1_without_6 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_6:
+scenario chain_managers_without_6 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_6:
     % the chain refused the spend: non-final
     the witness contains a signature by cosigning server 1.
     the witness contains a signature by cosigning server 2.
@@ -367,7 +367,7 @@ scenario chain_path_1_without_6 is, as stated in the Tape run of 2026-09-14 at t
     the spending transaction has the lock time 424242.
     spendable expects answers [].
 
-scenario chain_path_2 is, as stated in the Tape run of 2026-09-14 at transaction d53d1b44c5152ee791990982bfeb8be7d7471931c5024a73d5c6f631e359de28:
+scenario chain_stakeholders is, as stated in the Tape run of 2026-09-14 at transaction d53d1b44c5152ee791990982bfeb8be7d7471931c5024a73d5c6f631e359de28:
     % the chain accepted the spend: transaction d53d1b44c5152ee791990982bfeb8be7d7471931c5024a73d5c6f631e359de28
     the witness contains a signature by stakeholder 4.
     the witness contains a signature by stakeholder 3.
@@ -377,7 +377,7 @@ scenario chain_path_2 is, as stated in the Tape run of 2026-09-14 at transaction
     the spending transaction has the lock time 0.
     spendable expects answers ["the coin can be spent"].
 
-scenario chain_path_2_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_1:
+scenario chain_stakeholders_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_1:
     % the chain refused the spend: mempool-script-verify-flag-failed (Script evaluated without error but finished with a false/empty top stack element)
     the witness contains a signature by stakeholder 4.
     the witness contains a signature by stakeholder 2.
@@ -386,7 +386,7 @@ scenario chain_path_2_without_1 is, as stated in the Tape run of 2026-09-14 at t
     the spending transaction has the lock time 0.
     spendable expects answers [].
 
-scenario chain_path_2_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_2:
+scenario chain_stakeholders_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_2:
     % the chain refused the spend: mempool-script-verify-flag-failed (Script evaluated without error but finished with a false/empty top stack element)
     the witness contains a signature by stakeholder 4.
     the witness contains a signature by stakeholder 3.
@@ -395,7 +395,7 @@ scenario chain_path_2_without_2 is, as stated in the Tape run of 2026-09-14 at t
     the spending transaction has the lock time 0.
     spendable expects answers [].
 
-scenario chain_path_2_without_3 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_3:
+scenario chain_stakeholders_without_3 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_3:
     % the chain refused the spend: mempool-script-verify-flag-failed (Script evaluated without error but finished with a false/empty top stack element)
     the witness contains a signature by stakeholder 4.
     the witness contains a signature by stakeholder 3.
@@ -404,7 +404,7 @@ scenario chain_path_2_without_3 is, as stated in the Tape run of 2026-09-14 at t
     the spending transaction has the lock time 0.
     spendable expects answers [].
 
-scenario chain_path_2_without_4 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_4:
+scenario chain_stakeholders_without_4 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_4:
     % the chain refused the spend: mempool-script-verify-flag-failed (Script evaluated without error but finished with a false/empty top stack element)
     the witness contains a signature by stakeholder 3.
     the witness contains a signature by stakeholder 2.

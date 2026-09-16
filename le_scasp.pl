@@ -200,6 +200,11 @@ le_builtin_functor(ontology).
 le_builtin_functor(le_expected_changes).
 le_builtin_functor(le_service).
 le_builtin_functor(le_service_template).
+%   Where a document is published and where its text is (`... is published
+%   at ...`, `the text of ... is at ...`): records the explanation's citations
+%   read, not conditions of the program.
+le_builtin_functor(le_published_at).
+le_builtin_functor(le_text_at).
 
 known_template(KB, F, A) :-
     KB:le_dict(dict([F|Args], _, _, _, _, _, _)),
@@ -313,10 +318,11 @@ opposite_constraints(KB, Lines) :-
           \+ le_builtin_functor(F),
           length(Args, A),
           functor(Head, F, A),
-          Head =.. [F|Vs],
           Opp =.. ['-', Head],
-          format(string(L), "false :- ~q, ~q.", [Head, Opp]),
-          ignore(Vs = Vs)          % keep Vs referenced
+          %  the variables named A, B, ... as in every other clause, not _123
+          numbervars(Head, 0, _),
+          format(string(L), "false :- ~W, ~W.",
+                 [Head, [quoted(true), numbervars(true)], Opp, [quoted(true), numbervars(true)]])
         ),
         Lines0),
     sort(Lines0, Lines).
@@ -334,12 +340,19 @@ emit_rules(KB, [rule(ID,_S,_E,Head,Body)|T], Lines, Issues) :-
             % per conjunction (each printed whole so head/body vars correspond).
             body_to_dnf(SBody, Conjs),
             to_classical(Head, CHead),
-            maplist(clause_line(CHead), Conjs, RLines0),
             b_getval(le_scasp_aux, Aux), reverse(Aux, AuxInOrder),
-            findall(AL, ( member((AH :- AB), AuxInOrder), body_to_dnf(AB, ACs),
-                          member(AC, ACs), clause_line(AH, AC, AL) ), AuxLines),
-            append(RLines0, AuxLines, RLines),
-            Lines0 = RLines, maplist(issue_of_rule(ID), BIssues, Issues0)
+            (   leftover_in_clauses([(CHead :- SBody)|AuxInOrder], Left)
+            ->  %  a construct the lowering left as it was: s(CASP) would
+                %  call it as a predicate of the program, which it is not
+                Lines0 = [],
+                scasp_issue(untranslatable_rule, ID, scasp_leftover_construct, [construct-Left], I),
+                Issues0 = [I]
+            ;   maplist(clause_line(CHead), Conjs, RLines0),
+                findall(AL, ( member((AH :- AB), AuxInOrder), body_to_dnf(AB, ACs),
+                              member(AC, ACs), clause_line(AH, AC, AL) ), AuxLines),
+                append(RLines0, AuxLines, RLines),
+                Lines0 = RLines, maplist(issue_of_rule(ID), BIssues, Issues0)
+            )
         ; Err = le_scasp_untranslatable(Key) ->
             % A construct we recognise but cannot express in s(CASP) (e.g. double
             % negation): report a targeted issue rather than crashing the runner.
@@ -392,6 +405,54 @@ le_scasp_check(KB, Issues, Problems) :-
             Problems0),
     list_to_set(Problems0, Problems).
 
+%!  leftover_in_clauses(+Clauses, -Construct) is semidet.
+%
+%   A literal of the lowered clauses (Head :- Body) that is still one of LE's
+%   own connectives or records (and/2, or/2, le_at/3, an le_* builtin, a
+%   Prolog control construct): the lowering has no case for where it stands.
+%   s(CASP) would call it as a predicate of the unit and throw (`existence
+%   error: scasp_predicate ...:and/2`), so it is reported instead, as the
+%   F/N it is. The helpers the lowering itself writes (le_forall_<n>,
+%   le_query) are the program's.
+leftover_in_clauses(Clauses, F/N) :-
+    member((H :- B), Clauses),
+    ( leftover_literal(H, L) ; body_to_dnf(B, Cs), member(C, Cs), member(Lit, C), leftover_literal(Lit, L) ),
+    !,
+    functor(L, F, N).
+
+leftover_literal(G, _) :- var(G), !, fail.
+leftover_literal(not(G), L) :- !, leftover_literal(G, L).
+leftover_literal(-(G), L) :- compound(G), !, leftover_literal(G, L).
+%   a comparison's operands are terms: an LE goal inside one (a condition the
+%   grammar read as an operand) is left over too
+leftover_literal(G, L) :-
+    compound(G), functor(G, F, 2), memberchk(F, [#=, #<>, #<, #>, #=<, #>=, =, \=]), !,
+    sub_term(L, G), compound(L), L \== G,
+    leftover_literal(L, L), !.
+leftover_literal(G, G) :-
+    callable(G), functor(G, F, N),
+    (   memberchk(F/N, [','/2, ';'/2, '->'/2, '*->'/2, '\\+'/1, call/1, findall/3, forall/2,
+                        aggregate_all/3, setof/3, bagof/3])
+    ->  true
+    ;   atom(F), \+ scasp_helper_functor(F),
+        (   le_builtin_functor(F)
+        ;   le_internal_functor(F)
+        ;   le_i18n:system_template_row(F, _, _)          % an LE built-in condition
+        ), !
+    ).
+
+%   LE's own goal wrappers that no lowering case expects to meet (a user
+%   template's functor never collides with them: le_prix_de... is French).
+le_internal_functor(le_flip).
+le_internal_functor(le_scoped).
+le_internal_functor(le_table).
+le_internal_functor(le_query_fails_at_section).
+le_internal_functor(le_fails_at_section).
+le_internal_functor(unknown_template).
+
+scasp_helper_functor(le_query).
+scasp_helper_functor(F) :- sub_atom(F, 0, _, _, le_forall_).
+
 clause_line(Head, ConjList, Line) :-
     ( ConjList == [] -> Body = true ; list_to_conj(ConjList, Body) ),
     copy_term(Head-Body, H1-B1),
@@ -430,6 +491,10 @@ append_each(_, [], []).
 append_each(Ca, [Cb|CBs], [C|Cs]) :- append(Ca, Cb, C), append_each(Ca, CBs, Cs).
 
 emit_facts(_KB, [], [], []).
+emit_facts(KB, [fact(ID,_S,_E,Head0)|T], LT, [I|Issues]) :-     % a sentence with no template, say
+    leftover_in_clauses([(Head0 :- true)], Left), !,
+    scasp_issue(untranslatable_rule, ID, scasp_leftover_construct, [construct-Left], I),
+    emit_facts(KB, T, LT, Issues).
 emit_facts(KB, [fact(_ID,_S,_E,Head0)|T], [L|LT], Issues) :-
     to_classical(Head0, Head),
     format(string(L), "~W.", [Head, [quoted(true), numbervars(true)]]),
@@ -515,7 +580,7 @@ lower_leaf(le_not_equal_to(X,Y), (X #<> Y), []) :- number_ish(X,Y), !.
 lower_leaf(le_not_equal_to(X,Y), (X \= Y), []) :- !.
 lower_leaf(le_is(X,Y), (X #= Y), []) :- arithmetic_term(Y), !.
 lower_leaf(le_is(X,Y), (X = Y), []) :- !.
-lower_leaf(le_assign(X,Y), (X #= Y), []) :- arithmetic_term(Y), !.
+lower_leaf(le_assign(X,Y), (X #= Y), []) :- ( arithmetic_term(Y) ; arithmetic_term(X) ), !.   % `N mod 3 = 2` too
 lower_leaf(le_assign(X,Y), (X = Y), []) :- !.
 lower_leaf(le_known(X), scasp_known(X), [I]) :- scasp_issue(unsupported_known, unknown, scasp_unsupported_known, [], I), !.
 lower_leaf(prolog_call(_), true, [I]) :- scasp_issue(prolog_goal, unknown, scasp_prolog_goal, [], I), !.
@@ -536,7 +601,7 @@ lower_leaf(le_holds(_), true, [I]) :- scasp_issue(meta_call, unknown, scasp_meta
 lower_leaf(unknown_template(_), true, [I]) :- scasp_issue(missing_template, unknown, scasp_missing_template, [], I), !.
 lower_leaf(Leaf, CLeaf, []) :- to_classical(Leaf, CLeaf).      % user domain predicate (an opposite form: -p)
 
-number_ish(X, Y) :- ( number(X) ; number(Y) ), !.
+number_ish(X, Y) :- ( arithmetic_term(X) ; arithmetic_term(Y) ), !.
 arithmetic_term(T) :- compound(T), functor(T, F, A), A >= 1, arith_op(F, A), !.
 arithmetic_term(T) :- number(T).
 arith_op(+,2). arith_op(-,2). arith_op(*,2). arith_op(/,2). arith_op(-,1).
@@ -563,28 +628,92 @@ arith_op(abs,1). arith_op(min,2). arith_op(max,2). arith_op(mod,2).
 %   facts directly instead of by name.
 le_scasp_query(KBModule, ScenarioName, Goal, Options, Answers, Issues) :-
     le_scasp_available,
-    le_scasp_program_text(KBModule, ProgText, PIssues),
+    le_scasp_program_text(KBModule, ProgText0, PIssues),
     %  a program s(CASP) cannot state faithfully is not run by it: the next
     %  clause answers nothing, with the issues that say why
     \+ ( member(PI, PIssues), le_scasp_blocking_issue(PI) ),
+    %  a query's goal carries the source positions of its conditions
+    %  (le_at/3), which the unit does not; a query of several conditions is
+    %  lowered like a rule body (le_scasp_query_goal/6), and refused like one
+    strip_positions(Goal, Goal1),
+    le_scasp_query_goal(KBModule, Goal1, SQuery, Shown, QueryLines, QIssues),
+    \+ ( member(QI, QIssues), le_scasp_blocking_issue(QI) ),
     !,
     option(time_limit(TL), Options, 10),
     option(max_models(Max), Options, 25),
     scenario_facts(KBModule, ScenarioName, Options, Facts0),
     %  an opposite form is -p in the unit (its variables shared, so the
-    %  answers bind the caller's goal); a query's goal carries the source
-    %  positions of its conditions (le_at/3), which the unit does not
-    strip_positions(Goal, Goal1),
-    classical_deep(Goal1, SGoal), maplist(classical_deep, Facts0, Facts),
+    %  answers bind the caller's goal)
+    maplist(classical_deep, Facts0, Facts),
+    atomic_list_concat(QueryLines, '\n', QT),
+    format(string(ProgText), "~w~n% the query~n~w~n", [ProgText0, QT]),
     setup_call_cleanup(
         load_scasp_unit(ProgText, Facts, Unit, File),
-        run_models(Unit, SGoal, TL, Max, Answers, RIssues),
+        run_models(Unit, SQuery, Shown, TL, Max, Answers, RIssues),
         cleanup_scasp_unit(Unit, File)),
-    append(PIssues, RIssues, Issues).
-le_scasp_query(KBModule, _, _, _, [], Issues) :-
+    append([PIssues, QIssues, RIssues], Issues).
+le_scasp_query(KBModule, _, Goal, _, [], Issues) :-
     le_scasp_available, !,
-    le_scasp_program_text(KBModule, _, Issues).
+    le_scasp_program_text(KBModule, _, PIssues),
+    (   \+ ( member(PI, PIssues), le_scasp_blocking_issue(PI) )
+    ->  strip_positions(Goal, Goal1),
+        le_scasp_query_goal(KBModule, Goal1, _, _, _, QIssues),
+        append(PIssues, QIssues, Issues)
+    ;   Issues = PIssues
+    ).
 le_scasp_query(_, _, _, _, [], [I]) :- scasp_issue(no_pack, unknown, scasp_engine_not_installed, [], I).
+
+%!  le_scasp_query_goal(+KB, +Goal, -Query, -Shown, -Lines, -Issues) is det.
+%
+%   The s(CASP) query for an LE query goal (positions stripped). A query is
+%   the body of a rule with no head — conditions joined by and/2, or/2, not/1,
+%   universals, comparisons — so it is lowered exactly like one (lower_body/5,
+%   the same issues, the same leftover check) into the clauses (Lines) of the
+%   helper predicate le_query(Vars), Query, whose arguments are the query's
+%   variables so the answers bind the caller's goal. Asking the helper rather
+%   than the conditions themselves also keeps s(CASP) from refusing a query
+%   whose predicate has no clause in the unit (no rule, and no fact in this
+%   scenario): s(CASP) checks that a query's literals exist, and throws, where
+%   in a clause body such a literal just fails, as in Prolog. (Handing it the
+%   LE goal itself asked for a predicate and/2 of the unit.)
+%   Shown is the goal an answer renders: the lowered literal of a one-literal
+%   query (an opposite form's -p), else the LE goal.
+le_scasp_query_goal(KB, Goal, QHead, Shown, Lines, Issues) :-
+    opposite_map(KB, Map), b_setval(le_scasp_opposites, Map),
+    %  a universal's own variables are not the query's (the helper of the
+    %  universal shares with the rest only the others, lower_body/5)
+    without_universals(Goal, Outer),
+    term_variables(Outer, Vs),
+    QHead =.. [le_query|Vs],
+    b_setval(le_scasp_rule, QHead-Goal), b_setval(le_scasp_aux, []),
+    (   catch(lower_body(KB, query, Goal, SBody, BIssues0), Err, true)
+    ->  true
+    ;   Err = failed
+    ),
+    (   nonvar(Err)
+    ->  ( Err = le_scasp_untranslatable(Key) -> true ; Key = scasp_untranslatable_rule ),
+        scasp_issue(untranslatable_rule, unknown, Key, [], I),
+        Shown = Goal, Lines = [], Issues = [I]
+    ;   body_to_dnf(SBody, Conjs),
+        b_getval(le_scasp_aux, Aux), reverse(Aux, AuxInOrder),
+        maplist(issue_of_rule(unknown), BIssues0, BIssues),
+        (   leftover_in_clauses([(QHead :- SBody)|AuxInOrder], Left)
+        ->  scasp_issue(untranslatable_rule, unknown, scasp_leftover_construct, [construct-Left], I),
+            Shown = Goal, Lines = [], Issues = [I|BIssues]
+        ;   ( classical_deep(Goal, CG), Conjs == [[CG]] -> Shown = CG ; Shown = Goal ),
+            findall(L, ( member(C, Conjs), clause_line(QHead, C, L) ), QLines),
+            findall(AL, ( member((AH :- AB), AuxInOrder), body_to_dnf(AB, ACs),
+                          member(AC, ACs), clause_line(AH, AC, AL) ), AuxLines),
+            append(QLines, AuxLines, Lines),
+            Issues = BIssues
+        )
+    ).
+
+without_universals(V, V) :- var(V), !.
+without_universals(forall(_, _), true) :- !.
+without_universals(T, S) :- compound(T), functor(T, F, _), memberchk(F, [and, or, not, ',', ';']), !,
+    T =.. [F|As], maplist(without_universals, As, Bs), S =.. [F|Bs].
+without_universals(T, T).
 
 strip_positions(V, V) :- var(V), !.
 strip_positions(le_at(G, _, _), S) :- !, strip_positions(G, S).
@@ -627,10 +756,12 @@ cleanup_scasp_unit(Unit, File) :-
 
 scasp_clear_unit(_Unit).      % placeholder; temporary module GC handled by SWI
 
-% run_models(+Unit, +Goal, +TimeLimit, +Max, -Answers, -Issues)
-run_models(Unit, Goal, TL, Max, Answers, Issues) :-
+% run_models(+Unit, +Query, +Shown, +TimeLimit, +Max, -Answers, -Issues): solve
+% Query; each answer carries Shown (the goal the answer sentence renders, its
+% variables Query's) as the goal instance.
+run_models(Unit, Query, Shown, TL, Max, Answers, Issues) :-
     catch(
-        call_with_time_limit(TL, collect_models(Unit, Goal, Max, Answers)),
+        call_with_time_limit(TL, collect_models(Unit, Query, Shown, Max, Answers)),
         Error,
         run_models_recover(Error, Answers, Issues0)),
     ( var(Issues0) -> Issues = [] ; Issues = Issues0 ).
@@ -648,15 +779,20 @@ run_models_recover(error(permission_error(scasp, _, _), _), [], [I]) :- !,
     scasp_issue(unsupported_construct, unknown, scasp_unsupported_construct, [], I).
 run_models_recover(error(determinism_error(_,_,_,_), _), [], [I]) :- !,
     scasp_issue(unsupported_construct, unknown, scasp_unsupported_construct, [], I).
+%   A predicate the unit does not define, which the leftover check
+%   (leftover_in_clauses/2) should already have refused: said, not a 500.
+run_models_recover(error(existence_error(scasp_predicate, PI0), _), [], [I]) :- !,
+    ( PI0 = _:PI -> true ; PI = PI0 ),
+    scasp_issue(unsupported_construct, unknown, scasp_leftover_construct, [construct-PI], I).
 run_models_recover(Error, _, _) :- throw(Error).
 
-collect_models(Unit, Goal, Max, Answers) :-
+collect_models(Unit, Query, Shown, Max, Answers) :-
     % Pair each query variable with a name BEFORE solving; scasp binds the vars
     % in place, and findnsols copies each answer (name=boundValue) out.
-    term_variables(Goal, Vars),
+    term_variables(Shown, Vars),
     name_bindings(Vars, 1, Bindings),
-    ( findnsols(Max, answer(Bindings, Goal, Model, Tree),
-        scasp(Unit:Goal, [model(Model), tree(Tree)]),
+    ( findnsols(Max, answer(Bindings, Shown, Model, Tree),
+        scasp(Unit:Query, [model(Model), tree(Tree)]),
         Answers)
     -> true
     ; Answers = []
@@ -682,7 +818,8 @@ name_bindings([V|Vs], I, [Name=V|T]) :-
 %   parity with the Prolog explanation.
 le_scasp_tree_json(KB, _:Tree, Options, JSON) :- !,
     le_scasp_tree_json(KB, Tree, Options, JSON).
-le_scasp_tree_json(KB, query-Children, _Options, JSON) :- !,
+le_scasp_tree_json(KB, query-Children0, _Options, JSON) :- !,
+    foldl(unwrap_query_helper, Children0, Children1, []), reverse(Children1, Children),
     exclude(nmr_node, Children, Real),
     maplist(node_json(KB), Real, ChildJSON0),
     exclude(==(skip), ChildJSON0, ChildJSON),
@@ -691,6 +828,15 @@ le_scasp_tree_json(KB, query-Children, _Options, JSON) :- !,
     ).
 le_scasp_tree_json(KB, Node, _Options, JSON) :-
     node_json(KB, Node, JSON).
+
+% unwrap_query_helper(+Node, -Acc, +Acc0): the query's own helper le_query/N
+% (le_scasp_query_goal/5) is not a sentence of the program: its children, the
+% query's conditions, stand in its place (Acc reversed).
+unwrap_query_helper(Node, Acc, Acc0) :-
+    (   Node = N-Ch, node_atom_status(N, A, "success", _), callable(A), functor(A, le_query, _)
+    ->  reverse(Ch, RCh), append(RCh, Acc0, Acc)
+    ;   Acc = [Node|Acc0]
+    ).
 
 % nmr_node(+NodeChildren): internal consistency-check subtree, dropped.
 nmr_node(N-_) :- nmr_atom(N).
@@ -781,10 +927,20 @@ template_source(KB, F, A, Start, End) :-
 %   amount greater than 25000 is covered`. This is the headline "answer with no
 %   concrete scenario" feature.
 le_scasp_symbolic_goal(KB, Goal, Display, Constraints) :-
+    %  a query of several conditions: each literal on its own
+    compound(Goal), functor(Goal, C, N), memberchk(C/N, [and/2, or/2, (not)/1, ','/2, ';'/2]), !,
+    Goal =.. [C|Gs],
+    foldl(symbolic_part(KB), Gs, Ds, [], Constraints),
+    Display =.. [C|Ds].
+le_scasp_symbolic_goal(KB, Goal, Display, Constraints) :-
     Goal =.. [F|Args],
     goal_arg_types(KB, F, Args, Types),
     symbolic_args(Args, Types, DisplayArgs, Constraints),
     Display =.. [F|DisplayArgs].
+
+symbolic_part(KB, G, D, Cs0, Cs) :-
+    le_scasp_symbolic_goal(KB, G, D, Cs1),
+    append(Cs0, Cs1, Cs).
 
 % goal_arg_types(+KB, +F, +Args, -Types): the declared type noun per argument
 % position (from the template dict), or `value` when unknown.

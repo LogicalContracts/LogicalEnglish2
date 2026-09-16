@@ -646,8 +646,9 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
     };
 
     // the cited steps of a result — for a failed one, the rules whose
-    // conditions it did not meet, each once
-    const resultSteps = (res: any): any[] => {
+    // conditions it did not meet, each once, then the cited facts its failure
+    // explanation still rests on (a case's facts cite their documents either way)
+    const resultSteps = (res: any, withFacts = true): any[] => {
         if ((res.results || []).length || !(res.unmet || []).length) return citedSteps(whyOf(res));
         const out: any[] = [], seen = new Set<string>();
         for (const u of res.unmet) {
@@ -657,7 +658,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
             seen.add(key);
             out.push({ ...u, plain: `${u.kind === 'not_stated' ? t('not stated') : t('not met')}: ${u.literal}` });
         }
-        return out;
+        return withFacts ? out.concat(citedSteps(whyOf(res))) : out;
     };
 
     const renderReasons = (res: any) => {
@@ -866,7 +867,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
                     const block = blocks.find(x => x.name === sc);
                     const expected = R.query ? expectedAnswers(block, R.query) : null;
                     const tr = el('tr');
-                    const a = el('a', '', sc); a.setAttribute('href', '#'); a.addEventListener('click', (e) => { e.preventDefault(); casePicker.value = sc; loadCase(sc); run(); });
+                    const a = el('a', '', sc); a.setAttribute('href', '#'); a.addEventListener('click', (e) => { e.preventDefault(); casePicker.value = sc; syncCaseUrl(sc); loadCase(sc); run(); });
                     const td0 = el('td'); td0.appendChild(a); tr.appendChild(td0);
                     const failedAt = (res.checklist || []).find((c: any) => c.status === 'failed');
                     tr.appendChild(el('td', '', answers.length ? answers.map(num).join('; ')
@@ -902,7 +903,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
         const lists: Record<string, string[]> = {
             // the legal basis: the passages a labelled rule or table row cites
             // (of a failed result: the passages it does not meet)
-            'the citations': resultSteps(res).filter(n => n.rule || /^row /.test(String(n.literal)))
+            'the citations': resultSteps(res, false).filter(n => n.rule || /^row /.test(String(n.literal)))
                 .map(n => draftCitation(n)).filter((x, i, a) => x && a.indexOf(x) === i),
             'the facts': forms.flatMap(f => f.form.completeFactLines()),
             // every answer of the result, one per line
@@ -1313,10 +1314,18 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
     // a small program's cases run straight away
     if (cards.cases && scenarioNames.length <= 12) (cards.cases.querySelector('button') as HTMLButtonElement | null)?.click();
 
-    casePicker.addEventListener('change', () => { previousAnswers = null; loadCase(casePicker.value); run(); });
+    // The address names the case picked (read back below as ?scenario=), so the
+    // page can be shared or reloaded on it.
+    const syncCaseUrl = (name: string) => {
+        const p = new URLSearchParams(location.search);
+        if (name) p.set('scenario', name); else p.delete('scenario');
+        history.replaceState(history.state, '', `${location.pathname}?${p.toString()}${location.hash}`);
+    };
+    casePicker.addEventListener('change', () => { previousAnswers = null; syncCaseUrl(casePicker.value); loadCase(casePicker.value); run(); });
     const initial = new URLSearchParams(location.search).get('scenario');
     const start = initial && scenarioNames.includes(initial) ? initial : (scenarioNames[0] || '');
     casePicker.value = start;
+    if (start !== (initial || '')) syncCaseUrl(start);
     loadCase(start);
     await run();
 }

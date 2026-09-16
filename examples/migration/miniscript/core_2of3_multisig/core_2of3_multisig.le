@@ -1,7 +1,7 @@
 % A 2-of-3 multisig (P2WSH)
 %
 % The Logical English twin of a Bitcoin spending policy, written by the
-% Miniscript translator (InsurLE2/migration/miniscript). Who can spend the
+% Miniscript translator. Who can spend the
 % coin, when, and why: each rule is one spending path of the policy.
 %
 % Source: the Bitcoin Core descriptor documentation
@@ -44,7 +44,7 @@ the knowledge base core_2of3_multisig includes:
 the Bitcoin Core descriptor documentation is published at "https://github.com/bitcoin/bitcoin/blob/master/doc/descriptors.md".
 the text of the Bitcoin Core descriptor documentation is at "sources/core_descriptors.txt".
 
-the policy in Minsc is published at "https://min.sc/#c=//%20A%202-of-3%20multisig%20(P2WSH)%0A//%20The%20Logical%20English%20twin's%20policy%20(InsurLE2/migration/miniscript).%0A$cosigner_a%20=%2003a0434d9e47f3c86235477c7b1ae6ae5d3442d49b1943c2b752a68e2a47e247c7;%20%20%20//%20cosigner%20A%20(as%20in%20the%20source)%0A$cosigner_b%20=%2003774ae7f858a9411e5ef4246b70c65aac5649980be5c17891bbec17895da008cb;%20%20%20//%20cosigner%20B%20(as%20in%20the%20source)%0A$cosigner_c%20=%2003d01115d548e7561b15c38f004d734633687cf4419620095bc5b0f47070afe85a;%20%20%20//%20cosigner%20C%20(as%20in%20the%20source)%0A%0Athresh(2,pk($cosigner_a),pk($cosigner_b),pk($cosigner_c))%0A".
+the policy in Minsc is published at "https://min.sc/#c=//%20A%202-of-3%20multisig%20(P2WSH)%0A//%20The%20Logical%20English%20twin's%20policy%20(the%20Miniscript%20translator%20of%20Logical%20English).%0A$cosigner_a%20=%2003a0434d9e47f3c86235477c7b1ae6ae5d3442d49b1943c2b752a68e2a47e247c7;%20%20%20//%20cosigner%20A%20(as%20in%20the%20source)%0A$cosigner_b%20=%2003774ae7f858a9411e5ef4246b70c65aac5649980be5c17891bbec17895da008cb;%20%20%20//%20cosigner%20B%20(as%20in%20the%20source)%0A$cosigner_c%20=%2003d01115d548e7561b15c38f004d734633687cf4419620095bc5b0f47070afe85a;%20%20%20//%20cosigner%20C%20(as%20in%20the%20source)%0A%0Athresh(2,pk($cosigner_a),pk($cosigner_b),pk($cosigner_c))%0A".
 
 the Tape run of 2026-09-14 is published at "https://tape.rewindbitcoin.com/explorer/address/bcrt1qy0nryp7cwpxm3wggwuctuva5zvrtqrpwxmw0m5ks6x7zhlk265wqj2lx8x".
 the text of the Tape run of 2026-09-14 is at "sources/core_2of3_multisig.chain.json".
@@ -65,51 +65,51 @@ the coin can be spent if
         and the witness contains a signature by K
     and N >= 2.
 
-scenario path_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 — the path needs: a signature by cosigner B, a signature by cosigner A
+scenario two_of_three_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path two_of_three_1 — the path needs: a signature by cosigner B, a signature by cosigner A
     the witness contains a signature by cosigner B.
     the witness contains a signature by cosigner A.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_1_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 1 — the path needs: a signature by cosigner B, a signature by cosigner A
+scenario two_of_three_1_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path two_of_three_1 without requirement 1 — the path needs: a signature by cosigner B, a signature by cosigner A
     the witness contains a signature by cosigner A.
     spendable expects answers [].
 
-scenario path_1_without_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 2 — the path needs: a signature by cosigner B, a signature by cosigner A
+scenario two_of_three_1_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path two_of_three_1 without requirement 2 — the path needs: a signature by cosigner B, a signature by cosigner A
     the witness contains a signature by cosigner B.
     spendable expects answers [].
 
-scenario path_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 — the path needs: a signature by cosigner B, a signature by cosigner C
+scenario two_of_three_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path two_of_three_2 — the path needs: a signature by cosigner B, a signature by cosigner C
     the witness contains a signature by cosigner B.
     the witness contains a signature by cosigner C.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_2_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 without requirement 1 — the path needs: a signature by cosigner B, a signature by cosigner C
+scenario two_of_three_2_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path two_of_three_2 without requirement 1 — the path needs: a signature by cosigner B, a signature by cosigner C
     the witness contains a signature by cosigner C.
     spendable expects answers [].
 
-scenario path_2_without_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 without requirement 2 — the path needs: a signature by cosigner B, a signature by cosigner C
+scenario two_of_three_2_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path two_of_three_2 without requirement 2 — the path needs: a signature by cosigner B, a signature by cosigner C
     the witness contains a signature by cosigner B.
     spendable expects answers [].
 
-scenario path_3 is, as stated in the satisfaction analysis of the policy:
-    % spending path 3 — the path needs: a signature by cosigner A, a signature by cosigner C
+scenario two_of_three_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path two_of_three_3 — the path needs: a signature by cosigner A, a signature by cosigner C
     the witness contains a signature by cosigner A.
     the witness contains a signature by cosigner C.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_3_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 3 without requirement 1 — the path needs: a signature by cosigner A, a signature by cosigner C
+scenario two_of_three_3_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path two_of_three_3 without requirement 1 — the path needs: a signature by cosigner A, a signature by cosigner C
     the witness contains a signature by cosigner C.
     spendable expects answers [].
 
-scenario path_3_without_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 3 without requirement 2 — the path needs: a signature by cosigner A, a signature by cosigner C
+scenario two_of_three_3_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path two_of_three_3 without requirement 2 — the path needs: a signature by cosigner A, a signature by cosigner C
     the witness contains a signature by cosigner A.
     spendable expects answers [].
 
@@ -146,34 +146,34 @@ scenario lost_cosigner_C is, as stated in the flip analysis of the policy:
     spendable expects answers ["the coin can be spent"].
     flip_block expects changes [["remove: the witness contains a signature by cosigner A"], ["remove: the witness contains a signature by cosigner B"]].
 
-scenario chain_path_1 is, as stated in the Tape run of 2026-09-14 at transaction 5ed94e2bc3e0faebe03b161189194d328fd4f047b7b69a2bea4167e4399203c8:
+scenario chain_two_of_three_1 is, as stated in the Tape run of 2026-09-14 at transaction 5ed94e2bc3e0faebe03b161189194d328fd4f047b7b69a2bea4167e4399203c8:
     % the chain accepted the spend: transaction 5ed94e2bc3e0faebe03b161189194d328fd4f047b7b69a2bea4167e4399203c8
     the witness contains a signature by cosigner A.
     the witness contains a signature by cosigner B.
     spendable expects answers ["the coin can be spent"].
 
-scenario chain_path_1_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_1:
+scenario chain_two_of_three_1_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_1:
     % the chain refused the spend: mempool-script-verify-flag-failed (Signature must be zero for failed CHECK(MULTI)SIG operation)
     the witness contains a signature by cosigner A.
     spendable expects answers [].
 
-scenario chain_path_1_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_2:
+scenario chain_two_of_three_1_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_2:
     % the chain refused the spend: mempool-script-verify-flag-failed (Signature must be zero for failed CHECK(MULTI)SIG operation)
     the witness contains a signature by cosigner B.
     spendable expects answers [].
 
-scenario chain_path_2 is, as stated in the Tape run of 2026-09-14 at transaction 202035ee867246e903360db695b1ff1b9c55d1166f25f0494173b9c63e7cfd2e:
+scenario chain_two_of_three_2 is, as stated in the Tape run of 2026-09-14 at transaction 202035ee867246e903360db695b1ff1b9c55d1166f25f0494173b9c63e7cfd2e:
     % the chain accepted the spend: transaction 202035ee867246e903360db695b1ff1b9c55d1166f25f0494173b9c63e7cfd2e
     the witness contains a signature by cosigner B.
     the witness contains a signature by cosigner C.
     spendable expects answers ["the coin can be spent"].
 
-scenario chain_path_2_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_1:
+scenario chain_two_of_three_2_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_1:
     % the chain refused the spend: mempool-script-verify-flag-failed (Signature must be zero for failed CHECK(MULTI)SIG operation)
     the witness contains a signature by cosigner C.
     spendable expects answers [].
 
-scenario chain_path_3 is, as stated in the Tape run of 2026-09-14 at transaction 3966d18dc798756d6a3b614508e649b86f7e5a2413c19223515ef5a7c4fd1cc7:
+scenario chain_two_of_three_3 is, as stated in the Tape run of 2026-09-14 at transaction 3966d18dc798756d6a3b614508e649b86f7e5a2413c19223515ef5a7c4fd1cc7:
     % the chain accepted the spend: transaction 3966d18dc798756d6a3b614508e649b86f7e5a2413c19223515ef5a7c4fd1cc7
     the witness contains a signature by cosigner A.
     the witness contains a signature by cosigner C.

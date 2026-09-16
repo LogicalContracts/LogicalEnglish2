@@ -2,7 +2,7 @@
 
 Source: Two of a signature, a SHA-256 preimage and a HASH160 preimage — https://github.com/bitcoin/bitcoin/blob/master/src/test/miniscript_tests.cpp
 Translator: InsurLE2/migration/miniscript (ms_twin.pl)
-Date: 2026-09-15
+Date: 2026-09-16
 
 ## Summary
 
@@ -36,15 +36,15 @@ A source element is **encoded** when a documented mapping rule translated it wit
 
 | Source test | Query | Result | Detail |
 |---|---|---|---|
-| path_1 | spendable | pass |  |
-| path_1_without_1 | spendable | pass |  |
-| path_1_without_2 | spendable | pass |  |
-| path_2 | spendable | pass |  |
-| path_2_without_1 | spendable | pass |  |
-| path_2_without_2 | spendable | pass |  |
-| path_3 | spendable | pass |  |
-| path_3_without_1 | spendable | pass |  |
-| path_3_without_2 | spendable | pass |  |
+| two_of_three_1 | spendable | pass |  |
+| two_of_three_1_without_1 | spendable | pass |  |
+| two_of_three_1_without_2 | spendable | pass |  |
+| two_of_three_2 | spendable | pass |  |
+| two_of_three_2_without_1 | spendable | pass |  |
+| two_of_three_2_without_2 | spendable | pass |  |
+| two_of_three_3 | spendable | pass |  |
+| two_of_three_3_without_1 | spendable | pass |  |
+| two_of_three_3_without_2 | spendable | pass |  |
 | no_witness | spendable | pass |  |
 | lost_the_key_holder | spendable | pass |  |
 | flip_now | flip_spend | pass |  |

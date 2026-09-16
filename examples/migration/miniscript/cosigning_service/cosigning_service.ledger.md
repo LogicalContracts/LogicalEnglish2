@@ -2,7 +2,7 @@
 
 Source: A user and a co-signing service, the user alone after 90 days — https://bitcoin.sipa.be/miniscript/
 Translator: InsurLE2/migration/miniscript (ms_twin.pl)
-Date: 2026-09-15
+Date: 2026-09-16
 
 ## Summary
 
@@ -32,19 +32,19 @@ A source element is **encoded** when a documented mapping rule translated it wit
 
 | Source test | Query | Result | Detail |
 |---|---|---|---|
-| path_1 | spendable | pass |  |
-| path_1_without_1 | spendable | pass |  |
-| path_1_without_2 | spendable | pass |  |
-| path_2 | spendable | pass |  |
-| path_2_without_1 | spendable | pass |  |
-| path_2_without_2 | spendable | pass |  |
+| user_and_service_1 | spendable | pass |  |
+| user_and_service_1_without_1 | spendable | pass |  |
+| user_and_service_1_without_2 | spendable | pass |  |
+| user_and_service_2 | spendable | pass |  |
+| user_and_service_2_without_1 | spendable | pass |  |
+| user_and_service_2_without_2 | spendable | pass |  |
 | no_witness | spendable | pass |  |
 | lost_the_user | spendable | pass |  |
 | lost_the_cosigning_service | spendable | pass |  |
-| chain_path_1 | spendable | pass |  |
-| chain_path_1_without_1 | spendable | pass |  |
-| chain_path_2 | spendable | pass |  |
-| chain_path_2_without_2 | spendable | pass |  |
+| chain_user_and_service_1 | spendable | pass |  |
+| chain_user_and_service_1_without_1 | spendable | pass |  |
+| chain_user_and_service_2 | spendable | pass |  |
+| chain_user_and_service_2_without_2 | spendable | pass |  |
 | flip_now | flip_spend | pass |  |
 | flip_after_delays | flip_spend | pass |  |
 | lost_the_cosigning_service | flip_block | pass |  |

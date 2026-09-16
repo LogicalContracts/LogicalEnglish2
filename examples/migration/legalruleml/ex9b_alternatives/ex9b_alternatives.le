@@ -1,5 +1,5 @@
 % The Logical English twin of a LegalRuleML document, written by the LegalRuleML translator
-% (InsurLE2/migration/legalruleml) from ex9b-alternatives-normal.lrml (kept in sources/).
+% from ex9b-alternatives-normal.lrml (kept in sources/).
 % Obligations, permissions and prohibitions are the deontic library's (deontic.le).
 % Every expected answer in the scenarios is SPINdle's (defeasible deontic logic) on the source.
 

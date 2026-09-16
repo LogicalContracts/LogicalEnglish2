@@ -86,7 +86,7 @@ The note reads, for instance:
 ```
 ledger: 8 encoded, 1 approximated, 0 residue (TODO in the program)
 10 scenario(s) generated from the rules' own analysis (no test files)
-the scenarios run: 16 pass, 4 fail, 0 error
+the scenarios run: 20 pass, 0 fail, 0 error
 approximated: OIA's unknown and uncertain states are read with LE's closed world (see the ledger)
 ```
 
@@ -222,7 +222,9 @@ A project with no test files gets scenarios from **the analysis of its
 rules**: for each goal, each way the rules reach it, and its near misses (one
 input changed so that its condition fails). Their expected outcomes are
 computed by an evaluator of the OIA rules with OIA's semantics, not by the
-translated program, so the two are checked against each other. Such
+translated program, so the two are checked against each other. The evaluator
+computes in decimal, as OIA does, and writes each expected number as Logical
+English prints it: a whole number without a decimal point (`the fee is 70`). Such
 scenarios say `as stated in the analysis of the rules`.
 
 ## Traps
@@ -263,11 +265,6 @@ scenarios say `as stated in the analysis of the rules`.
   the program. The note says how many.
 - **Without `rulebase.stxt`** a rulebase has no authored negative forms and
   no interview questions.
-- **Generated expectations of decimal results.** In a project without test
-  files, the analysis may expect a whole-number result written with a decimal
-  point (`the fee is 70.0`) where the program answers `the fee is 70`. The
-  note then counts such expectations as failures; the ledger's source-test
-  table shows them.
 - **Only one project per upload.** A zip is read as one project. Its `out`
   folder and `__MACOSX` entries are ignored.
 

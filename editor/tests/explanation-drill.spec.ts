@@ -143,6 +143,37 @@ test.describe('Explanation Drill', () => {
         await expect(drill.locator('.q-card').first().locator('.q-btn.notyet.on')).toHaveCount(0);
     });
 
+    test('after drilling in, it goes on with the rest; the progress bar stays within its track', async ({ page }) => {
+        test.setTimeout(90000);
+        const drill = await openHappyDrill(page);
+        const fillRatio = () => drill.evaluate(() =>
+            document.getElementById('progress-fill')!.getBoundingClientRect().width /
+            document.getElementById('progress-track')!.getBoundingClientRect().width);
+
+        // The "?" help link sits on the title's line, above the progress bar.
+        const title = (await drill.locator('#title').boundingBox())!;
+        const help = (await drill.locator('header .help-link').boundingBox())!;
+        const track = (await drill.locator('#progress-track').boundingBox())!;
+        expect(help.y).toBeLessThan(title.y + title.height);
+        expect(help.y + help.height).toBeLessThanOrEqual(track.y + 1);
+
+        // Descend into the strongest reason, then accept everything asked.
+        await answerLast(drill, 'notyet');
+        for (let i = 0; i < 15; i++) {
+            if (await drill.locator('#final').isVisible()) break;
+            await answerLast(drill, 'yes');
+            await drill.waitForTimeout(450);   // the fill's width transition
+            expect(await fillRatio()).toBeLessThanOrEqual(1.001);
+        }
+        await expect(drill.locator('#final')).toBeVisible();
+        // Once the region drilled into was accepted, the drill came back up and asked
+        // about the answer's other condition too, instead of stopping there.
+        await expect(drill.locator('.q-card .q-node', { hasText: /^alice is a dragon$/ })).toHaveCount(1);
+        await drill.waitForTimeout(450);
+        expect(await fillRatio()).toBeGreaterThan(0.99);
+        expect(await fillRatio()).toBeLessThanOrEqual(1.001);
+    });
+
     test('a ✕ deletes a question, keeping the others', async ({ page }) => {
         test.setTimeout(60000);
         const drill = await openHappyDrill(page);

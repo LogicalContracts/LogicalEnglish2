@@ -148,4 +148,39 @@ test(understood_and_questions_tracked) :-
     maplist([Q,P]>>get_dict(path, Q, P), Qs, Paths),
     assertion(Paths == ["1.1", "1.1.1"]).
 
+test(exhausted_region_returns_to_enclosing_region) :-
+    % Not yet on "a", then accept a1 and a2: "a" is understood, and the drill goes
+    % on with the rest of the tree (c, b) instead of stopping.
+    pending_path(["not_yet","yes","yes"], P),
+    assertion(P == "1.3"),
+    dtree(T),
+    classic_web_api:drill_loop(none, T, ["not_yet","yes","yes"], "", [], [], _, Top, Und, _),
+    assertion(Top == ""),
+    assertion(memberchk("1.1", Und)).
+
+test(drill_after_drilling_in_completes) :-
+    pending_path(["not_yet","yes","yes","yes","yes"], P),
+    assertion(P == done).
+
+% A negation node whose only child reads as the same reason ("it is not the case that
+% X" failed because X holds) is one reason, located at the row that reads as it.
+ntree(_{literal:"root", type:"success", children:[
+    _{literal:"it is not the case that x", type:"failure", children:[
+        _{literal:"x", type:"success", children:[
+            _{literal:"x1", type:"success", children:[]},
+            _{literal:"x2", type:"success", children:[]}]}]},
+    _{literal:"b", type:"success", children:[]}]}).
+
+test(negation_pair_is_one_reason_at_the_row_reading_as_it) :-
+    ntree(T),
+    classic_web_api:strongest_reason(T, none, R, P),
+    assertion(R == "x"), assertion(P == "1.1.1").
+
+test(negation_pair_is_asked_once) :-
+    ntree(T),
+    classic_web_api:drill_loop(none, T, ["not_yet","yes","yes"], "", [], [], Qs, _, _, Pending),
+    maplist([Q,X]>>get_dict(text, Q, X), Qs, Texts),
+    assertion(Texts == ["x", "x1", "x2"]),
+    get_dict(text, Pending, PT), assertion(PT == "b").
+
 :- end_tests(explanation_drill).

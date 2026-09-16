@@ -58,8 +58,8 @@ pack on the server; the hosted service has it.
    asks them of the program's own facts. Each expectation is the answer
    s(CASP) gave on the source file.
 4. A clause Logical English cannot state becomes a `% RESIDUE … BEGIN`
-   block, with the clause verbatim and the reason. Today these are the
-   clauses that take a list apart:
+   block, with the clause verbatim and the reason: the clauses that take a list
+   apart, and the statements in clingo's syntax (below, Traps):
 
    ```le
    % RESIDUE list_pattern_1 BEGIN: a clause that takes a list apart
@@ -248,12 +248,18 @@ program for 83 of the 88 programs s(CASP) can state (14 September 2026;
 - **The expectations need s(CASP) on the server.** The expected answers are
   computed by running the source with SWI-Prolog's s(CASP) library. Without it
   each expectation is kept as a comment, `% pending — s(CASP) did not answer on
-  the source (…)`, and the note counts none. Write your own `expects answers`
+  the source (…)`, and a note says that s(CASP) is not installed and how many
+  expectations are pending. Write your own `expects answers`
   lines, or open the file on an installation with s(CASP).
-- **Only s(CASP) and Prolog syntax.** A `.lp` file in another ASP dialect
-  (clingo's choice rules `{a;b}.`, `#count` aggregates, `#show`) is not
-  s(CASP). Such lines are misread rather than refused: the program shows
-  errors or meaningless templates. Rewrite them in s(CASP) first.
+- **Only s(CASP) and Prolog syntax.** A `.lp` file in another ASP dialect is
+  not s(CASP). Each clingo-only statement (a choice rule `{a;b}.`, a
+  disjunctive head `a ; b.`, cardinality bounds `1 { … } 1`, `#count`
+  aggregates, ranges `1..n`, weak constraints `:~`, `#const`), and any line
+  that does not read, becomes a `% RESIDUE not_scasp_<n>` block with its text
+  and line, counted as residue. Expectations whose queries depend on what such
+  a block concludes are pending; when a block concludes nothing nameable (a
+  weak constraint, a `#const`) every expectation is pending, because s(CASP)
+  ran without it. Restate the choices in s(CASP) or Logical English.
 - **Wordings made from names read oddly.** `old(X)` becomes `*a thing* is an
   old`, and `s(C)` becomes `*a thing* is a s`. `#pred` wordings are kept as
   written, typos included (`isafter commencement`), and quoted constants keep

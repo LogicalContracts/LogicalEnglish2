@@ -37,7 +37,7 @@ service have.
 
 | Direction | Where (menu item) | Files | What you get | Checked against |
 |---|---|---|---|---|
-| Socotra → Logical English | **File ▸ Open…**, **File ▸ Import from Another System…** | a `.zip` of a product configuration (a folder with `policy/policy.json`) | a program with the product's rating, tax, fee and underwriting rules, its rate tables, generated quotes as scenarios, a quote desk view, a ledger, and the product's files under `sources/` | the product's own Liquid, run on generated quotes by a reference Liquid interpreter with Socotra's filters imitated |
+| Socotra → Logical English | **File ▸ Open…**, **File ▸ Import from Another System…** | a `.zip` of a product configuration (a folder with `policy/policy.json`); a lone `policy.json` or `exposure.json` for its fields only | a program with the product's rating, tax, fee and underwriting rules, its rate tables, generated quotes as scenarios, a quote desk view, a ledger, and the product's files under `sources/` | the product's own Liquid, run on generated quotes by a reference Liquid interpreter with Socotra's filters imitated |
 | Logical English → Socotra | none | | | |
 
 ## How to use it
@@ -69,10 +69,14 @@ ledger lists them as such.
 When the archive holds several products, the first (in name order) is
 translated, and the note names the others: open each in its own archive.
 
-A single `.json` file is not translated, even though the file picker offers
-`.json` for Socotra. The translator needs the whole product folder, so a lone
-JSON file opens as a program holding its text in a `% TODO` comment, with the
-reason. Zip the product folder instead.
+A single `.json` file is translated when it is a product configuration's
+`policy.json` or an `exposure.json` (a list of named, typed `fields`). Such a
+file holds no rating: the program declares its fields as the facts of a
+quote (`the channel of *a policy* is *a value*; scenario element.`), with no
+rules, queries or view, and the note says that the rating, taxes, fees and
+underwriting are in the product folder's scripts and tables. Zip the product
+folder to translate those. Any other `.json` opens as a program holding its
+text in a `% TODO` comment, with the reason.
 
 ### Importing
 
@@ -93,8 +97,13 @@ The note says, for example:
 
 > Pet: 52 ledger elements encoded, 7 approximated, no residue; 0 writer errors.
 
-followed by where the quotes came from, the result of the quotes'
-expectations when there are quotes, and where the product's files were put.
+followed by where the quote scenarios came from (or why they were skipped),
+the result of the quotes' expectations when there are quotes, and where the
+product's files were put:
+
+> The product's Liquid, JSON and CSV files are copied into sources/Pet/ beside
+> the program (File > Show the Original lists them); every rule cites its file
+> and passage there.
 
 The translator also writes a *ledger* beside the program
 (`<product>.ledger.md`). Each row is one element of the configuration (a
@@ -111,12 +120,15 @@ quotes, how many of their expected values the program reproduces.
 
 **Quotes need the reference run.** The scenarios come from running the
 product's own Liquid on ten generated quotes. That run needs Python 3 with
-the `python-liquid` package on the server. When the server lacks it, the
-note says so:
+the `python-liquid` package on the server. When it cannot run, the note says
+that the quote scenarios were skipped and why (no `python3`, no
+`python-liquid`, or the run's own error), and the program's header comment
+repeats it:
 
-> No quotes: the reference run needs python3 with python-liquid, which this
-> server lacks, so the program has no scenarios; state a quote in the Scenario
-> Editor to run it.
+> Quote scenarios skipped: the reference run of the product's Liquid needs the
+> python-liquid package (pip install python-liquid), which this server's
+> python3 lacks. The program has no scenarios, so nothing checks its rules
+> against the product's Liquid; state a quote in the Scenario Editor to run it.
 
 The rules, tables, queries and view are the same either way.
 
@@ -196,7 +208,8 @@ public product library on GitHub.
 | an exposure kind and its fields (`exposure.json`) | a type named after the kind, and templates: `the pet type of *a pet* is *a value*; scenario element.` A quote states both `pet 1 is a pet.` and `pet 1 is an exposure.` |
 | a peril and its characteristics | `*an exposure* is covered for *a peril*; scenario element.` and `the indemnity per item for *a peril* on *an exposure* is *an amount*; scenario element.` |
 | a field no script reads | not declared (the ledger says so) |
-| `assign` in `<peril>.premium.liquid` | a quantity: `the accident premium for *a pet* is *a number*.`, one template per step when the variable is reassigned (`the accident premium at step two for *a pet* is *a number*.`) |
+| `assign` in `<peril>.premium.liquid` | a quantity: `the accident premium for *a pet* is *a number*.`, one template per step when the variable is reassigned (`the accident premium at step two for *a pet* is *a number*.`); *a value* when a branch gives it a text (`the accident limit factor key for *a pet* is *a value*.`) |
+| `round`, `round: 2` | `N = round(M)`; `N = round(M * 100) / 100.0` (half away from zero, as the reference Liquid) |
 | `if` / `elsif` / `else` / `unless`, `case` / `when` | an `otherwise` cascade, first matching branch |
 | `set_year_premium`, `set_year_technical_premium`, `set_month_premium`, `add_year_commission`, ... | the conclusions `the yearly premium for *a peril* on *an exposure* is *an amount*.` and the like, guarded by `the exposure is covered for accident` |
 | `taxes/<tax>.premium.liquid` | `the sales tax for *a peril* on *an exposure* is *an amount*.` |
@@ -322,14 +335,16 @@ Socotra's filters and arithmetic, without the platform.
 
 ## Traps
 
-- **Upload a zip, not a JSON file.** A single `.json` is not recognised (see
-  [What to upload](#what-to-upload)).
+- **A JSON file is only its fields.** A lone `policy.json` or `exposure.json`
+  gives the fields and nothing else (see [What to upload](#what-to-upload)).
+  Upload a zip of the product folder for the rules.
 - **Classic configurations only.** The translator reads the JSON and Liquid
   configuration. Anything else in the upload (plugins, claims forms,
   permissions, document templates) is not translated.
 - **No quotes without python-liquid.** Without it on the server the program
   has no scenarios, and nothing checks the translation against the product's
-  Liquid. Test it on quotes you know the platform's answers for.
+  Liquid; the note says the quote scenarios were skipped, and why. Test it on
+  quotes you know the platform's answers for.
 - **Residue.** A script the translator cannot follow is kept whole as a
   residue block, and whatever depends on it has no rule. The block says why,
   what it must conclude, and which fields it reads:
@@ -343,8 +358,8 @@ Socotra's filters and arithmetic, without the platform.
   ```
 
   What becomes residue: a filter that is not Liquid's arithmetic or one of
-  Socotra's output filters (for example `get_30_360_day_count`, or `round`
-  with a number of decimals, `round: 2`); arithmetic on dates or timestamps;
+  Socotra's output filters (for example `get_30_360_day_count`); arithmetic
+  on dates or timestamps;
   a variable set inside a loop and read after it; a loop over a repeatable
   field group; a Liquid tag the translator does not know. In a twin, the
   expectations that depend on a residue block are kept as comments,
@@ -363,8 +378,9 @@ Socotra's filters and arithmetic, without the platform.
 - **Numbers are the source's floating point.** Amounts are computed as the
   Liquid computes them, with no rounding of its own, so expectations can read
   `0.8500000000000001` or `686.0`. The quote desk shows 2 decimals; queries
-  and tests show the exact value. Liquid's `round` rounds half away from zero,
-  as the program does.
+  and tests show the exact value. Liquid's `round` and `round: 2` round half
+  away from zero, as the program does; `round: 2` gives a floating-point
+  number (`70.0`), as the reference Liquid does.
 - **Integer division.** Liquid's `divided_by` divides two whole numbers with
   integer division. Where both operands are known to be whole, the program
   writes `//` (`N = M // 100`), which is right for whole-number inputs only.
@@ -378,11 +394,11 @@ Socotra's filters and arithmetic, without the platform.
   unquoted: `the atfault claims past five years of policy 1 is "2"` never
   matches a rule that compares with the number 2. The verifier warns about a
   value no rule can read where it stands.
-- **Type names come from the source's words.** Templates are named after
+- **Names come from the source's words.** Templates are named after
   Socotra's field and variable names ("the pet breed dog of a pet", "the
-  accident premium at step two"), and a variable's type after its first use,
-  so a key holding `"A"` can be typed *a number*. The meaning is right; the
-  wording may need editing.
+  accident premium at step two"). A variable's type name comes from the values
+  its branches give it: *a number*, or *a value* when one of them is a text.
+  The wording may need editing.
 - **The first exposure is any exposure.** `data.policy.exposures[0]` is read
   as "an exposure of the policy": the same when the policy has one exposure of
   that kind, not when it has several.

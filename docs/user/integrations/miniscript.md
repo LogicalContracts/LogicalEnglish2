@@ -102,8 +102,11 @@ the coin can be spent if
 ```
 
 The scenarios are the policy's *satisfaction analysis*. Each spending path gets
-a scenario that meets exactly its requirements (`path_1`). Each path also gets
-its *near misses*, with one requirement removed (`path_1_without_1`): a
+a scenario that meets exactly its requirements, named after the rule it
+satisfies (`revocation` for rule `revocation`; `family_1`, `family_2` when rule
+`family` can be met in several ways, through an `or` or a `thresh` inside it).
+Each path also gets its *near misses*, with one requirement removed
+(`revocation_without_1`): a
 signature or a preimage missing, a delay one block short, a lock time one
 below. There is also an empty witness (`no_witness`). Every expected answer
 comes from the policy, computed by an evaluator that follows BIP 379, and never
@@ -162,7 +165,7 @@ mempool rules. The node's verdicts are in the twins as the scenarios
 `chain_…`:
 
 ```le
-scenario chain_path_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1:
+scenario chain_user_and_service_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1:
     % the chain refused the spend: non-BIP68-final
     the witness contains a signature by the user.
     the coin was confirmed in block 122322.
@@ -299,8 +302,10 @@ may add or remove.
 - **The block heights in the analysis are illustrative.** The scenarios place
   the coin at block 850000 and the spend just after the delays. The chain
   scenarios use the heights of the Tape run.
-- **Scenario numbers are not rule order.** `path_1` is the first minimal
-  satisfying set of the analysis, which need not be the first rule.
+- **Chain runs recorded before 16 September 2026 number their attempts.** The
+  scenario names follow the rules (`chain_revocation`), but the citation keeps
+  the run's own attempt id (`at the refusal of attempt path_1`), which counts
+  the analysis's paths in the order it found them.
 - **The program's flip queries may propose removing block facts.** `flip_block`
   answers include `remove: the coin was confirmed in block 850000`: true, but
   not something a key holder can do. The view's flip keeps the timelock facts.

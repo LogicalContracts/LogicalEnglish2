@@ -39,6 +39,27 @@ test.describe('LE Views', () => {
         await expect(root.locator('[data-widget="citations"]')).toContainText('C-549/07');
     });
 
+    test('the claim desk: picking a case names it in the address; a failed case still shows its documents', async ({ page }) => {
+        test.setTimeout(240000);
+        await page.goto('/executive?program=regulatory/eu261_integration&view=claim%20desk');
+        await ready(page);
+        const root = page.locator('#view-root');
+        // the comparison names the reason, not the section checklist that leads the explanation
+        await expect(root.locator('[data-widget="compare"]')).toContainText('fails at question', { timeout: 90000 });
+        await expect(root.locator('[data-widget="compare"]')).toContainText('extraordinary circumstances');
+        await expect(root.locator('[data-widget="compare"]')).not.toContainText('section checklist');
+        // picking a case puts it in the address
+        await root.locator('select').first().selectOption('notified');
+        await expect.poll(() => new URL(page.url()).searchParams.get('scenario')).toBe('notified');
+        expect(new URL(page.url()).searchParams.get('view')).toBe('claim desk');
+        // no answer, yet the facts it rests on cite the booking and the notice email
+        await expect(root.locator('[data-widget="result"]')).toContainText('No answer', { timeout: 90000 });
+        const docs = root.locator('[data-widget="documents"]');
+        await expect(docs).toContainText('the notice email', { timeout: 90000 });
+        await expect(docs).toContainText('the booking');
+        await expect(docs).not.toContainText('No documents cited');
+    });
+
     test('an interview asks one question at a time and flips the answer', async ({ page }) => {
         test.setTimeout(120000);
         await page.setViewportSize({ width: 480, height: 900 });

@@ -1713,6 +1713,19 @@ postprocess_why(success(Goal0, _Ref, _Children), SM, omitted) :-
     \+ is_session_assumption(SM, G),
     \+ type_check_founded(SM, Arg, Type),
     !.
+% A succeeded choice point in a failure explanation (reasoner.pl,
+% child_failure_or_choice/3) whose only child is the same goal, solved one level
+% down: one node, not a line repeated under itself. When a fact states the goal,
+% the node points at that fact (as in a positive explanation), so it carries the
+% fact's citation.
+postprocess_why(success(Goal0, Ref, [success(Goal1, nonground_success, Children)]), SM, Out) :-
+    strip_le_at_goal(Goal0, G0), strip_le_at_goal(Goal1, G1),
+    G0 =@= G1, !,
+    (   Children == [], ground(G0), stating_fact_ref(SM, G0, FactRef)
+    ->  Ref1 = FactRef
+    ;   Ref1 = Ref
+    ),
+    postprocess_why(success(G0, Ref1, Children), SM, Out).
 postprocess_why(success(Goal0, Ref, Children), SM, success(Goal, Range, LE, ChildrenOut)) :- !,
     ( Goal0 = le_at(Goal, _, _) -> true; Goal = Goal0),
     ( SM:le_kb_module_fact(KB) -> true; KB = none),
@@ -1839,6 +1852,20 @@ why_annotation(SM, KB, Goal, Ref, LE0, LE) :-
     ->  string_concat(LE0, Suffix, LE)
     ;   LE = LE0
     ).
+
+strip_le_at_goal(le_at(G, _, _), G) :- !.
+strip_le_at_goal(G, G).
+
+% stating_fact_ref(+SM, +Goal, -Ref): the clause of the single fact (in the session or
+% its KB module) that states the ground Goal, when it has source information.
+stating_fact_ref(SM, Goal, Ref) :-
+    ( SM:le_kb_module_fact(KB) -> true ; KB = none ),
+    findall(R,
+            ( member(M, [SM, KB]), M \== none,
+              catch(clause(M:Goal, true, R), _, fail),
+              ( catch(SM:le_source_info(R, _, _, _), _, fail)
+              ; KB \== none, catch(KB:le_source_info(R, _, _, _), _, fail) ) ),
+            [Ref]).
 
 % Postprocess a sibling list, dropping the nodes postprocessing omitted.
 postprocess_why_children(SM, Children, ChildrenOut) :-
@@ -2102,6 +2129,8 @@ number_locale_atom(N, Atom) :-
 item_to_instance(KBmodule, le_at(Goal, _, _), WordsAndVars) :- !,
     item_to_instance(KBmodule, Goal, WordsAndVars).
 item_to_instance(_KBmodule, var(Name, Value), [var(Name, Value)]) :- !.
+% The element of an aggregate, named in its goal (see aggregate_words/6).
+item_to_instance(_KBmodule, '$le_var_name'(Name), [Name]) :- !.
 item_to_instance(KBmodule, query_clause(_Goal, _, InstantiatedTokens, _, _), Tokens) :- !,
     maplist(bracket_list_token(KBmodule), InstantiatedTokens, Tokens).
 item_to_instance(KBmodule, query_clause(_Goal, _, _, InstantiatedTokens, _, _, _, _), Tokens) :- !,
@@ -2129,36 +2158,9 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
         maybe_transform_value(KBmodule, Arg, ArgI),
         le_i18n:indefinite_isa_words(Type, IsaWords),
         flatten([ArgI, IsaWords, Type], WordsAndVars)
-    ;   Head = sum([each, Var], _Goal, [Result]) ->
-        extract_name(Var, VarName),
-        extract_name(Result, ResultName),
-        aggregate_render_words(sum, OpWords),
-        ( le_i18n:kw_main_words(such_that, SuchThat) -> true ; SuchThat = [such, that] ),
-        flatten([ResultName, OpWords, VarName, SuchThat], WordsAndVars)
-    ;   Head = count([each, Var], _Goal, [Result]) ->
-        extract_name(Var, VarName),
-        extract_name(Result, ResultName),
-        aggregate_render_words(count, OpWords),
-        ( le_i18n:kw_main_words(such_that, SuchThat) -> true ; SuchThat = [such, that] ),
-        flatten([ResultName, OpWords, VarName, SuchThat], WordsAndVars)
-    ;   Head = min([each, Var], _Goal, [Result]) ->
-        extract_name(Var, VarName),
-        extract_name(Result, ResultName),
-        aggregate_render_words(min, OpWords),
-        ( le_i18n:kw_main_words(such_that, SuchThat) -> true ; SuchThat = [such, that] ),
-        flatten([ResultName, OpWords, VarName, SuchThat], WordsAndVars)
-    ;   Head = max([each, Var], _Goal, [Result]) ->
-        extract_name(Var, VarName),
-        extract_name(Result, ResultName),
-        aggregate_render_words(max, OpWords),
-        ( le_i18n:kw_main_words(such_that, SuchThat) -> true ; SuchThat = [such, that] ),
-        flatten([ResultName, OpWords, VarName, SuchThat], WordsAndVars)
-    ;   Head = average([each, Var], _Goal, [Result]) ->
-        extract_name(Var, VarName),
-        extract_name(Result, ResultName),
-        aggregate_render_words(average, OpWords),
-        ( le_i18n:kw_main_words(such_that, SuchThat) -> true ; SuchThat = [such, that] ),
-        flatten([ResultName, OpWords, VarName, SuchThat], WordsAndVars)
+    ;   compound(Head), Head =.. [Op, [each, Var], AggGoal, [Result]],
+        memberchk(Op, [sum, count, min, max, average]) ->
+        aggregate_words(KBmodule, Op, Var, AggGoal, Result, WordsAndVars)
     ;   Head = le_scoped(Goal, Scope) ->
         % "<goal> according to <scope>" (a source-scoped proof).
         ( le_i18n:kw_main_words(according_to, AccWords) -> true ; AccWords = [according, to] ),
@@ -2247,6 +2249,37 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
         ;   builtin_goal_string(Head, Str) -> WordsAndVars = [Str]
         ;   term_string(Head, Str), WordsAndVars = [Str]
         )
+    ).
+
+%!  aggregate_words(+KB, +Op, +Var, +Goal, +Result, -Words) is det.
+%
+%   "15 is the sum of each I such that a person pays I": the result (its
+%   value once solved, else its name), the operator, the element's name and
+%   the aggregated goal, in which the element reads by its name.
+aggregate_words(KBmodule, Op, Var, Goal, Result, Words) :-
+    copy_term(Var-Goal-Result, VarC-GoalC-ResultC),
+    extract_name(VarC, VarName),
+    variable_reference(VarName, VarRef),
+    (   VarC = var(_, V), var(V) -> V = '$le_var_name'(VarRef)
+    ;   var(VarC) -> VarC = '$le_var_name'(VarRef)
+    ;   true
+    ),
+    (   ResultC = var(RName, RV)
+    ->  ( var(RV) -> variable_reference(RName, ResultI) ; maybe_transform_value(KBmodule, RV, ResultI) )
+    ;   maybe_transform_value(KBmodule, ResultC, ResultI)
+    ),
+    aggregate_render_words(Op, OpWords),
+    ( le_i18n:kw_main_words(such_that, SuchThat) -> true ; SuchThat = [such, that] ),
+    ( item_to_instance(KBmodule, GoalC, GoalLE) -> true ; GoalLE = [] ),
+    flatten([ResultI, OpWords, VarName, SuchThat, GoalLE], Words).
+
+%   How a sentence refers to a variable: by its name if the name is a
+%   capitalised one ("I", "N"), else as "the <name>" ("the amount").
+variable_reference(Name, Ref) :-
+    (   atom(Name), sub_atom(Name, 0, 1, _, C), char_type(C, lower(_))
+    ->  ( le_i18n:class_words(definite_article, [The|_]) -> true ; The = the ),
+        atomic_list_concat([The, Name], ' ', Ref)
+    ;   Ref = Name
     ).
 
 %!  flip_changes_words(+KB, +Changes, -Words) is det.
@@ -2425,7 +2458,7 @@ global_template_name(KBmodule, Functor, GlobalName) :-
 
 check_types([]).
 check_types([Var-Type|NTs]) :-
-    (   var(Var) -> true
+    (   ( var(Var) ; Var = '$le_var_name'(_) ) -> true
     ;   Type == date ->
         ( Var = date(_) ; Var = date(_,_,_) ; Var = date(_,_,_,_,_,_,_,_,_) )
     ;   Type == number ->
@@ -3417,7 +3450,9 @@ run_one_test_body(KBmodule, QueryName, ScenarioName, ExpectedStrings, ExpectedUn
                                 Result = pass(QueryName, ScenarioName)
                             ; 
                             maplist(strip_string_wrapper, ExpectedStrings, CleanExpected),
-                            Result = fail(QueryName, ScenarioName, CleanExpected, ActualStrings, ExpectedUnknowns, SortedActualUnknownsFinal)
+                            maplist(strip_string_wrapper, ExpectedUnknowns, CleanExpectedUnknowns),
+                            %  as the program writes them (2021-10-09), not normalised for comparison
+                            Result = fail(QueryName, ScenarioName, CleanExpected, ActualStrings, CleanExpectedUnknowns, SortedActualUnknowns)
                         )
                     )
                 ; Result = error(QueryName, ScenarioName, 'Test execution failed')
@@ -3455,7 +3490,9 @@ run_one_test_body(KBmodule, QueryName, ScenarioName, ExpectedStrings, ExpectedUn
                         sort(NormActualUnknowns, SortedActualUnknownsFinal),
                         (   SortedExpected == SortedActual, SortedExpectedUnknowns == SortedActualUnknownsFinal -> Result = pass(QueryName, ScenarioName)
                         ;   maplist(strip_string_wrapper, ExpectedStrings, CleanExpected),
-                            Result = fail(QueryName, ScenarioName, CleanExpected, ActualStrings, ExpectedUnknowns, SortedActualUnknownsFinal)
+                            maplist(strip_string_wrapper, ExpectedUnknowns, CleanExpectedUnknowns),
+                            %  as the program writes them (2021-10-09), not normalised for comparison
+                            Result = fail(QueryName, ScenarioName, CleanExpected, ActualStrings, CleanExpectedUnknowns, SortedActualUnknowns)
                         )
                     )
                 ;   Result = error(QueryName, ScenarioName, 'Test execution failed')

@@ -2,7 +2,7 @@
 
 Source: A 2-of-3 multisig (P2WSH) — https://github.com/bitcoin/bitcoin/blob/master/doc/descriptors.md
 Translator: InsurLE2/migration/miniscript (ms_twin.pl)
-Date: 2026-09-15
+Date: 2026-09-16
 
 ## Summary
 
@@ -34,25 +34,25 @@ A source element is **encoded** when a documented mapping rule translated it wit
 
 | Source test | Query | Result | Detail |
 |---|---|---|---|
-| path_1 | spendable | pass |  |
-| path_1_without_1 | spendable | pass |  |
-| path_1_without_2 | spendable | pass |  |
-| path_2 | spendable | pass |  |
-| path_2_without_1 | spendable | pass |  |
-| path_2_without_2 | spendable | pass |  |
-| path_3 | spendable | pass |  |
-| path_3_without_1 | spendable | pass |  |
-| path_3_without_2 | spendable | pass |  |
+| two_of_three_1 | spendable | pass |  |
+| two_of_three_1_without_1 | spendable | pass |  |
+| two_of_three_1_without_2 | spendable | pass |  |
+| two_of_three_2 | spendable | pass |  |
+| two_of_three_2_without_1 | spendable | pass |  |
+| two_of_three_2_without_2 | spendable | pass |  |
+| two_of_three_3 | spendable | pass |  |
+| two_of_three_3_without_1 | spendable | pass |  |
+| two_of_three_3_without_2 | spendable | pass |  |
 | no_witness | spendable | pass |  |
 | lost_cosigner_A | spendable | pass |  |
 | lost_cosigner_B | spendable | pass |  |
 | lost_cosigner_C | spendable | pass |  |
-| chain_path_1 | spendable | pass |  |
-| chain_path_1_without_1 | spendable | pass |  |
-| chain_path_1_without_2 | spendable | pass |  |
-| chain_path_2 | spendable | pass |  |
-| chain_path_2_without_1 | spendable | pass |  |
-| chain_path_3 | spendable | pass |  |
+| chain_two_of_three_1 | spendable | pass |  |
+| chain_two_of_three_1_without_1 | spendable | pass |  |
+| chain_two_of_three_1_without_2 | spendable | pass |  |
+| chain_two_of_three_2 | spendable | pass |  |
+| chain_two_of_three_2_without_1 | spendable | pass |  |
+| chain_two_of_three_3 | spendable | pass |  |
 | chain_no_witness | spendable | pass |  |
 | flip_now | flip_spend | pass |  |
 | flip_after_delays | flip_spend | pass |  |

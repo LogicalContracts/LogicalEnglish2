@@ -58,8 +58,9 @@ The twins of Blawx's example projects are in every installation.
    says whether it was *encoded*, *approximated* or left as *residue*.
 
 The expectations come from running Blawx's reasoner on the project. That needs
-the reasoner on the server. When it cannot run, the scenarios carry no
-expected answers. A note may say so, or the counts in the note are all zero.
+the reasoner on the server: Blawx's preamble (fetched), Python with PyYAML, and
+SWI-Prolog's s(CASP) library. When it cannot run, the scenarios carry no
+expected answers, and a second note says which of the three is missing.
 
 ### The sections, cited
 
@@ -212,7 +213,8 @@ a cycle of defeats would need `the target language is: scasp.`
   section_5_pingu` is one that no rule reads, and the verifier warns about it.
 - **Without Blawx's reasoner there are no expectations.** A project opened on a
   server that cannot run it gets scenarios with facts but no `expects answers`
-  lines, and no generated-case expectations. Check the note's counts.
+  lines, and no generated-case expectations. Its counts are all zero; the
+  second note says why (the preamble not fetched, no PyYAML, or no s(CASP)).
 - **Abductive tests and symbolic answers are pending.** A test that lets
   s(CASP) assume facts (`#abducible`) gets hypotheses from Blawx. An LE
   scenario states facts or does not. Such expectations, and answers that are a

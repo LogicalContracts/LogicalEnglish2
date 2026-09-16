@@ -139,6 +139,48 @@ test(nested_cascade) :-
     % not(banned or (not banned and member)): true for bob and cy (5), ann is a member (1)
     As == ["the discount for ann is 1", "the discount for bob is 5", "the discount for cy is 5"].
 
+% A one-line alternative whose first condition is not an "is a" sentence: read
+% whole, the line fell to the generic "X is Y" fallback, whose LEFT side
+% swallowed the connective (le_is('the guest has an unbirthday today and the
+% percentage', 10)), and the alternative never applied — the only symptom an
+% unconsumed_facts warning (or unmarked_meta_template, for "is celebrating").
+tea_cascade(Alt, Program) :-
+    tea_fact(Alt, Fact),
+    format(string(Program), "the target language is: prolog.
+
+the templates are:
+    *a guest* is a member.
+    *a guest* has an unbirthday today.
+    *a guest* is celebrating an unbirthday.
+    the discount of *a guest* is *a percentage*.
+
+the knowledge base tea includes:
+
+the discount of a guest is a percentage
+    if the guest is a member and the percentage is 20
+    otherwise ~w and the percentage is 10
+    otherwise the percentage is 0.
+
+scenario s is:
+    alice is a member.
+    ~w.
+
+query q is:
+    the discount of which guest is which percentage.
+", [Alt, Fact]).
+
+tea_fact(Alt, Fact) :-
+    atomic_list_concat(Ws, 'the guest', Alt), atomic_list_concat(Ws, 'the hatter', Fact).
+
+test(one_line_alternative_with_any_sentence,
+     [forall(member(Alt, ["the guest has an unbirthday today", "the guest is celebrating an unbirthday"]))]) :-
+    tea_cascade(Alt, P), load_text(P, KB),
+    custom_answers(KB, s, "the discount of the hatter is which percentage", As),
+    assertion(As == ["the discount of the hatter is 10"]),
+    issue_types(KB, warning, Ws),
+    assertion(\+ memberchk(unconsumed_facts, Ws)),
+    assertion(\+ memberchk(unmarked_meta_template, Ws)).
+
 % A body line that merely contains the word elsewhere is not a cascade.
 test(word_inside_a_template_is_not_a_connective) :-
     load_text("the target language is: prolog.

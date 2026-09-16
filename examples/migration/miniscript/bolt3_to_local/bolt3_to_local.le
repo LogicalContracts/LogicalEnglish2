@@ -1,7 +1,7 @@
 % A Lightning to_local output (BOLT #3)
 %
 % The Logical English twin of a Bitcoin spending policy, written by the
-% Miniscript translator (InsurLE2/migration/miniscript). Who can spend the
+% Miniscript translator. Who can spend the
 % coin, when, and why: each rule is one spending path of the policy.
 %
 % Source: the Miniscript page
@@ -46,7 +46,7 @@ the knowledge base bolt3_to_local includes:
 the Miniscript page is published at "https://bitcoin.sipa.be/miniscript/".
 the text of the Miniscript page is at "sources/sipa_miniscript.txt".
 
-the policy in Minsc is published at "https://min.sc/#c=//%20A%20Lightning%20to_local%20output%20(BOLT%20%233)%0A//%20The%20Logical%20English%20twin's%20policy%20(InsurLE2/migration/miniscript).%0A$revocation_key%20=%20028071f961bf66967e8b92b2564cca5590e958305ce382ebeeb56e866b6baf3edc;%20%20%20//%20the%20revocation%20key%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$local_node%20=%20038fed93f74b169ba9410f1a39dde6b9c6eea84650dc79967a27f52757c197fbc8;%20%20%20//%20the%20local%20node%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A%0Aor(pk($revocation_key),and(pk($local_node),older(1008)))%0A".
+the policy in Minsc is published at "https://min.sc/#c=//%20A%20Lightning%20to_local%20output%20(BOLT%20%233)%0A//%20The%20Logical%20English%20twin's%20policy%20(the%20Miniscript%20translator%20of%20Logical%20English).%0A$revocation_key%20=%20028071f961bf66967e8b92b2564cca5590e958305ce382ebeeb56e866b6baf3edc;%20%20%20//%20the%20revocation%20key%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$local_node%20=%20038fed93f74b169ba9410f1a39dde6b9c6eea84650dc79967a27f52757c197fbc8;%20%20%20//%20the%20local%20node%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A%0Aor(pk($revocation_key),and(pk($local_node),older(1008)))%0A".
 
 the Tape run of 2026-09-14 is published at "https://tape.rewindbitcoin.com/explorer/address/bcrt1qgkt0u8lhwq5spjrvljrsdc02lmjzxh970jnr9jqycq0zrzxrxfcsh28204".
 the text of the Tape run of 2026-09-14 is at "sources/bolt3_to_local.chain.json".
@@ -71,35 +71,35 @@ the coin has been confirmed for a number N blocks if
     and the spending transaction is in block a height M
     and N = M - H.
 
-scenario path_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 — the path needs: a coin 1008 blocks old, a signature by the local node
+scenario local_after_delay is, as stated in the satisfaction analysis of the policy:
+    % spending path local_after_delay — the path needs: a coin 1008 blocks old, a signature by the local node
     the witness contains a signature by the local node.
     the coin was confirmed in block 850000.
     the spending transaction is in block 851008.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_1_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 1 — the path needs: a coin 1008 blocks old, a signature by the local node
+scenario local_after_delay_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path local_after_delay without requirement 1 — the path needs: a coin 1008 blocks old, a signature by the local node
     the witness contains a signature by the local node.
     the coin was confirmed in block 850000.
     the spending transaction is in block 851007.
     spendable expects answers [].
 
-scenario path_1_without_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 2 — the path needs: a coin 1008 blocks old, a signature by the local node
+scenario local_after_delay_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path local_after_delay without requirement 2 — the path needs: a coin 1008 blocks old, a signature by the local node
     the coin was confirmed in block 850000.
     the spending transaction is in block 851008.
     spendable expects answers [].
 
-scenario path_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 — the path needs: a signature by the revocation key
+scenario revocation is, as stated in the satisfaction analysis of the policy:
+    % spending path revocation — the path needs: a signature by the revocation key
     the witness contains a signature by the revocation key.
     the coin was confirmed in block 850000.
     the spending transaction is in block 850000.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_2_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 without requirement 1 — the path needs: a signature by the revocation key
+scenario revocation_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path revocation without requirement 1 — the path needs: a signature by the revocation key
     the coin was confirmed in block 850000.
     the spending transaction is in block 850000.
     spendable expects answers [].
@@ -138,20 +138,20 @@ scenario lost_the_local_node is, as stated in the flip analysis of the policy:
     spendable expects answers ["the coin can be spent"].
     flip_block expects changes [["remove: the witness contains a signature by the revocation key"]].
 
-scenario chain_path_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1:
+scenario chain_local_after_delay is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1:
     % the chain refused the spend: non-BIP68-final
     the witness contains a signature by the local node.
     the coin was confirmed in block 122322.
     the spending transaction is in block 122322.
     spendable expects answers [].
 
-scenario chain_path_1_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_1:
+scenario chain_local_after_delay_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_1:
     % the chain refused the spend: non-BIP68-final
     the coin was confirmed in block 122322.
     the spending transaction is in block 122322.
     spendable expects answers [].
 
-scenario chain_path_2 is, as stated in the Tape run of 2026-09-14 at transaction 440b71b3436c7b9621c0d8c9d06536fd0fd48a3fff06ff66b46376f62073a4d0:
+scenario chain_revocation is, as stated in the Tape run of 2026-09-14 at transaction 440b71b3436c7b9621c0d8c9d06536fd0fd48a3fff06ff66b46376f62073a4d0:
     % the chain accepted the spend: transaction 440b71b3436c7b9621c0d8c9d06536fd0fd48a3fff06ff66b46376f62073a4d0
     the witness contains a signature by the revocation key.
     the coin was confirmed in block 122322.

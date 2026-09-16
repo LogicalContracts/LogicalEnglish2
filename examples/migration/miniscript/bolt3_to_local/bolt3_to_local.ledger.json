@@ -55,17 +55,32 @@
     "failed":0,
     "passed":15,
     "tests": [
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_1"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_1"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_2"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_2"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_2_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"local_after_delay"},
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"local_after_delay_without_1"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"local_after_delay_without_2"
+      },
+      {"detail":"","query":"spendable","result":"pass","scenario":"revocation"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"revocation_without_1"},
       {"detail":"","query":"spendable","result":"pass","scenario":"no_witness"},
       {"detail":"","query":"spendable","result":"pass","scenario":"lost_the_revocation_key"},
       {"detail":"","query":"spendable","result":"pass","scenario":"lost_the_local_node"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1_without_1"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_local_after_delay"},
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"chain_local_after_delay_without_1"
+      },
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_revocation"},
       {"detail":"","query":"flip_spend","result":"pass","scenario":"flip_now"},
       {"detail":"","query":"flip_spend","result":"pass","scenario":"flip_after_delays"},
       {"detail":"","query":"flip_block","result":"pass","scenario":"lost_the_revocation_key"},
@@ -74,7 +89,7 @@
   },
   "meta": {
     "artifacts": ["https://bitcoin.sipa.be/miniscript/" ],
-    "date":"2026-09-15",
+    "date":"2026-09-16",
     "program":"bolt3_to_local",
     "source":"A Lightning to_local output (BOLT #3)",
     "translator":"InsurLE2/migration/miniscript (ms_twin.pl)"

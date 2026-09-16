@@ -63,25 +63,85 @@
     "failed":0,
     "passed":24,
     "tests": [
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_1"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_1"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_2"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_2"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_2_without_1"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_2_without_2"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_3"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_3_without_1"},
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"remote_with_local_or_preimage_1"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"remote_with_local_or_preimage_1_without_1"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"remote_with_local_or_preimage_1_without_2"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"remote_with_local_or_preimage_2"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"remote_with_local_or_preimage_2_without_1"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"remote_with_local_or_preimage_2_without_2"
+      },
+      {"detail":"","query":"spendable","result":"pass","scenario":"revocation"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"revocation_without_1"},
       {"detail":"","query":"spendable","result":"pass","scenario":"no_witness"},
       {"detail":"","query":"spendable","result":"pass","scenario":"lost_the_revocation_key"},
       {"detail":"","query":"spendable","result":"pass","scenario":"lost_the_remote_node"},
       {"detail":"","query":"spendable","result":"pass","scenario":"lost_the_local_node"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1_without_1"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1_without_2"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_2"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_2_without_2"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_3"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_3_without_1"},
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"chain_remote_with_local_or_preimage_1"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"chain_remote_with_local_or_preimage_1_without_1"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"chain_remote_with_local_or_preimage_1_without_2"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"chain_remote_with_local_or_preimage_2"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"chain_remote_with_local_or_preimage_2_without_2"
+      },
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_revocation"},
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"chain_revocation_without_1"
+      },
       {"detail":"","query":"flip_spend","result":"pass","scenario":"flip_now"},
       {"detail":"","query":"flip_spend","result":"pass","scenario":"flip_after_delays"},
       {"detail":"","query":"flip_block","result":"pass","scenario":"lost_the_revocation_key"},
@@ -91,7 +151,7 @@
   },
   "meta": {
     "artifacts": ["https://bitcoin.sipa.be/miniscript/" ],
-    "date":"2026-09-15",
+    "date":"2026-09-16",
     "program":"bolt3_offered_htlc",
     "source":"A Lightning offered HTLC (BOLT #3)",
     "translator":"InsurLE2/migration/miniscript (ms_twin.pl)"

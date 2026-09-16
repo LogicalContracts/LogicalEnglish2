@@ -11,6 +11,7 @@
 
 :- use_module(library(plunit)).
 :- use_module(library(lists)).
+:- use_module(library(time)).
 :- use_module('../le_kbs').
 :- use_module('../le_writer').
 :- use_module('../le_migration').
@@ -231,6 +232,36 @@ test(scasp_pred_annotations_give_the_wording) :-
     assertion(sub_string(Text, _, _, _, "the income of *a claimant* is *an amount*")),
     text_results(Text, Results),
     assertion(all_pass(Results)).
+
+%   `Z is max(X, Y)` (min, and either inside a formula or a comparison) is
+%   the system condition `the maximum of X and Y is Z`: it used to loop in
+%   the writer. The written rules compute what Prolog's max/min compute.
+test(min_max_in_arithmetic_are_conditions) :-
+    Clauses = [ (bigger(X, Y, Z) :- num(X), num(Y), Z is max(X, Y)),
+                (lesser(X1, Y1, Z1) :- num(X1), num(Y1), Z1 is min(X1, Y1) + 1),
+                (capped(X2, Y2) :- num(X2), num(Y2), Y2 > max(X2 * 2, 5)) ],
+    prolog_to_ir(Clauses, [], program(H, Items0)),
+    append(Items0, [scenario(s, [fact(num(3)), fact(num(7)),
+                                 expects(big, [bigger(3, 3, 3), bigger(3, 7, 7), bigger(7, 3, 7), bigger(7, 7, 7)]),
+                                 expects(less, [lesser(3, 3, 4), lesser(3, 7, 4), lesser(7, 3, 4), lesser(7, 7, 8)]),
+                                 expects(cap, [capped(3, 7)])], []),
+                    query(big, bigger(_, _, _)), query(less, lesser(_, _, _)), query(cap, capped(_, _))],
+           Items),
+    call_with_time_limit(20, le_write(program(H, Items), Text, Issues)),
+    assertion(\+ member(issue(error, _, _), Issues)),
+    assertion(sub_string(Text, _, _, _, "the maximum of")),
+    assertion(sub_string(Text, _, _, _, "the minimum of")),
+    assertion(\+ sub_string(Text, _, _, _, "max(")),
+    text_results(Text, Results),
+    assertion(all_pass(Results)).
+
+%   A formula LE has no form for is an error issue and a comment naming the
+%   rule, never a hang or a rule dropped without a word.
+test(inexpressible_arithmetic_is_reported) :-
+    prolog_to_ir([(square(X, Y) :- Y is X ** 2)], [], IR),
+    call_with_time_limit(20, le_write(IR, Text, Issues)),
+    assertion(memberchk(issue(error, rule_not_written, _), Issues)),
+    assertion(sub_string(Text, _, _, _, "% a rule for square/2 the writer could not express")).
 
 :- end_tests(prolog_to_le).
 

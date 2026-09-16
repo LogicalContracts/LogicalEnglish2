@@ -77,7 +77,7 @@ the generated s(CASP) source.
 **Availability.** s(CASP) is an optional SWI-Prolog pack. `le_scasp_available/0`
 is true only when `library(scasp)` is installed; otherwise every entry point
 fails cleanly with the localized issue `scasp_engine_not_installed` (rather than
-crashing). The pack is installed in the Docker image via `pack_install(scasp)`
+crashing): a query answers it, and See s(CASP) shows it in a dialog. The pack is installed in the Docker image via `pack_install(scasp)`
 (see the `Dockerfile`), because `swipl:latest` does not bundle it.
 
 ---
@@ -164,6 +164,8 @@ The emitter (`lower_body/5`, `lower_leaf/3`) translates each construct:
 | Equality / assignment (`is`, `=`) on numbers | `#=` (relational); on non-numbers, plain `=` |
 | Arithmetic `+ - * /` etc. | left symbolic inside `#=` (CLP), never `is/2` |
 | Scenario facts | asserted as ground clauses in the unit |
+| A query (`which person is happy and the person is rich`, a custom query) | lowered like a rule body (`le_scasp_query_goal/6`) into the clauses of a helper `le_query(Vars)`, its arguments the query's variables, which s(CASP) is asked; the explanation shows the query's conditions, not the helper. A query of several conditions was handed to s(CASP) as LE's own `and/2`, which the unit does not define (`existence_error: scasp_predicate …:and/2`); asking the helper also keeps a query about a predicate with no clause in the unit (no rule, no fact in this scenario) from throwing — it has no answer, as in Prolog |
+| Where a document is published, where its text is (`… is published at …`, `the text of … is at …`) | not written: records the explanation's citations read, not the program's clauses |
 
 ### Constraints are relational, not functional
 
@@ -323,6 +325,7 @@ never hardcoded, so they appear in the active language; the handlers call
 | a condition with no template | `scasp_missing_template` | refused |
 | any other untranslatable rule | `scasp_untranslatable_rule` | refused |
 | query timeout | `scasp_timeout` | partial answers returned |
+| a construct the lowering left as it was (LE's `and/2`, `le_flip/2`, a built-in condition inside a comparison, a sentence with no template as a fact, …) in a rule, a fact or a query | `scasp_leftover_construct` | refused: `leftover_in_clauses/2` checks every lowered clause, so nothing of LE's own reaches s(CASP) as a predicate call; should one still reach it, the run reports the same issue instead of an error |
 | residual illegal construct | `scasp_unsupported_construct` | e.g. an "or" the emitter couldn't lift |
 | pack absent | `scasp_engine_not_installed` | whole engine unavailable |
 
@@ -436,14 +439,18 @@ form, `#abducible` the `; unknown` addition, a `le_forall_K` helper the
 universal again, `#>`/`#=`… comparisons and assignments, a denial a query the
 scenarios expect to have no answer (convention N1), `?-` a query. The gate
 `testing/scasp_roundtrip.pl` runs LE → s(CASP) → LE → s(CASP) over the core
-corpus: on 14 September 2026, 83 of the 88 programs the target can emit give
+corpus: on 16 September 2026, 84 of the 88 programs the target can emit give
 back the same s(CASP) program (clauses, abducibles, opposite constraints and
-`#pred` wordings, up to variable names); the five that differ are a program
+`#pred` wordings, up to variable names); the four that differ are a program
 with two templates sharing a predicate with different types, a vacuous
-universal, a partially instantiated unknown, the ontology-rule case of
-`le_writer_roundtrip.pl`'s exclusions and a deliberately broken program.
+universal, a partially instantiated unknown and the ontology-rule case of
+`le_writer_roundtrip.pl`'s exclusions. (A deliberately broken program, whose
+sentence with no template was written as a fact, is now refused, §8.)
 Building the gate found and fixed four defects of this target: universals
 were written as Prolog's `forall/2`, which s(CASP) rejects; opposite forms
 were separate predicates with vacuous constraints, not `-p`; scenario
 elements were abducible; and LE's records (the ontology record, flip
-expectations, services) were written into the unit as facts.
+expectations, services) were written into the unit as facts — as, until 16
+September 2026, were a document's addresses (`le_text_at/2`,
+`le_published_at/2`). The opposite forms' constraints now name their
+variables (`false :- p(A), -p(A).`, not `_126456`).

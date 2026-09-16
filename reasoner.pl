@@ -1211,9 +1211,17 @@ call_reasoner_built_in(prolog_call(G), SM) :- !,
 
 call_reasoner_built_in(le_at(G, _, _), SM) :- !, call_reasoner_built_in(G, SM).
 call_reasoner_built_in(le_known(X), _) :- !, ground(X).
-call_reasoner_built_in(le_equal_to(X, Y), _) :- !, X = Y.
-call_reasoner_built_in(le_not_equal_to(X, Y), _) :- !, X \= Y.
-call_reasoner_built_in(le_assign(X, Y), _) :- !, 
+call_reasoner_built_in(le_equal_to(X, Y), _) :- !, le_equal_values(X, Y).
+call_reasoner_built_in(le_not_equal_to(X, Y), _) :- !, \+ le_equal_values(X, Y).
+%   A formula on the left (`N mod 3 = 2`) is evaluated as one on the right
+%   is (`2 = N mod 3`): unified as a term, it was never equal to a number.
+call_reasoner_built_in(le_assign(X, Y), _) :-
+    le_arithmetic_operand(X, XV), !,
+    (   var(Y) -> Y = XV
+    ;   le_compare_operand(Y, YV), number(YV) -> XV =:= YV
+    ;   Y = XV
+    ).
+call_reasoner_built_in(le_assign(X, Y), _) :- !,
     ( number(Y) -> X = Y
     ; catch(X is Y, _, (
         (var(X) -> true ; true), % debug point
@@ -1247,9 +1255,25 @@ le_compare(<, X, Y) :- !, X @< Y.
 %   compared as a term it was always "greater" than a number, whatever its
 %   value. A date, a constant or an unbound value is left as it is.
 le_compare_operand(X, V) :-
-    (   compound(X), X \= date(_, _, _), ground(X), catch(V0 is X, _, fail)
+    (   le_arithmetic_operand(X, V0)
     ->  V = V0
     ;   V = X
+    ).
+
+%   X is a ground formula (not a date, not a list) and V its value.
+le_arithmetic_operand(X, V) :-
+    compound(X), X \= date(_, _, _), \+ is_list(X), ground(X),
+    catch(V is X, _, fail),
+    number(V).
+
+%   `is equal to` / `is different from`: a formula on either side is
+%   evaluated first (`N mod 3 is equal to 2`), numbers then compared by value;
+%   anything else is equal when it unifies, as before.
+le_equal_values(X0, Y0) :-
+    (   ( le_arithmetic_operand(X0, _) ; le_arithmetic_operand(Y0, _) )
+    ->  le_compare_operand(X0, X), le_compare_operand(Y0, Y),
+        (   number(X), number(Y) -> X =:= Y ; X = Y )
+    ;   X0 = Y0
     ).
 
 equal_to(X, X).

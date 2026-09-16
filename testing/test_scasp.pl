@@ -246,4 +246,118 @@ test(issue_message_localized, [condition(le_scasp_available)]) :-
     ( memberchk(le_scasp_issue(untranslatable_rule, _, Msg), Issues) -> true ; Msg = "" ),
     assertion(sub_atom_icasechk(Msg, _, "negação")).
 
+% --- Queries of several conditions, LE's records, readable constraints ---
+% (Sentry, scaspQuery: `existence_error: scasp_predicate '<unit>:and'/2`)
+
+query_program("the target language is: scasp.
+
+the templates are:
+    *a person* is happy; opposite: *a person* is unhappy.
+    *a person* is rich.
+    *a person* is around.
+    *a person* is sad.
+
+the knowledge base k includes:
+    the text of the source program is at \"sources/k.txt\".
+
+    a person is happy if
+        the person is around
+        and it is not the case that the person is sad.
+
+scenario s is:
+    alice is around.
+    alice is rich.
+    bob is around.
+    bob is sad.
+    bob is rich.
+
+query both is:
+    which person is happy
+    and the person is rich.
+
+query either is:
+    which person is happy
+    or the person is sad.
+
+query listed is:
+    which person is rich
+    and the person is in [alice, bob].
+").
+
+%   Every literal of a lowered query clause is a predicate of the program or
+%   s(CASP)'s own — never one of LE's connectives.
+query_lines_ok(Lines) :-
+    forall(member(L, Lines),
+           ( assertion(\+ sub_string(L, _, _, _, "and(")),
+             assertion(\+ sub_string(L, _, _, _, "or(")),
+             assertion(\+ sub_string(L, _, _, _, "le_at(")) )).
+
+%   A conjunctive query was handed to s(CASP) as the LE goal and/2 itself.
+test(query_conjunction_is_lowered) :-
+    query_program(T), load_text(T, M),
+    M:query_info(both, G, _),
+    le_scasp:strip_positions(G, G1),
+    le_scasp:le_scasp_query_goal(M, G1, Query, Shown, Lines, Issues),
+    assertion(Issues == []),
+    assertion(functor(Query, le_query, 1)),
+    assertion(Shown == G1),
+    assertion(Lines = [_]),
+    query_lines_ok(Lines),
+    Lines = [L],
+    assertion(sub_string(L, _, _, _, "not is_happy") ; sub_string(L, _, _, _, "is_rich(")).
+
+test(query_disjunction_is_lowered) :-
+    query_program(T), load_text(T, M),
+    M:query_info(either, G, _),
+    le_scasp:strip_positions(G, G1),
+    le_scasp:le_scasp_query_goal(M, G1, _, _, Lines, Issues),
+    assertion(Issues == []),
+    assertion(length(Lines, 2)),          % one clause per disjunct
+    query_lines_ok(Lines).
+
+%   What has no s(CASP) statement in a query is an issue that refuses it.
+test(query_list_membership_is_refused) :-
+    query_program(T), load_text(T, M),
+    M:query_info(listed, G, _),
+    le_scasp:strip_positions(G, G1),
+    le_scasp:le_scasp_query_goal(M, G1, _, _, _, Issues),
+    assertion(( member(I, Issues), le_scasp_blocking_issue(I) )),
+    le_scasp_check(M, Issues, Problems),
+    assertion(Problems \== []).
+
+%   A construct left as it was by the lowering is caught, not emitted.
+test(leftover_connective_is_caught) :-
+    assertion(le_scasp:leftover_in_clauses([(h(X) :- (p(X), and(p(X), q(X))))], and/2)),
+    assertion(le_scasp:leftover_in_clauses([(h(X) :- not(le_flip(X, _)))], le_flip/2)),
+    assertion(le_scasp:leftover_in_clauses([(h(X) :- '#='(le_is(X, 'the sum of'), 1))], le_is/2)),
+    assertion(\+ le_scasp:leftover_in_clauses([(h(X) :- (p(X), not(q(X)), '#>'(X+1, 3), -(r(X)), le_forall_1(X)))], _)).
+
+%   LE's document records are not the program's clauses, and the opposite
+%   constraint names its variables.
+test(program_text_without_records_readable_constraints) :-
+    query_program(T), load_text(T, M),
+    once(le_scasp_program_text(M, Text, _)),
+    assertion(\+ sub_string(Text, _, _, _, "le_text_at")),
+    assertion(\+ sub_string(Text, _, _, _, "sources/")),
+    assertion(sub_string(Text, _, _, _, "false :- is_happy(A), -is_happy(A).")),
+    assertion(\+ sub_string(Text, _, _, _, "(_")).
+
+test(query_conjunction_answers, [condition(le_scasp_available)]) :-
+    query_program(T), load_text(T, M),
+    M:query_info(both, G, _),
+    catch(le_scasp_query(M, s, G, [time_limit(30)], Answers, Issues), E, true),
+    assertion(var(E)),
+    assertion(\+ ( member(I, Issues), le_scasp_blocking_issue(I) )),
+    findall(P, member(answer(_, and(is_happy(P), is_rich(P)), _, _), Answers), Ps0),
+    sort(Ps0, Ps),
+    assertion(Ps == [alice]).
+
+%   A query whose predicate has no clause in the unit fails, as in Prolog,
+%   rather than s(CASP) throwing that it does not exist.
+test(query_of_an_undefined_predicate_fails, [condition(le_scasp_available)]) :-
+    query_program(T), load_text(T, M),
+    catch(le_scasp_query(M, none, is_sad(_), [time_limit(30)], Answers, _), E, true),
+    assertion(var(E)),
+    assertion(Answers == []).
+
 :- end_tests(scasp).
