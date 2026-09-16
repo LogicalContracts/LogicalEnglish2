@@ -756,7 +756,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             run: async (ed: any) => {
                 // On a provenance trailer ("with provenance …", "as stated in
                 // … at …") the definition of what is written there is the
-                // document it cites: open it, as "Show original text" does.
+                // document it cites: open it, as "View Original Text" does.
                 adoptActiveAsProgram();
                 if (!isLoaded) await loadModule();
                 const here = ed.getPosition();
@@ -975,36 +975,31 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             }
         });
 
-        // ---- Show original text --------------------------------------------
-        // Where the program cites a document it says how to reach — a fact
-        // with provenance, a rule or table labelled with provenance, a scenario
-        // "as stated in" a document, "the text of <document> is at ..." — the
-        // context menu offers the document itself, the cited passage
-        // highlighted (the source viewer of the explanation's § badge).
-        // Each load sends those ranges (`citations`); they are kept as
-        // invisible decorations of the program's model, so they follow edits
-        // until the next load, and a context key says whether the cursor's
-        // line meets one — the menu shows the entry only then. Which document
-        // is asked for when the entry is chosen (operation provenanceAt).
-        // A program not loaded since it was opened has no known citations yet:
-        // the entry is offered anywhere and loads it (and so does opening the
-        // menu, so that the next menu knows).
+        // ---- View Original Text --------------------------------------------
+        // Where what is under the cursor comes from, on every line of a
+        // program (context menu, and File > View Original Text):
+        //  a. a citation there — a fact with provenance, a rule or table
+        //     labelled with provenance, a scenario "as stated in" a document,
+        //     "the text of <document> is at ..." — the cited passage in the
+        //     source viewer (or, when only its published address is known,
+        //     that address);
+        //  b. else the rule, fact, table, template, scenario or query there,
+        //     found in the originals the program keeps (its sources/ folder,
+        //     the documents it says the text of is at) by the program's own
+        //     links — its label, its ledger's entries, what it cites — the
+        //     passage highlighted;
+        //  c. else, when the program keeps originals, those, saying no
+        //     passage was located;
+        //  d. else a message that the program keeps no original text.
+        // The server decides (operation originalTextAt, le_original_text.pl).
+        // Each load also sends the citation ranges (`citations`), kept as
+        // invisible decorations of the program's model so that they follow
+        // edits: Show definition on a citation opens its document this way.
         const CITATION = 'le-citation';
-        const citationKey = editor.createContextKey('leCitationAtCursor', false);
         const citationDecorations = new WeakMap<any, string[]>();
 
-        function updateCitationKey() {
-            const model = editor.getModel();
-            const position = editor.getPosition();
-            if (!model || !position || model.getLanguageId() !== 'le') {
-                citationKey.set(false);
-            } else if (!citationDecorations.has(model)) {
-                citationKey.set(true);
-            } else {
-                citationKey.set(model.getLineDecorations(position.lineNumber)
-                    .some((d: any) => d.options.description === CITATION));
-            }
-        }
+        // A program not loaded since it was opened is loaded when the menu
+        // opens, so that the entry chosen next has a session to ask.
         editor.onContextMenu(() => {
             if (activeDoc === panelDoc && !isLoaded && !isLoading) loadModule();
         });
@@ -1022,23 +1017,47 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 };
             });
             citationDecorations.set(model, model.deltaDecorations(citationDecorations.get(model) || [], decorations));
-            updateCitationKey();
         };
-        editor.onDidChangeCursorPosition(updateCitationKey);
-        editor.onDidChangeModel(updateCitationKey);
 
-        editor.addAction({
-            id: 'le-show-original-text',
-            label: t('Show original text'),
-            contextMenuGroupId: 'navigation',
-            contextMenuOrder: 2.25,
-            precondition: 'leCitationAtCursor',
-            run: async (ed: any) => {
-                const data = await predicateAtCursor(ed, 'provenanceAt');
-                if (!data || !data.provenance) {
-                    alert(t('No cited document here.'));
-                    return;
+        const noOriginalText = t('This program keeps no original text: it cites no document whose text or address it gives, and it was not converted from another system\'s files (there is no sources folder beside it).');
+        async function viewOriginalText(ed: any) {
+            const model = ed.getModel();
+            const position = ed.getPosition();
+            const ctx = { source: panelDoc.example || '', base: panelDoc.baseUrl || '' };
+            if (!model || !position || model.getLanguageId() !== 'le') {
+                messageDialog(t('View Original Text'), t('Place the cursor in a Logical English program first.'));
+                return;
+            }
+            adoptActiveAsProgram();
+            if (!isLoaded) await loadModule();
+            let data: any = null;
+            if (sessionModule) {
+                try {
+                    const response = await fetch('/leapi', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            token: 'myToken123', operation: 'originalTextAt', sessionModule,
+                            position: model.getOffsetAt(position),
+                            line: model.getLineContent(position.lineNumber),
+                            lineStart: model.getOffsetAt({ lineNumber: position.lineNumber, column: 1 }),
+                            source: ctx.source, base: ctx.base
+                        })
+                    });
+                    data = await response.json();
+                } catch (err) {
+                    console.error('originalTextAt failed:', err);
+                    data = null;
                 }
+            }
+            if (!data || data.error) {
+                // No session (the program does not load): its originals, if any.
+                if (!await showOriginals(panelDoc, t('The program could not be loaded, so no passage was looked for; these are its originals.'))) {
+                    messageDialog(t('View Original Text'), noOriginalText);
+                }
+                return;
+            }
+            if (data.kind === 'citation' || data.kind === 'passage') {
                 const p: Provenance = data.provenance;
                 // Only a published address: that is the original to open.
                 const published = originalUrl(p);
@@ -1046,9 +1065,28 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                     window.open(published, '_blank');
                     return;
                 }
-                openSourceViewer(p, data.rule || undefined,
-                                 { source: panelDoc.example || '', base: panelDoc.baseUrl || '' });
+                openSourceViewer(p, data.rule || undefined, ctx);
+                return;
             }
+            if (data.kind === 'originals') {
+                const note = t('No passage of the original was located for what is under the cursor: here is the original instead.');
+                const files: { document: string, text: string }[] = data.files || [];
+                const hinted: string[] = data.hinted || [];
+                const pick = hinted.length === 1 ? files.filter(f => f.text === hinted[0]) : files;
+                showOriginalsList(pick.length > 0 ? pick : files, ctx, note);
+                return;
+            }
+            messageDialog(t('View Original Text'), noOriginalText);
+        }
+
+        editor.addAction({
+            // The id is the one "Show original text" had: Show definition and
+            // other callers run it by that name.
+            id: 'le-show-original-text',
+            label: t('View Original Text'),
+            contextMenuGroupId: 'navigation',
+            contextMenuOrder: 2.25,
+            run: (ed: any) => viewOriginalText(ed)
         });
 
         const prologPanel = document.getElementById('prolog-panel')!;
@@ -1350,7 +1388,9 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     // convention the sources/ folder beside it (operation originals), which
     // the migrations' twins and File > Open's translations both keep. One
     // opens in the source viewer; several are listed first.
-    async function showOriginals(doc: any) {
+    // Resolves to whether there was any original to show; with a `note`
+    // (View Original Text) the caller says itself that there is none.
+    async function showOriginals(doc: any, note?: string): Promise<boolean> {
         let files: string[] = [];
         try {
             const r = await fetch('/leapi', {
@@ -1361,11 +1401,18 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             files = (await r.json()).files || [];
         } catch { files = []; }
         const ctx = { source: doc.example || '', base: doc.baseUrl || '' };
-        const open = (f: string) => openSourceViewer({ document: f.replace(/^sources\//, ''), text: f }, undefined, ctx);
         if (files.length === 0) {
-            alert(t('No original is kept for this program: it was not converted from another system\'s files (there is no sources folder beside it).'));
-            return;
+            if (!note) alert(t('No original is kept for this program: it was not converted from another system\'s files (there is no sources folder beside it).'));
+            return false;
         }
+        showOriginalsList(files.map(f => ({ document: f.replace(/^sources\//, ''), text: f })), ctx, note);
+        return true;
+    }
+
+    // One original opens in the source viewer; several are listed first.
+    // `note` says why these are shown (View Original Text found no passage).
+    function showOriginalsList(files: { document: string, text: string }[], ctx: { source: string, base: string }, note?: string) {
+        const open = (f: { document: string, text: string }) => openSourceViewer({ document: f.document, text: f.text, note: note || null }, undefined, ctx);
         if (files.length === 1) { open(files[0]); return; }
         document.getElementById('originals-list')?.remove();
         const overlay = document.createElement('div');
@@ -1377,9 +1424,15 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         h.textContent = t('The original files this program was converted from');
         h.style.marginTop = '0';
         box.appendChild(h);
+        if (note) {
+            const p = document.createElement('p');
+            p.className = 'originals-note';
+            p.textContent = note;
+            box.appendChild(p);
+        }
         for (const f of files) {
             const row = document.createElement('div');
-            row.textContent = f.replace(/^sources\//, '');
+            row.textContent = f.document;
             row.title = t('Open it in the source viewer');
             row.style.cssText = 'cursor:pointer;padding:3px 4px;font-family:monospace';
             row.onmouseenter = () => { row.style.background = 'rgba(128,128,128,.25)'; };
@@ -1391,7 +1444,40 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
         document.body.appendChild(overlay);
     }
-    document.getElementById('menu-show-original')?.addEventListener('click', () => showOriginals(activeDoc));
+
+    // A message in a dialog of the page (not the browser's alert).
+    function messageDialog(title: string, message: string) {
+        document.getElementById('message-dialog')?.remove();
+        const overlay = document.createElement('div');
+        overlay.id = 'message-dialog';
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:3000;display:flex;align-items:center;justify-content:center';
+        const box = document.createElement('div');
+        box.setAttribute('role', 'dialog');
+        box.style.cssText = 'background:var(--menu-bg,#eee);color:inherit;border-radius:6px;padding:12px 16px;max-width:560px;font-size:13px';
+        const h = document.createElement('h3');
+        h.textContent = title;
+        h.style.marginTop = '0';
+        const p = document.createElement('p');
+        p.className = 'message-dialog-text';
+        p.textContent = message;
+        const actions = document.createElement('div');
+        actions.style.cssText = 'display:flex;justify-content:flex-end';
+        const close = document.createElement('button');
+        close.textContent = t('Close');
+        const done = () => { overlay.remove(); document.removeEventListener('keydown', onKey); };
+        const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') done(); };
+        close.onclick = done;
+        actions.appendChild(close);
+        box.append(h, p, actions);
+        overlay.appendChild(box);
+        overlay.onclick = (e) => { if (e.target === overlay) done(); };
+        document.addEventListener('keydown', onKey);
+        document.body.appendChild(overlay);
+        close.focus();
+    }
+    document.getElementById('menu-show-original')?.addEventListener('click', () => { showOriginals(activeDoc); });
+    // File > View Original Text: as the context menu's, at the cursor of the tab shown.
+    document.getElementById('menu-view-original-text')?.addEventListener('click', () => viewOriginalText(editor));
 
     // File > Export to Another System: the program written in another
     // system's format by an exporter the server has for it (le_import.pl,

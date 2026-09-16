@@ -86,7 +86,7 @@ the winner of a game is a player if
     and the sign beats the second sign.
 ```
 
-A right-click on a citation in the editor offers **Show original text**, which
+A right-click on a citation in the editor offers **View Original Text**, which
 opens the Act's text. In an explanation, and in the executive view, a cited
 step shows its section with a § badge that opens the passage. A rule you read
 in Logical English is always one click from the words it encodes.

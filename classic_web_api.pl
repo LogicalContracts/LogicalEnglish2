@@ -27,6 +27,7 @@
 :- use_module(le_i18n).
 :- use_module(le_graph).
 :- use_module(le_documents).
+:- use_module(le_original_text).
 :- use_module(le_import).
 :- use_module(le_why_not).
 :- use_module(le_lps_legal).
@@ -271,6 +272,7 @@ handle_operation(Dict, Response) :-
         ; Op == "predicateAt" -> handle_predicate_at(Dict, Response)
         ; Op == "predicateOccurrences" -> handle_predicate_occurrences(Dict, Response)
         ; Op == "provenanceAt" -> handle_provenance_at(Dict, Response)
+        ; Op == "originalTextAt" -> handle_original_text_at(Dict, Response)
         ; Op == "openQuestions" -> handle_open_questions(Dict, Response)
         ; Op == "draftView" -> handle_draft_view(Dict, Response)
         ; Op == "automaticView" -> handle_automatic_view(Dict, Response)
@@ -1279,26 +1281,9 @@ load_base_of(Dict, Base) :-
 %   system). `source` is the example the program was opened as. Replies
 %   {files: ["sources/…", …]} — each readable with documentText — or {files: []}.
 handle_originals(Dict, _{files: Files}) :-
-    (   load_base_of(Dict, Base), atom(Base), Base \== (-),
-        \+ sub_atom(Base, 0, _, _, 'http'),
-        atomic_list_concat([Base, '/sources'], SDir), exists_directory(SDir),
-        (   http_in_session(_), http_session_data(user(_, Roles)) -> true ; Roles = [] ),
-        catch(restricted_paths:is_path_allowed(SDir, Roles), _, true)
-    ->  findall(Rel,
-                ( directory_member(SDir, F, [recursive(true)]),
-                  exists_file(F), \+ binary_original(F),
-                  atom_concat(SDir, '/', P), atom_concat(P, R, F),
-                  atom_concat('sources/', R, Rel0), atom_string(Rel0, Rel) ),
-                Files0),
-        msort(Files0, Files1),
-        length(Files1, N), ( N > 500 -> length(Files, 500), append(Files, _, Files1) ; Files = Files1 )
-    ;   Files = []
-    ).
-
-%   Not text: the source viewer has nothing to show of these.
-binary_original(F) :-
-    file_name_extension(_, Ext0, F), downcase_atom(Ext0, Ext),
-    memberchk(Ext, [pdf, png, jpg, jpeg, gif, zip, docx, xlsx, pptx, doc, xls, ppt, ico, woff, woff2, ttf, bin, exe, jar, class]).
+    load_base_of(Dict, Base),
+    (   http_in_session(_), http_session_data(user(_, Roles)) -> true ; Roles = [] ),
+    le_original_text:original_files(Base, Roles, Files).
 
 %!  handle_document_text(+Dict, -Response) is det.
 %
@@ -1338,8 +1323,8 @@ handle_load(Dict, Response) :-
         % The declared execution target (`the target language is: …`) so the client
         % can pre-select the matching engine.
         le_kbs:kb_target_language(KB, Target),
-        % Where the program cites a document the editor can show ("Show
-        % original text", operation provenanceAt).
+        % Where the program cites a document the editor can show (Show
+        % definition on a citation opens it with View Original Text).
         ( catch(le_provenance:citation_spans(KB, Citations), _, fail) -> true ; Citations = [] ),
         Response = Metadata.put(_{
             sessionModule: SM,
@@ -3190,7 +3175,7 @@ handle_predicate_occurrences(Dict, Response) :-
 %
 %   The document cited where the cursor is — by a fact's provenance, a rule's
 %   or a table's label, the header of the scenario, or a statement saying
-%   where the document is — for the editor's "Show original text":
+%   where the document is — for the editor's "View Original Text":
 %
 %       {provenance: {document, locator, quote, source, rationale, url, text},
 %        rule: <label> | null}
@@ -3217,6 +3202,38 @@ handle_provenance_at(Dict, Response) :-
             ( Rule \== none, le_kbs:user_rule_name(Rule) -> R = Rule ; R = null ),
             Response = _{provenance: P, rule: R}
         ;   Response = _{error: "No cited document at this position"}
+        )
+    ).
+
+%!  handle_original_text_at(+Dict, -Response) is det.
+%
+%   "View Original Text": where the original of what is at `position` is
+%   (le_original_text:original_text_at/8) — the citation there, the passage
+%   of the program's originals the construct there comes from, the originals
+%   themselves, or nothing. `source`/`base` say where the program's folder is
+%   when the session does not know it.
+handle_original_text_at(Dict, Response) :-
+    get_dict(sessionModule, Dict, SMStr),
+    atom_string(SM, SMStr),
+    le_kbs:note_session_use(SM),
+    ( catch(SM:le_kb_module_fact(KB), _, fail) -> true ; KB = none ),
+    (   KB == none
+    ->  Response = _{error: "No KB loaded"}
+    ;   get_dict(position, Dict, Pos),
+        (   get_dict(lineStart, Dict, LS), integer(LS),
+            get_dict(line, Dict, Line), string(Line)
+        ->  string_length(Line, Len), LE is LS + Len
+        ;   LS = none, LE = none
+        ),
+        (   catch(KB:le_program_base(B), _, fail), atom(B)
+        ->  Base = B
+        ;   load_base_of(Dict, Base)
+        ),
+        (   http_in_session(_), http_session_data(user(_, Roles)) -> true ; Roles = [] ),
+        (   catch(le_original_text:original_text_at(SM, KB, Pos, LS, LE, Base, Roles, R), E,
+                  ( print_message(error, E), fail ))
+        ->  Response = R
+        ;   Response = _{error: "Could not look for the original text"}
         )
     ).
 

@@ -947,7 +947,7 @@ the text of the tea shop notice is at "notice.txt".
 ```
 
 (A text file lives beside a saved program.) With those, a right‑click on a citing
-line of the program offers **Show original text**, and the verifier checks that each
+line of the program and **View Original Text** opens the passage, and the verifier checks that each
 quoted passage really is in the text. See
 [provenance trailers](../../reference/language.md#171-provenance-trailers-and-judged-templates)
 and [rule labels and provenance](../../reference/language.md#155-rule-labels-and-provenance).

@@ -581,7 +581,7 @@ is_judged_goal(KB, Goal) :-
 
 % ---------------------------------------------------------------------------
 % Citations: where the program cites a document the reader can be shown
-% (the editor's "Show original text").
+% (the editor's "View Original Text").
 % ---------------------------------------------------------------------------
 
 %!  citation(+KB, -Start, -End, -Prov, -Rule) is nondet.
@@ -635,8 +635,9 @@ openable_document(KB, Const) :-
 %
 %   The [Start, End] ranges of the program itself (not of the resources it
 %   includes, whose offsets are moved out of its range) that cite a document
-%   that can be shown. The editor keeps them to know where to offer "Show
-%   original text"; which document is shown is asked for then (citation_at/6).
+%   that can be shown. The editor keeps them to know where a citation is
+%   (Show definition on one opens it); which document is shown is asked for
+%   then (citation_at/6, through le_original_text.pl).
 citation_spans(KB, Spans) :-
     (   atom(KB), KB \== none
     ->  le_grammar:resource_offset_unit(Unit),
