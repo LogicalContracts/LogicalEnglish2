@@ -45,7 +45,10 @@
 
 :- dynamic build_info/1.
 
-:- http_handler(root(leapi), handle_leapi, [method(post)]).
+%  The handler's time limit is above those the operations themselves apply
+%  (operation_time_limit/2): an operation that runs out of time replies so,
+%  instead of the dispatcher killing the request (a 500, and an error report).
+:- http_handler(root(leapi), handle_leapi, [method(post), time_limit(3700)]).
 :- http_handler(root(build_info), handle_build_info, [method(get)]).
 % Error reports and analytics, when the environment configures them
 % (le_telemetry.pl, docs/dev/telemetry.md): every page loads /telemetry.js.
@@ -195,7 +198,8 @@ handle_leapi(Request) :-
     (   validate_token(Dict) ->  
             get_dict(operation, Dict, Op),
             print_message(informational, le_api_info(Op)),
-            catch(( handle_operation(Dict, Response0) -> Outcome = done ; Outcome = failed ),
+            operation_time_limit(Dict, Limit),
+            catch(( call_with_time_limit(Limit, handle_operation(Dict, Response0)) -> Outcome = done ; Outcome = failed ),
                   E, ( print_message(error, E), Outcome = caught(E) )),
             (   Outcome == done
             ->  print_message(informational, le_api_info(success(Op))),
@@ -211,6 +215,26 @@ handle_leapi(Request) :-
         ; print_message(warning, le_api_info("Invalid token")),
           reply_json_dict(_{error: "Invalid token"}, [status(403)])
     ).
+
+%!  operation_time_limit(+Dict, -Seconds) is det.
+%
+%   How long an operation may run. A query answers within query_time_limit/2
+%   itself (run_interruptible_query/4 replies `timedOut`), so its outer limit
+%   only backs that one up; every other operation keeps the dispatcher's
+%   usual 300 seconds.
+operation_time_limit(Dict, Limit) :-
+    (   get_dict(operation, Dict, "answeringQuery")
+    ->  query_time_limit(Dict, QL), Limit is QL + 60
+    ;   Limit = 300
+    ).
+
+%!  query_time_limit(+Dict, -Seconds) is det.
+%
+%   A query has 240 seconds; a traced one (debug: true) an hour, since its time
+%   includes the pauses in which the user reads the debugger (each pause is
+%   itself bounded, dap_server:dap_command_timeout/1).
+query_time_limit(Dict, Limit) :-
+    (   get_dict(debug, Dict, true) -> Limit = 3600 ; Limit = 240 ).
 
 validate_token(Dict) :-
     get_dict(token, Dict, Token),
@@ -1497,7 +1521,8 @@ handle_answering_query(Dict, Reply) :-
         (   nonvar(ErrorQuery) -> Response = _{error: ErrorQuery}
         ;   % the kept templates are this query's only (a thread serves many)
             setup_call_cleanup(true,
-                catch(run_interruptible_query(SM, Query, KB, Response), error(le_parse_error(Msg), _), Response = _{error: Msg}),
+                ( query_time_limit(Dict, QueryLimit),
+                  catch(run_interruptible_query(SM, Query, KB, QueryLimit, Response), error(le_parse_error(Msg), _), Response = _{error: Msg}) ),
                 le_flip:keep_templates(none, []))
         )
     ),
@@ -1526,15 +1551,31 @@ custom_value_warnings(KB, Facts, Warnings) :-
 :- dynamic query_thread/2.   % query_thread(SessionModule, ThreadId)
 
 run_interruptible_query(SM, Query, KB, Response) :-
+    run_interruptible_query(SM, Query, KB, 240, Response).
+
+%   A query that does not finish within Limit seconds (a rule that loops, a
+%   search too large) is stopped and replies `timedOut`, which the editor
+%   shows as such. That is the program's doing, not a server fault: it goes to
+%   Sentry, if configured, as a message, not as an error.
+run_interruptible_query(SM, Query, KB, Limit, Response) :-
     setup_call_cleanup(
         register_query_thread(SM),
         catch(
-            run_answering_query(SM, Query, KB, Response),
-            query_interrupted,
-            Response = _{result: "interrupted", interrupted: true}
+            call_with_time_limit(Limit, run_answering_query(SM, Query, KB, Response)),
+            Ball,
+            query_stopped(Ball, SM, Limit, Response)
         ),
         unregister_query_thread(SM)
     ).
+
+query_stopped(query_interrupted, _, _, _{result: "interrupted", interrupted: true}) :- !.
+query_stopped(time_limit_exceeded, SM, Limit, Response) :- !,
+    retractall(SM:debug_mode),
+    format(string(Msg), "The query did not finish within ~w seconds and was stopped.", [Limit]),
+    le_telemetry:telemetry_report(message(Msg), [operation(answeringQuery)]),
+    Response = _{result: "timeout", timedOut: true, timeLimit: Limit, error: Msg}.
+query_stopped(Ball, _, _, _) :-
+    throw(Ball).
 
 register_query_thread(SM) :-
     thread_self(Tid),

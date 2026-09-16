@@ -384,6 +384,11 @@ per placeholder, the `values` the rules read there.
 
 - `{ "error": "<parse message>" }` — the custom scenario or query does not parse.
 - `{ "result": "interrupted", "interrupted": true }` — stopped by `interruptQuery`.
+- `{ "result": "timeout", "timedOut": true, "timeLimit": <seconds>, "error": "<message>" }` —
+  the query did not finish within its time limit (240 seconds; 3600 with
+  `debug: true`, whose time includes the debugger's pauses) and was stopped.
+  Every other operation may run 300 seconds; past that the request fails with
+  status 500.
 - `{ "results": [], "error": "Explanation failed", "result": "ok" }` — no answer and no explanation.
 - A reply may add `valueWarnings`: values of the custom facts that no rule can
   read where they stand, each `{fact, value, kind, message, fix}`.

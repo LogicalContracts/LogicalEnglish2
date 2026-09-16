@@ -168,7 +168,7 @@ A **?** beside the query controls, the answers, the explanation, the LE Assistan
 1.  **Load the Module:** The editor proactively loads your code onto the server. You can see the session ID in the top header.
 2.  **Select Scenario:** In the **Query** tab, select a scenario defined in your code (e.g., `scenario alice is:`). You can also select "Another..." to type custom facts.
 3.  **Select Query:** Select a query defined in your code (e.g., `query one is:`).
-4.  **Execute:** Click the **Query** button.
+4.  **Execute:** Click the **Query** button. A query still running after a couple of seconds shows **Interrupt**; one that has not finished after 4 minutes is stopped by the server, which says so in the answers (a rule may loop, or the search may be too large).
 5.  **Flip the outcome:** **Flip…** asks which minimal change to the scenario would change the answer. Select an answer first: the dialog proposes *which minimal change to the scenario makes it the case that it is not the case that* the answer (untick **it is not the case that** to ask for the answer itself, or edit the sentence — to aim at a different answer, say). With no answer, it proposes the query. **Flip** runs it as a custom query on the selected scenario: each answer is a set of facts to add or remove (`add: …`, `remove: …`), explained by the proof the changed scenario then gives. See the language summary, §17.7.
 
 ## The Scenario Editor
