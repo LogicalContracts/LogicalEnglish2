@@ -422,7 +422,7 @@ temp-file consult, which would be replaced by an in-memory load in that setting.
 ## 13. Reading s(CASP) back (September 2026)
 
 The migration reader `le_writer:prolog_file_to_ir/3` is this target read
-backwards (InsurLE2/docs/MiggratingFromOtherSystems.md §5.7, Phase 2c):
+backwards (InsurLE2/docs/migration/roadmap.md §5.7, Phase 2c):
 `#pred` gives the templates (`@(X:type)` names the place), `-p` the opposite
 form, `#abducible` the `; unknown` addition, a `le_forall_K` helper the
 universal again, `#>`/`#=`… comparisons and assignments, a denial a query the

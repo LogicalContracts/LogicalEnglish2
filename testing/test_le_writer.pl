@@ -1,6 +1,6 @@
 /** <module> The general LE writer (Migration IR -> LE), E1 of the migration roadmap
 
-    InsurLE2/docs/MiggratingFromOtherSystems.md §4.2, §7.2; docs/dev/migration.md.
+    InsurLE2/docs/migration/roadmap.md §4.2, §7.2; docs/dev/migration.md.
 
     Run with:  swipl -q -g run_tests -t halt testing/test_le_writer.pl
     (or via testing/run_tests.sh unit). The whole-corpus round trip is

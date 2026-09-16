@@ -1,6 +1,6 @@
 /** <module> The Contract Assistant's residue mode: a fixed skeleton, the residue filled in
 
-    Phase 0, item 4 of InsurLE2/docs/MiggratingFromOtherSystems.md §8: the
+    Phase 0, item 4 of InsurLE2/docs/migration/roadmap.md §8: the
     assistant accepts a deterministic skeleton with residue fragments and
     repairs only the residue (§4.4). The LLM is stubbed through ca_llm_hook/1.
 

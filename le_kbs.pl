@@ -205,7 +205,7 @@ le_example_relpath(Name0, Path) :-
 %  `the target language is: lps.` parses only with them loaded; without them
 %  every LPS sentence stays an uninterpreted token list and the knowledge base
 %  section fails to process — which is how verify/1 used to reject every LPS
-%  document (defect D4 of InsurLE2/docs/MiggratingFromOtherSystems.md). The
+%  document (defect D4 of InsurLE2/docs/migration/roadmap.md). The
 %  hooks are gated on the declared target, so a Prolog document is unaffected.
 :- use_module(le_lps, []).
 

@@ -1,6 +1,6 @@
 /*  lib/temporal.pl — the date arithmetic behind lib/temporal.le
 
-    Extension E3 of InsurLE2/docs/MiggratingFromOtherSystems.md (§7.2): a
+    Extension E3 of InsurLE2/docs/migration/roadmap.md (§7.2): a
     library, not syntax. Dates are LE's own date(Year, Month, Day) terms.
     Pure arithmetic only (days from the civil calendar, no clock).
 

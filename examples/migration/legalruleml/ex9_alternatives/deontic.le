@@ -1,6 +1,6 @@
 % lib/deontic.le — obligations, permissions and prohibitions, as LE templates.
 %
-% The deontic pattern library (N4) of InsurLE2/docs/MiggratingFromOtherSystems.md
+% The deontic pattern library (N4) of InsurLE2/docs/migration/roadmap.md
 % (§7.4, Phase 2f): what LegalRuleML's Obligation, Permission, Prohibition and
 % Reparation (and later Daml's, L4's and Symboleo's) are written with, so that
 % no translator invents its own. A library, not syntax: include it as a

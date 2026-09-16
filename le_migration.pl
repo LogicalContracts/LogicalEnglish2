@@ -1,7 +1,7 @@
 /** <module> Migrations into Logical English: the ledger and the source tests
 
     What every translator into LE shares after the writer (le_writer.pl):
-    extension E14 of InsurLE2/docs/MiggratingFromOtherSystems.md (§4.3, §4.5,
+    extension E14 of InsurLE2/docs/migration/roadmap.md (§4.3, §4.5,
     §7.2) — the MIGRATION LEDGER and the SCENARIO GENERATOR — and the check
     that joins them, the migration's FIDELITY.
 

@@ -4,7 +4,7 @@
 
 This is the reference for the infrastructure every translator into Logical
 English shares — Phase 0 of the roadmap in
-`InsurLE2/docs/MiggratingFromOtherSystems.md` (§4 and §8). The source-specific
+`InsurLE2/docs/migration/roadmap.md` (§4 and §8). The source-specific
 readers (Socotra, Oracle Intelligent Advisor, Bitcoin Miniscript, Solidity)
 live in the InsurLE repository (`InsurLE2/migration/`) and are described
 there; everything here is core LE and has no knowledge of any source system.
