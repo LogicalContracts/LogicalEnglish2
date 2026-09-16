@@ -1,6 +1,37 @@
 import { leLanguageConfiguration, leMonarchTokens, buildLeMonarchTokens } from './le-language';
 import { t, applyI18nDom, installLeApiLang, detectProgramLanguage, detectTargetLanguage, targetLanguageStatement, uiLang } from './i18n';
 
+/**
+ * Where a diagnostic is explained, as a Monaco marker `code` (a link in its
+ * hover): the section of the reference its text cites
+ * ("docs/user/reference/language.md §17.10"; the documentation viewer scrolls
+ * to a `#sec-<number>` fragment), else the warnings guide's section for its
+ * type, else the views section for a view's issue, else nothing.
+ */
+const WARNING_ANCHORS: Record<string, string> = {
+    missing_template: 'missing-template-for-',
+    undefined_predicate: 'undefined-predicate-',
+    untested_predicate: 'this-predicate-is-not-tested-by-any-query-',
+    unused_template: 'this-template-is-never-used-',
+    failed_test: 'test-failed-for-query--in-scenario-',
+    rule_without_variables: 'rule-without-variables-',
+    missing_rules: 'missing-rules--too-many-facts',
+    too_many_facts: 'missing-rules--too-many-facts',
+};
+function issueDocLink(type: string | undefined, text: string): { value: string; target: any } | undefined {
+    const m = /docs\/user\/(reference\/[\w.-]+)\.md\s*§\s*([\d.]*\d)/.exec(text);
+    if (m) {
+        return { value: `${t('reference')} §${m[2]}`, target: monaco.Uri.parse(`${location.origin}/docs/user/${m[1]}#sec-${m[2]}`) };
+    }
+    if (type && WARNING_ANCHORS[type]) {
+        return { value: t('warnings guide'), target: monaco.Uri.parse(`${location.origin}/docs/user/guide/warnings#${WARNING_ANCHORS[type]}`) };
+    }
+    if (type && type.startsWith('view_')) {
+        return { value: `${t('reference')} §17.10`, target: monaco.Uri.parse(`${location.origin}/docs/user/reference/language#sec-17.10`) };
+    }
+    return undefined;
+}
+
 /** An entry of the documentation's table of contents (docs/user/nav.json). */
 interface DocNavItem {
     path: string;
@@ -2355,14 +2386,15 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             const message = foreign
                 ? `${t('In the included resource')} ${describeResourceRange(issue)}: ${issue.message}`
                 : issue.message;
-            const marker = {
+            const marker: any = {
                 severity: issue.severity === 'error' ? monaco.MarkerSeverity.Error : monaco.MarkerSeverity.Warning,
                 startLineNumber: startPos.lineNumber,
                 startColumn: startPos.column,
                 endLineNumber: endPos.lineNumber,
                 endColumn: endPos.column,
                 message,
-                source: 'LE Verifier'
+                source: 'LE Verifier',
+                code: issueDocLink(issue.type, `${issue.message} ${typeof issue.fix === 'string' ? issue.fix : ''}`)
             };
             if (issue.fix) {
                 issueFixes.set(getMarkerKey(marker), issue.fix);

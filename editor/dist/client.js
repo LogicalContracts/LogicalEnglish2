@@ -9076,7 +9076,10 @@ var uiCatalog = {
     "What happened? What did you expect?": "O que aconteceu? O que esperava?",
     "Email": "Email",
     "Thank you for your feedback!": "Obrigado pelos seus coment\xE1rios!",
-    "(required)": "(obrigat\xF3rio)"
+    "(required)": "(obrigat\xF3rio)",
+    "reference": "refer\xEAncia",
+    "warnings guide": "guia dos avisos",
+    "Help: running queries, scenarios and the engines": "Ajuda: executar consultas, cen\xE1rios e os motores"
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -9641,7 +9644,10 @@ var uiCatalog = {
     "What happened? What did you expect?": "\xBFQu\xE9 ocurri\xF3? \xBFQu\xE9 esperaba?",
     "Email": "Correo electr\xF3nico",
     "Thank you for your feedback!": "\xA1Gracias por sus comentarios!",
-    "(required)": "(obligatorio)"
+    "(required)": "(obligatorio)",
+    "reference": "referencia",
+    "warnings guide": "gu\xEDa de los avisos",
+    "Help: running queries, scenarios and the engines": "Ayuda: ejecutar consultas, escenarios y los motores"
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -10206,7 +10212,10 @@ var uiCatalog = {
     "What happened? What did you expect?": "Que s'est-il pass\xE9 ? Qu'attendiez-vous ?",
     "Email": "E-mail",
     "Thank you for your feedback!": "Merci pour votre commentaire !",
-    "(required)": "(obligatoire)"
+    "(required)": "(obligatoire)",
+    "reference": "r\xE9f\xE9rence",
+    "warnings guide": "guide des avertissements",
+    "Help: running queries, scenarios and the engines": "Aide : ex\xE9cuter des requ\xEAtes, sc\xE9narios et moteurs"
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -10771,7 +10780,10 @@ var uiCatalog = {
     "What happened? What did you expect?": "Che cosa \xE8 successo? Che cosa si aspettava?",
     "Email": "Email",
     "Thank you for your feedback!": "Grazie per il suo commento!",
-    "(required)": "(obbligatorio)"
+    "(required)": "(obbligatorio)",
+    "reference": "riferimento",
+    "warnings guide": "guida agli avvisi",
+    "Help: running queries, scenarios and the engines": "Aiuto: eseguire query, scenari e motori"
   }
 };
 var languages = [
@@ -13960,6 +13972,29 @@ ${this.o.programTitle}` : "");
 };
 
 // src/client.ts
+var WARNING_ANCHORS = {
+  missing_template: "missing-template-for-",
+  undefined_predicate: "undefined-predicate-",
+  untested_predicate: "this-predicate-is-not-tested-by-any-query-",
+  unused_template: "this-template-is-never-used-",
+  failed_test: "test-failed-for-query--in-scenario-",
+  rule_without_variables: "rule-without-variables-",
+  missing_rules: "missing-rules--too-many-facts",
+  too_many_facts: "missing-rules--too-many-facts"
+};
+function issueDocLink(type, text) {
+  const m = /docs\/user\/(reference\/[\w.-]+)\.md\s*§\s*([\d.]*\d)/.exec(text);
+  if (m) {
+    return { value: `${t("reference")} \xA7${m[2]}`, target: monaco.Uri.parse(`${location.origin}/docs/user/${m[1]}#sec-${m[2]}`) };
+  }
+  if (type && WARNING_ANCHORS[type]) {
+    return { value: t("warnings guide"), target: monaco.Uri.parse(`${location.origin}/docs/user/guide/warnings#${WARNING_ANCHORS[type]}`) };
+  }
+  if (type && type.startsWith("view_")) {
+    return { value: `${t("reference")} \xA717.10`, target: monaco.Uri.parse(`${location.origin}/docs/user/reference/language#sec-17.10`) };
+  }
+  return void 0;
+}
 async function fillHelpMenu() {
   const box = document.getElementById("help-docs");
   if (!box)
@@ -16112,7 +16147,8 @@ async function start() {
         endLineNumber: endPos.lineNumber,
         endColumn: endPos.column,
         message,
-        source: "LE Verifier"
+        source: "LE Verifier",
+        code: issueDocLink(issue.type, `${issue.message} ${typeof issue.fix === "string" ? issue.fix : ""}`)
       };
       if (issue.fix) {
         issueFixes.set(getMarkerKey(marker), issue.fix);

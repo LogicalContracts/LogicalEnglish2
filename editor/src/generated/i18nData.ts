@@ -9260,7 +9260,10 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "What happened? What did you expect?": "O que aconteceu? O que esperava?",
     "Email": "Email",
     "Thank you for your feedback!": "Obrigado pelos seus comentários!",
-    "(required)": "(obrigatório)"
+    "(required)": "(obrigatório)",
+    "reference": "referência",
+    "warnings guide": "guia dos avisos",
+    "Help: running queries, scenarios and the engines": "Ajuda: executar consultas, cenários e os motores"
   },
   "es": {
     "+ Add": "+ Añadir",
@@ -9825,7 +9828,10 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "What happened? What did you expect?": "¿Qué ocurrió? ¿Qué esperaba?",
     "Email": "Correo electrónico",
     "Thank you for your feedback!": "¡Gracias por sus comentarios!",
-    "(required)": "(obligatorio)"
+    "(required)": "(obligatorio)",
+    "reference": "referencia",
+    "warnings guide": "guía de los avisos",
+    "Help: running queries, scenarios and the engines": "Ayuda: ejecutar consultas, escenarios y los motores"
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -10390,7 +10396,10 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "What happened? What did you expect?": "Que s'est-il passé ? Qu'attendiez-vous ?",
     "Email": "E-mail",
     "Thank you for your feedback!": "Merci pour votre commentaire !",
-    "(required)": "(obligatoire)"
+    "(required)": "(obligatoire)",
+    "reference": "référence",
+    "warnings guide": "guide des avertissements",
+    "Help: running queries, scenarios and the engines": "Aide : exécuter des requêtes, scénarios et moteurs"
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -10955,7 +10964,10 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "What happened? What did you expect?": "Che cosa è successo? Che cosa si aspettava?",
     "Email": "Email",
     "Thank you for your feedback!": "Grazie per il suo commento!",
-    "(required)": "(obbligatorio)"
+    "(required)": "(obbligatorio)",
+    "reference": "riferimento",
+    "warnings guide": "guida agli avvisi",
+    "Help: running queries, scenarios and the engines": "Aiuto: eseguire query, scenari e motori"
   }
 } as const;
 

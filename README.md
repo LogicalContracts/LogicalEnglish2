@@ -168,12 +168,11 @@ LE 2.0 is built on **SWI-Prolog** for the reasoning engine and **TypeScript/Mona
 
 ## 📝 Roadmap
 
-**Done** (formerly on this list): the LLM assistants (LE Assistant, light and deep; Contract Assistant; "Write it in English…"); calling across LE files (included resources, `lib/` libraries); Prolog resources and embedded `prolog` goals; dates and durations (`lib/temporal.le`); the step-by-step debugger over DAP; s(CASP) and LPS execution targets; global constants (definite descriptions, `defines global`); the proprietary extension hook (`le_extensions.pl`).
+**Done** (formerly on this list): the LLM assistants (LE Assistant, light and deep; Contract Assistant; "Write it in English…"); calling across LE files (included resources, `lib/` libraries); Prolog resources and embedded `prolog` goals; dates and durations (`lib/temporal.le`); the step-by-step debugger over DAP; s(CASP) and LPS execution targets; global constants (definite descriptions, `defines global`); the proprietary extension hook (`le_extensions.pl`); contextual help in the editor (a **?** on each panel, diagnostics linking to where they are explained).
 
 **Open:**
 - [ ] **Debugger:** honour breakpoints and make Continue run to the next answer (today every port stops, [docs/dev/debugger.md](./docs/dev/debugger.md)); a DAP transport that desktop IDEs such as VS Code can attach to.
 - [ ] **Contract Assistant:** the faithfulness audit (every proof step supported by a quotation) and coverage as a fitness term, both designed but not built ([docs/dev/contract-assistant.md](./docs/dev/contract-assistant.md) §9).
-- [ ] **Contextual help in the editor:** links from panels and diagnostics to the documentation ([docs/project/plans/NewDocumentationStructure.md](./docs/project/plans/NewDocumentationStructure.md) §6, phase 3).
 
 ---
 
