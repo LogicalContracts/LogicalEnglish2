@@ -67,8 +67,8 @@ Logical English into its own process, never reports into these projects.
    protocol). Server events carry the tag `server: le2` and platform
    `other`; the browser's are JavaScript.
 4. **Allowed domains**: *Settings ▸ Projects ▸ logical-english-2 ▸ General
-   Settings ▸ Client Security ▸ Allowed Domains*: `logicalenglish2.fly.dev`
-   (and any other host the server is reached at). Events from other origins
+   Settings ▸ Client Security ▸ Allowed Domains*: `le2.logicalcontracts.com`
+   and `logicalenglish2.fly.dev` (every host the server is reached at). Events from other origins
    are then refused.
 5. **Privacy**: *Settings ▸ Projects ▸ logical-english-2 ▸ Security &
    Privacy*: keep *Data Scrubber* on, and turn on *Prevent Storing of IP
@@ -88,7 +88,7 @@ To create it again, or check its settings:
 
 1. Sign in at <https://dash.cloudflare.com> ▸ **Analytics & Logs ▸ Web
    Analytics** ▸ **Add a site**.
-2. Hostname: `logicalenglish2.fly.dev` (the site is not proxied by
+2. Hostname: `le2.logicalcontracts.com`, the public address (the site is not proxied by
    Cloudflare, so the JS snippet is the way in; no DNS change).
 3. Cloudflare shows the snippet:
 
