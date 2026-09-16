@@ -1,5 +1,5 @@
 % Tests for le_service.pl — the module an embedder loads instead of reaching
-% into le_kbs and le_grammar (docs/LEintegrationImprovementPlan.md, R1–R3 in
+% into le_kbs and le_grammar (docs/project/plans/LEintegrationImprovementPlan.md, R1–R3 in
 % the LPS2 repository).
 %
 % What is worth testing here is not that Logical English parses — every other

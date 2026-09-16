@@ -128,8 +128,10 @@ main hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
             if (/^[a-z]+:/i.test(href) || href.startsWith('#')) continue;
             const url = new URL(href, location.href);
             if (url.origin === location.origin && url.pathname.endsWith('.md')) {
-                url.pathname = url.pathname.slice(0, -3);
-                a.setAttribute('href', url.pathname + url.hash);
+                // Developer and project documents are not served: read them on GitHub.
+                a.setAttribute('href', url.pathname.startsWith('/docs/user/')
+                    ? url.pathname.slice(0, -3) + url.hash
+                    : 'https://github.com/LogicalContracts/LogicalEnglish2/blob/main' + url.pathname + url.hash);
             }
         }
 
