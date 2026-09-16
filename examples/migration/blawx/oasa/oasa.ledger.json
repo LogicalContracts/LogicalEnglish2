@@ -1,0 +1,707 @@
+{
+  "counts": {"approximated":11,"encoded":58,"residue":5},
+  "entries": [
+    {
+      "element":"qualifies_s3_1_a/1",
+      "in_program":"*a person* qualifies under s3_1_a",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"person/1",
+      "in_program":"*a person* is a person",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pensioner_july/1",
+      "in_program":"*a person* was a pensioner on July 1 1977",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"meets_residence_requirement_s3_1_b_i/1",
+      "in_program":"*a person* meets the residence requirements of section 3_1_b_i",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"birthdate/2",
+      "in_program":"*a person* was born on *a time*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"resided_in_canada_july/1",
+      "in_program":"as of July 1977 *a person* resided in Canada",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"possessed_valid_immigration_visa_july/1",
+      "in_program":"as of July 1977 *a person* possessed a valid immigration visa",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"resided_in_canada_after_18_as_of_july/1",
+      "in_program":"as of July 1977 *a person* had resided in Canada after 18 years of age",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"meets_age_requirement_s3_1_b_ii/1",
+      "in_program":"*a person* meets the age requirement of section 3_1_b_ii",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawx_today/1",
+      "in_program":"the date today is *a time*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"qualifies_s3_1_b/1",
+      "in_program":"*a person* qualifies under s3_1_b",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"meets_residence_duration_requirement_s3_1_b_iii/1",
+      "in_program":"*a person* meets the residence duration requirement of section 3_1_b_iii",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"qualifies_s3_1_c/1",
+      "in_program":"*a person* qualifies under s3_1_c",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"meets_s3_1_c_i/1",
+      "in_program":"*a person* satisfies the non pensioner requirement of s3_1_c_i",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"meets_s3_1_c_ii/1",
+      "in_program":"*a person* satisfies the age requirement of s3_1_c_ii",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"meets_s3_1_c_iii/1",
+      "in_program":"*a person* satisfies the residency requirement of s3_1_c_iii",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"may_be_paid_full_monthly_pension/1",
+      "in_program":"a full monthly pension may be paid to *a person*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"resided_in_canada_10_years_prior_to_approval/1",
+      "in_program":"*a person* resided in canada for 10 years prior to approval",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"meets_aggregate_residence_requirement_s3_1_b_iii/1",
+      "in_program":"*a person* was in Canada more than away between 18 and 10 years prior to approval",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"has_resided_one_year_prior_to_approval/1",
+      "in_program":"*a person* resided in Canada for the year prior to approval",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"resided_40_years_after_18_yoa/1",
+      "in_program":"*a person* resided in Canada at least 40 years since the age of 18",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"satisfies_4_1_a/1",
+      "in_program":"*a person* satisfies section 4_1_a",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"satisfies_4_1_b/1",
+      "in_program":"*a person* satisfies section 4_1_b",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"citizen_or_resident_before_approval/1",
+      "in_program":"*a person* was a citizen or legal resident the day before approval",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_3__subsec_1__para_b__subpara_i_section, meets_residence_requirement_s3_1_b_i, ...)",
+      "in_program":"*a person* meets the residence requirements of section 3_1_b_i under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_3__subsec_1__para_b__subpara_ii_section, meets_age_requirement_s3_1_b_ii, ...)",
+      "in_program":"*a person* meets the age requirement of section 3_1_b_ii under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_3__subsec_1__para_b__subpara_iii_section, meets_residence_duration_requirement_s3_1_b_iii, ...)",
+      "in_program":"*a person* meets the residence duration requirement of section 3_1_b_iii under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_3__subsec_1__para_c__subpara_i_section, meets_s3_1_c_i, ...)",
+      "in_program":"*a person* satisfies the non pensioner requirement of s3_1_c_i under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_3__subsec_1__para_c__subpara_ii_section, meets_s3_1_c_ii, ...)",
+      "in_program":"*a person* satisfies the age requirement of s3_1_c_ii under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_3__subsec_1__para_c__subpara_iii_section, meets_s3_1_c_iii, ...)",
+      "in_program":"*a person* satisfies the residency requirement of s3_1_c_iii under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_3__subsec_1__para_a_section, qualifies_s3_1_a, ...)",
+      "in_program":"*a person* qualifies under s3_1_a under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_3__subsec_1__para_b_section, qualifies_s3_1_b, ...)",
+      "in_program":"*a person* qualifies under s3_1_b under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_3__subsec_1__para_c_section, qualifies_s3_1_c, ...)",
+      "in_program":"*a person* qualifies under s3_1_c under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_4__subsec_1_section, neg(may_be_paid_full_monthly_pension), ...)",
+      "in_program":"a full monthly pension may not be paid to *a person* under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_4__subsec_1__para_a_section, satisfies_4_1_a, ...)",
+      "in_program":"*a person* satisfies section 4_1_a under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holds(sec_4__subsec_1__para_b_section, satisfies_4_1_b, ...)",
+      "in_program":"*a person* satisfies section 4_1_b under *a provision*",
+      "kind":"section conclusion",
+      "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawx_now / blawx_today (2026-09-14)",
+      "in_program":"the date today",
+      "kind":"clock",
+      "mapping":"the machine clock -> a fact of the day the twin was built (the oracle uses the same)",
+      "note":"Blawx answers with the day it runs; the twin and the oracle with a fixed one",
+      "verdict":"approximated"
+    },
+    {
+      "element":"according_to(sec_3__subsec_1__para_a_section, qualifies_s3_1_a, ...) :- ...",
+      "in_program":"section_3_1_a",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_3__subsec_1__para_b__subpara_i_section,meets_residence_requirement_s3_1_b_i,_28566):-not(pensioner_july...",
+      "in_program":"section_3_1_b_i_residue",
+      "kind":"rule",
+      "mapping":"not translated: kept verbatim as a residue block",
+      "note":"calls datetime_add, which Blawx v1.6.22's reasoner does not define: the rule never applies in Blawx",
+      "verdict":"residue"
+    },
+    {
+      "element":"according_to(sec_3__subsec_1__para_b__subpara_i_section,meets_residence_requirement_s3_1_b_i,_28344):-not(pensioner_july...",
+      "in_program":"section_3_1_b_i_residue_2",
+      "kind":"rule",
+      "mapping":"not translated: kept verbatim as a residue block",
+      "note":"calls datetime_add, which Blawx v1.6.22's reasoner does not define: the rule never applies in Blawx",
+      "verdict":"residue"
+    },
+    {
+      "element":"according_to(sec_3__subsec_1__para_b__subpara_i_section,meets_residence_requirement_s3_1_b_i,_28122):-not(pensioner_july...",
+      "in_program":"section_3_1_b_i_residue_3",
+      "kind":"rule",
+      "mapping":"not translated: kept verbatim as a residue block",
+      "note":"calls datetime_add, which Blawx v1.6.22's reasoner does not define: the rule never applies in Blawx",
+      "verdict":"residue"
+    },
+    {
+      "element":"according_to(sec_3__subsec_1__para_b__subpara_ii_section,meets_age_requirement_s3_1_b_ii,_27806):-blawx_today(_27816),bi...",
+      "in_program":"section_3_1_b_ii_residue",
+      "kind":"rule",
+      "mapping":"not translated: kept verbatim as a residue block",
+      "note":"calls datetime_add, which Blawx v1.6.22's reasoner does not define: the rule never applies in Blawx",
+      "verdict":"residue"
+    },
+    {
+      "element":"according_to(sec_3__subsec_1__para_b_section, qualifies_s3_1_b, ...) :- ...",
+      "in_program":"section_3_1_b",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_3__subsec_1__para_c_section, qualifies_s3_1_c, ...) :- ...",
+      "in_program":"section_3_1_c",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_3__subsec_1_section, may_be_paid_full_monthly_pension, ...) :- ...",
+      "in_program":"section_3_1",
+      "kind":"rule",
+      "mapping":"a defeasible rule: guarded by the failure of its defeaters under their sections",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_3__subsec_1_section, may_be_paid_full_monthly_pension, ...) :- ...",
+      "in_program":"section_3_1_2",
+      "kind":"rule",
+      "mapping":"a defeasible rule: guarded by the failure of its defeaters under their sections",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_3__subsec_1_section, may_be_paid_full_monthly_pension, ...) :- ...",
+      "in_program":"section_3_1_3",
+      "kind":"rule",
+      "mapping":"a defeasible rule: guarded by the failure of its defeaters under their sections",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_3__subsec_1__para_b__subpara_iii_section, meets_residence_duration_requirement_s3_1_b_iii, ...) :- ...",
+      "in_program":"section_3_1_b_iii",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_3__subsec_1__para_b__subpara_iii_section, meets_residence_duration_requirement_s3_1_b_iii, ...) :- ...",
+      "in_program":"section_3_1_b_iii_2",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_3__subsec_1__para_c__subpara_ii_section,meets_s3_1_c_ii,_26330):-blawx_today(_26340),birthdate(_26330,_...",
+      "in_program":"section_3_1_c_ii_residue",
+      "kind":"rule",
+      "mapping":"not translated: kept verbatim as a residue block",
+      "note":"calls datetime_add, which Blawx v1.6.22's reasoner does not define: the rule never applies in Blawx",
+      "verdict":"residue"
+    },
+    {
+      "element":"according_to(sec_3__subsec_1__para_c__subpara_i_section, meets_s3_1_c_i, ...) :- ...",
+      "in_program":"section_3_1_c_i",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_3__subsec_1__para_c__subpara_iii_section, meets_s3_1_c_iii, ...) :- ...",
+      "in_program":"section_3_1_c_iii",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_4__subsec_1_section, -may_be_paid_full_monthly_pension, ...) :- ...",
+      "in_program":"section_4_1",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_4__subsec_1__para_a_section, satisfies_4_1_a, ...) :- ...",
+      "in_program":"section_4_1_a",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_4__subsec_1__para_b_section, satisfies_4_1_b, ...) :- ...",
+      "in_program":"section_4_1_b",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"0 blawx_as_of / blawx_during clauses",
+      "in_program":"nothing",
+      "kind":"temporal boilerplate",
+      "mapping":"left out: nothing reads it",
+      "note":"Blawx writes these for every attribute and relationship; no rule or test of this project reads them0",
+      "verdict":"encoded"
+    },
+    {
+      "element":"216 #pred annotations",
+      "in_program":"the templates",
+      "kind":"natural language",
+      "mapping":"the wording of each template; the holds / according_to / defeated forms are the rules themselves",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest generic_3_1",
+      "in_program":"generic_3_1",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest generic_3_1_a",
+      "in_program":"generic_3_1_a",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest generic_3_1_b",
+      "in_program":"generic_3_1_b",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"Blawx's own run of this test ends in an error (the query calls a predicate its reasoner does not define); no expectation",
+      "verdict":"approximated"
+    },
+    {
+      "element":"blawxtest generic_3_1_c",
+      "in_program":"generic_3_1_c",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"Blawx's own run of this test ends in an error (the query calls a predicate its reasoner does not define); no expectation",
+      "verdict":"approximated"
+    },
+    {
+      "element":"blawxtest generic_3_1_b_i",
+      "in_program":"generic_3_1_b_i",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"Blawx's own run of this test ends in an error (the query calls a predicate its reasoner does not define); no expectation",
+      "verdict":"approximated"
+    },
+    {
+      "element":"blawxtest generic_3_1_b_ii",
+      "in_program":"generic_3_1_b_ii",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"Blawx's own run of this test ends in an error (the query calls a predicate its reasoner does not define); no expectation",
+      "verdict":"approximated"
+    },
+    {
+      "element":"blawxtest generic_3_1_c_i",
+      "in_program":"generic_3_1_c_i",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"Blawx's own run of this test ends in an error (the query calls a predicate its reasoner does not define); no expectation",
+      "verdict":"approximated"
+    },
+    {
+      "element":"blawxtest generic_3_1_c_ii",
+      "in_program":"generic_3_1_c_ii",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"Blawx's own run of this test ends in an error (the query calls a predicate its reasoner does not define); no expectation",
+      "verdict":"approximated"
+    },
+    {
+      "element":"blawxtest generic_3_1_b_iii",
+      "in_program":"generic_3_1_b_iii",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"Blawx's own run of this test ends in an error (the query calls a predicate its reasoner does not define); no expectation",
+      "verdict":"approximated"
+    },
+    {
+      "element":"blawxtest generic_3_1_c_iii",
+      "in_program":"generic_3_1_c_iii",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"Blawx's own run of this test ends in an error (the query calls a predicate its reasoner does not define); no expectation",
+      "verdict":"approximated"
+    },
+    {
+      "element":"blawxtest generic_4_1",
+      "in_program":"generic_4_1",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest generic_4_1_a",
+      "in_program":"generic_4_1_a",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"Blawx's own run of this test ends in an error (the query calls a predicate its reasoner does not define); no expectation",
+      "verdict":"approximated"
+    },
+    {
+      "element":"blawxtest generic_4_1_b",
+      "in_program":"generic_4_1_b",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"Blawx's own run of this test ends in an error (the query calls a predicate its reasoner does not define); no expectation",
+      "verdict":"approximated"
+    },
+    {
+      "element":"blawxtest generic_eligible",
+      "in_program":"generic_eligible",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest true_or_false",
+      "in_program":"true_or_false",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest search",
+      "in_program":"search",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"15 cases generated from the rules",
+      "in_program":"the case_ scenarios",
+      "kind":"generated cases",
+      "mapping":"each rule met by facts, each near miss, each defeat: Blawx's answers as the expectations",
+      "note":"not Blawx's tests: written by blawx_cases.pl from the encoding; the answers are Blawx's own",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":20,
+    "tests": [
+      {"detail":"","query":"generic_3_1","result":"pass","scenario":"generic_3_1"},
+      {"detail":"","query":"generic_3_1_a","result":"pass","scenario":"generic_3_1_a"},
+      {"detail":"","query":"generic_4_1","result":"pass","scenario":"generic_4_1"},
+      {"detail":"","query":"generic_eligible","result":"pass","scenario":"generic_eligible"},
+      {"detail":"","query":"true_or_false","result":"pass","scenario":"true_or_false"},
+      {"detail":"","query":"search","result":"pass","scenario":"search"},
+      {
+	"detail":"",
+	"query":"which_qualifies_under_s3_1_a",
+	"result":"pass",
+	"scenario":"case_1"
+      },
+      {
+	"detail":"",
+	"query":"which_qualifies_under_s3_1_a",
+	"result":"pass",
+	"scenario":"case_1_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_qualifies_under_s3_1_a",
+	"result":"pass",
+	"scenario":"case_1_without_fact_2"
+      },
+      {
+	"detail":"",
+	"query":"which_a_full_monthly_pension_may_be_paid_to",
+	"result":"pass",
+	"scenario":"case_8"
+      },
+      {
+	"detail":"",
+	"query":"which_a_full_monthly_pension_may_be_paid_to",
+	"result":"pass",
+	"scenario":"case_8_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_a_full_monthly_pension_may_be_paid_to",
+	"result":"pass",
+	"scenario":"case_8_without_fact_2"
+      },
+      {
+	"detail":"",
+	"query":"which_meets_the_residence_duration_requirement_of_section_3_1_b_iii",
+	"result":"pass",
+	"scenario":"case_11"
+      },
+      {
+	"detail":"",
+	"query":"which_meets_the_residence_duration_requirement_of_section_3_1_b_iii",
+	"result":"pass",
+	"scenario":"case_12"
+      },
+      {
+	"detail":"",
+	"query":"which_meets_the_residence_duration_requirement_of_section_3_1_b_iii",
+	"result":"pass",
+	"scenario":"case_12_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_meets_the_residence_duration_requirement_of_section_3_1_b_iii",
+	"result":"pass",
+	"scenario":"case_12_without_fact_2"
+      },
+      {
+	"detail":"",
+	"query":"which_satisfies_the_residency_requirement_of_s3_1_c_iii",
+	"result":"pass",
+	"scenario":"case_15"
+      },
+      {
+	"detail":"",
+	"query":"which_a_full_monthly_pension_may_not_be_paid_to",
+	"result":"pass",
+	"scenario":"case_16"
+      },
+      {
+	"detail":"",
+	"query":"which_satisfies_section_4_1_a",
+	"result":"pass",
+	"scenario":"case_17"
+      },
+      {
+	"detail":"",
+	"query":"which_satisfies_section_4_1_b",
+	"result":"pass",
+	"scenario":"case_18"
+      }
+    ]
+  },
+  "meta": {
+    "artifacts": [
+      "sources/oasa.yaml",
+      "https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418"
+    ],
+    "date":"2026-09-15",
+    "licence":"Blawx: MIT",
+    "program":"oasa",
+    "source":"Old Age Security Act",
+    "translator":"InsurLE2/migration/blawx (blawx_twin.pl)"
+  },
+  "pending_expectations":1,
+  "source_tests":31
+}

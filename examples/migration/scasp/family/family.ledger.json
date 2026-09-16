@@ -1,0 +1,236 @@
+{
+  "counts": {"approximated":0,"encoded":27,"residue":0},
+  "entries": [
+    {
+      "element":"test1/1",
+      "in_program":"*a thing* is test one",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"test2/2",
+      "in_program":"*a thing* is the test two of *a second thing*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"test3/1",
+      "in_program":"*a thing* is test three",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"male/1",
+      "in_program":"*a thing* is a male",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"female/1",
+      "in_program":"*a thing* is a female",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"father/2",
+      "in_program":"*a thing* is the father of *a second thing*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"mother/2",
+      "in_program":"*a thing* is the mother of *a second thing*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"parent/2",
+      "in_program":"*a thing* is the parent of *a second thing*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"grandparent/2",
+      "in_program":"*a thing* is the grandparent of *a second thing*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"ancestor/2",
+      "in_program":"*a thing* is the ancestor of *a second thing*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"sibling/2",
+      "in_program":"*a thing* is the sibling of *a second thing*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"sister/2",
+      "in_program":"*a thing* is the sister of *a second thing*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"brother/2",
+      "in_program":"*a thing* is the brother of *a second thing*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"cousin/2",
+      "in_program":"*a thing* is the cousin of *a second thing*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"hardmath/1",
+      "in_program":"*a thing* is a hardmath",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of test1/1",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of test2/2",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of test3/1",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of parent/2",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of grandparent/2",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of ancestor/2",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of sibling/2",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of sister/2",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of brother/2",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of cousin/2",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of hardmath/1",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"?- ancestor(bob,sam)",
+      "in_program":"the queries",
+      "kind":"query",
+      "mapping":"a ?- query -> a query, asked in every scenario",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":1,
+    "tests": [ {"detail":"","query":"query_1","result":"pass","scenario":"the_program"} ]
+  },
+  "meta": {
+    "artifacts": ["family.pl" ],
+    "date":"2026-09-15",
+    "program":"family",
+    "source":"an s(CASP) program",
+    "translator":"InsurLE2/migration/scasp (scasp_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":1
+}

@@ -1,0 +1,62 @@
+% The Logical English twin of an s(CASP) program, written by the s(CASP) translator
+% (InsurLE2/migration/scasp) from turingcomplete-scasp.pl (kept in sources/).
+% Every expected answer in the scenarios is s(CASP)'s own answer on the source.
+
+the target language is: prolog.
+
+the templates are:
+    *a thing* some tm goes from to *a second thing*.
+    *a thing* it changes from to and from to *a second thing* with *a third thing* with *a fourth thing* with *a fifth thing*.
+    *a thing* the head of is leaving *a second thing* with *a third thing*.
+    *a thing* moves to and to *a second thing* with *a third thing* with *a fourth thing* with *a fifth thing*.
+    *a thing* is left after and is left after *a second thing* with *a third thing* with *a fourth thing*.
+    *a thing* says that and lead to and after performing *a second thing* with *a third thing* with *a fourth thing* with *a fifth thing* with *a sixth thing*.
+    *a thing* has as head before *a second thing* with *a third thing*.
+
+the knowledge base turingcomplete includes:
+
+the text of the source program is at "sources/turingcomplete-scasp.pl".
+
+a thing some tm goes from to a second thing if
+    q0 it changes from to and from to [] with a third thing with the thing with a fourth thing
+    and prolog (reverse(the third thing, T))
+    and prolog (append(T, the fourth thing, the second thing)).
+
+qf it changes from to and from to a thing with the thing with a second thing with the second thing.
+
+a thing it changes from to and from to a second thing with a third thing with a fourth thing with a fifth thing if
+    the fourth thing the head of is leaving a sixth thing with a thing T
+    and a thing N says that and lead to and after performing the thing with the sixth thing with a thing M with a thing K with a thing P
+    and a thing Q has as head before K with T
+    and P moves to and to the second thing with a thing R with Q with a thing S
+    and M it changes from to and from to R with the third thing with S with the fifth thing.
+
+[] the head of is leaving b with [].
+
+a thing the head of is leaving a second thing with a third thing if
+    the thing has as head before the second thing with the third thing.
+
+left moves to and to a thing with a second thing with a third thing with a fourth thing if
+    the thing is left after and is left after the second thing with the third thing with the fourth thing.
+
+stay moves to and to a thing with the thing with a second thing with the second thing.
+
+right moves to and to a thing with a second thing with a third thing with a fourth thing if
+    the second thing has as head before a fifth thing with the thing
+    and the third thing has as head before the fifth thing with the fourth thing.
+
+[] is left after and is left after [] with a thing with a second thing if
+    the second thing has as head before b with the thing.
+
+a thing is left after and is left after a second thing with a third thing with a fourth thing if
+    the thing has as head before a fifth thing with the second thing
+    and the fourth thing has as head before the fifth thing with the third thing.
+
+scenario machine_one is, as stated in the source program at scenario machine_one:
+    rule1 says that and lead to and after performing q0 with 1 with q0 with 1 with right.
+    rule2 says that and lead to and after performing q0 with b with qf with 1 with stay.
+    query_1 expects answers [].
+
+query query_1 is:
+    [1, 1, 1, b] some tm goes from to which thing.
+

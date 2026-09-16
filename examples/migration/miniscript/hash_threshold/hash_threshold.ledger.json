@@ -1,0 +1,115 @@
+{
+  "counts": {"approximated":1,"encoded":9,"residue":0},
+  "entries": [
+    {
+      "element":"pk(025cbdf0646e5db4eaa398f365f2ea7a0e3d419b7e0330e39ce92bddedcac4f9bc)",
+      "in_program":"the key holder",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"sha256(e38990d0c7fc009880a9c07c23842e886c6bbdc964ce6bdd5817ad357335ee6f)",
+      "in_program":"the payment secret",
+      "kind":"hash",
+      "mapping":"hash lock -> the witness reveals the preimage of <name>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"hash160(dd69735817e0e3f6f826a9238dc2e291184f0131)",
+      "in_program":"the release secret",
+      "kind":"hash",
+      "mapping":"hash lock -> the witness reveals the preimage of <name>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"thresh(2,pk(025cbdf0646e5db4eaa398f365f2ea7a0e3d419b7e0330e39ce92bddedcac4f9bc),sha256(e38990d0c7fc009880a9c07c23842e886c6bbdc964ce6bdd5817ad357335ee6f),hash160(dd69735817e0e3f6f826a9238dc2e291184f0131))",
+      "in_program":"two_of_three",
+      "kind":"spending path",
+      "mapping":"a branch of the top-level or -> a rule concluding the coin can be spent",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"thresh(2,pk(025cbdf0646e5db4eaa398f365f2ea7a0e3d419b7e0330e39ce92bddedcac4f9bc),sha256(e38990d0c7fc009880a9c07c23842e886c6bbdc964ce6bdd5817ad357335ee6f),hash160(dd69735817e0e3f6f826a9238dc2e291184f0131))",
+      "in_program":"a count aggregate",
+      "kind":"threshold",
+      "mapping":"thresh(k, conditions) -> the count of the named conditions that are met is at least k",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a:",
+      "in_program":"the rules",
+      "kind":"fragment",
+      "mapping":"a wrapper: no effect on the policy (BIP 379)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"c:",
+      "in_program":"the rules",
+      "kind":"fragment",
+      "mapping":"a wrapper: no effect on the policy (BIP 379)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pk_h",
+      "in_program":"the rules",
+      "kind":"fragment",
+      "mapping":"a key check -> a signature",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"s:",
+      "in_program":"the rules",
+      "kind":"fragment",
+      "mapping":"a wrapper: no effect on the policy (BIP 379)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the Script encoding",
+      "in_program":"the whole program",
+      "kind":"script",
+      "mapping":"the twin is the spending policy (BIP 379, the semantics column), not the Script",
+      "note":"witness sizes, fees, malleability and the choice of fragments (or_d / or_i, wrappers) do not change who can spend, and are not in the twin",
+      "verdict":"approximated"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":14,
+    "tests": [
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_2_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_2_without_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_3"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_3_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_3_without_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"no_witness"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"lost_the_key_holder"},
+      {"detail":"","query":"flip_spend","result":"pass","scenario":"flip_now"},
+      {"detail":"","query":"flip_spend","result":"pass","scenario":"flip_after_delays"},
+      {"detail":"","query":"flip_block","result":"pass","scenario":"lost_the_key_holder"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["https://github.com/bitcoin/bitcoin/blob/master/src/test/miniscript_tests.cpp" ],
+    "date":"2026-09-15",
+    "program":"hash_threshold",
+    "source":"Two of a signature, a SHA-256 preimage and a HASH160 preimage",
+    "translator":"InsurLE2/migration/miniscript (ms_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":13
+}

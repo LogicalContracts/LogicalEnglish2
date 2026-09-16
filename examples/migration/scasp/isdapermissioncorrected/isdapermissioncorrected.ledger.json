@@ -1,0 +1,124 @@
+{
+  "counts": {"approximated":0,"encoded":13,"residue":0},
+  "entries": [
+    {
+      "element":"it_is_permitted_that/1",
+      "in_program":"it is permitted that *an eventuality*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"of_Default_occurs_with_respect_to_at/3",
+      "in_program":"*an event* of Default occurs with respect to *a party* at *a time*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_continuing_at/2",
+      "in_program":"*an event* is continuing at *a time*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"gives_notice_to_at_that/4",
+      "in_program":"*a party* gives notice to *a party* at *a time* that *a message*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_on_or_before/2",
+      "in_program":"*a date* isonorbefore *a date*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_not_more_than_days_after/3",
+      "in_program":"*a time* isnot more than *a number* days after *a time*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the_Schedule_specifies_that/1",
+      "in_program":"the Schedule specifies that *a specification*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Automatic_Early_Termination_applies_to_for_of_Default/2",
+      "in_program":"Automatic Early Termination applies to *a party* for *an event* of Default",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"occurs_at/2",
+      "in_program":"*an event* occurs at *a time*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"designates_that/2",
+      "in_program":"*a party* designates that *an eventuality*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of it_is_permitted_that/1",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Scenario one",
+      "in_program":"one",
+      "kind":"scenario",
+      "mapping":"an LE1 scenario -> a scenario",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"?- it_is_permitted_that(designates_that(_72584,occurs_at(_72590,_72592)))",
+      "in_program":"the queries",
+      "kind":"query",
+      "mapping":"a ?- query -> a query, asked in every scenario",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":1,
+    "tests": [ {"detail":"","query":"query_1","result":"pass","scenario":"one"} ]
+  },
+  "meta": {
+    "artifacts": ["isdapermissioncorrected-scasp.pl" ],
+    "date":"2026-09-15",
+    "program":"isdapermissioncorrected",
+    "source":"an s(CASP) program",
+    "translator":"InsurLE2/migration/scasp (scasp_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":1
+}

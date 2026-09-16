@@ -1,0 +1,108 @@
+{
+  "counts": {"approximated":0,"encoded":11,"residue":0},
+  "entries": [
+    {
+      "element":"is_a_valid_contract/1",
+      "in_program":"*a contract* is a valid contract",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"The_terms_of_the_contract_are_met/0",
+      "in_program":"The terms of the contract are met",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the_service_is_delivered_before/1",
+      "in_program":"the service is delivered before *a date*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the_service_recipient_maintains_all_communication_within_the_confines_of/1",
+      "in_program":"the service recipient maintains all communication within the confines of *a domain*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the_service_recipient_delivers_requested_information_before/1",
+      "in_program":"the service recipient delivers requested information before *a date*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_signed_by_the_service_provider/1",
+      "in_program":"*a contract* is signed by the service provider",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_also_signed_by_the_service_recipient/1",
+      "in_program":"*a contract* is also signed by the service recipient",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of is_a_valid_contract/1",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of The_terms_of_the_contract_are_met/0",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Scenario one",
+      "in_program":"one",
+      "kind":"scenario",
+      "mapping":"an LE1 scenario -> a scenario",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"?- is_a_valid_contract(_159218)",
+      "in_program":"the queries",
+      "kind":"query",
+      "mapping":"a ?- query -> a query, asked in every scenario",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":1,
+    "tests": [ {"detail":"","query":"query_1","result":"pass","scenario":"one"} ]
+  },
+  "meta": {
+    "artifacts": ["minicontract-scasp.pl" ],
+    "date":"2026-09-15",
+    "program":"minicontract",
+    "source":"an s(CASP) program",
+    "translator":"InsurLE2/migration/scasp (scasp_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":1
+}

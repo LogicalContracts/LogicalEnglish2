@@ -1,0 +1,19 @@
+# The spending policy of the Logical English twin bolt3_received_htlc.
+#
+# source: the Miniscript page
+#         https://bitcoin.sipa.be/miniscript/
+#
+# sipa's compiler (P2WSH) makes it the Miniscript:
+#     andor(pk(key_remote),or_i(and_v(v:pkh(key_local),hash160(H)),older(1008)),pk(key_revocation))
+# try it in Minsc (policy -> Miniscript -> Script -> address, in the browser):
+#     https://min.sc/#c=//%20A%20Lightning%20received%20HTLC%20(BOLT%20%233)%0A//%20The%20Logical%20English%20twin's%20policy%20(InsurLE2/migration/miniscript).%0A$revocation_key%20=%20028071f961bf66967e8b92b2564cca5590e958305ce382ebeeb56e866b6baf3edc;%20%20%20//%20the%20revocation%20key%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$remote_node%20=%20020df516861bd00658af8cf7c4655ceb20f61ba23075a37244dff7db5676c93234;%20%20%20//%20the%20remote%20node%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$local_node%20=%20038fed93f74b169ba9410f1a39dde6b9c6eea84650dc79967a27f52757c197fbc8;%20%20%20//%20the%20local%20node%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$payment_hash%20=%2005e3ba7e31a630b74c699bd5ddd19be207987f26;%20%20%20//%20the%20payment%20hash,%20hash160%20(the%20hash%20of%20a%20test%20preimage:%20the%20source%20names%20no%20hash)%0A%0Aor(pk($revocation_key),and(pk($remote_node),or(and(pk($local_node),hash160($payment_hash)),older(1008))))%0A
+#
+# File > Open in the Logical English editor translates this file into the twin.
+
+key_revocation = the revocation key
+key_remote = the remote node
+key_local = the local node
+H = the payment hash
+
+# A Lightning received HTLC (BOLT #3)
+or(pk(key_revocation),and(pk(key_remote),or(and(pk(key_local),hash160(H)),older(1008))))

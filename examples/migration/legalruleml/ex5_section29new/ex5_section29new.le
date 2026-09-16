@@ -1,0 +1,119 @@
+% The Logical English twin of a LegalRuleML document, written by the LegalRuleML translator
+% (InsurLE2/migration/legalruleml) from ex5-section29new-normal.lrml (kept in sources/).
+% Obligations, permissions and prohibitions are the deontic library's (deontic.le).
+% Every expected answer in the scenarios is SPINdle's (defeasible deontic logic) on the source.
+
+the target language is: prolog.
+
+the knowledge base ex5_section29new includes these resources:
+    deontic.
+
+the templates are:
+    *a person* engages in a credit activity.
+    *a person* holds a credit licence.
+    *a person* is imprisoned for *a term*.
+    *a person* pays *a number* civil penalty units.
+    *a person* pays *a number* penalty units and is imprisoned for *a term*.
+    *a person* pays *a number* penalty units.
+    *a person* is a person.
+
+the knowledge base ex5_section29new includes:
+
+the text of the source document is at "sources/ex5-section29new-normal.lrml".
+
+ls1 is published at "http://www.comlaw.gov.au/Details/C2009A00134/Html/Text#param43".
+
+rule ps1:
+a party is forbidden that the party engages in a credit activity if
+    the party is a person
+    and it is not the case that the party holds a credit licence.
+
+rule ps2:
+a party is permitted that the party engages in a credit activity if
+    the party holds a credit licence.
+
+% reparation reparation_1: the penalty pen2 for a violation of ps1
+rule reparation_1_1:
+a party is obliged that the party pays 200 penalty units if
+    the prohibition of the party that the party engages in a credit activity is violated.
+
+rule reparation_1_2:
+a party is obliged that the party is imprisoned for 2 years if
+    the prohibition of the party that the party engages in a credit activity is violated
+    and the obligation of the party that the party pays 200 penalty units is violated.
+
+rule reparation_1_3:
+a party is obliged that the party pays 200 penalty units and is imprisoned for 2 years if
+    the prohibition of the party that the party engages in a credit activity is violated
+    and the obligation of the party that the party pays 200 penalty units is violated
+    and the obligation of the party that the party is imprisoned for 2 years is violated.
+
+% reparation assoc1: the penalty pen1 for a violation of ps1
+rule assoc1:
+a party is obliged that the party pays 2000 civil penalty units if
+    the prohibition of the party that the party engages in a credit activity is violated.
+
+scenario unlicensed_trader is:
+    % s. 29(1): a person must not engage in a credit activity without a licence. Alice does, and pays the 200 penalty units but not the 2000 civil penalty units.
+    alice is a person.
+    alice engages in a credit activity.
+    alice pays 200 penalty units.
+    prohibitions expects answers ["alice is forbidden that alice engages in a credit activity"].
+    obligations expects answers ["alice is obliged that alice pays 2000 civil penalty units", "alice is obliged that alice pays 200 penalty units"].
+    permissions expects answers [].
+    violated_obligations expects answers ["the obligation of alice that alice pays 2000 civil penalty units is violated"].
+    violated_prohibitions expects answers ["the prohibition of alice that alice engages in a credit activity is violated"].
+    breaches expects answers ["alice is in breach"].
+
+scenario licensed_trader is:
+    % s. 29(2): the prohibition does not apply to a licensee.
+    bob is a person.
+    bob engages in a credit activity.
+    bob holds a credit licence.
+    prohibitions expects answers [].
+    obligations expects answers [].
+    permissions expects answers ["bob is permitted that bob engages in a credit activity"].
+    violated_obligations expects answers [].
+    violated_prohibitions expects answers [].
+    breaches expects answers [].
+
+scenario no_activity is:
+    % The prohibition holds, and nothing violates it.
+    carol is a person.
+    prohibitions expects answers ["carol is forbidden that carol engages in a credit activity"].
+    obligations expects answers [].
+    permissions expects answers [].
+    violated_obligations expects answers [].
+    violated_prohibitions expects answers [].
+    breaches expects answers [].
+
+scenario defaulter is:
+    % Dave pays the civil penalty but not the penalty units: the suborder list runs on to imprisonment, and then to both.
+    dave is a person.
+    dave engages in a credit activity.
+    dave pays 2000 civil penalty units.
+    prohibitions expects answers ["dave is forbidden that dave engages in a credit activity"].
+    obligations expects answers ["dave is obliged that dave is imprisoned for 2 years", "dave is obliged that dave pays 2000 civil penalty units", "dave is obliged that dave pays 200 penalty units", "dave is obliged that dave pays 200 penalty units and is imprisoned for 2 years"].
+    permissions expects answers [].
+    violated_obligations expects answers ["the obligation of dave that dave is imprisoned for 2 years is violated", "the obligation of dave that dave pays 200 penalty units is violated", "the obligation of dave that dave pays 200 penalty units and is imprisoned for 2 years is violated"].
+    violated_prohibitions expects answers ["the prohibition of dave that dave engages in a credit activity is violated"].
+    breaches expects answers ["dave is in breach"].
+
+query prohibitions is:
+    which party is forbidden that which sentence.
+
+query obligations is:
+    which party is obliged that which sentence.
+
+query permissions is:
+    which party is permitted that which sentence.
+
+query violated_obligations is:
+    the obligation of which party that which sentence is violated.
+
+query violated_prohibitions is:
+    the prohibition of which party that which sentence is violated.
+
+query breaches is:
+    which party is in breach.
+

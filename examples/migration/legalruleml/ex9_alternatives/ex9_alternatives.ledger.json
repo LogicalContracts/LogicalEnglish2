@@ -1,0 +1,239 @@
+{
+  "counts": {"approximated":10,"encoded":18,"residue":0},
+  "entries": [
+    {
+      "element":"Rel A/0",
+      "in_program":"a holds",
+      "kind":"relation",
+      "mapping":"Rel -> a template (a naive wording of its name, to be improved)",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Rel B/0",
+      "in_program":"b holds",
+      "kind":"relation",
+      "mapping":"Rel -> a template (a naive wording of its name, to be improved)",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Rel C/0",
+      "in_program":"c holds",
+      "kind":"relation",
+      "mapping":"Rel -> a template (a naive wording of its name, to be improved)",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Rel D/0",
+      "in_program":"d holds",
+      "kind":"relation",
+      "mapping":"Rel -> a template (a naive wording of its name, to be improved)",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"prescriptive statement ps1",
+      "in_program":"ps1",
+      "kind":"statement",
+      "mapping":"PrescriptiveStatement -> rules concluding obligations, permissions or prohibitions (deontic.le)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"constitutive statement cs2",
+      "in_program":"cs2",
+      "kind":"statement",
+      "mapping":"ConstitutiveStatement -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"constitutive statement cs_a-b_and_c",
+      "in_program":"cs_a_b_and_c_1",
+      "kind":"statement",
+      "mapping":"ConstitutiveStatement -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"constitutive statement cs_a-b_and_c",
+      "in_program":"cs_a_b_and_c_2",
+      "kind":"statement",
+      "mapping":"ConstitutiveStatement -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"constitutive statement cs_a-b",
+      "in_program":"cs_a_b",
+      "kind":"statement",
+      "mapping":"ConstitutiveStatement -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"constitutive statement cs_a-c",
+      "in_program":"cs_a_c",
+      "kind":"statement",
+      "mapping":"ConstitutiveStatement -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"constitutive statement cs_d-b_and_c",
+      "in_program":"cs_d_b_and_c_1",
+      "kind":"statement",
+      "mapping":"ConstitutiveStatement -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"constitutive statement cs_d-b_and_c",
+      "in_program":"cs_d_b_and_c_2",
+      "kind":"statement",
+      "mapping":"ConstitutiveStatement -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"constitutive statement cs_d-b",
+      "in_program":"cs_d_b",
+      "kind":"statement",
+      "mapping":"ConstitutiveStatement -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"constitutive statement cs_d-c",
+      "in_program":"cs_d_c",
+      "kind":"statement",
+      "mapping":"ConstitutiveStatement -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ref1",
+      "in_program":"ref1",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ref2",
+      "in_program":"ref2",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ref8",
+      "in_program":"ref8",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ls3",
+      "in_program":"ls3",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Alternatives alt1",
+      "in_program":"alt1",
+      "kind":"alternatives",
+      "mapping":"Alternatives -> each alternative's rules hold when it is the interpretation adopted",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Alternatives alt2",
+      "in_program":"alt2",
+      "kind":"alternatives",
+      "mapping":"Alternatives -> each alternative's rules hold when it is the interpretation adopted",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Alternatives alt3",
+      "in_program":"alt3",
+      "kind":"alternatives",
+      "mapping":"Alternatives -> each alternative's rules hold when it is the interpretation adopted",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Alternatives alt4",
+      "in_program":"alt4",
+      "kind":"alternatives",
+      "mapping":"Alternatives -> each alternative's rules hold when it is the interpretation adopted",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ls1 of cs_a-b_and_c",
+      "in_program":"cs_a-b_and_c",
+      "kind":"source",
+      "mapping":"an Association names a source the document does not list: no provenance",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"source ls1 of cs_a-b",
+      "in_program":"cs_a-b",
+      "kind":"source",
+      "mapping":"an Association names a source the document does not list: no provenance",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"source ls1 of cs_a-c",
+      "in_program":"cs_a-c",
+      "kind":"source",
+      "mapping":"an Association names a source the document does not list: no provenance",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"source ls2 of cs_d-b_and_c",
+      "in_program":"cs_d-b_and_c",
+      "kind":"source",
+      "mapping":"an Association names a source the document does not list: no provenance",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"source ls2 of cs_d-b",
+      "in_program":"cs_d-b",
+      "kind":"source",
+      "mapping":"an Association names a source the document does not list: no provenance",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"source ls2 of cs_d-c",
+      "in_program":"cs_d-c",
+      "kind":"source",
+      "mapping":"an Association names a source the document does not list: no provenance",
+      "note":"",
+      "verdict":"approximated"
+    }
+  ],
+  "fidelity":null,
+  "meta": {
+    "artifacts": ["ex9-alternatives-normal.lrml" ],
+    "date":"2026-09-15",
+    "program":"ex9_alternatives",
+    "source":"a LegalRuleML document (OASIS LegalRuleML Core 1.0)",
+    "translator":"InsurLE2/migration/legalruleml (lrml_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":0
+}

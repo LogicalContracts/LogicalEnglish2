@@ -1,0 +1,113 @@
+% Wills Act
+%
+% The Logical English twin of a Blawx encoding, written by the Blawx translator
+% (InsurLE2/migration/blawx). Each rule is a rule of the Act as Blawx encodes it,
+% in the words of Blawx's own sentence forms, citing its section; the project's
+% tests are the scenarios, with Blawx's own answers as the expectations.
+%
+% Source: the Blawx project "Wills Act" (wills.yaml, 3 sections), an example of
+%         Blawx v1.6.22-alpha (Lexpedite, MIT licence), commit 3de892f67854292b304c9a55c5e2cd2058d3d418.
+
+the target language is: prolog.
+
+the templates are:
+    *a person* may make a will.
+    *a person* is a person; scenario element.
+    *a person* is *a number* years of age; scenario element.
+    *a person* is an active military member; scenario element.
+
+the knowledge base wills includes:
+
+the text of the Wills Act is at "sources/wills.md".
+
+the text of the Blawx project is at "sources/wills.yaml".
+
+% The Act, section by section.
+rule section_1 with provenance the Wills Act at section 1:
+a person may make a will if
+    the person is a person
+    and the person is a number N years of age
+    and N >= 18.
+
+rule section_2 with provenance the Wills Act at section 2:
+a person may make a will if
+    the person is a person
+    and the person is an active military member
+    and the person is a number N years of age
+    and N >= 14.
+
+scenario valid_will is, as stated in the Blawx project at test valid_will:
+    valid_will expects answers [].
+
+scenario case_1 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    person_a is 18 years of age.
+    which_may_make_a_will expects answers ["person_a may make a will"].
+
+scenario case_1_without_fact_1 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_a is 18 years of age.
+    which_may_make_a_will expects answers [].
+
+scenario case_1_without_fact_2 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    which_may_make_a_will expects answers [].
+
+scenario case_1_missing_comparison_1 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    person_a is 17 years of age.
+    which_may_make_a_will expects answers [].
+
+scenario case_2 is, as stated in the case analysis of the encoding at section 2:
+    % a case of the rule of section 2 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    person_a is an active military member.
+    person_a is 14 years of age.
+    which_may_make_a_will expects answers ["person_a may make a will"].
+
+scenario case_2_without_fact_1 is, as stated in the case analysis of the encoding at section 2:
+    % a case of the rule of section 2 (blawx_cases.pl), answered by Blawx
+    person_a is an active military member.
+    person_a is 14 years of age.
+    which_may_make_a_will expects answers [].
+
+scenario case_2_without_fact_2 is, as stated in the case analysis of the encoding at section 2:
+    % a case of the rule of section 2 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    person_a is 14 years of age.
+    which_may_make_a_will expects answers [].
+
+scenario case_2_without_fact_3 is, as stated in the case analysis of the encoding at section 2:
+    % a case of the rule of section 2 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    person_a is an active military member.
+    which_may_make_a_will expects answers [].
+
+scenario case_2_missing_comparison_1 is, as stated in the case analysis of the encoding at section 2:
+    % a case of the rule of section 2 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    person_a is an active military member.
+    person_a is 13 years of age.
+    which_may_make_a_will expects answers [].
+
+query valid_will is:
+    which person may make a will.
+
+query which_may_make_a_will is:
+    which person may make a will.
+
+the view the act is:
+    the title is "Wills Act, as Blawx encodes it".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the case" are
+        a person is a person,
+        a person is a number years of age,
+        a person is an active military member.
+    the result is the answer to query which_may_make_a_will.
+    the result shows its reasons.
+    the result shows its citations.
+    the result can be flipped.
+

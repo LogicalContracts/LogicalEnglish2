@@ -1,0 +1,236 @@
+{
+  "counts": {"approximated":1,"encoded":19,"residue":0},
+  "entries": [
+    {
+      "element":"sign/1",
+      "in_program":"*a sign* is a sign",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"beats/2",
+      "in_program":"*a sign* beats *a second sign*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"winner/2",
+      "in_program":"the winner of *a game* is *a player*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"game/1",
+      "in_program":"*a game* is a game",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"player/1",
+      "in_program":"*a player* is a player",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"player/2",
+      "in_program":"*a player* played in *a game*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"throw/3",
+      "in_program":"*a player* threw *a sign* in *a game*",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"sign(rock)",
+      "in_program":"sign(rock)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"sign(paper)",
+      "in_program":"sign(paper)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"sign(scissors)",
+      "in_program":"sign(scissors)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"beats(rock,scissors)",
+      "in_program":"beats(rock,scissors)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"beats(paper,rock)",
+      "in_program":"beats(paper,rock)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"beats(scissors,paper)",
+      "in_program":"beats(scissors,paper)",
+      "kind":"fact",
+      "mapping":"a fact of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_4_section, winner, ...) :- ...",
+      "in_program":"section_4",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"18 blawx_as_of / blawx_during clauses",
+      "in_program":"nothing",
+      "kind":"temporal boilerplate",
+      "mapping":"left out: nothing reads it",
+      "note":"Blawx writes these for every attribute and relationship; no rule or test of this project reads them1 (1 of them do not parse: typos of Blawx's generator)",
+      "verdict":"encoded"
+    },
+    {
+      "element":"83 #pred annotations",
+      "in_program":"the templates",
+      "kind":"natural language",
+      "mapping":"the wording of each template; the holds / according_to / defeated forms are the rules themselves",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest bobjane",
+      "in_program":"bobjane",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest hypothetical",
+      "in_program":"hypothetical",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"abductive: the test lets s(CASP) assume game/1, player/2, throw/3 (#abducible); Blawx's answers are hypotheses, which an LE scenario states as facts or not at all",
+      "verdict":"approximated"
+    },
+    {
+      "element":"blawxtest who_wins",
+      "in_program":"who_wins",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"9 cases generated from the rules",
+      "in_program":"the case_ scenarios",
+      "kind":"generated cases",
+      "mapping":"each rule met by facts, each near miss, each defeat: Blawx's answers as the expectations",
+      "note":"not Blawx's tests: written by blawx_cases.pl from the encoding; the answers are Blawx's own",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":11,
+    "tests": [
+      {"detail":"","query":"bobjane","result":"pass","scenario":"bobjane"},
+      {"detail":"","query":"who_wins","result":"pass","scenario":"who_wins"},
+      {"detail":"","query":"which_the_winner_of_is","result":"pass","scenario":"case_1"},
+      {
+	"detail":"",
+	"query":"which_the_winner_of_is",
+	"result":"pass",
+	"scenario":"case_1_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_the_winner_of_is",
+	"result":"pass",
+	"scenario":"case_1_without_fact_2"
+      },
+      {
+	"detail":"",
+	"query":"which_the_winner_of_is",
+	"result":"pass",
+	"scenario":"case_1_without_fact_3"
+      },
+      {
+	"detail":"",
+	"query":"which_the_winner_of_is",
+	"result":"pass",
+	"scenario":"case_1_without_fact_4"
+      },
+      {
+	"detail":"",
+	"query":"which_the_winner_of_is",
+	"result":"pass",
+	"scenario":"case_1_without_fact_5"
+      },
+      {
+	"detail":"",
+	"query":"which_the_winner_of_is",
+	"result":"pass",
+	"scenario":"case_1_without_fact_6"
+      },
+      {
+	"detail":"",
+	"query":"which_the_winner_of_is",
+	"result":"pass",
+	"scenario":"case_1_without_fact_7"
+      },
+      {
+	"detail":"",
+	"query":"which_the_winner_of_is",
+	"result":"pass",
+	"scenario":"case_1_without_fact_8"
+      }
+    ]
+  },
+  "meta": {
+    "artifacts": [
+      "sources/rps.yaml",
+      "https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418"
+    ],
+    "date":"2026-09-15",
+    "licence":"Blawx: MIT",
+    "program":"rps",
+    "source":"Rock Paper Scissors Act",
+    "translator":"InsurLE2/migration/blawx (blawx_twin.pl)"
+  },
+  "pending_expectations":1,
+  "source_tests":12
+}

@@ -1,0 +1,83 @@
+- model: blawx.ruledoc
+  pk: 3
+  fields:
+    ruledoc_name: Mortality Act
+    rule_text: "Mortality Act\r\n\r\n1. Humans are mortal."
+    scasp_encoding: ''
+    tutorial: ''
+    owner: 3
+    published: false
+- model: blawx.workspace
+  pk: 29
+  fields:
+    ruledoc: 3
+    workspace_name: root_section
+    xml_content: ''
+    scasp_encoding: ''
+- model: blawx.workspace
+  pk: 30
+  fields:
+    ruledoc: 3
+    workspace_name: sec_1_section
+    xml_content: <xml xmlns="https://developers.google.com/blockly/xml"><block type="unattributed_fact"
+      id="z|*~jnplHM7KQUaYz%2f" x="29" y="35"><statement name="statements"><block
+      type="new_category_declaration" id="Tmn)r/4a0^niLI-Se-7@"><field name="category_name">human</field><field
+      name="prefix"></field><field name="first_element">object</field><field name="postfix">is
+      a human</field><next><block type="new_category_declaration" id="ENBSrs7l$o%?#R%MK-.M"><field
+      name="category_name">mortal</field><field name="prefix"></field><field name="first_element">object</field><field
+      name="postfix">is a mortal</field></block></next></block></statement></block><block
+      type="attributed_rule" id="*9pS+%NyIAsXQK5Q+Uh9" x="28" y="225"><field name="defeasible">FALSE</field><field
+      name="inapplicable">FALSE</field><statement name="conditions"><block type="new_object_category"
+      id="h/oy(7,LSvtkRb34l||0"><mutation xmlns="http://www.w3.org/1999/xhtml" category_name="human"></mutation><field
+      name="category_name">human</field><value name="object"><block type="variable"
+      id="=d*rnnm~`SDfXzNcC-FJ"><field name="variable_name">A</field></block></value></block></statement><value
+      name="source"><block type="doc_selector" id="5us_Jcb-?,4mHTY!f+.g"><mutation
+      xmlns="http://www.w3.org/1999/xhtml" section_reference="sec_1_section"></mutation><field
+      name="doc_part_name">MA 1</field></block></value><statement name="conclusion"><block
+      type="new_object_category" id="9Z;zlYqV80Hl,]r:_lYv"><mutation xmlns="http://www.w3.org/1999/xhtml"
+      category_name="mortal"></mutation><field name="category_name">mortal</field><value
+      name="object"><block type="variable" id="5nP(jMWSc(9_Nx9dPU4d"><field name="variable_name">A</field></block></value></block></statement></block></xml>
+    scasp_encoding: "blawx_category(human).\nblawx_category_nlg(human,\"\",\"is a
+      human\").\n#pred human(X) :: '@(X) is a human'.\n#pred holds(user,human,X) ::
+      'it is provided as a fact that @(X) is a human'.\n#pred holds(user,-human,X)
+      :: 'it is provided as a fact that it is not the case that @(X) is a human'.\n#pred
+      holds(Z,human,X) :: 'the conclusion in @(Z) that @(X) is a human holds'.\n#pred
+      holds(Z,-human,X) :: 'the conclusion in @(Z) that it is not the case that @(X)
+      is a human holds'.\n#pred according_to(Z,human,X) :: 'according to @(Z), @(X)
+      is a human'.\n#pred according_to(Z,-human,X) :: 'according to @(Z), it is not
+      the case that @(X) is a human'.\n#pred blawx_defeated(Z,human,X) :: 'the conclusion
+      in @(Z) that @(X) is a human is defeated'.\n#pred blawx_defeated(Z,-human,X)
+      :: 'the conclusion in @(Z) that @(X) is a human is defeated'.\nblawx_category(mortal).\nblawx_category_nlg(mortal,\"\",\"is
+      a mortal\").\n#pred mortal(X) :: '@(X) is a mortal'.\n#pred holds(user,mortal,X)
+      :: 'it is provided as a fact that @(X) is a mortal'.\n#pred holds(user,-mortal,X)
+      :: 'it is provided as a fact that it is not the case that @(X) is a mortal'.\n#pred
+      holds(Z,mortal,X) :: 'the conclusion in @(Z) that @(X) is a mortal holds'.\n#pred
+      holds(Z,-mortal,X) :: 'the conclusion in @(Z) that it is not the case that @(X)
+      is a mortal holds'.\n#pred according_to(Z,mortal,X) :: 'according to @(Z), @(X)
+      is a mortal'.\n#pred according_to(Z,-mortal,X) :: 'according to @(Z), it is
+      not the case that @(X) is a mortal'.\n#pred blawx_defeated(Z,mortal,X) :: 'the
+      conclusion in @(Z) that @(X) is a mortal is defeated'.\n#pred blawx_defeated(Z,-mortal,X)
+      :: 'the conclusion in @(Z) that @(X) is a mortal is defeated'.\n\naccording_to(sec_1_section,mortal,A)
+      :- human(A).\n\n% BLAWX CHECK DUPLICATES\nholds(sec_1_section,mortal,A) :- according_to(sec_1_section,mortal,A).\n\n%
+      BLAWX CHECK DUPLICATES\n  mortal(A) :- holds(sec_1_section,mortal,A)."
+- model: blawx.blawxtest
+  pk: 20
+  fields:
+    ruledoc: 3
+    test_name: Socrates
+    xml_content: <xml xmlns="https://developers.google.com/blockly/xml"><block type="unattributed_fact"
+      id="2dUMwN4jMd,pJT=*{sI{" x="80" y="40"><statement name="statements"><block
+      type="object_declaration" id="(CqEDRPd^5?N@~C.qu)b"><mutation xmlns="http://www.w3.org/1999/xhtml"
+      category_name="human" prefix="null" postfix="null"></mutation><field name="prefix"></field><field
+      name="object_name">socrates</field><field name="postfix">is a human</field></block></statement></block><block
+      type="query" id="p*7^*eHhML#HIBn-DNEX" x="69" y="110"><statement name="query"><block
+      type="new_object_category" id="e9s,k,S`!r+0h!?1x|3T"><mutation xmlns="http://www.w3.org/1999/xhtml"
+      category_name="mortal"></mutation><field name="category_name">mortal</field><value
+      name="object"><block type="variable" id="xWU1}ck_/p`2mZ|X!d3P"><field name="variable_name">Anything</field></block></value></block></statement></block></xml>
+    scasp_encoding: 'human(socrates).
+
+
+      ?- mortal(Anything).'
+    tutorial: ''
+    view: ''
+    fact_scenario: ''

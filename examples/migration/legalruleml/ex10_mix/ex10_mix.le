@@ -1,0 +1,36 @@
+% The Logical English twin of a LegalRuleML document, written by the LegalRuleML translator
+% (InsurLE2/migration/legalruleml) from ex10-mix-normal.lrml (kept in sources/).
+% Obligations, permissions and prohibitions are the deontic library's (deontic.le).
+% Every expected answer in the scenarios is SPINdle's (defeasible deontic logic) on the source.
+
+the target language is: prolog.
+
+the knowledge base ex10_mix includes these resources:
+    deontic.
+
+the templates are:
+    *a thing* is a rel2.
+    *a thing* is a rel3.
+    the relevant date is *a date*.
+
+the knowledge base ex10_mix includes:
+
+the text of the source document is at "sources/ex10-mix-normal.lrml".
+
+ref1 is published at "/akn/au/2012-05-30/C628-2012/eng@/!main#sec_2-2".
+
+ref6 is published at "ECLI:EU:C:2015:650".
+
+ls1 is published at "http://example.org/external-legal-statement".
+
+ref2 is published at "http://www.law.cornell.edu/uscode/text/17/504#psection-1".
+
+pen1_v1 is published at "http://original-version-of-this-document#pen1".
+
+ps2_v1 is published at "http://original-version-of-this-document#ps2".
+
+% Examples
+% authority house: http://example.org/authority#house-of-representatives
+% jurisdiction us: http://example.org/jurisdiction#unitedStatesOfAmerica
+% jurisdiction exd: http://example.org/jurisdiction#executiveDepartments
+% defeater ps2: an exception of the rules whose conclusion it attacks

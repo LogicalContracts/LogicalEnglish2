@@ -1,0 +1,21 @@
+% Wills Act
+%
+% The Logical English twin of a Blawx encoding, written by the Blawx translator
+% (InsurLE2/migration/blawx). Each rule is a rule of the Act as Blawx encodes it,
+% in the words of Blawx's own sentence forms, citing its section; the project's
+% tests are the scenarios, with Blawx's own answers as the expectations.
+%
+% Source: the Blawx project "Wills Tutorial" (wills_tutorial.yaml, 2 sections), an example of
+%         Blawx v1.6.22-alpha (Lexpedite, MIT licence), commit 3de892f67854292b304c9a55c5e2cd2058d3d418.
+
+the target language is: prolog.
+
+the knowledge base wills_tutorial includes:
+
+the text of the Wills Act is at "sources/wills_tutorial.md".
+
+the text of the Blawx project is at "sources/wills_tutorial.yaml".
+
+% The Act, section by section.
+scenario example is, as stated in the Blawx project at test example:
+

@@ -1,0 +1,101 @@
+{
+  "counts": {"approximated":1,"encoded":6,"residue":0},
+  "entries": [
+    {
+      "element":"pk(key_revocation)",
+      "in_program":"the revocation key",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pk(key_remote)",
+      "in_program":"the remote node",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pk(key_local)",
+      "in_program":"the local node",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"hash160(H)",
+      "in_program":"the payment hash",
+      "kind":"hash",
+      "mapping":"hash lock -> the witness reveals the preimage of <name>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pk(key_revocation)",
+      "in_program":"revocation",
+      "kind":"spending path",
+      "mapping":"a branch of the top-level or -> a rule concluding the coin can be spent",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"and(pk(key_remote),or(pk(key_local),hash160(H)))",
+      "in_program":"remote_with_local_or_preimage",
+      "kind":"spending path",
+      "mapping":"a branch of the top-level or -> a rule concluding the coin can be spent",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the Script encoding",
+      "in_program":"the whole program",
+      "kind":"script",
+      "mapping":"the twin is the spending policy (BIP 379, the semantics column), not the Script",
+      "note":"witness sizes, fees, malleability and the choice of fragments (or_d / or_i, wrappers) do not change who can spend, and are not in the twin",
+      "verdict":"approximated"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":24,
+    "tests": [
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_2_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_2_without_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_3"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_3_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"no_witness"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"lost_the_revocation_key"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"lost_the_remote_node"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"lost_the_local_node"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1_without_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_2_without_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_3"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_3_without_1"},
+      {"detail":"","query":"flip_spend","result":"pass","scenario":"flip_now"},
+      {"detail":"","query":"flip_spend","result":"pass","scenario":"flip_after_delays"},
+      {"detail":"","query":"flip_block","result":"pass","scenario":"lost_the_revocation_key"},
+      {"detail":"","query":"flip_block","result":"pass","scenario":"lost_the_remote_node"},
+      {"detail":"","query":"flip_block","result":"pass","scenario":"lost_the_local_node"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["https://bitcoin.sipa.be/miniscript/" ],
+    "date":"2026-09-15",
+    "program":"bolt3_offered_htlc",
+    "source":"A Lightning offered HTLC (BOLT #3)",
+    "translator":"InsurLE2/migration/miniscript (ms_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":21
+}

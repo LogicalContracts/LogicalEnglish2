@@ -1,0 +1,41 @@
+% The Logical English twin of an s(CASP) program, written by the s(CASP) translator
+% (InsurLE2/migration/scasp) from subset-scasp.pl (kept in sources/).
+% Every expected answer in the scenarios is s(CASP)'s own answer on the source.
+
+the target language is: prolog.
+
+the templates are:
+    *a set* is a subset of *a set*.
+    *a thing* is a set.
+    *a thing* belongs to *a set*.
+
+the knowledge base subset includes:
+
+the text of the source program is at "sources/subset-scasp.pl".
+
+a set is a subset of a second set if
+    the set is a set
+    and the second set is a set
+    and for all cases in which
+        a thing belongs to the set
+        it is the case that
+            the thing belongs to the second set.
+
+scenario one is, as stated in the source program at scenario one:
+    family_one is a set.
+    family_two is a set.
+    Bob belongs to family_one.
+    Alice belongs to family_one.
+    Alice belongs to family_two.
+    query_1 expects answers ["family_one is a subset of family_one", "family_two is a subset of family_one", "family_two is a subset of family_two"].
+
+scenario two is, as stated in the source program at scenario two:
+    [Alice, Bob] is a set.
+    [Alice] is a set.
+    a thing belongs to a set if
+        the thing is in the set.
+    query_1 expects answers ["[Alice] is a subset of [Alice]", "[Alice] is a subset of [Alice Bob]", "[Alice Bob] is a subset of [Alice Bob]"].
+
+query query_1 is:
+    which set is a subset of which second set.
+

@@ -1,0 +1,18 @@
+# The spending policy of the Logical English twin decaying_multisig.
+#
+# source: the Miniscript page
+#         https://bitcoin.sipa.be/miniscript/
+#
+# sipa's compiler (P2WSH) makes it the Miniscript:
+#     thresh(3,pk(key_1),s:pk(key_2),s:pk(key_3),sln:older(12960))
+# try it in Minsc (policy -> Miniscript -> Script -> address, in the browser):
+#     https://min.sc/#c=//%20A%203-of-3%20multisig%20that%20turns%20into%20a%202-of-3%20after%2090%20days%0A//%20The%20Logical%20English%20twin's%20policy%20(InsurLE2/migration/miniscript).%0A$key_1%20=%2002a1baf00e3034a5edcb96dc4ce597e523845690eec754848d9921778f6de46833;%20%20%20//%20key%201%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$key_2%20=%20030b078407422b0b5578954183d643842de93e7db886add339708f68547bd87f8c;%20%20%20//%20key%202%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$key_3%20=%20038e1d0c4261f914859fd50f3fc02bff1c919db2bee4ec6530df824d3305b8ae5a;%20%20%20//%20key%203%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A%0Athresh(3,pk($key_1),pk($key_2),pk($key_3),older(12960))%0A
+#
+# File > Open in the Logical English editor translates this file into the twin.
+
+key_1 = key 1
+key_2 = key 2
+key_3 = key 3
+
+# A 3-of-3 multisig that turns into a 2-of-3 after 90 days
+thresh(3,pk(key_1),pk(key_2),pk(key_3),older(12960))

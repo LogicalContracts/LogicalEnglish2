@@ -1,0 +1,41 @@
+% The Logical English twin of an s(CASP) program, written by the s(CASP) translator
+% (InsurLE2/migration/scasp) from isdapermissioncorrected-scasp.pl (kept in sources/).
+% Every expected answer in the scenarios is s(CASP)'s own answer on the source.
+
+the target language is: prolog.
+
+the templates are:
+    it is permitted that *an eventuality*.
+    *an event* of Default occurs with respect to *a party* at *a time*.
+    *an event* is continuing at *a time*.
+    *a party* gives notice to *a party* at *a time* that *a message*.
+    *a date* isonorbefore *a date*.
+    *a time* isnot more than *a number* days after *a time*.
+    the Schedule specifies that *a specification*.
+    Automatic Early Termination applies to *a party* for *an event* of Default.
+    *an event* occurs at *a time*.
+    *a party* designates that *an eventuality*.
+
+the knowledge base isdapermissioncorrected includes:
+
+the text of the source program is at "sources/isdapermissioncorrected-scasp.pl".
+
+it is permitted that a party designates that Early_Termination_in_respect_of_all_outstanding_Transactions occurs at a time if
+    an event of Default occurs with respect to a second party at a second time
+    and the event is continuing at a third time
+    and the party gives notice to the second party at the third time that the event occurs at the second time
+    and the third time isonorbefore the time
+    and the time isnot more than 20 days after the third time
+    and it is not the case that the Schedule specifies that Automatic Early Termination applies to the second party for the event of Default.
+
+scenario one is, as stated in the source program at scenario one:
+    event001 of Default occurs with respect to Bob at Monday.
+    event001 is continuing at Tuesday.
+    Alice gives notice to Bob at Tuesday that event001 occurs at Monday.
+    Tuesday isonorbefore Friday.
+    Friday isnot more than 20 days after Tuesday.
+    query_1 expects answers ["it is permitted that Alice designates that Early_Termination_in_respect_of_all_outstanding_Transactions occurs at Friday"].
+
+query query_1 is:
+    it is permitted that which party designates that which event occurs at which time.
+

@@ -1,0 +1,66 @@
+% The Logical English twin of a LegalRuleML document, written by the LegalRuleML translator
+% (InsurLE2/migration/legalruleml) from ex11-maternity_alternatives-normal.lrml (kept in sources/).
+% Obligations, permissions and prohibitions are the deontic library's (deontic.le).
+% Every expected answer in the scenarios is SPINdle's (defeasible deontic logic) on the source.
+
+the target language is: prolog.
+
+the knowledge base ex11_maternity_alternatives includes these resources:
+    deontic.
+
+the templates are:
+    *an income* is earned in *a year*.
+    the maternity benefit is *an amount* in *a year*.
+    *an income* is reported in *a year*.
+    *a number* is 80 percent of five twelfths of *an income*.
+    the interpretation adopted is *an interpretation*.
+
+the knowledge base ex11_maternity_alternatives includes:
+
+the text of the source document is at "sources/ex11-maternity_alternatives-normal.lrml".
+
+ref1 is published at "ECLI:IT:PCBO:1996:18".
+
+ref2 is published at "http://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legge:1990-12-11;379~art1".
+
+ex_ref1 is published at "http://example.org#ref1".
+
+% authority pc: http://example.org/authority#prosecutorOffice
+% authority abit: http://example.org/authority#associationBar-Italy
+% jurisdiction it: http://example.org/jurisdiction#italy
+rule literal with provenance ex_ref1:
+a party is obliged that the maternity benefit is an amount in a year Y if
+    a year N = Y - 2
+    and an income is earned in N
+    and a year M = Y - 2
+    and the income is reported in M
+    and the interpretation adopted is literal
+    and the income is 80 percent of five twelfths of the amount.
+
+% If income is earned in some year, then it is reported in the following year.
+rule tax1:
+an income is reported in a year Y if
+    the income is earned in a year N
+    and Y = N + 1.
+
+% If income is reported in some year, then it was earned in the previous year.
+rule tax2:
+an income is earned in a year Y if
+    the income is reported in a year N
+    and Y = N - 1.
+
+query earned is:
+    which income is earned in which year.
+
+query obligations is:
+    which party is obliged that which sentence.
+
+query reported is:
+    which income is reported in which year.
+
+query violated_obligations is:
+    the obligation of which party that which sentence is violated.
+
+query breaches is:
+    which party is in breach.
+

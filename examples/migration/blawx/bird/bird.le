@@ -1,0 +1,211 @@
+% New Bird Act
+%
+% The Logical English twin of a Blawx encoding, written by the Blawx translator
+% (InsurLE2/migration/blawx). Each rule is a rule of the Act as Blawx encodes it,
+% in the words of Blawx's own sentence forms, citing its section; the project's
+% tests are the scenarios, with Blawx's own answers as the expectations.
+%
+% Source: the Blawx project "New Bird Act" (bird.yaml, 8 sections), an example of
+%         Blawx v1.6.22-alpha (Lexpedite, MIT licence), commit 3de892f67854292b304c9a55c5e2cd2058d3d418.
+
+the target language is: prolog.
+
+the templates are:
+    *a thing* is a bird.
+    *a penguin* is a penguin.
+    *a thing* can fly; opposite: *a thing* cannot fly.
+    *a penguin* is on a plane; scenario element.
+    *a provision* applies to *a thing*; opposite: *a provision* does not apply to *a thing*.
+    *a penguin* is a cartoon with a jetpack; scenario element.
+    *a thing* cannot fly under *a provision*.
+    *a thing* can fly under *a provision*.
+    *a provision* does not apply to *a thing* under *a provision*.
+
+the knowledge base bird includes:
+
+the text of the New Bird Act is at "sources/bird.md".
+
+the text of the Blawx project is at "sources/bird.yaml".
+
+% The Act, section by section.
+rule section_1 with provenance the New Bird Act at section 1:
+a thing is a bird if
+    the thing is a penguin.
+
+rule section_2 with provenance the New Bird Act at section 2:
+a thing can fly if
+    the thing is a bird
+    and it is not the case that the thing cannot fly under section_3.
+
+rule section_3 with provenance the New Bird Act at section 3:
+a thing cannot fly under section_3 if
+    the thing is a penguin
+    and all of
+        it is not the case that the thing can fly under section_4
+        and it is not the case that the thing can fly under section_5.
+
+% What section 3 concludes holds.
+rule section_3_conclusion with provenance the New Bird Act at section 3:
+a thing cannot fly if
+    the thing cannot fly under section_3.
+
+rule section_4 with provenance the New Bird Act at section 4:
+a thing can fly under section_4 if
+    the thing is a penguin
+    and the thing is on a plane.
+
+% What section 4 concludes holds.
+rule section_4_conclusion with provenance the New Bird Act at section 4:
+a thing can fly if
+    the thing can fly under section_4.
+
+rule section_5 with provenance the New Bird Act at section 5:
+section_5 applies to a thing if
+    it is not the case that section_5 does not apply to the thing.
+
+rule section_5_2 with provenance the New Bird Act at section 5:
+a thing can fly under section_5 if
+    section_5 applies to the thing
+    and the thing is a penguin
+    and the thing is a cartoon with a jetpack.
+
+% What section 5 concludes holds.
+rule section_5_conclusion with provenance the New Bird Act at section 5:
+a thing can fly if
+    the thing can fly under section_5.
+
+pingu is a penguin, as stated in the New Bird Act at section 5 the words pingu.
+
+section_5 does not apply to pingu under section_5_pingu, as stated in the New Bird Act at section 5 the words pingu.
+
+scenario is_pingu_a_bird is, as stated in the Blawx project at test is_pingu_a_bird:
+    % The rule in section 1 holds, indefeasibly.
+    is_pingu_a_bird expects answers ["pingu is a bird"].
+
+scenario pingu_cant_fly is, as stated in the Blawx project at test pingu_cant_fly:
+    % Section 2 defeasibly concludes that pingu can fly,
+    % because he is bird according to section 1, because he
+    % is a penguin. That conclusion is defeated by section 3.
+    pingu_cant_fly expects answers [].
+
+scenario pingu_on_plane_can_fly is, as stated in the Blawx project at test pingu_on_plane_can_fly:
+    % Pingu can fly, because section 2 applies, because
+    % section 3 would defeat it, but section 4 defeats
+    % section 3. Also, section 4 applies on its own.
+    pingu is on a plane.
+    pingu_on_plane_can_fly expects answers ["pingu can fly"].
+
+scenario pingu_with_jetpack_cant_fly is, as stated in the Blawx project at test pingu_with_jetpack_cant_fly:
+    % Pingu can't fly because section 2 is defeated by section 3, which
+    % is not defeated by section 5 because it doesn't apply to pingu.
+    % NOTE: the test's name and its comment expect that pingu cannot fly; Blawx answers that pingu can fly, because the Act's "except for pingu" (section 5) is never wired into the encoding. The twin states Blawx's answer.
+    pingu is a cartoon with a jetpack.
+    pingu_with_jetpack_cant_fly expects answers ["pingu can fly"].
+
+scenario case_1 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    penguin_a is a penguin.
+    which_is_a_bird expects answers ["penguin_a is a bird", "pingu is a bird"].
+
+scenario case_2 is, as stated in the case analysis of the encoding at section 2:
+    % a case of the rule of section 2 (blawx_cases.pl), answered by Blawx
+    thing_a is a bird.
+    which_can_fly expects answers ["thing_a can fly"].
+
+scenario case_2_with_sec_3_section is, as stated in the case analysis of the encoding at section 2:
+    % a case of the rule of section 2 (blawx_cases.pl), answered by Blawx
+    thing_a is a bird.
+    thing_a is a penguin.
+    which_can_fly expects answers [].
+
+scenario case_3 is, as stated in the case analysis of the encoding at section 3:
+    % a case of the rule of section 3 (blawx_cases.pl), answered by Blawx
+    penguin_a is a penguin.
+    which_cannot_fly expects answers ["penguin_a cannot fly", "pingu cannot fly"].
+
+scenario case_3_with_sec_4_section is, as stated in the case analysis of the encoding at section 3:
+    % a case of the rule of section 3 (blawx_cases.pl), answered by Blawx
+    penguin_a is a penguin.
+    penguin_a is on a plane.
+    which_cannot_fly expects answers ["pingu cannot fly"].
+
+scenario case_3_with_sec_5_section is, as stated in the case analysis of the encoding at section 3:
+    % a case of the rule of section 3 (blawx_cases.pl), answered by Blawx
+    penguin_a is a penguin.
+    section_5 applies to penguin_a.
+    penguin_a is a cartoon with a jetpack.
+    which_cannot_fly expects answers ["pingu cannot fly"].
+
+scenario case_4 is, as stated in the case analysis of the encoding at section 4:
+    % a case of the rule of section 4 (blawx_cases.pl), answered by Blawx
+    penguin_a is a penguin.
+    penguin_a is on a plane.
+    which_can_fly expects answers ["penguin_a can fly"].
+
+scenario case_4_without_fact_1 is, as stated in the case analysis of the encoding at section 4:
+    % a case of the rule of section 4 (blawx_cases.pl), answered by Blawx
+    penguin_a is on a plane.
+    which_can_fly expects answers [].
+
+scenario case_4_without_fact_2 is, as stated in the case analysis of the encoding at section 4:
+    % a case of the rule of section 4 (blawx_cases.pl), answered by Blawx
+    penguin_a is a penguin.
+    which_can_fly expects answers [].
+
+scenario case_5 is, as stated in the case analysis of the encoding at section 5:
+    % a case of the rule of section 5 (blawx_cases.pl), answered by Blawx
+    section_5 applies to thing_a.
+    thing_a is a penguin.
+    thing_a is a cartoon with a jetpack.
+    which_can_fly expects answers ["thing_a can fly"].
+
+scenario case_5_without_fact_1 is, as stated in the case analysis of the encoding at section 5:
+    % a case of the rule of section 5 (blawx_cases.pl), answered by Blawx
+    thing_a is a penguin.
+    thing_a is a cartoon with a jetpack.
+    which_can_fly expects answers ["thing_a can fly"].
+
+scenario case_5_without_fact_2 is, as stated in the case analysis of the encoding at section 5:
+    % a case of the rule of section 5 (blawx_cases.pl), answered by Blawx
+    section_5 applies to thing_a.
+    thing_a is a cartoon with a jetpack.
+    which_can_fly expects answers [].
+
+scenario case_5_without_fact_3 is, as stated in the case analysis of the encoding at section 5:
+    % a case of the rule of section 5 (blawx_cases.pl), answered by Blawx
+    section_5 applies to thing_a.
+    thing_a is a penguin.
+    which_can_fly expects answers [].
+
+query is_pingu_a_bird is:
+    which thing is a bird.
+
+query pingu_cant_fly is:
+    pingu can fly.
+
+query pingu_on_plane_can_fly is:
+    pingu can fly.
+
+query pingu_with_jetpack_cant_fly is:
+    pingu can fly.
+
+query which_is_a_bird is:
+    which thing is a bird.
+
+query which_can_fly is:
+    which thing can fly.
+
+query which_cannot_fly is:
+    which thing cannot fly.
+
+the view the act is:
+    the title is "New Bird Act, as Blawx encodes it".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the case" are
+        a penguin is on a plane,
+        a penguin is a cartoon with a jetpack.
+    the result is the answer to query which_can_fly.
+    the result shows its reasons.
+    the result shows its citations.
+    the result can be flipped.
+

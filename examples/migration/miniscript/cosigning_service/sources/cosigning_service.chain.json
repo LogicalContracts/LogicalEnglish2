@@ -1,0 +1,76 @@
+{
+  "address":"bcrt1qxdrkevkr3cgmghvwqsmhyv90ftm7gnr28tc3qq4pj3zg7upmemrqlxts62",
+  "attempts": [
+    {
+      "coin_confirmed_at":null,
+      "coin_confirmed_time":null,
+      "coin_txid":"8ead62e34a833be3465ffc9421cf23349b059383e875d022b72bff3d7887d425",
+      "id":"path_1",
+      "nlocktime":0,
+      "nsequence":12960,
+      "reason":"sendrawtransaction RPC error -26: non-BIP68-final",
+      "tip":122321,
+      "tip_time":1789410601,
+      "used": {"preimages": [],"sigs": ["K1" ]},
+      "verdict":"refused",
+      "witness":"made of the material"
+    },
+    {
+      "coin_confirmed_at":null,
+      "coin_confirmed_time":null,
+      "coin_txid":"8ead62e34a833be3465ffc9421cf23349b059383e875d022b72bff3d7887d425",
+      "id":"path_1_without_1",
+      "nlocktime":0,
+      "nsequence":12960,
+      "reason":"sendrawtransaction RPC error -26: non-BIP68-final",
+      "tip":122321,
+      "tip_time":1789410601,
+      "used": {"preimages": [],"sigs": []},
+      "verdict":"refused",
+      "witness":"the path's, with what is missing left out"
+    },
+    {
+      "coin_confirmed_at":null,
+      "coin_confirmed_time":null,
+      "coin_txid":"8ead62e34a833be3465ffc9421cf23349b059383e875d022b72bff3d7887d425",
+      "explorer":"https://tape.rewindbitcoin.com/explorer/tx/8e0328ac9360be92f3eee9f19c788fad8a1bad579949bf9d7bf037a2f72b66f5",
+      "id":"path_2",
+      "nlocktime":0,
+      "nsequence":4294967293,
+      "tip":122321,
+      "tip_time":1789410601,
+      "txid":"8e0328ac9360be92f3eee9f19c788fad8a1bad579949bf9d7bf037a2f72b66f5",
+      "used": {"preimages": [],"sigs": ["K2", "K1" ]},
+      "verdict":"accepted",
+      "witness":"made of the material"
+    },
+    {
+      "coin_confirmed_at":null,
+      "coin_confirmed_time":null,
+      "coin_txid":"8e0328ac9360be92f3eee9f19c788fad8a1bad579949bf9d7bf037a2f72b66f5",
+      "id":"path_2_without_2",
+      "nlocktime":0,
+      "nsequence":4294967293,
+      "reason":"sendrawtransaction RPC error -26: mempool-script-verify-flag-failed (Script failed an OP_CHECKSIGVERIFY operation), input 0 of d35a09d7465713acdec7bbde140c7b5ee8680d481bb1ae3ec9681013cd7986ea (wtxid 6d240404049c8bc8018629b7046c38c251603ce87650c55e94b4ebee693b17d7), spending 8e0328ac9360be92f3eee9f19c788fad8a1bad579949bf9d7bf037a2f72b66f5:0",
+      "tip":122321,
+      "tip_time":1789410601,
+      "used": {"preimages": [],"sigs": ["K2" ]},
+      "verdict":"refused",
+      "witness":"the path's, with what is missing left out"
+    }
+  ],
+  "date":"2026-09-14T19:27:29.908Z",
+  "descriptor":"wsh(and_v(v:pk(034717e21c064758996df901f1d7a39c9e348a42972c9fc948fc84403d7710d1cb),or_d(pk(020191eb77be97634004cb0fa44285d455ae325456cbe3288406b2576c316e5f53),older(12960))))",
+  "funding_explorer":"https://tape.rewindbitcoin.com/explorer/tx/8ead62e34a833be3465ffc9421cf23349b059383e875d022b72bff3d7887d425",
+  "funding_txid":"8ead62e34a833be3465ffc9421cf23349b059383e875d022b72bff3d7887d425",
+  "hashes": {},
+  "keys": {
+    "K1":"034717e21c064758996df901f1d7a39c9e348a42972c9fc948fc84403d7710d1cb",
+    "K2":"020191eb77be97634004cb0fa44285d455ae325456cbe3288406b2576c316e5f53"
+  },
+  "miniscript":"and_v(v:pk(K1),or_d(pk(K2),older(12960)))",
+  "network":"https://tape.rewindbitcoin.com",
+  "policy":"and(pk(K1),or(pk(K2),older(12960)))",
+  "roles": {"K1":"the user","K2":"the cosigning service"},
+  "twin":"cosigning_service"
+}

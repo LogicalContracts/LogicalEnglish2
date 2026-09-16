@@ -1,0 +1,150 @@
+{
+  "counts": {"approximated":0,"encoded":10,"residue":0},
+  "entries": [
+    {
+      "element":"eligible/1",
+      "in_program":"*a person* may make a will",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"person/1",
+      "in_program":"*a person* is a person",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"age/2",
+      "in_program":"*a person* is *a number* years of age",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"military/1",
+      "in_program":"*a person* is an active military member",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_1_section, eligible, ...) :- ...",
+      "in_program":"section_1",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_2_section, eligible, ...) :- ...",
+      "in_program":"section_2",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"0 blawx_as_of / blawx_during clauses",
+      "in_program":"nothing",
+      "kind":"temporal boilerplate",
+      "mapping":"left out: nothing reads it",
+      "note":"Blawx writes these for every attribute and relationship; no rule or test of this project reads them0",
+      "verdict":"encoded"
+    },
+    {
+      "element":"36 #pred annotations",
+      "in_program":"the templates",
+      "kind":"natural language",
+      "mapping":"the wording of each template; the holds / according_to / defeated forms are the rules themselves",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest valid_will",
+      "in_program":"valid_will",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"9 cases generated from the rules",
+      "in_program":"the case_ scenarios",
+      "kind":"generated cases",
+      "mapping":"each rule met by facts, each near miss, each defeat: Blawx's answers as the expectations",
+      "note":"not Blawx's tests: written by blawx_cases.pl from the encoding; the answers are Blawx's own",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":10,
+    "tests": [
+      {"detail":"","query":"valid_will","result":"pass","scenario":"valid_will"},
+      {"detail":"","query":"which_may_make_a_will","result":"pass","scenario":"case_1"},
+      {
+	"detail":"",
+	"query":"which_may_make_a_will",
+	"result":"pass",
+	"scenario":"case_1_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_may_make_a_will",
+	"result":"pass",
+	"scenario":"case_1_without_fact_2"
+      },
+      {
+	"detail":"",
+	"query":"which_may_make_a_will",
+	"result":"pass",
+	"scenario":"case_1_missing_comparison_1"
+      },
+      {"detail":"","query":"which_may_make_a_will","result":"pass","scenario":"case_2"},
+      {
+	"detail":"",
+	"query":"which_may_make_a_will",
+	"result":"pass",
+	"scenario":"case_2_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_may_make_a_will",
+	"result":"pass",
+	"scenario":"case_2_without_fact_2"
+      },
+      {
+	"detail":"",
+	"query":"which_may_make_a_will",
+	"result":"pass",
+	"scenario":"case_2_without_fact_3"
+      },
+      {
+	"detail":"",
+	"query":"which_may_make_a_will",
+	"result":"pass",
+	"scenario":"case_2_missing_comparison_1"
+      }
+    ]
+  },
+  "meta": {
+    "artifacts": [
+      "sources/wills.yaml",
+      "https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418"
+    ],
+    "date":"2026-09-15",
+    "licence":"Blawx: MIT",
+    "program":"wills",
+    "source":"Wills Act",
+    "translator":"InsurLE2/migration/blawx (blawx_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":10
+}

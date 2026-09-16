@@ -1,0 +1,62 @@
+{
+  "address":"bcrt1qrqw40q6l9ewlmpu3uyw8ngnxx3lrha07jwtf5tlgkgjnkdweqcwqwwk86e",
+  "attempts": [
+    {
+      "coin_confirmed_at":null,
+      "coin_confirmed_time":null,
+      "coin_txid":"4700bbad06e05de1eca7a7efb011f576cbc70d7077032c75c9d937ae2b1a3bb7",
+      "id":"path_1",
+      "nlocktime":0,
+      "nsequence":3,
+      "reason":"sendrawtransaction RPC error -26: non-BIP68-final",
+      "tip":122321,
+      "tip_time":1789410601,
+      "used": {"preimages": [],"sigs": ["K2" ]},
+      "verdict":"refused",
+      "witness":"made of the material"
+    },
+    {
+      "coin_confirmed_at":null,
+      "coin_confirmed_time":null,
+      "coin_txid":"4700bbad06e05de1eca7a7efb011f576cbc70d7077032c75c9d937ae2b1a3bb7",
+      "id":"path_1_without_1",
+      "nlocktime":0,
+      "nsequence":3,
+      "reason":"sendrawtransaction RPC error -26: non-BIP68-final",
+      "tip":122321,
+      "tip_time":1789410601,
+      "used": {"preimages": [],"sigs": []},
+      "verdict":"refused",
+      "witness":"the path's, with what is missing left out"
+    },
+    {
+      "coin_confirmed_at":null,
+      "coin_confirmed_time":null,
+      "coin_txid":"4700bbad06e05de1eca7a7efb011f576cbc70d7077032c75c9d937ae2b1a3bb7",
+      "explorer":"https://tape.rewindbitcoin.com/explorer/tx/f980a95dfc7d411f3db9ff055c37c613cee42b19844f876c305e845b419db3d6",
+      "id":"path_2",
+      "nlocktime":0,
+      "nsequence":4294967293,
+      "tip":122321,
+      "tip_time":1789410601,
+      "txid":"f980a95dfc7d411f3db9ff055c37c613cee42b19844f876c305e845b419db3d6",
+      "used": {"preimages": [],"sigs": ["K1" ]},
+      "verdict":"accepted",
+      "witness":"made of the material"
+    }
+  ],
+  "date":"2026-09-14T19:25:56.393Z",
+  "descriptor":"wsh(or_d(pk(039eddae997573256e984b633147ecfa96a2110def3cc69d6cf5e3685241c55fe3),and_v(v:pkh(030e1b50cec999750ffd8b76857ff9b25eb5b6a4bc66726782850e77bcbe75ef2c),older(3))))",
+  "funding_explorer":"https://tape.rewindbitcoin.com/explorer/tx/4700bbad06e05de1eca7a7efb011f576cbc70d7077032c75c9d937ae2b1a3bb7",
+  "funding_txid":"4700bbad06e05de1eca7a7efb011f576cbc70d7077032c75c9d937ae2b1a3bb7",
+  "hashes": {},
+  "keys": {
+    "K1":"039eddae997573256e984b633147ecfa96a2110def3cc69d6cf5e3685241c55fe3",
+    "K2":"030e1b50cec999750ffd8b76857ff9b25eb5b6a4bc66726782850e77bcbe75ef2c"
+  },
+  "miniscript":"or_d(pk(K1),and_v(v:pkh(K2),older(3)))",
+  "network":"https://tape.rewindbitcoin.com",
+  "policy":"or(pk(K1),and(pk(K2),older(3)))",
+  "roles": {"K1":"the primary key","K2":"the recovery key"},
+  "twin":"liana_recovery"
+}

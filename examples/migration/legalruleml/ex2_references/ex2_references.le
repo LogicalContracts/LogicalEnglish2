@@ -1,0 +1,48 @@
+% The Logical English twin of a LegalRuleML document, written by the LegalRuleML translator
+% (InsurLE2/migration/legalruleml) from ex2-references-normal.lrml (kept in sources/).
+% Obligations, permissions and prohibitions are the deontic library's (deontic.le).
+% Every expected answer in the scenarios is SPINdle's (defeasible deontic logic) on the source.
+
+the target language is: prolog.
+
+the knowledge base ex2_references includes these resources:
+    deontic.
+
+the templates are:
+    p holds.
+    q holds.
+
+the knowledge base ex2_references includes:
+
+the text of the source document is at "sources/ex2-references-normal.lrml".
+
+ref1 is published at "/akn/au/2012-05-30/C628-2012/eng@/!main#sec_2-2".
+
+ref6 is published at "ECLI:EU:C:2015:650".
+
+ref2 is published at "http://www.legislation.gov.uk/ukpga/1998/42/contents".
+
+ref3 is published at "http://www.senato.it/uri-res/N2Ls?urn:nir:senato.repubblica:disegno.legge:15.legislatura;1014".
+
+ref4 is published at "http://www.lexml.gov.br/urn/urn:lex:br:federal:constituicao:1988-10-05;1988".
+
+ref5 is published at "http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:C:2011:127:0001:0007:IT:PDF".
+
+ref7 is published at "https://www.gpo.gov/fdsys/pkg/PLAW-112publ61/html/PLAW-112publ61.htm".
+
+ref8 is published at "http://codes.lp.findlaw.com/uscode/18/I/3/47".
+
+ref9 is published at "http://www.law.cornell.edu/uscode/text/17/504#psection-1".
+
+ex_rule_1b is published at "http://example.org/ex2.1.1-references-b#rule_1b".
+
+oasis_rule_1b is published at "http://docs.oasis-open.org/legalruleml/examples/approved/ex2-references-b#rule_1b".
+
+% This example demonstrates the specification of Reference(s) and LegalSource(s) without the use of CURIEs to abbreviate IRIs. The compact serialization is used.
+rule statement_5 with provenance ref1:
+q holds if
+    p holds.
+
+query q is:
+    q holds.
+

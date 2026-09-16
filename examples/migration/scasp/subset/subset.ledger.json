@@ -1,0 +1,87 @@
+{
+  "counts": {"approximated":0,"encoded":8,"residue":0},
+  "entries": [
+    {
+      "element":"is_a_subset_of/2",
+      "in_program":"*a set* is a subset of *a set*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_a_set/1",
+      "in_program":"*a thing* is a set",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"belongs_to/2",
+      "in_program":"*a thing* belongs to *a set*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of is_a_subset_of/2",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Scenario one",
+      "in_program":"one",
+      "kind":"scenario",
+      "mapping":"an LE1 scenario -> a scenario",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Scenario two",
+      "in_program":"two",
+      "kind":"scenario",
+      "mapping":"an LE1 scenario -> a scenario",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"?- is_a_subset_of(_91818,_91820)",
+      "in_program":"the queries",
+      "kind":"query",
+      "mapping":"a ?- query -> a query, asked in every scenario",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the program's own forall/2 (by double negation, through wrong/2 and once/1) is the universal built into s(CASP) and LE (for all cases in which ...): its definitions are left out",
+      "in_program":"the program",
+      "kind":"dates",
+      "mapping":"LE1 dates and date arithmetic -> LE2 dates and built-ins",
+      "note":"the program's own forall/2 (by double negation, through wrong/2 and once/1) is the universal built into s(CASP) and LE (for all cases in which ...): its definitions are left out",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":2,
+    "tests": [
+      {"detail":"","query":"query_1","result":"pass","scenario":"one"},
+      {"detail":"","query":"query_1","result":"pass","scenario":"two"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["subset-scasp.pl" ],
+    "date":"2026-09-15",
+    "program":"subset",
+    "source":"an s(CASP) program",
+    "translator":"InsurLE2/migration/scasp (scasp_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":2
+}

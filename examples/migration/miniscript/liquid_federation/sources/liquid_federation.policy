@@ -1,0 +1,22 @@
+# The spending policy of the Logical English twin liquid_federation.
+#
+# source: the Bitcoin Core wallet Miniscript tests
+#         https://github.com/bitcoin/bitcoin/blob/master/test/functional/wallet_miniscript.py
+#
+# it is Miniscript (or a descriptor) as it stands.
+# try it in Minsc (policy -> Miniscript -> Script -> address, in the browser):
+#     https://min.sc/#c=//%20A%20Liquid-like%20federated%20peg-in:%20five%20functionaries,%20or%20two%20of%20three%20emergency%20keys%20after%20about%2090%20days%0A//%20The%20Logical%20English%20twin's%20policy%20(InsurLE2/migration/miniscript).%0A$functionary_1%20=%2002aebf2d10b040eb936a6f02f44ee82f8b34f5c1ccb20ff3949c2b28206b7c1068;%20%20%20//%20functionary%201%20(as%20in%20the%20source)%0A$functionary_2%20=%20030f64b922aee2fd597f104bc6cb3b670f1ca2c6c49b1071a1a6c010575d94fe5a;%20%20%20//%20functionary%202%20(as%20in%20the%20source)%0A$functionary_3%20=%2002abe475b199ec3d62fa576faee16a334fdb86ffb26dce75becebaaedf328ac3fe;%20%20%20//%20functionary%203%20(as%20in%20the%20source)%0A$functionary_4%20=%200314f3dc33595b0d016bb522f6fe3a67680723d842c1b9b8ae6b59fdd8ab5cccb4;%20%20%20//%20functionary%204%20(as%20in%20the%20source)%0A$functionary_5%20=%20025eba3305bd3c829e4e1551aac7358e4178832c739e4fc4729effe428de0398ab;%20%20%20//%20functionary%205%20(as%20in%20the%20source)%0A$emergency_key_1%20=%20tpubD6NzVbkrYhZ4YPAbyf6urxqqnmJF79PzQtyERAmvkSVS9fweCTjxjDh22Z5St9fGb1a5DUCv8G27nYupKP1Ctr1pkamJossoetzws1moNRn/*;%20%20%20//%20emergency%20key%201%20(as%20in%20the%20source)%0A$emergency_key_2%20=%20029ffbe722b147f3035c87cb1c60b9a5947dd49c774cc31e94773478711a929ac0;%20%20%20//%20emergency%20key%202%20(as%20in%20the%20source)%0A$emergency_key_3%20=%200211c7b2e18b6fd330f322de087da62da92ae2ae3d0b7cec7e616479cce175f183;%20%20%20//%20emergency%20key%203%20(as%20in%20the%20source)%0A%0Aor(and(pk($functionary_1),and(pk($functionary_2),and(pk($functionary_3),and(pk($functionary_4),pk($functionary_5))))),and(thresh(2,pk($emergency_key_1),pk($emergency_key_2),pk($emergency_key_3)),older(4209713)))%0A
+#
+# File > Open in the Logical English editor translates this file into the twin.
+
+02aebf2d10b040eb936a6f02f44ee82f8b34f5c1ccb20ff3949c2b28206b7c1068 = functionary 1
+030f64b922aee2fd597f104bc6cb3b670f1ca2c6c49b1071a1a6c010575d94fe5a = functionary 2
+02abe475b199ec3d62fa576faee16a334fdb86ffb26dce75becebaaedf328ac3fe = functionary 3
+0314f3dc33595b0d016bb522f6fe3a67680723d842c1b9b8ae6b59fdd8ab5cccb4 = functionary 4
+025eba3305bd3c829e4e1551aac7358e4178832c739e4fc4729effe428de0398ab = functionary 5
+tpubD6NzVbkrYhZ4YPAbyf6urxqqnmJF79PzQtyERAmvkSVS9fweCTjxjDh22Z5St9fGb1a5DUCv8G27nYupKP1Ctr1pkamJossoetzws1moNRn = emergency key 1
+029ffbe722b147f3035c87cb1c60b9a5947dd49c774cc31e94773478711a929ac0 = emergency key 2
+0211c7b2e18b6fd330f322de087da62da92ae2ae3d0b7cec7e616479cce175f183 = emergency key 3
+
+# A Liquid-like federated peg-in: five functionaries, or two of three emergency keys after about 90 days
+wsh(or_i(and_b(pk(02aebf2d10b040eb936a6f02f44ee82f8b34f5c1ccb20ff3949c2b28206b7c1068),a:and_b(pk(030f64b922aee2fd597f104bc6cb3b670f1ca2c6c49b1071a1a6c010575d94fe5a),a:and_b(pk(02abe475b199ec3d62fa576faee16a334fdb86ffb26dce75becebaaedf328ac3fe),a:and_b(pk(0314f3dc33595b0d016bb522f6fe3a67680723d842c1b9b8ae6b59fdd8ab5cccb4),s:pk(025eba3305bd3c829e4e1551aac7358e4178832c739e4fc4729effe428de0398ab))))),and_v(v:thresh(2,pkh(tpubD6NzVbkrYhZ4YPAbyf6urxqqnmJF79PzQtyERAmvkSVS9fweCTjxjDh22Z5St9fGb1a5DUCv8G27nYupKP1Ctr1pkamJossoetzws1moNRn/*),a:pkh(029ffbe722b147f3035c87cb1c60b9a5947dd49c774cc31e94773478711a929ac0),a:pkh(0211c7b2e18b6fd330f322de087da62da92ae2ae3d0b7cec7e616479cce175f183)),older(4209713))))

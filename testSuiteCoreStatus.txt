@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      core (this repository alone; extension-dependent trees excluded)
 Command:    testing/run_tests.sh le   (or: runTests)
 Sibling:    testSuiteStatus.txt — all (core + trees requiring the proprietary le_extensions.pl)
-Generated:  2026-09-15 16:56:33 UTC
+Generated:  2026-09-16 09:15:00 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 120
-Total tests:     456
-Passed:          456
+Files processed: 174
+Total tests:     690
+Passed:          690
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -130,6 +130,60 @@ Detailed File Summary:
   [PASS] examples/RulesRus/sections_benefit.le: 8 Pass, 0 Fail, 0 Error
   [NONE] examples/RulesRus/semantic_llm.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/RulesRus/semantic_match.le: 1 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/legalruleml/ex8_defeasible/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/legalruleml/ex8_defeasible/ex8_defeasible.le: 4 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/legalruleml/ex5_section29new/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/legalruleml/ex5_section29new/ex5_section29new.le: 24 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/legalruleml/ex2_references/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/legalruleml/ex2_references/ex2_references.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/legalruleml/ex8c_defeasible/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/legalruleml/ex8c_defeasible/ex8c_defeasible.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/legalruleml/ex9_alternatives/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/legalruleml/ex9_alternatives/ex9_alternatives.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/legalruleml/ex10_mix/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/legalruleml/ex10_mix/ex10_mix.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/legalruleml/ex9b_alternatives/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/legalruleml/ex9b_alternatives/ex9b_alternatives.le: 8 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/legalruleml/ex11_maternity_alternatives/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/legalruleml/ex11_maternity_alternatives/ex11_maternity_alternatives.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/legalruleml/ex12_usc_17_504_context/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/legalruleml/ex12_usc_17_504_context/ex12_usc_17_504_context.le: 20 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/legalruleml/ex8b_defeasible/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/legalruleml/ex8b_defeasible/ex8b_defeasible.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/legalruleml/ex1_curies/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/legalruleml/ex1_curies/ex1_curies.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/legalruleml/ex3_deontic/deontic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/legalruleml/ex3_deontic/ex3_deontic.le: 8 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/blawx/beard_tax/beard_tax.le: 13 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/blawx/covid_test/covid_test.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/blawx/rps/rps.le: 11 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/blawx/logical_constraints/logical_constraints.le: 1 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/blawx/list_demo/list_demo.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/blawx/net30/net30.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/blawx/wills/wills.le: 10 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/blawx/wills_tutorial/wills_tutorial.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/blawx/mortality/mortality.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/blawx/life_act/life_act.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/blawx/r34/r34.le: 64 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/blawx/oasa/oasa.le: 20 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/blawx/siblings/siblings.le: 10 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/blawx/numerical_constraints/numerical_constraints.le: 11 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/scasp/classic_negation_inconstistent/classic_negation_inconstistent.le: 1 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/scasp/obligation/obligation.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/scasp/subset/subset.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/scasp/loanwithcure/loanwithcure.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/scasp/minicontract/minicontract.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/scasp/isdapermissioncorrected/isdapermissioncorrected.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/scasp/family_le/family_le.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/scasp/family/family.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/scasp/impossibleancestor/impossibleancestor.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/scasp/citizenshiptrust/citizenshiptrust.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/scasp/criminaljustice/criminaljustice.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/scasp/list/list.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/scasp/abdbirds/abdbirds.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/scasp/birds/birds.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/scasp/itispermittedthat/itispermittedthat.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/scasp/simplerps/simplerps.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/cidadania.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/desconhecidos.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/despesas.le: 6 Pass, 0 Fail, 0 Error

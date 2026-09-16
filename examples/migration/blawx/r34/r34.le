@@ -1,0 +1,1316 @@
+% Legal Profession Professional Conduct Rules
+%
+% The Logical English twin of a Blawx encoding, written by the Blawx translator
+% (InsurLE2/migration/blawx). Each rule is a rule of the Act as Blawx encodes it,
+% in the words of Blawx's own sentence forms, citing its section; the project's
+% tests are the scenarios, with Blawx's own answers as the expectations.
+%
+% Source: the Blawx project "Rule 34" (r34.yaml, 40 sections), an example of
+%         Blawx v1.6.22-alpha (Lexpedite, MIT licence), commit 3de892f67854292b304c9a55c5e2cd2058d3d418.
+
+the target language is: prolog.
+
+the templates are:
+    *a legal practitioner* is a legal practitioner.
+    *a law practice* is a law practice.
+    *a law practice* is located in *a jurisdiction*.
+    *a legal practitioner* is a legal practitioner in *a law practice*.
+    *a thing* is a corporation.
+    *a position* is a category name.
+    *a position* entitles the holder to executive authority.
+    *a position* is in *a business entity*.
+    *a business* is a business.
+    *an entity* carries on *a business*.
+    *a legal practitioner* must not accept the EA *an executive appointment*.
+    *an executive appointment* is an executive appointment.
+    the EA *an executive appointment* is associated with *a business*; unknown.
+    *a business* is described in section 1.
+    *a business* detracts from the dignity of the legal profession; scenario element.
+    *a business* is incompatible with the dignity of the legal profession; scenario element.
+    *a business* derogates from the dignity of the legal profession; scenario element.
+    *an occupation* is an occupation.
+    the primary occupation of *a legal practitioner* is *an occupation*; scenario element.
+    *a business* materially interferes with the primary occupation of *a legal practitioner*; scenario element.
+    *a business* materially interferes with the availability to practice law of *a legal practitioner*; scenario element.
+    *a business* is described in the first schedule; scenario element.
+    *a business* is prohibited; scenario element.
+    *a business* is likely to unfairly attract business; scenario element.
+    *a business* materially interferes with the representation of their clients of *a legal practitioner*; scenario element.
+    *a payment type* is a payment type.
+    *a compensation type* is a compensation type.
+    *a person* is a person.
+    *a payment reason* is a payment reason.
+    *a legal work* is legal work; scenario element.
+    *a payment* is a payment; scenario element.
+    *a business* involves *a payment*; scenario element.
+    *a person* is the recipient of *a payment*; scenario element.
+    *a person* is authorized to provide legal services; scenario element.
+    *a payment* is for *a payment reason*; scenario element.
+    *a legal work* was done by *a person*; scenario element.
+    *a payment* is of payment type *a payment type*; scenario element.
+    *a payment* has *a compensation type*; scenario element.
+    *a legal practitioner* may accept the EA *an executive appointment*.
+    *a business entity* is a business entity.
+    *a service* is a service; scenario element.
+    *an executive appointment* is an executive appointment in *a business entity*.
+    *a business entity* provides *a service*; scenario element.
+    *a service* is a law related service; scenario element.
+    *a thing* is a singapore law practice.
+    every owner of *a law practice* is sole prop, partner, or director of *a second law practice*; scenario element.
+    *a legal practitioner* accepts *an executive appointment* as a representative; scenario element.
+    it is prohibited for *a law practice* to be involved in *a second law practice*; scenario element.
+    *a globe* is a globe.
+    *a jurisdiction* is a jurisdiction.
+    *an executive appointment* is an executive appointment in law practice *a law practice*; scenario element.
+    *a position* is an executive directorship; scenario element.
+    *a position* is an independent directorship; scenario element.
+    *a position* is associated with *a business*; unknown.
+    *a position* is in the law practice *a business entity*; scenario element.
+    *a thing* is a trade; scenario element.
+    *a thing* is a calling; scenario element.
+    *an entity* is an entity.
+    *a thing* is a company; scenario element.
+    *a thing* is a partnership; scenario element.
+    *a thing* is an llp; scenario element.
+    *a thing* is a sole proprietorship; scenario element.
+    *a thing* is a business trust; scenario element.
+    *a thing* is a joint law venture; scenario element.
+    *a thing* formal law alliance; scenario element.
+    *a business* is described in section 1 under *a provision*.
+    *a legal practitioner* must not accept the EA *an executive appointment* under *a provision*.
+    *a legal practitioner* may accept the EA *an executive appointment* under *a provision*.
+
+the knowledge base r34 includes:
+
+the text of the Legal Profession Professional Conduct Rules is at "sources/r34.md".
+
+the text of the Blawx project is at "sources/r34.yaml".
+
+% The Act, section by section.
+jason is a legal practitioner, as stated in the Blawx project at the root of the encoding.
+
+abc_llp is a law practice, as stated in the Blawx project at the root of the encoding.
+
+abc_llp is located in singapore, as stated in the Blawx project at the root of the encoding.
+
+jason is a legal practitioner in abc_llp, as stated in the Blawx project at the root of the encoding.
+
+megaCorp is a corporation, as stated in the Blawx project at the root of the encoding.
+
+ceo_megaCorp is a category name, as stated in the Blawx project at the root of the encoding.
+
+ceo_megaCorp entitles the holder to executive authority, as stated in the Blawx project at the root of the encoding.
+
+ceo_megaCorp is in megaCorp, as stated in the Blawx project at the root of the encoding.
+
+widget_sales is a business, as stated in the Blawx project at the root of the encoding.
+
+megaCorp carries on widget_sales, as stated in the Blawx project at the root of the encoding.
+
+rule section_34_1 with provenance the Legal Profession Professional Conduct Rules at section 34 1:
+a legal practitioner must not accept the EA an executive appointment under section_34_1 if
+    the executive appointment is an executive appointment
+    and a business is a business
+    and the legal practitioner is a legal practitioner
+    and the EA the executive appointment is associated with the business
+    and the business is described in section 1.
+
+% What section 34(1) concludes holds.
+rule section_34_1_conclusion with provenance the Legal Profession Professional Conduct Rules at section 34 1:
+a legal practitioner must not accept the EA an executive appointment if
+    the legal practitioner must not accept the EA the executive appointment under section_34_1.
+
+rule section_34_1_a with provenance the Legal Profession Professional Conduct Rules at section 34 1 a:
+a business is described in section 1 if
+    the business is a business
+    and the business detracts from the dignity of the legal profession.
+
+rule section_34_1_a_2 with provenance the Legal Profession Professional Conduct Rules at section 34 1 a:
+a business is described in section 1 if
+    the business is a business
+    and the business is incompatible with the dignity of the legal profession.
+
+rule section_34_1_a_3 with provenance the Legal Profession Professional Conduct Rules at section 34 1 a:
+a business is described in section 1 if
+    the business is a business
+    and the business derogates from the dignity of the legal profession.
+
+rule section_34_1_b with provenance the Legal Profession Professional Conduct Rules at section 34 1 b:
+a business is described in section 1 if
+    the business is described in section 1 under section_34_1_b_i.
+
+rule section_34_1_b_2 with provenance the Legal Profession Professional Conduct Rules at section 34 1 b:
+a business is described in section 1 if
+    the business is described in section 1 under section_34_1_b_ii.
+
+rule section_34_1_b_3 with provenance the Legal Profession Professional Conduct Rules at section 34 1 b:
+a business is described in section 1 if
+    the business is described in section 1 under section_34_1_b_iii.
+
+practicing_as_a_lawyer is an occupation, as stated in the Legal Profession Professional Conduct Rules at section 34 1 b i.
+
+rule section_34_1_b_i with provenance the Legal Profession Professional Conduct Rules at section 34 1 b i:
+a business is described in section 1 under section_34_1_b_i if
+    the business is a business
+    and a legal practitioner is a legal practitioner
+    and the primary occupation of the legal practitioner is practicing_as_a_lawyer
+    and the business materially interferes with the primary occupation of the legal practitioner.
+
+% What section 34(1)(b)(i) concludes holds.
+rule section_34_1_b_i_conclusion with provenance the Legal Profession Professional Conduct Rules at section 34 1 b i:
+a business is described in section 1 if
+    the business is described in section 1 under section_34_1_b_i.
+
+rule section_34_1_b_ii with provenance the Legal Profession Professional Conduct Rules at section 34 1 b ii:
+a business is described in section 1 under section_34_1_b_ii if
+    the business is a business
+    and a legal practitioner is a legal practitioner
+    and the business materially interferes with the availability to practice law of the legal practitioner.
+
+% What section 34(1)(b)(ii) concludes holds.
+rule section_34_1_b_ii_conclusion with provenance the Legal Profession Professional Conduct Rules at section 34 1 b ii:
+a business is described in section 1 if
+    the business is described in section 1 under section_34_1_b_ii.
+
+rule section_34_1_e with provenance the Legal Profession Professional Conduct Rules at section 34 1 e:
+a business is described in section 1 if
+    the business is a business
+    and the business is described in the first schedule.
+
+rule section_34_1_f with provenance the Legal Profession Professional Conduct Rules at section 34 1 f:
+a business is described in section 1 if
+    the business is a business
+    and the business is prohibited.
+
+rule section_34_1_c with provenance the Legal Profession Professional Conduct Rules at section 34 1 c:
+a business is described in section 1 if
+    the business is a business
+    and the business is likely to unfairly attract business.
+
+rule section_34_1_b_iii with provenance the Legal Profession Professional Conduct Rules at section 34 1 b iii:
+a business is described in section 1 under section_34_1_b_iii if
+    the business is a business
+    and a legal practitioner is a legal practitioner
+    and the business materially interferes with the representation of their clients of the legal practitioner.
+
+% What section 34(1)(b)(iii) concludes holds.
+rule section_34_1_b_iii_conclusion with provenance the Legal Profession Professional Conduct Rules at section 34 1 b iii:
+a business is described in section 1 if
+    the business is described in section 1 under section_34_1_b_iii.
+
+sharing is a payment type, as stated in the Legal Profession Professional Conduct Rules at section 34 1 d.
+
+paying is a payment type, as stated in the Legal Profession Professional Conduct Rules at section 34 1 d.
+
+fees is a compensation type, as stated in the Legal Profession Professional Conduct Rules at section 34 1 d.
+
+commission is a compensation type, as stated in the Legal Profession Professional Conduct Rules at section 34 1 d.
+
+rule section_34_1_d with provenance the Legal Profession Professional Conduct Rules at section 34 1 d:
+a person is a person if
+    the person is a legal practitioner.
+
+rule section_34_1_d_2 with provenance the Legal Profession Professional Conduct Rules at section 34 1 d:
+a payment reason is a payment reason if
+    the payment reason is legal work.
+
+rule section_34_1_d_3 with provenance the Legal Profession Professional Conduct Rules at section 34 1 d:
+a business is described in section 1 if
+    the business is a business
+    and a payment is a payment
+    and the business involves the payment
+    and a person is the recipient of the payment
+    and the person is authorized to provide legal services
+    and the payment is for a payment reason
+    and the payment reason is legal work
+    and the payment reason was done by a second person
+    and the second person is a legal practitioner
+    and the payment is of payment type sharing
+    and the payment has fees.
+
+rule section_34_1_d_4 with provenance the Legal Profession Professional Conduct Rules at section 34 1 d:
+a business is described in section 1 if
+    the business is a business
+    and a payment is a payment
+    and the business involves the payment
+    and a person is the recipient of the payment
+    and the person is authorized to provide legal services
+    and the payment is for a payment reason
+    and the payment reason is legal work
+    and the payment reason was done by a second person
+    and the second person is a legal practitioner
+    and the payment is of payment type paying
+    and the payment has commission.
+
+rule section_34_3 with provenance the Legal Profession Professional Conduct Rules at section 34 3:
+a legal practitioner may accept the EA an executive appointment under section_34_3 if
+    the legal practitioner is a legal practitioner
+    and the executive appointment is an executive appointment
+    and a business entity is a business entity
+    and a service is a service
+    and the executive appointment is an executive appointment in the business entity
+    and the business entity provides the service
+    and the service is a law related service
+    and it is not the case that the legal practitioner must not accept the EA the executive appointment under section_34_1.
+
+% What section 34(3) concludes holds.
+rule section_34_3_conclusion with provenance the Legal Profession Professional Conduct Rules at section 34 3:
+a legal practitioner may accept the EA an executive appointment if
+    the legal practitioner may accept the EA the executive appointment under section_34_3.
+
+rule section_34_3_2 with provenance the Legal Profession Professional Conduct Rules at section 34 3:
+an executive appointment is an executive appointment in a business entity if
+    the executive appointment is an executive appointment
+    and the business entity is a business entity
+    and the executive appointment is in the business entity.
+
+rule section_34_2 with provenance the Legal Profession Professional Conduct Rules at section 34 2:
+a legal practitioner may accept the EA an executive appointment under section_34_2 if
+    the legal practitioner is a legal practitioner
+    and a thing is a singapore law practice
+    and the executive appointment is an executive appointment
+    and a second thing is a singapore law practice
+    and the legal practitioner is a legal practitioner in the thing
+    and the executive appointment is an executive appointment in the second thing
+    and every owner of the second thing is sole prop, partner, or director of the thing
+    and it is not the case that the legal practitioner must not accept the EA the executive appointment under section_34_1.
+
+% What section 34(2) concludes holds.
+rule section_34_2_conclusion with provenance the Legal Profession Professional Conduct Rules at section 34 2:
+a legal practitioner may accept the EA an executive appointment if
+    the legal practitioner may accept the EA the executive appointment under section_34_2.
+
+rule section_34_2_2 with provenance the Legal Profession Professional Conduct Rules at section 34 2:
+a legal practitioner may accept the EA an executive appointment under section_34_2 if
+    the legal practitioner is a legal practitioner
+    and a thing is a singapore law practice
+    and the executive appointment is an executive appointment
+    and a second thing is a singapore law practice
+    and the legal practitioner is a legal practitioner in the thing
+    and the executive appointment is an executive appointment in the second thing
+    and the legal practitioner accepts the executive appointment as a representative
+    and it is not the case that it is prohibited for the thing to be involved in the second thing
+    and it is not the case that the legal practitioner must not accept the EA the executive appointment under section_34_1.
+
+global is a globe, as stated in the Legal Profession Professional Conduct Rules at section 34 4.
+
+% RESIDUE section_34_4_residue BEGIN: section 34(4) of the Legal Profession Professional Conduct Rules
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: section 34(4)
+% Blawx wrote this clause with a syntax error, so s(CASP) cannot load it and it never applies in Blawx: according_to(sec_34__subsec_4_section,may_accept,LP,EA) :- legal_practitioner(LP), executive_appointment(EA), business_entity(BE), appointment_in(BE,EA), not service(S)provides(BE,S)law_related(S), not service(S)provides(BE,S)law_related(S), not locum_solicitor(LP), second_schedule_satisfied(global). % BLAWX CHECK DUPLICATES holds(sec_34__subsec_4_section,may_accept,LP,EA) :- according_to(sec_34__subsec_4_section,may_accept,LP,EA), not blawx_defeated(sec_34__subsec_4_section,may_accept,LP,EA).
+%   s(CASP), as Blawx generated it:
+%   | according_to(sec_34__subsec_4_section,may_accept,LP,EA) :- legal_practitioner(LP), executive_appointment(EA), business_entity(BE), appointment_in(BE,EA), not service(S)provides(BE,S)law_related(S), not service(S)provides(BE,S)law_related(S), not locum_solicitor(LP), second_schedule_satisfied(global). % BLAWX CHECK DUPLICATES holds(sec_34__subsec_4_section,may_accept,LP,EA) :- according_to(sec_34__subsec_4_section,may_accept,LP,EA), not blawx_defeated(sec_34__subsec_4_section,may_accept,LP,EA).
+% RESIDUE section_34_4_residue END
+
+% RESIDUE section_34_5_residue BEGIN: section 34(5) of the Legal Profession Professional Conduct Rules
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: section 34(5)
+% Blawx wrote this clause with a syntax error, so s(CASP) cannot load it and it never applies in Blawx: according_to(sec_34__subsec_5_section,may_accept,LP,EA) :- legal_practitioner(LP), executive_appointment(EA), business_entity(BE), appointment_in(BE,EA), not service(S)provides(BE,S)law_related(S), not service(S)provides(BE,S)law_related(S), locum_solicitor(LP), second_schedule_satisfied(global). % BLAWX CHECK DUPLICATES holds(sec_34__subsec_5_section,may_accept,LP,EA) :- according_to(sec_34__subsec_5_section,may_accept,LP,EA), not blawx_defeated(sec_34__subsec_5_section,may_accept,LP,EA).
+%   s(CASP), as Blawx generated it:
+%   | according_to(sec_34__subsec_5_section,may_accept,LP,EA) :- legal_practitioner(LP), executive_appointment(EA), business_entity(BE), appointment_in(BE,EA), not service(S)provides(BE,S)law_related(S), not service(S)provides(BE,S)law_related(S), locum_solicitor(LP), second_schedule_satisfied(global). % BLAWX CHECK DUPLICATES holds(sec_34__subsec_5_section,may_accept,LP,EA) :- according_to(sec_34__subsec_5_section,may_accept,LP,EA), not blawx_defeated(sec_34__subsec_5_section,may_accept,LP,EA).
+% RESIDUE section_34_5_residue END
+
+singapore is a jurisdiction, as stated in the Legal Profession Professional Conduct Rules at section 34 6 a.
+
+rule section_34_6_a with provenance the Legal Profession Professional Conduct Rules at section 34 6 a:
+a legal practitioner must not accept the EA an executive appointment if
+    the legal practitioner is a legal practitioner
+    and the executive appointment is an executive appointment
+    and a law practice is a law practice
+    and the legal practitioner is a legal practitioner in the law practice
+    and the law practice is located in singapore
+    and a second law practice is a law practice
+    and the second law practice is located in singapore
+    and the executive appointment is an executive appointment in law practice the second law practice
+    and all of
+        it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_2
+        and it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_3
+        and it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_4
+        and it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_5.
+
+rule section_34_6_b with provenance the Legal Profession Professional Conduct Rules at section 34 6 b:
+a legal practitioner must not accept the EA an executive appointment if
+    the legal practitioner is a legal practitioner
+    and the executive appointment is an executive appointment
+    and a business entity is a business entity
+    and the executive appointment is an executive appointment in the business entity
+    and all of
+        it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_2
+        and it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_3
+        and it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_4
+        and it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_5.
+
+rule section_34_9_c with provenance the Legal Profession Professional Conduct Rules at section 34 9 c:
+an executive appointment is an executive appointment if
+    the executive appointment is a category name
+    and the executive appointment entitles the holder to executive authority
+    and it is not the case that the executive appointment is an executive directorship
+    and it is not the case that the executive appointment is an independent directorship
+    and a business is a business
+    and the executive appointment is associated with the business.
+
+rule section_34_9_c_2 with provenance the Legal Profession Professional Conduct Rules at section 34 9 c:
+an executive appointment is an executive appointment if
+    the executive appointment is a category name
+    and the executive appointment entitles the holder to executive authority
+    and it is not the case that the executive appointment is an executive directorship
+    and it is not the case that the executive appointment is an independent directorship
+    and a business entity is a business entity
+    and the executive appointment is in the business entity.
+
+rule section_34_9_c_3 with provenance the Legal Profession Professional Conduct Rules at section 34 9 c:
+an executive appointment is an executive appointment if
+    the executive appointment is a category name
+    and the executive appointment entitles the holder to executive authority
+    and it is not the case that the executive appointment is an executive directorship
+    and it is not the case that the executive appointment is an independent directorship
+    and a law practice is a law practice
+    and the executive appointment is in the law practice the law practice.
+
+rule section_34_9_a with provenance the Legal Profession Professional Conduct Rules at section 34 9 a:
+a business is a business if
+    the business is a trade
+    and the business is not equal to practicing_as_a_lawyer.
+
+rule section_34_9_a_2 with provenance the Legal Profession Professional Conduct Rules at section 34 9 a:
+a business is a business if
+    the business is a calling
+    and the business is not equal to practicing_as_a_lawyer.
+
+rule section_34_9_b with provenance the Legal Profession Professional Conduct Rules at section 34 9 b:
+a thing is a singapore law practice if
+    the thing is a law practice
+    and the thing is located in singapore.
+
+rule section_34_9_b_2 with provenance the Legal Profession Professional Conduct Rules at section 34 9 b:
+an entity is an entity if
+    the entity is a company.
+
+rule section_34_9_b_3 with provenance the Legal Profession Professional Conduct Rules at section 34 9 b:
+an entity is an entity if
+    the entity is a corporation.
+
+rule section_34_9_b_4 with provenance the Legal Profession Professional Conduct Rules at section 34 9 b:
+an entity is an entity if
+    the entity is a partnership.
+
+rule section_34_9_b_5 with provenance the Legal Profession Professional Conduct Rules at section 34 9 b:
+an entity is an entity if
+    the entity is an llp.
+
+rule section_34_9_b_6 with provenance the Legal Profession Professional Conduct Rules at section 34 9 b:
+an entity is an entity if
+    the entity is a sole proprietorship.
+
+rule section_34_9_b_7 with provenance the Legal Profession Professional Conduct Rules at section 34 9 b:
+an entity is an entity if
+    the entity is a business trust.
+
+rule section_34_9_b_8 with provenance the Legal Profession Professional Conduct Rules at section 34 9 b:
+an entity is an entity if
+    the entity is a joint law venture.
+
+rule section_34_9_b_9 with provenance the Legal Profession Professional Conduct Rules at section 34 9 b:
+an entity is an entity if
+    the entity formal law alliance.
+
+rule section_34_9_b_10 with provenance the Legal Profession Professional Conduct Rules at section 34 9 b:
+an entity is an entity if
+    the entity is a legal practitioner.
+
+rule section_34_9_b_11 with provenance the Legal Profession Professional Conduct Rules at section 34 9 b:
+an entity is an entity if
+    the entity is a legal practitioner.
+
+rule section_34_9_b_12 with provenance the Legal Profession Professional Conduct Rules at section 34 9 b:
+an entity is an entity if
+    the entity is a singapore law practice.
+
+rule section_34_9_b_13 with provenance the Legal Profession Professional Conduct Rules at section 34 9 b:
+an entity is an entity if
+    the entity is a law practice.
+
+rule section_34_9_b_14 with provenance the Legal Profession Professional Conduct Rules at section 34 9 b:
+a business entity is a business entity if
+    the business entity is an entity
+    and a business is a business
+    and the business entity carries on the business
+    and it is not the case that the business entity is a joint law venture
+    and it is not the case that the business entity formal law alliance
+    and it is not the case that the business entity is a legal practitioner
+    and it is not the case that the business entity is a legal practitioner
+    and it is not the case that the business entity is a singapore law practice.
+
+scenario materialinterference is, as stated in the Blawx project at test MaterialInterference:
+    % Our expectation was that if being the CEO of megacorp
+    % interferes with a lawyer's primary occupation, it will
+    % not be permitted under section 34.1 because of 34.1.b.i
+    % If we wrap the "according to" in "not", and run the
+    % query again, we get an explanation for why the above
+    % query failed. It fails because there is no evidence that
+    % being the CEO of MegaCorp is associated with widget sales.
+    % In our facts, we said that a position materially interfered, but the
+    % rule states that the interference needs to come from a "business".
+    ceo_megaCorp materially interferes with the primary occupation of jason.
+    the primary occupation of jason is practicing_as_a_lawyer.
+    materialinterference expects answers [].
+
+scenario case_2 is, as stated in the case analysis of the encoding at section 34 1 a:
+    % a case of the rule of section 34(1)(a) (blawx_cases.pl), answered by Blawx
+    business_a is a business.
+    business_a detracts from the dignity of the legal profession.
+    which_is_described_in_section_1 expects answers ["business_a is described in section 1"].
+
+scenario case_2_without_fact_1 is, as stated in the case analysis of the encoding at section 34 1 a:
+    % a case of the rule of section 34(1)(a) (blawx_cases.pl), answered by Blawx
+    business_a detracts from the dignity of the legal profession.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_2_without_fact_2 is, as stated in the case analysis of the encoding at section 34 1 a:
+    % a case of the rule of section 34(1)(a) (blawx_cases.pl), answered by Blawx
+    business_a is a business.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_3_without_fact_1 is, as stated in the case analysis of the encoding at section 34 1 a:
+    % a case of the rule of section 34(1)(a) (blawx_cases.pl), answered by Blawx
+    business_a is incompatible with the dignity of the legal profession.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_4 is, as stated in the case analysis of the encoding at section 34 1 a:
+    % a case of the rule of section 34(1)(a) (blawx_cases.pl), answered by Blawx
+    business_a is a business.
+    business_a derogates from the dignity of the legal profession.
+    which_is_described_in_section_1 expects answers ["business_a is described in section 1"].
+
+scenario case_4_without_fact_1 is, as stated in the case analysis of the encoding at section 34 1 a:
+    % a case of the rule of section 34(1)(a) (blawx_cases.pl), answered by Blawx
+    business_a derogates from the dignity of the legal profession.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_5_without_fact_1 is, as stated in the case analysis of the encoding at section 34 1 b:
+    % a case of the rule of section 34(1)(b) (blawx_cases.pl), answered by Blawx
+    the primary occupation of legal_practitioner_a is practicing_as_a_lawyer.
+    legal_practitioner_a is a legal practitioner.
+    business_a is a business.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_5_without_fact_2 is, as stated in the case analysis of the encoding at section 34 1 b:
+    % a case of the rule of section 34(1)(b) (blawx_cases.pl), answered by Blawx
+    business_a materially interferes with the primary occupation of legal_practitioner_a.
+    legal_practitioner_a is a legal practitioner.
+    business_a is a business.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_5_without_fact_3 is, as stated in the case analysis of the encoding at section 34 1 b:
+    % a case of the rule of section 34(1)(b) (blawx_cases.pl), answered by Blawx
+    business_a materially interferes with the primary occupation of legal_practitioner_a.
+    the primary occupation of legal_practitioner_a is practicing_as_a_lawyer.
+    business_a is a business.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_6 is, as stated in the case analysis of the encoding at section 34 1 b:
+    % a case of the rule of section 34(1)(b) (blawx_cases.pl), answered by Blawx
+    business_a materially interferes with the availability to practice law of legal_practitioner_a.
+    legal_practitioner_a is a legal practitioner.
+    business_a is a business.
+    which_is_described_in_section_1 expects answers ["business_a is described in section 1"].
+
+scenario case_6_without_fact_1 is, as stated in the case analysis of the encoding at section 34 1 b:
+    % a case of the rule of section 34(1)(b) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    business_a is a business.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_6_without_fact_2 is, as stated in the case analysis of the encoding at section 34 1 b:
+    % a case of the rule of section 34(1)(b) (blawx_cases.pl), answered by Blawx
+    business_a materially interferes with the availability to practice law of legal_practitioner_a.
+    business_a is a business.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_7 is, as stated in the case analysis of the encoding at section 34 1 b:
+    % a case of the rule of section 34(1)(b) (blawx_cases.pl), answered by Blawx
+    business_a materially interferes with the representation of their clients of legal_practitioner_a.
+    legal_practitioner_a is a legal practitioner.
+    business_a is a business.
+    which_is_described_in_section_1 expects answers ["business_a is described in section 1"].
+
+scenario case_7_without_fact_2 is, as stated in the case analysis of the encoding at section 34 1 b:
+    % a case of the rule of section 34(1)(b) (blawx_cases.pl), answered by Blawx
+    business_a materially interferes with the representation of their clients of legal_practitioner_a.
+    business_a is a business.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_7_without_fact_3 is, as stated in the case analysis of the encoding at section 34 1 b:
+    % a case of the rule of section 34(1)(b) (blawx_cases.pl), answered by Blawx
+    business_a materially interferes with the representation of their clients of legal_practitioner_a.
+    legal_practitioner_a is a legal practitioner.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_10_without_fact_1 is, as stated in the case analysis of the encoding at section 34 1 e:
+    % a case of the rule of section 34(1)(e) (blawx_cases.pl), answered by Blawx
+    business_a is described in the first schedule.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_11 is, as stated in the case analysis of the encoding at section 34 1 f:
+    % a case of the rule of section 34(1)(f) (blawx_cases.pl), answered by Blawx
+    business_a is a business.
+    business_a is prohibited.
+    which_is_described_in_section_1 expects answers ["business_a is described in section 1"].
+
+scenario case_11_without_fact_1 is, as stated in the case analysis of the encoding at section 34 1 f:
+    % a case of the rule of section 34(1)(f) (blawx_cases.pl), answered by Blawx
+    business_a is prohibited.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_12_without_fact_1 is, as stated in the case analysis of the encoding at section 34 1 c:
+    % a case of the rule of section 34(1)(c) (blawx_cases.pl), answered by Blawx
+    business_a is likely to unfairly attract business.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_14 is, as stated in the case analysis of the encoding at section 34 1 d:
+    % a case of the rule of section 34(1)(d) (blawx_cases.pl), answered by Blawx
+    business_a is a business.
+    payment_a is a payment.
+    business_a involves payment_a.
+    person_a is the recipient of payment_a.
+    person_a is authorized to provide legal services.
+    payment_a is for payment_reason_a.
+    payment_reason_a is legal work.
+    payment_reason_a was done by person_b.
+    person_b is a legal practitioner.
+    payment_a is of payment type sharing.
+    payment_a has fees.
+    which_is_described_in_section_1 expects answers ["business_a is described in section 1"].
+
+scenario case_14_without_fact_1 is, as stated in the case analysis of the encoding at section 34 1 d:
+    % a case of the rule of section 34(1)(d) (blawx_cases.pl), answered by Blawx
+    payment_a is a payment.
+    business_a involves payment_a.
+    person_a is the recipient of payment_a.
+    person_a is authorized to provide legal services.
+    payment_a is for payment_reason_a.
+    payment_reason_a is legal work.
+    payment_reason_a was done by person_b.
+    person_b is a legal practitioner.
+    payment_a is of payment type sharing.
+    payment_a has fees.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_14_without_fact_3 is, as stated in the case analysis of the encoding at section 34 1 d:
+    % a case of the rule of section 34(1)(d) (blawx_cases.pl), answered by Blawx
+    business_a is a business.
+    payment_a is a payment.
+    person_a is the recipient of payment_a.
+    person_a is authorized to provide legal services.
+    payment_a is for payment_reason_a.
+    payment_reason_a is legal work.
+    payment_reason_a was done by person_b.
+    person_b is a legal practitioner.
+    payment_a is of payment type sharing.
+    payment_a has fees.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_14_without_fact_4 is, as stated in the case analysis of the encoding at section 34 1 d:
+    % a case of the rule of section 34(1)(d) (blawx_cases.pl), answered by Blawx
+    business_a is a business.
+    payment_a is a payment.
+    business_a involves payment_a.
+    person_a is authorized to provide legal services.
+    payment_a is for payment_reason_a.
+    payment_reason_a is legal work.
+    payment_reason_a was done by person_b.
+    person_b is a legal practitioner.
+    payment_a is of payment type sharing.
+    payment_a has fees.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_14_without_fact_5 is, as stated in the case analysis of the encoding at section 34 1 d:
+    % a case of the rule of section 34(1)(d) (blawx_cases.pl), answered by Blawx
+    business_a is a business.
+    payment_a is a payment.
+    business_a involves payment_a.
+    person_a is the recipient of payment_a.
+    payment_a is for payment_reason_a.
+    payment_reason_a is legal work.
+    payment_reason_a was done by person_b.
+    person_b is a legal practitioner.
+    payment_a is of payment type sharing.
+    payment_a has fees.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_14_without_fact_7 is, as stated in the case analysis of the encoding at section 34 1 d:
+    % a case of the rule of section 34(1)(d) (blawx_cases.pl), answered by Blawx
+    business_a is a business.
+    payment_a is a payment.
+    business_a involves payment_a.
+    person_a is the recipient of payment_a.
+    person_a is authorized to provide legal services.
+    payment_a is for payment_reason_a.
+    payment_reason_a was done by person_b.
+    person_b is a legal practitioner.
+    payment_a is of payment type sharing.
+    payment_a has fees.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_14_without_fact_8 is, as stated in the case analysis of the encoding at section 34 1 d:
+    % a case of the rule of section 34(1)(d) (blawx_cases.pl), answered by Blawx
+    business_a is a business.
+    payment_a is a payment.
+    business_a involves payment_a.
+    person_a is the recipient of payment_a.
+    person_a is authorized to provide legal services.
+    payment_a is for payment_reason_a.
+    payment_reason_a is legal work.
+    person_b is a legal practitioner.
+    payment_a is of payment type sharing.
+    payment_a has fees.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_14_without_fact_9 is, as stated in the case analysis of the encoding at section 34 1 d:
+    % a case of the rule of section 34(1)(d) (blawx_cases.pl), answered by Blawx
+    business_a is a business.
+    payment_a is a payment.
+    business_a involves payment_a.
+    person_a is the recipient of payment_a.
+    person_a is authorized to provide legal services.
+    payment_a is for payment_reason_a.
+    payment_reason_a is legal work.
+    payment_reason_a was done by person_b.
+    payment_a is of payment type sharing.
+    payment_a has fees.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_15_without_fact_1 is, as stated in the case analysis of the encoding at section 34 1 d:
+    % a case of the rule of section 34(1)(d) (blawx_cases.pl), answered by Blawx
+    payment_a is a payment.
+    business_a involves payment_a.
+    person_a is the recipient of payment_a.
+    person_a is authorized to provide legal services.
+    payment_a is for payment_reason_a.
+    payment_reason_a is legal work.
+    payment_reason_a was done by person_b.
+    person_b is a legal practitioner.
+    payment_a is of payment type paying.
+    payment_a has commission.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_15_without_fact_2 is, as stated in the case analysis of the encoding at section 34 1 d:
+    % a case of the rule of section 34(1)(d) (blawx_cases.pl), answered by Blawx
+    business_a is a business.
+    business_a involves payment_a.
+    person_a is the recipient of payment_a.
+    person_a is authorized to provide legal services.
+    payment_a is for payment_reason_a.
+    payment_reason_a is legal work.
+    payment_reason_a was done by person_b.
+    person_b is a legal practitioner.
+    payment_a is of payment type paying.
+    payment_a has commission.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_15_without_fact_3 is, as stated in the case analysis of the encoding at section 34 1 d:
+    % a case of the rule of section 34(1)(d) (blawx_cases.pl), answered by Blawx
+    business_a is a business.
+    payment_a is a payment.
+    person_a is the recipient of payment_a.
+    person_a is authorized to provide legal services.
+    payment_a is for payment_reason_a.
+    payment_reason_a is legal work.
+    payment_reason_a was done by person_b.
+    person_b is a legal practitioner.
+    payment_a is of payment type paying.
+    payment_a has commission.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_15_without_fact_5 is, as stated in the case analysis of the encoding at section 34 1 d:
+    % a case of the rule of section 34(1)(d) (blawx_cases.pl), answered by Blawx
+    business_a is a business.
+    payment_a is a payment.
+    business_a involves payment_a.
+    person_a is the recipient of payment_a.
+    payment_a is for payment_reason_a.
+    payment_reason_a is legal work.
+    payment_reason_a was done by person_b.
+    person_b is a legal practitioner.
+    payment_a is of payment type paying.
+    payment_a has commission.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_15_without_fact_6 is, as stated in the case analysis of the encoding at section 34 1 d:
+    % a case of the rule of section 34(1)(d) (blawx_cases.pl), answered by Blawx
+    business_a is a business.
+    payment_a is a payment.
+    business_a involves payment_a.
+    person_a is the recipient of payment_a.
+    person_a is authorized to provide legal services.
+    payment_reason_a is legal work.
+    payment_reason_a was done by person_b.
+    person_b is a legal practitioner.
+    payment_a is of payment type paying.
+    payment_a has commission.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_15_without_fact_8 is, as stated in the case analysis of the encoding at section 34 1 d:
+    % a case of the rule of section 34(1)(d) (blawx_cases.pl), answered by Blawx
+    business_a is a business.
+    payment_a is a payment.
+    business_a involves payment_a.
+    person_a is the recipient of payment_a.
+    person_a is authorized to provide legal services.
+    payment_a is for payment_reason_a.
+    payment_reason_a is legal work.
+    person_b is a legal practitioner.
+    payment_a is of payment type paying.
+    payment_a has commission.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_15_without_fact_9 is, as stated in the case analysis of the encoding at section 34 1 d:
+    % a case of the rule of section 34(1)(d) (blawx_cases.pl), answered by Blawx
+    business_a is a business.
+    payment_a is a payment.
+    business_a involves payment_a.
+    person_a is the recipient of payment_a.
+    person_a is authorized to provide legal services.
+    payment_a is for payment_reason_a.
+    payment_reason_a is legal work.
+    payment_reason_a was done by person_b.
+    payment_a is of payment type paying.
+    payment_a has commission.
+    which_is_described_in_section_1 expects answers [].
+
+scenario case_16 is, as stated in the case analysis of the encoding at section 34 3:
+    % a case of the rule of section 34(3) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    executive_appointment_a is an executive appointment.
+    business_entity_a is a business entity.
+    service_a is a service.
+    executive_appointment_a is an executive appointment in business_entity_a.
+    business_entity_a provides service_a.
+    service_a is a law related service.
+
+scenario case_16_without_fact_2 is, as stated in the case analysis of the encoding at section 34 3:
+    % a case of the rule of section 34(3) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    business_entity_a is a business entity.
+    service_a is a service.
+    executive_appointment_a is an executive appointment in business_entity_a.
+    business_entity_a provides service_a.
+    service_a is a law related service.
+    which_may_accept_the_EA expects answers [].
+
+scenario case_16_without_fact_3 is, as stated in the case analysis of the encoding at section 34 3:
+    % a case of the rule of section 34(3) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    executive_appointment_a is an executive appointment.
+    service_a is a service.
+    executive_appointment_a is an executive appointment in business_entity_a.
+    business_entity_a provides service_a.
+    service_a is a law related service.
+    which_may_accept_the_EA expects answers [].
+
+scenario case_16_without_fact_4 is, as stated in the case analysis of the encoding at section 34 3:
+    % a case of the rule of section 34(3) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    executive_appointment_a is an executive appointment.
+    business_entity_a is a business entity.
+    executive_appointment_a is an executive appointment in business_entity_a.
+    business_entity_a provides service_a.
+    service_a is a law related service.
+    which_may_accept_the_EA expects answers [].
+
+scenario case_16_without_fact_6 is, as stated in the case analysis of the encoding at section 34 3:
+    % a case of the rule of section 34(3) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    executive_appointment_a is an executive appointment.
+    business_entity_a is a business entity.
+    service_a is a service.
+    executive_appointment_a is an executive appointment in business_entity_a.
+    service_a is a law related service.
+    which_may_accept_the_EA expects answers [].
+
+scenario case_16_without_fact_7 is, as stated in the case analysis of the encoding at section 34 3:
+    % a case of the rule of section 34(3) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    executive_appointment_a is an executive appointment.
+    business_entity_a is a business entity.
+    service_a is a service.
+    executive_appointment_a is an executive appointment in business_entity_a.
+    business_entity_a provides service_a.
+    which_may_accept_the_EA expects answers [].
+
+scenario case_17 is, as stated in the case analysis of the encoding at section 34 2:
+    % a case of the rule of section 34(2) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    thing_a is a singapore law practice.
+    executive_appointment_a is an executive appointment.
+    thing_b is a singapore law practice.
+    legal_practitioner_a is a legal practitioner in thing_a.
+    executive_appointment_a is an executive appointment in thing_b.
+    every owner of thing_b is sole prop, partner, or director of thing_a.
+    % pending — Blawx's answer here needs it to assume a fact the case does not state (the Act declares #abducible), which LE reports as an unknown:
+    % which_may_accept_the_EA expects answers ["legal_practitioner_a may accept the EA executive_appointment_a"].
+
+scenario case_17_without_fact_2 is, as stated in the case analysis of the encoding at section 34 2:
+    % a case of the rule of section 34(2) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    executive_appointment_a is an executive appointment.
+    thing_b is a singapore law practice.
+    legal_practitioner_a is a legal practitioner in thing_a.
+    executive_appointment_a is an executive appointment in thing_b.
+    every owner of thing_b is sole prop, partner, or director of thing_a.
+    which_may_accept_the_EA expects answers [].
+
+scenario case_17_without_fact_3 is, as stated in the case analysis of the encoding at section 34 2:
+    % a case of the rule of section 34(2) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    thing_a is a singapore law practice.
+    thing_b is a singapore law practice.
+    legal_practitioner_a is a legal practitioner in thing_a.
+    executive_appointment_a is an executive appointment in thing_b.
+    every owner of thing_b is sole prop, partner, or director of thing_a.
+    which_may_accept_the_EA expects answers [].
+
+scenario case_17_without_fact_4 is, as stated in the case analysis of the encoding at section 34 2:
+    % a case of the rule of section 34(2) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    thing_a is a singapore law practice.
+    executive_appointment_a is an executive appointment.
+    legal_practitioner_a is a legal practitioner in thing_a.
+    executive_appointment_a is an executive appointment in thing_b.
+    every owner of thing_b is sole prop, partner, or director of thing_a.
+    which_may_accept_the_EA expects answers [].
+
+scenario case_17_without_fact_6 is, as stated in the case analysis of the encoding at section 34 2:
+    % a case of the rule of section 34(2) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    thing_a is a singapore law practice.
+    executive_appointment_a is an executive appointment.
+    thing_b is a singapore law practice.
+    legal_practitioner_a is a legal practitioner in thing_a.
+    every owner of thing_b is sole prop, partner, or director of thing_a.
+    which_may_accept_the_EA expects answers [].
+
+scenario case_17_without_fact_7 is, as stated in the case analysis of the encoding at section 34 2:
+    % a case of the rule of section 34(2) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    thing_a is a singapore law practice.
+    executive_appointment_a is an executive appointment.
+    thing_b is a singapore law practice.
+    legal_practitioner_a is a legal practitioner in thing_a.
+    executive_appointment_a is an executive appointment in thing_b.
+    which_may_accept_the_EA expects answers [].
+
+scenario case_18 is, as stated in the case analysis of the encoding at section 34 2:
+    % a case of the rule of section 34(2) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    thing_a is a singapore law practice.
+    executive_appointment_a is an executive appointment.
+    thing_b is a singapore law practice.
+    legal_practitioner_a is a legal practitioner in thing_a.
+    executive_appointment_a is an executive appointment in thing_b.
+    legal_practitioner_a accepts executive_appointment_a as a representative.
+    which_may_accept_the_EA expects answers ["legal_practitioner_a may accept the EA executive_appointment_a"].
+
+scenario case_18_without_fact_2 is, as stated in the case analysis of the encoding at section 34 2:
+    % a case of the rule of section 34(2) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    executive_appointment_a is an executive appointment.
+    thing_b is a singapore law practice.
+    legal_practitioner_a is a legal practitioner in thing_a.
+    executive_appointment_a is an executive appointment in thing_b.
+    legal_practitioner_a accepts executive_appointment_a as a representative.
+    which_may_accept_the_EA expects answers [].
+
+scenario case_18_without_fact_3 is, as stated in the case analysis of the encoding at section 34 2:
+    % a case of the rule of section 34(2) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    thing_a is a singapore law practice.
+    thing_b is a singapore law practice.
+    legal_practitioner_a is a legal practitioner in thing_a.
+    executive_appointment_a is an executive appointment in thing_b.
+    legal_practitioner_a accepts executive_appointment_a as a representative.
+    which_may_accept_the_EA expects answers [].
+
+scenario case_18_without_fact_4 is, as stated in the case analysis of the encoding at section 34 2:
+    % a case of the rule of section 34(2) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    thing_a is a singapore law practice.
+    executive_appointment_a is an executive appointment.
+    legal_practitioner_a is a legal practitioner in thing_a.
+    executive_appointment_a is an executive appointment in thing_b.
+    legal_practitioner_a accepts executive_appointment_a as a representative.
+    which_may_accept_the_EA expects answers [].
+
+scenario case_18_without_fact_6 is, as stated in the case analysis of the encoding at section 34 2:
+    % a case of the rule of section 34(2) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    thing_a is a singapore law practice.
+    executive_appointment_a is an executive appointment.
+    thing_b is a singapore law practice.
+    legal_practitioner_a is a legal practitioner in thing_a.
+    legal_practitioner_a accepts executive_appointment_a as a representative.
+    which_may_accept_the_EA expects answers [].
+
+scenario case_19 is, as stated in the case analysis of the encoding at section 34 6 a:
+    % a case of the rule of section 34(6)(a) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    executive_appointment_a is an executive appointment.
+    law_practice_a is a law practice.
+    legal_practitioner_a is a legal practitioner in law_practice_a.
+    law_practice_a is located in singapore.
+    law_practice_b is a law practice.
+    law_practice_b is located in singapore.
+    executive_appointment_a is an executive appointment in law practice law_practice_b.
+
+scenario case_19_without_fact_1 is, as stated in the case analysis of the encoding at section 34 6 a:
+    % a case of the rule of section 34(6)(a) (blawx_cases.pl), answered by Blawx
+    executive_appointment_a is an executive appointment.
+    law_practice_a is a law practice.
+    legal_practitioner_a is a legal practitioner in law_practice_a.
+    law_practice_a is located in singapore.
+    law_practice_b is a law practice.
+    law_practice_b is located in singapore.
+    executive_appointment_a is an executive appointment in law practice law_practice_b.
+    % pending — Blawx's answer here needs it to assume a fact the case does not state (the Act declares #abducible), which LE reports as an unknown:
+    % which_must_not_accept_the_EA expects answers ["jason must not accept the EA ceo_megaCorp", "jason must not accept the EA executive_appointment_a"].
+
+scenario case_19_without_fact_3 is, as stated in the case analysis of the encoding at section 34 6 a:
+    % a case of the rule of section 34(6)(a) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    executive_appointment_a is an executive appointment.
+    legal_practitioner_a is a legal practitioner in law_practice_a.
+    law_practice_a is located in singapore.
+    law_practice_b is a law practice.
+    law_practice_b is located in singapore.
+    executive_appointment_a is an executive appointment in law practice law_practice_b.
+
+scenario case_19_without_fact_4 is, as stated in the case analysis of the encoding at section 34 6 a:
+    % a case of the rule of section 34(6)(a) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    executive_appointment_a is an executive appointment.
+    law_practice_a is a law practice.
+    law_practice_a is located in singapore.
+    law_practice_b is a law practice.
+    law_practice_b is located in singapore.
+    executive_appointment_a is an executive appointment in law practice law_practice_b.
+
+scenario case_19_without_fact_5 is, as stated in the case analysis of the encoding at section 34 6 a:
+    % a case of the rule of section 34(6)(a) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    executive_appointment_a is an executive appointment.
+    law_practice_a is a law practice.
+    legal_practitioner_a is a legal practitioner in law_practice_a.
+    law_practice_b is a law practice.
+    law_practice_b is located in singapore.
+    executive_appointment_a is an executive appointment in law practice law_practice_b.
+
+scenario case_19_without_fact_7 is, as stated in the case analysis of the encoding at section 34 6 a:
+    % a case of the rule of section 34(6)(a) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    executive_appointment_a is an executive appointment.
+    law_practice_a is a law practice.
+    legal_practitioner_a is a legal practitioner in law_practice_a.
+    law_practice_a is located in singapore.
+    law_practice_b is a law practice.
+    executive_appointment_a is an executive appointment in law practice law_practice_b.
+
+scenario case_19_without_fact_8 is, as stated in the case analysis of the encoding at section 34 6 a:
+    % a case of the rule of section 34(6)(a) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    executive_appointment_a is an executive appointment.
+    law_practice_a is a law practice.
+    legal_practitioner_a is a legal practitioner in law_practice_a.
+    law_practice_a is located in singapore.
+    law_practice_b is a law practice.
+    law_practice_b is located in singapore.
+
+scenario case_19_with_sec_34__subsec_2_section is, as stated in the case analysis of the encoding at section 34 6 a:
+    % a case of the rule of section 34(6)(a) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    executive_appointment_a is an executive appointment.
+    law_practice_a is a law practice.
+    legal_practitioner_a is a legal practitioner in law_practice_a.
+    law_practice_a is located in singapore.
+    law_practice_b is a law practice.
+    law_practice_b is located in singapore.
+    executive_appointment_a is an executive appointment in law practice law_practice_b.
+    thing_a is a singapore law practice.
+    thing_b is a singapore law practice.
+    legal_practitioner_a is a legal practitioner in thing_a.
+    executive_appointment_a is an executive appointment in thing_b.
+    every owner of thing_b is sole prop, partner, or director of thing_a.
+
+scenario case_20_without_fact_1 is, as stated in the case analysis of the encoding at section 34 6 b:
+    % a case of the rule of section 34(6)(b) (blawx_cases.pl), answered by Blawx
+    executive_appointment_a is an executive appointment.
+    business_entity_a is a business entity.
+    executive_appointment_a is an executive appointment in business_entity_a.
+    % pending — Blawx's answer here needs it to assume a fact the case does not state (the Act declares #abducible), which LE reports as an unknown:
+    % which_must_not_accept_the_EA expects answers ["jason must not accept the EA ceo_megaCorp", "jason must not accept the EA executive_appointment_a"].
+
+scenario case_20_without_fact_2 is, as stated in the case analysis of the encoding at section 34 6 b:
+    % a case of the rule of section 34(6)(b) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    business_entity_a is a business entity.
+    executive_appointment_a is an executive appointment in business_entity_a.
+    % pending — Blawx's answer here needs it to assume a fact the case does not state (the Act declares #abducible), which LE reports as an unknown:
+    % which_must_not_accept_the_EA expects answers [].
+
+scenario case_20_without_fact_4 is, as stated in the case analysis of the encoding at section 34 6 b:
+    % a case of the rule of section 34(6)(b) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    executive_appointment_a is an executive appointment.
+    business_entity_a is a business entity.
+
+scenario case_20_with_sec_34__subsec_2_section is, as stated in the case analysis of the encoding at section 34 6 b:
+    % a case of the rule of section 34(6)(b) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    executive_appointment_a is an executive appointment.
+    business_entity_a is a business entity.
+    executive_appointment_a is an executive appointment in business_entity_a.
+    thing_a is a singapore law practice.
+    thing_b is a singapore law practice.
+    legal_practitioner_a is a legal practitioner in thing_a.
+    executive_appointment_a is an executive appointment in thing_b.
+    every owner of thing_b is sole prop, partner, or director of thing_a.
+
+scenario case_20_with_sec_34__subsec_2_section is, as stated in the case analysis of the encoding at section 34 6 b:
+    % a case of the rule of section 34(6)(b) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    executive_appointment_a is an executive appointment.
+    business_entity_a is a business entity.
+    executive_appointment_a is an executive appointment in business_entity_a.
+    thing_a is a singapore law practice.
+    thing_b is a singapore law practice.
+    legal_practitioner_a is a legal practitioner in thing_a.
+    executive_appointment_a is an executive appointment in thing_b.
+    legal_practitioner_a accepts executive_appointment_a as a representative.
+
+scenario case_21 is, as stated in the case analysis of the encoding at section 34 9 c:
+    % a case of the rule of section 34(9)(c) (blawx_cases.pl), answered by Blawx
+    position_a is a category name.
+    position_a entitles the holder to executive authority.
+    business_a is a business.
+    position_a is associated with business_a.
+    % pending — Blawx's answer here needs it to assume a fact the case does not state (the Act declares #abducible), which LE reports as an unknown:
+    % which_is_an_executive_appointment expects answers ["ceo_megaCorp is an executive appointment", "position_a is an executive appointment"].
+
+scenario case_21_without_fact_1 is, as stated in the case analysis of the encoding at section 34 9 c:
+    % a case of the rule of section 34(9)(c) (blawx_cases.pl), answered by Blawx
+    position_a entitles the holder to executive authority.
+    business_a is a business.
+    position_a is associated with business_a.
+    % pending — Blawx's answer here needs it to assume a fact the case does not state (the Act declares #abducible), which LE reports as an unknown:
+    % which_is_an_executive_appointment expects answers ["ceo_megaCorp is an executive appointment"].
+
+scenario case_21_without_fact_2 is, as stated in the case analysis of the encoding at section 34 9 c:
+    % a case of the rule of section 34(9)(c) (blawx_cases.pl), answered by Blawx
+    position_a is a category name.
+    business_a is a business.
+    position_a is associated with business_a.
+    % pending — Blawx's answer here needs it to assume a fact the case does not state (the Act declares #abducible), which LE reports as an unknown:
+    % which_is_an_executive_appointment expects answers ["ceo_megaCorp is an executive appointment"].
+
+scenario case_21_without_fact_4 is, as stated in the case analysis of the encoding at section 34 9 c:
+    % a case of the rule of section 34(9)(c) (blawx_cases.pl), answered by Blawx
+    position_a is a category name.
+    position_a entitles the holder to executive authority.
+    business_a is a business.
+    % pending — Blawx's answer here needs it to assume a fact the case does not state (the Act declares #abducible), which LE reports as an unknown:
+    % which_is_an_executive_appointment expects answers ["ceo_megaCorp is an executive appointment", "position_a is an executive appointment"].
+
+scenario case_22 is, as stated in the case analysis of the encoding at section 34 9 c:
+    % a case of the rule of section 34(9)(c) (blawx_cases.pl), answered by Blawx
+    position_a is a category name.
+    position_a entitles the holder to executive authority.
+    business_entity_a is a business entity.
+    position_a is in business_entity_a.
+    % pending — Blawx's answer here needs it to assume a fact the case does not state (the Act declares #abducible), which LE reports as an unknown:
+    % which_is_an_executive_appointment expects answers ["position_a is an executive appointment", "ceo_megaCorp is an executive appointment"].
+
+scenario case_22_without_fact_1 is, as stated in the case analysis of the encoding at section 34 9 c:
+    % a case of the rule of section 34(9)(c) (blawx_cases.pl), answered by Blawx
+    position_a entitles the holder to executive authority.
+    business_entity_a is a business entity.
+    position_a is in business_entity_a.
+    % pending — Blawx's answer here needs it to assume a fact the case does not state (the Act declares #abducible), which LE reports as an unknown:
+    % which_is_an_executive_appointment expects answers ["ceo_megaCorp is an executive appointment"].
+
+scenario case_22_without_fact_3 is, as stated in the case analysis of the encoding at section 34 9 c:
+    % a case of the rule of section 34(9)(c) (blawx_cases.pl), answered by Blawx
+    position_a is a category name.
+    position_a entitles the holder to executive authority.
+    position_a is in business_entity_a.
+    % pending — Blawx's answer here needs it to assume a fact the case does not state (the Act declares #abducible), which LE reports as an unknown:
+    % which_is_an_executive_appointment expects answers ["ceo_megaCorp is an executive appointment", "position_a is an executive appointment"].
+
+scenario case_22_without_fact_4 is, as stated in the case analysis of the encoding at section 34 9 c:
+    % a case of the rule of section 34(9)(c) (blawx_cases.pl), answered by Blawx
+    position_a is a category name.
+    position_a entitles the holder to executive authority.
+    business_entity_a is a business entity.
+    % pending — Blawx's answer here needs it to assume a fact the case does not state (the Act declares #abducible), which LE reports as an unknown:
+    % which_is_an_executive_appointment expects answers ["ceo_megaCorp is an executive appointment", "position_a is an executive appointment"].
+
+scenario case_23 is, as stated in the case analysis of the encoding at section 34 9 c:
+    % a case of the rule of section 34(9)(c) (blawx_cases.pl), answered by Blawx
+    position_a is a category name.
+    position_a entitles the holder to executive authority.
+    law_practice_a is a law practice.
+    position_a is in the law practice law_practice_a.
+    % pending — Blawx's answer here needs it to assume a fact the case does not state (the Act declares #abducible), which LE reports as an unknown:
+    % which_is_an_executive_appointment expects answers ["position_a is an executive appointment", "ceo_megaCorp is an executive appointment"].
+
+scenario case_23_without_fact_2 is, as stated in the case analysis of the encoding at section 34 9 c:
+    % a case of the rule of section 34(9)(c) (blawx_cases.pl), answered by Blawx
+    position_a is a category name.
+    law_practice_a is a law practice.
+    position_a is in the law practice law_practice_a.
+    % pending — Blawx's answer here needs it to assume a fact the case does not state (the Act declares #abducible), which LE reports as an unknown:
+    % which_is_an_executive_appointment expects answers ["ceo_megaCorp is an executive appointment"].
+
+scenario case_23_without_fact_3 is, as stated in the case analysis of the encoding at section 34 9 c:
+    % a case of the rule of section 34(9)(c) (blawx_cases.pl), answered by Blawx
+    position_a is a category name.
+    position_a entitles the holder to executive authority.
+    position_a is in the law practice law_practice_a.
+    % pending — Blawx's answer here needs it to assume a fact the case does not state (the Act declares #abducible), which LE reports as an unknown:
+    % which_is_an_executive_appointment expects answers ["ceo_megaCorp is an executive appointment", "position_a is an executive appointment"].
+
+scenario case_23_without_fact_4 is, as stated in the case analysis of the encoding at section 34 9 c:
+    % a case of the rule of section 34(9)(c) (blawx_cases.pl), answered by Blawx
+    position_a is a category name.
+    position_a entitles the holder to executive authority.
+    law_practice_a is a law practice.
+    % pending — Blawx's answer here needs it to assume a fact the case does not state (the Act declares #abducible), which LE reports as an unknown:
+    % which_is_an_executive_appointment expects answers ["ceo_megaCorp is an executive appointment", "position_a is an executive appointment"].
+
+scenario case_25 is, as stated in the case analysis of the encoding at section 34 9 a:
+    % a case of the rule of section 34(9)(a) (blawx_cases.pl), answered by Blawx
+    thing_a is a calling.
+    which_is_a_business expects answers ["thing_a is a business", "widget_sales is a business"].
+
+scenario case_26 is, as stated in the case analysis of the encoding at section 34 9 b:
+    % a case of the rule of section 34(9)(b) (blawx_cases.pl), answered by Blawx
+    law_practice_a is a law practice.
+    law_practice_a is located in singapore.
+    which_is_a_singapore_law_practice expects answers ["law_practice_a is a singapore law practice", "abc_llp is a singapore law practice"].
+
+scenario case_26_without_fact_1 is, as stated in the case analysis of the encoding at section 34 9 b:
+    % a case of the rule of section 34(9)(b) (blawx_cases.pl), answered by Blawx
+    law_practice_a is located in singapore.
+    which_is_a_singapore_law_practice expects answers ["abc_llp is a singapore law practice"].
+
+scenario case_27 is, as stated in the case analysis of the encoding at section 34 9 b:
+    % a case of the rule of section 34(9)(b) (blawx_cases.pl), answered by Blawx
+    thing_a is a company.
+    which_is_an_entity expects answers ["abc_llp is an entity", "jason is an entity", "megaCorp is an entity", "thing_a is an entity"].
+
+scenario case_28 is, as stated in the case analysis of the encoding at section 34 9 b:
+    % a case of the rule of section 34(9)(b) (blawx_cases.pl), answered by Blawx
+    thing_a is a corporation.
+    which_is_an_entity expects answers ["abc_llp is an entity", "jason is an entity", "thing_a is an entity", "megaCorp is an entity"].
+
+scenario case_29 is, as stated in the case analysis of the encoding at section 34 9 b:
+    % a case of the rule of section 34(9)(b) (blawx_cases.pl), answered by Blawx
+    thing_a is a partnership.
+    which_is_an_entity expects answers ["abc_llp is an entity", "jason is an entity", "thing_a is an entity", "megaCorp is an entity"].
+
+scenario case_31 is, as stated in the case analysis of the encoding at section 34 9 b:
+    % a case of the rule of section 34(9)(b) (blawx_cases.pl), answered by Blawx
+    thing_a is a sole proprietorship.
+    which_is_an_entity expects answers ["abc_llp is an entity", "jason is an entity", "thing_a is an entity", "megaCorp is an entity"].
+
+scenario case_32 is, as stated in the case analysis of the encoding at section 34 9 b:
+    % a case of the rule of section 34(9)(b) (blawx_cases.pl), answered by Blawx
+    thing_a is a business trust.
+    which_is_an_entity expects answers ["abc_llp is an entity", "jason is an entity", "thing_a is an entity", "megaCorp is an entity"].
+
+scenario case_33 is, as stated in the case analysis of the encoding at section 34 9 b:
+    % a case of the rule of section 34(9)(b) (blawx_cases.pl), answered by Blawx
+    thing_a is a joint law venture.
+    which_is_an_entity expects answers ["abc_llp is an entity", "jason is an entity", "thing_a is an entity", "megaCorp is an entity"].
+
+scenario case_35 is, as stated in the case analysis of the encoding at section 34 9 b:
+    % a case of the rule of section 34(9)(b) (blawx_cases.pl), answered by Blawx
+    legal_practitioner_a is a legal practitioner.
+    which_is_an_entity expects answers ["abc_llp is an entity", "legal_practitioner_a is an entity", "jason is an entity", "megaCorp is an entity"].
+
+scenario case_37 is, as stated in the case analysis of the encoding at section 34 9 b:
+    % a case of the rule of section 34(9)(b) (blawx_cases.pl), answered by Blawx
+    thing_a is a singapore law practice.
+    which_is_an_entity expects answers ["abc_llp is an entity", "thing_a is an entity", "jason is an entity", "megaCorp is an entity"].
+
+scenario case_38 is, as stated in the case analysis of the encoding at section 34 9 b:
+    % a case of the rule of section 34(9)(b) (blawx_cases.pl), answered by Blawx
+    law_practice_a is a law practice.
+    which_is_an_entity expects answers ["law_practice_a is an entity", "abc_llp is an entity", "jason is an entity", "megaCorp is an entity"].
+
+scenario case_39_without_fact_1 is, as stated in the case analysis of the encoding at section 34 9 b:
+    % a case of the rule of section 34(9)(b) (blawx_cases.pl), answered by Blawx
+    business_a is a business.
+    entity_a carries on business_a.
+    which_is_a_business_entity expects answers ["megaCorp is a business entity"].
+
+scenario case_39_without_fact_2 is, as stated in the case analysis of the encoding at section 34 9 b:
+    % a case of the rule of section 34(9)(b) (blawx_cases.pl), answered by Blawx
+    entity_a is an entity.
+    entity_a carries on business_a.
+    which_is_a_business_entity expects answers ["megaCorp is a business entity"].
+
+query materialinterference is:
+    jason must not accept the EA ceo_megaCorp under section_34_1.
+
+query which_is_described_in_section_1 is:
+    which business is described in section 1.
+
+query which_may_accept_the_EA is:
+    which legal practitioner may accept the EA which executive appointment.
+
+query which_must_not_accept_the_EA is:
+    which legal practitioner must not accept the EA which executive appointment.
+
+query which_is_an_executive_appointment is:
+    which executive appointment is an executive appointment.
+
+query which_is_a_business is:
+    which business is a business.
+
+query which_is_a_singapore_law_practice is:
+    which thing is a singapore law practice.
+
+query which_is_an_entity is:
+    which entity is an entity.
+
+query which_is_a_business_entity is:
+    which business entity is a business entity.
+
+query which_is_a_person is:
+    which person is a person.
+
+query which_is_a_payment_reason is:
+    which payment reason is a payment reason.
+
+the view the act is:
+    the title is "Legal Profession Professional Conduct Rules, as Blawx encodes it".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the case" are
+        the EA an executive appointment is associated with a business,
+        a business detracts from the dignity of the legal profession,
+        a business is incompatible with the dignity of the legal profession,
+        a business derogates from the dignity of the legal profession,
+        the primary occupation of a legal practitioner is an occupation,
+        a business materially interferes with the primary occupation of a legal practitioner,
+        a business materially interferes with the availability to practice law of a legal practitioner,
+        a business is described in the first schedule,
+        a business is prohibited,
+        a business is likely to unfairly attract business,
+        a business materially interferes with the representation of their clients of a legal practitioner,
+        a legal work is legal work,
+        a payment is a payment,
+        a business involves a payment.
+    the result is the answer to query which_is_described_in_section_1.
+    the result shows its reasons.
+    the result shows its citations.
+    the result can be flipped.
+

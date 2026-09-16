@@ -1,0 +1,43 @@
+{
+  "counts": {"approximated":0,"encoded":3,"residue":0},
+  "entries": [
+    {
+      "element":"0 blawx_as_of / blawx_during clauses",
+      "in_program":"nothing",
+      "kind":"temporal boilerplate",
+      "mapping":"left out: nothing reads it",
+      "note":"Blawx writes these for every attribute and relationship; no rule or test of this project reads them0",
+      "verdict":"encoded"
+    },
+    {
+      "element":"0 #pred annotations",
+      "in_program":"the templates",
+      "kind":"natural language",
+      "mapping":"the wording of each template; the holds / according_to / defeated forms are the rules themselves",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest example",
+      "in_program":"example",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"the test asks nothing",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {"errors":0,"failed":0,"passed":0,"tests": []},
+  "meta": {
+    "artifacts": [
+      "sources/wills_tutorial.yaml",
+      "https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418"
+    ],
+    "date":"2026-09-15",
+    "licence":"Blawx: MIT",
+    "program":"wills_tutorial",
+    "source":"Wills Act",
+    "translator":"InsurLE2/migration/blawx (blawx_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":1
+}

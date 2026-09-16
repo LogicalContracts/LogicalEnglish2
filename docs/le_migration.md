@@ -6,6 +6,12 @@ English shares — Phase 0 of the roadmap in
 readers (Socotra, Oracle Intelligent Advisor, Bitcoin Miniscript, Solidity)
 live in the InsurLE repository (`InsurLE2/migration/`) and are described
 there; everything here is core LE and has no knowledge of any source system.
+The twins they write live with the language they are written in: timeless LE
+twins in this repository's `examples/migration/<source>/` (Blawx, LegalRuleML,
+Miniscript, s(CASP)), LE-for-LPS twins in `lps2/examples/migration/<source>/`
+(Daml, Drools, Solidity), and those whose sources are not cleared for
+publication in `InsurLE2/examples/migration/` (`le2_paths:twins_dir/2` there
+says which).
 
 ```
 source artefacts ──reader──▶ Migration IR ──le_writer──▶ program.le

@@ -1,0 +1,172 @@
+{
+  "counts": {"approximated":5,"encoded":9,"residue":0},
+  "entries": [
+    {
+      "element":"pk(manager)",
+      "in_program":"the wallet manager",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pk(spouse)",
+      "in_program":"the spouse",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pk(first_child)",
+      "in_program":"the elder child",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pk(second_child)",
+      "in_program":"the younger child",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pk(third_party)",
+      "in_program":"the third party",
+      "kind":"key",
+      "mapping":"pk(key) -> the witness contains a signature by <role>",
+      "note":"the README says: a third party (after 1 year and 3 months); taken as 65535 blocks, the longest relative lock BIP 68 allows (about 455 days: one day short of 1 year and 3 months at 144 blocks a day; 65664 blocks, the literal reading, is not a relative lock — consensus would read it as 128 blocks)",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pk(manager)",
+      "in_program":"manager",
+      "kind":"spending path",
+      "mapping":"a branch of the top-level or -> a rule concluding the coin can be spent",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"and(thresh(2,pk(spouse),pk(first_child),pk(second_child)),older(52560))",
+      "in_program":"family",
+      "kind":"spending path",
+      "mapping":"a branch of the top-level or -> a rule concluding the coin can be spent",
+      "note":"the README says: any 2 keys from the owner's spouse and two kids (after 1 year); the policy is our reading of that sentence, the year taken as 52560 blocks (144 a day)",
+      "verdict":"approximated"
+    },
+    {
+      "element":"and(pk(third_party),older(65535))",
+      "in_program":"third_party",
+      "kind":"spending path",
+      "mapping":"a branch of the top-level or -> a rule concluding the coin can be spent",
+      "note":"the README says: a third party (after 1 year and 3 months); taken as 65535 blocks, the longest relative lock BIP 68 allows (about 455 days: one day short of 1 year and 3 months at 144 blocks a day; 65664 blocks, the literal reading, is not a relative lock — consensus would read it as 128 blocks)",
+      "verdict":"approximated"
+    },
+    {
+      "element":"older(52560)",
+      "in_program":"the delay of 52560 blocks",
+      "kind":"timelock",
+      "mapping":"older(n) -> the coin has been confirmed for N blocks and N >= n (N from the blocks of the coin and of the spending transaction)",
+      "note":"1 year at 144 blocks a day: the network's average, not a calendar year",
+      "verdict":"approximated"
+    },
+    {
+      "element":"older(65535)",
+      "in_program":"the delay of 65535 blocks",
+      "kind":"timelock",
+      "mapping":"older(n) -> the coin has been confirmed for N blocks and N >= n (N from the blocks of the coin and of the spending transaction)",
+      "note":"the longest relative lock in blocks (BIP 68), about 455 days",
+      "verdict":"approximated"
+    },
+    {
+      "element":"thresh(2,pk(spouse),pk(first_child),pk(second_child))",
+      "in_program":"a count aggregate",
+      "kind":"threshold",
+      "mapping":"thresh(k, keys) -> the count of the keys in the list that signed is at least k",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"99@",
+      "in_program":"the rules",
+      "kind":"fragment",
+      "mapping":"a branch probability: guides the compiler, no effect on who can spend",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"9@",
+      "in_program":"the rules",
+      "kind":"fragment",
+      "mapping":"a branch probability: guides the compiler, no effect on who can spend",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the Script encoding",
+      "in_program":"the whole program",
+      "kind":"script",
+      "mapping":"the twin is the spending policy (BIP 379, the semantics column), not the Script",
+      "note":"witness sizes, fees, malleability and the choice of fragments (or_d / or_i, wrappers) do not change who can spend, and are not in the twin",
+      "verdict":"approximated"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":39,
+    "tests": [
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_3"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_2_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_2_without_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_2_without_3"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_3"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_3_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_3_without_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_3_without_3"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_4"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_4_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_4_without_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_5"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"path_5_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"no_witness"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"lost_the_wallet_manager"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"lost_the_spouse"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"lost_the_elder_child"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"lost_the_younger_child"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"lost_the_third_party"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1_without_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_2_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_3"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_4"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_4_without_1"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_5"},
+      {"detail":"","query":"flip_spend","result":"pass","scenario":"flip_now"},
+      {"detail":"","query":"flip_spend","result":"pass","scenario":"flip_after_delays"},
+      {"detail":"","query":"flip_block","result":"pass","scenario":"lost_the_wallet_manager"},
+      {"detail":"","query":"flip_block","result":"pass","scenario":"lost_the_spouse"},
+      {"detail":"","query":"flip_block","result":"pass","scenario":"lost_the_elder_child"},
+      {"detail":"","query":"flip_block","result":"pass","scenario":"lost_the_younger_child"},
+      {"detail":"","query":"flip_block","result":"pass","scenario":"lost_the_third_party"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["https://github.com/wizardsardine/liana#about" ],
+    "date":"2026-09-15",
+    "program":"liana_inheritance",
+    "source":"A Liana inheritance wallet: the wallet manager, or two of the family after a year, or a third party after fifteen months",
+    "translator":"InsurLE2/migration/miniscript (ms_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":34
+}

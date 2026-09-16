@@ -1,0 +1,53 @@
+% The Logical English twin of a LegalRuleML document, written by the LegalRuleML translator
+% (InsurLE2/migration/legalruleml) from ex8c-defeasible-normal.lrml (kept in sources/).
+% Obligations, permissions and prohibitions are the deontic library's (deontic.le).
+% Every expected answer in the scenarios is SPINdle's (defeasible deontic logic) on the source.
+
+the target language is: prolog.
+
+the knowledge base ex8c_defeasible includes these resources:
+    deontic.
+
+the templates are:
+    *a thing* is a rel1.
+    *a thing* is a rel103.
+    *a thing* is a rel2.
+    *a thing* is a rel3.
+    *a thing* is not a rel3.
+    the statement *a statement* applies.
+
+the knowledge base ex8c_defeasible includes:
+
+the text of the source document is at "sources/ex8c-defeasible-normal.lrml".
+
+rule cs1:
+x is a rel3 if
+    x is a rel1
+    and x is a rel2
+    and it is not the case that the statement cs2 applies.
+
+% Blah blah.
+rule ps1:
+x is not a rel3 if
+    x is a rel1
+    and x is a rel2
+        or x is a rel2.
+
+% defeater cs2: it concludes nothing; the rules whose conclusion it attacks do not apply when it does
+the statement cs2 applies if
+    x is a rel1
+    and x is a rel2.
+
+% defeater ps2: an exception of the rules whose conclusion it attacks
+scenario both_conditions is:
+    x is a rel1.
+    x is a rel2.
+    not_rel3 expects answers ["x is not a rel3"].
+    rel3 expects answers [].
+
+query not_rel3 is:
+    which thing is not a rel3.
+
+query rel3 is:
+    which thing is a rel3.
+

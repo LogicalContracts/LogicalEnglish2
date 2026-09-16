@@ -37,7 +37,8 @@ you can call it from anywhere. Use it as the default check:
   nothing about core LE.
 
 The exclusion is a hardwired table, `extension_dependent_path_fragment/1` in
-`le_kbs.pl` (currently the `insureLE2/` and `InsurLE2/` trees). Add a row there when
+`le_kbs.pl` (currently the `insureLE2/` and `InsurLE2/` trees, and the
+migration twins `examples/migration/miniscript/`, `blawx/bird/` and `scasp/turingcomplete/`). Add a row there when
 a new extension-dependent example tree appears; nothing else needs to change.
 
 Each variant writes its own committed status snapshot and never touches the other's
@@ -63,7 +64,8 @@ The three suites it wraps (also runnable directly):
   `examples/<lang>/` (e.g. `examples/pt/`) and are run by the same suite, as are
   the extra trees of `le_extra_examples_dir/2` in `le_kbs.pl` — currently
   `examples/RulesRus/`, the programs of the regulatory-decision constructs,
-  docs/le_summary.md §17.)
+  docs/le_summary.md §17, and `examples/migration/`, the twins that the
+  translators of other systems wrote, docs/le_migration.md.)
 - **Editor E2E (Playwright):** `cd editor && npm run test:e2e` (add `-- --headed` to run visibly).
   Browsers are pinned to this project: `test:e2e` runs with `PLAYWRIGHT_BROWSERS_PATH=0`
   (browsers live in `editor/node_modules`, not the shared `~/Library/Caches/ms-playwright`),

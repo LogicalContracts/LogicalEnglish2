@@ -1,0 +1,84 @@
+{
+  "counts": {"approximated":0,"encoded":8,"residue":0},
+  "entries": [
+    {
+      "element":"beats/2",
+      "in_program":"*a choice* beats *a choice*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"gets/2",
+      "in_program":"*a person* gets *an amount*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the_game_is_a_draw/0",
+      "in_program":"the game is a draw",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"inputs_and/3",
+      "in_program":"*a person* inputs *a choice* and *an amount*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of gets/2",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of the_game_is_a_draw/0",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Scenario mbj",
+      "in_program":"mbj",
+      "kind":"scenario",
+      "mapping":"an LE1 scenario -> a scenario",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"?- gets(_180994,_180996)",
+      "in_program":"the queries",
+      "kind":"query",
+      "mapping":"a ?- query -> a query, asked in every scenario",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":1,
+    "tests": [ {"detail":"","query":"query_1","result":"pass","scenario":"mbj"} ]
+  },
+  "meta": {
+    "artifacts": ["simpleRPS-scasp.pl" ],
+    "date":"2026-09-15",
+    "program":"simplerps",
+    "source":"an s(CASP) program",
+    "translator":"InsurLE2/migration/scasp (scasp_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":1
+}

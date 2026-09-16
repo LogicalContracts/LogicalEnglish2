@@ -1,0 +1,62 @@
+{
+  "address":"bcrt1qgkt0u8lhwq5spjrvljrsdc02lmjzxh970jnr9jqycq0zrzxrxfcsh28204",
+  "attempts": [
+    {
+      "coin_confirmed_at":null,
+      "coin_confirmed_time":null,
+      "coin_txid":"26c28631a95a895f5df7ae8d93c042340ebcecdf45b5c3b7254fe97984437b0b",
+      "id":"path_1",
+      "nlocktime":0,
+      "nsequence":1008,
+      "reason":"sendrawtransaction RPC error -26: non-BIP68-final",
+      "tip":122321,
+      "tip_time":1789410601,
+      "used": {"preimages": [],"sigs": ["K2" ]},
+      "verdict":"refused",
+      "witness":"made of the material"
+    },
+    {
+      "coin_confirmed_at":null,
+      "coin_confirmed_time":null,
+      "coin_txid":"26c28631a95a895f5df7ae8d93c042340ebcecdf45b5c3b7254fe97984437b0b",
+      "id":"path_1_without_1",
+      "nlocktime":0,
+      "nsequence":1008,
+      "reason":"sendrawtransaction RPC error -26: non-BIP68-final",
+      "tip":122321,
+      "tip_time":1789410601,
+      "used": {"preimages": [],"sigs": []},
+      "verdict":"refused",
+      "witness":"the path's, with what is missing left out"
+    },
+    {
+      "coin_confirmed_at":null,
+      "coin_confirmed_time":null,
+      "coin_txid":"26c28631a95a895f5df7ae8d93c042340ebcecdf45b5c3b7254fe97984437b0b",
+      "explorer":"https://tape.rewindbitcoin.com/explorer/tx/440b71b3436c7b9621c0d8c9d06536fd0fd48a3fff06ff66b46376f62073a4d0",
+      "id":"path_2",
+      "nlocktime":0,
+      "nsequence":4294967293,
+      "tip":122321,
+      "tip_time":1789410601,
+      "txid":"440b71b3436c7b9621c0d8c9d06536fd0fd48a3fff06ff66b46376f62073a4d0",
+      "used": {"preimages": [],"sigs": ["K1" ]},
+      "verdict":"accepted",
+      "witness":"made of the material"
+    }
+  ],
+  "date":"2026-09-14T19:29:08.584Z",
+  "descriptor":"wsh(andor(pk(038fed93f74b169ba9410f1a39dde6b9c6eea84650dc79967a27f52757c197fbc8),older(1008),pk(028071f961bf66967e8b92b2564cca5590e958305ce382ebeeb56e866b6baf3edc)))",
+  "funding_explorer":"https://tape.rewindbitcoin.com/explorer/tx/26c28631a95a895f5df7ae8d93c042340ebcecdf45b5c3b7254fe97984437b0b",
+  "funding_txid":"26c28631a95a895f5df7ae8d93c042340ebcecdf45b5c3b7254fe97984437b0b",
+  "hashes": {},
+  "keys": {
+    "K1":"028071f961bf66967e8b92b2564cca5590e958305ce382ebeeb56e866b6baf3edc",
+    "K2":"038fed93f74b169ba9410f1a39dde6b9c6eea84650dc79967a27f52757c197fbc8"
+  },
+  "miniscript":"andor(pk(K2),older(1008),pk(K1))",
+  "network":"https://tape.rewindbitcoin.com",
+  "policy":"or(pk(K1),and(pk(K2),older(1008)))",
+  "roles": {"K1":"the revocation key","K2":"the local node"},
+  "twin":"bolt3_to_local"
+}

@@ -1,0 +1,111 @@
+{
+  "counts": {"approximated":2,"encoded":10,"residue":0},
+  "entries": [
+    {
+      "element":"Rel earned/2",
+      "in_program":"*an income* is earned in *a year*",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rel paybenefit/2",
+      "in_program":"the maternity benefit is *an amount* in *a year*",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rel reported/2",
+      "in_program":"*an income* is reported in *a year*",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"prescriptive statement literal",
+      "in_program":"literal",
+      "kind":"statement",
+      "mapping":"PrescriptiveStatement -> rules concluding obligations, permissions or prohibitions (deontic.le)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"constitutive statement tax1",
+      "in_program":"tax1",
+      "kind":"statement",
+      "mapping":"ConstitutiveStatement -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"constitutive statement tax2",
+      "in_program":"tax2",
+      "kind":"statement",
+      "mapping":"ConstitutiveStatement -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ref1",
+      "in_program":"ref1",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ref2",
+      "in_program":"ref2",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source ex-ref1",
+      "in_program":"ex-ref1",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Alternatives maternity-alts",
+      "in_program":"maternity-alts",
+      "kind":"alternatives",
+      "mapping":"Alternatives -> each alternative's rules hold when it is the interpretation adopted",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Fun 80_percent_of_five-twelfths_of",
+      "in_program":"80_percent_of_five-twelfths_of",
+      "kind":"function",
+      "mapping":"a function the document names but does not define -> a relation between its arguments and its value, for the scenarios to state",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"deontic(obligation,none,true)",
+      "in_program":"",
+      "kind":"deontic",
+      "mapping":"a deontic element with no content: nothing to conclude",
+      "note":"",
+      "verdict":"approximated"
+    }
+  ],
+  "fidelity":null,
+  "meta": {
+    "artifacts": ["ex11-maternity_alternatives-normal.lrml" ],
+    "date":"2026-09-15",
+    "program":"ex11_maternity_alternatives",
+    "source":"a LegalRuleML document (OASIS LegalRuleML Core 1.0)",
+    "translator":"InsurLE2/migration/legalruleml (lrml_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":0
+}

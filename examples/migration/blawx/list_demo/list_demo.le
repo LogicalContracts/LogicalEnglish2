@@ -1,0 +1,57 @@
+% Lists Demonstration
+%
+% The Logical English twin of a Blawx encoding, written by the Blawx translator
+% (InsurLE2/migration/blawx). Each rule is a rule of the Act as Blawx encodes it,
+% in the words of Blawx's own sentence forms, citing its section; the project's
+% tests are the scenarios, with Blawx's own answers as the expectations.
+%
+% Source: the Blawx project "Lists" (list_demo.yaml, 2 sections), an example of
+%         Blawx v1.6.22-alpha (Lexpedite, MIT licence), commit 3de892f67854292b304c9a55c5e2cd2058d3d418.
+
+the target language is: prolog.
+
+the templates are:
+    the average score adding a 10 of *a person* is *a number*.
+    *a person* is a person; scenario element.
+    the score of *a person* is *a number*; scenario element.
+
+the knowledge base list_demo includes:
+
+the text of the Lists Demonstration is at "sources/list_demo.md".
+
+the text of the Blawx project is at "sources/list_demo.yaml".
+
+% The Act, section by section.
+% RESIDUE section_1_residue BEGIN: section 1 of the Lists Demonstration
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: section 1
+% a list aggregate (findall): the rule collects values with findall and Blawx's list predicates
+%   s(CASP), as Blawx generated it:
+%   | according_to(sec_1_section, average_score, A, B) :-
+%   |     person(A),
+%   |     findall(C, score(A, C), D),
+%   |     count_blawx_list(D, E),
+%   |     E>0,
+%   |     F=[10|D],
+%   |     average_blawx_list(F, B).
+%   | 
+% RESIDUE section_1_residue END
+
+scenario test is, as stated in the Blawx project at test test:
+    % pending — waits for residue section_1_residue:
+    % test expects answers [].
+
+query test is:
+    the average score adding a 10 of which person is which number.
+
+the view the act is:
+    the title is "Lists Demonstration, as Blawx encodes it".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the case" are
+        a person is a person,
+        the score of a person is a number.
+    the result is the answer to query test.
+    the result shows its reasons.
+    the result shows its citations.
+    the result can be flipped.
+

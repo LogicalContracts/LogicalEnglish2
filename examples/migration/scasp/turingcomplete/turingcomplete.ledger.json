@@ -1,0 +1,132 @@
+{
+  "counts": {"approximated":0,"encoded":14,"residue":0},
+  "entries": [
+    {
+      "element":"some_tm_goes_from_to/2",
+      "in_program":"*a thing* some tm goes from to *a second thing*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"it_changes_from_to_and_from_to/5",
+      "in_program":"*a thing* it changes from to and from to *a second thing* with *a third thing* with *a fourth thing* with *a fifth thing*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the_head_of_is_leaving/3",
+      "in_program":"*a thing* the head of is leaving *a second thing* with *a third thing*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"moves_to_and_to/5",
+      "in_program":"*a thing* moves to and to *a second thing* with *a third thing* with *a fourth thing* with *a fifth thing*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_left_after_and_is_left_after/4",
+      "in_program":"*a thing* is left after and is left after *a second thing* with *a third thing* with *a fourth thing*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"says_that_and_lead_to_and_after_performing/6",
+      "in_program":"*a thing* says that and lead to and after performing *a second thing* with *a third thing* with *a fourth thing* with *a fifth thing* with *a sixth thing*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"has_as_head_before/3",
+      "in_program":"*a thing* has as head before *a second thing* with *a third thing*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of some_tm_goes_from_to/2",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of it_changes_from_to_and_from_to/5",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of the_head_of_is_leaving/3",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of moves_to_and_to/5",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of is_left_after_and_is_left_after/4",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Scenario machine_one",
+      "in_program":"machine_one",
+      "kind":"scenario",
+      "mapping":"an LE1 scenario -> a scenario",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"?- some_tm_goes_from_to([1,1,1,b],_63736)",
+      "in_program":"the queries",
+      "kind":"query",
+      "mapping":"a ?- query -> a query, asked in every scenario",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":1,
+    "tests": [ {"detail":"","query":"query_1","result":"pass","scenario":"machine_one"} ]
+  },
+  "meta": {
+    "artifacts": ["turingcomplete-scasp.pl" ],
+    "date":"2026-09-15",
+    "program":"turingcomplete",
+    "source":"an s(CASP) program",
+    "translator":"InsurLE2/migration/scasp (scasp_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":1
+}

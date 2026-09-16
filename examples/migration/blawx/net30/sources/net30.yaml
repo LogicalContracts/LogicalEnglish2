@@ -1,0 +1,264 @@
+- model: blawx.ruledoc
+  pk: 1
+  fields:
+    ruledoc_name: Net 30
+    rule_text: "Net Thirty Act\r\n\r\n1. The payment due date of an invoice is 30
+      days after the date the invoice is issued."
+    akoma_ntoso: <?xml version="1.0" encoding="UTF-8"?><akomaNtoso xmlns="http://docs.oasis-open.org/legaldocml/ns/akn/3.0"><act><preface><p
+      class="title"><shortTitle>Net Thirty Act</shortTitle></p></preface><body><section
+      eId="sec_1"><num>1</num><content><p>The payment due date of an invoice is 30
+      days after the date the invoice is issued.</p></content></section></body></act></akomaNtoso>
+    navtree: '<nav class="column">
+
+      <div class="lawpart act"><div class="form-check"><input class="form-check-input"
+      type="radio" name="section" id="root_section" checked><div class="lawtext"><i
+      class="bi bi-caret-right" data-bs-toggle="collapse" data-bs-target="#root"></i>Net
+      Thirty Act</div></div></div><div class="subparts collapse" id="root"><div class="lawpart
+      section"><div class="form-check"><input class="form-check-input" type="radio"
+      name="section" id="sec_1_section"><div class="lawtext"><num>1</num> <content
+      xmlns="http://docs.oasis-open.org/legaldocml/ns/akn/3.0"><p>The payment due
+      date of an invoice is 30 days after the date the invoice is issued.</p></content></div></div></div></div></nav>'
+    scasp_encoding: ''
+    tutorial: ''
+    owner: 3
+    published: false
+- model: blawx.workspace
+  pk: 1
+  fields:
+    ruledoc: 1
+    workspace_name: root_section
+    xml_content: ''
+    scasp_encoding: ''
+- model: blawx.workspace
+  pk: 2
+  fields:
+    ruledoc: 1
+    workspace_name: sec_1_section
+    xml_content: <xml xmlns="https://developers.google.com/blockly/xml"><block type="unattributed_fact"
+      id="k@UgO),H`ypuz6sm]+Ul" x="46" y="77"><statement name="statements"><block
+      type="new_category_declaration" id="$o)a];%h$!76E(`z,ojr"><field name="category_name">invoice</field><field
+      name="prefix"></field><field name="first_element">object</field><field name="postfix">is
+      an invoice</field><next><block type="new_attribute_declaration" id="-[dqMF[];bPp[zN@]|ht"><mutation
+      xmlns="http://www.w3.org/1999/xhtml" category_name="invoice" attribute_type="date"></mutation><field
+      name="category_name">invoice</field><field name="attribute_name">invoice_date</field><field
+      name="attribute_type">date</field><field name="order">ov</field><field name="prefix">the
+      invoice date of</field><field name="first_element">object</field><field name="infix">is</field><field
+      name="second_element">value</field><field name="postfix"></field><next><block
+      type="new_attribute_declaration" id="hsk3Qalcxf56rv8mtryE"><mutation xmlns="http://www.w3.org/1999/xhtml"
+      category_name="invoice" attribute_type="date"></mutation><field name="category_name">invoice</field><field
+      name="attribute_name">payment_due_date</field><field name="attribute_type">date</field><field
+      name="order">ov</field><field name="prefix">the payment due date of</field><field
+      name="first_element">object</field><field name="infix">is</field><field name="second_element">value</field><field
+      name="postfix"></field></block></next></block></next></block></statement></block><block
+      type="attributed_rule" id="Q;GIL/%er4+#+y2z69a_" x="42" y="373"><field name="defeasible">FALSE</field><field
+      name="inapplicable">FALSE</field><statement name="conditions"><block type="new_object_category"
+      id="8GG3rXp-~qvDas~,D;W."><mutation xmlns="http://www.w3.org/1999/xhtml" category_name="invoice"></mutation><field
+      name="category_name">invoice</field><value name="object"><block type="variable"
+      id="trx/VZFS{vF5_zs0asxF"><field name="variable_name">Invoice</field></block></value><next><block
+      type="attribute_selector" id="FI_KT)=TV[bBP+CmHS@A"><mutation xmlns="http://www.w3.org/1999/xhtml"
+      attributename="invoice_date" attributetype="date" attributeorder="ov"></mutation><field
+      name="prefix">the invoice date of</field><field name="infix">is</field><field
+      name="postfix"></field><value name="first_element"><block type="variable" id="?kJtQ3y%;t+4EQ:|B%2n"><field
+      name="variable_name">Invoice</field></block></value><value name="second_element"><block
+      type="variable" id="LtR9+(Jed$4Fjq3j]Ks*"><field name="variable_name">Issue_date</field></block></value><next><block
+      type="date_add" id=",HG{4AcFE#/bXSEe:~/6"><value name="duration"><block type="duration_value"
+      id="_s3;g;LXMZ[]wzFf=cLV"><field name="sign">1</field><field name="days">30</field><field
+      name="hours">0</field><field name="minutes">0</field><field name="seconds">0</field></block></value><value
+      name="first_date"><block type="variable" id="s$HKU$91aQm`CE[f;9dD"><field name="variable_name">Issue_date</field></block></value><value
+      name="second_date"><block type="variable" id="1SnRFvM]=H7S=I*kOspM"><field name="variable_name">Payment_date</field></block></value><next><block
+      type="datetime_construct" id="4T,1j0VQ^lc_=ahakDfZ"><value name="date"><block
+      type="variable" id="AxCl#N[9-H;;ug+gXoD:"><field name="variable_name">PD_date</field></block></value><value
+      name="time"><block type="time_value" id="7C$5L%xBaHta5WW!3-KB"><field name="hours">0</field><field
+      name="minutes">0</field><field name="seconds">0</field></block></value><value
+      name="datetime"><block type="variable" id="5BADuW73xBw021=ulkRO"><field name="variable_name">Payment_date</field></block></value></block></next></block></next></block></next></block></statement><value
+      name="source"><block type="doc_selector" id="T2pn:VMTP(zWPgoDUyMu"><mutation
+      xmlns="http://www.w3.org/1999/xhtml" section_reference="sec_1_section"></mutation><field
+      name="doc_part_name">NTA 1</field></block></value><statement name="conclusion"><block
+      type="attribute_selector" id="}rRTv3(FU`n2da5NIJ@F"><mutation xmlns="http://www.w3.org/1999/xhtml"
+      attributename="payment_due_date" attributetype="date" attributeorder="ov"></mutation><field
+      name="prefix">the payment due date of</field><field name="infix">is</field><field
+      name="postfix"></field><value name="first_element"><block type="variable" id="xO6$a![B|p=}Q-ZzY@^?"><field
+      name="variable_name">Invoice</field></block></value><value name="second_element"><block
+      type="variable" id="M05fW_:?OI;8%$$Gv{ub"><field name="variable_name">PD_date</field></block></value></block></statement></block></xml>
+    scasp_encoding: "blawx_category(invoice).\nblawx_category_nlg(invoice,\"\",\"is
+      an invoice\").\n:- dynamic invoice/1.\n#pred invoice(X) :: '@(X) is an invoice'.\n#pred
+      holds(user,invoice,X) :: 'it is provided as a fact that @(X) is an invoice'.\n#pred
+      holds(user,-invoice,X) :: 'it is provided as a fact that it is not the case
+      that @(X) is an invoice'.\n#pred holds(Z,invoice,X) :: 'the conclusion in @(Z)
+      that @(X) is an invoice holds'.\n#pred holds(Z,-invoice,X) :: 'the conclusion
+      in @(Z) that it is not the case that @(X) is an invoice holds'.\n#pred according_to(Z,invoice,X)
+      :: 'according to @(Z), @(X) is an invoice'.\n#pred according_to(Z,-invoice,X)
+      :: 'according to @(Z), it is not the case that @(X) is an invoice'.\n#pred blawx_defeated(Z,invoice,X)
+      :: 'the conclusion in @(Z) that @(X) is an invoice is defeated'.\n#pred blawx_defeated(Z,-invoice,X)
+      :: 'the conclusion in @(Z) that it is not the case that @(X) is an invoice is
+      defeated'.\n#pred blawx_initially(invoice(X)) :: 'that @(X) is an invoice holds
+      initially'.\n#pred blawx_initially(-invoice(X)) :: 'that it is not the case
+      that @(X) is an invoice holds initially'.\n#pred blawx_ultimately(invoice(X))
+      :: 'that @(X) is an invoice holds ultimately'.\n#pred blawx_ultimately(-invoice(X))
+      :: 'that it is not the case that @(X) is an invoice holds ultimately'.\n#pred
+      blawx_as_of(invoice(X),T) :: 'that @(X) is an invoice holds at @(T)'.\n#pred
+      blawx_as_of(-invoice(X),T) :: 'that it is not the case that @(X) is an invoice
+      holds at @(T)'.\n#pred blawx_during(T1,invoice(X),T2) :: 'that @(X) is an invoice
+      held between @(T1) and @(T2)'.\n#pred blawx_during(T1,-invoice(X),T2) :: 'that
+      it is not the case that @(X) is an invoice held between @(T1) and @(T2)'.\n#pred
+      blawx_becomes(invoice(X),T) :: 'that @(X) is an invoice became true at @(T)'.\n#pred
+      blawx_becomes(-invoice(X),T) :: 'that it is not the case that @(X) is an invoice
+      became true at @(T)'.\nblawx_as_of(invoice(X),datetime(Time)) :- blawx_becomes(invoice(X),datetime(BeforeT)),
+      not blawx_becomes(-invoice(X), datetime(BetweenT)), BeforeT #< Time,BeforeT
+      #< BetweenT, BetweenT #< Time.\nblawx_as_of(invoice(X),datetime(Time)) :- blawx_initially(invoice(X)),
+      not blawx_becomes(-invoice(X), datetime(BetweenT)), BetweenT #< Time.\nblawx_during(datetime(Start),invoice(X),datetime(End))
+      :- blawx_becomes(invoice(X),datetime(Start)), not blawx_becomes(-invoice(X),datetime(BeforeEnd)),
+      blawx_becomes(-invoice(X),datetime(End)), BeforeEnd #< End, Start #< End.\nblawx_during(datetime(bot),invoice(X),datetime(End))
+      :- blawx_initially(invoice(X)), not blawx_becomes(-invoice(X),datetime(BeforeEnd)),
+      blawx_becomes(-invoice(X),datetime(End)), BeforeEnd #< End.\nblawx_during(datetime(Start),invoice(X),datetime(eot))
+      :- blawx_becomes(invoice(X),datetime(Start)), not blawx_becomes(-invoice(X),datetime(AfterStart)),
+      blawx_ultimately(invoice(X)), AfterStart #> Start.\nblawx_as_of(-invoice(X),datetime(Time))
+      :- blawx_becomes(-invoice(X),datetime(BeforeT)), not blawx_becomes(invoice(X),
+      datetime(BetweenT)), BeforeT #< Time,BeforeT #< BetweenT, BetweenT #< Time.\nblawx_as_of(-invoice(X),datetime(Time))
+      :- blawx_initially(-invoice(X)), not blawx_becomes(invoice(X), datetime(BetweenT)),
+      BetweenT #< Time.\nblawx_during(datetime(Start),-invoice(X),datetime(End)) :-
+      blawx_becomes(-invoice(X),datetime(Start)), not blawx_becomes(invoice(X),datetime(BeforeEnd)),
+      blawx_becomes(invoice(X),datetime(End)), BeforeEnd #< End, Start #< End.\nblawx_during(datetime(bot),-invoice(X),datetime(End))
+      :- blawx_initially(-invoice(X)), not blawx_becomes(invoice(X),datetime(BeforeEnd)),
+      blawx_becomes(invoice(X),datetime(End)), BeforeEnd #< End.\nblawx_during(datetime(Start),-invoice(X),datetime(eot))
+      :- blawx_becomes(-invoice(X),datetime(Start)), not blawx_becomes(invoice(X),datetime(AfterStart)),
+      blawx_ultimately(-invoice(X)), AfterStart #> Start.\nblawx_attribute(invoice,invoice_date,date).\nblawx_attribute_nlg(invoice_date,ov,\"the
+      invoice date of\",\"is\",\"\").\n:- dynamic invoice_date/2.\n#pred invoice_date(X,Y)
+      :: 'the invoice date of @(X) is @(Y)'.\n#pred holds(user,invoice_date,X,Y) ::
+      'it is provided as a fact that the invoice date of @(X) is @(Y)'.\n#pred holds(user,-invoice_date,X,Y)
+      :: 'it is provided as a fact that it is not the case that the invoice date of
+      @(X) is @(Y)'.\n#pred holds(Z,invoice_date,X,Y) :: 'the conclusion in @(Z) that
+      the invoice date of @(X) is @(Y) holds'.\n#pred holds(Z,-invoice_date,X,Y) ::
+      'the conclusion in @(Z) that it is not the case that the invoice date of @(X)
+      is @(Y) holds'.\n#pred according_to(Z,invoice_date,X,Y) :: 'according to @(Z),
+      the invoice date of @(X) is @(Y)'.\n#pred according_to(Z,-invoice_date,X,Y)
+      :: 'according to @(Z), it is not the case that the invoice date of @(X) is @(Y)'.\n#pred
+      blawx_defeated(Z,invoice_date,X,Y) :: 'the conclusion in @(Z) that the invoice
+      date of @(X) is @(Y) is defeated'.\n#pred blawx_defeated(Z,-invoice_date,X,Y)
+      :: 'the conclusion in @(Z) that the invoice date of @(X) is @(Y) is defeated'.\n#pred
+      blawx_initially(invoice_date,(X,Y)) :: 'that the invoice date of @(X) is @(Y)
+      holds initially'.\n#pred blawx_initially(-invoice_date,(X,Y)) :: 'that it is
+      not the case that the invoice date of @(X) is @(Y) holds initially'.\n#pred
+      blawx_ultimately(invoice_date,(X,Y)) :: 'that the invoice date of @(X) is @(Y)
+      holds ultimately'.\n#pred blawx_ultimately(-invoice_date,(X,Y)) :: 'that it
+      is not the case that the invoice date of @(X) is @(Y) holds ultimately'.\n#pred
+      blawx_as_of(invoice_date,(X,Y),T) :: 'that the invoice date of @(X) is @(Y)
+      holds at @(T)'.\n#pred blawx_as_of(-invoice_date,(X,Y),T) :: 'that it is not
+      the case that the invoice date of @(X) is @(Y) holds at @(T)'.\n#pred blawx_during(T1,invoice_date,(X,Y),T2)
+      :: 'that the invoice date of @(X) is @(Y) held between @(T1) and @(T2)'.\n#pred
+      blawx_during(T1,-invoice_date,(X,Y),T2) :: 'that it is not the case that the
+      invoice date of @(X) is @(Y) held between @(T1) and @(T2)'.\n#pred blawx_becomes(invoice_date,(X,Y),T)
+      :: 'that the invoice date of @(X) is @(Y) became true at @(T)'.\n#pred blawx_becomes(-invoice_date,(X,Y),T)
+      :: 'that it is not the case that the invoice date of @(X) is @(Y) became true
+      at @(T)'.\nblawx_as_of(invoice_date(X,Y),datetime(Time)) :- blawx_becomes(invoice_date(X,Y),datetime(BeforeT)),
+      not blawx_becomes(-invoice_date(X,Y), datetime(BetweenT)), BeforeT #< Time,BeforeT
+      #< BetweenT, BetweenT #< Time.\nblawx_as_of(invoice_date(X,Y),datetime(Time))
+      :- blawx_initially(invoice_date(X,Y)), not blawx_becomes(-invoice_date(X,Y),
+      datetime(BetweenT)), BetweenT #< Time.\nblawx_during(datetime(Start),invoice_date(X,Y),datetime(End))
+      :- blawx_becomes(invoice_date(X,Y),datetime(Start)), not blawx_becomes(-invoice_date(X,Y),datetime(BeforeEnd)),
+      blawx_becomes(-invoice_date(X,Y),datetime(End)), BeforeEnd #< End, Start #<
+      End.\nblawx_during(datetime(bot),invoice_date(X,Y),datetime(End)) :- blawx_initially(invoice_date(X,Y)),
+      not blawx_becomes(-invoice_date(X,Y),datetime(BeforeEnd)), blawx_becomes(-invoice_date(X,Y),datetime(End)),
+      BeforeEnd #< End.\nblawx_during(datetime(Start),invoice_date(X,Y),datetime(eot))
+      :- blawx_becomes(invoice_date(X,Y),datetime(Start)), not blawx_becomes(-invoice_date(X,Y),datetime(AfterStart)),
+      blawx_ultimately(invoice_date(X,Y)), AfterStart #> Start.\nblawx_as_of(-invoice_date(X,Y),datetime(Time))
+      :- blawx_becomes(-invoice_date(X,Y),datetime(BeforeT)), not blawx_becomes(invoice_date(X,Y),
+      datetime(BetweenT)), BeforeT #< Time,BeforeT #< BetweenT, BetweenT #< Time.\nblawx_as_of(-invoice_date(X,Y),datetime(Time))
+      :- blawx_initially(-invoice_date(X,Y)), not blawx_becomes(invoice_date(X,Y),
+      datetime(BetweenT)), BetweenT #< Time.\nblawx_during(datetime(Start),-invoice_date(X,Y),datetime(End))
+      :- blawx_becomes(-invoice_date(X,Y),datetime(Start)), not blawx_becomes(invoice_date(X,Y),datetime(BeforeEnd)),
+      blawx_becomes(invoice_date(X,Y),datetime(End)), BeforeEnd #< End, Start #< End.\nblawx_during(datetime(bot),-invoice_date(X,Y),datetime(End))
+      :- blawx_initially(-invoice_date(X,Y)), not blawx_becomes(invoice_date(X,Y),datetime(BeforeEnd)),
+      blawx_becomes(invoice_date(X,Y),datetime(End)), BeforeEnd #< End.\nblawx_during(datetime(Start),-invoice_date(X,Y),datetime(eot))
+      :- blawx_becomes(-invoice_date(X,Y),datetime(Start)), not blawx_becomes(invoice_date(X,Y),datetime(AfterStart)),
+      blawx_ultimately(-invoice_date(X,Y)), AfterStart #> Start.\nblawx_attribute(invoice,payment_due_date,date).\nblawx_attribute_nlg(payment_due_date,ov,\"the
+      payment due date of\",\"is\",\"\").\n:- dynamic payment_due_date/2.\n#pred payment_due_date(X,Y)
+      :: 'the payment due date of @(X) is @(Y)'.\n#pred holds(user,payment_due_date,X,Y)
+      :: 'it is provided as a fact that the payment due date of @(X) is @(Y)'.\n#pred
+      holds(user,-payment_due_date,X,Y) :: 'it is provided as a fact that it is not
+      the case that the payment due date of @(X) is @(Y)'.\n#pred holds(Z,payment_due_date,X,Y)
+      :: 'the conclusion in @(Z) that the payment due date of @(X) is @(Y) holds'.\n#pred
+      holds(Z,-payment_due_date,X,Y) :: 'the conclusion in @(Z) that it is not the
+      case that the payment due date of @(X) is @(Y) holds'.\n#pred according_to(Z,payment_due_date,X,Y)
+      :: 'according to @(Z), the payment due date of @(X) is @(Y)'.\n#pred according_to(Z,-payment_due_date,X,Y)
+      :: 'according to @(Z), it is not the case that the payment due date of @(X)
+      is @(Y)'.\n#pred blawx_defeated(Z,payment_due_date,X,Y) :: 'the conclusion in
+      @(Z) that the payment due date of @(X) is @(Y) is defeated'.\n#pred blawx_defeated(Z,-payment_due_date,X,Y)
+      :: 'the conclusion in @(Z) that the payment due date of @(X) is @(Y) is defeated'.\n#pred
+      blawx_initially(payment_due_date,(X,Y)) :: 'that the payment due date of @(X)
+      is @(Y) holds initially'.\n#pred blawx_initially(-payment_due_date,(X,Y)) ::
+      'that it is not the case that the payment due date of @(X) is @(Y) holds initially'.\n#pred
+      blawx_ultimately(payment_due_date,(X,Y)) :: 'that the payment due date of @(X)
+      is @(Y) holds ultimately'.\n#pred blawx_ultimately(-payment_due_date,(X,Y))
+      :: 'that it is not the case that the payment due date of @(X) is @(Y) holds
+      ultimately'.\n#pred blawx_as_of(payment_due_date,(X,Y),T) :: 'that the payment
+      due date of @(X) is @(Y) holds at @(T)'.\n#pred blawx_as_of(-payment_due_date,(X,Y),T)
+      :: 'that it is not the case that the payment due date of @(X) is @(Y) holds
+      at @(T)'.\n#pred blawx_during(T1,payment_due_date,(X,Y),T2) :: 'that the payment
+      due date of @(X) is @(Y) held between @(T1) and @(T2)'.\n#pred blawx_during(T1,-payment_due_date,(X,Y),T2)
+      :: 'that it is not the case that the payment due date of @(X) is @(Y) held between
+      @(T1) and @(T2)'.\n#pred blawx_becomes(payment_due_date,(X,Y),T) :: 'that the
+      payment due date of @(X) is @(Y) became true at @(T)'.\n#pred blawx_becomes(-payment_due_date,(X,Y),T)
+      :: 'that it is not the case that the payment due date of @(X) is @(Y) became
+      true at @(T)'.\nblawx_as_of(payment_due_date(X,Y),datetime(Time)) :- blawx_becomes(payment_due_date(X,Y),datetime(BeforeT)),
+      not blawx_becomes(-payment_due_date(X,Y), datetime(BetweenT)), BeforeT #< Time,BeforeT
+      #< BetweenT, BetweenT #< Time.\nblawx_as_of(payment_due_date(X,Y),datetime(Time))
+      :- blawx_initially(payment_due_date(X,Y)), not blawx_becomes(-payment_due_date(X,Y),
+      datetime(BetweenT)), BetweenT #< Time.\nblawx_during(datetime(Start),payment_due_date(X,Y),datetime(End))
+      :- blawx_becomes(payment_due_date(X,Y),datetime(Start)), not blawx_becomes(-payment_due_date(X,Y),datetime(BeforeEnd)),
+      blawx_becomes(-payment_due_date(X,Y),datetime(End)), BeforeEnd #< End, Start
+      #< End.\nblawx_during(datetime(bot),payment_due_date(X,Y),datetime(End)) :-
+      blawx_initially(payment_due_date(X,Y)), not blawx_becomes(-payment_due_date(X,Y),datetime(BeforeEnd)),
+      blawx_becomes(-payment_due_date(X,Y),datetime(End)), BeforeEnd #< End.\nblawx_during(datetime(Start),payment_due_date(X,Y),datetime(eot))
+      :- blawx_becomes(payment_due_date(X,Y),datetime(Start)), not blawx_becomes(-payment_due_date(X,Y),datetime(AfterStart)),
+      blawx_ultimately(payment_due_date(X,Y)), AfterStart #> Start.\nblawx_as_of(-payment_due_date(X,Y),datetime(Time))
+      :- blawx_becomes(-payment_due_date(X,Y),datetime(BeforeT)), not blawx_becomes(payment_due_date(X,Y),
+      datetime(BetweenT)), BeforeT #< Time,BeforeT #< BetweenT, BetweenT #< Time.\nblawx_as_of(-payment_due_date(X,Y),datetime(Time))
+      :- blawx_initially(-payment_due_date(X,Y)), not blawx_becomes(payment_due_date(X,Y),
+      datetime(BetweenT)), BetweenT #< Time.\nblawx_during(datetime(Start),-payment_due_date(X,Y),datetime(End))
+      :- blawx_becomes(-payment_due_date(X,Y),datetime(Start)), not blawx_becomes(payment_due_date(X,Y),datetime(BeforeEnd)),
+      blawx_becomes(payment_due_date(X,Y),datetime(End)), BeforeEnd #< End, Start
+      #< End.\nblawx_during(datetime(bot),-payment_due_date(X,Y),datetime(End)) :-
+      blawx_initially(-payment_due_date(X,Y)), not blawx_becomes(payment_due_date(X,Y),datetime(BeforeEnd)),
+      blawx_becomes(payment_due_date(X,Y),datetime(End)), BeforeEnd #< End.\nblawx_during(datetime(Start),-payment_due_date(X,Y),datetime(eot))
+      :- blawx_becomes(-payment_due_date(X,Y),datetime(Start)), not blawx_becomes(payment_due_date(X,Y),datetime(AfterStart)),
+      blawx_ultimately(-payment_due_date(X,Y)), AfterStart #> Start.\n\naccording_to(sec_1_section,payment_due_date,Invoice,PD_date)
+      :- invoice(Invoice),\ninvoice_date(Invoice,Issue_date),\ndate_add(Issue_date,duration(2592000),Payment_date),\ndate_add(PD_date,time(0),Payment_date).\n\n%
+      BLAWX CHECK DUPLICATES\nholds(sec_1_section,payment_due_date,Invoice,PD_date)
+      :- according_to(sec_1_section,payment_due_date,Invoice,PD_date).\n\n% BLAWX
+      CHECK DUPLICATES\n  payment_due_date(Invoice,PD_date) :- holds(sec_1_section,payment_due_date,Invoice,PD_date)."
+- model: blawx.blawxtest
+  pk: 1
+  fields:
+    ruledoc: 1
+    test_name: payment
+    xml_content: <xml xmlns="https://developers.google.com/blockly/xml"><block type="unattributed_fact"
+      id="P#L~+r`Yr{9+~{r{H0}F" x="103" y="72"><statement name="statements"><block
+      type="object_declaration" id="MOreAEf}RLD^r;r{Bu#b"><mutation xmlns="http://www.w3.org/1999/xhtml"
+      category_name="invoice" prefix="null" postfix="null"></mutation><field name="prefix"></field><field
+      name="object_name">test</field><field name="postfix">is a invoice</field><next><block
+      type="attribute_selector" id="0P~%6knL2bNW0nVj5!yv"><mutation xmlns="http://www.w3.org/1999/xhtml"
+      attributename="invoice_date" attributetype="date" attributeorder="ov"></mutation><field
+      name="prefix">the invoice date of</field><field name="infix">is</field><field
+      name="postfix"></field><value name="first_element"><block type="object_selector"
+      id="6kLbJ2GwEToHj;bRT5_p"><mutation xmlns="http://www.w3.org/1999/xhtml" objectname="test"></mutation><field
+      name="object_name">test</field></block></value><value name="second_element"><block
+      type="date_value" id="Ah^^Auyo-S@NP9y$_nYs"><field name="year">2000</field><field
+      name="month">1</field><field name="day">1</field></block></value></block></next></block></statement></block><block
+      type="query" id="l`y*v[X(ub(qIQZ@Lv]U" x="105" y="192"><statement name="query"><block
+      type="attribute_selector" id="|t0iF}|=eJY0)-PP{7?4"><mutation xmlns="http://www.w3.org/1999/xhtml"
+      attributename="payment_due_date" attributetype="date" attributeorder="ov"></mutation><field
+      name="prefix">the payment due date of</field><field name="infix">is</field><field
+      name="postfix"></field><value name="first_element"><block type="object_selector"
+      id="Y`~_z5z%A0GBOUWhuzcP"><mutation xmlns="http://www.w3.org/1999/xhtml" objectname="test"></mutation><field
+      name="object_name">test</field></block></value><value name="second_element"><block
+      type="variable" id="TPkiE-t:#R=P3jXv[EbJ"><field name="variable_name">DueDate</field></block></value></block></statement></block></xml>
+    scasp_encoding: 'invoice(test).
+
+      invoice_date(test,date(946710000)).
+
+
+      ?- payment_due_date(test,DueDate).'
+    tutorial: ''
+    view: ''
+    fact_scenario: ''

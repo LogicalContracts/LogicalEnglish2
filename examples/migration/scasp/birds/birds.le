@@ -1,0 +1,66 @@
+% The Logical English twin of an s(CASP) program, written by the s(CASP) translator
+% (InsurLE2/migration/scasp) from birds.pl (kept in sources/).
+% Every expected answer in the scenarios is s(CASP)'s own answer on the source.
+
+the target language is: scasp.
+
+the templates are:
+    *a thing* is a penguin; opposite: *a thing* is not a penguin.
+    *a thing* is a wounded bird; opposite: *a thing* is not a wounded bird.
+    *a thing* is a bird; opposite: *a thing* is not a bird.
+    *a thing* is an ab; opposite: *a thing* is not an ab.
+    *a thing* can fly; opposite: *a thing* can not fly.
+    *a thing* is the penguin of *a second thing*.
+    *a thing* is a s.
+
+the knowledge base birds includes:
+
+the text of the source program is at "sources/birds.pl".
+
+sam is a penguin.
+
+john is a wounded bird.
+
+tweety is a bird.
+
+a thing is a bird if
+    the thing is the penguin of a second thing
+    and a third thing is a s.
+
+a thing is a bird if
+    the thing is a wounded bird.
+
+a thing is an ab if
+    the thing is a penguin.
+
+a thing is an ab if
+    the thing is a wounded bird.
+
+a thing can fly if
+    the thing is a bird
+    and it is not the case that the thing is an ab.
+
+a thing can not fly if
+    the thing is an ab.
+
+a thing can not fly if
+    the thing is not a bird.
+
+a thing is not a wounded bird if
+    it is not the case that the thing is a wounded bird.
+
+a thing is not a bird if
+    it is not the case that the thing is a bird.
+
+a thing is not a penguin if
+    it is not the case that the thing is a penguin.
+
+a thing is not an ab if
+    it is not the case that the thing is an ab.
+
+scenario the_program is, as stated in the source program:
+    query_1 expects answers ["tweety can fly"].
+
+query query_1 is:
+    which thing can fly.
+

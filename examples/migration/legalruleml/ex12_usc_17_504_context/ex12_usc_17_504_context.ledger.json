@@ -1,0 +1,551 @@
+{
+  "counts": {"approximated":0,"encoded":46,"residue":14},
+  "entries": [
+    {
+      "element":"Rel Infringer/1",
+      "in_program":"*a person* is an infringer",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rel claimStatutoryDamages/1",
+      "in_program":"*a copyright owner* elects statutory damages",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rel claimStatutoryDamanges/1",
+      "in_program":"*a copyright owner* claims statutory damages",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rel isNotEqual/2",
+      "in_program":"*a copyright owner* is not the same person as *an infringer*",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rel isOwner/2",
+      "in_program":"*a copyright owner* owns the copyright in *a work*",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rel isWork/1",
+      "in_program":"*a work* is a work protected by copyright",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rel notUse/2",
+      "in_program":"*an infringer* uses *a work*",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rel payNotWillfullyInfringement/2",
+      "in_program":"reduced statutory damages of between *a minimum* and *a maximum* are paid",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rel payStatutoryDamages/2",
+      "in_program":"statutory damages of between *a minimum* and *a maximum* are paid",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rel payWillfullyInfringement/2",
+      "in_program":"increased statutory damages of between *a minimum* and *a maximum* are paid",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rel sustainBurdenProving/1",
+      "in_program":"*a party* sustains the burden of proof",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rel willfullyInfringing/1",
+      "in_program":"*an infringer* infringed wilfully",
+      "kind":"relation",
+      "mapping":"Rel -> a template (the reviewer's wording)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"constitutive statement cs1",
+      "in_program":"cs1",
+      "kind":"statement",
+      "mapping":"ConstitutiveStatement -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"prescriptive statement ps1",
+      "in_program":"ps1",
+      "kind":"statement",
+      "mapping":"PrescriptiveStatement -> rules concluding obligations, permissions or prohibitions (deontic.le)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"prescriptive statement ps2-tblock1",
+      "in_program":"ps2_tblock1",
+      "kind":"statement",
+      "mapping":"PrescriptiveStatement -> rules concluding obligations, permissions or prohibitions (deontic.le)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"prescriptive statement ps3-tblock1",
+      "in_program":"ps3_tblock1",
+      "kind":"statement",
+      "mapping":"PrescriptiveStatement -> rules concluding obligations, permissions or prohibitions (deontic.le)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"prescriptive statement ps4-tblock1",
+      "in_program":"ps4_tblock1",
+      "kind":"statement",
+      "mapping":"PrescriptiveStatement -> rules concluding obligations, permissions or prohibitions (deontic.le)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"prescriptive statement ps2-tblock2",
+      "in_program":"ps2_tblock2",
+      "kind":"statement",
+      "mapping":"PrescriptiveStatement -> rules concluding obligations, permissions or prohibitions (deontic.le)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"prescriptive statement ps3-tblock2",
+      "in_program":"ps3_tblock2",
+      "kind":"statement",
+      "mapping":"PrescriptiveStatement -> rules concluding obligations, permissions or prohibitions (deontic.le)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"prescriptive statement ps4-tblock2",
+      "in_program":"ps4_tblock2",
+      "kind":"statement",
+      "mapping":"PrescriptiveStatement -> rules concluding obligations, permissions or prohibitions (deontic.le)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"prescriptive statement ps2-tblock3",
+      "in_program":"ps2_tblock3",
+      "kind":"statement",
+      "mapping":"PrescriptiveStatement -> rules concluding obligations, permissions or prohibitions (deontic.le)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"prescriptive statement ps3-tblock3",
+      "in_program":"ps3_tblock3",
+      "kind":"statement",
+      "mapping":"PrescriptiveStatement -> rules concluding obligations, permissions or prohibitions (deontic.le)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"prescriptive statement ps4-tblock3",
+      "in_program":"ps4_tblock3",
+      "kind":"statement",
+      "mapping":"PrescriptiveStatement -> rules concluding obligations, permissions or prohibitions (deontic.le)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Override rule3-tblock1 over rule2-tblock1",
+      "in_program":"rule2-tblock1",
+      "kind":"override",
+      "mapping":"Override -> the under rule holds only when the over rule does not apply (E2)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Override rule4-tblock1 over rule3-tblock1",
+      "in_program":"rule3-tblock1",
+      "kind":"override",
+      "mapping":"Override -> the under rule holds only when the over rule does not apply (E2)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Override rule3-tblock2 over rule2-tblock2",
+      "in_program":"rule2-tblock2",
+      "kind":"override",
+      "mapping":"Override -> the under rule holds only when the over rule does not apply (E2)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Override rule4-tblock2 over rule3-tblock2",
+      "in_program":"rule3-tblock2",
+      "kind":"override",
+      "mapping":"Override -> the under rule holds only when the over rule does not apply (E2)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Reparation rep1-tblock1 (penalty1-tblock1 for ps1)",
+      "in_program":"rep1-tblock1",
+      "kind":"reparation",
+      "mapping":"Reparation -> the penalty's chain of obligations on the violation",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Reparation rep2-tblock1 (penalty2-tblock1 for ps1)",
+      "in_program":"rep2-tblock1",
+      "kind":"reparation",
+      "mapping":"Reparation -> the penalty's chain of obligations on the violation",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Reparation rep3-tblock1 (penalty3-tblock1 for ps1)",
+      "in_program":"rep3-tblock1",
+      "kind":"reparation",
+      "mapping":"Reparation -> the penalty's chain of obligations on the violation",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Reparation rep1-tblock2 (penalty1-tblock2 for ps1)",
+      "in_program":"rep1-tblock2",
+      "kind":"reparation",
+      "mapping":"Reparation -> the penalty's chain of obligations on the violation",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Reparation rep2-tblock2 (penalty2-tblock2 for ps1)",
+      "in_program":"rep2-tblock2",
+      "kind":"reparation",
+      "mapping":"Reparation -> the penalty's chain of obligations on the violation",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Reparation rep3-tblock2 (penalty3-tblock2 for ps1)",
+      "in_program":"rep3-tblock2",
+      "kind":"reparation",
+      "mapping":"Reparation -> the penalty's chain of obligations on the violation",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Reparation rep1-tblock3 (penalty1-tblock3 for ps1)",
+      "in_program":"rep1-tblock3",
+      "kind":"reparation",
+      "mapping":"Reparation -> the penalty's chain of obligations on the violation",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Reparation rep2-tblock3 (penalty2-tblock3 for ps1)",
+      "in_program":"rep2-tblock3",
+      "kind":"reparation",
+      "mapping":"Reparation -> the penalty's chain of obligations on the violation",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Reparation rep3-tblock3 (penalty3-tblock3 for ps1)",
+      "in_program":"rep3-tblock3",
+      "kind":"reparation",
+      "mapping":"Reparation -> the penalty's chain of obligations on the violation",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source sec_504__cls_a__pnt_1",
+      "in_program":"sec_504__cls_a__pnt_1",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source sec_504__cls_a_pnt_2",
+      "in_program":"sec_504__cls_a_pnt_2",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source sec_504__cls_b",
+      "in_program":"sec_504__cls_b",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source sec_504__cls_c__pnt_1",
+      "in_program":"sec_504__cls_c__pnt_1",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source sec_504__cls_c__pnt_2__sb_1",
+      "in_program":"sec_504__cls_c__pnt_2__sb_1",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source sec_504__cls_c__pnt_2__sb_2",
+      "in_program":"sec_504__cls_c__pnt_2__sb_2",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"source sec_504__cls_c__pnt_2__sb_3",
+      "in_program":"sec_504__cls_c__pnt_2__sb_3",
+      "kind":"source",
+      "mapping":"LegalSource -> a document; the rules it is associated with cite it (with provenance)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"temporal tblock1",
+      "in_program":"tblock1",
+      "kind":"temporal",
+      "mapping":"TemporalCharacteristics -> a period of the relevant date (Starts / Ends)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"temporal tblock2",
+      "in_program":"tblock2",
+      "kind":"temporal",
+      "mapping":"TemporalCharacteristics -> a period of the relevant date (Starts / Ends)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"temporal tblock3",
+      "in_program":"tblock3",
+      "kind":"temporal",
+      "mapping":"TemporalCharacteristics -> a period of the relevant date (Starts / Ends)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Override rule3-tblock3 over rule2-tblock3",
+      "in_program":"rule3-tblock3",
+      "kind":"override",
+      "mapping":"an Override naming a rule the document does not contain: dropped",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"Override rule4-tblock3 over rule3-tblock3",
+      "in_program":"rule4-tblock3",
+      "kind":"override",
+      "mapping":"an Override naming a rule the document does not contain: dropped",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"ruleInfo1 -> rule1-tblock1",
+      "in_program":"rule1-tblock1",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"ruleInfo2 -> rule2",
+      "in_program":"rule2",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"ruleInfo3 -> rule3",
+      "in_program":"rule3",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"ruleInfo4 -> rule4",
+      "in_program":"rule4",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"ruleInfo5 -> rule5",
+      "in_program":"rule5",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"ruleInfo6 -> rule6",
+      "in_program":"rule6",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"ruleInfo7 -> rule7",
+      "in_program":"rule7",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"ruleInfo8 -> rule8",
+      "in_program":"rule8",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"ruleInfo9 -> rule9",
+      "in_program":"rule9",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"ruleInfo10 -> rule10",
+      "in_program":"rule10",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"ruleInfo11 -> rule11",
+      "in_program":"rule11",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"ruleInfo12 -> rule12",
+      "in_program":"rule12",
+      "kind":"context",
+      "mapping":"an Association or Context targets a key the document does not define: its properties (source, strength, period) apply to nothing",
+      "note":"",
+      "verdict":"residue"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":20,
+    "tests": [
+      {"detail":"","query":"prohibitions","result":"pass","scenario":"statutory_damages"},
+      {"detail":"","query":"obligations","result":"pass","scenario":"statutory_damages"},
+      {
+	"detail":"",
+	"query":"violated_obligations",
+	"result":"pass",
+	"scenario":"statutory_damages"
+      },
+      {
+	"detail":"",
+	"query":"violated_prohibitions",
+	"result":"pass",
+	"scenario":"statutory_damages"
+      },
+      {"detail":"","query":"breaches","result":"pass","scenario":"statutory_damages"},
+      {"detail":"","query":"prohibitions","result":"pass","scenario":"wilful_infringement"},
+      {"detail":"","query":"obligations","result":"pass","scenario":"wilful_infringement"},
+      {
+	"detail":"",
+	"query":"violated_obligations",
+	"result":"pass",
+	"scenario":"wilful_infringement"
+      },
+      {
+	"detail":"",
+	"query":"violated_prohibitions",
+	"result":"pass",
+	"scenario":"wilful_infringement"
+      },
+      {"detail":"","query":"breaches","result":"pass","scenario":"wilful_infringement"},
+      {"detail":"","query":"prohibitions","result":"pass","scenario":"innocent_infringement"},
+      {"detail":"","query":"obligations","result":"pass","scenario":"innocent_infringement"},
+      {
+	"detail":"",
+	"query":"violated_obligations",
+	"result":"pass",
+	"scenario":"innocent_infringement"
+      },
+      {
+	"detail":"",
+	"query":"violated_prohibitions",
+	"result":"pass",
+	"scenario":"innocent_infringement"
+      },
+      {"detail":"","query":"breaches","result":"pass","scenario":"innocent_infringement"},
+      {"detail":"","query":"prohibitions","result":"pass","scenario":"own_work"},
+      {"detail":"","query":"obligations","result":"pass","scenario":"own_work"},
+      {"detail":"","query":"violated_obligations","result":"pass","scenario":"own_work"},
+      {"detail":"","query":"violated_prohibitions","result":"pass","scenario":"own_work"},
+      {"detail":"","query":"breaches","result":"pass","scenario":"own_work"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["ex12-USC_17_504_context-normal.lrml" ],
+    "date":"2026-09-15",
+    "program":"ex12_usc_17_504_context",
+    "source":"a LegalRuleML document (OASIS LegalRuleML Core 1.0)",
+    "translator":"InsurLE2/migration/legalruleml (lrml_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":4
+}

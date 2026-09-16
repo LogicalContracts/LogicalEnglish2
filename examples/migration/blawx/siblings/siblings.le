@@ -1,0 +1,146 @@
+% Siblings Act
+%
+% The Logical English twin of a Blawx encoding, written by the Blawx translator
+% (InsurLE2/migration/blawx). Each rule is a rule of the Act as Blawx encodes it,
+% in the words of Blawx's own sentence forms, citing its section; the project's
+% tests are the scenarios, with Blawx's own answers as the expectations.
+%
+% Source: the Blawx project "Siblings Act" (siblings.yaml, 4 sections), an example of
+%         Blawx v1.6.22-alpha (Lexpedite, MIT licence), commit 3de892f67854292b304c9a55c5e2cd2058d3d418.
+
+the target language is: prolog.
+
+the templates are:
+    *a person* is a sibling of *a second person*.
+    *a person* is a person.
+    *a person* is a parent of *a second person*.
+    *a person* is a ward of the state; scenario element.
+
+the knowledge base siblings includes:
+
+the text of the Siblings Act is at "sources/siblings.md".
+
+the text of the Blawx project is at "sources/siblings.yaml".
+
+% The Act, section by section.
+rule section_1 with provenance the Siblings Act at section 1:
+a person is a sibling of a second person if
+    the second person is a person
+    and the person is a person
+    and a third person is a person
+    and the third person is a parent of the second person
+    and the third person is a parent of the person.
+
+opg is a person, as stated in the Siblings Act at section 2.
+
+rule section_2 with provenance the Siblings Act at section 2:
+opg is a parent of a person if
+    the person is a ward of the state.
+
+scenario broken_test is, as stated in the Blawx project at test broken_test:
+    wednesday is a person.
+    pugsley is a person.
+    morticia is a person.
+    morticia is a parent of wednesday.
+    wednesday is a parent of pugsley.
+    broken_test expects answers [].
+
+scenario broken_code is, as stated in the Blawx project at test broken_code:
+    morticia is a person.
+    wednesday is a person.
+    pugsley is a person.
+    morticia is a parent of wednesday.
+    morticia is a parent of pugsley.
+    broken_code expects answers ["pugsley is a sibling of wednesday", "wednesday is a sibling of wednesday"].
+
+scenario broken_rule is, as stated in the Blawx project at test broken_rule:
+    person1 is a person.
+    person2 is a person.
+    % pending — abductive: the test lets s(CASP) assume ward/1 (#abducible); Blawx's answers are hypotheses, which an LE scenario states as facts or not at all:
+    % broken_rule expects answers ["person2 is a sibling of person2", "person1 is a sibling of person2", "opg is a sibling of person2", "person2 is a sibling of person1", "person1 is a sibling of person1", "opg is a sibling of person1", "person2 is a sibling of opg", "person1 is a sibling of opg", "opg is a sibling of opg"].
+
+scenario automation is, as stated in the Blawx project at test automation:
+    automation expects answers [].
+
+scenario case_1 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    person_b is a person.
+    person_c is a person.
+    person_c is a parent of person_a.
+    person_c is a parent of person_b.
+    which_is_a_sibling_of expects answers ["person_b is a sibling of person_b", "person_a is a sibling of person_b", "person_b is a sibling of person_a", "person_a is a sibling of person_a"].
+
+scenario case_1_without_fact_1 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_b is a person.
+    person_c is a person.
+    person_c is a parent of person_a.
+    person_c is a parent of person_b.
+    which_is_a_sibling_of expects answers ["person_b is a sibling of person_b"].
+
+scenario case_1_without_fact_2 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    person_c is a person.
+    person_c is a parent of person_a.
+    person_c is a parent of person_b.
+    which_is_a_sibling_of expects answers ["person_a is a sibling of person_a"].
+
+scenario case_1_without_fact_3 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    person_b is a person.
+    person_c is a parent of person_a.
+    person_c is a parent of person_b.
+    which_is_a_sibling_of expects answers [].
+
+scenario case_1_without_fact_4 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    person_b is a person.
+    person_c is a person.
+    person_c is a parent of person_b.
+    which_is_a_sibling_of expects answers ["person_b is a sibling of person_b"].
+
+scenario case_1_without_fact_5 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    person_a is a person.
+    person_b is a person.
+    person_c is a person.
+    person_c is a parent of person_a.
+    which_is_a_sibling_of expects answers ["person_a is a sibling of person_a"].
+
+scenario case_2 is, as stated in the case analysis of the encoding at section 2:
+    % a case of the rule of section 2 (blawx_cases.pl), answered by Blawx
+    person_a is a ward of the state.
+    which_is_a_parent_of expects answers ["opg is a parent of person_a"].
+
+query broken_test is:
+    wednesday is a sibling of pugsley.
+
+query broken_code is:
+    which person is a sibling of wednesday.
+
+query broken_rule is:
+    which person is a sibling of which second person.
+
+query automation is:
+    which person is a sibling of which second person.
+
+query which_is_a_sibling_of is:
+    which person is a sibling of which second person.
+
+query which_is_a_parent_of is:
+    which person is a parent of which second person.
+
+the view the act is:
+    the title is "Siblings Act, as Blawx encodes it".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the case" are
+        a person is a ward of the state.
+    the result is the answer to query which_is_a_sibling_of.
+    the result shows its reasons.
+    the result shows its citations.
+    the result can be flipped.
+

@@ -1,0 +1,185 @@
+{
+  "counts": {"approximated":0,"encoded":20,"residue":0},
+  "entries": [
+    {
+      "element":"acquires_British_citizenship_on/2",
+      "in_program":"*a person* acquires British citizenship on *a date*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_a_parent_of/2",
+      "in_program":"*a person* is a parent of *a second person*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_citizen_or_settled/2",
+      "in_program":"*a person* is citizen or settled *a date*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_the_father_of/2",
+      "in_program":"*a person* is the father of *a person*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_born_in_on/3",
+      "in_program":"*a person* is born in *a place* on *a date*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_after_commencement/1",
+      "in_program":"*a date* isafter commencement",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_the_mother_of/2",
+      "in_program":"*a person* is the mother of *a person*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_a_British_citizen_on/2",
+      "in_program":"*a person* is a British citizen on *a date*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_settled_in_the_UK_on/2",
+      "in_program":"*a person* is settled in the UK on *a date*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"says_that/2",
+      "in_program":"*a person* says that *a sentence*",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is_qualified_to_determine_fatherhood/1",
+      "in_program":"*a person* is qualified to determine fatherhood",
+      "kind":"predicate",
+      "mapping":"a template (the #pred wording, else a naive one)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of acquires_British_citizenship_on/2",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of is_a_parent_of/2",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of is_citizen_or_settled/2",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a clause of is_the_father_of/2",
+      "in_program":"the rules",
+      "kind":"rule",
+      "mapping":"a clause -> an LE rule",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Scenario alice",
+      "in_program":"alice",
+      "kind":"scenario",
+      "mapping":"an LE1 scenario -> a scenario",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Scenario harry",
+      "in_program":"harry",
+      "kind":"scenario",
+      "mapping":"an LE1 scenario -> a scenario",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Scenario trust_harry",
+      "in_program":"trust_harry",
+      "kind":"scenario",
+      "mapping":"an LE1 scenario -> a scenario",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Scenario alice_harry",
+      "in_program":"alice_harry",
+      "kind":"scenario",
+      "mapping":"an LE1 scenario -> a scenario",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"?- acquires_British_citizenship_on(_140242,_140244)",
+      "in_program":"the queries",
+      "kind":"query",
+      "mapping":"a ?- query -> a query, asked in every scenario",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":4,
+    "tests": [
+      {"detail":"","query":"query_1","result":"pass","scenario":"alice"},
+      {"detail":"","query":"query_1","result":"pass","scenario":"harry"},
+      {"detail":"","query":"query_1","result":"pass","scenario":"trust_harry"},
+      {"detail":"","query":"query_1","result":"pass","scenario":"alice_harry"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["citizenshiptrust-scasp.pl" ],
+    "date":"2026-09-15",
+    "program":"citizenshiptrust",
+    "source":"an s(CASP) program",
+    "translator":"InsurLE2/migration/scasp (scasp_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":4
+}

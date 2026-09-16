@@ -1,18 +1,17 @@
-/** <module> Error reports (Sentry) and product analytics (PostHog)
+/** <module> Error reports (Sentry) and web analytics (Cloudflare)
 
-    Both are off unless the server's environment configures them. Then the
-    server reports the exceptions of its API to Sentry, and every page it
-    serves loads /telemetry.js (web_extras/telemetry/telemetry.js behind the
-    configuration built here), which reports the page's own errors, offers
-    Sentry's feedback form, and sends PostHog its autocapture and the page's
-    main actions. docs/telemetry.md says how to create the two projects.
+    Both are off unless the server's environment configures them, which only
+    the deployed server's does (fly secrets). Then the server reports the
+    exceptions of its API to Sentry, and every page it serves loads
+    /telemetry.js (web_extras/telemetry/telemetry.js behind the configuration
+    built here), which reports the page's own errors, offers Sentry's
+    feedback form, and loads Cloudflare's Web Analytics beacon.
+    docs/telemetry.md says how to set them up.
 
-        LE_SENTRY_DSN           the Sentry project's DSN
-        LE_SENTRY_ENVIRONMENT   default `production`
-        LE_SENTRY_RELEASE       default `le2@<git hash>` from build_info.txt
-        LE_POSTHOG_KEY          the PostHog project's API key (`phc_…`)
-        LE_POSTHOG_HOST         default https://eu.i.posthog.com
-        LE_POSTHOG_PERSISTENCE  default `memory`: no cookie, no local storage
+        LE_SENTRY_DSN                   the Sentry project's DSN
+        LE_SENTRY_ENVIRONMENT           default `production`
+        LE_SENTRY_RELEASE               default `le2@<git hash>` from build_info.txt
+        LE_CLOUDFLARE_ANALYTICS_TOKEN   the Cloudflare Web Analytics site's token
 
     A report carries the operation's name and the error — never a program, a
     query or any other field of the request. It is sent by a thread of its
@@ -55,28 +54,10 @@ env_prefix('LE_').
 sentry_bundle('https://browser.sentry-cdn.com/10.74.0/bundle.feedback.min.js',
               'sha384-GUfENdldn3DoGJLIx0qBfM3P6kMCt8YiyD3HXEJu5Y8ipyXynEM5+0xXunZ60nF6').
 
-default_posthog_host('https://eu.i.posthog.com').
+%   Cloudflare Web Analytics' beacon (the snippet of the site's dashboard).
+cloudflare_beacon('https://static.cloudflareinsights.com/beacon.min.js').
 
-%   The operations of /leapi that are the editor's main actions, the event
-%   each one is, and the fields of the request the event carries (a field's
-%   spec as telemetry.js reads it: "f", "f?" whether given, "f.ext").
-api_event(examples,         'example opened',          [example-file]).
-api_event(answeringQuery,   'query run',               [with_scenario-'scenario?']).
-api_event(importForeign,    'file imported',           [extension-'name.ext']).
-api_event(exportForeign,    'program exported',        [format-exporter]).
-api_event(getGameData,      'proof game opened',       []).
-api_event(explanationDrill, 'explanation drill opened', []).
-api_event(testReport,       'tests run',               []).
-api_event(legalView,        'legal view opened',       []).
-api_event(getScasp,         's(CASP) translation shown', []).
-api_event(getLps,           'program run in LPS',      []).
-api_event(nl_to_le,         'English to LE',           []).
-api_event(assistant_command, 'assistant used',         []).
-api_event(contract_start,   'contract assistant started', []).
-
-api_path('/leapi').
-
-%   The query parameters of a page's address that its reports keep: the
+%   The query parameters of a page's address that Sentry's reports keep: the
 %   others (the editor's ?text=, a #lzp= fragment) can carry a program.
 url_params([example, scenario, query, lang]).
 
@@ -126,10 +107,10 @@ release_code(C0, C) :-
 
 %!  telemetry_status(-Status:dict) is det.
 %
-%   `{sentry: Bool, posthog: Bool}`: which services this server reports to.
-telemetry_status(_{sentry: S, posthog: P}) :-
+%   `{sentry: Bool, web_analytics: Bool}`: which services this server uses.
+telemetry_status(_{sentry: S, web_analytics: W}) :-
     ( sentry_config(_) -> S = true ; S = false ),
-    ( setting('POSTHOG_KEY', _) -> P = true ; P = false ).
+    ( setting('CLOUDFLARE_ANALYTICS_TOKEN', _) -> W = true ; W = false ).
 
 		 /*******************************
 		 *      THE PAGES' SCRIPT       *
@@ -137,15 +118,15 @@ telemetry_status(_{sentry: S, posthog: P}) :-
 
 %!  telemetry_js(-JS:string) is det.
 %
-%   What GET /telemetry.js answers: with neither service configured, one
-%   line defining a track function that does nothing; otherwise the
-%   configuration (in the active UI language) and the client script.
+%   What GET /telemetry.js answers: with neither service configured, a
+%   comment that loads nothing; otherwise the configuration (in the active
+%   UI language) and the client script.
 telemetry_js(JS) :-
     (   telemetry_config(Config)
     ->  with_output_to(string(CJ), json_write_dict(current_output, Config, [width(0)])),
         client_script(Client),
         format(string(JS), "var TELEMETRY = ~w;~n~w", [CJ, Client])
-    ;   format(string(JS), "window.leTrack = window.leTrack || function () {};~n", [])
+    ;   JS = "/* telemetry: off (docs/telemetry.md) */\n"
     ).
 
 client_script(Text) :-
@@ -156,17 +137,11 @@ client_script(Text) :-
 
 telemetry_config(Config) :-
     ( sentry_config(DSN) -> sentry_client(DSN, S) ; S = null ),
-    ( posthog_client(P) -> true ; P = null ),
-    ( S \== null ; P \== null ), !,
+    ( cloudflare_client(W) -> true ; W = null ),
+    ( S \== null ; W \== null ), !,
     server_name(Server),
-    api_path(Api),
-    findall(Op-_{name: Name, props: Props},
-            ( api_event(Op, Name, Fields), dict_pairs(Props, _, Fields) ),
-            Evs),
-    dict_pairs(Events, _, Evs),
     url_params(Keep),
-    Config = _{server: Server, track: leTrack, sentry: S, posthog: P,
-               api: Api, events: Events, urlParams: Keep}.
+    Config = _{server: Server, sentry: S, webAnalytics: W, urlParams: Keep}.
 
 sentry_client(DSN, Client) :-
     sentry_bundle(Bundle, Integrity),
@@ -176,10 +151,9 @@ sentry_client(DSN, Client) :-
     Client = _{dsn: DSN, environment: Env, release: Rel,
                bundle: Bundle, integrity: Integrity, labels: Labels}.
 
-posthog_client(_{key: Key, host: Host, persistence: Pers}) :-
-    setting('POSTHOG_KEY', Key),
-    ( setting('POSTHOG_HOST', Host) -> true ; default_posthog_host(Host) ),
-    ( setting('POSTHOG_PERSISTENCE', Pers) -> true ; Pers = memory ).
+cloudflare_client(_{beacon: Beacon, token: Token}) :-
+    setting('CLOUDFLARE_ANALYTICS_TOKEN', Token),
+    cloudflare_beacon(Beacon).
 
 %   The feedback form's words, in the active UI language (i18n/ui.csv).
 feedback_labels(Labels) :-

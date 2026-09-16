@@ -1,0 +1,48 @@
+% The Logical English twin of a LegalRuleML document, written by the LegalRuleML translator
+% (InsurLE2/migration/legalruleml) from ex1-curies-normal.lrml (kept in sources/).
+% Obligations, permissions and prohibitions are the deontic library's (deontic.le).
+% Every expected answer in the scenarios is SPINdle's (defeasible deontic logic) on the source.
+
+the target language is: prolog.
+
+the knowledge base ex1_curies includes these resources:
+    deontic.
+
+the templates are:
+    p holds.
+    q holds.
+
+the knowledge base ex1_curies includes:
+
+the text of the source document is at "sources/ex1-curies-normal.lrml".
+
+ref1 is published at "/akn/au/2012-05-30/C628-2012/eng@/!main#sec_2-2".
+
+ref6 is published at "ECLI:country:court:year:number".
+
+ref2 is published at "ftp://ftp.cen.eu/CEN/Sectors/List/ICT/CWAs/CWA15710-2010-Metalex2.pdf".
+
+ref3 is published at "http://www.digitpa.gov.it/standard-normeinrete".
+
+ref4 is published at "http://www.ietf.org/id/draft-spinosa-urn-lex-06.txt".
+
+ref5 is published at "OJ:C:2011:127:0001:0007:EN:PDF".
+
+ref7 is published at "http://frwebgate.access.gpo.gov/cgi-bin/getdoc.cgi?dbname=browse_usc&docid=Cite:+18USC47".
+
+ref8 is published at "http://codes.lp.findlaw.com/uscode/18/I/3/47".
+
+ref9 is published at "http://www.law.cornell.edu/wiki/lexcraft/section_identifiers_lii".
+
+b_stmt_1b is published at "urn:org:oasis-open.org:docs:legalruleml:examples:compactified:ex2-references-compact-b:stmt_1b".
+
+b_rule_1b is published at "urn:org:oasis-open.org:docs:legalruleml:examples:compactified:ex2-references-compact-b:rule_1b".
+
+% This example demonstrates the use of CURIEs to abbreviate IRIs. The compact serialization is used.
+rule stmt_1a with provenance ref1:
+q holds if
+    p holds.
+
+query q is:
+    q holds.
+

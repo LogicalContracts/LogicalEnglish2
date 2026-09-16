@@ -1,0 +1,203 @@
+% The Logical English twin of a LegalRuleML document, written by the LegalRuleML translator
+% (InsurLE2/migration/legalruleml) from ex12-USC_17_504_context-normal.lrml (kept in sources/).
+% Obligations, permissions and prohibitions are the deontic library's (deontic.le).
+% Every expected answer in the scenarios is SPINdle's (defeasible deontic logic) on the source.
+
+the target language is: prolog.
+
+the knowledge base ex12_usc_17_504_context includes these resources:
+    deontic.
+
+the templates are:
+    *a person* is an infringer.
+    *a copyright owner* elects statutory damages.
+    *a copyright owner* claims statutory damages.
+    *a copyright owner* is not the same person as *an infringer*.
+    *a copyright owner* owns the copyright in *a work*.
+    *a work* is a work protected by copyright.
+    *an infringer* uses *a work*.
+    reduced statutory damages of between *a minimum* and *a maximum* are paid.
+    statutory damages of between *a minimum* and *a maximum* are paid.
+    increased statutory damages of between *a minimum* and *a maximum* are paid.
+    *a party* sustains the burden of proof.
+    *an infringer* infringed wilfully.
+
+the knowledge base ex12_usc_17_504_context includes:
+
+the text of the source document is at "sources/ex12-USC_17_504_context-normal.lrml".
+
+sec_504_cls_a_pnt_1 is published at "http://akomantoso.org/us/codes;us/main#title17-chp5-sec504-clsa-lst1-pnt1".
+
+sec_504_cls_a_pnt_2 is published at "http://akomantoso.org/us/codes;us/main#title17-chp5-sec504-clsa-lst1-pnt2".
+
+sec_504_cls_b is published at "http://akomantoso.org/us/codes;us/main#title17-chp5-sec504-clsb".
+
+sec_504_cls_c_pnt_1 is published at "http://akomantoso.org/us/codes;us/main#title17-chp5-sec504-clsc-lst1-pnt1".
+
+sec_504_cls_c_pnt_2_sb_1 is published at "http://akomantoso.org/us/codes;us/main#title17-chp5-sec504-clsc-lst1-pnt2-subpar1".
+
+sec_504_cls_c_pnt_2_sb_2 is published at "http://akomantoso.org/us/codes;us/main#title17-chp5-sec504-clsc-lst1-pnt2-subpar2".
+
+sec_504_cls_c_pnt_2_sb_3 is published at "http://akomantoso.org/us/codes;us/main#title17-chp5-sec504-clsc-lst1-pnt2-subpar3".
+
+% authority congress: glevo:usaCongress
+% jurisdiction us: glevo:usa
+a person is an infringer.
+
+rule ps1:
+a party is forbidden that the party uses a work if
+    the work is a work protected by copyright
+    and a copyright owner owns the copyright in the work
+    and the copyright owner is not the same person as the party.
+
+rule ps2_tblock1:
+a party is obliged that statutory damages of between $250 and "$10,000" are paid if
+    a person is an infringer
+    and a copyright owner elects statutory damages
+    and the prohibition of the party that the party uses a work is violated
+    and it is not the case that
+        the person is an infringer
+        and the copyright owner sustains the burden of proof
+        and the party infringed wilfully
+        and the prohibition of the party that the party uses the work is violated.
+
+rule ps3_tblock1:
+a party is obliged that increased statutory damages of between $250 and "$50,000" are paid if
+    a person is an infringer
+    and a second party sustains the burden of proof
+    and the party infringed wilfully
+    and the prohibition of the party that the party uses a work is violated
+    and it is not the case that
+        the person is an infringer
+        and the party sustains the burden of proof
+        and it is not the case that the party infringed wilfully
+        and the prohibition of the party that the party uses the work is violated.
+
+rule ps4_tblock1:
+a party is obliged that reduced statutory damages of between $100 and "$10,000" are paid if
+    a person is an infringer
+    and the party sustains the burden of proof
+    and it is not the case that the party infringed wilfully
+    and the prohibition of the party that the party uses a work is violated.
+
+rule ps2_tblock2:
+a party is obliged that statutory damages of between $500 and "$20,000" are paid if
+    a person is an infringer
+    and a copyright owner claims statutory damages
+    and the prohibition of the party that the party uses a work is violated
+    and it is not the case that
+        the person is an infringer
+        and the copyright owner sustains the burden of proof
+        and the party infringed wilfully
+        and the prohibition of the party that the party uses the work is violated.
+
+rule ps3_tblock2:
+a party is obliged that increased statutory damages of between $500 and "$100,000" are paid if
+    a person is an infringer
+    and a second party sustains the burden of proof
+    and the party infringed wilfully
+    and the prohibition of the party that the party uses a work is violated
+    and it is not the case that
+        the person is an infringer
+        and the party sustains the burden of proof
+        and it is not the case that the party infringed wilfully
+        and the prohibition of the party that the party uses the work is violated.
+
+rule ps4_tblock2:
+a party is obliged that reduced statutory damages of between $200 and "$20,000" are paid if
+    a person is an infringer
+    and the party sustains the burden of proof
+    and it is not the case that the party infringed wilfully
+    and the prohibition of the party that the party uses a work is violated.
+
+rule ps2_tblock3:
+a party is obliged that statutory damages of between $750 and "$30,000" are paid if
+    a person is an infringer
+    and a copyright owner claims statutory damages
+    and the prohibition of the party that the party uses a work is violated.
+
+rule ps3_tblock3:
+a party is obliged that increased statutory damages of between $750 and "$150,000" are paid if
+    a person is an infringer
+    and a second party sustains the burden of proof
+    and the party infringed wilfully
+    and the prohibition of the party that the party uses a work is violated.
+
+rule ps4_tblock3:
+a party is obliged that reduced statutory damages of between $200 and "$30,000" are paid if
+    a person is an infringer
+    and the party sustains the burden of proof
+    and it is not the case that the party infringed wilfully
+    and the prohibition of the party that the party uses a work is violated.
+
+scenario statutory_damages is:
+    % 17 USC 504(c)(1): the owner elects statutory damages instead of actual damages.
+    novel is a work protected by copyright.
+    ann owns the copyright in novel.
+    ann is not the same person as ben.
+    ben uses novel.
+    ann elects statutory damages.
+    ann claims statutory damages.
+    prohibitions expects answers ["ben is forbidden that ben uses novel"].
+    obligations expects answers ["ben is obliged that statutory damages of between $250 and $10,000 are paid", "ben is obliged that statutory damages of between $500 and $20,000 are paid", "ben is obliged that statutory damages of between $750 and $30,000 are paid"].
+    violated_obligations expects answers ["the obligation of ben that statutory damages of between $250 and $10,000 are paid is violated", "the obligation of ben that statutory damages of between $500 and $20,000 are paid is violated", "the obligation of ben that statutory damages of between $750 and $30,000 are paid is violated"].
+    violated_prohibitions expects answers ["the prohibition of ben that ben uses novel is violated"].
+    breaches expects answers ["ben is in breach"].
+
+scenario wilful_infringement is:
+    % 17 USC 504(c)(2): the owner proves the infringement was wilful.
+    novel is a work protected by copyright.
+    ann owns the copyright in novel.
+    ann is not the same person as ben.
+    ben uses novel.
+    ann elects statutory damages.
+    ann claims statutory damages.
+    ann sustains the burden of proof.
+    ben infringed wilfully.
+    prohibitions expects answers ["ben is forbidden that ben uses novel"].
+    obligations expects answers ["ben is obliged that statutory damages of between $750 and $30,000 are paid", "ben is obliged that increased statutory damages of between $250 and $50,000 are paid", "ben is obliged that increased statutory damages of between $500 and $100,000 are paid", "ben is obliged that increased statutory damages of between $750 and $150,000 are paid"].
+    violated_obligations expects answers ["the obligation of ben that statutory damages of between $750 and $30,000 are paid is violated", "the obligation of ben that increased statutory damages of between $250 and $50,000 are paid is violated", "the obligation of ben that increased statutory damages of between $500 and $100,000 are paid is violated", "the obligation of ben that increased statutory damages of between $750 and $150,000 are paid is violated"].
+    violated_prohibitions expects answers ["the prohibition of ben that ben uses novel is violated"].
+    breaches expects answers ["ben is in breach"].
+
+scenario innocent_infringement is:
+    % 17 USC 504(c)(2): the infringer proves it was not aware that its acts infringed.
+    novel is a work protected by copyright.
+    ann owns the copyright in novel.
+    ann is not the same person as ben.
+    ben uses novel.
+    ann elects statutory damages.
+    ann claims statutory damages.
+    ben sustains the burden of proof.
+    prohibitions expects answers ["ben is forbidden that ben uses novel"].
+    obligations expects answers ["ben is obliged that reduced statutory damages of between $100 and $10,000 are paid", "ben is obliged that reduced statutory damages of between $200 and $20,000 are paid", "ben is obliged that reduced statutory damages of between $200 and $30,000 are paid", "ben is obliged that statutory damages of between $250 and $10,000 are paid", "ben is obliged that statutory damages of between $500 and $20,000 are paid", "ben is obliged that statutory damages of between $750 and $30,000 are paid"].
+    violated_obligations expects answers ["the obligation of ben that reduced statutory damages of between $100 and $10,000 are paid is violated", "the obligation of ben that reduced statutory damages of between $200 and $20,000 are paid is violated", "the obligation of ben that reduced statutory damages of between $200 and $30,000 are paid is violated", "the obligation of ben that statutory damages of between $250 and $10,000 are paid is violated", "the obligation of ben that statutory damages of between $500 and $20,000 are paid is violated", "the obligation of ben that statutory damages of between $750 and $30,000 are paid is violated"].
+    violated_prohibitions expects answers ["the prohibition of ben that ben uses novel is violated"].
+    breaches expects answers ["ben is in breach"].
+
+scenario own_work is:
+    % The owner using its own work infringes nothing.
+    novel is a work protected by copyright.
+    ann owns the copyright in novel.
+    ann uses novel.
+    prohibitions expects answers [].
+    obligations expects answers [].
+    violated_obligations expects answers [].
+    violated_prohibitions expects answers [].
+    breaches expects answers [].
+
+query prohibitions is:
+    which party is forbidden that which sentence.
+
+query obligations is:
+    which party is obliged that which sentence.
+
+query violated_obligations is:
+    the obligation of which party that which sentence is violated.
+
+query violated_prohibitions is:
+    the prohibition of which party that which sentence is violated.
+
+query breaches is:
+    which party is in breach.
+

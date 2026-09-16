@@ -1,0 +1,52 @@
+% Mortality Act
+%
+% The Logical English twin of a Blawx encoding, written by the Blawx translator
+% (InsurLE2/migration/blawx). Each rule is a rule of the Act as Blawx encodes it,
+% in the words of Blawx's own sentence forms, citing its section; the project's
+% tests are the scenarios, with Blawx's own answers as the expectations.
+%
+% Source: the Blawx project "Mortality Act" (mortality.yaml, 2 sections), an example of
+%         Blawx v1.6.22-alpha (Lexpedite, MIT licence), commit 3de892f67854292b304c9a55c5e2cd2058d3d418.
+
+the target language is: prolog.
+
+the templates are:
+    *a thing* is a mortal.
+    *a thing* is a human; scenario element.
+
+the knowledge base mortality includes:
+
+the text of the Mortality Act is at "sources/mortality.md".
+
+the text of the Blawx project is at "sources/mortality.yaml".
+
+% The Act, section by section.
+rule section_1 with provenance the Mortality Act at section 1:
+a thing is a mortal if
+    the thing is a human.
+
+scenario socrates is, as stated in the Blawx project at test Socrates:
+    socrates is a human.
+    socrates expects answers ["socrates is a mortal"].
+
+scenario case_1 is, as stated in the case analysis of the encoding at section 1:
+    % a case of the rule of section 1 (blawx_cases.pl), answered by Blawx
+    thing_a is a human.
+    which_is_a_mortal expects answers ["thing_a is a mortal"].
+
+query socrates is:
+    which thing is a mortal.
+
+query which_is_a_mortal is:
+    which thing is a mortal.
+
+the view the act is:
+    the title is "Mortality Act, as Blawx encodes it".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the case" are
+        a thing is a human.
+    the result is the answer to query which_is_a_mortal.
+    the result shows its reasons.
+    the result shows its citations.
+    the result can be flipped.
+

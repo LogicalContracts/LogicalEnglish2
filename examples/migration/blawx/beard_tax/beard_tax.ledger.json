@@ -1,0 +1,224 @@
+{
+  "counts": {"approximated":0,"encoded":17,"residue":0},
+  "entries": [
+    {
+      "element":"bearded/1",
+      "in_program":"*a person* is bearded",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"person/1",
+      "in_program":"*a person* is a person",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"facial_hair_length_mm/2",
+      "in_program":"the facial hair of *a person* is *a number* mm in length",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"qualifies_s1a/1",
+      "in_program":"*a person* qualifies under section 1 a",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"qualifies_s1b/1",
+      "in_program":"*a person* qualifies under section 1 b",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"facial_hair_on_chin/1",
+      "in_program":"the facial hair of *a person* is on the chin",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"facial_hair_below_chin/1",
+      "in_program":"the facial hair of *a person* is below the chin",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"facial_hair_continuous/1",
+      "in_program":"the facial hair of *a person* is ear to ear below the nose",
+      "kind":"category, attribute or relationship",
+      "mapping":"its #pred wording -> a template",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_1_section, bearded, ...) :- ...",
+      "in_program":"section_1",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_1_section, bearded, ...) :- ...",
+      "in_program":"section_1_2",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_1__para_a_section, qualifies_s1a, ...) :- ...",
+      "in_program":"section_1_a",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_1__para_a_section, qualifies_s1a, ...) :- ...",
+      "in_program":"section_1_a_2",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"according_to(sec_1__para_b_section, qualifies_s1b, ...) :- ...",
+      "in_program":"section_1_b",
+      "kind":"rule",
+      "mapping":"a rule of the section, citing it",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"80 blawx_as_of / blawx_during clauses",
+      "in_program":"nothing",
+      "kind":"temporal boilerplate",
+      "mapping":"left out: nothing reads it",
+      "note":"Blawx writes these for every attribute and relationship; no rule or test of this project reads them0",
+      "verdict":"encoded"
+    },
+    {
+      "element":"152 #pred annotations",
+      "in_program":"the templates",
+      "kind":"natural language",
+      "mapping":"the wording of each template; the holds / according_to / defeated forms are the rules themselves",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"blawxtest are_they_bearded",
+      "in_program":"are_they_bearded",
+      "kind":"test",
+      "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"12 cases generated from the rules",
+      "in_program":"the case_ scenarios",
+      "kind":"generated cases",
+      "mapping":"each rule met by facts, each near miss, each defeat: Blawx's answers as the expectations",
+      "note":"not Blawx's tests: written by blawx_cases.pl from the encoding; the answers are Blawx's own",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":13,
+    "tests": [
+      {"detail":"","query":"are_they_bearded","result":"pass","scenario":"are_they_bearded"},
+      {"detail":"","query":"which_is_bearded","result":"pass","scenario":"case_1"},
+      {
+	"detail":"",
+	"query":"which_is_bearded",
+	"result":"pass",
+	"scenario":"case_1_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_is_bearded",
+	"result":"pass",
+	"scenario":"case_1_without_fact_2"
+      },
+      {
+	"detail":"",
+	"query":"which_is_bearded",
+	"result":"pass",
+	"scenario":"case_1_without_fact_3"
+      },
+      {
+	"detail":"",
+	"query":"which_is_bearded",
+	"result":"pass",
+	"scenario":"case_1_missing_comparison_1"
+      },
+      {"detail":"","query":"which_is_bearded","result":"pass","scenario":"case_2"},
+      {
+	"detail":"",
+	"query":"which_is_bearded",
+	"result":"pass",
+	"scenario":"case_2_without_fact_1"
+      },
+      {
+	"detail":"",
+	"query":"which_is_bearded",
+	"result":"pass",
+	"scenario":"case_2_without_fact_2"
+      },
+      {
+	"detail":"",
+	"query":"which_is_bearded",
+	"result":"pass",
+	"scenario":"case_2_missing_comparison_1"
+      },
+      {
+	"detail":"",
+	"query":"which_qualifies_under_section_1_a",
+	"result":"pass",
+	"scenario":"case_3"
+      },
+      {
+	"detail":"",
+	"query":"which_qualifies_under_section_1_a",
+	"result":"pass",
+	"scenario":"case_4"
+      },
+      {
+	"detail":"",
+	"query":"which_qualifies_under_section_1_b",
+	"result":"pass",
+	"scenario":"case_5"
+      }
+    ]
+  },
+  "meta": {
+    "artifacts": [
+      "sources/beard_tax.yaml",
+      "https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418"
+    ],
+    "date":"2026-09-15",
+    "licence":"Blawx: MIT",
+    "program":"beard_tax",
+    "source":"Beard Tax Act",
+    "translator":"InsurLE2/migration/blawx (blawx_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":13
+}

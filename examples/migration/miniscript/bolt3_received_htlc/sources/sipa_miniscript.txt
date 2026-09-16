@@ -1,0 +1,49 @@
+Text of https://bitcoin.sipa.be/miniscript/ (Pieter Wuille, Andrew Poelstra, Sanket Kanjalkar), retrieved 2026-09-13:
+the Introduction and the "Policy to Miniscript compiler" sections, as plain text (one paragraph or list item per line).
+Each example link of the page is written as its title followed by the policy it loads (the link's target).
+
+Introduction
+
+Miniscript is a language for writing (a subset of) Bitcoin Scripts in a structured way, enabling analysis, composition, generic signing and more.
+
+Bitcoin Script is an unusual stack-based language with many edge cases, designed for implementing spending conditions consisting of various combinations of signatures, hash locks, and time locks. Yet despite being limited in functionality it is still highly nontrivial to:
+- Given a combination of spending conditions, finding the most economical script to implement it.
+- Given two scripts, construct a script that implements a composition of their spending conditions (e.g. a multisig where one of the "keys" is another multisig).
+- Given a script, find out what spending conditions it permits.
+- Given a script and access to a sufficient set of private keys, construct a general satisfying witness for it.
+- Given a script, be able to predict the cost of spending an output.
+- Given a script, know whether particular resource limitations like the ops limit might be hit when spending.
+
+Miniscript functions as a representation for scripts that makes these sort of operations possible. It has a structure that allows composition. It is very easy to statically analyze for various properties (spending conditions, correctness, security properties, malleability, ...). It can be targeted by spending policy compilers (see below). Finally, compatible scripts can easily be converted to Miniscript form - avoiding the need for additional metadata for e.g. signing devices that support it.
+
+Miniscript is designed for (P2SH-)P2WSH and Tapscript (as defined in BIP342) embedded scripts. Most of its constructions work fine in P2SH as well, but some of the (optional) security properties rely on Segwit-specific rules. Furthermore, the implemented policy compilers assume a Segwit-specific cost model.
+
+Miniscript was designed and implemented by Pieter Wuille, Andrew Poelstra, and Sanket Kanjalkar at Blockstream Research, but is the result of discussions with several other people.
+
+Links:
+- This website <http://bitcoin.sipa.be/miniscript> and C++ compiler: [code] <https://github.com/sipa/miniscript>
+- Bitcoin Core compatible C++ implementation: [code] <https://github.com/sipa/miniscript/tree/master/bitcoin/script>
+- Rust-miniscript implementation: [code] <https://github.com/apoelstra/rust-miniscript>
+- Talk about (an early version of) Miniscript at SBC'19 <https://cyber.stanford.edu/sbc19>: [video] <https://www.youtube.com/watch?v=XM1lzN4Zfks> [transcript] <http://diyhpl.us/wiki/transcripts/stanford-blockchain-conference/2019/miniscript/> [slides] <https://prezi.com/view/KH7AXjnse7glXNoqCxPH/>
+
+Policy to Miniscript compiler
+
+Here you can see a demonstration of the P2WSH Miniscript compiler. Write a spending policy according to the instructions below, and observe how it affects the constructed Miniscript.
+Policy (the input box, pre-filled): and(pk(A),or(pk(B),or(9@pk(C),older(1000))))
+Supported policies:
+- pk(NAME): Require public key named NAME to sign. NAME can be any string up to 16 characters.
+- after(NUM), older(NUM): Require that the nLockTime/nSequence value is at least NUM. NUM cannot be 0.
+- sha256(HEX), hash256(HEX): Require that the preimage of 64-character HEX is revealed. The special value H can be used as HEX.
+- ripemd160(HEX), hash160(HEX): Require that the preimage of 40-character HEX is revealed. The special value H can be used as HEX.
+- and(POL,POL): Require that both subpolicies are satisfied.
+- or([N@]POL,[N@]POL): Require that one of the subpolicies is satisfied. The numbers N indicate the relative probability of each of the subexpressions (so 9@ is 9 times more likely than the default).
+- thresh(NUM,POL,POL,...): Require that NUM out of the following subpolicies are met (all combinations are assumed to be equally likely).
+Example policies (the page's demo links: each title, then the policy it loads):
+- A single key: pk(key_1)
+- One of two keys (equally likely): or(pk(key_1),pk(key_2))
+- One of two keys (one likely, one unlikely): or(99@pk(key_likely),pk(key_unlikely))
+- A user and a 2FA service need to sign off, but after 90 days the user alone is enough: and(pk(key_user),or(99@pk(key_service),older(12960)))
+- A 3-of-3 that turns into a 2-of-3 after 90 days: thresh(3,pk(key_1),pk(key_2),pk(key_3),older(12960))
+- The BOLT #3 to_local policy: or(pk(key_revocation),and(pk(key_local),older(1008)))
+- The BOLT #3 offered HTLC policy: or(pk(key_revocation),and(pk(key_remote),or(pk(key_local),hash160(H))))
+- The BOLT #3 received HTLC policy: or(pk(key_revocation),and(pk(key_remote),or(and(pk(key_local),hash160(H)),older(1008))))

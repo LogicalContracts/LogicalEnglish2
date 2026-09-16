@@ -1,0 +1,390 @@
+% A Liana inheritance wallet: the wallet manager, or two of the family after a year, or a third party after fifteen months
+%
+% The Logical English twin of a Bitcoin spending policy, written by the
+% Miniscript translator (InsurLE2/migration/miniscript). Who can spend the
+% coin, when, and why: each rule is one spending path of the policy.
+%
+% Source: the Liana README
+%         https://github.com/wizardsardine/liana#about
+%
+% The source, as written (cut into lines of 100 characters: join them for the text):
+%     or(99@pk(manager),or(9@and(thresh(2,pk(spouse),pk(first_child),pk(second_child)),older(52560)),and(p
+%     k(third_party),older(65535))))
+%
+% The source, laid out (keys and hashes by their role, <like this>):
+%     or(
+%       99@pk(<the wallet manager>),
+%       or(
+%         9@and(
+%           thresh(2,
+%             pk(<the spouse>),
+%             pk(<the elder child>),
+%             pk(<the younger child>)),
+%           older(52560)),
+%         and(pk(<the third party>),older(65535))))
+%
+% The legend (role <- key or hash as written in the source):
+%     the wallet manager <- manager
+%     the spouse         <- spouse
+%     the elder child    <- first_child
+%     the younger child  <- second_child
+%     the third party    <- third_party
+%
+% What it says (the spending policy, by BIP 379's semantics):
+%     any one of these:
+%       a signature by the wallet manager
+%       all of these:
+%         at least 2 of these 3:
+%           a signature by the spouse
+%           a signature by the elder child
+%           a signature by the younger child
+%         the coin at least 52560 blocks old (about 365 days; older(52560))
+%       all of these:
+%         a signature by the third party
+%         the coin at least 65535 blocks old (about 455 days; older(65535))
+%
+% The weights (like 99@) guide sipa's compiler towards the likelier paths;
+% they do not change who can spend, and the twin leaves them out.
+%
+% Try it in Minsc (the policy compiled to Miniscript, Script and an address,
+% in the browser): the document "the policy in Minsc" below.
+
+the target language is: prolog.
+
+the knowledge base liana_inheritance includes these resources:
+    temporal.
+
+the templates are:
+    the coin can be spent.
+    the coin was confirmed in block *a height*; scenario element.
+    the spending transaction is in block *a height*; scenario element.
+    the coin has been confirmed for *a number* blocks.
+    the witness contains a signature by *a key*; scenario element.
+
+the knowledge base liana_inheritance includes:
+
+the Liana README is published at "https://github.com/wizardsardine/liana#about".
+the text of the Liana README is at "sources/liana_readme.txt".
+
+the policy in Minsc is published at "https://min.sc/#c=//%20A%20Liana%20inheritance%20wallet:%20the%20wallet%20manager,%20or%20two%20of%20the%20family%20after%20a%20year,%20or%20a%20third%20party%20after%20fifteen%20months%0A//%20The%20Logical%20English%20twin's%20policy%20(InsurLE2/migration/miniscript).%0A$wallet_manager%20=%2002d646504445989a8ccbbdac21b32dde51273c254c22bffe7d7a52ebfb2fd85595;%20%20%20//%20the%20wallet%20manager%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$spouse%20=%20036707fda5af19cc6aa3a044145cddad5421c31f4167b0b2e026cf1752540e4504;%20%20%20//%20the%20spouse%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$elder_child%20=%20026b802dc9194db6ae228cbbdab3a72cc46df92e39fe392a50b4298fdf864a24d8;%20%20%20//%20the%20elder%20child%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$younger_child%20=%200352cb257b56f4e1b7d023ffab1a2e02f80d55b0c9c1fb8061da171a8bf4f2ff12;%20%20%20//%20the%20younger%20child%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$third_party%20=%2003c4db97ce67acd0a88f7c597a6af2a67892fc2256160e4790b0681cf7e07c63f9;%20%20%20//%20the%20third%20party%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A%0Aor(pk($wallet_manager),or(and(thresh(2,pk($spouse),pk($elder_child),pk($younger_child)),older(52560)),and(pk($third_party),older(65535))))%0A".
+
+the Tape run of 2026-09-14 is published at "https://tape.rewindbitcoin.com/explorer/address/bcrt1qdfgw0ktf7yjw6p9f9trzsc2n62kvttcu9hnfu6sl35cxnaphf46slhfk42".
+the text of the Tape run of 2026-09-14 is at "sources/liana_inheritance.chain.json".
+
+% The spending paths of the policy.
+rule manager with provenance the Liana README,
+        confer "Wallet Manager's key (can always spend)":
+the coin can be spent if
+    the witness contains a signature by the wallet manager.
+
+rule family with provenance the Liana README,
+        confer "Any 2 keys from the owner's spouse and two kids (after 1 year)":
+the coin can be spent if
+    a number N is the count of each K such that
+        a key K is in [the spouse, the elder child, the younger child]
+        and the witness contains a signature by K
+    and N >= 2
+    and the coin has been confirmed for a number M blocks
+    and M >= 52560.
+
+rule third_party with provenance the Liana README,
+        confer "A third party, in case [all else failed](https://wizardsardine.com/liana/plans#section-safety-net)":
+the coin can be spent if
+    the witness contains a signature by the third party
+    and the coin has been confirmed for a number N blocks
+    and N >= 65535.
+
+% The age of the coin, which the relative timelocks (older) measure.
+rule coin_age_in_blocks:
+the coin has been confirmed for a number N blocks if
+    the coin was confirmed in block a height H
+    and the spending transaction is in block a height M
+    and N = M - H.
+
+scenario path_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 1 — the path needs: a coin 52560 blocks old, a signature by the elder child, a signature by the younger child
+    the witness contains a signature by the elder child.
+    the witness contains a signature by the younger child.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 902560.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_1_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 1 without requirement 1 — the path needs: a coin 52560 blocks old, a signature by the elder child, a signature by the younger child
+    the witness contains a signature by the elder child.
+    the witness contains a signature by the younger child.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 902559.
+    spendable expects answers [].
+
+scenario path_1_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 1 without requirement 2 — the path needs: a coin 52560 blocks old, a signature by the elder child, a signature by the younger child
+    the witness contains a signature by the younger child.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 902560.
+    spendable expects answers [].
+
+scenario path_1_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path 1 without requirement 3 — the path needs: a coin 52560 blocks old, a signature by the elder child, a signature by the younger child
+    the witness contains a signature by the elder child.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 902560.
+    spendable expects answers [].
+
+scenario path_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 2 — the path needs: a coin 52560 blocks old, a signature by the elder child, a signature by the spouse
+    the witness contains a signature by the elder child.
+    the witness contains a signature by the spouse.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 902560.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_2_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 2 without requirement 1 — the path needs: a coin 52560 blocks old, a signature by the elder child, a signature by the spouse
+    the witness contains a signature by the elder child.
+    the witness contains a signature by the spouse.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 902559.
+    spendable expects answers [].
+
+scenario path_2_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 2 without requirement 2 — the path needs: a coin 52560 blocks old, a signature by the elder child, a signature by the spouse
+    the witness contains a signature by the spouse.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 902560.
+    spendable expects answers [].
+
+scenario path_2_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path 2 without requirement 3 — the path needs: a coin 52560 blocks old, a signature by the elder child, a signature by the spouse
+    the witness contains a signature by the elder child.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 902560.
+    spendable expects answers [].
+
+scenario path_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path 3 — the path needs: a coin 52560 blocks old, a signature by the younger child, a signature by the spouse
+    the witness contains a signature by the younger child.
+    the witness contains a signature by the spouse.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 902560.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_3_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 3 without requirement 1 — the path needs: a coin 52560 blocks old, a signature by the younger child, a signature by the spouse
+    the witness contains a signature by the younger child.
+    the witness contains a signature by the spouse.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 902559.
+    spendable expects answers [].
+
+scenario path_3_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 3 without requirement 2 — the path needs: a coin 52560 blocks old, a signature by the younger child, a signature by the spouse
+    the witness contains a signature by the spouse.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 902560.
+    spendable expects answers [].
+
+scenario path_3_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path 3 without requirement 3 — the path needs: a coin 52560 blocks old, a signature by the younger child, a signature by the spouse
+    the witness contains a signature by the younger child.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 902560.
+    spendable expects answers [].
+
+scenario path_4 is, as stated in the satisfaction analysis of the policy:
+    % spending path 4 — the path needs: a coin 65535 blocks old, a signature by the third party
+    the witness contains a signature by the third party.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 915535.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_4_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 4 without requirement 1 — the path needs: a coin 65535 blocks old, a signature by the third party
+    the witness contains a signature by the third party.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 915534.
+    spendable expects answers [].
+
+scenario path_4_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path 4 without requirement 2 — the path needs: a coin 65535 blocks old, a signature by the third party
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 915535.
+    spendable expects answers [].
+
+scenario path_5 is, as stated in the satisfaction analysis of the policy:
+    % spending path 5 — the path needs: a signature by the wallet manager
+    the witness contains a signature by the wallet manager.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 850000.
+    spendable expects answers ["the coin can be spent"].
+
+scenario path_5_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path 5 without requirement 1 — the path needs: a signature by the wallet manager
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 850000.
+    spendable expects answers [].
+
+scenario no_witness is, as stated in the satisfaction analysis of the policy:
+    % an empty witness
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 850000.
+    spendable expects answers [].
+
+scenario flip_now is, as stated in the flip analysis of the policy:
+    % nothing signed, no delay passed
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 850000.
+    flip_spend expects changes [["add: the witness contains a signature by the wallet manager"]].
+
+scenario flip_after_delays is, as stated in the flip analysis of the policy:
+    % nothing signed, every delay passed
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 915535.
+    flip_spend expects changes [["add: the witness contains a signature by the wallet manager"], ["add: the witness contains a signature by the third party"]].
+
+scenario lost_the_wallet_manager is, as stated in the flip analysis of the policy:
+    % the key of the wallet manager lost, everything else given
+    the witness contains a signature by the spouse.
+    the witness contains a signature by the elder child.
+    the witness contains a signature by the younger child.
+    the witness contains a signature by the third party.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 915535.
+    spendable expects answers ["the coin can be spent"].
+    flip_block expects changes [["remove: the coin was confirmed in block 850000"], ["remove: the spending transaction is in block 915535"]].
+
+scenario lost_the_spouse is, as stated in the flip analysis of the policy:
+    % the key of the spouse lost, everything else given
+    the witness contains a signature by the wallet manager.
+    the witness contains a signature by the elder child.
+    the witness contains a signature by the younger child.
+    the witness contains a signature by the third party.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 915535.
+    spendable expects answers ["the coin can be spent"].
+    flip_block expects changes [["remove: the coin was confirmed in block 850000", "remove: the witness contains a signature by the wallet manager"], ["remove: the spending transaction is in block 915535", "remove: the witness contains a signature by the wallet manager"]].
+
+scenario lost_the_elder_child is, as stated in the flip analysis of the policy:
+    % the key of the elder child lost, everything else given
+    the witness contains a signature by the wallet manager.
+    the witness contains a signature by the spouse.
+    the witness contains a signature by the younger child.
+    the witness contains a signature by the third party.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 915535.
+    spendable expects answers ["the coin can be spent"].
+    flip_block expects changes [["remove: the coin was confirmed in block 850000", "remove: the witness contains a signature by the wallet manager"], ["remove: the spending transaction is in block 915535", "remove: the witness contains a signature by the wallet manager"]].
+
+scenario lost_the_younger_child is, as stated in the flip analysis of the policy:
+    % the key of the younger child lost, everything else given
+    the witness contains a signature by the wallet manager.
+    the witness contains a signature by the spouse.
+    the witness contains a signature by the elder child.
+    the witness contains a signature by the third party.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 915535.
+    spendable expects answers ["the coin can be spent"].
+    flip_block expects changes [["remove: the coin was confirmed in block 850000", "remove: the witness contains a signature by the wallet manager"], ["remove: the spending transaction is in block 915535", "remove: the witness contains a signature by the wallet manager"]].
+
+scenario lost_the_third_party is, as stated in the flip analysis of the policy:
+    % the key of the third party lost, everything else given
+    the witness contains a signature by the wallet manager.
+    the witness contains a signature by the spouse.
+    the witness contains a signature by the elder child.
+    the witness contains a signature by the younger child.
+    the coin was confirmed in block 850000.
+    the spending transaction is in block 915535.
+    spendable expects answers ["the coin can be spent"].
+    flip_block expects changes [["remove: the coin was confirmed in block 850000", "remove: the witness contains a signature by the wallet manager"], ["remove: the spending transaction is in block 915535", "remove: the witness contains a signature by the wallet manager"]].
+
+scenario chain_path_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1:
+    % the chain refused the spend: non-BIP68-final
+    the witness contains a signature by the elder child.
+    the witness contains a signature by the younger child.
+    the coin was confirmed in block 122349.
+    the spending transaction is in block 122349.
+    spendable expects answers [].
+
+scenario chain_path_1_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_1:
+    % the chain refused the spend: non-BIP68-final
+    the witness contains a signature by the younger child.
+    the coin was confirmed in block 122349.
+    the spending transaction is in block 122349.
+    spendable expects answers [].
+
+scenario chain_path_1_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_2:
+    % the chain refused the spend: non-BIP68-final
+    the witness contains a signature by the elder child.
+    the coin was confirmed in block 122349.
+    the spending transaction is in block 122349.
+    spendable expects answers [].
+
+scenario chain_path_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2:
+    % the chain refused the spend: non-BIP68-final
+    the witness contains a signature by the spouse.
+    the witness contains a signature by the elder child.
+    the coin was confirmed in block 122349.
+    the spending transaction is in block 122349.
+    spendable expects answers [].
+
+scenario chain_path_2_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_1:
+    % the chain refused the spend: non-BIP68-final
+    the witness contains a signature by the spouse.
+    the coin was confirmed in block 122349.
+    the spending transaction is in block 122349.
+    spendable expects answers [].
+
+scenario chain_path_3 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_3:
+    % the chain refused the spend: non-BIP68-final
+    the witness contains a signature by the spouse.
+    the witness contains a signature by the younger child.
+    the coin was confirmed in block 122349.
+    the spending transaction is in block 122349.
+    spendable expects answers [].
+
+scenario chain_path_4 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_4:
+    % the chain refused the spend: non-BIP68-final
+    the witness contains a signature by the third party.
+    the coin was confirmed in block 122349.
+    the spending transaction is in block 122349.
+    spendable expects answers [].
+
+scenario chain_path_4_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_4_without_1:
+    % the chain refused the spend: non-BIP68-final
+    the coin was confirmed in block 122349.
+    the spending transaction is in block 122349.
+    spendable expects answers [].
+
+scenario chain_path_5 is, as stated in the Tape run of 2026-09-14 at transaction 0c4f88e2f81b1c02ce16879071bcfc8b983efd38a5ab89d7e3004ec9aaf856c1:
+    % the chain accepted the spend: transaction 0c4f88e2f81b1c02ce16879071bcfc8b983efd38a5ab89d7e3004ec9aaf856c1
+    the witness contains a signature by the wallet manager.
+    the coin was confirmed in block 122349.
+    the spending transaction is in block 122349.
+    spendable expects answers ["the coin can be spent"].
+
+query spendable is:
+    the coin can be spent.
+
+query flip_spend is:
+    which minimal change to the scenario makes it the case that
+        the coin can be spent.
+
+query flip_block is:
+    which minimal change to the scenario makes it the case that
+        it is not the case that the coin can be spent.
+
+the view custody explainer is:
+    the title is "Who can spend this coin: A Liana inheritance wallet: the wallet manager, or two of the family after a year, or a third party after fifteen months".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the witness" are
+        the witness contains a signature by a key.
+    the facts about "the timelocks" are
+        the coin was confirmed in block a height,
+        the spending transaction is in block a height.
+    the result is whether the coin can be spent.
+    the result shows its reasons.
+    the result shows its citations.
+    the result can be flipped, as "What would let this coin be spent?".
+    the flip keeps the coin was confirmed in block a height,
+        the spending transaction is in block a height.
+
