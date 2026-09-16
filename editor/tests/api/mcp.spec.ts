@@ -18,11 +18,36 @@ test.describe('MCP and REST API Endpoints', () => {
     });
     expect(response.ok()).toBeTruthy();
     const data = await response.json();
-    // Note: program_text is not returned by get_example_details tool, it returns examples, kb, queries, scenarios, templates
+    // The program's text, with its metadata (kb, queries, scenarios, templates).
+    expect(data.program_text).toContain('the knowledge base citizenship includes');
     expect(data.kb).toBe('citizenship');
     const scenarioNames = data.scenarios.map((s: any) => s.name || s);
     expect(scenarioNames).toContain('alice');
     expect(data.queries.some((q: any) => q.name === 'one')).toBeTruthy();
+  });
+
+  test('a restricted example is not readable by name without login', async ({ request }) => {
+    const details = await (await request.post(`${baseURL}/example_details`, {
+      data: { example_name: 'insureLE2/globals' }
+    })).json();
+    expect(details.error).toContain('requires login');
+    expect(details.program_text).toBeUndefined();
+    const query = await (await request.post(`${baseURL}/query`, {
+      data: { example_name: 'insureLE2/globals', query: 'which thing is a thing' }
+    })).json();
+    expect(query.error).toContain('requires login');
+  });
+
+  test('POST /verify runs the program\'s embedded tests', async ({ request }) => {
+    const detailsRes = await request.post(`${baseURL}/leapi`, {
+      data: { token: 'myToken123', operation: 'examples', file: 'citizenship' }
+    });
+    const details = await detailsRes.json();
+    const data = await (await request.post(`${baseURL}/verify`, {
+      data: { program_text: details.document }
+    })).json();
+    expect(data.test_results.length).toBeGreaterThan(0);
+    expect(data.test_results.every((t: any) => t.status === 'pass')).toBeTruthy();
   });
 
   test('POST /verify should verify a valid program', async ({ request }) => {

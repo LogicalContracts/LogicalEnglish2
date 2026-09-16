@@ -171,7 +171,7 @@ LE 2.0 is built on **SWI-Prolog** for the reasoning engine and **TypeScript/Mona
 **Done** (formerly on this list): the LLM assistants (LE Assistant, light and deep; Contract Assistant; "Write it in English…"); calling across LE files (included resources, `lib/` libraries); Prolog resources and embedded `prolog` goals; dates and durations (`lib/temporal.le`); the step-by-step debugger over DAP; s(CASP) and LPS execution targets; global constants (definite descriptions, `defines global`); the proprietary extension hook (`le_extensions.pl`); contextual help in the editor (a **?** on each panel, diagnostics linking to where they are explained).
 
 **Open:**
-- [ ] **Debugger:** honour breakpoints and make Continue run to the next answer (today every port stops, [docs/dev/debugger.md](./docs/dev/debugger.md)); a DAP transport that desktop IDEs such as VS Code can attach to.
+- [ ] **Debugger:** a DAP transport that desktop IDEs such as VS Code can attach to (the editor's debugger has breakpoints, step, step over, continue and stop: [docs/dev/debugger.md](./docs/dev/debugger.md)).
 - [ ] **Contract Assistant:** the faithfulness audit (every proof step supported by a quotation) and coverage as a fitness term, both designed but not built ([docs/dev/contract-assistant.md](./docs/dev/contract-assistant.md) §9).
 
 ---

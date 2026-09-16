@@ -652,6 +652,15 @@
         .debug-var-name { color: #9cdcfe; }
         .debug-var-value { color: #ce9178; }
         .debug-var-unbound { color: #888; font-style: italic; }
+        .debug-breakpoint-glyph {
+            background: #e51400;
+            width: 10px !important;
+            height: 10px !important;
+            margin-left: 5px;
+            margin-top: 5px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
         .debug-anchor-glyph {
             background: #ffff00;
             width: 10px !important;
@@ -821,8 +830,9 @@
             <h3 style="margin: 0; font-size: 14px;">LE Debugger</h3>
             <div style="display: flex; gap: 10px; align-items: center;">
                 <button id="debug-step" title="Step (F11) — advance one step to the next goal being proved. The call stack and the VARIABLES panel update to show the new position and any bindings made so far." style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); border-radius: 3px; padding: 2px 8px; cursor: pointer; font-size: 11px;">Step</button>
-                <button id="debug-continue" title="Continue (F5) — resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them." style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); border-radius: 3px; padding: 2px 8px; cursor: pointer; font-size: 11px;">Continue</button>
-                <button id="debug-stop" title="Stop — end the trace and detach the debugger. The query keeps running to completion in the background." style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); border-radius: 3px; padding: 2px 8px; cursor: pointer; font-size: 11px;">Stop</button>
+                <button id="debug-next" title="Step over (F10) — advance to the next goal at this level or above, without stopping inside the goals the current one calls." style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); border-radius: 3px; padding: 2px 8px; cursor: pointer; font-size: 11px;">Step over</button>
+                <button id="debug-continue" title="Continue (F5) — resume running until a breakpoint (click the margin left of a line number to set one), the next answer, or the end of the query." style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); border-radius: 3px; padding: 2px 8px; cursor: pointer; font-size: 11px;">Continue</button>
+                <button id="debug-stop" title="Stop — end the trace and the query." style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); border-radius: 3px; padding: 2px 8px; cursor: pointer; font-size: 11px;">Stop</button>
                 <span id="debug-panel-close" title="Close this panel" style="cursor: pointer; font-size: 18px;">&times;</span>
             </div>
         </div>

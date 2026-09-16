@@ -388,6 +388,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             automaticLayout: true,
             fontSize: savedFontSize,
             minimap: { enabled: false },
+            // The margin where the debugger's breakpoints are set (a click).
+            glyphMargin: true,
             folding: true,
             showFoldingControls: 'always',
             // Drive coloring from the template-aware semantic tokenizer (server.ts),
@@ -2810,6 +2812,10 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     const debugContinue = document.getElementById('debug-continue') as HTMLButtonElement;
     const debugStep = document.getElementById('debug-step') as HTMLButtonElement;
     const debugStop = document.getElementById('debug-stop') as HTMLButtonElement;
+    const debugNext = document.getElementById('debug-next') as HTMLButtonElement;
+    const setDebugButtons = (enabled: boolean) => {
+        debugContinue.disabled = debugStep.disabled = debugNext.disabled = debugStop.disabled = !enabled;
+    };
     const debugClose = document.getElementById('debug-panel-close')!;
     let debugFrames: any[] = [];        // last stackTrace frames (DAP order: [0]=current/deepest)
     let debugSelectedFrameId = 1;       // frame whose variables are shown
@@ -2818,6 +2824,48 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     let dapSocket: WebSocket | null = null;
     let dapSeq = 1;
     let debugDecorations: string[] = [];
+
+    // Breakpoints: lines of a document (keyed by its model), toggled by a click
+    // in the glyph margin, shown as red dots, and sent to the debugger with the
+    // character offsets each line spans (how the server knows goals' positions).
+    const breakpointLines = new Map<string, Set<number>>();
+    let breakpointDecorations: string[] = [];
+    const modelBreakpoints = (model: any): Set<number> => {
+        const key = model.uri.toString();
+        if (!breakpointLines.has(key)) breakpointLines.set(key, new Set());
+        return breakpointLines.get(key)!;
+    };
+    const renderBreakpoints = () => {
+        const model = editor.getModel();
+        if (!model) return;
+        breakpointDecorations = editor.deltaDecorations(breakpointDecorations,
+            [...modelBreakpoints(model)].filter(l => l <= model.getLineCount()).map(line => ({
+                range: new monaco.Range(line, 1, line, 1),
+                options: { glyphMarginClassName: 'debug-breakpoint-glyph', glyphMarginHoverMessage: { value: t('Breakpoint') } }
+            })));
+    };
+    const sendBreakpoints = () => {
+        const model = programModel();
+        if (!model) return;
+        const lines = [...modelBreakpoints(model)].filter(l => l <= model.getLineCount()).sort((a, b) => a - b);
+        sendDapRequest('setBreakpoints', {
+            source: { path: model.uri.toString() },
+            breakpoints: lines.map(line => ({
+                line,
+                startOffset: model.getOffsetAt({ lineNumber: line, column: 1 }),
+                endOffset: model.getOffsetAt({ lineNumber: line, column: model.getLineMaxColumn(line) }),
+            })),
+        });
+    };
+    editor.onMouseDown((e: any) => {
+        if (e.target.type !== monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN || !e.target.position) return;
+        const bps = modelBreakpoints(editor.getModel());
+        const line = e.target.position.lineNumber;
+        if (bps.has(line)) bps.delete(line); else bps.add(line);
+        renderBreakpoints();
+        sendBreakpoints();
+    });
+    editor.onDidChangeModel(() => renderBreakpoints());
 
     const sendDapRequest = (command: string, args: any = {}) => {
         if (!dapSocket || dapSocket.readyState !== WebSocket.OPEN) return;
@@ -2846,9 +2894,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         debugStatus.textContent = t('Connecting to debugger...');
         debugStack.innerHTML = '';
         debugVariables.innerHTML = '';
-        debugContinue.disabled = false;
-        debugStep.disabled = false;
-        debugStop.disabled = false;
+        setDebugButtons(true);
 
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = `${protocol}//${window.location.host}/dap?sessionModule=${sessionModule}`;
@@ -2860,6 +2906,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             debugStatus.textContent = t('Debugger connected. Initializing...');
             sendDapRequest('initialize', { adapterID: 'le-debug' });
             sendDapRequest('launch', {});
+            sendBreakpoints();
             
             // Start the query in debug mode
             fetch('/leapi', {
@@ -2880,17 +2927,13 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 })
             }).then(res => res.json()).then(data => {
                 console.log('Debug query finished', data);
-                debugStatus.textContent = t('Query finished.');
-                debugContinue.disabled = true;
-                debugStep.disabled = true;
-                debugStop.disabled = true;
+                debugStatus.textContent = data && data.interrupted ? t('Trace stopped.') : t('Query finished.');
+                setDebugButtons(false);
                 debugDecorations = editor.deltaDecorations(debugDecorations, []);
             }).catch(err => {
                 console.error('Debug query failed', err);
                 debugStatus.textContent = t('Query failed.');
-                debugContinue.disabled = true;
-                debugStep.disabled = true;
-                debugStop.disabled = true;
+                setDebugButtons(false);
                 debugDecorations = editor.deltaDecorations(debugDecorations, []);
             });
         };
@@ -2922,9 +2965,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
 
         dapSocket.onclose = () => {
             debugStatus.textContent = t('Debugger disconnected.');
-            debugContinue.disabled = true;
-            debugStep.disabled = true;
-                debugStop.disabled = true;
+            setDebugButtons(false);
             debugDecorations = editor.deltaDecorations(debugDecorations, []);
         };
     };
@@ -3027,12 +3068,19 @@ const queryChannel = new BroadcastChannel('le-query-editor');
 
     debugContinue.onclick = () => sendDapRequest('continue', { threadId: 1 });
     debugStep.onclick = () => sendDapRequest('stepIn', { threadId: 1 });
+    debugNext.onclick = () => sendDapRequest('next', { threadId: 1 });
+    // F5 continue, F10 step over, F11 step in, while a trace is on.
+    window.addEventListener('keydown', (e) => {
+        if (debugPanel.style.display === 'none' || debugStep.disabled) return;
+        const button = e.key === 'F5' ? debugContinue : e.key === 'F10' ? debugNext : e.key === 'F11' ? debugStep : null;
+        if (!button) return;
+        e.preventDefault();
+        button.click();
+    });
     debugStop.onclick = () => {
         sendDapRequest('disconnect', {});
         debugStatus.textContent = t('Trace stopped.');
-        debugContinue.disabled = true;
-        debugStep.disabled = true;
-                debugStop.disabled = true;
+        setDebugButtons(false);
         debugDecorations = editor.deltaDecorations(debugDecorations, []);
     };
     debugClose.onclick = () => {

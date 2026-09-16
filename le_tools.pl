@@ -8,6 +8,8 @@
 :- module(le_tools, [
     le_tool_verify/2,
     le_tool_query/2,
+    le_tool_query/3,
+    example_path_for/3,
     convert_test_result/2,
     convert_why/3,
     run_query/4,
@@ -21,6 +23,7 @@
 :- use_module(le_grammar).
 :- use_module(reasoner).
 :- use_module(le_system_templates).
+:- use_module(restricted_paths, [is_path_allowed/2]).
 
 %!  le_tool_verify(+ProgramTextOrArgs, -Result) is det.
 %
@@ -35,13 +38,19 @@ le_tool_verify(ProgramText, Result) :-
     findall(_{severity: Sev, type: Type, message: Msg, fix: Fix, start: Start, end: End},
             KB:le_issue(Sev, Type, Msg, Fix, Start, End),
             Issues),
-    % Run embedded tests if any
-    ( current_predicate(KB:le_expected/3) ->
-        findall(test(Q, S, A), KB:le_expected(Q, S, A), Tests),
-        maplist(le_kbs:run_one_test(KB), Tests, TestResults),
-        maplist(convert_test_result, TestResults, JSONTestResults)
-    ; JSONTestResults = []
+    % Run the embedded tests (`expects answers ...`, le_expected/4, and
+    % `expects changes ...`, le_expected_changes/3), as runTestsFor/2 does.
+    ( current_predicate(KB:le_expected/4)
+    ->  findall(test(Q, S, A, U), KB:le_expected(Q, S, A, U), Tests0)
+    ;   Tests0 = []
     ),
+    ( current_predicate(KB:le_expected_changes/3)
+    ->  findall(test_changes(Q, S, Sets), KB:le_expected_changes(Q, S, Sets), Tests1)
+    ;   Tests1 = []
+    ),
+    append(Tests0, Tests1, Tests),
+    maplist(le_kbs:run_one_test(KB), Tests, TestResults),
+    maplist(convert_test_result, TestResults, JSONTestResults),
     % Capture this program so the LE Assistant can recover the agent's work
     % even if its file edits failed or the job was interrupted (see le_assistant).
     record_verified_program(ProgramText),
@@ -104,20 +113,34 @@ get_last_verified_program(Token0, AfterTime, ProgramText) :-
     last(Sorted, _-ProgramText).
 
 %!  le_tool_query(+Args, -Result) is det.
+%!  le_tool_query(+Args, +UserRoles:list, -Result) is det.
 %
-%   Executes a query against a Logical English program or example.
+%   Executes a query against a Logical English program or example. An example
+%   is read only if UserRoles may read it (le_tool_query/2: no roles, as for
+%   an anonymous client). The scenario is `scenario_name` (the MCP tool's
+%   field) or `scenario` (the light assistant's action).
 le_tool_query(Args, Result) :-
+    le_tool_query(Args, [], Result).
+le_tool_query(Args, UserRoles, Result) :-
+    catch(le_tool_query_(Args, UserRoles, Result),
+          error(permission_error(access, example, Name), _),
+          ( format(string(Msg), "Example '~w' requires login", [Name]),
+            Result = _{error: Msg} )).
+
+le_tool_query_(Args, UserRoles, Result) :-
     get_dict(query, Args, Query),
     ( get_dict(example_name, Args, ExampleName) -> true ; ExampleName = "" ),
     ( get_dict(program_text, Args, ProgramText) -> true ; ProgramText = "" ),
-    ( get_dict(scenario_name, Args, ScenarioName) -> true ; ScenarioName = "" ),
+    (   get_dict(scenario_name, Args, ScenarioName) -> true
+    ;   get_dict(scenario, Args, ScenarioName) -> true
+    ;   ScenarioName = ""
+    ),
     ( get_dict(facts, Args, Facts) -> true ; Facts = "" ),
     (   ExampleName \== "" ->
         % le_example_relpath also resolves per-language names ('pt/cidadania'
         % -> examples/pt/cidadania); relative paths are fine, the server runs
         % from the repo root.
-        le_kbs:le_example_relpath(ExampleName, Path0),
-        (exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', Path), exists_file(Path)),
+        example_path_for(ExampleName, UserRoles, Path),
         le_kbs:load(Path, KB)
     ;   ProgramText \== "" ->
         le_kbs:load_text(ProgramText, KB)
@@ -183,5 +206,31 @@ convert_why_child(KB, Child, JSON) :-
     convert_why(Child, KB, JSON).
 
 convert_test_result(pass(Q, S), _{status: "pass", query: Q, scenario: S}).
-convert_test_result(fail(Q, S, E, A), _{status: "fail", query: Q, scenario: S, expected: E, actual: A}).
-convert_test_result(error(Q, S, Msg), _{status: "error", query: Q, scenario: S, message: Msg}).
+convert_test_result(fail(Q, S, E, A), _{status: "fail", query: Q, scenario: S, expected: EJ, actual: AJ}) :-
+    json_value(E, EJ), json_value(A, AJ).
+convert_test_result(fail(Q, S, E, A, EU, AU),
+                    _{status: "fail", query: Q, scenario: S, expected: EJ, actual: AJ,
+                      expected_unknowns: EUJ, actual_unknowns: AUJ}) :-
+    maplist(json_value, [E, A, EU, AU], [EJ, AJ, EUJ, AUJ]).
+convert_test_result(error(Q, S, Msg), _{status: "error", query: Q, scenario: S, message: MJ}) :-
+    json_value(Msg, MJ).
+
+%   A test's value as JSON can carry it: strings, numbers and lists of them
+%   as they are, anything else as its text.
+json_value(V, V) :- ( string(V) ; number(V) ; atom(V) ), !.
+json_value(L, J) :- is_list(L), !, maplist(json_value, L, J).
+json_value(T, S) :- format(string(S), '~w', [T]).
+
+%!  example_path_for(+ExampleName, +UserRoles:list, -Path) is semidet.
+%
+%   The file of an example, when UserRoles may read it (restricted_paths.pl):
+%   the tools answer an example by name, and a restricted one's name must not
+%   be enough to read it. Fails for an unknown example; throws
+%   error(permission_error(access, example, Name), _) for a restricted one.
+example_path_for(ExampleName, UserRoles, Path) :-
+    le_kbs:le_example_relpath(ExampleName, Path0),
+    (exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', Path), exists_file(Path)),
+    (   restricted_paths:is_path_allowed(Path, UserRoles)
+    ->  true
+    ;   throw(error(permission_error(access, example, ExampleName), _))
+    ).

@@ -247,7 +247,7 @@ tradutores a partir de s(CASP) e Prolog leem uma negação `:- Corpo.` /
 
 ## 4. Operadores lógicos
 - **E:** `e` (ou nova linha com a mesma indentação)
-- **Ou:** `ou`, `uma das seguintes`, `alguma das seguintes`, `todas as seguintes` (§15.4)
+- **Ou:** `ou`, `uma das seguintes`, `alguma das seguintes` (§15.4); `todas as seguintes` agrupa com E
 - **Caso contrário:** uma linha que começa por `caso contrário` (ou `senão`) inicia uma nova alternativa, aplicada só quando todas as anteriores falham (§17.2).
 - **De acordo com:** `<condição> de acordo com <fonte>` (ou `segundo <fonte>`) prova a condição só com a evidência dessa fonte (§17.5).
 - **Negação:** `não é o caso que` ou `não se verifica que`
@@ -551,10 +551,7 @@ um requerente é elegível se
 ```
 Num corpo numerado (§15.5) um item pode ser uma negação — `3. não é o caso que
 o requerente tem outro rendimento.` — com o objetivo negado na linha do item ou
-como seus subitens. Nota: num corpo **numerado**, o item `todas as seguintes:`
-não é reconhecido atualmente em português (o analisador procura a palavra `de`,
-que esta forma não tem); `uma das seguintes:` funciona. Use um corpo não
-numerado para um grupo `todas as seguintes`.
+como seus subitens; um item `todas as seguintes:` agrupa os seus subitens com E.
 
 ### 15.5 Rótulos de regras e corpos numerados **[a numeração requer le_extensions.pl]**
 Uma regra pode ter rótulo: `regra <nome>: Cabeça se ...` — o rótulo torna-se o
