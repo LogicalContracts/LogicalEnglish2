@@ -1,7 +1,7 @@
 % A user and a co-signing service, the user alone after 90 days
 %
 % The Logical English twin of a Bitcoin spending policy, written by the
-% Miniscript translator (InsurLE2/migration/miniscript). Who can spend the
+% Miniscript translator. Who can spend the
 % coin, when, and why: each rule is one spending path of the policy.
 %
 % Source: the Miniscript page
@@ -49,7 +49,7 @@ the knowledge base cosigning_service includes:
 the Miniscript page is published at "https://bitcoin.sipa.be/miniscript/".
 the text of the Miniscript page is at "sources/sipa_miniscript.txt".
 
-the policy in Minsc is published at "https://min.sc/#c=//%20A%20user%20and%20a%20co-signing%20service,%20the%20user%20alone%20after%2090%20days%0A//%20The%20Logical%20English%20twin's%20policy%20(InsurLE2/migration/miniscript).%0A$user%20=%20034717e21c064758996df901f1d7a39c9e348a42972c9fc948fc84403d7710d1cb;%20%20%20//%20the%20user%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$cosigning_service%20=%20020191eb77be97634004cb0fa44285d455ae325456cbe3288406b2576c316e5f53;%20%20%20//%20the%20cosigning%20service%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A%0Aand(pk($user),or(pk($cosigning_service),older(12960)))%0A".
+the policy in Minsc is published at "https://min.sc/#c=//%20A%20user%20and%20a%20co-signing%20service,%20the%20user%20alone%20after%2090%20days%0A//%20The%20Logical%20English%20twin's%20policy%20(the%20Miniscript%20translator%20of%20Logical%20English).%0A$user%20=%20034717e21c064758996df901f1d7a39c9e348a42972c9fc948fc84403d7710d1cb;%20%20%20//%20the%20user%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$cosigning_service%20=%20020191eb77be97634004cb0fa44285d455ae325456cbe3288406b2576c316e5f53;%20%20%20//%20the%20cosigning%20service%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A%0Aand(pk($user),or(pk($cosigning_service),older(12960)))%0A".
 
 the Tape run of 2026-09-14 is published at "https://tape.rewindbitcoin.com/explorer/address/bcrt1qxdrkevkr3cgmghvwqsmhyv90ftm7gnr28tc3qq4pj3zg7upmemrqlxts62".
 the text of the Tape run of 2026-09-14 is at "sources/cosigning_service.chain.json".
@@ -70,43 +70,43 @@ the coin has been confirmed for a number N blocks if
     and the spending transaction is in block a height M
     and N = M - H.
 
-scenario path_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 — the path needs: a coin 12960 blocks old, a signature by the user
+scenario user_and_service_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path user_and_service_1 — the path needs: a coin 12960 blocks old, a signature by the user
     the witness contains a signature by the user.
     the coin was confirmed in block 850000.
     the spending transaction is in block 862960.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_1_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 1 — the path needs: a coin 12960 blocks old, a signature by the user
+scenario user_and_service_1_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path user_and_service_1 without requirement 1 — the path needs: a coin 12960 blocks old, a signature by the user
     the witness contains a signature by the user.
     the coin was confirmed in block 850000.
     the spending transaction is in block 862959.
     spendable expects answers [].
 
-scenario path_1_without_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 2 — the path needs: a coin 12960 blocks old, a signature by the user
+scenario user_and_service_1_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path user_and_service_1 without requirement 2 — the path needs: a coin 12960 blocks old, a signature by the user
     the coin was confirmed in block 850000.
     the spending transaction is in block 862960.
     spendable expects answers [].
 
-scenario path_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 — the path needs: a signature by the cosigning service, a signature by the user
+scenario user_and_service_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path user_and_service_2 — the path needs: a signature by the cosigning service, a signature by the user
     the witness contains a signature by the cosigning service.
     the witness contains a signature by the user.
     the coin was confirmed in block 850000.
     the spending transaction is in block 850000.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_2_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 without requirement 1 — the path needs: a signature by the cosigning service, a signature by the user
+scenario user_and_service_2_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path user_and_service_2 without requirement 1 — the path needs: a signature by the cosigning service, a signature by the user
     the witness contains a signature by the user.
     the coin was confirmed in block 850000.
     the spending transaction is in block 850000.
     spendable expects answers [].
 
-scenario path_2_without_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 without requirement 2 — the path needs: a signature by the cosigning service, a signature by the user
+scenario user_and_service_2_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path user_and_service_2 without requirement 2 — the path needs: a signature by the cosigning service, a signature by the user
     the witness contains a signature by the cosigning service.
     the coin was confirmed in block 850000.
     the spending transaction is in block 850000.
@@ -145,20 +145,20 @@ scenario lost_the_cosigning_service is, as stated in the flip analysis of the po
     spendable expects answers ["the coin can be spent"].
     flip_block expects changes [["remove: the coin was confirmed in block 850000"], ["remove: the spending transaction is in block 862960"], ["remove: the witness contains a signature by the user"]].
 
-scenario chain_path_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1:
+scenario chain_user_and_service_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1:
     % the chain refused the spend: non-BIP68-final
     the witness contains a signature by the user.
     the coin was confirmed in block 122322.
     the spending transaction is in block 122322.
     spendable expects answers [].
 
-scenario chain_path_1_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_1:
+scenario chain_user_and_service_1_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_1:
     % the chain refused the spend: non-BIP68-final
     the coin was confirmed in block 122322.
     the spending transaction is in block 122322.
     spendable expects answers [].
 
-scenario chain_path_2 is, as stated in the Tape run of 2026-09-14 at transaction 8e0328ac9360be92f3eee9f19c788fad8a1bad579949bf9d7bf037a2f72b66f5:
+scenario chain_user_and_service_2 is, as stated in the Tape run of 2026-09-14 at transaction 8e0328ac9360be92f3eee9f19c788fad8a1bad579949bf9d7bf037a2f72b66f5:
     % the chain accepted the spend: transaction 8e0328ac9360be92f3eee9f19c788fad8a1bad579949bf9d7bf037a2f72b66f5
     the witness contains a signature by the cosigning service.
     the witness contains a signature by the user.
@@ -166,7 +166,7 @@ scenario chain_path_2 is, as stated in the Tape run of 2026-09-14 at transaction
     the spending transaction is in block 122322.
     spendable expects answers ["the coin can be spent"].
 
-scenario chain_path_2_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_2:
+scenario chain_user_and_service_2_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_2:
     % the chain refused the spend: mempool-script-verify-flag-failed (Script failed an OP_CHECKSIGVERIFY operation)
     the witness contains a signature by the cosigning service.
     the coin was confirmed in block 122322.

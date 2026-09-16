@@ -32,7 +32,9 @@
             background: var(--header-bg); border-bottom: 1px solid var(--border-color);
             padding: 12px 16px;
         }
-        header h1 { font-size: 15px; margin: 0 0 8px; font-weight: 600; }
+        header h1 { font-size: 15px; margin: 0; font-weight: 600; }
+        /* The title and its "?" help link share one line above the progress bar. */
+        header .title-row { display: flex; align-items: center; margin: 0 0 8px; }
         /* Progress bar */
         #progress-track {
             height: 14px; background: var(--track); border-radius: 8px; overflow: hidden;
@@ -75,8 +77,8 @@
 </head>
 <body>
     <header>
-        <h1 id="title">Explanation Drill</h1>
-        <a class="help-link" href="/docs/user/guide/editor#the-explanation-drill" target="_blank" rel="noopener" title="Help: the Explanation Drill" style="margin-left: 8px; font-size: 12px; font-weight: bold; text-decoration: none; border: 1px solid currentColor; border-radius: 50%; padding: 0 6px; color: inherit; opacity: .7;">?</a>
+        <div class="title-row"><h1 id="title">Explanation Drill</h1>
+        <a class="help-link" href="/docs/user/guide/editor#the-explanation-drill" target="_blank" rel="noopener" title="Help: the Explanation Drill" style="margin-left: 8px; font-size: 12px; font-weight: bold; text-decoration: none; border: 1px solid currentColor; border-radius: 50%; padding: 0 6px; color: inherit; opacity: .7;">?</a></div>
         <div id="progress-track"><div id="progress-fill"></div></div>
         <div id="progress-label"></div>
     </header>

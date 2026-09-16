@@ -411,6 +411,29 @@ test.describe('Logical English Editor', () => {
     await expect(node.locator(':scope > .tree-label')).toHaveClass(/explanation-highlight/);
   });
 
+  test('Show important reason flashes the row that reads as the reason', async ({ page }) => {
+    // On eu261's new_claim the important reason is "the inspection defect counts as
+    // inherent ...", which the tree shows twice: as a red "it is not the case that ..."
+    // row and, under it, the green row that reads exactly as the reason. The flash
+    // must land on the latter.
+    test.setTimeout(90000);
+    await page.goto('index.html?example=regulatory/eu261_integration');
+    await page.locator('#scenario-select').hover();
+    await expect.poll(() => page.locator('#scenario-select option').count(), { timeout: 30000 }).toBeGreaterThan(1);
+    await page.selectOption('#scenario-select', 'new_claim');
+    await page.selectOption('#query-select', 'claim');
+    await page.click('#btn-query');
+    await page.locator('#answers-list .answer-item').first().waitFor({ timeout: 60000 });
+    const explTitle = page.locator('#explanation-title');
+    await expect(explTitle).toHaveAttribute('title', /^Important reason: .+/);
+    const reason = (await explTitle.getAttribute('title'))!.replace(/^Important reason: /, '');
+    await explTitle.click({ button: 'right' });
+    await page.click('#menu-show-strongest');
+    const flashed = page.locator('#explanation-tree .tree-label.explanation-highlight');
+    await expect(flashed).toHaveCount(1);
+    await expect(flashed.locator('.tree-text')).toHaveText(reason);
+  });
+
   test('payg example integration test', async ({ page }) => {
     test.setTimeout(60000); // Increase timeout for this complex test
 

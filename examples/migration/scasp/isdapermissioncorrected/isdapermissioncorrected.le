@@ -1,5 +1,5 @@
 % The Logical English twin of an s(CASP) program, written by the s(CASP) translator
-% (InsurLE2/migration/scasp) from isdapermissioncorrected-scasp.pl (kept in sources/).
+% from isdapermissioncorrected-scasp.pl (kept in sources/).
 % Every expected answer in the scenarios is s(CASP)'s own answer on the source.
 
 the target language is: prolog.

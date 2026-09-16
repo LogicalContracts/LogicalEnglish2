@@ -27,6 +27,10 @@ le_system_template(dict([le_le, V1, V2], [V1-number, V2-number], [V1, '=<', V2])
 le_system_template(dict([le_gt, V1, V2], [V1-number, V2-number], [V1, '>', V2])).
 le_system_template(dict([le_lt, V1, V2], [V1-number, V2-number], [V1, '<', V2])).
 le_system_template(dict([le_assign, V1, V2], [V1-any, V2-any], [V1, '=', V2])).
+%   `==` and `!=`, which language.md §7 lists among the comparisons: without a
+%   template they were a condition with no template at all.
+le_system_template(dict([le_equal_to, V1, V2], [V1-any, V2-any], [V1, '==', V2])).
+le_system_template(dict([le_not_equal_to, V1, V2], [V1-any, V2-any], [V1, '!=', V2])).
 
 %!  build_sys_dict(+Functor, +Types, +Parts, -FunctorArgs, -NTs, -WV) is det.
 %

@@ -1870,10 +1870,16 @@ larger_reason_text(Nodes, Reason) :-
 % append_nor_phrase(+Node, +Acc, -Out): Acc followed by ", nor that <positive
 % form>", where the positive form is the node's reason with the leading negation
 % phrase stripped (the shared "it is not the case that" already opens the list).
+% A reason that is not a negation (a failed "it is not the case that X" reads as X)
+% cannot join that list without being negated by it: it follows after "; " as it is.
 append_nor_phrase(Node, Acc, Out) :-
     important_node_text(Node, T),
     strip_naf_prefix(T, S),
-    format(string(Out), "~w, nor that ~w", [Acc, S]).
+    strip_naf_prefix(Acc, AccS),
+    (   S \== T, AccS \== Acc
+    ->  format(string(Out), "~w, nor that ~w", [Acc, S])
+    ;   format(string(Out), "~w; ~w", [Acc, T])
+    ).
 
 % strip_naf_prefix(+Text, -Stripped): drop a leading LE negation phrase ("it is not
 % the case that ") when present; otherwise Stripped is Text (as a string).
@@ -1910,7 +1916,8 @@ node_leaf_failures(N, Path, Depth, Here) :-
     ( get_dict(children, N, Ch), is_list(Ch) -> true ; Ch = [] ),
     (   get_dict(ruleAttempt, N, true)
     ->  collect_leaf_failures(Ch, 1, Path, Depth, Here)
-    ;   get_dict(type, N, "failure"), \+ get_dict(typeCheck, N, true)
+    ;   get_dict(type, N, "failure"), \+ get_dict(typeCheck, N, true),
+        \+ get_dict(sectionChecklist, N, true)
     ->  Depth1 is Depth + 1,
         collect_leaf_failures(Ch, 1, Path, Depth1, ChildLeaves),
         ( ChildLeaves == [] -> Here = [fnode(Depth, Path, N)] ; Here = ChildLeaves )
@@ -1951,10 +1958,27 @@ reason_collect(KB, Node, Path, Und, W, Cand0, Cand) :-
     ;   is_dict(Node) ->
             ( get_dict(children, Node, Children), is_list(Children) -> true ; Children = [] ),
             reason_children(KB, Children, Path, 1, Und, 0, SumC, Cand0, Cand1),
+            node_reason_text(Node, Text),
             (   transparent_rule_node(KB, Node, Children) ->
                     W = SumC, Cand = Cand1
+            ;   Children = [Child], is_dict(Child),
+                node_reason_text(Child, Text)
+            ->  % A negation node and its only child read as the SAME reason ("it is
+                % not the case that X" failed = X holds): one reason, located at the
+                % row that literally reads as it (the one that is not a failure).
+                % Asked / understood once.
+                format(string(ChildPath), "~w.1", [Path]),
+                (   get_dict(literal, Child, ChildLit), atom_string(ChildLit, Text)
+                ->  LocPath = ChildPath
+                ;   LocPath = Path
+                ),
+                (   memberchk(ChildPath, Und)
+                ->  W = 0, Cand = Cand0
+                ;   W is SumC + 1,
+                    exclude(candidate_at_path(ChildPath), Cand1, Cand2),
+                    Cand = [W-(Text-LocPath)|Cand2]
+                )
             ;   W is SumC + 1,
-                node_reason_text(Node, Text),
                 Cand = [W-(Text-Path)|Cand1]
             )
     ;   W = 1, Cand = [1-(""-Path)|Cand0]
@@ -2018,7 +2042,9 @@ strongest_within(Why, KB, "", Und, SPath, SText, SWeight, W) :- !,
     reason_roots(KB, Roots, 1, Und, 0, W, [], Candidates0),
     % The tree root(s) — the goal(s) being explained — are never offered as a question
     % (that is what the drill is explaining); only their descendants are candidates.
-    exclude(candidate_is_root, Candidates0, Candidates),
+    exclude(candidate_is_root, Candidates0, Candidates1),
+    maplist(node_reason_text, Roots, RootTexts),
+    exclude(candidate_text_in(RootTexts), Candidates1, Candidates),
     best_reason_candidate(Candidates, W, SPath, SText, SWeight).
 strongest_within(Why, KB, TopPath, Und, SPath, SText, SWeight, W) :-
     node_at_path(Why, TopPath, TopNode),
@@ -2029,6 +2055,7 @@ strongest_within(Why, KB, TopPath, Und, SPath, SText, SWeight, W) :-
     best_reason_candidate(Candidates, W, SPath, SText, SWeight).
 
 candidate_at_path(Path, _-(_-P)) :- P == Path.
+candidate_text_in(Texts, _-(T-_)) :- memberchk(T, Texts).
 % A top-level root path has no "." (e.g. "1", "2"), unlike a descendant ("1.2").
 candidate_is_root(_-(_-P)) :- \+ sub_string(P, _, _, _, ".").
 
@@ -2078,23 +2105,49 @@ question_dict(Why, Path, Text, Answer, _{path: Path, text: Text, start: S, end: 
 % drill_loop(+KB, +Why, +Answers, +Top, +Und, +QAcc, -Questions, -TopF, -UndF, -Pending)
 % Replays the answers from Top/Und, accumulating question cards and finally computing
 % the pending (next unanswered) question, or null when the drill is complete.
-drill_loop(KB, Why, [], Top, Und, QAcc, Questions, Top, Und, Pending) :- !,
+% "Not yet" pushes the chosen node as the new TOP region; when a region has nothing
+% left to ask (all its reasons accepted), the region itself counts as understood and
+% the drill returns to the enclosing region, so the remaining unvisited reasons there
+% (siblings, the answer's other conditions) are still asked about.
+drill_loop(KB, Why, Answers, Top, Und, QAcc, Questions, TopF, UndF, Pending) :-
+    drill_loop_(KB, Why, Answers, [Top], Und, QAcc, Questions, TopF, UndF, Pending).
+
+drill_loop_(KB, Why, [], Stack, Und, QAcc, Questions, TopF, UndF, Pending) :- !,
     reverse(QAcc, Questions),
-    (   drill_next(Why, KB, Top, Und, SPath, SText)
+    (   drill_step(Why, KB, Stack, Und, Stack1, Und1, SPath, SText)
     ->  node_at_path(Why, SPath, SNode), node_range(SNode, St, En),
-        Pending = _{path: SPath, text: SText, start: St, end: En}
-    ;   Pending = null
+        Pending = _{path: SPath, text: SText, start: St, end: En},
+        Stack1 = [TopF|_], UndF = Und1
+    ;   Pending = null,
+        drill_exhaust(Stack, Und, TopF, UndF)
     ).
-drill_loop(KB, Why, [A|As], Top, Und, QAcc, Questions, TopF, UndF, Pending) :-
-    (   drill_next(Why, KB, Top, Und, SPath, SText)
+drill_loop_(KB, Why, [A|As], Stack, Und, QAcc, Questions, TopF, UndF, Pending) :-
+    (   drill_step(Why, KB, Stack, Und, Stack1, Und1, SPath, SText)
     ->  question_dict(Why, SPath, SText, A, Q),
-        ( A == "yes"     -> Top1 = Top,   Und1 = [SPath|Und]
-        ; A == "not_yet" -> Top1 = SPath, Und1 = Und
-        ;                   Top1 = Top,   Und1 = Und ),
-        drill_loop(KB, Why, As, Top1, Und1, [Q|QAcc], Questions, TopF, UndF, Pending)
+        ( A == "yes"     -> Stack2 = Stack1,         Und2 = [SPath|Und1]
+        ; A == "not_yet" -> Stack2 = [SPath|Stack1], Und2 = Und1
+        ;                   Stack2 = Stack1,         Und2 = Und1 ),
+        drill_loop_(KB, Why, As, Stack2, Und2, [Q|QAcc], Questions, TopF, UndF, Pending)
     ;   % A terminal step was reached but stale answers remain — ignore them.
-        reverse(QAcc, Questions), TopF = Top, UndF = Und, Pending = null
+        reverse(QAcc, Questions), Pending = null,
+        drill_exhaust(Stack, Und, TopF, UndF)
     ).
+
+% drill_step(+Why, +KB, +Stack, +Und, -Stack1, -Und1, -SPath, -SText): the next question
+% within the innermost region that still has one. An exhausted inner region is popped
+% and marked understood (its reasons were all accepted). Fails when even the outermost
+% region is exhausted.
+drill_step(Why, KB, [Top|Rest], Und, Stack1, Und1, SPath, SText) :-
+    (   drill_next(Why, KB, Top, Und, SPath, SText)
+    ->  Stack1 = [Top|Rest], Und1 = Und
+    ;   Rest \== [],
+        drill_step(Why, KB, Rest, [Top|Und], Stack1, Und1, SPath, SText)
+    ).
+
+% drill_exhaust(+Stack, +Und, -TopF, -UndF): the final state of a completed drill: every
+% inner region is understood and TOP is the outermost region.
+drill_exhaust([Top], Und, Top, Und) :- !.
+drill_exhaust([Top|Rest], Und, TopF, UndF) :- drill_exhaust(Rest, [Top|Und], TopF, UndF).
 
 % handle_explanation_drill(+Dict, -Response): drive the Explanation Drill. The tree is
 % sent (as `why`) on the first call and kept in the session; `answers` is the ordered
@@ -2118,15 +2171,18 @@ handle_explanation_drill(Dict, Response) :-
     (   Why == null -> Response = _{error: "No explanation to drill"}
     ;   drill_loop(KB, Why, Answers, "", [], [], Questions, TopF, UndF, Pending),
         subtree_weight(KB, Why, "", [], Initial),
-        foldl(drill_progress(KB, Why), UndF, 0, Progress),
+        % Progress = the weight no longer in question. Understood paths may nest (a
+        % region accepted after drilling into it), so subtract what remains rather
+        % than summing them; a completed drill is complete.
+        (   Pending == null -> Progress = Initial
+        ;   subtree_weight(KB, Why, "", UndF, Remaining),
+            Progress is max(0, Initial - Remaining)
+        ),
         retractall(SM:drill_state(_, _)),
         assertz(SM:drill_state(TopF, UndF)),
         Response = _{ok: true, initialCount: Initial, progress: Progress,
                      questions: Questions, pending: Pending, topPath: TopF}
     ).
-
-% Sum of the weights of the understood subtrees (disjoint, so no double counting).
-drill_progress(KB, Why, Path, A, B) :- subtree_weight(KB, Why, Path, [], W), B is A + W.
 
 % dedup_keep_first(+KeyedPairs, -Values): the first Value for each distinct Key,
 % preserving order.
@@ -2427,7 +2483,8 @@ add_provenance_json(KB, JSON0, JSON) :-
         ),
         (   atom(KB), KB \== none,
             get_dict(start, JSON1, S), get_dict(end, JSON1, E),
-            node_provenance(KB, S, E, Extra0, Prov)
+            ( get_dict(type, JSON1, Type) -> true ; Type = "success" ),
+            node_provenance(KB, Type, S, E, Extra0, Prov)
         ->  % the sentence without the trailers its rendering appended — for
             % a view that shows the citation apart (the executive's citations)
             (   get_dict(literal, JSON1, Lit), string(Lit),
@@ -2444,13 +2501,19 @@ add_provenance_json(KB, JSON0, JSON) :-
     ;   JSON = JSON0
     ).
 
-node_provenance(KB, S, E, Extra, Prov) :-
+%   A FAILED node cites no fact: no fact proved it, and its range is where
+%   the goal's predicate is defined — a scenario fact of another individual
+%   ("alice is a member" for the failed "the hatter is a member"), whose
+%   document it would claim. The rule a failed rule attempt tried keeps its
+%   citation.
+node_provenance(KB, Type, S, E, Extra, Prov) :-
     (   catch(KB:le_source_info(_, S, E, ID), _, fail),
         le_kbs:user_rule_name(ID),
         le_provenance:rule_provenance(KB, ID, Prov)
     ->  le_provenance:provenance_dict(none, KB, Prov, P),
         Extra = _{provenance: P, rule: ID}
-    ;   current_predicate(KB:le_fact_provenance/4),
+    ;   Type \== "failure",
+        current_predicate(KB:le_fact_provenance/4),
         KB:le_fact_provenance(S, E, _, Prov)
     ->  le_provenance:provenance_dict(none, KB, Prov, P),
         Extra = _{provenance: P}
@@ -2518,7 +2581,13 @@ convert_why(Other, _, JSON) :-
 % Type"). The important-reason heuristic for failed queries skips these synthetic
 % guard nodes when choosing the deepest failure (they are not substantive reasons).
 add_type_check_flag(Goal, JSON0, JSON) :-
-    ( is_type_check_goal(Goal) -> put_dict(_{typeCheck: true}, JSON0, JSON) ; JSON = JSON0 ).
+    (   is_type_check_goal(Goal) -> put_dict(_{typeCheck: true}, JSON0, JSON)
+    ;   Goal = le_section_checklist(_)
+    ->  % the section checklist that leads a failure explanation (le_kbs.pl,
+        % add_section_checklist/5): a summary, never itself a reason
+        put_dict(_{sectionChecklist: true}, JSON0, JSON)
+    ;   JSON = JSON0
+    ).
 
 is_type_check_goal(le_at(G, _, _)) :- !, is_type_check_goal(G).
 is_type_check_goal(le_type_check(_, _)).
@@ -2845,6 +2914,12 @@ handle_scasp_query(Dict, Response) :-
         option_time_limit(Dict, TL),
         le_scasp:le_scasp_query(KB, ScenarioName, Goal, [time_limit(TL)], Answers, Issues),
         maplist(scasp_issue_json, Issues, JIssues),
+        scasp_refusal(KB, Dict, Issues, QRefusal),
+        (   QRefusal \== none
+        ->  % the query itself has no s(CASP) statement (an aggregate, a
+            % flip, ...): refused like a program, not answered "no"
+            Response = QRefusal.put(issues, JIssues)
+        ;
         % s(CASP) enumerates a stable model for every truth assignment of the
         % *unused* abducibles, so the same "possible world" (same answer + same
         % assumption set) can recur many times. Collapse to distinct worlds, then
@@ -2854,6 +2929,7 @@ handle_scasp_query(Dict, Response) :-
         length(Distinct, ModelCount),
         number_results(Distinct, 1, ModelCount, Results),
         Response = _{results: Results, modelCount: ModelCount, issues: JIssues, result: "ok", engine: "scasp"}
+        )
       )
     )
     ).

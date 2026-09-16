@@ -210,6 +210,36 @@ test(summary_still_counts_four_argument_failures) :-
     with_output_to(string(Out), le_kbs:print_test_summary(Results)),
     assertion(sub_string(Out, _, _, _, "Failed:          1")).
 
+% A failed test's unknowns read as the program writes them: a date is
+% 2021-10-09 (the expected ones as written, not string(Text, loc(..)); the
+% actual ones not normalised for comparison into "2021 10 09").
+unknown_date_text("the target language is: prolog.
+
+the templates are:
+    *a person* is born on *a date*; unknown.
+    *a person* is registered.
+
+the knowledge base k includes:
+    a person is registered if
+        the person is born on 2021-10-09.
+
+scenario s is:
+    bob expects answers [\"bob is registered\"] and unknowns [\"nobody is born on 2021-10-09\"].
+
+query bob is:
+    bob is registered.
+").
+
+test(failed_test_unknowns_print_dates,
+     [setup((unknown_date_text(T), setup_le_text(unknowndate, T, Path))),
+      cleanup(delete_file(Path))]) :-
+    le_kbs:runTestsFor(Path, R),
+    R = test_file(_, [Result]),
+    assertion(Result = fail(bob, s, _, _, ["nobody is born on 2021-10-09"], ["bob is born on 2021-10-09"])),
+    with_output_to(string(Out), le_kbs:print_test_result(R)),
+    assertion(sub_string(Out, _, _, _, "Actual Unknowns: [bob is born on 2021-10-09]")),
+    assertion(\+ sub_string(Out, _, _, _, "2021 10 09")).
+
 % --- 4. suspicious_is ---
 
 test(mismatched_wording_is_reported,

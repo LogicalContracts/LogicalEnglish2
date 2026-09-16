@@ -177,8 +177,9 @@ at least 14.
 
 ![The failure explanation of claim on notified](querying-a-program/06-why-not.png)
 
-Above the red condition, *anna is booked on flight AZ123* is green: a failure
-explanation shows the conditions that held before the one that failed. Now try the other two scenarios:
+Above the red condition, *anna is booked on flight AZ123, as stated in the
+booking at page 1* is green: a failure explanation shows the conditions that
+held before the one that failed, with their citations. Now try the other two scenarios:
 
 - `outside_the_eu`: *applicability failed*. The flight is not within scope,
   because *Istanbul is in the EU* cannot be proved.
@@ -340,8 +341,13 @@ exercise of the activity of Alitalia*. Answer:
 ![The Explanation Drill after four answers](querying-a-program/12-drill.png)
 
 These are the steps of the tree of section 2, one at a time: the precedent's
-factor, and the defect that shares it. A **Yes** to the last question ends
-the drill with *Nothing else to show*.
+factor, and the defect that shares it. Once you accept every reason under a
+*Not yet*, the drill counts that reason as accepted and goes back up: a
+**Yes** to the last question brings *the inspection defect is forced for
+inherent by wallentin hermann*, then the answer's other conditions (the
+extraordinary circumstances, the compensation due, the scope, ...). When you
+have accepted them all, the progress bar is full and the drill says *Nothing
+else to show*.
 
 ## 7. The same program for its users
 
@@ -404,8 +410,11 @@ the view:
 
 ![The Passenger claim desk view, on new_claim](querying-a-program/15-view-claim-desk.png)
 
-Now pick `notified` in the case picker. The result is *No answer*, *fails at
-question*, and the stage shows question failed and remedy not reached. This
+Now pick `notified` in the case picker; the address now ends in
+`&scenario=notified`, so the link opens the view on this case. The result is
+*No answer*, *fails at question*, and the stage shows question failed and
+remedy not reached. The **Citations** and **Documents** still show what the
+failure rests on: the booking and the notice email. This
 view does not ask for the reasons of a failure (the sentence `the result shows
 its reasons` would add *Why not*), so it answers with the stage instead.
 **Find the smallest changes** says what would give anna her compensation:

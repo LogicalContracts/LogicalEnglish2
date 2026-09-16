@@ -29,6 +29,7 @@ hosted service have.
 - [How OIPA maps to Logical English](#how-oipa-maps-to-logical-english)
   - [The activity, the policy it finds and the plan](#the-activity-the-policy-it-finds-and-the-plan)
   - [Reassignment and MathIF](#reassignment-and-mathif)
+  - [What is not translated](#what-is-not-translated)
   - [Rates](#rates)
   - [Checks, spawns and copies](#checks-spawns-and-copies)
 - [Traps](#traps)
@@ -38,23 +39,36 @@ hosted service have.
 
 | Direction | Where (menu item) | Files | What you get | Checked against |
 |---|---|---|---|---|
-| OIPA → Logical English | **File ▸ Open…**, **File ▸ Import from Another System…** | one transaction's Rules Palette XML (`.xml`, root element `<Transaction>` with a `Math` or `Fields` section) | a program with a template per field and MathVariable, a rule per MathVariable citing it, decision tables for rates, queries for the logged values, a view; a migration ledger; the XML in `sources/` | for the example twins, an independent interpreter of OIPA transaction math playing each plan's policy lives; an uploaded transaction has no tests |
+| OIPA → Logical English | **File ▸ Open…**, **File ▸ Import from Another System…** | one transaction's Rules Palette XML (`.xml`, root element `<Transaction>` with a `Math` or `Fields` section), or a `.zip` of a plan folder or of a transaction's folder | a program with a template per field and MathVariable, a rule per MathVariable citing it, decision tables for rates, checks, spawns and copies from the attached rules, queries for the logged values, a view; a migration ledger; the XML and the plan's CSV files in `sources/` | for the example twins, an independent interpreter of OIPA transaction math playing each plan's policy lives; an uploaded transaction has no tests |
 
 ## How to use it
 
 ### What to upload
 
-Upload the XML of one transaction, as the Rules Palette shows it: a
-`<Transaction>` element with its `<Fields>` and its
-`<Math>`/`<MathVariables>`. The file name becomes the transaction's name
-(`Withdrawal.xml` gives the transaction `Withdrawal`). A file called
-`Transaction.xml` has no name of its own, and becomes `Transaction1`; rename
-the file before uploading it.
+Upload one of:
 
-Only `.xml` is read. A zip of a plan folder is not recognised as OIPA
-material, and neither are the attached rules on their own
-(`ValidateExpressions.xml`, `SpawnActivities.xml`,
-`CopyToPolicyFields.xml`), whose root is not a `<Transaction>`.
+- **A zip of a plan folder**, the layout the Rules Palette's configuration
+  has: one folder per transaction, each with its `Transaction.xml` and its
+  attached rules (`ValidateExpressions.xml`, `SpawnActivities.xml`,
+  `CopyToPolicyFields.xml`), and the plan's `Rates.csv` (AsRate) and
+  `PlanFields.csv` (AsPlanField) beside the folders. Everything is read. The
+  first transaction, in name order, is translated, and the note names the
+  others; the program is named after the plan and the transaction
+  (`annuity_withdrawal.le`). To translate another transaction, zip its folder
+  with the plan's two CSV files.
+- **A zip of one transaction's folder** (with or without the plan's CSV
+  files beside it). The folder's name is the transaction's name.
+- **The XML of one transaction**, as the Rules Palette shows it: a
+  `<Transaction>` element with its `<Fields>` and its
+  `<Math>`/`<MathVariables>`. The file name becomes the transaction's name
+  (`Withdrawal.xml` gives the transaction `Withdrawal`); a file called
+  `Transaction.xml` is named after a `NAME` attribute of its root, if it has
+  one, and otherwise `Transaction`. An upload of one file has nothing beside
+  it, so its attached rules and the plan's CSV files are not read, and the
+  note says so (see [the note](#the-note-and-the-ledger)).
+
+The attached rules on their own (`ValidateExpressions.xml`, …), whose root is
+not a `<Transaction>`, are not OIPA material the translator recognises.
 
 Several translators read `.xml` (Oracle Intelligent Advisor, LegalRuleML,
 OIPA). Each looks at the file, and the OIPA translator takes it when its root
@@ -63,9 +77,10 @@ is a `<Transaction>` element.
 ### Importing
 
 1. Choose **File ▸ Import from Another System…** (or **File ▸ Open…**) and
-   pick the transaction's `.xml` file.
+   pick the zip or the transaction's `.xml` file.
 2. The server translates it and opens the program in a new tab, named
-   `oipa_<transaction>.le` (for instance `oipa_withdrawal.le`).
+   `<plan>_<transaction>.le` for a zipped plan folder (`annuity_withdrawal.le`)
+   and `oipa_<transaction>.le` otherwise (`oipa_withdrawal.le`).
 3. A note under the menu bar names the translator (*Oracle Insurance Policy
    Administration transaction (Rules Palette XML)*) and gives the counts.
 
@@ -74,25 +89,28 @@ program with **File ▸ Save As…** to keep it.
 
 ### The note and the ledger
 
-The note reads, for example:
+The note reads, for a single `Withdrawal.xml`:
 
 ```
-oipa_withdrawal: 16 MathVariables and rules encoded, 0 approximated, 0 residue; 0 writer errors. Attached rules (ValidateExpressions, SpawnActivities, CopyToPolicyFields) are read when they sit beside the transaction in a plan directory.
+oipa_withdrawal: 16 MathVariables and rules encoded, 0 approximated, no residue; 0 writer errors.
+Read: Transaction.xml. Not found beside the uploaded XML file (an upload of one file has nothing beside it), so not read: ValidateExpressions.xml, SpawnActivities.xml, CopyToPolicyFields.xml, Rates.csv, PlanFields.csv — hence no checks; no spawns; no copies to policy fields; each rate table is empty, so a RATE gives its DEFAULT or no value; each plan field is its MathVariable's DEFAULT or has no value. To have them read, zip the plan's folder (Withdrawal/ with its attached rules, and Rates.csv and PlanFields.csv) and open the zip.
+The XML is kept in sources/Withdrawal/ (the plan's CSV files in sources/), where the rules' citations point; File > Show the Original lists it.
 ```
 
-The ledger, `oipa_<transaction>.ledger.md`, is written beside the program.
-It has one row per MathVariable (and, in the example twins, per validation,
-spawn and copy), with the mapping used: `FIELD -> the activity field
-GrossAmount, a fact of the case`, `RATE -> a decision table loaded from the
-plan's rates, DEFAULT as the last line`, and so on. A row marked
-*approximated* says how the meaning changed. Something the translator could
-not read is a ledger row of kind `note`, also marked *approximated*, such as
-`a MathVariable of TYPE SQL is not translated`.
+For a zipped plan folder, the second line lists what was read
+(`Read: Transaction.xml, ValidateExpressions.xml, SpawnActivities.xml,
+CopyToPolicyFields.xml, PlanFields.csv, Rates.csv.`), and says which attached
+rules the transaction has none of. A last line names the plan's other
+transactions.
 
-The last sentence of the note concerns the example twins, which were
-translated from plan folders. An upload through the editor is one file, so
-its attached rules are not read: the program has no checks, spawns or copies
-(see [Traps](#traps)).
+The ledger, `<name>.ledger.md`, is written beside the program. It has one row
+per MathVariable, per validation, spawn and copy, and per `MathLoop`, with
+the mapping used: `FIELD -> the activity field GrossAmount, a fact of the
+case`, `RATE -> a decision table loaded from the plan's rates, DEFAULT as the
+last line`, and so on. A row marked *approximated* says how the meaning
+changed. A row marked *residue* is something the translator could not read,
+kept in the program as a `% RESIDUE` block (see
+[what is not translated](#what-is-not-translated)).
 
 ### Running the translation
 
@@ -127,12 +145,14 @@ In the example twins, each scenario carries `expects answers` lines, and
 
 ### Show the Original
 
-**File ▸ Show the Original…** lists the uploaded XML, kept under `sources/`
-beside the program (for an upload, `sources/oipa/<Transaction>/Transaction.xml`).
-In the example twins, `sources/` holds the transaction's XML, its attached
-rules and the plan's `Rates.csv` and `PlanFields.csv`, and each rule's
-provenance (`with provenance "Withdrawal/Transaction.xml" at MathVariable
-NetAmountMV`) cites the MathVariable it states.
+**File ▸ Show the Original…** lists the files kept under `sources/` beside
+the program: the transaction's XML and the attached rules that were read in
+`sources/<Transaction>/`, and the plan's `Rates.csv` and `PlanFields.csv` in
+`sources/`, as in the example twins. Each rule's provenance (`with provenance
+"Withdrawal/Transaction.xml" at MathVariable NetAmountMV`) cites the
+MathVariable it states, and the program says where that file is (`the text of
+"Withdrawal/Transaction.xml" is at "sources/Withdrawal/Transaction.xml"`), so
+**Show original text** on a citation opens it.
 
 ### Examples to try
 
@@ -178,6 +198,8 @@ math that shares no code with the translator. The six twins reproduce all
 | `INTEGER` result of a division | `truncate(…)` |
 | `VALUE` set once | the constant, written in place |
 | `IIF`, and a `MathIF` that reassigns a variable | an `otherwise` cascade, the latest assignment first |
+| a variable read between two of its assignments | the value it had then, a rule of its own: `the first value of the charge of *an activity*` |
+| `SQL` and other unread MathVariable types, `MathLoop` | a `% RESIDUE` block with the XML, a ledger row *residue* |
 | `RATE` | a decision table loaded from a CSV beside the program, `with unique match`; its `DEFAULT` the cascade's last line |
 | `DurationOf` | `the age on *a date* of someone born on *a date*` (lib/temporal) |
 | `ANBAgeOf` (age at the nearest birthday) | the age six calendar months later (approximated) |
@@ -232,6 +254,54 @@ the surrender charge of an activity is an amount N if
 An `IIF` is the same: its first value under its condition, otherwise its
 second.
 
+A MathVariable that reads a variable *between* two of its assignments gets
+the value the variable had at that point, as OIPA computes it. That value is
+a rule of its own, the cascade of the assignments made so far:
+
+```le
+rule charge_first_value with provenance "Payout/Transaction.xml" at MathVariable ChargeMV:
+the first value of the charge of an activity is an amount N if
+    the activity is a payout
+    and N = 100.
+
+rule first_net with provenance "Payout/Transaction.xml" at MathVariable FirstNetMV:
+the first net of an activity is an amount N if
+    the gross amount of the activity is an amount M
+    and the first value of the charge of the activity is an amount K
+    and N = M - K.
+```
+
+The ledger row of the reassigned variable says which of its earlier values
+are rules. A `MathIF`'s condition reads the values set before the `MathIF`.
+
+### What is not translated
+
+A MathVariable the translator cannot read is a residue block: its XML (every
+assignment of the variable), why it was not translated, and the template it
+must conclude. Rules that read it are translated, and have no answer until the
+block is. The ledger row is *residue*:
+
+```le
+% RESIDUE r1 BEGIN: Payout/Transaction.xml MathVariable BalanceMV
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: Payout/Transaction.xml
+% Not translated: a MathVariable of TYPE SQL, which the translator does not read.
+% Conclude: the balance of *an activity* is *an amount*.
+%   OIPA XML:
+%   | <MathVariable VARIABLENAME="BalanceMV" TYPE="SQL" DATATYPE="DECIMAL">SELECT Balance FROM AsPolicy</MathVariable>
+% RESIDUE r1 END
+```
+
+This covers the MathVariable types other than FIELD, POLICYFIELD, PLANFIELD,
+VALUE, EXPRESSION, FUNCTION, IIF and RATE (`SQL`, `MULTIFIELD`, `OBJECT`,
+`COLLECTION`, …), a `FIELD` MathVariable set inside a `MathIF`, a function
+other than DurationOf, ANBAgeOf, DaysDiffOf, MonthsAdd, TruncateNumber,
+MinOf, MaxOf and AbsOf, and a reference to a variable the transaction does not
+set or has not set yet. A `MathLoop` is one residue block holding the loop's
+XML, concluding the MathVariables set inside it; the ledger has a row for the
+loop and one for each of those variables. A check, spawn or copy that reads
+something untranslatable is left out, with a ledger note.
+
 ### Rates
 
 A `RATE` MathVariable looks a value up in the plan's rate table (OIPA's
@@ -268,14 +338,16 @@ values the math computes are still answered for a refused activity.
 
 ## Traps
 
-- **An upload has no attached rules, rates or plan fields.** The editor
-  receives one file, so `ValidateExpressions.xml`, `SpawnActivities.xml`,
-  `CopyToPolicyFields.xml`, `Rates.csv` and `PlanFields.csv` are not read.
-  The consequences: no checks, spawns or copies; each rate table is an empty
-  CSV (header only), so a `RATE` always gives its `DEFAULT`, or no answer when
-  it has none; each plan field is its MathVariable's `DEFAULT`, or has no
-  value at all. The note's last sentence does not change this. Add the rates
-  to the CSV and the plan fields as facts yourself.
+- **An `.xml` upload has no attached rules, rates or plan fields.** The
+  editor receives one file, so `ValidateExpressions.xml`,
+  `SpawnActivities.xml`, `CopyToPolicyFields.xml`, `Rates.csv` and
+  `PlanFields.csv` are not read, and the note lists them. The consequences:
+  no checks, spawns or copies; each rate table is an empty CSV (header only),
+  so a `RATE` always gives its `DEFAULT`, or no answer when it has none; each
+  plan field is its MathVariable's `DEFAULT`, or has no value at all. Upload a
+  zip of the plan folder instead.
+- **One transaction per upload.** A zipped plan folder translates its first
+  transaction; the note names the others.
 - **No scenarios, no tests.** An upload has no policy lives, so nothing
   checks the program against OIPA. Test it against activities whose values you
   know from a test environment, as scenarios with `expects answers`.
@@ -283,25 +355,11 @@ values the math computes are still answered for a refused activity.
   cascades and the copies test `the activity is a withdrawal`, which holds
   when the activity has an effective date. A scenario without one gets no
   default values.
-- **A variable read between two assignments.** The cascade has one value per
-  variable: its final one. If a MathVariable reads a variable *before* a later
-  `MathIF` reassigns it, OIPA uses the earlier value, but the program uses the
-  final one, and no note or ledger row says so. Check the ledger's
-  `reassigned (MathIF)` rows against the order of the Math section.
-- **`MathLoop` is dropped.** A `MathLoop` and the MathVariables inside it are
-  not translated, and neither the program nor the ledger mentions them. Check
-  the XML for loops before trusting the counts.
-- **Untranslated MathVariable types are not residue.** `SQL`, `MULTIFIELD`,
-  `OBJECT`, `COLLECTION` and other types the translator does not read become
-  a rule whose value is the word `unknown` (`and the amount is equal to
-  unknown`), a ledger row `a MathVariable of TYPE SQL is not translated` of
-  kind note, and in the counts one *approximated*. The rule's own ledger row
-  says `encoded`. There is no `% RESIDUE` block to find: search the program
-  for `unknown`. Arithmetic on such a value has no answer. A `FIELD`
-  MathVariable set inside a `MathIF`, a function the translator does not know
-  (anything but DurationOf, ANBAgeOf, DaysDiffOf, MonthsAdd, TruncateNumber,
-  MinOf, MaxOf and AbsOf) and a reference to a variable the transaction does
-  not set are also only a note row: look for them in the ledger.
+- **Residue has no answers.** `SQL` and the other MathVariable types the
+  translator does not read, and `MathLoop`s, are residue blocks (see
+  [what is not translated](#what-is-not-translated)). Everything that reads
+  them, down to the logged values, has no answer until the blocks are
+  translated by hand or with the Contract Assistant's residue mode.
 - **Not in the translation at all:** assignments to funds, valuation,
   suspense, reversals and the activity lifecycle. A copy says what the policy
   field would be after the activity; it does not change the policy for the
@@ -309,8 +367,7 @@ values the math computes are still answered for a refused activity.
   scenario states the policy the activity finds.
 - **ANBAgeOf is approximated.** The age at the nearest birthday is written as
   the age six calendar months later. The two can differ by a day at the
-  half-year. The ledger marks the MathVariable *approximated* and adds a note
-  row, so one approximation counts twice.
+  half-year. The ledger marks the MathVariable *approximated*.
 - **Numbers are not decimal.** OIPA computes in decimal; the program computes
   in floating point, rounded where OIPA rounds (`ROUND`). Between rounding
   points, binary fractions can show in values, such as
@@ -322,11 +379,6 @@ values the math computes are still answered for a refused activity.
   billing mode `12`) are of type *a value*, and must match the rate CSV
   exactly. Write them in scenarios as the example twins do
   (`the insured gender of the policy before i1 is "02".`).
-- **The citation of an upload does not open.** The program says `the text of
-  "Withdrawal/Transaction.xml" is at "sources/Withdrawal/Transaction.xml"`,
-  but an upload keeps the file at `sources/oipa/Withdrawal/Transaction.xml`,
-  so **Show original text** on a citation finds nothing. **File ▸ Show the
-  Original…** lists the file.
 - **Wording follows OIPA's names.** Templates come from the MathVariable
   names (`NetAmountMV` → `the net amount of *an activity*`), so a name like
   `SqlMV` reads `the sql of *an activity*`. Rename templates in the program if

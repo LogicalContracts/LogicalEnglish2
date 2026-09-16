@@ -2,7 +2,7 @@
 
 Source: A Liana inheritance wallet: the wallet manager, or two of the family after a year, or a third party after fifteen months — https://github.com/wizardsardine/liana#about
 Translator: InsurLE2/migration/miniscript (ms_twin.pl)
-Date: 2026-09-15
+Date: 2026-09-16
 
 ## Summary
 
@@ -40,38 +40,38 @@ A source element is **encoded** when a documented mapping rule translated it wit
 
 | Source test | Query | Result | Detail |
 |---|---|---|---|
-| path_1 | spendable | pass |  |
-| path_1_without_1 | spendable | pass |  |
-| path_1_without_2 | spendable | pass |  |
-| path_1_without_3 | spendable | pass |  |
-| path_2 | spendable | pass |  |
-| path_2_without_1 | spendable | pass |  |
-| path_2_without_2 | spendable | pass |  |
-| path_2_without_3 | spendable | pass |  |
-| path_3 | spendable | pass |  |
-| path_3_without_1 | spendable | pass |  |
-| path_3_without_2 | spendable | pass |  |
-| path_3_without_3 | spendable | pass |  |
-| path_4 | spendable | pass |  |
-| path_4_without_1 | spendable | pass |  |
-| path_4_without_2 | spendable | pass |  |
-| path_5 | spendable | pass |  |
-| path_5_without_1 | spendable | pass |  |
+| family_1 | spendable | pass |  |
+| family_1_without_1 | spendable | pass |  |
+| family_1_without_2 | spendable | pass |  |
+| family_1_without_3 | spendable | pass |  |
+| family_2 | spendable | pass |  |
+| family_2_without_1 | spendable | pass |  |
+| family_2_without_2 | spendable | pass |  |
+| family_2_without_3 | spendable | pass |  |
+| family_3 | spendable | pass |  |
+| family_3_without_1 | spendable | pass |  |
+| family_3_without_2 | spendable | pass |  |
+| family_3_without_3 | spendable | pass |  |
+| third_party | spendable | pass |  |
+| third_party_without_1 | spendable | pass |  |
+| third_party_without_2 | spendable | pass |  |
+| manager | spendable | pass |  |
+| manager_without_1 | spendable | pass |  |
 | no_witness | spendable | pass |  |
 | lost_the_wallet_manager | spendable | pass |  |
 | lost_the_spouse | spendable | pass |  |
 | lost_the_elder_child | spendable | pass |  |
 | lost_the_younger_child | spendable | pass |  |
 | lost_the_third_party | spendable | pass |  |
-| chain_path_1 | spendable | pass |  |
-| chain_path_1_without_1 | spendable | pass |  |
-| chain_path_1_without_2 | spendable | pass |  |
-| chain_path_2 | spendable | pass |  |
-| chain_path_2_without_1 | spendable | pass |  |
-| chain_path_3 | spendable | pass |  |
-| chain_path_4 | spendable | pass |  |
-| chain_path_4_without_1 | spendable | pass |  |
-| chain_path_5 | spendable | pass |  |
+| chain_family_1 | spendable | pass |  |
+| chain_family_1_without_1 | spendable | pass |  |
+| chain_family_1_without_2 | spendable | pass |  |
+| chain_family_2 | spendable | pass |  |
+| chain_family_2_without_1 | spendable | pass |  |
+| chain_family_3 | spendable | pass |  |
+| chain_third_party | spendable | pass |  |
+| chain_third_party_without_1 | spendable | pass |  |
+| chain_manager | spendable | pass |  |
 | flip_now | flip_spend | pass |  |
 | flip_after_delays | flip_spend | pass |  |
 | lost_the_wallet_manager | flip_block | pass |  |

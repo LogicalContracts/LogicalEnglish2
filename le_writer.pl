@@ -560,9 +560,7 @@ kb_item(constraint(_, _)).
 
 write_kb_item(Ctx, rule(H, B)) :- !, write_kb_item(Ctx, rule(H, B, [])).
 write_kb_item(Ctx, rule(H, B, Opts)) :- !,
-    catch(write_rule(Ctx, H, B, Opts), E,
-          ( message_to_codes(E, S), note(error, rule_not_written, "a rule could not be written: ~s"-[S]),
-            format("% a rule the writer could not express (see the ledger)~n~n") )).
+    written_or_noted(rule, H, write_rule(Ctx, H, B, Opts)).
 write_kb_item(Ctx, fact(H)) :- !, write_kb_item(Ctx, fact(H, [])).
 write_kb_item(Ctx, fact(H, Opts)) :- !, write_fact(Ctx, H, Opts).
 write_kb_item(_, section(Name)) :- !,
@@ -575,11 +573,33 @@ write_kb_item(_, residue(Id, Opts)) :- !, write_residue(Id, Opts).
 write_kb_item(_, document(Name, Opts)) :- !, write_document_facts(Name, Opts).
 write_kb_item(Ctx, lps(Term)) :- !, write_lps_term(Ctx, Term).
 write_kb_item(Ctx, constraint(B, Opts)) :- !,
-    catch(write_constraint(Ctx, B, Opts), E,
-          ( message_to_codes(E, S), note(error, rule_not_written, "a constraint could not be written: ~s"-[S]),
-            format("% a constraint the writer could not express (see the ledger)~n~n") )).
+    written_or_noted(constraint, none, write_constraint(Ctx, B, Opts)).
+
+%!  written_or_noted(+What, +Head, :Goal) is det.
+%
+%   Runs Goal, a writer of one rule or constraint, and emits its text only
+%   when it succeeds. A writer that throws OR fails never drops the item
+%   silently: an error issue is noted and the document gets a comment saying
+%   which rule is missing and why.
+written_or_noted(What, Head, Goal) :-
+    (   catch(( with_output_to(string(Out), Goal) -> R = ok(Out) ; R = failed ), E, R = error(E))
+    ->  true
+    ;   R = failed
+    ),
+    (   R = ok(Out1)
+    ->  write(Out1)
+    ;   (   R = error(E1) -> message_to_codes(E1, Cs), atom_codes(Why, Cs)
+        ;   Why = 'the writer found no form for it'
+        ),
+        (   Head \== none, callable(Head) -> functor(Head, F, N), format(atom(Which), ' for ~w/~w', [F, N])
+        ;   Which = ''
+        ),
+        note(error, rule_not_written, "a ~w~w could not be written: ~w"-[What, Which, Why]),
+        format("% a ~w~w the writer could not express (see the ledger): ~w~n~n", [What, Which, Why])
+    ).
 
 message_to_codes(E, S) :- catch(message_to_codes_(E, S), _, format(codes(S), '~q', [E])).
+message_to_codes_(le_writer_error(Msg), S) :- !, format(codes(S), '~w', [Msg]).
 message_to_codes_(E, S) :- format(codes(S), '~q', [E]).
 
 write_comment_block(Indent, Text) :-
@@ -1010,6 +1030,14 @@ strip_at(T, T).
 
 %   LE's internal forms and Prolog's, to the IR's.
 simplify_body(V, V) :- var(V), !.
+simplify_body(G, S) :-
+    conj_list(G, Gs), Gs = [_, _|_],
+    member(G0, Gs), min_max_goal(G0, _), !,
+    foldl([C, Acc0, Acc]>>( min_max_goal(C, C1) -> conj_list(C1, Cs1), append(Acc0, Cs1, Acc)
+                          ; append(Acc0, [C], Acc) ), Gs, [], Gs1),
+    left_and(Gs1, G1),
+    simplify_body(G1, S).
+simplify_body(G, S) :- min_max_goal(G, G1), !, simplify_body(G1, S).
 simplify_body(and(T, B), S) :- inserted_goal(T), !, simplify_body(B, S).
 simplify_body(and(B, T), S) :- inserted_goal(T), !, simplify_body(B, S).
 simplify_body(and(true, B), S) :- !, simplify_body(B, S).
@@ -1039,6 +1067,52 @@ simplify_body(known(X), le_known(X)) :- !.
 simplify_body(min(X, Y, Z), le_minimum(X, Y, Z)) :- !.
 simplify_body(max(X, Y, Z), le_maximum(X, Y, Z)) :- !.
 simplify_body(T, T).
+
+%!  min_max_goal(+Goal, -Conditions) is semidet.
+%
+%   LE has no min/max FUNCTIONS (language.md §7): `Z is max(X, Y)`, or a
+%   min/max inside a formula or a comparison, becomes the system condition
+%   `the maximum of X and Y is Z` before the goal, a fresh variable standing
+%   for the value in the formula. An operand that is itself a formula is
+%   computed first (`the maximum of` takes numbers). Goals are rewritten one
+%   min/max at a time; simplify_body/2 repeats until none is left.
+min_max_goal(G, S) :-
+    nonvar(G),
+    (   assign_goal(G, _, _) -> true ; comparison_goal(G, _, _, _) ),
+    G =.. [F|Args],
+    sub_term(M, Args), compound(M), M =.. [Op, A, B], min_max_template(Op, MF), !,
+    (   assign_goal(G, X, E), E == M, var(X)
+    ->  V = X, Rest = true
+    ;   replace_subterm(M, V, Args, Args1), G1 =.. [F|Args1], Rest = G1
+    ),
+    min_max_operand(A, A1, PreA),
+    min_max_operand(B, B1, PreB),
+    MG =.. [MF, A1, B1, V],
+    exclude(==(true), [PreA, PreB, MG, Rest], Conds),
+    left_and(Conds, S).
+
+%   A conjunction as the list of its conditions, and back, left-nested (the
+%   shape the renderer writes as sibling lines).
+conj_list(G, [G]) :- var(G), !.
+conj_list(and(A, B), Gs) :- !, conj_list(A, As), conj_list(B, Bs), append(As, Bs, Gs).
+conj_list((A, B), Gs) :- !, conj_list(A, As), conj_list(B, Bs), append(As, Bs, Gs).
+conj_list(G, [G]).
+
+left_and([C|Cs], S) :- foldl([X, Acc0, and(Acc0, X)]>>true, Cs, C, S).
+
+min_max_template(max, le_maximum).
+min_max_template(min, le_minimum).
+
+min_max_operand(X, X, true) :- ( var(X) ; number(X) ), !.
+min_max_operand(X, V, le_assign(V, X)) :- arith_expr(X), !.
+min_max_operand(X, X, true).
+
+replace_subterm(M, V, T0, T) :-
+    (   T0 == M -> T = V
+    ;   var(T0) -> T = T0
+    ;   compound(T0) -> T0 =.. [F|As0], maplist(replace_subterm(M, V), As0, As), T =.. [F|As]
+    ;   T = T0
+    ).
 
 %   Goals LE adds on its own when it reads a rule (the type checks of typed
 %   head places), which it adds again when it reads the written rule.
@@ -1551,6 +1625,13 @@ expr_text(Ctx, St, X, T) :-
     expr_text(Ctx, St, A, AT),
     format(atom(T), '~w(~w)', [Fn, AT]).
 expr_text(Ctx, St, -(A), T) :- !, expr_text(Ctx, St, 0 - A, T).
+%   An arithmetic function LE has no form for (min and max included: they are
+%   conditions in LE, which simplify_body/2 writes them as). arg_text/4 would
+%   hand it straight back here, so say so instead of looping.
+expr_text(_, _, X, _) :- arith_expr(X), !,
+    functor(X, F, N),
+    format(string(Msg), "Logical English has no arithmetic form for ~w/~w", [F, N]),
+    throw(le_writer_error(Msg)).
 expr_text(Ctx, St, X, T) :- arg_text(Ctx, St, X, T).
 
 %   Parentheses where precedence (or the non-associativity of - and /) needs

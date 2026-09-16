@@ -2,7 +2,7 @@
 
 Source: A Revault unvault output: the managers with the cosigning servers after a lock time, or all four stakeholders — https://github.com/bitcoin/bitcoin/blob/master/test/functional/wallet_miniscript.py
 Translator: InsurLE2/migration/miniscript (ms_twin.pl)
-Date: 2026-09-15
+Date: 2026-09-16
 
 ## Summary
 
@@ -47,32 +47,32 @@ A source element is **encoded** when a documented mapping rule translated it wit
 
 | Source test | Query | Result | Detail |
 |---|---|---|---|
-| path_1 | spendable | pass |  |
-| path_1_without_1 | spendable | pass |  |
-| path_1_without_2 | spendable | pass |  |
-| path_1_without_3 | spendable | pass |  |
-| path_1_without_4 | spendable | pass |  |
-| path_1_without_5 | spendable | pass |  |
-| path_1_without_6 | spendable | pass |  |
-| path_1_without_7 | spendable | pass |  |
-| path_2 | spendable | pass |  |
-| path_2_without_1 | spendable | pass |  |
-| path_2_without_2 | spendable | pass |  |
-| path_2_without_3 | spendable | pass |  |
-| path_2_without_4 | spendable | pass |  |
+| managers | spendable | pass |  |
+| managers_without_1 | spendable | pass |  |
+| managers_without_2 | spendable | pass |  |
+| managers_without_3 | spendable | pass |  |
+| managers_without_4 | spendable | pass |  |
+| managers_without_5 | spendable | pass |  |
+| managers_without_6 | spendable | pass |  |
+| managers_without_7 | spendable | pass |  |
+| stakeholders | spendable | pass |  |
+| stakeholders_without_1 | spendable | pass |  |
+| stakeholders_without_2 | spendable | pass |  |
+| stakeholders_without_3 | spendable | pass |  |
+| stakeholders_without_4 | spendable | pass |  |
 | no_witness | spendable | pass |  |
-| chain_path_1 | spendable | pass |  |
-| chain_path_1_without_1 | spendable | pass |  |
-| chain_path_1_without_2 | spendable | pass |  |
-| chain_path_1_without_3 | spendable | pass |  |
-| chain_path_1_without_4 | spendable | pass |  |
-| chain_path_1_without_5 | spendable | pass |  |
-| chain_path_1_without_6 | spendable | pass |  |
-| chain_path_2 | spendable | pass |  |
-| chain_path_2_without_1 | spendable | pass |  |
-| chain_path_2_without_2 | spendable | pass |  |
-| chain_path_2_without_3 | spendable | pass |  |
-| chain_path_2_without_4 | spendable | pass |  |
+| chain_managers | spendable | pass |  |
+| chain_managers_without_1 | spendable | pass |  |
+| chain_managers_without_2 | spendable | pass |  |
+| chain_managers_without_3 | spendable | pass |  |
+| chain_managers_without_4 | spendable | pass |  |
+| chain_managers_without_5 | spendable | pass |  |
+| chain_managers_without_6 | spendable | pass |  |
+| chain_stakeholders | spendable | pass |  |
+| chain_stakeholders_without_1 | spendable | pass |  |
+| chain_stakeholders_without_2 | spendable | pass |  |
+| chain_stakeholders_without_3 | spendable | pass |  |
+| chain_stakeholders_without_4 | spendable | pass |  |
 | chain_no_witness | spendable | pass |  |
 | flip_now | flip_spend | pass |  |
 | flip_after_delays | flip_spend | pass |  |

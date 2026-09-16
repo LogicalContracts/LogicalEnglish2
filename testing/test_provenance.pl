@@ -18,6 +18,7 @@
 :- use_module(library(plunit)).
 :- use_module('../le_kbs').
 :- use_module('../le_documents').
+:- use_module('../classic_web_api').
 :- use_module(library(pcre)).
 :- dynamic user:le_test_seen_quote/0.
 
@@ -603,5 +604,32 @@ consulta q é:
     KB:le_fact_provenance(_, _, _, Prov), !,
     Prov = prov(Src, none, none, "não havia corrosão"),
     Src == 'o perito'.
+
+% A typed-in case (the Scenario Variations' custom facts): a fact only "as stated
+% in" a document renders with that citation alone — the document is its effective
+% source for scoped proof, not an "according to" the author wrote.
+test(custom_fact_as_stated_in_gets_no_according_to, [nondet]) :-
+    load_text("the target language is: prolog.
+
+the templates are:
+    *a person* is happy,
+    *a person* has a pet.
+
+the knowledge base w includes:
+
+a person is happy
+    if the person has a pet.
+
+query q is:
+    which person is happy.
+", KB),
+    createSession(KB, SM),
+    classic_web_api:handle_answering_query(
+        _{sessionModule: SM, customScenario: "Bob has a pet, as stated in the register at page 2.", query: "q"}, R),
+    destroySession(SM),
+    R.results = [Res|_],
+    Res.why = [Root|_],
+    Root.children = [Child|_],
+    assertion(Child.literal == "Bob has a pet, as stated in the register at page 2").
 
 :- end_tests(provenance).

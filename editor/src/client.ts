@@ -533,7 +533,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                     await loadModule();
                 }
                 if (!sessionModule) {
-                    alert(t('Please wait for the module to load.'));
+                    showModal(t('Please wait for the module to load.'), 'See s(CASP)');
                     return;
                 }
                 try {
@@ -547,7 +547,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                             le: editor.getValue()
                         })
                     });
-                    const data = await response.json();
+                    const data = await response.json().catch(() => ({}));
                     if (Array.isArray(data.problems)) {
                         // a program s(CASP) cannot state faithfully: not shown
                         showRefusal(data);
@@ -560,11 +560,15 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                             content += '\n\n% ---- s(CASP) compile-time issues ----\n' + lines.join('\n');
                         }
                         showPrologPanel(content);
-                    } else if (data.error) {
-                        alert(data.error);
+                    } else {
+                        // never silent: the server's reason (e.g. the s(CASP) engine is
+                        // not installed, already in the program's language), else ours;
+                        // a page dialog, which a browser cannot suppress as it does alert()
+                        showModal(data.error || t('The s(CASP) program could not be produced.'), 'See s(CASP)');
                     }
                 } catch (err) {
                     console.error('Failed to get s(CASP):', err);
+                    showModal(`${t('The s(CASP) program could not be produced.')}\n\n${err}`, 'See s(CASP)');
                 }
             }
         });

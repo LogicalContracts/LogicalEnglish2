@@ -577,8 +577,10 @@ At each step it shows the **most important reason** of what's left and asks
   one either.)
 
 A progress bar fills as you accept parts, each question highlights its source in the
-editor, and you can revise any earlier answer (or **✕** a question) at any time. When
-there's nothing left to break down, it says *"Nothing else to show."* It's a systematic
+editor, and you can revise any earlier answer (or **✕** a question) at any time. Once
+you have accepted every part of a reason you answered *Not yet*, that reason counts as
+accepted and the drill goes back to what is left around it. When everything is
+accepted, the bar is full and it says *"Nothing else to show."* It's a systematic
 way to narrow a big proof down to the single intermediate fact that explains it.
 
 ---
@@ -842,8 +844,8 @@ guest pays for `N - N // 3` cups. Variables in a formula are short capital names
 ![The hatter's bill: 7 cups, the price of a cup, a 10 percent discount, and the formula](21-tea-shop-bill.png)
 
 `nearly` finds the guests one cup away from a free one: `R = N mod 3` computes the
-remainder, then `R = 2` tests it. (Compute first, then compare: the formula goes on the
-right of `=`.) See [arithmetic and comparisons](../../reference/language.md#7-arithmetic-and-comparisons).
+remainder, then `R = 2` tests it. (`N mod 3 = 2` in one condition does the same: a
+formula is evaluated on either side of `=`.) See [arithmetic and comparisons](../../reference/language.md#7-arithmetic-and-comparisons).
 
 ### `otherwise`: the first alternative that applies
 
@@ -853,8 +855,9 @@ otherwise 10 on an unbirthday, otherwise nothing: Alice, a member, gets 20; the
 hatter, not a member but on his unbirthday, gets 10; the dormouse gets 0. In the
 hatter's explanation the cascade shows as *it is
 not the case that the hatter is a member* — the alternative that did not apply —
-followed by the one that did. Keep each alternative's conditions on their own lines,
-as above. See [`otherwise` cascades](../../reference/language.md#172-otherwise-cascades).
+followed by the one that did. Each alternative's conditions may also share its line
+(`otherwise the guest has an unbirthday today and the percentage is 10`); on their own
+lines, as above, they are easier to read. See [`otherwise` cascades](../../reference/language.md#172-otherwise-cascades).
 
 ### A decision table
 
@@ -1058,7 +1061,8 @@ have to be true?"). A program says which engine it prefers in its first line
 (`the target language is: scasp.`), and the **Engine** picker in the Query tab lets
 you switch by hand. (For Prolog‑only programs the picker can be hidden: **Misc →
 ENGINE PICKER → Show engine choice only for non‑Prolog**.) The s(CASP) engine must be
-installed on the server that runs the program.
+installed on the server that runs the program; where it is not, both a query and See
+s(CASP) say so.
 
 ### Seeing the generated s(CASP)
 

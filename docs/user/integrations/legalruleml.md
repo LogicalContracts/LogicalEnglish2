@@ -106,9 +106,13 @@ Open…** gets the same wording and scenarios as its twin.
    program with a rule or a fact.
 3. The window shows the document, with **Copy** and **Save…**. The notes say
    what does not carry over without loss of meaning: *the scenarios' facts are
-   exported (Statements blocks `scenario-<name>`); their queries and expected
-   answers are not: LegalRuleML has no queries*. The same notes are written
-   into the document as `lrml:Comment` elements.
+   exported (Statements blocks `scenario-<name>`); the queries (flip queries
+   included) and expected answers are not: LegalRuleML has no queries*. Other
+   notes: a `; judged` or assumable template (an instance a case does not
+   state is open in LE, false for a LegalRuleML reader), the facts'
+   provenance trailers, and the decision skeleton's sections, none of which
+   changes what the rules conclude from what is stated. The same notes are
+   written into the document as `lrml:Comment` elements.
 4. The document opens again with **File ▸ Open…**. Each relation's text is its
    Logical English template, so the words come back.
 
@@ -124,12 +128,14 @@ The window, *Not translated to LegalRuleML …*, lists each problem with its lin
 |---|---|
 | an aggregate (`the count of each …`, `the sum of each …`) | *a rule for "…" uses count/3, which LegalRuleML cannot state* |
 | a universal (`for all cases in which …`) | *… uses a universal (for all cases in which)* |
-| an `otherwise` cascade | *… uses an otherwise cascade* |
-| a decision table | *the decision table …: LegalRuleML has no tables (write its rows as rules to export them)*, with no line |
+| a decision table | *the decision table …: LegalRuleML has no tables (write its rows as rules to export them)*, at the table's line |
 | an integrity constraint (`it must not be true that …`) | a problem at the constraint |
+| a template answered by a service (`; via service …`), or a built-in semantic template | *the template "…" is answered by the service … at run time: LegalRuleML has no services*, at the template's line; *… uses a semantic template answered by a service*, at the condition |
 | a value made of parts (a structured term) | *a structured value (…): LegalRuleML could only name it* |
-| any other condition with no LegalRuleML form: `prolog` goals, LE's date built-ins, `according to` | *… uses <name>/<arity>, which LegalRuleML cannot state* |
-| a fact it cannot state | *a fact LegalRuleML cannot state: …* |
+| `according to` in a condition (a source-scoped proof), also inside `it is not the case that` | *… uses `according to` (who holds a condition true), which LegalRuleML cannot state*, at the `according to` |
+| any other condition with no LegalRuleML form: `prolog` goals, LE's date built-ins | *… uses <name>/<arity>, which LegalRuleML cannot state*, at that condition |
+| a fact it cannot state | *a fact LegalRuleML cannot state: …*, at the fact |
+| in a program for LPS, a fluent's default (`; 0 by default`) | *a fluent's default value: LegalRuleML has no defaults*, at the template |
 
 Two you can reproduce:
 
@@ -138,9 +144,10 @@ Two you can reproduce:
 - `regulatory/eu261_integration`: its decision table `article_7`, and a rule
   whose condition `it is not the case that the cancellation of the flight is
   due to extraordinary circumstances according to the carrier` uses a
-  source-scoped proof. The message names `not/1`, the negation around the
-  `according to`, and gives the line of the rule's first condition. Negation
-  itself is exported, as `Naf`.
+  source-scoped proof. The message names the `according to`, at its own line;
+  the table's problem gives the table's line. Negation itself is exported, as
+  `Naf`: the problem is always the innermost construct LegalRuleML cannot
+  state.
 
 ### Programs in Logical English for LPS: norms
 
@@ -148,15 +155,14 @@ The translator also has a reading of a program in Logical English for LPS
 (`the target language is: lps.`) as norms. A reactive rule becomes an obligation
 of the one who acts. A constraint on an action becomes a prohibition of it. A
 causal law becomes a constitutive rule from the event to its effect. The
-initial state becomes facts. LegalRuleML has no time, so a note would say that
+initial state becomes facts. LegalRuleML has no time, so a note says that
 when each norm holds is not carried. The reading refuses what has no norm: a
 composite event, a goal, a fluent's default, a constraint relating two actions
 or none, a consequence that is not an action.
 
-At the time of writing, neither IDE's export menu offers LegalRuleML for such
-a program. The menus list an exporter only when it applies, and the check sees
-no timeless rule or fact in an LPS program. For LPS programs the menus offer
-Daml. The editor's **Legal View** is another reading of an LPS program as
+Both IDEs' export menus offer LegalRuleML for such a program (the LPS2 IDE's
+**Misc ▸ Export to another system…**, beside Daml), whenever its LPS reading
+has something besides declarations. The editor's **Legal View** is another reading of an LPS program as
 permissions and effects, in Logical English
 ([the editor guide](../guide/editor.md#advanced-features)).
 
@@ -236,7 +242,14 @@ exception.
 The exporter writes each rule as a `ConstitutiveStatement`, or as a
 `PrescriptiveStatement` when it concludes an obligation, permission or
 prohibition of the library. Each relation is `<ruleml:Rel iri="le:<name>">`
-whose text is the template. Conditions are `And`, `Or` and `Naf`. Comparisons
+whose text is the template. Conditions are `And`, `Or` and `Naf`. A
+negation with a variable of its own — nothing before it binds the variable —
+is `Naf` of an `Exists` that declares it: a rule's variables are universal
+over the whole rule, so a bare `Naf(p(X1, X2))` would read "for some X2, not
+p", where `it is not the case that` means "for no X2". An `otherwise`
+cascade (`A otherwise B`) goes out as what it compiles to, `Or(A, And(Naf(A),
+B))`, each guard scoped that way; the paraphrase keeps the `otherwise`, and
+the document opens again as the same rule. Comparisons
 and arithmetic are RIF's built-ins (`pred:numeric-less-than`,
 `func:numeric-add`). `is a` becomes `rdf:type`, lists `Plex`, and a sentence
 used as a value `Reify`. A rule's label is the statement's key, and its
@@ -269,13 +282,12 @@ twin exported and opened again gives the same program.
 - **Queries and expected answers are not exported.** The scenarios' facts are,
   as `Statements` blocks. A scenario fact `X is Y` is test data and is left out,
   with a note.
-- **Negation is exported, `according to` is not.** A refusal message that names
-  `not/1` may be about a construct inside the negation (a source-scoped proof,
-  say). Look inside the `it is not the case that` block at that rule.
-- **A decision table's problem has no line.** Find the table by its name. Write
-  its rows as rules to export them.
-- **LE for LPS programs are not offered.** See
-  [above](#programs-in-logical-english-for-lps-norms).
+- **Negation is exported, `according to` is not.** A rule whose `it is not the
+  case that` block holds an `according to` is refused at the `according to`.
+- **An `otherwise` cascade that sets an output** (`… and the rate is 20`)
+  is refused, but for the assignment (`le_is/2`), not the cascade: an
+  alternative that only tests conditions is exported.
+- **A decision table is refused whole.** Write its rows as rules to export them.
 - **Wording of your own documents is naive.** Relations without text are worded
   from their names (`rel1` gives `*a thing* is a rel1`). An individual named
   like a variable (`X`) is lower-cased, since LE would read `X` as a variable.

@@ -1,7 +1,7 @@
 % A Liquid-like federated peg-in: five functionaries, or two of three emergency keys after about 90 days
 %
 % The Logical English twin of a Bitcoin spending policy, written by the
-% Miniscript translator (InsurLE2/migration/miniscript). Who can spend the
+% Miniscript translator. Who can spend the
 % coin, when, and why: each rule is one spending path of the policy.
 %
 % Source: the Bitcoin Core wallet Miniscript tests
@@ -80,7 +80,7 @@ the knowledge base liquid_federation includes:
 the Bitcoin Core wallet Miniscript tests is published at "https://github.com/bitcoin/bitcoin/blob/master/test/functional/wallet_miniscript.py".
 the text of the Bitcoin Core wallet Miniscript tests is at "sources/core_wallet_miniscript.txt".
 
-the policy in Minsc is published at "https://min.sc/#c=//%20A%20Liquid-like%20federated%20peg-in:%20five%20functionaries,%20or%20two%20of%20three%20emergency%20keys%20after%20about%2090%20days%0A//%20The%20Logical%20English%20twin's%20policy%20(InsurLE2/migration/miniscript).%0A$functionary_1%20=%2002aebf2d10b040eb936a6f02f44ee82f8b34f5c1ccb20ff3949c2b28206b7c1068;%20%20%20//%20functionary%201%20(as%20in%20the%20source)%0A$functionary_2%20=%20030f64b922aee2fd597f104bc6cb3b670f1ca2c6c49b1071a1a6c010575d94fe5a;%20%20%20//%20functionary%202%20(as%20in%20the%20source)%0A$functionary_3%20=%2002abe475b199ec3d62fa576faee16a334fdb86ffb26dce75becebaaedf328ac3fe;%20%20%20//%20functionary%203%20(as%20in%20the%20source)%0A$functionary_4%20=%200314f3dc33595b0d016bb522f6fe3a67680723d842c1b9b8ae6b59fdd8ab5cccb4;%20%20%20//%20functionary%204%20(as%20in%20the%20source)%0A$functionary_5%20=%20025eba3305bd3c829e4e1551aac7358e4178832c739e4fc4729effe428de0398ab;%20%20%20//%20functionary%205%20(as%20in%20the%20source)%0A$emergency_key_1%20=%20tpubD6NzVbkrYhZ4YPAbyf6urxqqnmJF79PzQtyERAmvkSVS9fweCTjxjDh22Z5St9fGb1a5DUCv8G27nYupKP1Ctr1pkamJossoetzws1moNRn/*;%20%20%20//%20emergency%20key%201%20(as%20in%20the%20source)%0A$emergency_key_2%20=%20029ffbe722b147f3035c87cb1c60b9a5947dd49c774cc31e94773478711a929ac0;%20%20%20//%20emergency%20key%202%20(as%20in%20the%20source)%0A$emergency_key_3%20=%200211c7b2e18b6fd330f322de087da62da92ae2ae3d0b7cec7e616479cce175f183;%20%20%20//%20emergency%20key%203%20(as%20in%20the%20source)%0A%0Aor(and(pk($functionary_1),and(pk($functionary_2),and(pk($functionary_3),and(pk($functionary_4),pk($functionary_5))))),and(thresh(2,pk($emergency_key_1),pk($emergency_key_2),pk($emergency_key_3)),older(4209713)))%0A".
+the policy in Minsc is published at "https://min.sc/#c=//%20A%20Liquid-like%20federated%20peg-in:%20five%20functionaries,%20or%20two%20of%20three%20emergency%20keys%20after%20about%2090%20days%0A//%20The%20Logical%20English%20twin's%20policy%20(the%20Miniscript%20translator%20of%20Logical%20English).%0A$functionary_1%20=%2002aebf2d10b040eb936a6f02f44ee82f8b34f5c1ccb20ff3949c2b28206b7c1068;%20%20%20//%20functionary%201%20(as%20in%20the%20source)%0A$functionary_2%20=%20030f64b922aee2fd597f104bc6cb3b670f1ca2c6c49b1071a1a6c010575d94fe5a;%20%20%20//%20functionary%202%20(as%20in%20the%20source)%0A$functionary_3%20=%2002abe475b199ec3d62fa576faee16a334fdb86ffb26dce75becebaaedf328ac3fe;%20%20%20//%20functionary%203%20(as%20in%20the%20source)%0A$functionary_4%20=%200314f3dc33595b0d016bb522f6fe3a67680723d842c1b9b8ae6b59fdd8ab5cccb4;%20%20%20//%20functionary%204%20(as%20in%20the%20source)%0A$functionary_5%20=%20025eba3305bd3c829e4e1551aac7358e4178832c739e4fc4729effe428de0398ab;%20%20%20//%20functionary%205%20(as%20in%20the%20source)%0A$emergency_key_1%20=%20tpubD6NzVbkrYhZ4YPAbyf6urxqqnmJF79PzQtyERAmvkSVS9fweCTjxjDh22Z5St9fGb1a5DUCv8G27nYupKP1Ctr1pkamJossoetzws1moNRn/*;%20%20%20//%20emergency%20key%201%20(as%20in%20the%20source)%0A$emergency_key_2%20=%20029ffbe722b147f3035c87cb1c60b9a5947dd49c774cc31e94773478711a929ac0;%20%20%20//%20emergency%20key%202%20(as%20in%20the%20source)%0A$emergency_key_3%20=%200211c7b2e18b6fd330f322de087da62da92ae2ae3d0b7cec7e616479cce175f183;%20%20%20//%20emergency%20key%203%20(as%20in%20the%20source)%0A%0Aor(and(pk($functionary_1),and(pk($functionary_2),and(pk($functionary_3),and(pk($functionary_4),pk($functionary_5))))),and(thresh(2,pk($emergency_key_1),pk($emergency_key_2),pk($emergency_key_3)),older(4209713)))%0A".
 
 the Tape run of 2026-09-14 is published at "https://tape.rewindbitcoin.com/explorer/address/bcrt1qvakt6wy2t645e376ylzyqv6dxgcla8evm6vrp3wfts462xyny53q9td8zj".
 the text of the Tape run of 2026-09-14 is at "sources/liquid_federation.chain.json".
@@ -129,98 +129,98 @@ the coin has been confirmed for a number N seconds if
     and the spending transaction is at the time a time M
     and N = M - T.
 
-scenario path_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 — the path needs: a coin 7889408 seconds old, a signature by emergency key 3, a signature by emergency key 2
+scenario emergency_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path emergency_1 — the path needs: a coin 7889408 seconds old, a signature by emergency key 3, a signature by emergency key 2
     the witness contains a signature by emergency key 3.
     the witness contains a signature by emergency key 2.
     the coin was confirmed at the time 1735689600.
     the spending transaction is at the time 1743579008.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_1_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 1 — the path needs: a coin 7889408 seconds old, a signature by emergency key 3, a signature by emergency key 2
+scenario emergency_1_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path emergency_1 without requirement 1 — the path needs: a coin 7889408 seconds old, a signature by emergency key 3, a signature by emergency key 2
     the witness contains a signature by emergency key 3.
     the witness contains a signature by emergency key 2.
     the coin was confirmed at the time 1735689600.
     the spending transaction is at the time 1743579007.
     spendable expects answers [].
 
-scenario path_1_without_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 2 — the path needs: a coin 7889408 seconds old, a signature by emergency key 3, a signature by emergency key 2
+scenario emergency_1_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path emergency_1 without requirement 2 — the path needs: a coin 7889408 seconds old, a signature by emergency key 3, a signature by emergency key 2
     the witness contains a signature by emergency key 2.
     the coin was confirmed at the time 1735689600.
     the spending transaction is at the time 1743579008.
     spendable expects answers [].
 
-scenario path_1_without_3 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 3 — the path needs: a coin 7889408 seconds old, a signature by emergency key 3, a signature by emergency key 2
+scenario emergency_1_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path emergency_1 without requirement 3 — the path needs: a coin 7889408 seconds old, a signature by emergency key 3, a signature by emergency key 2
     the witness contains a signature by emergency key 3.
     the coin was confirmed at the time 1735689600.
     the spending transaction is at the time 1743579008.
     spendable expects answers [].
 
-scenario path_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 — the path needs: a coin 7889408 seconds old, a signature by emergency key 3, a signature by emergency key 1
+scenario emergency_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path emergency_2 — the path needs: a coin 7889408 seconds old, a signature by emergency key 3, a signature by emergency key 1
     the witness contains a signature by emergency key 3.
     the witness contains a signature by emergency key 1.
     the coin was confirmed at the time 1735689600.
     the spending transaction is at the time 1743579008.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_2_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 without requirement 1 — the path needs: a coin 7889408 seconds old, a signature by emergency key 3, a signature by emergency key 1
+scenario emergency_2_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path emergency_2 without requirement 1 — the path needs: a coin 7889408 seconds old, a signature by emergency key 3, a signature by emergency key 1
     the witness contains a signature by emergency key 3.
     the witness contains a signature by emergency key 1.
     the coin was confirmed at the time 1735689600.
     the spending transaction is at the time 1743579007.
     spendable expects answers [].
 
-scenario path_2_without_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 without requirement 2 — the path needs: a coin 7889408 seconds old, a signature by emergency key 3, a signature by emergency key 1
+scenario emergency_2_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path emergency_2 without requirement 2 — the path needs: a coin 7889408 seconds old, a signature by emergency key 3, a signature by emergency key 1
     the witness contains a signature by emergency key 1.
     the coin was confirmed at the time 1735689600.
     the spending transaction is at the time 1743579008.
     spendable expects answers [].
 
-scenario path_2_without_3 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 without requirement 3 — the path needs: a coin 7889408 seconds old, a signature by emergency key 3, a signature by emergency key 1
+scenario emergency_2_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path emergency_2 without requirement 3 — the path needs: a coin 7889408 seconds old, a signature by emergency key 3, a signature by emergency key 1
     the witness contains a signature by emergency key 3.
     the coin was confirmed at the time 1735689600.
     the spending transaction is at the time 1743579008.
     spendable expects answers [].
 
-scenario path_3 is, as stated in the satisfaction analysis of the policy:
-    % spending path 3 — the path needs: a coin 7889408 seconds old, a signature by emergency key 2, a signature by emergency key 1
+scenario emergency_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path emergency_3 — the path needs: a coin 7889408 seconds old, a signature by emergency key 2, a signature by emergency key 1
     the witness contains a signature by emergency key 2.
     the witness contains a signature by emergency key 1.
     the coin was confirmed at the time 1735689600.
     the spending transaction is at the time 1743579008.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_3_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 3 without requirement 1 — the path needs: a coin 7889408 seconds old, a signature by emergency key 2, a signature by emergency key 1
+scenario emergency_3_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path emergency_3 without requirement 1 — the path needs: a coin 7889408 seconds old, a signature by emergency key 2, a signature by emergency key 1
     the witness contains a signature by emergency key 2.
     the witness contains a signature by emergency key 1.
     the coin was confirmed at the time 1735689600.
     the spending transaction is at the time 1743579007.
     spendable expects answers [].
 
-scenario path_3_without_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 3 without requirement 2 — the path needs: a coin 7889408 seconds old, a signature by emergency key 2, a signature by emergency key 1
+scenario emergency_3_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path emergency_3 without requirement 2 — the path needs: a coin 7889408 seconds old, a signature by emergency key 2, a signature by emergency key 1
     the witness contains a signature by emergency key 1.
     the coin was confirmed at the time 1735689600.
     the spending transaction is at the time 1743579008.
     spendable expects answers [].
 
-scenario path_3_without_3 is, as stated in the satisfaction analysis of the policy:
-    % spending path 3 without requirement 3 — the path needs: a coin 7889408 seconds old, a signature by emergency key 2, a signature by emergency key 1
+scenario emergency_3_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path emergency_3 without requirement 3 — the path needs: a coin 7889408 seconds old, a signature by emergency key 2, a signature by emergency key 1
     the witness contains a signature by emergency key 2.
     the coin was confirmed at the time 1735689600.
     the spending transaction is at the time 1743579008.
     spendable expects answers [].
 
-scenario path_4 is, as stated in the satisfaction analysis of the policy:
-    % spending path 4 — the path needs: a signature by functionary 5, a signature by functionary 3, a signature by functionary 1, a signature by functionary 2, a signature by functionary 4
+scenario federation is, as stated in the satisfaction analysis of the policy:
+    % spending path federation — the path needs: a signature by functionary 5, a signature by functionary 3, a signature by functionary 1, a signature by functionary 2, a signature by functionary 4
     the witness contains a signature by functionary 5.
     the witness contains a signature by functionary 3.
     the witness contains a signature by functionary 1.
@@ -230,8 +230,8 @@ scenario path_4 is, as stated in the satisfaction analysis of the policy:
     the spending transaction is at the time 1735689600.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_4_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 4 without requirement 1 — the path needs: a signature by functionary 5, a signature by functionary 3, a signature by functionary 1, a signature by functionary 2, a signature by functionary 4
+scenario federation_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path federation without requirement 1 — the path needs: a signature by functionary 5, a signature by functionary 3, a signature by functionary 1, a signature by functionary 2, a signature by functionary 4
     the witness contains a signature by functionary 3.
     the witness contains a signature by functionary 1.
     the witness contains a signature by functionary 2.
@@ -240,8 +240,8 @@ scenario path_4_without_1 is, as stated in the satisfaction analysis of the poli
     the spending transaction is at the time 1735689600.
     spendable expects answers [].
 
-scenario path_4_without_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 4 without requirement 2 — the path needs: a signature by functionary 5, a signature by functionary 3, a signature by functionary 1, a signature by functionary 2, a signature by functionary 4
+scenario federation_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path federation without requirement 2 — the path needs: a signature by functionary 5, a signature by functionary 3, a signature by functionary 1, a signature by functionary 2, a signature by functionary 4
     the witness contains a signature by functionary 5.
     the witness contains a signature by functionary 1.
     the witness contains a signature by functionary 2.
@@ -250,8 +250,8 @@ scenario path_4_without_2 is, as stated in the satisfaction analysis of the poli
     the spending transaction is at the time 1735689600.
     spendable expects answers [].
 
-scenario path_4_without_3 is, as stated in the satisfaction analysis of the policy:
-    % spending path 4 without requirement 3 — the path needs: a signature by functionary 5, a signature by functionary 3, a signature by functionary 1, a signature by functionary 2, a signature by functionary 4
+scenario federation_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path federation without requirement 3 — the path needs: a signature by functionary 5, a signature by functionary 3, a signature by functionary 1, a signature by functionary 2, a signature by functionary 4
     the witness contains a signature by functionary 5.
     the witness contains a signature by functionary 3.
     the witness contains a signature by functionary 2.
@@ -260,8 +260,8 @@ scenario path_4_without_3 is, as stated in the satisfaction analysis of the poli
     the spending transaction is at the time 1735689600.
     spendable expects answers [].
 
-scenario path_4_without_4 is, as stated in the satisfaction analysis of the policy:
-    % spending path 4 without requirement 4 — the path needs: a signature by functionary 5, a signature by functionary 3, a signature by functionary 1, a signature by functionary 2, a signature by functionary 4
+scenario federation_without_4 is, as stated in the satisfaction analysis of the policy:
+    % spending path federation without requirement 4 — the path needs: a signature by functionary 5, a signature by functionary 3, a signature by functionary 1, a signature by functionary 2, a signature by functionary 4
     the witness contains a signature by functionary 5.
     the witness contains a signature by functionary 3.
     the witness contains a signature by functionary 1.
@@ -270,8 +270,8 @@ scenario path_4_without_4 is, as stated in the satisfaction analysis of the poli
     the spending transaction is at the time 1735689600.
     spendable expects answers [].
 
-scenario path_4_without_5 is, as stated in the satisfaction analysis of the policy:
-    % spending path 4 without requirement 5 — the path needs: a signature by functionary 5, a signature by functionary 3, a signature by functionary 1, a signature by functionary 2, a signature by functionary 4
+scenario federation_without_5 is, as stated in the satisfaction analysis of the policy:
+    % spending path federation without requirement 5 — the path needs: a signature by functionary 5, a signature by functionary 3, a signature by functionary 1, a signature by functionary 2, a signature by functionary 4
     the witness contains a signature by functionary 5.
     the witness contains a signature by functionary 3.
     the witness contains a signature by functionary 1.
@@ -298,7 +298,7 @@ scenario flip_after_delays is, as stated in the flip analysis of the policy:
     the spending transaction is at the time 1743579008.
     flip_spend expects changes [["add: the witness contains a signature by emergency key 2", "add: the witness contains a signature by emergency key 3"], ["add: the witness contains a signature by emergency key 1", "add: the witness contains a signature by emergency key 3"], ["add: the witness contains a signature by emergency key 1", "add: the witness contains a signature by emergency key 2"]].
 
-scenario chain_path_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1:
+scenario chain_emergency_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1:
     % the chain refused the spend: non-BIP68-final
     the witness contains a signature by emergency key 3.
     the witness contains a signature by emergency key 2.
@@ -306,21 +306,21 @@ scenario chain_path_1 is, as stated in the Tape run of 2026-09-14 at the refusal
     the spending transaction is at the time 1789411201.
     spendable expects answers [].
 
-scenario chain_path_1_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_1:
+scenario chain_emergency_1_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_1:
     % the chain refused the spend: non-BIP68-final
     the witness contains a signature by emergency key 2.
     the coin was confirmed at the time 1789411201.
     the spending transaction is at the time 1789411201.
     spendable expects answers [].
 
-scenario chain_path_1_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_2:
+scenario chain_emergency_1_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_2:
     % the chain refused the spend: non-BIP68-final
     the witness contains a signature by emergency key 3.
     the coin was confirmed at the time 1789411201.
     the spending transaction is at the time 1789411201.
     spendable expects answers [].
 
-scenario chain_path_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2:
+scenario chain_emergency_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2:
     % the chain refused the spend: non-BIP68-final
     the witness contains a signature by emergency key 3.
     the witness contains a signature by emergency key 1.
@@ -328,14 +328,14 @@ scenario chain_path_2 is, as stated in the Tape run of 2026-09-14 at the refusal
     the spending transaction is at the time 1789411201.
     spendable expects answers [].
 
-scenario chain_path_2_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_1:
+scenario chain_emergency_2_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_1:
     % the chain refused the spend: non-BIP68-final
     the witness contains a signature by emergency key 1.
     the coin was confirmed at the time 1789411201.
     the spending transaction is at the time 1789411201.
     spendable expects answers [].
 
-scenario chain_path_3 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_3:
+scenario chain_emergency_3 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_3:
     % the chain refused the spend: non-BIP68-final
     the witness contains a signature by emergency key 2.
     the witness contains a signature by emergency key 1.
@@ -343,7 +343,7 @@ scenario chain_path_3 is, as stated in the Tape run of 2026-09-14 at the refusal
     the spending transaction is at the time 1789411201.
     spendable expects answers [].
 
-scenario chain_path_4 is, as stated in the Tape run of 2026-09-14 at transaction 67c43760ec7e4edcc174e4fd332fa30b05913376b175a558492a33c95a62c177:
+scenario chain_federation is, as stated in the Tape run of 2026-09-14 at transaction 67c43760ec7e4edcc174e4fd332fa30b05913376b175a558492a33c95a62c177:
     % the chain accepted the spend: transaction 67c43760ec7e4edcc174e4fd332fa30b05913376b175a558492a33c95a62c177
     the witness contains a signature by functionary 5.
     the witness contains a signature by functionary 4.
@@ -354,7 +354,7 @@ scenario chain_path_4 is, as stated in the Tape run of 2026-09-14 at transaction
     the spending transaction is at the time 1789411201.
     spendable expects answers ["the coin can be spent"].
 
-scenario chain_path_4_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_4_without_1:
+scenario chain_federation_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_4_without_1:
     % the chain refused the spend: mempool-script-verify-flag-failed (Script evaluated without error but finished with a false/empty top stack element)
     the witness contains a signature by functionary 4.
     the witness contains a signature by functionary 3.
@@ -364,7 +364,7 @@ scenario chain_path_4_without_1 is, as stated in the Tape run of 2026-09-14 at t
     the spending transaction is at the time 1789411201.
     spendable expects answers [].
 
-scenario chain_path_4_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_4_without_2:
+scenario chain_federation_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_4_without_2:
     % the chain refused the spend: mempool-script-verify-flag-failed (Script evaluated without error but finished with a false/empty top stack element)
     the witness contains a signature by functionary 5.
     the witness contains a signature by functionary 4.
@@ -374,7 +374,7 @@ scenario chain_path_4_without_2 is, as stated in the Tape run of 2026-09-14 at t
     the spending transaction is at the time 1789411201.
     spendable expects answers [].
 
-scenario chain_path_4_without_3 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_4_without_3:
+scenario chain_federation_without_3 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_4_without_3:
     % the chain refused the spend: mempool-script-verify-flag-failed (Script evaluated without error but finished with a false/empty top stack element)
     the witness contains a signature by functionary 5.
     the witness contains a signature by functionary 4.
@@ -384,7 +384,7 @@ scenario chain_path_4_without_3 is, as stated in the Tape run of 2026-09-14 at t
     the spending transaction is at the time 1789411201.
     spendable expects answers [].
 
-scenario chain_path_4_without_4 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_4_without_4:
+scenario chain_federation_without_4 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_4_without_4:
     % the chain refused the spend: mempool-script-verify-flag-failed (Script evaluated without error but finished with a false/empty top stack element)
     the witness contains a signature by functionary 5.
     the witness contains a signature by functionary 4.
@@ -394,7 +394,7 @@ scenario chain_path_4_without_4 is, as stated in the Tape run of 2026-09-14 at t
     the spending transaction is at the time 1789411201.
     spendable expects answers [].
 
-scenario chain_path_4_without_5 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_4_without_5:
+scenario chain_federation_without_5 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_4_without_5:
     % the chain refused the spend: mempool-script-verify-flag-failed (Script evaluated without error but finished with a false/empty top stack element)
     the witness contains a signature by functionary 5.
     the witness contains a signature by functionary 3.

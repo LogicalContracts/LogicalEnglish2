@@ -1,7 +1,7 @@
 % A Lightning received HTLC (BOLT #3)
 %
 % The Logical English twin of a Bitcoin spending policy, written by the
-% Miniscript translator (InsurLE2/migration/miniscript). Who can spend the
+% Miniscript translator. Who can spend the
 % coin, when, and why: each rule is one spending path of the policy.
 %
 % Source: the Miniscript page
@@ -58,7 +58,7 @@ the knowledge base bolt3_received_htlc includes:
 the Miniscript page is published at "https://bitcoin.sipa.be/miniscript/".
 the text of the Miniscript page is at "sources/sipa_miniscript.txt".
 
-the policy in Minsc is published at "https://min.sc/#c=//%20A%20Lightning%20received%20HTLC%20(BOLT%20%233)%0A//%20The%20Logical%20English%20twin's%20policy%20(InsurLE2/migration/miniscript).%0A$revocation_key%20=%20028071f961bf66967e8b92b2564cca5590e958305ce382ebeeb56e866b6baf3edc;%20%20%20//%20the%20revocation%20key%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$remote_node%20=%20020df516861bd00658af8cf7c4655ceb20f61ba23075a37244dff7db5676c93234;%20%20%20//%20the%20remote%20node%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$local_node%20=%20038fed93f74b169ba9410f1a39dde6b9c6eea84650dc79967a27f52757c197fbc8;%20%20%20//%20the%20local%20node%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$payment_hash%20=%2005e3ba7e31a630b74c699bd5ddd19be207987f26;%20%20%20//%20the%20payment%20hash,%20hash160%20(the%20hash%20of%20a%20test%20preimage:%20the%20source%20names%20no%20hash)%0A%0Aor(pk($revocation_key),and(pk($remote_node),or(and(pk($local_node),hash160($payment_hash)),older(1008))))%0A".
+the policy in Minsc is published at "https://min.sc/#c=//%20A%20Lightning%20received%20HTLC%20(BOLT%20%233)%0A//%20The%20Logical%20English%20twin's%20policy%20(the%20Miniscript%20translator%20of%20Logical%20English).%0A$revocation_key%20=%20028071f961bf66967e8b92b2564cca5590e958305ce382ebeeb56e866b6baf3edc;%20%20%20//%20the%20revocation%20key%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$remote_node%20=%20020df516861bd00658af8cf7c4655ceb20f61ba23075a37244dff7db5676c93234;%20%20%20//%20the%20remote%20node%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$local_node%20=%20038fed93f74b169ba9410f1a39dde6b9c6eea84650dc79967a27f52757c197fbc8;%20%20%20//%20the%20local%20node%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$payment_hash%20=%2005e3ba7e31a630b74c699bd5ddd19be207987f26;%20%20%20//%20the%20payment%20hash,%20hash160%20(the%20hash%20of%20a%20test%20preimage:%20the%20source%20names%20no%20hash)%0A%0Aor(pk($revocation_key),and(pk($remote_node),or(and(pk($local_node),hash160($payment_hash)),older(1008))))%0A".
 
 the Tape run of 2026-09-14 is published at "https://tape.rewindbitcoin.com/explorer/address/bcrt1q7vp0zy6c7a38k7vftqu8jzw4ekmacq8fnq49rwdvlds3nvlaxdrq8agn07".
 the text of the Tape run of 2026-09-14 is at "sources/bolt3_received_htlc.chain.json".
@@ -88,28 +88,28 @@ the coin has been confirmed for a number N blocks if
     and the spending transaction is in block a height M
     and N = M - H.
 
-scenario path_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 — the path needs: a coin 1008 blocks old, a signature by the remote node
+scenario remote_with_preimage_or_timeout_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path remote_with_preimage_or_timeout_1 — the path needs: a coin 1008 blocks old, a signature by the remote node
     the witness contains a signature by the remote node.
     the coin was confirmed in block 850000.
     the spending transaction is in block 851008.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_1_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 1 — the path needs: a coin 1008 blocks old, a signature by the remote node
+scenario remote_with_preimage_or_timeout_1_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path remote_with_preimage_or_timeout_1 without requirement 1 — the path needs: a coin 1008 blocks old, a signature by the remote node
     the witness contains a signature by the remote node.
     the coin was confirmed in block 850000.
     the spending transaction is in block 851007.
     spendable expects answers [].
 
-scenario path_1_without_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 2 — the path needs: a coin 1008 blocks old, a signature by the remote node
+scenario remote_with_preimage_or_timeout_1_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path remote_with_preimage_or_timeout_1 without requirement 2 — the path needs: a coin 1008 blocks old, a signature by the remote node
     the coin was confirmed in block 850000.
     the spending transaction is in block 851008.
     spendable expects answers [].
 
-scenario path_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 — the path needs: the preimage of the payment hash, a signature by the local node, a signature by the remote node
+scenario remote_with_preimage_or_timeout_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path remote_with_preimage_or_timeout_2 — the path needs: the preimage of the payment hash, a signature by the local node, a signature by the remote node
     the witness contains a signature by the local node.
     the witness contains a signature by the remote node.
     the witness reveals the preimage of the payment hash.
@@ -117,39 +117,39 @@ scenario path_2 is, as stated in the satisfaction analysis of the policy:
     the spending transaction is in block 850000.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_2_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 without requirement 1 — the path needs: the preimage of the payment hash, a signature by the local node, a signature by the remote node
+scenario remote_with_preimage_or_timeout_2_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path remote_with_preimage_or_timeout_2 without requirement 1 — the path needs: the preimage of the payment hash, a signature by the local node, a signature by the remote node
     the witness contains a signature by the local node.
     the witness contains a signature by the remote node.
     the coin was confirmed in block 850000.
     the spending transaction is in block 850000.
     spendable expects answers [].
 
-scenario path_2_without_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 without requirement 2 — the path needs: the preimage of the payment hash, a signature by the local node, a signature by the remote node
+scenario remote_with_preimage_or_timeout_2_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path remote_with_preimage_or_timeout_2 without requirement 2 — the path needs: the preimage of the payment hash, a signature by the local node, a signature by the remote node
     the witness contains a signature by the remote node.
     the witness reveals the preimage of the payment hash.
     the coin was confirmed in block 850000.
     the spending transaction is in block 850000.
     spendable expects answers [].
 
-scenario path_2_without_3 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 without requirement 3 — the path needs: the preimage of the payment hash, a signature by the local node, a signature by the remote node
+scenario remote_with_preimage_or_timeout_2_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path remote_with_preimage_or_timeout_2 without requirement 3 — the path needs: the preimage of the payment hash, a signature by the local node, a signature by the remote node
     the witness contains a signature by the local node.
     the witness reveals the preimage of the payment hash.
     the coin was confirmed in block 850000.
     the spending transaction is in block 850000.
     spendable expects answers [].
 
-scenario path_3 is, as stated in the satisfaction analysis of the policy:
-    % spending path 3 — the path needs: a signature by the revocation key
+scenario revocation is, as stated in the satisfaction analysis of the policy:
+    % spending path revocation — the path needs: a signature by the revocation key
     the witness contains a signature by the revocation key.
     the coin was confirmed in block 850000.
     the spending transaction is in block 850000.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_3_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 3 without requirement 1 — the path needs: a signature by the revocation key
+scenario revocation_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path revocation without requirement 1 — the path needs: a signature by the revocation key
     the coin was confirmed in block 850000.
     the spending transaction is in block 850000.
     spendable expects answers [].
@@ -202,20 +202,20 @@ scenario lost_the_local_node is, as stated in the flip analysis of the policy:
     spendable expects answers ["the coin can be spent"].
     flip_block expects changes [["remove: the coin was confirmed in block 850000", "remove: the witness contains a signature by the revocation key"], ["remove: the spending transaction is in block 851008", "remove: the witness contains a signature by the revocation key"], ["remove: the witness contains a signature by the remote node", "remove: the witness contains a signature by the revocation key"]].
 
-scenario chain_path_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1:
+scenario chain_remote_with_preimage_or_timeout_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1:
     % the chain refused the spend: non-BIP68-final
     the witness contains a signature by the remote node.
     the coin was confirmed in block 122323.
     the spending transaction is in block 122323.
     spendable expects answers [].
 
-scenario chain_path_1_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_1:
+scenario chain_remote_with_preimage_or_timeout_1_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_1:
     % the chain refused the spend: non-BIP68-final
     the coin was confirmed in block 122323.
     the spending transaction is in block 122323.
     spendable expects answers [].
 
-scenario chain_path_2 is, as stated in the Tape run of 2026-09-14 at transaction 91ae7c1c6048a9f225d316f6a3b3b8cdb746dabfa96f648d25bf2d8dcf68597e:
+scenario chain_remote_with_preimage_or_timeout_2 is, as stated in the Tape run of 2026-09-14 at transaction 91ae7c1c6048a9f225d316f6a3b3b8cdb746dabfa96f648d25bf2d8dcf68597e:
     % the chain accepted the spend: transaction 91ae7c1c6048a9f225d316f6a3b3b8cdb746dabfa96f648d25bf2d8dcf68597e
     the witness contains a signature by the local node.
     the witness contains a signature by the remote node.
@@ -224,14 +224,14 @@ scenario chain_path_2 is, as stated in the Tape run of 2026-09-14 at transaction
     the spending transaction is in block 122323.
     spendable expects answers ["the coin can be spent"].
 
-scenario chain_path_2_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_1:
+scenario chain_remote_with_preimage_or_timeout_2_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_1:
     % the chain refused the spend: non-BIP68-final
     the witness contains a signature by the remote node.
     the coin was confirmed in block 122323.
     the spending transaction is in block 122323.
     spendable expects answers [].
 
-scenario chain_path_2_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_2:
+scenario chain_remote_with_preimage_or_timeout_2_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_2:
     % the chain refused the spend: mempool-script-verify-flag-failed (Non-canonical DER signature)
     the witness contains a signature by the local node.
     the witness reveals the preimage of the payment hash.
@@ -239,14 +239,14 @@ scenario chain_path_2_without_2 is, as stated in the Tape run of 2026-09-14 at t
     the spending transaction is in block 122323.
     spendable expects answers [].
 
-scenario chain_path_2_without_3 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_3:
+scenario chain_remote_with_preimage_or_timeout_2_without_3 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_3:
     % the chain refused the spend: non-BIP68-final
     the witness contains a signature by the remote node.
     the coin was confirmed in block 122323.
     the spending transaction is in block 122323.
     spendable expects answers [].
 
-scenario chain_path_3 is, as stated in the Tape run of 2026-09-14 at transaction 381911f2bf3c47c75e6dda24ebb2514f0a194573a456820439634947dd140cf0:
+scenario chain_revocation is, as stated in the Tape run of 2026-09-14 at transaction 381911f2bf3c47c75e6dda24ebb2514f0a194573a456820439634947dd140cf0:
     % the chain accepted the spend: transaction 381911f2bf3c47c75e6dda24ebb2514f0a194573a456820439634947dd140cf0
     the witness contains a signature by the revocation key.
     the coin was confirmed in block 122323.

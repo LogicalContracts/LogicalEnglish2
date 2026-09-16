@@ -71,26 +71,91 @@
     "failed":0,
     "passed":25,
     "tests": [
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_1"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_1"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_2"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_2"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_2_without_1"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_2_without_2"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_2_without_3"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_3"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_3_without_1"},
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"remote_with_preimage_or_timeout_1"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"remote_with_preimage_or_timeout_1_without_1"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"remote_with_preimage_or_timeout_1_without_2"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"remote_with_preimage_or_timeout_2"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"remote_with_preimage_or_timeout_2_without_1"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"remote_with_preimage_or_timeout_2_without_2"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"remote_with_preimage_or_timeout_2_without_3"
+      },
+      {"detail":"","query":"spendable","result":"pass","scenario":"revocation"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"revocation_without_1"},
       {"detail":"","query":"spendable","result":"pass","scenario":"no_witness"},
       {"detail":"","query":"spendable","result":"pass","scenario":"lost_the_revocation_key"},
       {"detail":"","query":"spendable","result":"pass","scenario":"lost_the_remote_node"},
       {"detail":"","query":"spendable","result":"pass","scenario":"lost_the_local_node"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1_without_1"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_2"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_2_without_1"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_2_without_2"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_2_without_3"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_3"},
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"chain_remote_with_preimage_or_timeout_1"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"chain_remote_with_preimage_or_timeout_1_without_1"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"chain_remote_with_preimage_or_timeout_2"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"chain_remote_with_preimage_or_timeout_2_without_1"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"chain_remote_with_preimage_or_timeout_2_without_2"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"chain_remote_with_preimage_or_timeout_2_without_3"
+      },
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_revocation"},
       {"detail":"","query":"flip_spend","result":"pass","scenario":"flip_now"},
       {"detail":"","query":"flip_spend","result":"pass","scenario":"flip_after_delays"},
       {"detail":"","query":"flip_block","result":"pass","scenario":"lost_the_revocation_key"},
@@ -100,7 +165,7 @@
   },
   "meta": {
     "artifacts": ["https://bitcoin.sipa.be/miniscript/" ],
-    "date":"2026-09-15",
+    "date":"2026-09-16",
     "program":"bolt3_received_htlc",
     "source":"A Lightning received HTLC (BOLT #3)",
     "translator":"InsurLE2/migration/miniscript (ms_twin.pl)"

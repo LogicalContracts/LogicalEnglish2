@@ -520,9 +520,16 @@ clause_provenance(SM, KB, Ref, _Goal, Prov) :-
 clause_provenance(SM, _KB, Ref, _Goal, prov(Src, Doc, Loc, Rat)) :-
     catch(clause(SM:Head, true, Ref), _, fail),
     current_predicate(SM:le_provenance/5),
-    SM:le_provenance(H, Src, Doc0, Loc, Rat),
+    SM:le_provenance(H, Src0, Doc0, Loc, Rat),
     H =@= Head, !,
-    ( Doc0 == none -> Doc = none ; Doc = doc(Doc0, Doc0) ).
+    ( Doc0 == none -> Doc = none ; Doc = doc(Doc0, Doc0) ),
+    % le_provenance/5 holds the EFFECTIVE source (prov_public/5): a fact only "as
+    % stated in" a document has that document as its source. Read back, that is
+    % no "according to" of its own — do not render one the author never wrote.
+    (   Src0 \== none, Doc0 \== none, same_document(Src0, Doc0)
+    ->  Src = none
+    ;   Src = Src0
+    ).
 
 %!  provenance_at(+KB, +Start, +End, ?Head, -Prov) is nondet.
 %

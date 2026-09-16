@@ -55,12 +55,32 @@
     "failed":0,
     "passed":16,
     "tests": [
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_1"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_1"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_1_without_2"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_2"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_2_without_1"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"path_2_without_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"user_and_service_1"},
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"user_and_service_1_without_1"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"user_and_service_1_without_2"
+      },
+      {"detail":"","query":"spendable","result":"pass","scenario":"user_and_service_2"},
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"user_and_service_2_without_1"
+      },
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"user_and_service_2_without_2"
+      },
       {"detail":"","query":"spendable","result":"pass","scenario":"no_witness"},
       {"detail":"","query":"spendable","result":"pass","scenario":"lost_the_user"},
       {
@@ -69,10 +89,20 @@
 	"result":"pass",
 	"scenario":"lost_the_cosigning_service"
       },
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_1_without_1"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_2"},
-      {"detail":"","query":"spendable","result":"pass","scenario":"chain_path_2_without_2"},
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_user_and_service_1"},
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"chain_user_and_service_1_without_1"
+      },
+      {"detail":"","query":"spendable","result":"pass","scenario":"chain_user_and_service_2"},
+      {
+	"detail":"",
+	"query":"spendable",
+	"result":"pass",
+	"scenario":"chain_user_and_service_2_without_2"
+      },
       {"detail":"","query":"flip_spend","result":"pass","scenario":"flip_now"},
       {"detail":"","query":"flip_spend","result":"pass","scenario":"flip_after_delays"},
       {
@@ -85,7 +115,7 @@
   },
   "meta": {
     "artifacts": ["https://bitcoin.sipa.be/miniscript/" ],
-    "date":"2026-09-15",
+    "date":"2026-09-16",
     "program":"cosigning_service",
     "source":"A user and a co-signing service, the user alone after 90 days",
     "translator":"InsurLE2/migration/miniscript (ms_twin.pl)"

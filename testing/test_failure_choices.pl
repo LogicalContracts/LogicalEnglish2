@@ -97,6 +97,43 @@ test(failed_condition_still_reported) :-
         ),
         le_kbs:destroySession(SM)).
 
+% A succeeded choice point is ONE node — not the same line repeated under itself —
+% and, stated by a cited fact, it points at that fact and carries its citation.
+cited_program("the target language is: prolog.
+
+the templates are:
+    *a person* is happy,
+    *a person* has a pet,
+    *a person* trains.
+
+the knowledge base w includes:
+
+a person is happy
+    if the person has a pet
+    and the person trains.
+
+scenario s is:
+    Bob has a pet, as stated in the register at page 2.
+
+query q is:
+    which person is happy.
+").
+
+test(choice_point_not_repeated_and_cited) :-
+    cited_program(P),
+    le_kbs:load_text(P, KB),
+    le_kbs:createSession(KB, SM),
+    setup_call_cleanup(true,
+        ( le_kbs:setScenarion(SM, s),
+          le_kbs:query_explain(SM, q, _, _, Why),
+          findall(LE-Kids, ( member(Root, Why), find_node(Root, success(_, _, LE, Kids)),
+                             le_contains(LE, 'has a pet') ), Nodes)
+        ),
+        le_kbs:destroySession(SM)),
+    assertion(Nodes = [_-[]]),
+    Nodes = [LE0-_],
+    assertion(le_contains(LE0, 'as stated in the register')).
+
 % --- A prepositional-chain query solves its constraints before the main verb ---
 % "we will make WHICH payment under this policy in respect of THIS claim" must not
 % explore an UNRELATED claim in its failure explanation: the prepositional

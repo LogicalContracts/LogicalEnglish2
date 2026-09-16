@@ -1,7 +1,7 @@
 import { t, applyI18nDom, installLeApiLang } from './i18n';
 // Explanation Drill window. A non-modal helper that walks the user through the
 // explanation as a "suspects tree": it repeatedly asks about the strongest reason
-// within the current region ("Understood?"); answering "Yes" removes that subtree,
+// within the current region ("Accept?"); answering "Yes" removes that subtree,
 // "Not yet" descends into it. The state machine (TOP / UNDERSTOOD) lives on the Prolog
 // side; this window keeps the ordered answers and the initial node count, renders the
 // questions with retained Yes / Not-yet state, a progress bar, and highlights each
@@ -146,8 +146,8 @@ export async function initExplanationDrill() {
             b.addEventListener('click', (e) => { e.stopPropagation(); answer(i, val); });
             return b;
         };
-        row.appendChild(mkBtn('yes', 'Yes'));
-        row.appendChild(mkBtn('not_yet', 'Not yet'));
+        row.appendChild(mkBtn('yes', t('Yes')));
+        row.appendChild(mkBtn('not_yet', t('Not yet')));
         card.appendChild(row);
         return card;
     }
@@ -169,7 +169,8 @@ export async function initExplanationDrill() {
         // Progress bar — a plain visual fill, no counts or percentage (just a label).
         if (typeof res.initialCount === 'number' && res.initialCount > 0) initialCount = res.initialCount;
         const progress = res.progress || 0;
-        const pct = initialCount > 0 ? Math.round((progress / initialCount) * 100) : 0;
+        const pct = !pending ? 100
+            : initialCount > 0 ? Math.min(100, Math.max(0, Math.round((progress / initialCount) * 100))) : 0;
         ($('progress-fill') as HTMLElement).style.width = `${pct}%`;
         $('progress-label').textContent = t('Progress');
 

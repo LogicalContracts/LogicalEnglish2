@@ -277,6 +277,22 @@ Used to perform calculations over sets of results.
 - **Operators:** `sum`, `count`, `average`, `min`, `max`
 - **Syntax:** `<ResultVar> is the <Op> of each <Var> such that <Goal>`
 - **Example:** `*Total* is the sum of each *Amount* such that *the account* has *Amount*`
+- **Scope:** the goal of `such that` is the lines indented under it; a line
+  back at the level of the aggregate's own (`and N > 3`) is a condition after
+  it. This holds where the aggregate is the first condition written on its
+  header's line too (`the total is large if N is the sum of each I such that`,
+  and in LE for LPS `if … then` / `when … then`), and in a query section, whose
+  body may begin with an aggregate:
+  ```le
+  query total is:
+      a number N is the sum of each I such that
+          a person pays I
+      and N > 12.
+  ```
+- **Answers and explanations** read an aggregate as a sentence, with the
+  result's value and the goal: `15 is the sum of each I such that a person
+  pays I`; an element named by a noun reads `the <noun>` in the goal (`2 is
+  the count of each amount such that bob owes the amount`).
 
 ## 6. Variables and Constants
 - **Variables:**
@@ -349,7 +365,7 @@ In an explanation tree, a type check renders like the assertion it verifies, e.g
 ## 7. Arithmetic and Comparisons
 - **Math:** `+`, `-`, `*`, `/`, `( )`, integer division `//` and remainder `mod` (`S = B // 3 + B mod 3`) — the arithmetic of fixed-point contract code (EVM amounts in 1e18 units)
 - **Functions:** the unary arithmetic functions `ceiling`, `floor`, `round`, `truncate`, `integer`, `abs`, `sign`, `sqrt` may be applied to a parenthesised argument, e.g. `the result is the multiple * ceiling(the amount / the multiple)`. They are evaluated by Prolog's `is/2` at solve time.
-- **Comparison:** `=`, `>`, `<`, `>=`, `<=`, `==`, `!=`
+- **Comparison:** `=`, `>`, `<`, `>=`, `<=`, `==`, `!=` (`==` is `is equal to`, `!=` is `is different from`). A formula may stand on **either side**: `N mod 3 = 2`, `2 = N mod 3`, `N mod 3 == 2` and `N mod 3 is equal to 2` all evaluate `N mod 3` and compare the numbers (`=` binds an unknown side to the value of the other, as `R = N mod 3` does). Operands that are not formulas — names, strings, dates — are compared as they are.
 - **Variable names in expressions:** a bare word used in an arithmetic expression is recognised as a variable only if it is an **id** (a single uppercase letter, or a short ALL-CAPS token — see §6.1), e.g. `ENT = ETI * ATR - TO`. A descriptive lower-/mixed-case word like `amount` or `exposure` is treated as part of a *type*, not a variable name, so it will not co-refer with a head variable inside an expression. Use ids (e.g. `EXP`, `IAOR`, `A`) for variables that participate in arithmetic.
 - **System Templates:**
   - `*V1* is equal to *V2*`
@@ -772,7 +788,11 @@ the failure of all earlier ones and exactly one applies. Details:
   block (under `it is not the case that`, say) a cascade is scoped by
   indentation like any other condition. A line such as
   `the customer is a member and the rate is 20` is split at its `and` when
-  read whole it would only parse through the generic `... is a ...` fallback.
+  read whole it would only parse through a generic fallback (`... is a ...`,
+  `... is ...`, or a comparison such as `... = ...`) and its conjuncts parse
+  on their own, whichever side of the fallback swallowed the `and`: so a
+  one-line alternative (`otherwise the guest has an unbirthday today and the
+  percentage is 10`) means the same as the alternative split over two lines.
 - **Explanations** show the failed guard as a negation pointing at the
   `otherwise` line: `it is not the case that cy is a member`.
 

@@ -2,7 +2,7 @@
 
 Source: A Liquid-like federated peg-in: five functionaries, or two of three emergency keys after about 90 days — https://github.com/bitcoin/bitcoin/blob/master/test/functional/wallet_miniscript.py
 Translator: InsurLE2/migration/miniscript (ms_twin.pl)
-Date: 2026-09-15
+Date: 2026-09-16
 
 ## Summary
 
@@ -47,37 +47,37 @@ A source element is **encoded** when a documented mapping rule translated it wit
 
 | Source test | Query | Result | Detail |
 |---|---|---|---|
-| path_1 | spendable | pass |  |
-| path_1_without_1 | spendable | pass |  |
-| path_1_without_2 | spendable | pass |  |
-| path_1_without_3 | spendable | pass |  |
-| path_2 | spendable | pass |  |
-| path_2_without_1 | spendable | pass |  |
-| path_2_without_2 | spendable | pass |  |
-| path_2_without_3 | spendable | pass |  |
-| path_3 | spendable | pass |  |
-| path_3_without_1 | spendable | pass |  |
-| path_3_without_2 | spendable | pass |  |
-| path_3_without_3 | spendable | pass |  |
-| path_4 | spendable | pass |  |
-| path_4_without_1 | spendable | pass |  |
-| path_4_without_2 | spendable | pass |  |
-| path_4_without_3 | spendable | pass |  |
-| path_4_without_4 | spendable | pass |  |
-| path_4_without_5 | spendable | pass |  |
+| emergency_1 | spendable | pass |  |
+| emergency_1_without_1 | spendable | pass |  |
+| emergency_1_without_2 | spendable | pass |  |
+| emergency_1_without_3 | spendable | pass |  |
+| emergency_2 | spendable | pass |  |
+| emergency_2_without_1 | spendable | pass |  |
+| emergency_2_without_2 | spendable | pass |  |
+| emergency_2_without_3 | spendable | pass |  |
+| emergency_3 | spendable | pass |  |
+| emergency_3_without_1 | spendable | pass |  |
+| emergency_3_without_2 | spendable | pass |  |
+| emergency_3_without_3 | spendable | pass |  |
+| federation | spendable | pass |  |
+| federation_without_1 | spendable | pass |  |
+| federation_without_2 | spendable | pass |  |
+| federation_without_3 | spendable | pass |  |
+| federation_without_4 | spendable | pass |  |
+| federation_without_5 | spendable | pass |  |
 | no_witness | spendable | pass |  |
-| chain_path_1 | spendable | pass |  |
-| chain_path_1_without_1 | spendable | pass |  |
-| chain_path_1_without_2 | spendable | pass |  |
-| chain_path_2 | spendable | pass |  |
-| chain_path_2_without_1 | spendable | pass |  |
-| chain_path_3 | spendable | pass |  |
-| chain_path_4 | spendable | pass |  |
-| chain_path_4_without_1 | spendable | pass |  |
-| chain_path_4_without_2 | spendable | pass |  |
-| chain_path_4_without_3 | spendable | pass |  |
-| chain_path_4_without_4 | spendable | pass |  |
-| chain_path_4_without_5 | spendable | pass |  |
+| chain_emergency_1 | spendable | pass |  |
+| chain_emergency_1_without_1 | spendable | pass |  |
+| chain_emergency_1_without_2 | spendable | pass |  |
+| chain_emergency_2 | spendable | pass |  |
+| chain_emergency_2_without_1 | spendable | pass |  |
+| chain_emergency_3 | spendable | pass |  |
+| chain_federation | spendable | pass |  |
+| chain_federation_without_1 | spendable | pass |  |
+| chain_federation_without_2 | spendable | pass |  |
+| chain_federation_without_3 | spendable | pass |  |
+| chain_federation_without_4 | spendable | pass |  |
+| chain_federation_without_5 | spendable | pass |  |
 | chain_no_witness | spendable | pass |  |
 | flip_now | flip_spend | pass |  |
 | flip_after_delays | flip_spend | pass |  |

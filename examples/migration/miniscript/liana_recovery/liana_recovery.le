@@ -1,7 +1,7 @@
 % A Liana wallet: a primary key, or a recovery key after a delay
 %
 % The Logical English twin of a Bitcoin spending policy, written by the
-% Miniscript translator (InsurLE2/migration/miniscript). Who can spend the
+% Miniscript translator. Who can spend the
 % coin, when, and why: each rule is one spending path of the policy.
 %
 % Source: the Liana recovery guide
@@ -51,7 +51,7 @@ the knowledge base liana_recovery includes:
 the Liana recovery guide is published at "https://github.com/wizardsardine/liana/blob/master/doc/RECOVER.md".
 the text of the Liana recovery guide is at "sources/liana_recover.txt".
 
-the policy in Minsc is published at "https://min.sc/#c=//%20A%20Liana%20wallet:%20a%20primary%20key,%20or%20a%20recovery%20key%20after%20a%20delay%0A//%20The%20Logical%20English%20twin's%20policy%20(InsurLE2/migration/miniscript).%0A$primary_key%20=%20%5Ba5c6b76e/48'/1'/0'/2'%5DtpubDF5861hj6vR3iJr3aPjGJz4rNbqDCRujQ21mczzKT5SiedaQqNVgHC8HT9ceyxvMFRoPMx4P6HAcL3NZrUPhRUbwCyj3TKSa64bAfnE3sLh/0/*;%20%20%20//%20the%20primary%20key%20(as%20in%20the%20source)%0A$recovery_key%20=%20%5Bc477fd13/48'/1'/0'/2'%5DtpubDFn7iPbFqGrTQ2aRACNsUK1MXQR4Z6dYfU2nD1WA9ifSaia642j3Wah4n5pBUEpERNWGJsyv3Dv5qwBabC9TLQrwSboKzukw9wmurGu7XVH/0/*;%20%20%20//%20the%20recovery%20key%20(as%20in%20the%20source)%0A%0Aor(pk($primary_key),and(pk($recovery_key),older(3)))%0A".
+the policy in Minsc is published at "https://min.sc/#c=//%20A%20Liana%20wallet:%20a%20primary%20key,%20or%20a%20recovery%20key%20after%20a%20delay%0A//%20The%20Logical%20English%20twin's%20policy%20(the%20Miniscript%20translator%20of%20Logical%20English).%0A$primary_key%20=%20%5Ba5c6b76e/48'/1'/0'/2'%5DtpubDF5861hj6vR3iJr3aPjGJz4rNbqDCRujQ21mczzKT5SiedaQqNVgHC8HT9ceyxvMFRoPMx4P6HAcL3NZrUPhRUbwCyj3TKSa64bAfnE3sLh/0/*;%20%20%20//%20the%20primary%20key%20(as%20in%20the%20source)%0A$recovery_key%20=%20%5Bc477fd13/48'/1'/0'/2'%5DtpubDFn7iPbFqGrTQ2aRACNsUK1MXQR4Z6dYfU2nD1WA9ifSaia642j3Wah4n5pBUEpERNWGJsyv3Dv5qwBabC9TLQrwSboKzukw9wmurGu7XVH/0/*;%20%20%20//%20the%20recovery%20key%20(as%20in%20the%20source)%0A%0Aor(pk($primary_key),and(pk($recovery_key),older(3)))%0A".
 
 the Tape run of 2026-09-14 is published at "https://tape.rewindbitcoin.com/explorer/address/bcrt1qrqw40q6l9ewlmpu3uyw8ngnxx3lrha07jwtf5tlgkgjnkdweqcwqwwk86e".
 the text of the Tape run of 2026-09-14 is at "sources/liana_recovery.chain.json".
@@ -81,35 +81,35 @@ the coin has been confirmed for a number N blocks if
     and the spending transaction is in block a height M
     and N = M - H.
 
-scenario path_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 — the path needs: a coin 3 blocks old, a signature by the recovery key
+scenario recovery is, as stated in the satisfaction analysis of the policy:
+    % spending path recovery — the path needs: a coin 3 blocks old, a signature by the recovery key
     the witness contains a signature by the recovery key.
     the coin was confirmed in block 850000.
     the spending transaction is in block 850003.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_1_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 1 — the path needs: a coin 3 blocks old, a signature by the recovery key
+scenario recovery_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path recovery without requirement 1 — the path needs: a coin 3 blocks old, a signature by the recovery key
     the witness contains a signature by the recovery key.
     the coin was confirmed in block 850000.
     the spending transaction is in block 850002.
     spendable expects answers [].
 
-scenario path_1_without_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 2 — the path needs: a coin 3 blocks old, a signature by the recovery key
+scenario recovery_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path recovery without requirement 2 — the path needs: a coin 3 blocks old, a signature by the recovery key
     the coin was confirmed in block 850000.
     the spending transaction is in block 850003.
     spendable expects answers [].
 
-scenario path_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 — the path needs: a signature by the primary key
+scenario primary is, as stated in the satisfaction analysis of the policy:
+    % spending path primary — the path needs: a signature by the primary key
     the witness contains a signature by the primary key.
     the coin was confirmed in block 850000.
     the spending transaction is in block 850000.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_2_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 without requirement 1 — the path needs: a signature by the primary key
+scenario primary_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path primary without requirement 1 — the path needs: a signature by the primary key
     the coin was confirmed in block 850000.
     the spending transaction is in block 850000.
     spendable expects answers [].
@@ -148,20 +148,20 @@ scenario lost_the_recovery_key is, as stated in the flip analysis of the policy:
     spendable expects answers ["the coin can be spent"].
     flip_block expects changes [["remove: the witness contains a signature by the primary key"]].
 
-scenario chain_path_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1:
+scenario chain_recovery is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1:
     % the chain refused the spend: non-BIP68-final
     the witness contains a signature by the recovery key.
     the coin was confirmed in block 122322.
     the spending transaction is in block 122322.
     spendable expects answers [].
 
-scenario chain_path_1_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_1:
+scenario chain_recovery_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_1:
     % the chain refused the spend: non-BIP68-final
     the coin was confirmed in block 122322.
     the spending transaction is in block 122322.
     spendable expects answers [].
 
-scenario chain_path_2 is, as stated in the Tape run of 2026-09-14 at transaction f980a95dfc7d411f3db9ff055c37c613cee42b19844f876c305e845b419db3d6:
+scenario chain_primary is, as stated in the Tape run of 2026-09-14 at transaction f980a95dfc7d411f3db9ff055c37c613cee42b19844f876c305e845b419db3d6:
     % the chain accepted the spend: transaction f980a95dfc7d411f3db9ff055c37c613cee42b19844f876c305e845b419db3d6
     the witness contains a signature by the primary key.
     the coin was confirmed in block 122322.

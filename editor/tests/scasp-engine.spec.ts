@@ -178,4 +178,21 @@ query debt is:
         await expect(page.locator('#export-refused')).toBeVisible({ timeout: 30000 });
         await expect(page.locator('#answers-list')).toContainText('nothing was written');
     });
+
+    // See s(CASP) is never silent: the program, or — on a server without the
+    // s(CASP) engine — a dialog saying so (it did nothing at all there).
+    test('See s(CASP) shows the program or says the engine is not installed', async ({ page }) => {
+        test.setTimeout(60000);
+        await loadAndSelect(page);
+        await page.evaluate(async () => {
+            const ed = (window as any).monaco.editor.getEditors()[0];
+            await ed.getAction('see-scasp').run(ed);
+        });
+        const panel = page.locator('#prolog-panel');
+        const notice = page.getByText('The s(CASP) engine is not installed on this server.');
+        await expect.poll(async () => (await panel.isVisible()) || (await notice.isVisible()), { timeout: 30000 }).toBe(true);
+        if (await panel.isVisible()) {
+            await expect(page.locator('#prolog-content')).toContainText('is_happy');
+        }
+    });
 });

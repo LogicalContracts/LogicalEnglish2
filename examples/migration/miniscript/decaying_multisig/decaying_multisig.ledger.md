@@ -2,7 +2,7 @@
 
 Source: A 3-of-3 multisig that turns into a 2-of-3 after 90 days — https://bitcoin.sipa.be/miniscript/
 Translator: InsurLE2/migration/miniscript (ms_twin.pl)
-Date: 2026-09-15
+Date: 2026-09-16
 
 ## Summary
 
@@ -33,33 +33,33 @@ A source element is **encoded** when a documented mapping rule translated it wit
 
 | Source test | Query | Result | Detail |
 |---|---|---|---|
-| path_1 | spendable | pass |  |
-| path_1_without_1 | spendable | pass |  |
-| path_1_without_2 | spendable | pass |  |
-| path_1_without_3 | spendable | pass |  |
-| path_2 | spendable | pass |  |
-| path_2_without_1 | spendable | pass |  |
-| path_2_without_2 | spendable | pass |  |
-| path_2_without_3 | spendable | pass |  |
-| path_3 | spendable | pass |  |
-| path_3_without_1 | spendable | pass |  |
-| path_3_without_2 | spendable | pass |  |
-| path_3_without_3 | spendable | pass |  |
-| path_4 | spendable | pass |  |
-| path_4_without_1 | spendable | pass |  |
-| path_4_without_2 | spendable | pass |  |
-| path_4_without_3 | spendable | pass |  |
+| decaying_threshold_1 | spendable | pass |  |
+| decaying_threshold_1_without_1 | spendable | pass |  |
+| decaying_threshold_1_without_2 | spendable | pass |  |
+| decaying_threshold_1_without_3 | spendable | pass |  |
+| decaying_threshold_2 | spendable | pass |  |
+| decaying_threshold_2_without_1 | spendable | pass |  |
+| decaying_threshold_2_without_2 | spendable | pass |  |
+| decaying_threshold_2_without_3 | spendable | pass |  |
+| decaying_threshold_3 | spendable | pass |  |
+| decaying_threshold_3_without_1 | spendable | pass |  |
+| decaying_threshold_3_without_2 | spendable | pass |  |
+| decaying_threshold_3_without_3 | spendable | pass |  |
+| decaying_threshold_4 | spendable | pass |  |
+| decaying_threshold_4_without_1 | spendable | pass |  |
+| decaying_threshold_4_without_2 | spendable | pass |  |
+| decaying_threshold_4_without_3 | spendable | pass |  |
 | no_witness | spendable | pass |  |
 | lost_key_1 | spendable | pass |  |
 | lost_key_2 | spendable | pass |  |
 | lost_key_3 | spendable | pass |  |
-| chain_path_1 | spendable | pass |  |
-| chain_path_1_without_1 | spendable | pass |  |
-| chain_path_1_without_2 | spendable | pass |  |
-| chain_path_2 | spendable | pass |  |
-| chain_path_2_without_1 | spendable | pass |  |
-| chain_path_3 | spendable | pass |  |
-| chain_path_4 | spendable | pass |  |
+| chain_decaying_threshold_1 | spendable | pass |  |
+| chain_decaying_threshold_1_without_1 | spendable | pass |  |
+| chain_decaying_threshold_1_without_2 | spendable | pass |  |
+| chain_decaying_threshold_2 | spendable | pass |  |
+| chain_decaying_threshold_2_without_1 | spendable | pass |  |
+| chain_decaying_threshold_3 | spendable | pass |  |
+| chain_decaying_threshold_4 | spendable | pass |  |
 | chain_no_witness | spendable | pass |  |
 | flip_now | flip_spend | pass |  |
 | flip_after_delays | flip_spend | pass |  |

@@ -227,8 +227,10 @@ Two refusals you can reproduce with the examples:
 
 - `regulatory/eu261_integration` to LegalRuleML: the program has a decision
   table, which LegalRuleML cannot state, and a rule cites a source (`according
-  to`) inside `it is not the case that`. The window reports the second as the
-  use of negation, at the rule's first condition; negation alone exports.
+  to`) inside `it is not the case that`. The window gives the table's line,
+  and reports the second as the use of `according to`, at the line of the
+  `according to` itself: negation alone exports, so the problem names the
+  construct inside it.
 - `migration/miniscript/core_2of3_multisig` to LegalRuleML: its spending rule
   counts signatures (`a number N is the count of each K such that …`), and
   LegalRuleML has no aggregates. The Miniscript exporter writes the same

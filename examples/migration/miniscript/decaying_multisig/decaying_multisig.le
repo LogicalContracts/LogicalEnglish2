@@ -1,7 +1,7 @@
 % A 3-of-3 multisig that turns into a 2-of-3 after 90 days
 %
 % The Logical English twin of a Bitcoin spending policy, written by the
-% Miniscript translator (InsurLE2/migration/miniscript). Who can spend the
+% Miniscript translator. Who can spend the
 % coin, when, and why: each rule is one spending path of the policy.
 %
 % Source: the Miniscript page
@@ -46,7 +46,7 @@ the knowledge base decaying_multisig includes:
 the Miniscript page is published at "https://bitcoin.sipa.be/miniscript/".
 the text of the Miniscript page is at "sources/sipa_miniscript.txt".
 
-the policy in Minsc is published at "https://min.sc/#c=//%20A%203-of-3%20multisig%20that%20turns%20into%20a%202-of-3%20after%2090%20days%0A//%20The%20Logical%20English%20twin's%20policy%20(InsurLE2/migration/miniscript).%0A$key_1%20=%2002a1baf00e3034a5edcb96dc4ce597e523845690eec754848d9921778f6de46833;%20%20%20//%20key%201%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$key_2%20=%20030b078407422b0b5578954183d643842de93e7db886add339708f68547bd87f8c;%20%20%20//%20key%202%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$key_3%20=%20038e1d0c4261f914859fd50f3fc02bff1c919db2bee4ec6530df824d3305b8ae5a;%20%20%20//%20key%203%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A%0Athresh(3,pk($key_1),pk($key_2),pk($key_3),older(12960))%0A".
+the policy in Minsc is published at "https://min.sc/#c=//%20A%203-of-3%20multisig%20that%20turns%20into%20a%202-of-3%20after%2090%20days%0A//%20The%20Logical%20English%20twin's%20policy%20(the%20Miniscript%20translator%20of%20Logical%20English).%0A$key_1%20=%2002a1baf00e3034a5edcb96dc4ce597e523845690eec754848d9921778f6de46833;%20%20%20//%20key%201%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$key_2%20=%20030b078407422b0b5578954183d643842de93e7db886add339708f68547bd87f8c;%20%20%20//%20key%202%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A$key_3%20=%20038e1d0c4261f914859fd50f3fc02bff1c919db2bee4ec6530df824d3305b8ae5a;%20%20%20//%20key%203%20(a%20test%20key:%20the%20source%20names%20no%20key)%0A%0Athresh(3,pk($key_1),pk($key_2),pk($key_3),older(12960))%0A".
 
 the Tape run of 2026-09-14 is published at "https://tape.rewindbitcoin.com/explorer/address/bcrt1qw6n9myd32gkhhjqeg65z0pxkg3cqhk7ysk3ptum7gpy4ujur07lq84wupe".
 the text of the Tape run of 2026-09-14 is at "sources/decaying_multisig.chain.json".
@@ -88,98 +88,98 @@ the coin has been confirmed for a number N blocks if
     and the spending transaction is in block a height M
     and N = M - H.
 
-scenario path_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 — the path needs: a coin 12960 blocks old, a signature by key 1, a signature by key 2
+scenario decaying_threshold_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path decaying_threshold_1 — the path needs: a coin 12960 blocks old, a signature by key 1, a signature by key 2
     the witness contains a signature by key 1.
     the witness contains a signature by key 2.
     the coin was confirmed in block 850000.
     the spending transaction is in block 862960.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_1_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 1 — the path needs: a coin 12960 blocks old, a signature by key 1, a signature by key 2
+scenario decaying_threshold_1_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path decaying_threshold_1 without requirement 1 — the path needs: a coin 12960 blocks old, a signature by key 1, a signature by key 2
     the witness contains a signature by key 1.
     the witness contains a signature by key 2.
     the coin was confirmed in block 850000.
     the spending transaction is in block 862959.
     spendable expects answers [].
 
-scenario path_1_without_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 2 — the path needs: a coin 12960 blocks old, a signature by key 1, a signature by key 2
+scenario decaying_threshold_1_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path decaying_threshold_1 without requirement 2 — the path needs: a coin 12960 blocks old, a signature by key 1, a signature by key 2
     the witness contains a signature by key 2.
     the coin was confirmed in block 850000.
     the spending transaction is in block 862960.
     spendable expects answers [].
 
-scenario path_1_without_3 is, as stated in the satisfaction analysis of the policy:
-    % spending path 1 without requirement 3 — the path needs: a coin 12960 blocks old, a signature by key 1, a signature by key 2
+scenario decaying_threshold_1_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path decaying_threshold_1 without requirement 3 — the path needs: a coin 12960 blocks old, a signature by key 1, a signature by key 2
     the witness contains a signature by key 1.
     the coin was confirmed in block 850000.
     the spending transaction is in block 862960.
     spendable expects answers [].
 
-scenario path_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 — the path needs: a coin 12960 blocks old, a signature by key 1, a signature by key 3
+scenario decaying_threshold_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path decaying_threshold_2 — the path needs: a coin 12960 blocks old, a signature by key 1, a signature by key 3
     the witness contains a signature by key 1.
     the witness contains a signature by key 3.
     the coin was confirmed in block 850000.
     the spending transaction is in block 862960.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_2_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 without requirement 1 — the path needs: a coin 12960 blocks old, a signature by key 1, a signature by key 3
+scenario decaying_threshold_2_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path decaying_threshold_2 without requirement 1 — the path needs: a coin 12960 blocks old, a signature by key 1, a signature by key 3
     the witness contains a signature by key 1.
     the witness contains a signature by key 3.
     the coin was confirmed in block 850000.
     the spending transaction is in block 862959.
     spendable expects answers [].
 
-scenario path_2_without_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 without requirement 2 — the path needs: a coin 12960 blocks old, a signature by key 1, a signature by key 3
+scenario decaying_threshold_2_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path decaying_threshold_2 without requirement 2 — the path needs: a coin 12960 blocks old, a signature by key 1, a signature by key 3
     the witness contains a signature by key 3.
     the coin was confirmed in block 850000.
     the spending transaction is in block 862960.
     spendable expects answers [].
 
-scenario path_2_without_3 is, as stated in the satisfaction analysis of the policy:
-    % spending path 2 without requirement 3 — the path needs: a coin 12960 blocks old, a signature by key 1, a signature by key 3
+scenario decaying_threshold_2_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path decaying_threshold_2 without requirement 3 — the path needs: a coin 12960 blocks old, a signature by key 1, a signature by key 3
     the witness contains a signature by key 1.
     the coin was confirmed in block 850000.
     the spending transaction is in block 862960.
     spendable expects answers [].
 
-scenario path_3 is, as stated in the satisfaction analysis of the policy:
-    % spending path 3 — the path needs: a coin 12960 blocks old, a signature by key 2, a signature by key 3
+scenario decaying_threshold_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path decaying_threshold_3 — the path needs: a coin 12960 blocks old, a signature by key 2, a signature by key 3
     the witness contains a signature by key 2.
     the witness contains a signature by key 3.
     the coin was confirmed in block 850000.
     the spending transaction is in block 862960.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_3_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 3 without requirement 1 — the path needs: a coin 12960 blocks old, a signature by key 2, a signature by key 3
+scenario decaying_threshold_3_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path decaying_threshold_3 without requirement 1 — the path needs: a coin 12960 blocks old, a signature by key 2, a signature by key 3
     the witness contains a signature by key 2.
     the witness contains a signature by key 3.
     the coin was confirmed in block 850000.
     the spending transaction is in block 862959.
     spendable expects answers [].
 
-scenario path_3_without_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 3 without requirement 2 — the path needs: a coin 12960 blocks old, a signature by key 2, a signature by key 3
+scenario decaying_threshold_3_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path decaying_threshold_3 without requirement 2 — the path needs: a coin 12960 blocks old, a signature by key 2, a signature by key 3
     the witness contains a signature by key 3.
     the coin was confirmed in block 850000.
     the spending transaction is in block 862960.
     spendable expects answers [].
 
-scenario path_3_without_3 is, as stated in the satisfaction analysis of the policy:
-    % spending path 3 without requirement 3 — the path needs: a coin 12960 blocks old, a signature by key 2, a signature by key 3
+scenario decaying_threshold_3_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path decaying_threshold_3 without requirement 3 — the path needs: a coin 12960 blocks old, a signature by key 2, a signature by key 3
     the witness contains a signature by key 2.
     the coin was confirmed in block 850000.
     the spending transaction is in block 862960.
     spendable expects answers [].
 
-scenario path_4 is, as stated in the satisfaction analysis of the policy:
-    % spending path 4 — the path needs: a signature by key 1, a signature by key 2, a signature by key 3
+scenario decaying_threshold_4 is, as stated in the satisfaction analysis of the policy:
+    % spending path decaying_threshold_4 — the path needs: a signature by key 1, a signature by key 2, a signature by key 3
     the witness contains a signature by key 1.
     the witness contains a signature by key 2.
     the witness contains a signature by key 3.
@@ -187,24 +187,24 @@ scenario path_4 is, as stated in the satisfaction analysis of the policy:
     the spending transaction is in block 850000.
     spendable expects answers ["the coin can be spent"].
 
-scenario path_4_without_1 is, as stated in the satisfaction analysis of the policy:
-    % spending path 4 without requirement 1 — the path needs: a signature by key 1, a signature by key 2, a signature by key 3
+scenario decaying_threshold_4_without_1 is, as stated in the satisfaction analysis of the policy:
+    % spending path decaying_threshold_4 without requirement 1 — the path needs: a signature by key 1, a signature by key 2, a signature by key 3
     the witness contains a signature by key 2.
     the witness contains a signature by key 3.
     the coin was confirmed in block 850000.
     the spending transaction is in block 850000.
     spendable expects answers [].
 
-scenario path_4_without_2 is, as stated in the satisfaction analysis of the policy:
-    % spending path 4 without requirement 2 — the path needs: a signature by key 1, a signature by key 2, a signature by key 3
+scenario decaying_threshold_4_without_2 is, as stated in the satisfaction analysis of the policy:
+    % spending path decaying_threshold_4 without requirement 2 — the path needs: a signature by key 1, a signature by key 2, a signature by key 3
     the witness contains a signature by key 1.
     the witness contains a signature by key 3.
     the coin was confirmed in block 850000.
     the spending transaction is in block 850000.
     spendable expects answers [].
 
-scenario path_4_without_3 is, as stated in the satisfaction analysis of the policy:
-    % spending path 4 without requirement 3 — the path needs: a signature by key 1, a signature by key 2, a signature by key 3
+scenario decaying_threshold_4_without_3 is, as stated in the satisfaction analysis of the policy:
+    % spending path decaying_threshold_4 without requirement 3 — the path needs: a signature by key 1, a signature by key 2, a signature by key 3
     the witness contains a signature by key 1.
     the witness contains a signature by key 2.
     the coin was confirmed in block 850000.
@@ -256,7 +256,7 @@ scenario lost_key_3 is, as stated in the flip analysis of the policy:
     spendable expects answers ["the coin can be spent"].
     flip_block expects changes [["remove: the coin was confirmed in block 850000"], ["remove: the spending transaction is in block 862960"], ["remove: the witness contains a signature by key 1"], ["remove: the witness contains a signature by key 2"]].
 
-scenario chain_path_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1:
+scenario chain_decaying_threshold_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1:
     % the chain refused the spend: non-BIP68-final
     the witness contains a signature by key 2.
     the witness contains a signature by key 1.
@@ -264,21 +264,21 @@ scenario chain_path_1 is, as stated in the Tape run of 2026-09-14 at the refusal
     the spending transaction is in block 122323.
     spendable expects answers [].
 
-scenario chain_path_1_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_1:
+scenario chain_decaying_threshold_1_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_1:
     % the chain refused the spend: non-BIP68-final
     the witness contains a signature by key 2.
     the coin was confirmed in block 122323.
     the spending transaction is in block 122323.
     spendable expects answers [].
 
-scenario chain_path_1_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_2:
+scenario chain_decaying_threshold_1_without_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1_without_2:
     % the chain refused the spend: non-BIP68-final
     the witness contains a signature by key 1.
     the coin was confirmed in block 122323.
     the spending transaction is in block 122323.
     spendable expects answers [].
 
-scenario chain_path_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2:
+scenario chain_decaying_threshold_2 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2:
     % the chain refused the spend: non-BIP68-final
     the witness contains a signature by key 3.
     the witness contains a signature by key 1.
@@ -286,14 +286,14 @@ scenario chain_path_2 is, as stated in the Tape run of 2026-09-14 at the refusal
     the spending transaction is in block 122323.
     spendable expects answers [].
 
-scenario chain_path_2_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_1:
+scenario chain_decaying_threshold_2_without_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_2_without_1:
     % the chain refused the spend: non-BIP68-final
     the witness contains a signature by key 3.
     the coin was confirmed in block 122323.
     the spending transaction is in block 122323.
     spendable expects answers [].
 
-scenario chain_path_3 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_3:
+scenario chain_decaying_threshold_3 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_3:
     % the chain refused the spend: non-BIP68-final
     the witness contains a signature by key 3.
     the witness contains a signature by key 2.
@@ -301,7 +301,7 @@ scenario chain_path_3 is, as stated in the Tape run of 2026-09-14 at the refusal
     the spending transaction is in block 122323.
     spendable expects answers [].
 
-scenario chain_path_4 is, as stated in the Tape run of 2026-09-14 at transaction 1c38945906a7752700cd3b4b280be07e3a6743d48aa9ed5c12769ee8d3f2b09b:
+scenario chain_decaying_threshold_4 is, as stated in the Tape run of 2026-09-14 at transaction 1c38945906a7752700cd3b4b280be07e3a6743d48aa9ed5c12769ee8d3f2b09b:
     % the chain accepted the spend: transaction 1c38945906a7752700cd3b4b280be07e3a6743d48aa9ed5c12769ee8d3f2b09b
     the witness contains a signature by key 3.
     the witness contains a signature by key 2.
