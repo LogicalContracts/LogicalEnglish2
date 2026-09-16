@@ -480,6 +480,17 @@ call_tool("get_example_details", Args, Result) :-
         Result = _{error: Msg}
     ).
 
+call_tool("query", Args, Result) :-
+    le_tools:le_tool_query(Args, Result).
+
+call_tool("verify", Args, Result) :-
+    le_tools:le_tool_verify(Args, Result).
+
+call_tool(ToolName, _Args, Result) :-
+    format(user_error, "MCP Error: Unknown tool called: ~w~n", [ToolName]),
+    format(string(Msg), "Unknown tool: ~w. Available tools are: list_examples, get_example_details, query, verify.", [ToolName]),
+    Result = _{error: Msg}.
+
 %   Read the metadata under a module reference (and retry if the module was
 %   reclaimed between load and reference) — same race as the listing above.
 %   The goal is explicitly mcp-qualified: relying on compile-time
@@ -492,17 +503,6 @@ example_details(Path, Result) :-
     !,
     read_file_to_string(Path, Text, [encoding(utf8)]),
     Result = Result0.put(program_text, Text).
-
-call_tool("query", Args, Result) :-
-    le_tools:le_tool_query(Args, Result).
-
-call_tool("verify", Args, Result) :-
-    le_tools:le_tool_verify(Args, Result).
-
-call_tool(ToolName, _Args, Result) :-
-    format(user_error, "MCP Error: Unknown tool called: ~w~n", [ToolName]),
-    format(string(Msg), "Unknown tool: ~w. Available tools are: list_examples, get_example_details, query, verify.", [ToolName]),
-    Result = _{error: Msg}.
 
 example_details_result(KB, Result) :-
     le_kbs:get_kb_metadata(KB, Metadata),
