@@ -154,7 +154,16 @@ main hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
         // images have loaded (their arrival shifts the layout).
         const scrollToHash = () => {
             if (!location.hash) return;
-            const el = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+            const hash = decodeURIComponent(location.hash.slice(1));
+            // #sec-17.10: the heading of section 17.10 (the editor's links
+            // from a diagnostic to the section of the reference it cites).
+            const sec = /^sec-([\d.]*\d)$/.exec(hash);
+            if (sec) {
+                const h = [...content.querySelectorAll('h1,h2,h3,h4')]
+                    .find(x => new RegExp('^' + sec[1].replace(/\./g, '\\.') + '\\.?\\s').test(x.textContent.trim()));
+                if (h) { h.scrollIntoView(); return; }
+            }
+            const el = document.getElementById(hash);
             if (el) el.scrollIntoView();
         };
         scrollToHash();

@@ -876,6 +876,7 @@
                         <button id="btn-flip" class="query-action" title="Which minimal change to the scenario would flip the outcome? Asks a flip query about the selected answer (or the query), as a custom query you can edit">Flip…</button>
                         <button id="btn-trace" class="query-action">Trace</button>
                         <button id="btn-proof-game" class="query-action" title="Open the Proof Game: interactively build a proof of the selected query by connecting its facts and rules">Proof Game</button>
+                        <a class="help-link" href="/docs/user/guide/editor#running-queries" target="_blank" rel="noopener" title="Help: running queries, scenarios and the engines" style="margin-left: 8px; font-size: 12px; font-weight: bold; text-decoration: none; border: 1px solid currentColor; border-radius: 50%; padding: 0 6px; color: inherit; opacity: .7;">?</a>
                         <button id="btn-interrupt-query" style="margin-left: 5px; background-color: #b71c1c; display: none; cursor: pointer;">Interrupt</button>
                     </div>
                     <div id="lps-strip" style="display: none; font-size: 12px; align-items: center; gap: 8px; flex-wrap: wrap;">
@@ -895,11 +896,13 @@
             </div>
             <div id="results-area">
                 <div id="answers-panel">
+                    <a class="help-link" href="/docs/user/guide/editor#why-not-a-query-with-no-answer" target="_blank" rel="noopener" title="Help: answers, and why a query has none" style="float: right; margin-left: 8px; font-size: 12px; font-weight: bold; text-decoration: none; border: 1px solid currentColor; border-radius: 50%; padding: 0 6px; color: inherit; opacity: .7;">?</a>
                     <div data-i18n style="font-size: 11px; color: #888; margin-bottom: 5px; font-weight: bold; text-transform: uppercase;">Answers</div>
                     <div id="answers-list"></div>
                 </div>
                 <div id="results-resizer"></div>
                 <div id="explanation-panel">
+                    <a class="help-link" href="/docs/user/guide/editor#reading-the-explanation-tree" target="_blank" rel="noopener" title="Help: reading the explanation tree" style="float: right; margin-left: 8px; font-size: 12px; font-weight: bold; text-decoration: none; border: 1px solid currentColor; border-radius: 50%; padding: 0 6px; color: inherit; opacity: .7;" id="help-explanation" >?</a>
                     <div id="explanation-title" data-i18n style="font-size: 11px; color: #888; margin-bottom: 5px; font-weight: bold; text-transform: uppercase;">Explanation</div>
                     <div id="explanation-tree"></div>
                 </div>
@@ -910,7 +913,7 @@
         <div id="assistant-tab" class="tab-content">
             <div id="assistant-panel">
                 <div id="assistant-header" style="display: flex; align-items: center; padding: 8px 12px; background: var(--header-bg); border-bottom: 1px solid var(--border-color); font-size: 12px;">
-                    <span style="font-weight: bold; margin-right: auto;">LE Assistant</span>
+                    <span style="font-weight: bold; margin-right: auto;">LE Assistant<a class="help-link" href="/docs/user/guide/assistants" target="_blank" rel="noopener" title="Help: the LE Assistant" style="margin-left: 8px; font-size: 12px; font-weight: bold; text-decoration: none; border: 1px solid currentColor; border-radius: 50%; padding: 0 6px; color: inherit; opacity: .7;">?</a></span>
                     <button id="btn-generate-view" title="Draft a view for this program (docs/user/reference/language.md §17.10): the section that says how a screen shows it — its case facts, its result, what is shown beside it" style="margin-right: 12px; background: #0e639c; color: #fff; border: none; border-radius: 3px; padding: 3px 10px; cursor: pointer; font-size: 12px;">Generate LE view</button>
                     <div style="display: flex; align-items: center; gap: 5px;" title="Light Mode runs a fast, in-process Prolog loop. Uncheck for Deep Mode (full opencode agent with file/web/shell tools).">
                         <input type="checkbox" id="assistant-mode-toggle" checked style="cursor: pointer;">

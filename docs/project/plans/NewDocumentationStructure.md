@@ -1,6 +1,6 @@
 # New documentation structure: findings and proposal
 
-*Kind: plan · Status: validated 2026-09-16, being implemented*
+*Kind: plan · Status: implemented 2026-09-16 (phases 0–3; phase 4, the public site, not wanted for now)*
 
 *Status: proposal for validation, 2026-09-16. Nothing described under "Proposal"
 has been implemented. Scope: the documentation shown to users by the LE2 editor

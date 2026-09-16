@@ -566,7 +566,10 @@ var uiCatalog = {
     "What happened? What did you expect?": "O que aconteceu? O que esperava?",
     "Email": "Email",
     "Thank you for your feedback!": "Obrigado pelos seus coment\xE1rios!",
-    "(required)": "(obrigat\xF3rio)"
+    "(required)": "(obrigat\xF3rio)",
+    "reference": "refer\xEAncia",
+    "warnings guide": "guia dos avisos",
+    "Help: running queries, scenarios and the engines": "Ajuda: executar consultas, cen\xE1rios e os motores"
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -1131,7 +1134,10 @@ var uiCatalog = {
     "What happened? What did you expect?": "\xBFQu\xE9 ocurri\xF3? \xBFQu\xE9 esperaba?",
     "Email": "Correo electr\xF3nico",
     "Thank you for your feedback!": "\xA1Gracias por sus comentarios!",
-    "(required)": "(obligatorio)"
+    "(required)": "(obligatorio)",
+    "reference": "referencia",
+    "warnings guide": "gu\xEDa de los avisos",
+    "Help: running queries, scenarios and the engines": "Ayuda: ejecutar consultas, escenarios y los motores"
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -1696,7 +1702,10 @@ var uiCatalog = {
     "What happened? What did you expect?": "Que s'est-il pass\xE9 ? Qu'attendiez-vous ?",
     "Email": "E-mail",
     "Thank you for your feedback!": "Merci pour votre commentaire !",
-    "(required)": "(obligatoire)"
+    "(required)": "(obligatoire)",
+    "reference": "r\xE9f\xE9rence",
+    "warnings guide": "guide des avertissements",
+    "Help: running queries, scenarios and the engines": "Aide : ex\xE9cuter des requ\xEAtes, sc\xE9narios et moteurs"
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -2261,7 +2270,10 @@ var uiCatalog = {
     "What happened? What did you expect?": "Che cosa \xE8 successo? Che cosa si aspettava?",
     "Email": "Email",
     "Thank you for your feedback!": "Grazie per il suo commento!",
-    "(required)": "(obbligatorio)"
+    "(required)": "(obbligatorio)",
+    "reference": "riferimento",
+    "warnings guide": "guida agli avvisi",
+    "Help: running queries, scenarios and the engines": "Aiuto: eseguire query, scenari e motori"
   }
 };
 var languages = [

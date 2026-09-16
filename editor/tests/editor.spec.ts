@@ -380,7 +380,7 @@ test.describe('Logical English Editor', () => {
     test.setTimeout(60000); // Increase timeout for this complex test
 
     // 1. Open "File" -> "Open copy from server..." and pick "payg"
-    await openFromServer(page, /^payg$/);
+    await openFromServer(page, /^tax\/payg$/);
 
     // 3. Wait for the editor to load the content (payg.le lives under domains/tax/)
     await expect(page.locator('#filename-display')).toHaveText('domains/tax/payg.le');
@@ -482,8 +482,8 @@ test.describe('Logical English Editor', () => {
     test.setTimeout(60000);
 
     // 1. Open the "unknowns" example from the server
-    await openFromServer(page, /^unknowns$/);
-    await expect(page.locator('#filename-display')).toHaveText('unknowns.le');
+    await openFromServer(page, /^unknowns\/unknowns$/);
+    await expect(page.locator('#filename-display')).toHaveText('language/unknowns/unknowns.le');
 
     // 2. Wait for the module to load (scenario dropdown populated)
     await expect(async () => {
