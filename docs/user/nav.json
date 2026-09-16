@@ -7,15 +7,15 @@
         {
           "path": "tutorials/intro-to-le/intro-to-le",
           "title": "A Gentle Introduction to Logical English 2",
-          "blurb": "Start here: a hands-on tutorial that builds three small programs — a tea party, a flying dragon, and a slice of British nationality law — teaching how to write, query and debug LE in the editor.",
+          "blurb": "Start here: a hands-on tutorial that builds small programs — a tea party, a flying dragon, a slice of British nationality law, a tea shop — teaching how to write, query, test and debug LE in the editor, then citations, views and a second engine.",
           "menu": "Introduction to Logical English (tutorial)",
-          "menuTip": "A hands-on tutorial: write, query and debug three small LE programs.",
+          "menuTip": "A hands-on tutorial: write, query, test and debug small LE programs.",
           "landing": true
         },
         {
           "path": "tutorials/querying-a-program",
           "title": "Querying a program: answers, explanations and what-ifs",
-          "blurb": "A hands-on tutorial on regulatory/eu261_integration: queries, explanation trees, failed queries, Scenario Variations, flips, the Explanation Drill and the executive view."
+          "blurb": "A hands-on tutorial on regulatory/eu261_integration: queries, explanation trees, failed queries, Scenario Variations, flips, the Explanation Drill, the executive view and the views that shape it."
         },
         {
           "path": "tutorials/views",
@@ -44,11 +44,6 @@
           "path": "guide/assistants",
           "title": "The assistants: language models in the editor",
           "blurb": "What the LE Assistant (Light and Deep), Write it in English and the Contract Assistant do, and the models and API keys they need."
-        },
-        {
-          "path": "guide/import-export",
-          "title": "Importing and exporting: other systems' programs",
-          "blurb": "Opening other systems' files and exporting to them (on installations with the InsurLE extensions, such as the hosted service), refused exports, Show the Original, the migration twins."
         },
         {
           "path": "guide/proof-game",
@@ -90,6 +85,59 @@
           "path": "reference/lps-target",
           "title": "Logical English for LPS",
           "blurb": "What `the target language is: lps.` means, and where its reference lives (LPS2)."
+        }
+      ]
+    },
+    {
+      "title": "Other systems",
+      "items": [
+        {
+          "path": "integrations/index",
+          "title": "Other systems: importing and exporting",
+          "blurb": "The map of every system Logical English translates from or to, how opening another system's file, Show the Original and exporting work, and the refusals.",
+          "menu": "Other systems: import and export",
+          "menuTip": "The map of the integrations with other rule and contract systems, and a document for each.",
+          "landing": true
+        },
+        {
+          "path": "integrations/miniscript",
+          "title": "Bitcoin Miniscript and Logical English",
+          "blurb": "Spending policies and descriptors both ways: who can spend a coin, lost-key flips, the Minsc playground."
+        },
+        {
+          "path": "integrations/legalruleml",
+          "title": "LegalRuleML and Logical English",
+          "blurb": "OASIS LegalRuleML both ways: rules, obligations, permissions and prohibitions, and what an export refuses."
+        },
+        {
+          "path": "integrations/scasp",
+          "title": "s(CASP), Prolog and LE1",
+          "blurb": "Importing s(CASP) and Prolog programs (LE1's translations too), See s(CASP), the s(CASP) engine and the Prolog equivalent."
+        },
+        {
+          "path": "integrations/blawx",
+          "title": "Blawx and Logical English",
+          "blurb": "Blawx projects as Logical English in the legislation's own words, their tests as scenarios."
+        },
+        {
+          "path": "integrations/oia",
+          "title": "Oracle Intelligent Advisor and Logical English",
+          "blurb": "OIA projects and rulebases as Logical English programs, with their test cases."
+        },
+        {
+          "path": "integrations/socotra",
+          "title": "Socotra and Logical English",
+          "blurb": "Socotra product configurations (JSON and Liquid) as Logical English programs."
+        },
+        {
+          "path": "integrations/oipa",
+          "title": "OIPA and Logical English",
+          "blurb": "Oracle Insurance Policy Administration transactions (Rules Palette XML) as Logical English."
+        },
+        {
+          "path": "integrations/epilog",
+          "title": "Epilog and Logical English",
+          "blurb": "Epilog rulesets as Logical English, and games as Logical English for LPS."
         }
       ]
     },

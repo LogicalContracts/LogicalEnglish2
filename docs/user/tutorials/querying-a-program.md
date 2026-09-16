@@ -19,10 +19,11 @@ Justice:
   are inherent in a carrier's activity, so they are not extraordinary;
 - *Peskova* (C-315/15): a bird strike is not inherent.
 
-Everything below happens in the LE editor. Open the program with **File ▸
-Open copy from server…**, choosing `regulatory/eu261_integration`, or directly
-at `/editor/index.html?example=regulatory/eu261_integration`. The program is
-in the code area, with the **Query** panel along the bottom.
+Sections 1 to 6 happen in the LE editor, sections 7 and 8 in the executive
+view. Open the program with **File ▸ Open copy from server…**, choosing
+`eu261_integration` under the `regulatory` heading, or directly at
+`/editor/index.html?example=regulatory/eu261_integration`. The program is in
+the code area, with the **Query** panel along the bottom.
 
 ## Contents
 
@@ -33,7 +34,8 @@ in the code area, with the **Query** panel along the bottom.
 5. [Flip: what would change the answer?](#5-flip-what-would-change-the-answer)
 6. [The Explanation Drill](#6-the-explanation-drill)
 7. [The same program for its users](#7-the-same-program-for-its-users)
-8. [Quick reference](#8-quick-reference)
+8. [Views: a screen made for one decision](#8-views-a-screen-made-for-one-decision)
+9. [Quick reference](#9-quick-reference)
 
 ## 1. Running a query
 
@@ -70,22 +72,30 @@ To run it:
    by its name.
 3. Click **Query**.
 
-The answer appears on the left:
+![The program open in the editor, with the scenario new_claim and the query claim picked, before clicking Query](querying-a-program/01-program.png)
+
+The answer appears on the left, under **ANSWERS**, already selected:
 
 > anna is entitled to compensation of 250 for flight AZ123
 
 The flight is 800 km, and the program's decision table `article_7` gives
 250 for distances up to 1500 km.
 
-The address bar now names the program, the scenario and the query. Copy it
-to give someone the same run.
+![The answer of claim on new_claim, with its explanation](querying-a-program/02-answer.png)
+
+(The query panel is short when the editor opens. Drag the bar above its
+**Query** tab upwards to give the answers and the explanation more room.)
+
+The address bar now names the program, the scenario, the query and the
+selected answer. Copy it to give someone the same run.
 
 ## 2. Reading the explanation
 
 The **explanation** on the right shows how the program reached the answer.
 It is a tree of the program's own sentences: each condition of the rule that
-concluded the answer, and under each, what proved it. The top two levels are
-open. The `+` / `-` toggles open and close the rest.
+concluded the answer, and under each, what proved it. The first levels are
+open. The `+` / `-` toggles open and close the rest. A **§** after a fact
+shows the document that states it.
 
 For `new_claim`, the conditions under the answer are:
 
@@ -98,8 +108,9 @@ For `new_claim`, the conditions under the answer are:
 - the carrier of flight AZ123 is Alitalia;
 - it is not the case that the cancellation of flight AZ123 is due to
   extraordinary circumstances according to Alitalia;
-- 250 is the compensation due for flight AZ123 (the distance is 800 km, and
-  row `a` of table `article_7` gives 250).
+- 250 is the compensation due for flight AZ123: the distance is 800 km, and
+  *the compensation for a distance of 800 km is 250 under table article 7*,
+  by *row a of table article 7*.
 
 Things to notice:
 
@@ -113,8 +124,16 @@ Things to notice:
   inherent by wallentin hermann*: that case decided for *inherent* (C-549/07,
   paragraph 25) on a factor, *maintenance problem*, which this defect also
   has.
+
+![The explanation, opened down to the precedent and the maintenance log](querying-a-program/03-explanation.png)
+
 - **Click a node to see its source.** The editor scrolls to the rule or fact
-  that proved it and highlights it.
+  that proved it and selects it. Clicking *250 is the compensation due for
+  flight AZ123* selects the rule of the `remedy` section. A step proved in an
+  included file, such as the precedent library, names that file and line in
+  its tooltip.
+
+![Clicking a node selects the rule that proved it](querying-a-program/04-node-source.png)
 
 ### The important reason
 
@@ -126,6 +145,8 @@ it to see the one reason the answer rests on most. For `new_claim` that is:
 
 Right-click the title for **Show important reason**, which opens the tree at
 that node and flashes it, and **Explanation Drill…** (section 6).
+
+![The menu of the EXPLANATION title](querying-a-program/05-important-reason.png)
 
 Right-clicking in the tree offers **Copy Explanation** (as text and HTML) and
 **Copy as Mermaid diagram**. **Misc ▸ EXPLANATIONS ▸ Preferences…** controls how
@@ -154,7 +175,10 @@ It failed because both parts under it hold: anna *is* notified with 20 days
 of notice (according to Alitalia, as stated in the notice email), and 20 is
 at least 14.
 
-Now try the other two scenarios:
+![The failure explanation of claim on notified](querying-a-program/06-why-not.png)
+
+Above the red condition, *anna is booked on flight AZ123* is green: a failure
+explanation shows the conditions that held before the one that failed. Now try the other two scenarios:
 
 - `outside_the_eu`: *applicability failed*. The flight is not within scope,
   because *Istanbul is in the EU* cannot be proved.
@@ -181,10 +205,13 @@ The **Scenario Variations** window takes a scenario, lets you change it, and
 runs queries on the changed case. Your program is not modified.
 
 Choose `new_claim` and `claim`, then click **Scenario Variations**. A window
-opens with the scenario's facts as rows: each template's words are fixed, and
-its values are fields you can edit. The `claim` query is listed below the
-facts. **Query** at the bottom runs every listed query on the facts as they
-now are, and turns grey until you change something.
+titled *Scenario variations for eu261* opens with the scenario's facts as
+rows: each template's words are fixed, and its values are fields you can
+edit. Beside each row are its citation (*as stated in the booking at page
+1*), an **Assume** box and a **✕**. The `claim` query is listed below the
+facts, under **QUERIES**; **Add query** adds others. **Query** at the bottom
+right runs every listed query on the facts as they now are. After a run it
+turns grey until you change something.
 
 ### Change a value
 
@@ -193,7 +220,9 @@ and click **Query**. The answer becomes:
 
 > anna is entitled to compensation of 400 for flight AZ123
 
-and the explanation now cites row `b` of table `article_7`.
+and the explanation now cites *row b of table article 7*.
+
+![Scenario Variations with the distance changed to 2000 km](querying-a-program/07-variations-change.png)
 
 ### Remove a fact
 
@@ -208,12 +237,15 @@ green node that is a fact of the scenario offers **Patch scenario — delete
 this fact**. A red node that matches a template offers **Patch scenario — add
 this fact** and **Assume fact**. Each runs the queries again.
 
+![The distance removed: the query fails, and the red node offers to add the fact back](querying-a-program/08-variations-remove.png)
+
 ### Assume a fact
 
 Sometimes a fact is not established yet, and you want the answer *if* it
-holds. Add the distance row back with **Add fact**, fill in `AZ123` and
-`800`, and tick its **Assume** box. The fact
-becomes *it is unknown whether the distance of flight AZ123 is 800 km*. Run
+holds. Add the distance row back: in **Add fact**, choose *the distance of a
+flight is a number km* and click **+ Add**. Fill in `flight AZ123` and `800`,
+and tick the row's **Assume** box. Its fields turn grey: the fact is now
+*it is unknown whether the distance of flight AZ123 is 800 km*. Run
 again:
 
 > anna is entitled to compensation of 250 for flight AZ123
@@ -226,6 +258,8 @@ and in the explanation the assumed condition is **amber**. This is the answer
 *provided that* the assumption holds. The unknowns of an answer list what is
 still to be checked.
 
+![An assumed fact: the answer carries a ? and the condition is amber](querying-a-program/09-variations-assume.png)
+
 The window keeps the changed facts and the query list in its address. Copy
 the address to share this what-if, or use **Copy Scenario** to get the changed
 facts as a `scenario … is:` block.
@@ -236,12 +270,19 @@ Scenario Variations tries one change at a time. A *flip* asks the program
 for the smallest changes to the case that would change the answer.
 
 Back in the editor, with `new_claim` and `claim`, run the query and select
-the answer. Click **Flip…**. The dialog proposes:
+the answer. Click **Flip…**. The dialog *Flip the outcome* proposes:
 
-> which minimal change to the scenario makes it the case that it is not the
+> which minimal change to the scenario makes it the case that … it is not the
 > case that anna is entitled to compensation of 250 for flight AZ123
 
-Click **Flip**. Each answer is one change:
+*it is not the case that* is a ticked box, and the answer is in a text box you
+can edit: untick the box to ask what would make a sentence true instead.
+
+![The Flip dialog](querying-a-program/10-flip-dialog.png)
+
+Click **Flip**. The flip runs as a custom query: the **Query** picker says
+*Another...*, and the flip's text is in the **Custom Query** box, to edit and
+run again. Each answer is one change:
 
 - remove: flight AZ123 is cancelled
 - remove: flight AZ123 departs from Vienna
@@ -249,7 +290,11 @@ Click **Flip**. Each answer is one change:
 - remove: the carrier of flight AZ123 is Alitalia
 - remove: the distance of flight AZ123 is 800 km
 
-Each comes with the proof that the changed case gives.
+Each comes with the proof that the changed case gives. Under *remove: flight
+AZ123 is cancelled*, anna's entitlement fails, and it fails at *flight AZ123
+is cancelled*.
+
+![The changes that flip the answer, with the proof of the first](querying-a-program/11-flip-answers.png)
 
 Some facts are missing from this list. Removing the maintenance log's
 statement, or the cause of the cancellation, does not change the answer. The
@@ -278,34 +323,110 @@ answer at any time, or delete a question with its **✕**, and the drill
 recomputes its questions from that point. When nothing is left, it says
 *Nothing else to show*.
 
-Answer *Not yet* where a step is not obvious to you. On this program, the
-reasons under the extraordinary-circumstances condition lead down to the
-precedent, its factor, and the maintenance log entry that gives the defect
-that factor, as in the tree of section 2.
+Answer *Not yet* where a step is not obvious to you. On this program the
+first question is *the inspection defect counts as inherent in the normal
+exercise of the activity of Alitalia*. Answer:
+
+1. **Not yet**: the drill asks whether *for all cases in which a factor
+   disfavours inherent and the inspection defect has factor a factor* (no
+   factor against *inherent* applies to the defect);
+2. **Yes**: it asks about *for all cases in which a factor favours inherent and
+   wallentin hermann has factor a factor* (the precedent's factors);
+3. **Not yet**: *for case maintenance problem favours inherent and wallentin
+   hermann has factor maintenance problem*;
+4. **Yes**: *it is true that the inspection defect has factor maintenance
+   problem*, the step that the maintenance log entry proves.
+
+![The Explanation Drill after four answers](querying-a-program/12-drill.png)
+
+These are the steps of the tree of section 2, one at a time: the precedent's
+factor, and the defect that shares it. A **Yes** to the last question ends
+the drill with *Nothing else to show*.
 
 ## 7. The same program for its users
 
 A passenger or a claims handler does not need the program's text. **Misc ▸
 Open Executive View** opens the same program in the
-[executive view](../guide/executive-view.md). It has two pickers, the answers
-below them, and each answer opens on its **Citations**: the steps of the
-proof that cite a document, such as *the booking · page 1* or *C-549/07 ·
-paragraph 25*.
+[executive view](../guide/executive-view.md), in a new tab, on the scenario
+and query picked in the editor. The address
+`/executive?program=regulatory/eu261_integration&scenario=new_claim&query=claim`
+opens it too. It has a **Scenario** and a **Query** picker, a **Scenario
+Variations** button, and the answers below. There is no Run button: the query
+runs when a picker changes. Click an answer to open it. It opens on its
+**Citations**: the steps of the proof that cite a document, such as *the
+booking · page 1* or *C-549/07 · paragraph 25*. **Full explanation** below
+them is the tree.
+
+![The executive view, with the answer opened on its citations](querying-a-program/13-executive.png)
 
 With `notified`, the executive view says *No — no answers for this query.*
 and lists **Why not**: *it is not the case that anna is notified of the
 cancellation … with a number days of notice and a number is greater than or
-equal to 14*, marked **not met**, with the facts it compared. With
-`outside_the_eu` it lists *Istanbul is in the EU*.
+equal to 14*, marked **not met**, with the facts it compared after *given:*.
+With `outside_the_eu` it lists *Istanbul is in the EU*, also **not met**.
 
-The program also declares a view, **Passenger claim desk**, at its end. Open
-it at `/executive?program=regulatory/eu261_integration&view=claim%20desk`. It
-shows the case's facts in groups, the result in euros, the stage, the
-citations, the precedents, a comparison with `bird_strike`, a flip, and the
-documents. How views are written is the subject of the
+![Why not, for the scenario notified](querying-a-program/14-executive-why-not.png)
+
+Above the pickers, a **Views:** strip lists *Passenger claim desk*. That is
+the subject of the next section.
+
+## 8. Views: a screen made for one decision
+
+The pickers show any program the same way: a scenario, a query, the answers
+as sentences. A claims handler deciding a claim wants something else: the
+case's facts to check and correct, the amount, the stage the claim reached,
+the sources, what would change the result. A **view** is how the program's
+author describes that screen. It is a section of fixed sentences at the end
+of the program, `the view claim desk is: …`
+([the language reference](../reference/language.md) §17.10). Nothing reasons
+with a view: the answers and the tests of the program are the same with or
+without it. A view only changes what the person running the program sees,
+and in what order.
+
+To try it, click **Passenger claim desk** in the **Views:** strip, or open
+`/executive?program=regulatory/eu261_integration&view=claim%20desk`. The
+pickers give way to a screen in three columns, each card from one sentence of
+the view:
+
+- on the left, **the case**: a picker of the scenarios, and the facts of the
+  one chosen, in the groups the view names (*the booking*, *the cancellation*,
+  *the event*, *judgments*). Each fact is an editable row, with its citation
+  and, where the view asks, a badge saying who states it (*Alitalia*). A
+  template the case does not state is listed as *not stated*.
+- in the middle, the **Result** headed by the amount, *250 euros*; the
+  **Stage** it reaches (applicability, question and remedy passed); the
+  **Citations**; and **What would change this?**, whose **Find the smallest
+  changes** runs a flip.
+- on the right, the answers to three other questions as tables (the factors,
+  and the precedents decided for and against *inherent*), a **Compare** card
+  with the same question on `bird_strike`, and the **Documents** the case
+  cites.
+
+![The Passenger claim desk view, on new_claim](querying-a-program/15-view-claim-desk.png)
+
+Now pick `notified` in the case picker. The result is *No answer*, *fails at
+question*, and the stage shows question failed and remedy not reached. This
+view does not ask for the reasons of a failure (the sentence `the result shows
+its reasons` would add *Why not*), so it answers with the stage instead.
+**Find the smallest changes** says what would give anna her compensation:
+*remove: anna is notified of the cancellation of flight AZ123 with 20 days of
+notice*.
+
+![The same view on notified, after Find the smallest changes](querying-a-program/16-view-notified.png)
+
+Edits to the facts stay on the screen, as a new case; the program does not
+change. **Re-evaluate** runs the result again (tick **automatically** to run
+it at every edit). **Without a view** returns to the pickers.
+
+Other programs of `examples/regulatory` have views of other kinds:
+`sections_benefit` (*rent help*, which asks what is missing, and *rent
+decision*, which says why not), `flip_housing` (*benefit check*, an interview
+that asks one question at a time) and `judged_damage` (*claim file*, a result
+that waits for a judgment). A program without a view offers an **Automatic
+view** drawn from its text. To write a view, start with the
 [LE Views](views.md) tutorial.
 
-## 8. Quick reference
+## 9. Quick reference
 
 | To… | Do this |
 |---|---|
@@ -315,9 +436,11 @@ documents. How views are written is the subject of the
 | Find the main reason | Hover **EXPLANATION**; right-click it for **Show important reason** |
 | See why there is no answer | The failure explanation: the section checklist, then the red condition |
 | Try a what-if | **Scenario Variations**: edit, delete, add or **Assume** facts, then **Query** |
-| Find the smallest change that flips an answer | Select the answer, **Flip…** |
+| Find the smallest change that flips an answer | Select the answer, **Flip…**, then **Flip** |
 | Be walked through an explanation | Right-click **EXPLANATION**, **Explanation Drill…** |
 | Show the program to its users | **Misc ▸ Open Executive View** |
+| See the program through a view | In the executive view, a name in the **Views:** strip |
+| Write a view | The [LE Views](views.md) tutorial |
 
 The [editor guide](../guide/editor.md) describes each of these in full. The
 [Proof Game](../guide/proof-game.md) is another way in: building the proof of

@@ -370,6 +370,8 @@ handle_landing_page(Request) :-
     uit('A minimalist, mobile-friendly way to pick a program, choose a scenario and question, and see the answer — no editing.', ExecBlurb),
     uit('GitHub Repository', GitHubRepo),
     uit('Documentation', DocumentationTxt),
+    uit('Search the documentation', SearchDocsTxt),
+    uit('Search', SearchTxt),
     landing_doc_items(DocItems),
     uit('Test Suite', TestSuiteTxt),
     uit('Run All Tests', RunAllTests),
@@ -413,6 +415,11 @@ handle_landing_page(Request) :-
                 li(a(href('https://github.com/LogicalContracts/LogicalEnglish2'), GitHubRepo))
             ]),
             h2(DocumentationTxt),
+            form([action('/docs/search'), method(get), role(search)], [
+                input([type(search), name(q), placeholder(SearchDocsTxt), 'aria-label'(SearchDocsTxt), size(32)]),
+                ' ',
+                input([type(submit), value(SearchTxt)])
+            ]),
             ul(DocItems),
             h2(TestSuiteTxt),
             form([action('/'), method('get')], [
@@ -3304,6 +3311,8 @@ handle_docs(Request) :-
         doc_moved(Old, New)
     ->  format(atom(To), '/docs/~w~w', [New, Ext]),
         http_redirect(moved, To, Request)
+    ;   Rel == search                % the documentation's search (docs-extras.js)
+    ->  http_reply_file('web_extras/docsview/viewer.html', [mime_type(text/html)], Request)
     ;   \+ public_doc(Rel)
     ->  throw(http_reply(not_found(Path)))
     ;   safe_docs_path(DocsDir, Rel, AbsFile), exists_file(AbsFile)
@@ -3337,6 +3346,7 @@ doc_moved('ProofGame', 'user/guide/proof-game').
 doc_moved(warningsSummary, 'user/guide/warnings').
 doc_moved('sCASP_on_LE', 'user/reference/scasp').
 doc_moved(api, 'user/api/web-api').
+doc_moved('user/guide/import-export', 'user/integrations/index').
 
 %!  landing_doc_items(-Items:list) is det.
 %

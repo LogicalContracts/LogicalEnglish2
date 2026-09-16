@@ -80,6 +80,7 @@ import { ExplanationView } from './explanation-view';
 import { isForeignOffset, openIncludedResource, describeResourceRange } from './resource-nav';
 import { openSourceViewer, originalUrl, Provenance } from './source-viewer';
 import { TabBar } from './editor-tabs';
+import { docQueryAt, openDocQuery } from './doc-for-this';
 
 declare var monaco: any;
 
@@ -507,6 +508,17 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 } catch (err) {
                     console.error('Failed to get PROLOG:', err);
                 }
+            }
+        });
+
+        editor.addAction({
+            id: 'documentation-for-this',
+            label: t('Documentation for this'),
+            contextMenuGroupId: 'navigation',
+            contextMenuOrder: 0.5,
+            run: (ed: any) => {
+                const query = docQueryAt(ed.getModel(), ed.getPosition(), ed.getSelection(), 'le');
+                if (query) openDocQuery(query);
             }
         });
 

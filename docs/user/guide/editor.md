@@ -35,6 +35,7 @@ The Logical English (LE) web application is a simple IDE designed for developing
     - [Explanation Preferences](#explanation-preferences)
     - [Why not: a query with no answer](#why-not-a-query-with-no-answer)
   - [Advanced Features](#advanced-features)
+  - [Finding documentation](#finding-documentation)
   - [More guides](#more-guides)
 
 ## Getting Started
@@ -129,7 +130,7 @@ With the InsurLE extensions installed (the hosted service has them), the server
 translates the files of eleven other systems into Logical English, and writes
 Logical English programs in three other systems' formats. Without them, `Import
 from Another System…` is hidden and `File > Open...` offers only `.le` files.
-Full guide: [Importing and exporting](import-export.md).
+Full guide: [Other systems: importing and exporting](../integrations/index.md), with a document for each system.
 
 *   **Importers** (`File > Open...` and `File > Import from Another System…`, whose tooltip lists the systems this server translates from): a Bitcoin Miniscript policy or descriptor; an Oracle Intelligent Advisor project or rulebase; a Socotra product configuration; a Solidity contract (as LE for LPS); an s(CASP) or Prolog program (LE1's s(CASP) translations too); a Blawx project; a Drools rule base (DRL); an Epilog program; a LegalRuleML document; an Oracle Insurance Policy Administration transaction (Rules Palette XML); a Daml source (as LE for LPS).
 *   **Exporters** (`File > Export to Another System…`, which offers only those that apply to the program): a Bitcoin Miniscript policy (with a link to the Minsc playground); LegalRuleML; Daml, for an LE for LPS program. The result is shown with its notes, **Copy** and **Save…**.
@@ -327,10 +328,16 @@ The [executive view](executive-view.md#when-there-is-no-answer-why-not), and a v
 *   **Proof Game:** the **Proof Game** button in the Query tab opens a game in which you build the proof of the selected query yourself. See [the Proof Game](proof-game.md).
 *   **Debugger:** Right-click in the editor and select **See PROLOG** to view the translated logic, or use the **Trace** button in the Query tab for step-by-step execution. Click in the margin left of a line number to set a breakpoint (a red dot). In the debug panel, **Step** (F11) goes to the next goal, **Step over** (F10) to the next one at the same level or above, **Continue** (F5) to the next breakpoint or answer, and **Stop** ends the query. The call stack and the current goal's variables follow each stop.
 
+## Finding documentation
+
+*   **Search:** **Help ▸ Search the documentation…**, the search box at the top of every document, and the one under *Documentation* on the landing page search the text of every user document. All the words must occur in a section, and a phrase in quotes must occur as written; the results are the sections, grouped by document, best first (a word in a heading counts most), always in the same order for the same words. A link at the foot repeats the search in the LPS2 documentation.
+*   **Documentation for this:** right-click on a word of the program and choose **Documentation for this**. It searches for what the word *is*, not for its letters: a variable (`X`, `a person`) finds the documentation about variables, a date the one about dates, a word of a template the one about templates, a keyword (`if`, `it is not the case that`, `the templates are:`) that keyword. With a selection wider than one word, it searches for the selection as written. The results page offers the word itself as a search of its own.
+*   **Other systems:** **Help ▸ Other systems: import and export** opens the [map of the integrations](../integrations/index.md), with a document for each system.
+
 ## More guides
 
 *   [The executive view](executive-view.md): running a program without its text, citations, why not, views, links.
-*   [Importing and exporting](import-export.md): other systems' files, exports and refusals, the migration twins.
+*   [Other systems](../integrations/index.md): a map of the integrations, a document per system, other systems' files, exports and refusals, the migration twins.
 *   [The assistants](assistants.md): the LE Assistant, Write it in English, the Contract Assistant.
 *   [Querying a program](../tutorials/querying-a-program.md): a tutorial on queries, explanations, variations, flips and the Explanation Drill.
 *   [The Proof Game](proof-game.md) and [the verifier's warnings](warnings.md).
