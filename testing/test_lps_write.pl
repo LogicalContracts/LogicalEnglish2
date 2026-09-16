@@ -4,7 +4,7 @@
     appears in: the first mention, in the order the sentence is written, is
     indefinite (`a sender`, `a second amount`) and every later one definite
     (`the sender`), as an author would write it. (The round trip over
-    examples/lps/ is testing/lps_roundtrip.pl.)
+    LPS2's examples/le/ is testing/lps_roundtrip.pl.)
 
     Run with:  swipl -q -g run_tests -t halt testing/test_lps_write.pl
 */

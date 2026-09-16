@@ -10,7 +10,6 @@ server's landing page.
 | [`regulatory/`](regulatory/README.md) | `regulatory/…` | the regulatory-decision constructs and views (docs/le_summary.md §17) |
 | [`migration/`](migration/README.md) | `migration/<source>/<twin>/<twin>` | twins of other systems' programs (Blawx, LegalRuleML, Miniscript, s(CASP)) |
 | [`es/`](es/README.md) [`fr/`](fr/README.md) [`it/`](it/README.md) [`pt/`](pt/README.md) | `pt/cidadania`, … | programs written in other languages |
-| [`lps/`](lps/README.md) | | Logical English for LPS |
 | [`api/`](api/README.md) | | calling LE from Prolog |
 | `../testing/fixtures/le/` | `fixtures/…` | the programs the test suites load (listed to logged-in users) |
 

@@ -1,8 +1,14 @@
 /** <module> The M8c gate: Logical English for LPS
 
-    Every `.le` under examples/lps/ is translated to LPS internal syntax and
-    compared, term by term and up to variable renaming (`variant/2`), with the
-    `.expected.lpsw` file beside it.
+    Every program with an expectation in testing/fixtures/lps/
+    (`<name>.expected.lpsw`) is translated to LPS internal syntax and compared,
+    term by term and up to variable renaming (`variant/2`), with it.
+
+    The programs are LPS2's Logical English examples (lps2/examples/le/): they
+    are read from an LPS2 checkout when there is one ($LPS2_DIR, a sibling
+    ../lps2, or /lps2), and otherwise from the few copies kept beside the
+    expectations, so that the gate still runs on LE2 alone. A program with an
+    expectation and no source is reported as skipped, not as passed.
 
 	./myswipl.sh -q -g "consult('testing/lps_test.pl')" -g "lps_test:main" -t halt
 
@@ -21,17 +27,44 @@
 :- use_module(library(apply)).
 :- use_module('../le_lps').
 
-lps_dir('examples/lps').
+fixtures_dir('testing/fixtures/lps').
 
+%!  lps2_examples_dir(-Dir) is semidet.
+%
+%   examples/le of an LPS2 checkout: $LPS2_DIR, ../lps2 beside this
+%   repository, or /lps2.
+lps2_examples_dir(Dir) :-
+	(   getenv('LPS2_DIR', D0), D0 \== '' ; D0 = '../lps2' ; D0 = '/lps2' ),
+	atomic_list_concat([D0, '/examples/le'], Dir),
+	exists_directory(Dir), !.
+
+%!  programs(-Files) is det.
+%
+%   The source of every program with an expectation: LPS2's copy when there
+%   is a checkout, else the fixture copy; a name with neither is reported.
 programs(Files) :-
-	lps_dir(Dir),
-	atom_concat(Dir, '/*.le', Pattern),
-	expand_file_name(Pattern, Files0),
-	sort(Files0, Files).
+	fixtures_dir(Fix),
+	atom_concat(Fix, '/*.expected.lpsw', Pattern),
+	expand_file_name(Pattern, Exps0),
+	sort(Exps0, Exps),
+	findall(File,
+		( member(Exp, Exps),
+		  file_base_name(Exp, B), atom_concat(Name, '.expected.lpsw', B),
+		  (   program_source(Name, File) -> true
+		  ;   format('  skip  ~w — no source (no LPS2 checkout, no fixture copy)~n', [Name]), fail
+		  ) ),
+		Files).
+
+program_source(Name, File) :-
+	(   lps2_examples_dir(Dir) ; fixtures_dir(Dir) ),
+	atomic_list_concat([Dir, '/', Name, '.le'], File),
+	exists_file(File), !.
 
 expected_file(LE, Expected) :-
-	atom_concat(Base, '.le', LE),
-	atom_concat(Base, '.expected.lpsw', Expected).
+	file_base_name(LE, B),
+	atom_concat(Name, '.le', B),
+	fixtures_dir(Fix),
+	atomic_list_concat([Fix, '/', Name, '.expected.lpsw'], Expected).
 
 %!  translate(+File, -Terms) is semidet.
 translate(File, Terms) :-

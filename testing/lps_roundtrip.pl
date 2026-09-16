@@ -1,6 +1,7 @@
 /** <module> The M8d gate: the LE <-> LPS round trip
 
-    For every program in examples/lps/:
+    For every program of LPS2's Logical English examples (lps2/examples/le/,
+    read from an LPS2 checkout, or else the copies in testing/fixtures/lps/):
 
 	LE  ->  internal  ->  LE  ->  internal
 
@@ -26,6 +27,7 @@
 :- use_module('../le_lps').
 :- use_module('../le_lps_write').
 :- use_module('../le_kbs').
+:- use_module(lps_test, []).
 :- use_module(library(time)).
 
 %!  excluded(?Base, ?Reason) is nondet.
@@ -41,7 +43,9 @@ excluded(loan_agreement,
 	 'the same: date(2014,6,1) appears as a constant in four rules.').
 
 programs(Files) :-
-	expand_file_name('examples/lps/*.le', Files0),
+	(   lps_test:lps2_examples_dir(Dir) -> true ; lps_test:fixtures_dir(Dir) ),
+	atom_concat(Dir, '/*.le', Pattern),
+	expand_file_name(Pattern, Files0),
 	sort(Files0, Files).
 
 %!  roundtrip(+File, -First, -Second) is semidet.
