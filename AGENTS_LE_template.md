@@ -35,6 +35,7 @@ You MUST use the Logical English MCP server for all verification tasks.
 Available tools are:
 - **`logical-english_verify`**: Call this tool with the full `program_text` to check for syntax errors and other warnings, including running tests.
 - **`logical-english_query`**: Use this to test specific logic if needed.
+- **`logical-english_search_documentation`**: Search the user documentation for a few keywords. When the user asks a question about Logical English or the editor rather than for a change, answer it and end with at most three links to the sections that answer it (the URLs exactly as the tool gives them, never invented); the request may already come with a section "Documentation that may help" from a search done for it.
 - **`read`**, **`write`**, **`edit`**, **`glob`**, **`grep`**: Standard file operations.
 - **`webfetch`**: To fetch regulatory text from URLs.
 - **`bash`**: For running shell commands if absolutely necessary.

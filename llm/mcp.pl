@@ -15,6 +15,7 @@
 :- use_module('../reasoner').
 :- use_module('../le_system_templates').
 :- use_module('../le_tools').
+:- use_module('../le_docs_search', [docs_search_answer/4]).
 :- use_module('../restricted_paths', [is_path_allowed/2]).
 
 :- dynamic mcp_only_query_verify/0.
@@ -347,6 +348,17 @@ handle_method(Method, Dict, Response) :-
             }
         },
         _{
+            name: "search_documentation",
+            description: "Search the user documentation of Logical English and its editor (the language reference, tutorials, guides, integrations) for a few keywords; returns the sections found, each with a link relative to the server. Use it to answer a question about the language or the editor, citing at most three of the links.",
+            inputSchema: _{
+                type: "object",
+                properties: _{
+                    query: _{ type: "string", description: "A few keywords, as the documentation would word them (a phrase in double quotes must occur as it is)" }
+                },
+                required: ["query"]
+            }
+        },
+        _{
             name: "verify",
             description: "Parse and verify a Logical English program, returning all issues found",
             inputSchema: _{
@@ -486,9 +498,15 @@ call_tool("query", Args, Result) :-
 call_tool("verify", Args, Result) :-
     le_tools:le_tool_verify(Args, Result).
 
+call_tool("search_documentation", Args, _{sections: Text}) :-
+    ( get_dict(query, Args, Q) -> true ; Q = "" ),
+    module_property(mcp, file(F)), file_directory_name(F, LLMDir), file_directory_name(LLMDir, Root0),
+    directory_file_path(Root0, 'docs/user', Root),
+    le_docs_search:docs_search_answer(Root, Q, [], Text).
+
 call_tool(ToolName, _Args, Result) :-
     format(user_error, "MCP Error: Unknown tool called: ~w~n", [ToolName]),
-    format(string(Msg), "Unknown tool: ~w. Available tools are: list_examples, get_example_details, query, verify.", [ToolName]),
+    format(string(Msg), "Unknown tool: ~w. Available tools are: list_examples, get_example_details, query, verify, search_documentation.", [ToolName]),
     Result = _{error: Msg}.
 
 %   Read the metadata under a module reference (and retry if the module was
@@ -596,7 +614,7 @@ library_copy_in(Dir, Base) :-
 % --- MCP Helpers ---
 
 is_query_or_verify(Tool) :-
-    member(Tool.name, ["query", "verify"]).
+    member(Tool.name, ["query", "verify", "search_documentation"]).
 
 log_tool_result("verify", Result) :- !,
     Issues = Result.get(issues, []),

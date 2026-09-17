@@ -1395,43 +1395,109 @@ handle_document_text(Dict, Response) :-
           Response = _{error: Reason}).
 
 handle_load(Dict, Response) :-
-    (   get_dict(le, Dict, Doc) ->  
-        load_base_of(Dict, Base),
-        ( catch(le_kbs:load_text(Doc, Base, KB), E1, (print_message(error, E1), fail)) -> Language = le; print_message(error, le_api_error(load, "le_kbs:load_text failed")), fail)
-        ;   
-        get_dict(file, Dict, File),
-        le_example_relpath(File, Path0),
-        (   http_in_session(_SessionId), http_session_data(user(_, Roles)) -> UserRoles = Roles ; UserRoles = [] ),
-        (   is_path_allowed(Path0, UserRoles)
-        ->  ( exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', PathLE), exists_file(PathLE) -> Path = PathLE; Path = Path0),
-            (   sub_atom(Path, _, _, 0, '.le') ->  
-                    ( catch(le_kbs:load(Path, KB), E2, (print_message(error, E2), fail)) -> Language = le; print_message(error, le_api_error(load, "le_kbs:load failed")), fail)
-                ; ( catch(load_prolog_file(Path, KB), E3, (print_message(error, E3), fail)) -> Language = prolog; print_message(error, le_api_error(load, "load_prolog_file failed")), fail)
-            )
-        ;   print_message(error, le_api_error(load, "Access denied")), fail
+    (   load_kb(Dict, KB, Language, Response0)
+    ->  (   var(Response0)
+        ->  session_for_kb(KB, Language, Response)
+        ;   Response = Response0
         )
-    ),
-    ( catch(createSession(KB, SM), E4, (print_message(error, E4), fail)) -> true; print_message(error, le_api_error(load, "createSession failed")), fail),
-    (   catch(get_kb_metadata(KB, Metadata), E5, (print_message(error, E5), fail)) ->
-        findall(_{severity: Sev, type: Type, message: Msg, fix: Fix, start: Start, end: End}, KB:le_issue(Sev, Type, Msg, Fix, Start, End), Issues),
-        % The declared execution target (`the target language is: …`) so the client
-        % can pre-select the matching engine.
-        le_kbs:kb_target_language(KB, Target),
-        % Where the program cites a document the editor can show (Show
-        % definition on a citation opens it with View Original Text).
-        ( catch(le_provenance:citation_spans(KB, Citations), _, fail) -> true ; Citations = [] ),
-        Response = Metadata.put(_{
-            sessionModule: SM,
-            language: Language,
-            target: Target,
-            issues: Issues,
-            citations: Citations
-        }),
-        print_message(informational, le_api_info(loaded(KB, SM)))
-        ;   
-        print_message(error, le_api_error(load, "get_kb_metadata failed")),
-        fail
+    ;   load_failure(open, Response)
     ).
+
+%!  load_kb(+Dict, -KB, -Language, -Refusal) is semidet.
+%
+%   The knowledge base of the program to load: the text (`le`) or the example
+%   (`file`). Refusal stays unbound when there is one, and is otherwise the
+%   reply saying why there is not — an example that does not exist (an old
+%   link, a mistyped ?example=), one the user may not open, or a program that
+%   could not be loaded. None of these is a failure of the operation any more:
+%   a load that failed silently was answered with a 500 and reported to
+%   Sentry as "the operation failed without an exception", with nothing to
+%   say which.
+load_kb(Dict, KB, Language, Refusal) :-
+    (   get_dict(le, Dict, Doc)
+    ->  load_base_of(Dict, Base),
+        (   catch(le_kbs:load_text(Doc, Base, KB), E1, (print_message(error, E1), load_failure(load_text(E1), Refusal)))
+        ->  Language = le
+        ;   var(Refusal) -> load_failure(load_text, Refusal)
+        ;   true
+        )
+    ;   get_dict(file, Dict, File),
+        le_example_relpath(File, Path0),
+        (   http_in_session(_SessionId), http_session_data(user(_, Roles)) -> UserRoles = Roles, LoggedIn = true ; UserRoles = [], LoggedIn = false ),
+        (   is_path_allowed(Path0, UserRoles)
+        ->  (   exists_file(Path0) -> Path = Path0
+            ;   atom_concat(Path0, '.le', PathLE), exists_file(PathLE) -> Path = PathLE
+            ;   Path = none
+            ),
+            (   Path == none
+            ->  le_i18n:le_msg(example_not_found, [name-File], NF), atom_string(NF, NFS),
+                print_message(warning, le_api_error(load, NFS)),
+                Refusal = _{error: NFS, notFound: true}
+            ;   sub_atom(Path, _, _, 0, '.le')
+            ->  (   catch(le_kbs:load(Path, KB), E2, (print_message(error, E2), load_failure(load(E2), Refusal)))
+                ->  Language = le
+                ;   var(Refusal) -> load_failure(load, Refusal)
+                ;   true
+                )
+            ;   (   catch(load_prolog_file(Path, KB), E3, (print_message(error, E3), load_failure(load_prolog_file(E3), Refusal)))
+                ->  Language = prolog
+                ;   var(Refusal) -> load_failure(load_prolog_file, Refusal)
+                ;   true
+                )
+            )
+        ;   % the same replies as the examples operation's
+            (   LoggedIn == false
+            ->  le_i18n:le_msg(access_denied_login, [], DMsg), atom_string(DMsg, DStr),
+                Refusal = _{error: DStr, loginRequired: true}
+            ;   le_i18n:le_msg(access_denied_role, [], DMsg), atom_string(DMsg, DStr),
+                Refusal = _{error: DStr}
+            )
+        )
+    ).
+
+session_for_kb(KB, Language, Response) :-
+    (   catch(createSession(KB, SM), E4, (print_message(error, E4), load_failure(createSession(E4), Response)))
+    ->  (   nonvar(Response)
+        ->  true
+        ;   catch(get_kb_metadata(KB, Metadata), E5, (print_message(error, E5), load_failure(get_kb_metadata(E5), Response)))
+        ->  (   nonvar(Response)
+            ->  true
+            ;   findall(_{severity: Sev, type: Type, message: Msg, fix: Fix, start: Start, end: End}, KB:le_issue(Sev, Type, Msg, Fix, Start, End), Issues),
+                % The declared execution target (`the target language is: …`) so the client
+                % can pre-select the matching engine.
+                le_kbs:kb_target_language(KB, Target),
+                % Where the program cites a document the editor can show (Show
+                % definition on a citation opens it with View Original Text).
+                ( catch(le_provenance:citation_spans(KB, Citations), _, fail) -> true ; Citations = [] ),
+                Response = Metadata.put(_{
+                    sessionModule: SM,
+                    language: Language,
+                    target: Target,
+                    issues: Issues,
+                    citations: Citations
+                }),
+                print_message(informational, le_api_info(loaded(KB, SM)))
+            )
+        ;   load_failure(get_kb_metadata, Response)
+        )
+    ;   var(Response) -> load_failure(createSession, Response)
+    ;   true
+    ).
+
+%!  load_failure(+Stage, -Response) is det.
+%
+%   A load that went wrong inside the server: reported to Sentry with the
+%   stage it went wrong at (and the exception, when there was one), and
+%   answered with a message saying so. Stage is a name, or Name(Exception).
+load_failure(Stage, Response) :-
+    (   compound(Stage), Stage =.. [Name, Ball]
+    ->  le_telemetry:telemetry_report(Ball, [operation(load)])
+    ;   Name = Stage,
+        le_telemetry:telemetry_report(failed(Name), [operation(load)])
+    ),
+    print_message(error, le_api_error(load, Name)),
+    le_i18n:le_msg(program_not_loaded, [stage-Name], M), atom_string(M, MS),
+    Response = _{error: MS}.
 
 %!  handle_automatic_view(+Dict, -Response) is det.
 %

@@ -33,6 +33,7 @@
 // editor (and a .ttf) into this bundle for no gain.
 declare var monaco: any;
 
+import { installKeyEventGuard } from './key-event-guard';
 import { leLanguageConfiguration, buildLeMonarchTokens } from './le-language';
 import { lpsLanguageConfiguration, lpsMonarchTokens } from './lps-language';
 
@@ -95,6 +96,7 @@ function setupEditor() {
     monaco.languages.setLanguageConfiguration('lps', lpsLanguageConfiguration as any);
     monaco.languages.setMonarchTokensProvider('lps', lpsMonarchTokens);
 
+    installKeyEventGuard();
     state.editor = monaco.editor.create($('editor'), {
         value: SAMPLE_LE,
         language: 'le',

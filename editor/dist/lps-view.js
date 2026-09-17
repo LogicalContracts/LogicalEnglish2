@@ -1,3 +1,17 @@
+// src/key-event-guard.ts
+function installKeyEventGuard() {
+  const w = window;
+  if (w.__leKeyEventGuard)
+    return;
+  w.__leKeyEventGuard = true;
+  for (const type of ["keydown", "keyup", "keypress"]) {
+    window.addEventListener(type, (e) => {
+      if (!(e instanceof KeyboardEvent))
+        e.stopImmediatePropagation();
+    }, true);
+  }
+}
+
 // src/generated/i18nData.ts
 var keywords = {
   "en": {
@@ -8879,6 +8893,7 @@ function setupEditor() {
   monaco.languages.register({ id: "lps" });
   monaco.languages.setLanguageConfiguration("lps", lpsLanguageConfiguration);
   monaco.languages.setMonarchTokensProvider("lps", lpsMonarchTokens);
+  installKeyEventGuard();
   state.editor = monaco.editor.create($("editor"), {
     value: SAMPLE_LE,
     language: "le",
