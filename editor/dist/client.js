@@ -13147,6 +13147,20 @@ function splitFacts(bodyLines) {
   return facts;
 }
 
+// src/key-event-guard.ts
+function installKeyEventGuard() {
+  const w = window;
+  if (w.__leKeyEventGuard)
+    return;
+  w.__leKeyEventGuard = true;
+  for (const type of ["keydown", "keyup", "keypress"]) {
+    window.addEventListener(type, (e) => {
+      if (!(e instanceof KeyboardEvent))
+        e.stopImmediatePropagation();
+    }, true);
+  }
+}
+
 // src/mermaid-export.ts
 function esc2(label) {
   return String(label ?? "").replace(/"/g, "#quot;").replace(/\s+/g, " ").trim();
@@ -14259,6 +14273,7 @@ var graphChannel = new BroadcastChannel("le-graph-sync");
 var scenarioChannel = new BroadcastChannel("le-scenario-editor");
 var queryChannel = new BroadcastChannel("le-query-editor");
 async function start() {
+  installKeyEventGuard();
   if (typeof monaco === "undefined") {
     console.error("Monaco not loaded");
     return;
@@ -18473,6 +18488,101 @@ ${t("It lists every fact a case can state as one group, and shows the result of 
   lspClose = (doc) => sendNotification("textDocument/didClose", {
     textDocument: { uri: doc.model.uri.toString() }
   });
+  const semanticTokensChanged = new monaco.Emitter();
+  const includedKey = /* @__PURE__ */ new Map();
+  const includedTimers = /* @__PURE__ */ new Map();
+  const resourceTextCache = /* @__PURE__ */ new Map();
+  const includedResourceNames = (text) => {
+    const lang = detectProgramLanguage(text);
+    const phrases = [...kwPhrases(lang, "resources_include"), ...kwPhrases("en", "resources_include")].filter(Boolean).map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+"));
+    if (phrases.length === 0)
+      return [];
+    const header = new RegExp(`(?:${phrases.join("|")})\\s*:`, "gi");
+    const names = [];
+    let m;
+    while ((m = header.exec(text)) !== null) {
+      let rest = text.slice(m.index + m[0].length);
+      const lines = [];
+      for (const raw of rest.split("\n")) {
+        const l = raw.replace(/%.*$/, "");
+        lines.push(l);
+        if (/\.\s*$/.test(l))
+          break;
+      }
+      for (const part of lines.join(" ").split(",")) {
+        const name = part.trim().replace(/[.:]\s*$/, "").trim();
+        if (name && !/\s/.test(name))
+          names.push(name);
+      }
+    }
+    return names;
+  };
+  const fetchResourceText = (name, source, base) => {
+    const key = `${source}|${base}|${name}`;
+    if (!resourceTextCache.has(key)) {
+      resourceTextCache.set(key, (async () => {
+        try {
+          const post = async (body) => (await fetch("/leapi", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token: "myToken123", ...body })
+          })).json();
+          const r = await post({ operation: "resourceAt", resource: name, source, base });
+          if (r.kind === "example") {
+            const e = await post({ operation: "examples", file: r.example });
+            return typeof e.document === "string" ? { text: e.document, source: r.example, base: "" } : null;
+          }
+          if (r.kind === "text" && r.language === "le") {
+            const b = r.url ? r.url.replace(/[^/]*$/, "") : base;
+            return { text: r.text, source: r.url ? "" : source, base: b };
+          }
+        } catch {
+        }
+        return null;
+      })());
+    }
+    return resourceTextCache.get(key);
+  };
+  const syncIncludedTemplates = (doc) => {
+    const uri = doc.model.uri.toString();
+    clearTimeout(includedTimers.get(uri));
+    includedTimers.set(uri, setTimeout(async () => {
+      if (doc.model.isDisposed())
+        return;
+      const names = includedResourceNames(doc.model.getValue());
+      const key = `${doc.example || ""}|${doc.baseUrl || ""}|${names.join(",")}`;
+      if (includedKey.get(uri) === key)
+        return;
+      includedKey.set(uri, key);
+      const texts = [];
+      const visited = /* @__PURE__ */ new Set();
+      const walk = async (ns, source, base, depth) => {
+        for (const n of ns) {
+          const r = await fetchResourceText(n, source, base);
+          if (!r || visited.has(`${r.source}|${r.base}|${n}`))
+            continue;
+          visited.add(`${r.source}|${r.base}|${n}`);
+          texts.push(r.text);
+          if (depth < 3)
+            await walk(includedResourceNames(r.text), r.source, r.base, depth + 1);
+        }
+      };
+      await walk(names, doc.example || "", doc.baseUrl || "", 1);
+      if (includedKey.get(uri) !== key)
+        return;
+      sendNotification("le/includedTexts", { uri, texts });
+      semanticTokensChanged.fire(void 0);
+    }, 400));
+  };
+  const lspOpenText = lspOpen, lspChangeText = lspChange;
+  lspOpen = (doc) => {
+    lspOpenText(doc);
+    syncIncludedTemplates(doc);
+  };
+  lspChange = (doc) => {
+    lspChangeText(doc);
+    syncIncludedTemplates(doc);
+  };
   docs.forEach((doc) => lspOpen(doc));
   monaco.languages.registerHoverProvider("le", {
     provideHover: async (model, position) => {
@@ -18592,6 +18702,7 @@ ${t("It lists every fact a case can state as one group, and shows the result of 
     }
   });
   monaco.languages.registerDocumentSemanticTokensProvider("le", {
+    onDidChange: semanticTokensChanged.event,
     getLegend: () => ({
       tokenTypes: ["keyword", "variable", "string", "number", "comment", "type", "templateWord"],
       tokenModifiers: []

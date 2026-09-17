@@ -75,7 +75,7 @@ connection.onRequest('textDocument/semanticTokens/full', (params) => {
     if (!document) return { data: [] };
 
     const text = document.getText();
-    const templates = getTemplates(text);
+    const templates = templatesOf(params.textDocument.uri, text);
     // Character ranges of the template-declaration sections ("the templates are:",
     // etc.). Instance colouring must never touch a declaration line — those are the
     // templates themselves, coloured uniformly by the Monaco grammar. Variable-bearing
@@ -367,6 +367,37 @@ function templateDeclarationRanges(text: string): { start: number, end: number }
     return ranges;
 }
 
+// The templates of the resources a document includes ("includes these
+// resources: dmepos."), sent by the editor, which fetches their texts
+// (le/includedTexts). Without them an instance of an included template was
+// matched by a looser one — the system "*V1* is *V2*" coloured "for an item"
+// as the variable of "the claim is for an item".
+const includedTemplates = new Map<string, Template[]>();
+
+connection.onNotification('le/includedTexts', (params: { uri: string, texts: string[] }) => {
+    const system = new Set(getTemplates('').map(t => t.label));
+    const seen = new Set<string>();
+    const own: Template[] = [];
+    for (const text of params.texts || []) {
+        for (const t of getTemplates(text)) {
+            if (system.has(t.label) || seen.has(t.label)) continue;
+            seen.add(t.label);
+            own.push({ ...t, detail: 'Included Template' });
+        }
+    }
+    includedTemplates.set(params.uri, own);
+});
+
+documents.onDidClose(e => includedTemplates.delete(e.document.uri));
+
+// A document's templates: its own, those of the resources it includes, and
+// the system's.
+function templatesOf(uri: string, text: string): Template[] {
+    const own = getTemplates(text);
+    const extra = (includedTemplates.get(uri) || []).filter(x => !own.some(o => o.label === x.label));
+    return [...extra, ...own];
+}
+
 function getTemplates(text: string): Template[] {
     const templates: Template[] = [];
     const sectionHeaderRegex = /^(?:the[ \t]+knowledge[ \t]+base|the[ \t]+contract|the[ \t]+ontology|the[ \t]+predicates|the[ \t]+templates|the[ \t]+fluents|the[ \t]+events|the[ \t]+target[ \t]+language|scenario|query)\b/im;
@@ -441,7 +472,7 @@ function getTemplates(text: string): Template[] {
 connection.onCompletion((params) => {
     const document = documents.get(params.textDocument.uri);
     const text = document ? document.getText() : '';
-    const templates = getTemplates(text);
+    const templates = templatesOf(params.textDocument.uri, text);
     
     // Section completions in the program's own language (detected from its
     // opener statement), generated from the shared lexicon.
@@ -501,7 +532,7 @@ connection.onHover((params) => {
         let description = '';
 
         // 1. Check if it's part of a template instance first
-        const templates = getTemplates(text);
+        const templates = templatesOf(params.textDocument.uri, text);
         let templateMatch = null;
         
         // Sort templates by length descending to find the most specific match

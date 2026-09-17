@@ -5,7 +5,7 @@
     write and debug Logical English programs using LLMs.
 */
 
-:- module(le_assistant, [handle_assistant_command/2, handle_assistant_status/2, handle_assistant_interrupt/2, get_most_recent_opencode_session/2, normalize_path/2, test_llm_providers/0, extract_json_from_string/3]).
+:- module(le_assistant, [handle_assistant_command/2, handle_assistant_status/2, handle_assistant_interrupt/2, get_most_recent_opencode_session/2, normalize_path/2, test_llm_providers/0, extract_json_from_string/3, assistant_docs_material/2, assistant_docs_search_result/2]).
 
 :- use_module(library(process)).
 :- use_module(library(readutil)).
@@ -15,6 +15,39 @@
 :- use_module(llm/llm_client, [llm_model/3]).
 :- use_module(le_assistant_light).
 :- use_module(le_tools, [get_last_verified_program/3]).
+:- use_module(le_docs_search).
+
+%!  assistant_docs_material(+Request, -Block) is det.
+%
+%   The user documentation searched, behind the scenes, for what the user
+%   asked (le_docs_search.pl), as a section of the assistant's prompt that
+%   says what to do with it: answer a question about Logical English or the
+%   editor with at most three of the links, and add none to a request to
+%   change the program. "" when no section of the documentation fits.
+assistant_docs_material(Request, Block) :-
+    docs_root(Root),
+    docs_search_material(Root, Request, [limit(5)], Lines),
+    (   Lines == ""
+    ->  Block = ""
+    ;   format(string(Block),
+               "## Documentation that may help\n\c
+The user documentation of this server was searched for the user's request, and these sections came up (the links are relative to this server):\n~w\n\n\c
+If the request is a question about Logical English, the editor or how to do something, answer it briefly and end your explanation with at most three of these links, only those that really answer it, as Markdown links with the URL exactly as given. If the request asks you to change the program, or none of these sections fits, add no links. Never invent a documentation URL.\n",
+               [Lines])
+    ).
+
+%!  assistant_docs_search_result(+Query, -Text) is det.
+%
+%   What the `docs` action (Light) and the search_documentation tool (Deep)
+%   answer: the sections found, one per line, or a note that none was.
+assistant_docs_search_result(Query, Text) :-
+    docs_root(Root),
+    docs_search_answer(Root, Query, [], Text).
+
+docs_root(Root) :-
+    module_property(le_assistant, file(F)),
+    file_directory_name(F, Dir),
+    directory_file_path(Dir, 'docs/user', Root).
 
 :- dynamic assistant_file_counter/1.
 assistant_file_counter(1).
@@ -290,7 +323,13 @@ handle_assistant_command(Dict, Response) :-
         create_agent_files(WorkDir, RelTempFile),
 
         % Prepare opencode arguments
-        maplist(to_atom_or_string, [ActualSessionID, RelTempFile, OpencodeModel, Command], [ASessionID, ARelTempFile, AModel, ACommand]),
+        % The documentation searched for the request, behind the scenes: the
+        % agent gets the sections that came up with the command.
+        assistant_docs_material(Command, DocsBlock),
+        (   DocsBlock == "" -> Command1 = Command
+        ;   format(string(Command1), "~w\n\n~w", [Command, DocsBlock])
+        ),
+        maplist(to_atom_or_string, [ActualSessionID, RelTempFile, OpencodeModel, Command1], [ASessionID, ARelTempFile, AModel, ACommand]),
         format(user_error, "DEBUG: Final ActualSessionID: ~w~n", [ASessionID]),
 
         % Check if session exists

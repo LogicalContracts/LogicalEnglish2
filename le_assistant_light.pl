@@ -52,7 +52,12 @@ run_light_assistant_thread(JobID, Command, Program0, Model, Keys, UserRoles, Max
 %
 %   Runs the main Light Assistant agentic loop.
 run_light_assistant(JobID, Command, Program0, Model, Keys, UserRoles, MaxSteps, FinalExplanation, FinalProgram) :-
-    assemble_system_prompt(Program0, UserRoles, SystemPrompt),
+    assemble_system_prompt(Program0, UserRoles, SystemPrompt0),
+    % The documentation searched for the request, behind the scenes.
+    le_assistant:assistant_docs_material(Command, DocsBlock),
+    (   DocsBlock == "" -> SystemPrompt = SystemPrompt0
+    ;   format(string(SystemPrompt), "~w\n~w", [SystemPrompt0, DocsBlock])
+    ),
     Messages0 = [
         _{role: system, content: SystemPrompt},
         _{role: user, content: Command}
@@ -148,6 +153,18 @@ agent_loop(JobID, Model, Keys, Messages, Program, Step, LastVerifyStatus, MaxSte
                     Step1 is Step + 1,
                     agent_loop(JobID, Model, Keys, NewMessages, Program, Step1, dirty, MaxSteps, FinalExplanation, FinalProgram)
                 )
+            ;   Action == "docs"
+            ->  % Search the user documentation
+                ( get_dict(query, ActionDict, DocsQuery) -> true ; DocsQuery = "" ),
+                format(string(DocsMsg), "Searching the documentation: ~w\n", [DocsQuery]),
+                assertz(le_assistant:assistant_job_output(JobID, stdout, DocsMsg)),
+                le_assistant:assistant_docs_search_result(DocsQuery, DocsResult),
+                append(Messages, [
+                    _{role: assistant, content: Reply},
+                    _{role: user, content: DocsResult}
+                ], NewMessages),
+                Step1 is Step + 1,
+                agent_loop(JobID, Model, Keys, NewMessages, Program, Step1, LastVerifyStatus, MaxSteps, FinalExplanation, FinalProgram)
             ;   Action == "edit"
             ->  % Update program
                 ( get_dict(new_content, ActionDict, NewProgram) -> true ; NewProgram = Program ),
@@ -429,9 +446,18 @@ You MUST respond with EXACTLY one JSON object in one of the following formats:
 }
 ```
 
+5. To search the user documentation (for a question about Logical English or the editor):
+```json
+{
+  \"action\": \"docs\",
+  \"query\": \"a few keywords, as the documentation would word them\"
+}
+```
+
 IMPORTANT RULES:
 - You MUST use the `verify` action after any edit to ensure the program is correct and all tests pass.
-- Do NOT finish until the program has no errors or warnings, and all tests pass.
+- Do NOT finish after an edit until the program has no errors or warnings, and all tests pass.
+- If the user only asks a question and nothing in the program needs to change, `finish` as soon as you can answer, with the answer as `explanation` and the program unchanged as `new_content`. When the documentation answers it, end the explanation with at most three links to it (from the section \"Documentation that may help\" or from a `docs` action), with the URLs exactly as given; never invent one.
 - Your response must contain EXACTLY one JSON block.
 ".
 

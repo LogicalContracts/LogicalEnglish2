@@ -313,6 +313,8 @@ context_field(_, D, D).
 error_type_value(message(M), message, Value, info, _{}) :- !,
     to_text(M, Value0), sub_string_prefix(Value0, 1000, Value).
 error_type_value(failed, failure, "the operation failed without an exception", error, _{}) :- !.
+error_type_value(failed(Where), failure, Value, error, _{}) :- !,
+    format(string(Value), "the operation failed without an exception, at ~w", [Where]).
 error_type_value(error(Formal, Ctx), Type, Value, error, Extra) :- !,
     (   var(Formal) -> Type = error
     ;   compound(Formal) -> functor(Formal, Type, _)

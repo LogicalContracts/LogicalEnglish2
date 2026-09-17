@@ -119,7 +119,12 @@ UI language. The system message is, in order:
    `dates.le`, `insureLE2/big_conclusions.le`, each if present and allowed);
    for another language, the full text of every `.le` in `examples/<lang>/`;
 5. the action protocol (`tool_specification/1`);
-6. the current program.
+6. the current program;
+7. when the documentation has sections for the command, a section
+   *Documentation that may help* (`le_assistant:assistant_docs_material/2`):
+   the command searched in `docs/user` by `le_docs_search.pl`, up to five
+   sections with their links, and when to cite them (a question, at most
+   three links; a change, none).
 
 The user message is the command. There is no token budget: the prompt is
 sent as assembled.
@@ -136,6 +141,7 @@ function calling; the model answers with one JSON action:
 | `{"action": "verify"}` | `le_tools:le_tool_verify/2` on the current program; the issues and test results go back as the next user message. With no issues and no test results, the message tells the model to finish |
 | `{"action": "query", "query", "scenario", "facts"}` | `le_tools:le_tool_query/2` on the current program (an `example_name` the model adds is dropped); the answers go back. The scenario is read from `scenario` (or `scenario_name`) |
 | `{"action": "edit", "new_content"}` | replaces the in-memory program; the reply asks the model to verify |
+| `{"action": "docs", "query"}` | `le_docs_search:docs_search_answer/4` on `docs/user`: the sections found, each with its link, go back |
 | `{"action": "finish", "explanation", "new_content"}` | ends the job |
 
 A reply without JSON, or with an unknown action, gets a one-line correction
@@ -204,9 +210,24 @@ template also sets a base URL for Together and allows the external directories
 
 | Kind | Items |
 |---|---|
-| tools | `verify` (`program_text` → issues and test results), `query` (`query` plus `example_name` or `program_text`, optional `scenario_name`, `facts` → answers with explanations), `get_example_details`, `list_examples`. The flag `mcp_only_query_verify` hides the last two. opencode shows them as `logical-english_verify`, … |
+| tools | `search_documentation` (`query` → the sections of `docs/user` found, with links; the same search as light mode's `docs` action), `verify` (`program_text` → issues and test results), `query` (`query` plus `example_name` or `program_text`, optional `scenario_name`, `facts` → answers with explanations), `get_example_details`, `list_examples`. The flag `mcp_only_query_verify` hides the last two. opencode shows them as `logical-english_verify`, … |
 | prompts | `use_logical_english`, `massage_query`, `massage_facts`: for chat clients that rewrite a user's question or facts into template-exact LE |
 | resource | `le://docs/syntax`: `docs/user/reference/language.md` |
+
+A deep-mode command is sent with the same *Documentation that may help*
+section appended, searched for it before `opencode` starts.
+
+**The documentation's search** (`le_docs_search.pl`, kept equal to LPS2's
+`src/edges/lps_docs_search.pl`) reads the documents of `docs/user/nav.json`
+section by section, as the viewer's search does (`docs-extras.js`: the same
+words, stems and anchors), but ranks a section by the words of the query it
+has, each weighted by the square of its rarity in the documentation, rather
+than requiring all of them — a question is not a list of keywords. English
+question words ("how", "something") are left out, a quoted phrase must occur,
+a table of contents is never a hit, at most two sections of one document are
+returned, and a section scoring below a quarter of the best one is dropped.
+The index is kept in memory and rebuilt when `nav.json` or a document changes.
+Tests: `testing/test_docs_search.pl` (the Light loop with a stub model).
 
 `verify` and `query` are `le_tools:le_tool_verify/2` and `le_tool_query/2`,
 the same predicates light mode calls. The REST endpoints `/verify`, `/query`,

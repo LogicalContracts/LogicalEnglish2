@@ -77,6 +77,12 @@ folded, with the technical log of the run.
 Each open tab has its own conversation, and a reply goes to the program that
 asked for it even if you have switched tabs meanwhile.
 
+You can also ask it about Logical English or the editor — *How do I write a
+decision table?*, *What does "otherwise" do?* The assistant searches this
+documentation for what you asked, answers briefly, and ends with a few links
+(at most three) to the sections that say more; a link opens in a new browser
+tab. A request to change the program gets no links.
+
 ### Light and Deep modes
 
 The **Light Mode** checkbox in the panel's header chooses how the assistant

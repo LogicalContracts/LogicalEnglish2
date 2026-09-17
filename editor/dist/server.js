@@ -17241,7 +17241,7 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
   if (!document2)
     return { data: [] };
   const text = document2.getText();
-  const templates = getTemplates(text);
+  const templates = templatesOf(params.textDocument.uri, text);
   const declSections = templateDeclarationRanges(text);
   const inDeclaration = (offset) => declSections.some((r) => offset >= r.start && offset < r.end);
   const tokens = [];
@@ -17471,6 +17471,27 @@ function templateDeclarationRanges(text) {
   }
   return ranges;
 }
+var includedTemplates = /* @__PURE__ */ new Map();
+connection.onNotification("le/includedTexts", (params) => {
+  const system = new Set(getTemplates("").map((t) => t.label));
+  const seen = /* @__PURE__ */ new Set();
+  const own = [];
+  for (const text of params.texts || []) {
+    for (const t of getTemplates(text)) {
+      if (system.has(t.label) || seen.has(t.label))
+        continue;
+      seen.add(t.label);
+      own.push({ ...t, detail: "Included Template" });
+    }
+  }
+  includedTemplates.set(params.uri, own);
+});
+documents.onDidClose((e) => includedTemplates.delete(e.document.uri));
+function templatesOf(uri, text) {
+  const own = getTemplates(text);
+  const extra = (includedTemplates.get(uri) || []).filter((x) => !own.some((o) => o.label === x.label));
+  return [...extra, ...own];
+}
 function getTemplates(text) {
   const templates = [];
   const sectionHeaderRegex = /^(?:the[ \t]+knowledge[ \t]+base|the[ \t]+contract|the[ \t]+ontology|the[ \t]+predicates|the[ \t]+templates|the[ \t]+fluents|the[ \t]+events|the[ \t]+target[ \t]+language|scenario|query)\b/im;
@@ -17533,7 +17554,7 @@ function getTemplates(text) {
 connection.onCompletion((params) => {
   const document2 = documents.get(params.textDocument.uri);
   const text = document2 ? document2.getText() : "";
-  const templates = getTemplates(text);
+  const templates = templatesOf(params.textDocument.uri, text);
   const compLang = detectProgramLanguage(text);
   const K = kwTable(compLang);
   const phrase = (key, fallback) => K[key] && K[key][0] ? K[key][0].join(" ") : fallback;
@@ -17582,7 +17603,7 @@ connection.onHover((params) => {
   if (token) {
     let leType = "Unknown";
     let description = "";
-    const templates = getTemplates(text);
+    const templates = templatesOf(params.textDocument.uri, text);
     let templateMatch = null;
     const sortedTemplates = [...templates].sort((a, b) => b.label.length - a.label.length);
     for (const template of sortedTemplates) {
