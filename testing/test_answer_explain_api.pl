@@ -94,4 +94,38 @@ query q is:
     assertion(( member("success"-L2-P2, Nodes), sub_string(L2, 0, _, _, "alice is a member"),
                 get_dict(document, P2, "the order book") )).
 
+% A built-in comparison that fails inside an included Prolog library's clause
+% (lib/temporal.pl's `M2 < M1`, reading an age, explained under a negation) is a failure node with no
+% range: looking its range up with clause/3 used to raise a permission error
+% on `(<)/2`, and the whole query failed ("Operation failed").
+test(failed_builtin_in_prolog_library_has_no_range) :-
+    Doc = "the target language is: prolog.
+
+the knowledge base k includes these resources:
+    temporal.
+
+the templates are:
+    *a person* is born on *a date*.
+    the age of *a person* is *a number*.
+
+the knowledge base k includes:
+the age of a person is a number if
+    the person is born on a date
+    and it is not the case that
+        the age on 2022-07-01 of someone born on the date is an age
+        and the age > 7
+    and the age on 2022-07-01 of someone born on the date is the number.
+
+scenario s is:
+    bob is born on 2021-01-01.
+
+query q is:
+    the age of which person is which number.
+",
+    classic_web_api:handle_explain(_{document: Doc, theQuery: "q", scenario: "s",
+                                     source: "migration/miniscript/liana_inheritance/liana_inheritance"}, R),
+    get_dict(results, R, [First|_]),
+    result_literal(First, Literal),
+    assertion(Literal == "the age of bob is 1").
+
 :- end_tests(answer_explain_api).

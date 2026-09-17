@@ -1956,7 +1956,11 @@ rule_head_text(Ref, SM, KB, HeadStr) :-
     ( (KB \== none, item_to_instance(KB, Head, Toks)) -> canonical_string(Toks, HeadStr)
     ; term_string(Head, HeadStr) ).
 
+%   A built-in goal (a comparison such as `7 < 1`, failed inside an included
+%   Prolog library's clause) has no range: clause/3 on a system predicate
+%   raises a permission error, which would fail the whole query's explanation.
 find_first_range(Goal, SM, KB, range(Start, End)) :-
+    \+ predicate_property(system:Goal, built_in),
     functor(Goal, F, A),
     functor(Skeleton, F, A),
     findall(S-E, (
@@ -2052,21 +2056,19 @@ canonical_string(Instance, String) :-
 %   An answer as a sentence that reads back as the same goal — for a client
 %   that asks about an answer (the editor's Flip…). canonical_string/2 writes
 %   a string value bare, as the answer shows it ("the subheading of X is
-%   3901.90"), and read back the bare value is a number (3901.9), another
-%   constant; here a string that would read as a number or a date keeps its
-%   quotes ("the subheading of X is \"3901.90\"").
+%   3901.90", "the underwriting decision for policy 1 is reject"), and read
+%   back the bare value is another constant: a number (3901.9), or a word, an
+%   atom (reject), which no string "reject" equals. Here every string value
+%   keeps its quotes ("the subheading of X is \"3901.90\"").
 goal_string(Instance, String) :-
     (   is_list(Instance)
-    ->  maplist(quote_ambiguous_string, Instance, Tokens),
+    ->  maplist(quote_string_value, Instance, Tokens),
         canonical_string(Tokens, String)
     ;   canonical_string(Instance, String)
     ).
 
-quote_ambiguous_string(T, Q) :-
-    (   string(T),
-        (   catch(number_string(_, T), _, fail)
-        ;   re_match("^\\d{4}-\\d{1,2}-\\d{1,2}"/i, T)
-        )
+quote_string_value(T, Q) :-
+    (   string(T)
     ->  format(atom(Q), "\"~w\"", [T])
     ;   Q = T
     ).

@@ -240,7 +240,7 @@ original_documents(SM, KB, Base, Roles, Docs) :-
 remove_same_text([], []).
 remove_same_text([D|Ds], [D|Rs]) :-
     get_dict(text, D, DT),
-    exclude([X]>>get_dict(text, X, DT), Ds, Ds1),
+    exclude({DT}/[X]>>get_dict(text, X, DT), Ds, Ds1),
     remove_same_text(Ds1, Rs).
 
 hinted_files(Hints, Files, Hinted) :-
@@ -291,7 +291,7 @@ construct_keys(KB, Base, c(Kind, Label, Head, ID), Keys, Hints) :-
 remove_duplicate_keys([], []).
 remove_duplicate_keys([key(T, S, V)|Ks], [key(T, S, V)|Rs]) :-
     normalized_key(T, N),
-    exclude([key(T2, _, _)]>>normalized_key(T2, N), Ks, Ks1),
+    exclude({N}/[key(T2, _, _)]>>normalized_key(T2, N), Ks, Ks1),
     remove_duplicate_keys(Ks1, Rs).
 
 head_template(KB, Head, Template) :-

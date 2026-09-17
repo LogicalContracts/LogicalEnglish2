@@ -191,9 +191,9 @@ scenario s is:
     destroySession(SM),
     assertion(As == ["remove: ann is happy"]).
 
-% An answer's `goal` reads back as the same goal: a string value that looks
-% like a number or a date keeps its quotes (the answer shows it bare).
-test(goal_string_keeps_ambiguous_strings_quoted) :-
+% An answer's `goal` reads back as the same goal: a string value keeps its
+% quotes (the answer shows it bare), be it a number, a date or a word.
+test(goal_string_keeps_strings_quoted) :-
     goal_string([the, subheading, of, 'FUSABOND A560', is, "3901.90"], G1),
     assertion(G1 == "the subheading of FUSABOND A560 is \"3901.90\""),
     goal_string([the, heading, of, x, is, 3926], G2),
@@ -201,7 +201,39 @@ test(goal_string_keeps_ambiguous_strings_quoted) :-
     goal_string([ann, is, born, on, "2021-10-09"], G3),
     assertion(G3 == "ann is born on \"2021-10-09\""),
     goal_string([ann, is, "happy"], G4),
-    assertion(G4 == "ann is happy").
+    assertion(G4 == "ann is \"happy\""),
+    goal_string([ann, is, happy], G5),
+    assertion(G5 == "ann is happy").
+
+% Flip… about an answer whose value is a text: the goal it proposes finds the
+% answer again, so the flip names the change (it said "no change is needed").
+test(flip_about_a_text_answer, [nondet]) :-
+    load_text("the target language is: prolog.
+
+the templates are:
+    the decision for *a policy* is *a value*.
+    the conviction of *a policy* is *a value*; scenario element.
+
+the knowledge base k includes:
+
+the decision for a policy is \"reject\" if
+    the conviction of the policy is \"Yes\".
+
+scenario s is:
+    the conviction of policy 1 is \"Yes\".
+
+query q is:
+    the decision for which policy is which value.
+", KB),
+    createSession(KB, SM), setScenarion(SM, s),
+    parse_custom_query(KB, "the decision for which policy is which value", Q),
+    once(query(SM, Q, I, _, _)),
+    goal_string(I, Goal),
+    format(string(Flip), "which minimal change to the scenario makes it the case that it is not the case that ~w", [Goal]),
+    parse_custom_query(KB, Flip, F),
+    findall(A, ( query(SM, F, I2, _, _), canonical_string(I2, A) ), As),
+    destroySession(SM),
+    assertion(As == ["remove: the conviction of policy 1 is Yes"]).
 
 :- end_tests(program_metadata).
 
