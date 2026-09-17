@@ -94,7 +94,7 @@ when the Logical English installation beside it has the translators.
 The translator has been run on the Epilog site's own programs. The results,
 *twins*, are among the InsurLE examples, under `insureLE2/migration/epilog/`.
 They are visible only on installations with the InsurLE examples, to users
-with access; open them with **File ▸ Open copy from server…**.
+with access; open them with **File ▸ Open example from server…**.
 
 - Rulesets of the Examples page: `insureLE2/migration/epilog/kinship`,
   `…/blocks`, `…/graphs`. Each has the data sheet as the scenario `dataset`,

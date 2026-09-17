@@ -18,7 +18,7 @@ scenarios, and interrogate the reasoner until it confesses.
 
 > **Follow along.** Everything here runs in your browser at
 > **<https://le2.logicalcontracts.com>** — a public copy of the system. Open the
-> editor, then **File → Open copy from server…** and pick the example named in each
+> editor, then **File → Open example from server…** and pick the example named in each
 > section (`tea_party`, `happy_dragon`, `citizenship`). The tea shop is not on the
 > server: you paste it in yourself (§16). No install required.
 
@@ -78,7 +78,7 @@ scenarios, and interrogate the reasoner until it confesses.
 
 ## 1. The editor at a glance
 
-Open the editor and load `tea_party` (**File → Open copy from server… → tea_party**).
+Open the editor and load `tea_party` (**File → Open example from server… → tea_party**).
 
 ![The LE editor with tea_party.le loaded](01-editor-overview.png)
 

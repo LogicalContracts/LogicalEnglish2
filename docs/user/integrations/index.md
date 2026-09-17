@@ -270,7 +270,7 @@ state (see [s(CASP)](../reference/scasp.md)).
 
 The translators have been run on published programs of their source systems.
 The results, called *twins*, are among the examples: open them with **File ▸
-Open copy from server…**, or from the landing page. Each twin comes with its
+Open example from server…**, or from the landing page. Each twin comes with its
 ledger, its source tests as scenarios, and its `sources/` folder.
 
 - `migration/blawx/…`: Blawx encodings;

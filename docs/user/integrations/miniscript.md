@@ -142,7 +142,7 @@ delay.
 
 Twelve published policies have been translated. The results, *twins*, are
 among the examples under `migration/miniscript/`. Open them with **File ▸ Open
-copy from server…**:
+example from server…**:
 
 | Twin | Source |
 |---|---|

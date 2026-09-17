@@ -20,7 +20,7 @@ Justice:
 - *Peskova* (C-315/15): a bird strike is not inherent.
 
 Sections 1 to 6 happen in the LE editor, sections 7 and 8 in the executive
-view. Open the program with **File ▸ Open copy from server…**, choosing
+view. Open the program with **File ▸ Open example from server…**, choosing
 `eu261_integration` under the `regulatory` heading, or directly at
 `/editor/index.html?example=regulatory/eu261_integration`. The program is in
 the code area, with the **Query** panel along the bottom.

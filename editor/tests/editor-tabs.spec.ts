@@ -89,12 +89,15 @@ test.describe('Editor file tabs', () => {
 
     test('files opened from the File menu go into tabs of their own', async ({ page }) => {
         test.setTimeout(120000);
-        const openFromServer = async (name: RegExp) => {
-            const item = page.locator('#example-list .dropdown-item', { hasText: name });
+        const openFromServer = async (name: string) => {
+            const item = page.locator(`#example-list .example-row[title="${name}"]`);
             await expect(async () => {
+                // a retry must not click the menu behind a dialog still loading its list
+                if (await page.locator('#modal-overlay').isVisible()) await page.keyboard.press('Escape');
                 await page.click('text=File');
                 await page.click('#menu-open-server');
-                await expect(item).toBeVisible({ timeout: 1000 });
+                await page.fill('#example-filter', name);
+                await expect(item).toBeVisible({ timeout: 5000 });
             }).toPass();
             await item.click();
         };
@@ -104,13 +107,13 @@ test.describe('Editor file tabs', () => {
 
         // The untouched new document the editor starts with is replaced, not
         // left behind as an empty tab.
-        await openFromServer(/^citizenship$/);
+        await openFromServer('citizenship');
         await expect(tabs).toHaveCount(1);
         await expect(tabs.nth(0).locator('.le-tab-title')).toHaveText('citizenship.le');
         await expect.poll(() => page.evaluate(modelText)).toContain('citizenship');
 
         // The next one gets a tab of its own, in front, with its program in the panels.
-        await openFromServer(/^happy_dragon$/);
+        await openFromServer('happy_dragon');
         await expect(tabs).toHaveCount(2);
         await expect(tabs.nth(1)).toHaveClass(/active/);
         await expect(tabs.nth(1).locator('.le-tab-title')).toHaveText('happy_dragon.le');
@@ -119,7 +122,7 @@ test.describe('Editor file tabs', () => {
         await expect(tabs.nth(0)).not.toHaveClass(/dirty/);
 
         // A file already open: its tab comes forward, no duplicate.
-        await openFromServer(/^citizenship$/);
+        await openFromServer('citizenship');
         await expect(tabs).toHaveCount(2);
         await expect(tabs.nth(0)).toHaveClass(/active/);
         expect(await page.evaluate(modelText)).toContain('citizenship');

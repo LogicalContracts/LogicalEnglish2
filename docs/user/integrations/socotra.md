@@ -183,7 +183,7 @@ The twins of the seventeen products of Socotra's public product library
 (Pet, Personal Auto, Homeowners, Workers Compensation, Term Life, Cyber,
 Drone and others) are among the InsurLE examples. They are visible only on
 installations with the InsurLE examples, to users with access. Open them with
-**File ▸ Open copy from server…**:
+**File ▸ Open example from server…**:
 
 - `insureLE2/migration/socotra/pet/pet`: small (27 rules, three tables), with
   an underwriting rejection in the Lion and Elephant quotes;

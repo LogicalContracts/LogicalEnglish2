@@ -111,7 +111,7 @@ distinction.
 
 ## 2. A first view, drafted for you
 
-Open the program in the editor (**File → Open copy from server…**,
+Open the program in the editor (**File → Open example from server…**,
 `regulatory/sections_benefit`) and delete its view section at the end, to start
 from nothing. Then open the **LE Assistant** tab and press **Generate LE view**.
 

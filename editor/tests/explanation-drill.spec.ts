@@ -66,9 +66,11 @@ async function openDrill(page: any): Promise<any> {
     // The menu handlers are wired late during init; retry until the example list appears.
     const item = page.locator('#example-list .dropdown-item', { hasText: /^citizenship$/ });
     await expect(async () => {
+        // a retry must not click the menu behind a dialog still loading its list
+        if (await page.locator('#modal-overlay').isVisible()) await page.keyboard.press('Escape');
         await page.click('text=File');
         await page.click('#menu-open-server');
-        await expect(item).toBeVisible({ timeout: 1000 });
+        await expect(item).toBeVisible({ timeout: 5000 });
     }).toPass();
     await item.click();
     await expect(page.locator('#filename-display')).toHaveText('citizenship.le');

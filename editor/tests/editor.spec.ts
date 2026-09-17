@@ -1,14 +1,19 @@
 import { test, expect } from '@playwright/test';
 
-// Open File -> "Open copy from server…" and pick the example matching `name`. The menu
-// handlers are wired late during app init, so an early click can be dropped; retry the
-// File -> menu-open-server sequence until the example list actually appears, then click.
-async function openFromServer(page: any, name: RegExp) {
-  const item = page.locator('#example-list .dropdown-item', { hasText: name });
+// Open File -> "Open example from server…" and pick the example called `name` (its full
+// name, e.g. domains/tax/payg). The menu handlers are wired late during app init, so an
+// early click can be dropped; retry the File -> menu-open-server sequence until the
+// example list actually appears, then click. The dialog is a tree of closed folders:
+// typing the name into its filter opens the folders it is in.
+async function openFromServer(page: any, name: string) {
+  const item = page.locator(`#example-list .example-row[title="${name}"]`);
   await expect(async () => {
+    // a retry must not click the menu behind a dialog still loading its list
+    if (await page.locator('#modal-overlay').isVisible()) await page.keyboard.press('Escape');
     await page.click('text=File');
     await page.click('#menu-open-server');
-    await expect(item).toBeVisible({ timeout: 1000 });
+    await page.fill('#example-filter', name);
+    await expect(item).toBeVisible({ timeout: 5000 });
   }).toPass();
   await item.click();
 }
@@ -289,8 +294,8 @@ test.describe('Logical English Editor', () => {
   test('citizenship example integration test', async ({ page }) => {
     test.setTimeout(60000); // Increase timeout for this complex test
 
-    // 1. Open "File" -> "Open copy from server..." and pick "citizenship"
-    await openFromServer(page, /^citizenship$/);
+    // 1. Open "File" -> "Open example from server..." and pick "citizenship"
+    await openFromServer(page, 'citizenship');
 
     // 3. Wait for the editor to load the content
     // We can check if the filename display updated
@@ -437,8 +442,8 @@ test.describe('Logical English Editor', () => {
   test('payg example integration test', async ({ page }) => {
     test.setTimeout(60000); // Increase timeout for this complex test
 
-    // 1. Open "File" -> "Open copy from server..." and pick "payg"
-    await openFromServer(page, /^tax\/payg$/);
+    // 1. Open "File" -> "Open example from server..." and pick "payg"
+    await openFromServer(page, 'domains/tax/payg');
 
     // 3. Wait for the editor to load the content (payg.le lives under domains/tax/)
     await expect(page.locator('#filename-display')).toHaveText('domains/tax/payg.le');
@@ -480,7 +485,7 @@ test.describe('Logical English Editor', () => {
     await page.fill('input[name="password"]', 'LE2rocks');
     await page.click('input[type="submit"]');
     await page.waitForURL(/\/editor\/index\.html/, { timeout: 20000 });
-    await openFromServer(page, /^nonterminating$/);
+    await openFromServer(page, 'fixtures/nonterminating');
     await expect(page.locator('#filename-display')).toHaveText('fixtures/nonterminating.le');
 
     // 2. Wait for the module to load (scenario dropdown populated)
@@ -540,7 +545,7 @@ test.describe('Logical English Editor', () => {
     test.setTimeout(60000);
 
     // 1. Open the "unknowns" example from the server
-    await openFromServer(page, /^unknowns\/unknowns$/);
+    await openFromServer(page, 'language/unknowns/unknowns');
     await expect(page.locator('#filename-display')).toHaveText('language/unknowns/unknowns.le');
 
     // 2. Wait for the module to load (scenario dropdown populated)
