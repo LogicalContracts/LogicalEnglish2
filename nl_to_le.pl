@@ -589,7 +589,7 @@ run_program_tests(ProgramText, Results) :-
     length(Tests, N),
     max_regression_tests(Max),
     (   N =< Max
-    ->  maplist([T, R]>>( catch(le_kbs:run_one_test(KB, T, R), _, R = skipped) ), Tests, Results)
+    ->  maplist({KB}/[T, R]>>( catch(le_kbs:run_one_test(KB, T, R), _, R = skipped) ), Tests, Results)
     ;   Results = []
     ).
 

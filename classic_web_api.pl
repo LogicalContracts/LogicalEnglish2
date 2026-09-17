@@ -1010,7 +1010,7 @@ named_by_a_link(Links, F-D) :-
 distinct_links([], []).
 distinct_links([F-D|Rest], [F-D|Out]) :-
     (   is_link(D)
-    ->  exclude([_-D2]>>( is_link(D2), catch(same_file(D, D2), _, fail) ), Rest, Rest1)
+    ->  exclude({D}/[_-D2]>>( is_link(D2), catch(same_file(D, D2), _, fail) ), Rest, Rest1)
     ;   Rest1 = Rest
     ),
     distinct_links(Rest1, Out).
@@ -1822,7 +1822,7 @@ rejoin_hyphens(S0, S) :-
     atomic_list_concat(Parts, ' - ', S0), atomic_list_concat(Parts, '-', A), atom_string(A, S).
 
 dedup_pairs([], []).
-dedup_pairs([K-V|T], [V|R]) :- exclude([K2-_]>>(K2 == K), T, T1), dedup_pairs(T1, R).
+dedup_pairs([K-V|T], [V|R]) :- exclude({K}/[K2-_]>>(K2 == K), T, T1), dedup_pairs(T1, R).
 
 %!  handle_draft_view(+Dict, -Response) is det.
 %
@@ -3180,7 +3180,7 @@ literal_overlap(KB, Words, Literal, score(NegRatio, NegShared)) :-
     string_lower(Str, LStr),
     split_string(LStr, " \t.,;()*", " \t.,;()*", LWords0),
     exclude(==(""), LWords0, LWords),
-    include([W]>>memberchk(W, Words), LWords, Shared),
+    include({Words}/[W]>>memberchk(W, Words), LWords, Shared),
     length(Shared, N), length(LWords, Total),
     ( Total =:= 0 -> NegRatio = 0.0 ; NegRatio is -N / Total ),
     NegShared is -N.    % negative so that keysort puts the best match first

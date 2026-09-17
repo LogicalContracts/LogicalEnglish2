@@ -627,7 +627,7 @@ decode_base64_to_file(B64, File) :-
     base64_encoded(Data, B64Atom, [encoding(octet), as(string)]),
     string_codes(Data, Bytes),
     setup_call_cleanup(open(File, write, S, [type(binary)]),
-                       maplist([B]>>put_byte(S, B), Bytes),
+                       maplist({S}/[B]>>put_byte(S, B), Bytes),
                        close(S)).
 
 %!  ensure_text_file(+RawFile, +Ext, +SrcDir, +Tag, -TextFile) is det.
@@ -1762,7 +1762,7 @@ exercise_pairs(scenario, KB, Name, Pairs) :-
     findall(Q-Name, ( current_predicate(KB:query_info/3), KB:query_info(Q, _, _) ), Pairs).
 exercise_pairs(query, KB, Name, Pairs) :-
     findall(Name-S, ( current_predicate(KB:scenario/2), KB:scenario(S, _) ), Pairs0),
-    exclude([_-S]>>(S == Name), Pairs0, Pairs).
+    exclude({Name}/[_-S]>>(S == Name), Pairs0, Pairs).
 
 % A test whose expectation cannot possibly match, so the runner hands back the
 % ACTUAL answers instead of a bare pass/fail.
@@ -2180,7 +2180,7 @@ existing_coverage(Config, _Program, _{enabled: false}) :- Config.existing == non
 existing_coverage(Config, Program, Report) :-
     existing_lines(Config.existing, Wanted),
     existing_lines(Program, Have),
-    partition([L]>>memberchk(L, Have), Wanted, Kept, Missing),
+    partition({Have}/[L]>>memberchk(L, Have), Wanted, Kept, Missing),
     length(Wanted, N), length(Kept, K),
     ( N =:= 0 -> Pct = 100 ; Pct is round(100 * K / N) ),
     first_n(5, Missing, Shown),
