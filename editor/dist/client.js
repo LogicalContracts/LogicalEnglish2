@@ -8535,6 +8535,11 @@ var uiCatalog = {
     "Close": "Fechar",
     "Close this panel": "Fechar este painel",
     "Collapse All": "Recolher tudo",
+    "Failed to load examples.": "N\xE3o foi poss\xEDvel carregar os exemplos.",
+    "filter \u2014 type any part of a name": "filtro \u2014 escreva qualquer parte de um nome",
+    "Loading examples...": "A carregar exemplos...",
+    "loading\u2026": "a carregar\u2026",
+    "No example matches the filter.": "Nenhum exemplo corresponde ao filtro.",
     "The s(CASP) program could not be produced.": "N\xE3o foi poss\xEDvel produzir o programa s(CASP).",
     "condition": "condi\xE7\xE3o",
     "Continue": "Continuar",
@@ -8615,8 +8620,8 @@ var uiCatalog = {
     "None": "Nenhum",
     "Occurrences": "Ocorr\xEAncias",
     "Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window": "Abrir Varia\xE7\xF5es de Cen\xE1rio: altere o cen\xE1rio selecionado e corra uma ou mais consultas sobre a varia\xE7\xE3o, numa janela separada",
-    "Open copy from server...": "Abrir c\xF3pia do servidor...",
-    "Open from Server": "Abrir do servidor",
+    "Open example from server...": "Abrir exemplo do servidor...",
+    "Open example from server": "Abrir exemplo do servidor",
     "Open the Proof Game: interactively build a proof of the selected query by connecting its facts and rules": "Abrir o Jogo da Prova: construa interativamente uma prova da consulta selecionada ligando os seus factos e regras",
     "Open...": "Abrir...",
     "OpenAI API Key:": "Chave de API OpenAI:",
@@ -9136,6 +9141,11 @@ var uiCatalog = {
     "Close": "Cerrar",
     "Close this panel": "Cerrar este panel",
     "Collapse All": "Contraer todo",
+    "Failed to load examples.": "No se pudieron cargar los ejemplos.",
+    "filter \u2014 type any part of a name": "filtro \u2014 escriba cualquier parte de un nombre",
+    "Loading examples...": "Cargando ejemplos...",
+    "loading\u2026": "cargando\u2026",
+    "No example matches the filter.": "Ning\xFAn ejemplo coincide con el filtro.",
     "The s(CASP) program could not be produced.": "No se pudo producir el programa s(CASP).",
     "condition": "condici\xF3n",
     "Continue": "Continuar",
@@ -9216,8 +9226,8 @@ var uiCatalog = {
     "None": "Ninguno",
     "Occurrences": "Apariciones",
     "Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window": "Abrir Variaciones de escenario: modifique el escenario seleccionado y ejecute una o m\xE1s consultas sobre la variaci\xF3n, en una ventana separada",
-    "Open copy from server...": "Abrir copia del servidor...",
-    "Open from Server": "Abrir del servidor",
+    "Open example from server...": "Abrir ejemplo del servidor...",
+    "Open example from server": "Abrir ejemplo del servidor",
     "Open the Proof Game: interactively build a proof of the selected query by connecting its facts and rules": "Abrir el Juego de la Prueba: construya interactivamente una prueba de la consulta seleccionada conectando sus hechos y reglas",
     "Open...": "Abrir...",
     "OpenAI API Key:": "Clave de API OpenAI:",
@@ -9735,6 +9745,11 @@ var uiCatalog = {
     "Close": "Fermer",
     "Close this panel": "Fermer ce panneau",
     "Collapse All": "Tout replier",
+    "Failed to load examples.": "Impossible de charger les exemples.",
+    "filter \u2014 type any part of a name": "filtre \u2014 tapez une partie d'un nom",
+    "Loading examples...": "Chargement des exemples...",
+    "loading\u2026": "chargement\u2026",
+    "No example matches the filter.": "Aucun exemple ne correspond au filtre.",
     "The s(CASP) program could not be produced.": "Le programme s(CASP) n'a pas pu \xEAtre produit.",
     "condition": "condition",
     "Continue": "Continuer",
@@ -9815,8 +9830,8 @@ var uiCatalog = {
     "None": "Aucun",
     "Occurrences": "Occurrences",
     "Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window": "Ouvrir les Variations de sc\xE9nario : modifiez le sc\xE9nario s\xE9lectionn\xE9 et ex\xE9cutez une ou plusieurs requ\xEAtes sur la variation, dans une fen\xEAtre s\xE9par\xE9e",
-    "Open copy from server...": "Ouvrir une copie du serveur...",
-    "Open from Server": "Ouvrir depuis le serveur",
+    "Open example from server...": "Ouvrir un exemple du serveur...",
+    "Open example from server": "Ouvrir un exemple du serveur",
     "Open the Proof Game: interactively build a proof of the selected query by connecting its facts and rules": "Ouvrir le Jeu de la preuve : construisez interactivement une preuve de la requ\xEAte s\xE9lectionn\xE9e en reliant ses faits et ses r\xE8gles",
     "Open...": "Ouvrir...",
     "OpenAI API Key:": "Cl\xE9 d'API OpenAI :",
@@ -10334,6 +10349,11 @@ var uiCatalog = {
     "Close": "Chiudi",
     "Close this panel": "Chiudi questo pannello",
     "Collapse All": "Comprimi tutto",
+    "Failed to load examples.": "Impossibile caricare gli esempi.",
+    "filter \u2014 type any part of a name": "filtro \u2014 digita una parte qualsiasi di un nome",
+    "Loading examples...": "Caricamento esempi...",
+    "loading\u2026": "caricamento\u2026",
+    "No example matches the filter.": "Nessun esempio corrisponde al filtro.",
     "The s(CASP) program could not be produced.": "Non \xE8 stato possibile produrre il programma s(CASP).",
     "condition": "condizione",
     "Continue": "Continua",
@@ -10414,8 +10434,8 @@ var uiCatalog = {
     "None": "Nessuno",
     "Occurrences": "Occorrenze",
     "Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window": "Apri Variazioni di Scenario: modifica lo scenario selezionato ed esegui una o pi\xF9 interrogazioni sulla variazione, in una finestra separata",
-    "Open copy from server...": "Apri copia dal server...",
-    "Open from Server": "Apri dal server",
+    "Open example from server...": "Apri esempio dal server...",
+    "Open example from server": "Apri esempio dal server",
     "Open the Proof Game: interactively build a proof of the selected query by connecting its facts and rules": "Apri il Gioco della Prova: costruisci interattivamente una prova dell'interrogazione selezionata collegando i suoi fatti e le sue regole",
     "Open...": "Apri...",
     "OpenAI API Key:": "Chiave API OpenAI:",
@@ -15809,11 +15829,172 @@ ${err}`, "See s(CASP)");
     if (e.key === "Escape" && modalOverlay && modalOverlay.style.display !== "none")
       closeModal();
   });
+  const exampleFilter = document.getElementById("example-filter");
+  const examplePreview = document.getElementById("example-preview");
+  let exampleTree = null;
+  let exampleRows = [];
+  let exampleSel = -1;
+  const exampleFolderOpen = (path) => localStorage.getItem("le-examples-open." + path) === "true";
+  const buildExampleTree = (names, folders) => {
+    const blurbs = new Map(folders.map((f) => [f.path, f.blurb || ""]));
+    const root = { path: "", label: "", blurb: "", folders: [], items: [] };
+    const folderAt = (path) => {
+      let node = root;
+      let prefix = "";
+      for (const part of path.split("/").filter((x) => x)) {
+        prefix += part + "/";
+        let next = node.folders.find((f) => f.path === prefix);
+        if (!next) {
+          next = { path: prefix, label: part, blurb: blurbs.get(prefix) || "", folders: [], items: [] };
+          node.folders.push(next);
+        }
+        node = next;
+      }
+      return node;
+    };
+    for (const name of names) {
+      const cut = name.lastIndexOf("/");
+      const folder = folderAt(cut >= 0 ? name.substring(0, cut + 1) : "");
+      folder.items.push({ name, label: name.substring(cut + 1) });
+    }
+    const collapse = (f) => {
+      f.folders.forEach(collapse);
+      f.folders = f.folders.filter((sub) => {
+        if (sub.folders.length === 0 && sub.items.length === 1 && sub.items[0].label === sub.label) {
+          f.items.push(sub.items[0]);
+          return false;
+        }
+        return true;
+      });
+    };
+    collapse(root);
+    return root;
+  };
+  const showExamplePreview = /* @__PURE__ */ (() => {
+    let timer = null;
+    return (name) => {
+      if (!examplePreview)
+        return;
+      clearTimeout(timer);
+      timer = setTimeout(async () => {
+        examplePreview.textContent = t("loading\u2026");
+        try {
+          const r = await fetch("/leapi", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token: "myToken123", operation: "examples", file: name })
+          });
+          const data = await r.json();
+          examplePreview.textContent = typeof data.document === "string" && data.document ? data.document.split("\n").slice(0, 30).join("\n") : data.error || "";
+        } catch {
+          examplePreview.textContent = "";
+        }
+      }, 150);
+    };
+  })();
+  const selectExample = (i) => {
+    if (exampleRows.length === 0)
+      return;
+    exampleSel = Math.max(0, Math.min(exampleRows.length - 1, i));
+    exampleRows.forEach((row, j) => row.el.classList.toggle("selected", j === exampleSel));
+    exampleRows[exampleSel].el.scrollIntoView({ block: "nearest" });
+    showExamplePreview(exampleRows[exampleSel].name);
+  };
+  const drawExamples = () => {
+    if (!exampleList || !exampleTree)
+      return;
+    const f = (exampleFilter?.value || "").toLowerCase().trim();
+    localStorage.setItem("le-examples-filter", exampleFilter?.value || "");
+    const matches = (name) => !f || name.toLowerCase().includes(f);
+    const count = (folder) => folder.items.filter((x) => matches(x.name)).length + folder.folders.reduce((n, sub) => n + count(sub), 0);
+    exampleRows = [];
+    exampleSel = -1;
+    const out = [];
+    const draw = (folder, depth) => {
+      for (const x of folder.items) {
+        if (!matches(x.name))
+          continue;
+        const item = document.createElement("div");
+        item.className = "dropdown-item example-row";
+        item.style.paddingLeft = `${15 + 18 * depth}px`;
+        item.textContent = x.label;
+        item.title = x.name;
+        item.addEventListener("click", async () => {
+          closeModal();
+          await loadExampleFromServer(x.name);
+        });
+        item.addEventListener("mouseenter", () => {
+          exampleSel = exampleRows.findIndex((r) => r.el === item);
+        });
+        exampleRows.push({ el: item, name: x.name });
+        out.push(item);
+      }
+      for (const sub of folder.folders) {
+        const n = count(sub);
+        if (n === 0)
+          continue;
+        const open = f ? true : exampleFolderOpen(sub.path);
+        const head = document.createElement("div");
+        head.className = "example-folder" + (open ? " open" : "");
+        head.dataset.path = sub.path;
+        head.style.paddingLeft = `${15 + 18 * depth}px`;
+        const label = document.createElement("span");
+        label.className = "example-folder-label";
+        label.textContent = `${sub.label}  (${n})`;
+        head.appendChild(label);
+        if (sub.blurb) {
+          const blurb = document.createElement("span");
+          blurb.className = "example-folder-blurb";
+          blurb.textContent = sub.blurb;
+          head.appendChild(blurb);
+        }
+        head.addEventListener("click", () => {
+          localStorage.setItem("le-examples-open." + sub.path, String(!open));
+          drawExamples();
+        });
+        out.push(head);
+        if (open)
+          draw(sub, depth + 1);
+      }
+    };
+    draw(exampleTree, 0);
+    if (out.length === 0) {
+      const none = document.createElement("div");
+      none.style.cssText = "padding: 20px; text-align: center; color: #888;";
+      none.textContent = t("No example matches the filter.");
+      out.push(none);
+    }
+    exampleList.replaceChildren(...out);
+    if (f && exampleRows.length > 0)
+      selectExample(0);
+  };
+  exampleFilter?.addEventListener("input", drawExamples);
+  exampleFilter?.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown") {
+      selectExample(exampleSel + 1);
+      e.preventDefault();
+    } else if (e.key === "ArrowUp") {
+      selectExample(exampleSel - 1);
+      e.preventDefault();
+    } else if (e.key === "Enter" && exampleRows[exampleSel]) {
+      const name = exampleRows[exampleSel].name;
+      e.preventDefault();
+      closeModal();
+      loadExampleFromServer(name);
+    }
+  });
   document.getElementById("menu-open-server")?.addEventListener("click", async () => {
     if (modalOverlay)
       modalOverlay.style.display = "flex";
+    if (examplePreview)
+      examplePreview.textContent = "";
+    if (exampleFilter) {
+      exampleFilter.value = localStorage.getItem("le-examples-filter") || "";
+      exampleFilter.focus();
+      exampleFilter.select();
+    }
     if (exampleList)
-      exampleList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">Loading examples...</div>';
+      exampleList.innerHTML = `<div style="padding: 20px; text-align: center; color: #888;">${t("Loading examples...")}</div>`;
     try {
       const response = await fetch("/leapi", {
         method: "POST",
@@ -15825,53 +16006,15 @@ ${err}`, "See s(CASP)");
       });
       const data = await response.json();
       if (data.examples && exampleList) {
-        exampleList.innerHTML = "";
-        const examples = [...data.examples].sort();
-        const rootExamples = [];
-        const subDirGroups = /* @__PURE__ */ new Map();
-        examples.forEach((ex) => {
-          const slashIdx = ex.indexOf("/");
-          if (slashIdx >= 0) {
-            const subdir = ex.substring(0, slashIdx);
-            if (!subDirGroups.has(subdir))
-              subDirGroups.set(subdir, []);
-            subDirGroups.get(subdir).push(ex);
-          } else {
-            rootExamples.push(ex);
-          }
-        });
-        const makeItem = (ex, label, indent) => {
-          const item = document.createElement("div");
-          item.className = "dropdown-item";
-          item.style.padding = indent ? "8px 15px 8px 30px" : "10px 15px";
-          item.style.borderBottom = "1px solid #333";
-          item.textContent = label;
-          item.addEventListener("click", async () => {
-            closeModal();
-            await loadExampleFromServer(ex);
-          });
-          return item;
-        };
-        rootExamples.forEach((ex) => {
-          exampleList.appendChild(makeItem(ex, ex, false));
-        });
-        subDirGroups.forEach((items, subdir) => {
-          const header = document.createElement("div");
-          header.style.cssText = "padding: 8px 15px 4px; font-weight: bold; color: #aaa; border-bottom: 1px solid #555; font-size: 0.85em; letter-spacing: 0.03em;";
-          header.textContent = subdir + "/";
-          exampleList.appendChild(header);
-          items.forEach((ex) => {
-            const name = ex.substring(ex.indexOf("/") + 1);
-            exampleList.appendChild(makeItem(ex, name, true));
-          });
-        });
+        exampleTree = buildExampleTree([...data.examples].sort(), data.folders || []);
+        drawExamples();
       } else if (exampleList) {
-        exampleList.innerHTML = '<div style="padding: 20px; text-align: center; color: #f44;">Failed to load examples.</div>';
+        exampleList.innerHTML = `<div style="padding: 20px; text-align: center; color: #f44;">${t("Failed to load examples.")}</div>`;
         console.error("list_examples returned no examples", data);
       }
     } catch (err) {
       if (exampleList)
-        exampleList.innerHTML = '<div style="padding: 20px; text-align: center; color: #f44;">Failed to load examples.</div>';
+        exampleList.innerHTML = `<div style="padding: 20px; text-align: center; color: #f44;">${t("Failed to load examples.")}</div>`;
       console.error("Failed to list examples", err);
     }
   });

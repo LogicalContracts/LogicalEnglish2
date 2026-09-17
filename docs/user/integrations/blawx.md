@@ -132,7 +132,7 @@ section.
 
 Blawx's fifteen example projects (Blawx v1.6.22-alpha, MIT licence) have been
 translated. The results, *twins*, are among the examples under
-`migration/blawx/`. Open them with **File ▸ Open copy from server…**:
+`migration/blawx/`. Open them with **File ▸ Open example from server…**:
 
 | Twin | Project |
 |---|---|

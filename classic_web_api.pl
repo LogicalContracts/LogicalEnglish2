@@ -937,7 +937,40 @@ handle_list_examples(_Dict, Response) :-
               member(E, Es) ),
             ExtraExamples),
     append([LangExamples, StandardExamples, ExtraExamples], Examples),
-    Response = _{examples: Examples}.
+    example_folders(Examples, Folders),
+    Response = _{examples: Examples, folders: Folders}.
+
+%!  example_folders(+Examples:list, -Folders:list) is det.
+%
+%   The folders the example names pass through ('domains/', 'domains/tax/',
+%   'migration/', ...), each with what it is about when its README says
+%   (its title, as on the landing page): File > Open example from server
+%   shows them as a tree, as the landing page does.
+example_folders(Examples, Folders) :-
+    findall(P, ( member(E, Examples), atomic_list_concat(Parts, '/', E),
+                 append(Dirs, [_], Parts), Dirs \== [],
+                 append(Pre, _, Dirs), Pre \== [],
+                 atomic_list_concat(Pre, '/', P0), atom_concat(P0, '/', P) ),
+            Ps0),
+    sort(Ps0, Ps),
+    findall(F, ( member(P, Ps), example_folder(P, F) ), Folders).
+
+example_folder(Path, F) :-
+    (   example_folder_dir(Path, Dir),
+        folder_blurb(Dir, [span(_, [_, Title])])
+    ->  F = _{path: Path, blurb: Title}
+    ;   F = _{path: Path}
+    ).
+
+example_folder_dir(Path, Dir) :-
+    atomic_list_concat([First|Rest], '/', Path),
+    (   le_kbs:le_extra_examples_dir(First, Root) -> true
+    ;   language_examples_dir(First, Root) -> true
+    ;   le_examples_dir(Base), atom_concat(Base, '/', B), atom_concat(B, First, Root)
+    ),
+    atomic_list_concat([Root|Rest], '/', Dir0),
+    ( sub_atom(Dir0, _, 1, 0, '/') -> sub_atom(Dir0, 0, _, 1, Dir) ; Dir = Dir0 ).
+
 
 %!  list_examples_in_dir(+Dir:atom, +Prefix:atom, +UserRoles:list, -Examples:list) is det.
 %

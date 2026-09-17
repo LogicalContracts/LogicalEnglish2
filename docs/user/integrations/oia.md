@@ -126,7 +126,7 @@ it. For a rulebase, which has no Word text, it holds the uploaded files.
 
 Five translated OIA projects are among the InsurLE examples, visible only on
 installations that have them, to users with access. Open them with **File ▸
-Open copy from server…**:
+Open example from server…**:
 
 - `insureLE2/migration/oia/warranty_claims`: three rules, the smallest;
 - `insureLE2/migration/oia/mom_paternity_leave`: Singapore's Government Paid

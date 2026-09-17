@@ -82,7 +82,7 @@ templates to say what the relation means.
 
 The examples of the LegalRuleML Core Specification have been translated. The
 results, *twins*, are among the examples under `migration/legalruleml/`. Open
-them with **File ▸ Open copy from server…**:
+them with **File ▸ Open example from server…**:
 
 | Twin | What it shows |
 |---|---|

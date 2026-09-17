@@ -1798,10 +1798,172 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         if (e.key === 'Escape' && modalOverlay && modalOverlay.style.display !== 'none') closeModal();
     });
 
+    // File > Open example from server: the examples as a tree of folders, as
+    // on the landing page and in the LPS IDE's dialog — each folder with its
+    // count and what it is about (its README title), closed until opened (the
+    // editor remembers which), and a filter above that searches the whole
+    // tree and opens whatever matches. Arrows walk the matches, Enter opens
+    // one, and the selected one's first lines are shown below. A twin's
+    // folder holding just its program (migration/scasp/birds/birds) is that
+    // program's row.
+    const exampleFilter = document.getElementById('example-filter') as HTMLInputElement | null;
+    const examplePreview = document.getElementById('example-preview');
+    type ExampleFolder = { path: string, label: string, blurb: string, folders: ExampleFolder[], items: { name: string, label: string }[] };
+    let exampleTree: ExampleFolder | null = null;
+    let exampleRows: { el: HTMLElement, name: string }[] = [];
+    let exampleSel = -1;
+    const exampleFolderOpen = (path: string) => localStorage.getItem('le-examples-open.' + path) === 'true';
+
+    const buildExampleTree = (names: string[], folders: { path: string, blurb?: string }[]): ExampleFolder => {
+        const blurbs = new Map(folders.map(f => [f.path, f.blurb || '']));
+        const root: ExampleFolder = { path: '', label: '', blurb: '', folders: [], items: [] };
+        const folderAt = (path: string): ExampleFolder => {
+            let node = root;
+            let prefix = '';
+            for (const part of path.split('/').filter(x => x)) {
+                prefix += part + '/';
+                let next = node.folders.find(f => f.path === prefix);
+                if (!next) {
+                    next = { path: prefix, label: part, blurb: blurbs.get(prefix) || '', folders: [], items: [] };
+                    node.folders.push(next);
+                }
+                node = next;
+            }
+            return node;
+        };
+        for (const name of names) {
+            const cut = name.lastIndexOf('/');
+            const folder = folderAt(cut >= 0 ? name.substring(0, cut + 1) : '');
+            folder.items.push({ name, label: name.substring(cut + 1) });
+        }
+        const collapse = (f: ExampleFolder) => {
+            f.folders.forEach(collapse);
+            f.folders = f.folders.filter(sub => {
+                if (sub.folders.length === 0 && sub.items.length === 1 && sub.items[0].label === sub.label) {
+                    f.items.push(sub.items[0]);
+                    return false;
+                }
+                return true;
+            });
+        };
+        collapse(root);
+        return root;
+    };
+
+    const showExamplePreview = (() => {
+        let timer: any = null;
+        return (name: string) => {
+            if (!examplePreview) return;
+            clearTimeout(timer);
+            timer = setTimeout(async () => {
+                examplePreview.textContent = t('loading…');
+                try {
+                    const r = await fetch('/leapi', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token: 'myToken123', operation: 'examples', file: name })
+                    });
+                    const data = await r.json();
+                    examplePreview.textContent = typeof data.document === 'string' && data.document
+                        ? data.document.split('\n').slice(0, 30).join('\n') : (data.error || '');
+                } catch { examplePreview.textContent = ''; }
+            }, 150);
+        };
+    })();
+
+    const selectExample = (i: number) => {
+        if (exampleRows.length === 0) return;
+        exampleSel = Math.max(0, Math.min(exampleRows.length - 1, i));
+        exampleRows.forEach((row, j) => row.el.classList.toggle('selected', j === exampleSel));
+        exampleRows[exampleSel].el.scrollIntoView({ block: 'nearest' });
+        showExamplePreview(exampleRows[exampleSel].name);
+    };
+
+    const drawExamples = () => {
+        if (!exampleList || !exampleTree) return;
+        const f = (exampleFilter?.value || '').toLowerCase().trim();
+        localStorage.setItem('le-examples-filter', exampleFilter?.value || '');
+        const matches = (name: string) => !f || name.toLowerCase().includes(f);
+        const count = (folder: ExampleFolder): number =>
+            folder.items.filter(x => matches(x.name)).length + folder.folders.reduce((n, sub) => n + count(sub), 0);
+        exampleRows = [];
+        exampleSel = -1;
+        const out: HTMLElement[] = [];
+        const draw = (folder: ExampleFolder, depth: number) => {
+            for (const x of folder.items) {
+                if (!matches(x.name)) continue;
+                const item = document.createElement('div');
+                item.className = 'dropdown-item example-row';
+                item.style.paddingLeft = `${15 + 18 * depth}px`;
+                item.textContent = x.label;
+                item.title = x.name;
+                item.addEventListener('click', async () => {
+                    closeModal();
+                    await loadExampleFromServer(x.name);
+                });
+                item.addEventListener('mouseenter', () => { exampleSel = exampleRows.findIndex(r => r.el === item); });
+                exampleRows.push({ el: item, name: x.name });
+                out.push(item);
+            }
+            for (const sub of folder.folders) {
+                const n = count(sub);
+                if (n === 0) continue;
+                // A filter is a search: it opens every folder that matched.
+                const open = f ? true : exampleFolderOpen(sub.path);
+                const head = document.createElement('div');
+                head.className = 'example-folder' + (open ? ' open' : '');
+                head.dataset.path = sub.path;
+                head.style.paddingLeft = `${15 + 18 * depth}px`;
+                const label = document.createElement('span');
+                label.className = 'example-folder-label';
+                label.textContent = `${sub.label}  (${n})`;
+                head.appendChild(label);
+                if (sub.blurb) {
+                    const blurb = document.createElement('span');
+                    blurb.className = 'example-folder-blurb';
+                    blurb.textContent = sub.blurb;
+                    head.appendChild(blurb);
+                }
+                head.addEventListener('click', () => {
+                    localStorage.setItem('le-examples-open.' + sub.path, String(!open));
+                    drawExamples();
+                });
+                out.push(head);
+                if (open) draw(sub, depth + 1);
+            }
+        };
+        draw(exampleTree, 0);
+        if (out.length === 0) {
+            const none = document.createElement('div');
+            none.style.cssText = 'padding: 20px; text-align: center; color: #888;';
+            none.textContent = t('No example matches the filter.');
+            out.push(none);
+        }
+        exampleList.replaceChildren(...out);
+        if (f && exampleRows.length > 0) selectExample(0);
+    };
+
+    exampleFilter?.addEventListener('input', drawExamples);
+    exampleFilter?.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown') { selectExample(exampleSel + 1); e.preventDefault(); }
+        else if (e.key === 'ArrowUp') { selectExample(exampleSel - 1); e.preventDefault(); }
+        else if (e.key === 'Enter' && exampleRows[exampleSel]) {
+            const name = exampleRows[exampleSel].name;
+            e.preventDefault();
+            closeModal();
+            loadExampleFromServer(name);
+        }
+    });
+
     document.getElementById('menu-open-server')?.addEventListener('click', async () => {
 
         if (modalOverlay) modalOverlay.style.display = 'flex';
-        if (exampleList) exampleList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">Loading examples...</div>';
+        if (examplePreview) examplePreview.textContent = '';
+        if (exampleFilter) {
+            exampleFilter.value = localStorage.getItem('le-examples-filter') || '';
+            exampleFilter.focus();
+            exampleFilter.select();
+        }
+        if (exampleList) exampleList.innerHTML = `<div style="padding: 20px; text-align: center; color: #888;">${t('Loading examples...')}</div>`;
 
         try {
             const response = await fetch('/leapi', {
@@ -1815,58 +1977,16 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             const data = await response.json();
             
             if (data.examples && exampleList) {
-                exampleList.innerHTML = '';
-                const examples: string[] = [...data.examples].sort();
-
-                // Separate root-level examples from subdirectory ones
-                const rootExamples: string[] = [];
-                const subDirGroups = new Map<string, string[]>();
-                examples.forEach((ex: string) => {
-                    const slashIdx = ex.indexOf('/');
-                    if (slashIdx >= 0) {
-                        const subdir = ex.substring(0, slashIdx);
-                        if (!subDirGroups.has(subdir)) subDirGroups.set(subdir, []);
-                        subDirGroups.get(subdir)!.push(ex);
-                    } else {
-                        rootExamples.push(ex);
-                    }
-                });
-
-                const makeItem = (ex: string, label: string, indent: boolean) => {
-                    const item = document.createElement('div');
-                    item.className = 'dropdown-item';
-                    item.style.padding = indent ? '8px 15px 8px 30px' : '10px 15px';
-                    item.style.borderBottom = '1px solid #333';
-                    item.textContent = label;
-                    item.addEventListener('click', async () => {
-                        closeModal();
-                        await loadExampleFromServer(ex);
-                    });
-                    return item;
-                };
-
-                rootExamples.forEach((ex: string) => {
-                    exampleList.appendChild(makeItem(ex, ex, false));
-                });
-
-                subDirGroups.forEach((items, subdir) => {
-                    const header = document.createElement('div');
-                    header.style.cssText = 'padding: 8px 15px 4px; font-weight: bold; color: #aaa; border-bottom: 1px solid #555; font-size: 0.85em; letter-spacing: 0.03em;';
-                    header.textContent = subdir + '/';
-                    exampleList.appendChild(header);
-                    items.forEach((ex: string) => {
-                        const name = ex.substring(ex.indexOf('/') + 1);
-                        exampleList.appendChild(makeItem(ex, name, true));
-                    });
-                });
+                exampleTree = buildExampleTree([...data.examples].sort(), data.folders || []);
+                drawExamples();
             } else if (exampleList) {
                 // An error reply (no `examples`) used to leave "Loading
                 // examples..." up forever; show the failure instead.
-                exampleList.innerHTML = '<div style="padding: 20px; text-align: center; color: #f44;">Failed to load examples.</div>';
+                exampleList.innerHTML = `<div style="padding: 20px; text-align: center; color: #f44;">${t('Failed to load examples.')}</div>`;
                 console.error('list_examples returned no examples', data);
             }
         } catch (err) {
-            if (exampleList) exampleList.innerHTML = '<div style="padding: 20px; text-align: center; color: #f44;">Failed to load examples.</div>';
+            if (exampleList) exampleList.innerHTML = `<div style="padding: 20px; text-align: center; color: #f44;">${t('Failed to load examples.')}</div>`;
             console.error('Failed to list examples', err);
         }
     });
@@ -4323,7 +4443,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         updateUrlSelection();
     }
 
-    // A document opened from the File menu (Open, Open copy from server, New
+    // A document opened from the File menu (Open, Open example from server, New
     // from URL) goes into a tab of its own, which comes forward with its
     // program in the panels. If it is open already, its tab comes forward
     // instead; an untouched new document in front is replaced rather than

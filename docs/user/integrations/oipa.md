@@ -158,7 +158,7 @@ MathVariable it states, and the program says where that file is (`the text of
 
 Six translated transactions are among the InsurLE examples, visible only on
 installations that have them, to users with access. Open them with **File ▸
-Open copy from server…**. They come from two plans, a deferred annuity and a
+Open example from server…**. They come from two plans, a deferred annuity and a
 level term life policy:
 
 - `insureLE2/migration/oipa/annuity_deposit`: premium tax, a bonus by size

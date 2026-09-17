@@ -569,6 +569,22 @@
             align-items: center;
             justify-content: center;
         }
+        #example-list .example-folder {
+            padding: 6px 15px 4px; font-weight: 600; font-size: 13px; cursor: pointer; opacity: .8;
+            border-bottom: 1px solid var(--border-color); display: flex; gap: 10px; align-items: baseline;
+        }
+        #example-list .example-folder::before { content: "\25B8"; width: 1em; flex: none; }
+        #example-list .example-folder.open::before { content: "\25BE"; }
+        #example-list .example-folder-label { white-space: pre; }
+        #example-list .example-folder-blurb { font-weight: 400; font-size: 12px; opacity: .75; }
+        #example-list .example-row { padding-top: 5px; padding-bottom: 5px; font-family: monospace; font-size: 13px; }
+        #example-list .example-row.selected { background: #0e639c; color: #fff; }
+        #example-preview {
+            margin: 0 10px; padding: 6px 8px; max-height: 22vh; min-height: 0; overflow: auto;
+            font-size: 11px; line-height: 1.35; white-space: pre; opacity: .8;
+            border-top: 1px solid var(--border-color);
+        }
+        #example-preview:empty { display: none; }
         .modal-content {
             background: var(--dropdown-bg);
             border: 1px solid var(--border-color);
@@ -730,7 +746,7 @@
                 <div class="dropdown-item" id="menu-new-from-url" title="Open a copy of a Logical English program published at a web address; its includes and cited documents resolve relative to that address">New from URL...</div>
                 <div class="dropdown-item" id="menu-open" title="Open a Logical English file, or a file of another system that the server has a translator for (a Solidity contract, a Miniscript policy, an Oracle Intelligent Advisor project, a Socotra product as a .zip): it is translated on opening, and what could not be translated is kept as TODO comments">Open...</div>
                 <div class="dropdown-item" id="menu-import" title="Translate a file of another system into Logical English — deterministically, no LLM — and open the result in a new tab: what could not be translated is kept as TODO comments, and the file itself stays beside the program (File &gt; Show the Original)">Import from Another System…</div>
-                <div class="dropdown-item" id="menu-open-server" title="Open a copy of one of the example programs this server keeps: your changes do not touch the server's file">Open copy from server...</div>
+                <div class="dropdown-item" id="menu-open-server" title="Open a copy of one of the example programs this server keeps: your changes do not touch the server's file">Open example from server...</div>
                 <div class="dropdown-divider"></div>
                 <div class="dropdown-item" id="menu-save" style="display: none;" title="Save the active program to the file it was opened from">Save</div>
                 <div class="dropdown-item" id="menu-save-as" title="Save the active program under a new name">Save As...</div>
@@ -1094,17 +1110,23 @@
         </div>
     </div>
 
-    <!-- Modal for Server Examples -->
+    <!-- Modal for Server Examples: File > Open example from server, a tree of
+         folders with a filter (client.ts builds it) -->
     <div id="modal-overlay" class="modal-overlay">
-        <div class="modal-content" style="width: 400px; max-height: 80vh;">
+        <div class="modal-content" style="width: min(820px, 94vw); height: 84vh;">
             <div class="modal-header">
-                <h3 style="margin: 0; font-size: 16px;">Open from Server</h3>
+                <h3 style="margin: 0; font-size: 16px;">Open example from server</h3>
                 <span id="modal-close" style="cursor: pointer; font-size: 20px;">&times;</span>
             </div>
-            <div id="example-list" style="padding: 10px; overflow-y: auto; flex-grow: 1;">
+            <div style="padding: 10px 10px 0;">
+                <input id="example-filter" type="text" placeholder="filter — type any part of a name" autocomplete="off" spellcheck="false"
+                       style="width: 100%; box-sizing: border-box; padding: 6px 8px; background: var(--input-bg, #1e1e1e); color: var(--text-color); border: 1px solid var(--input-border, #555); border-radius: 3px;">
+            </div>
+            <div id="example-list" style="padding: 6px 10px; overflow-y: auto; flex-grow: 1;">
                 <!-- Examples will be listed here -->
                 <div style="padding: 20px; text-align: center; color: #888;">Loading examples...</div>
             </div>
+            <pre id="example-preview"></pre>
             <div class="modal-footer">
                 <button id="modal-cancel" style="background: var(--item-hover-bg); color: var(--text-color); border: 1px solid var(--input-border); border-radius: 3px; padding: 5px 15px; cursor: pointer;">Cancel</button>
             </div>
