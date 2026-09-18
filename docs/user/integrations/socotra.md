@@ -181,17 +181,17 @@ program loads.
 
 The twins of the seventeen products of Socotra's public product library
 (Pet, Personal Auto, Homeowners, Workers Compensation, Term Life, Cyber,
-Drone and others) are among the InsurLE examples. They are visible only on
-installations with the InsurLE examples, to users with access. Open them with
+Drone and others) are among the lpsPlus examples. They are visible only on
+installations with the lpsPlus examples, to users with access. Open them with
 **File ▸ Open example from server…**:
 
-- `insureLE2/migration/socotra/pet/pet`: small (27 rules, three tables), with
+- `lpsPlus/migration/socotra/pet/pet`: small (27 rules, three tables), with
   an underwriting rejection in the Lion and Elephant quotes;
-- `insureLE2/migration/socotra/personal_auto/personal_auto`: seven perils and
+- `lpsPlus/migration/socotra/personal_auto/personal_auto`: seven perils and
   the claims-history loadings;
-- `insureLE2/migration/socotra/term_life/term_life`: ages from dates of
+- `lpsPlus/migration/socotra/term_life/term_life`: ages from dates of
   birth, with lib/temporal;
-- `insureLE2/migration/socotra/homeowners/homeowners`: a residue block, and
+- `lpsPlus/migration/socotra/homeowners/homeowners`: a residue block, and
   expectations pending on it.
 
 Each twin has its ledger, its quotes (`quotes.json`), and the product's files

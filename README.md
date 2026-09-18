@@ -68,7 +68,7 @@ Optional components:
 - **s(CASP):** `swipl -g "pack_install(scasp)"` enables the s(CASP) engine (`le_scasp.pl`).
 - **Deep mode of the LE Assistant:** `npm install -g opencode-ai mcp-remote` ([docs/dev/assistant.md](./docs/dev/assistant.md)).
 - **LPS:** programs with `the target language is: lps.` run on an LPS2 server beside this one.
-- **Proprietary extensions:** `le_extensions.pl`, when present next to `le_kbs.pl`, adds the constructs of [docs/user/reference/extensions.md](./docs/user/reference/extensions.md) and the importers and exporters of other systems.
+- **Proprietary extensions:** `le_extensions.pl`, when present next to `le_kbs.pl`, adds the constructs of [docs/user/reference/extensions.md](./docs/user/reference/extensions.md); `le_importers.pl`, likewise a link into the private lpsPlus repository, adds the importers and exporters of other systems.
 
 ### Testing
 
@@ -105,7 +105,7 @@ parsed, and their failures say nothing about core LE. That is why they are not i
 the default suite.
 
 The exclusion is a hardwired table, `extension_dependent_path_fragment/1` in
-`le_kbs.pl` (currently the `insureLE2/` and `InsurLE2/` example trees). Add a row
+`le_kbs.pl` (currently the `insureLE2/`, `InsurLE2/` and `lpsPlus/` example trees). Add a row
 there when a new extension-dependent tree appears; nothing else changes.
 
 Each variant writes its **own** status snapshot, and neither run touches the

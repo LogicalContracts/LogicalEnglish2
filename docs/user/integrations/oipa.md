@@ -156,24 +156,24 @@ MathVariable it states, and the program says where that file is (`the text of
 
 ### Examples to try
 
-Six translated transactions are among the InsurLE examples, visible only on
+Six translated transactions are among the lpsPlus examples, visible only on
 installations that have them, to users with access. Open them with **File ▸
 Open example from server…**. They come from two plans, a deferred annuity and a
 level term life policy:
 
-- `insureLE2/migration/oipa/annuity_deposit`: premium tax, a bonus by size
+- `lpsPlus/migration/oipa/annuity_deposit`: premium tax, a bonus by size
   (an IIF), the new account value; two checks;
-- `insureLE2/migration/oipa/annuity_withdrawal`: policy year, free amount, a
+- `lpsPlus/migration/oipa/annuity_withdrawal`: policy year, free amount, a
   surrender charge rate by policy year (a RATE), a MathIF, the net amount;
   two checks; spawns FullSurrender; copies the account value;
-- `insureLE2/migration/oipa/annuity_full_surrender`: the surrender value of
+- `lpsPlus/migration/oipa/annuity_full_surrender`: the surrender value of
   the spawned transaction; copies the value and the status;
-- `insureLE2/migration/oipa/termlife_issue`: issue age at the nearest
+- `lpsPlus/migration/oipa/termlife_issue`: issue age at the nearest
   birthday, a premium rate by age, gender and tobacco (192 rows), annual and
   modal premiums; two checks; six copies;
-- `insureLE2/migration/oipa/termlife_premium_payment`: whole modes paid and
+- `lpsPlus/migration/oipa/termlife_premium_payment`: whole modes paid and
   the new paid-to date; one check;
-- `insureLE2/migration/oipa/termlife_grace_check`: days past due, in grace;
+- `lpsPlus/migration/oipa/termlife_grace_check`: days past due, in grace;
   spawns Lapse.
 
 No public OIPA configuration exists, so the two plans are synthetic, written

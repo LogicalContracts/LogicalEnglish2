@@ -5,8 +5,10 @@ editor/playwright-report/
 docs/user/guide/images/editor_selection.png
 tmp/
 le_extensions.pl
+le_importers.pl
 .github
 insureLE2
+lpsPlus
 web_extras/insurML2browse
 .claude-docker
 contract_jobs

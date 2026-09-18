@@ -1,7 +1,7 @@
 # Migration ledger: ex1_curies
 
 Source: a LegalRuleML document (OASIS LegalRuleML Core 1.0) — ex1-curies-normal.lrml
-Translator: InsurLE2/migration/legalruleml (lrml_twin.pl)
+Translator: lpsPlus/migration/legalruleml (lrml_twin.pl)
 Date: 2026-09-15
 
 ## Summary

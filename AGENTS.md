@@ -43,7 +43,7 @@ you can call it from anywhere. Use it as the default check:
   nothing about core LE.
 
 The exclusion is a hardwired table, `extension_dependent_path_fragment/1` in
-`le_kbs.pl` (currently the `insureLE2/` and `InsurLE2/` trees, and the
+`le_kbs.pl` (currently the `insureLE2/`, `InsurLE2/` and `lpsPlus/` trees, and the
 migration twin `examples/migration/scasp/turingcomplete/`). Add a row there when
 a new extension-dependent example tree appears; nothing else needs to change.
 

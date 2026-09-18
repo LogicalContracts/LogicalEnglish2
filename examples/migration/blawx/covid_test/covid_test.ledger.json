@@ -165,7 +165,7 @@
     "licence":"Blawx: MIT",
     "program":"covid_test",
     "source":"Covid Test Rule",
-    "translator":"InsurLE2/migration/blawx (blawx_twin.pl)"
+    "translator":"lpsPlus/migration/blawx (blawx_twin.pl)"
   },
   "pending_expectations":0,
   "source_tests":3

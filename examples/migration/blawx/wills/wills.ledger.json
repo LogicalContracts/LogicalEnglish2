@@ -143,7 +143,7 @@
     "licence":"Blawx: MIT",
     "program":"wills",
     "source":"Wills Act",
-    "translator":"InsurLE2/migration/blawx (blawx_twin.pl)"
+    "translator":"lpsPlus/migration/blawx (blawx_twin.pl)"
   },
   "pending_expectations":0,
   "source_tests":10

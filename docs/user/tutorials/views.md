@@ -491,10 +491,10 @@ Two more views in the repository show the rest:
 
   ![The claim file: a result that waits for a judgment](views/07-claim-file.png)
 
-- **`customs/cbp_62.le`, "worksheet"** (in the InsurLE repository,
+- **`customs/cbp_62.le`, "worksheet"** (in the lpsPlus repository,
   `examples/customs/`) is the classification worksheet a US
   customs specialist asked for, in a review of the customs programs
-  (CustomsOfficerReport.md, in the InsurLE repository):
+  (CustomsOfficerReport.md, in the lpsPlus repository):
   - the good's facts as the CBP ruling states them, grouped as article, fabric,
     composition and measurements, each with the ruling's passage;
   - the subheading, headed by the code, with 41 cited steps reaching the tariff's
