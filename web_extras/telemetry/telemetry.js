@@ -75,6 +75,14 @@
                 release: C.sentry.release || undefined,
                 sendDefaultPii: false,
                 initialScope: { tags: { server: C.server } },
+                /* Noise from software that is not this page, and that no
+                 * change here can fix. Outlook (and the Office link scanner
+                 * behind it) opens an address in a browser of its own and
+                 * injects a script into the page; when that script fails, the
+                 * page reports it — "Object Not Found Matching Id:3,
+                 * MethodName:update, ParamCount:4", with no stack, from a
+                 * window nobody was looking at. */
+                ignoreErrors: [/Object Not Found Matching Id:/],
                 beforeSend: cleanEvent,
                 beforeBreadcrumb: function (b) {
                     cleanFields(b.data, ['url', 'from', 'to']);
