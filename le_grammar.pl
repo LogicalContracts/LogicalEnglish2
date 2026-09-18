@@ -570,10 +570,28 @@ section(templates(Dicts)) -->
     any_indent, kw(templates), t(punctuation(':', _)),
     templates(Dicts).
 
+% section(functions(...)) parses "the functions are:" (docs/user/reference/language.md
+% §2.3). Its lines are templates, declared exactly as `the templates are:`
+% declares them, and each must be of the form "... is *a value*": the last
+% place, after the copula, is the value the function gives. Such a template may
+% then be written WITHOUT that last place wherever a value is expected —
+% `the price of a cup with capacity 200 > 10` — which is what
+% check_function_application/7 does when the sentence is read.
+%
+% The mark is the term function(Arity) in the dict's Globals field, which is
+% where LE already keeps "this template's value can be written without its last
+% argument" (the field is otherwise the names of `the constants are:`). It
+% therefore inherits the ordering rule that matters: a goal that BINDS a value
+% is placed before the literal that uses it (is_global_extra_goal/2).
+section(functions(Dicts)) -->
+    any_indent, kw(functions), t(punctuation(':', _)),
+    templates(Dicts0),
+    { maplist(as_function_dict, Dicts0, Dicts) }.
+
 % section(constants(...)) parses "the constants are:" (docs/user/reference/language.md §2.2).
 % Each line names one value — `the unlimited allowance is 115…` — and is short
-% for a template with a `defines global` name and one fact:
-%     the value of the unlimited allowance is *a number*; defines global the unlimited allowance.
+% for a template that names its value, and one fact:
+%     the value of the unlimited allowance is *a number*   (its name: the unlimited allowance)
 %     the value of the unlimited allowance is 115….
 % The name is then a global (§6.0) wherever a rule, a scenario or a query uses
 % it, and the fact is timeless (an LPS law reads it at any time). The type of
@@ -1418,9 +1436,12 @@ constant_line(Dicts, fact(Head, Start, End), End) -->
         constant_split(Toks, NameToks, IsTok, ValueToks),
         constant_value_type(ValueToks, Type),
         le_i18n:kw_main_words(constant_value_of, VOWords),
-        le_i18n:kw_main_words(defines_global, DGWords),
         maplist(synthetic_word(Start), VOWords, VOToks),
-        maplist(synthetic_word(Start), DGWords, DGToks),
+        %   The marker is internal (constant_global_marker/1), not the written
+        %   `; defines global` that §2.2 replaced: a constant is not a program
+        %   using a syntax that no longer exists.
+        constant_global_marker(Marker),
+        DGToks = [word(Marker, loc(Start, Start))],
         Star = punctuation('*', loc(Start, Start)),
         append([VOToks, NameToks,
                 [IsTok, Star, word(a, loc(Start, Start)), word(Type, loc(Start, Start)), Star,
@@ -1481,8 +1502,31 @@ template(Dicts) -->
       append(BaseDicts, SynDicts, Dicts)
     }.
 
-% A template with a synonym must not carry any other addition (defines global,
-% opposite, prepositional, unknown, undefined). Report an issue if it does; the
+%!  global_marker(-Written) is semidet.
+%
+%   What names the value of a template: `; defines global <name>`, as written
+%   (Written = true, and no longer part of the language), or the marker the
+%   constants section synthesises for itself (Written = false).
+global_marker(true) --> kw(defines_global), !.
+global_marker(false) --> { constant_global_marker(Marker) }, t(word(Marker, _)).
+
+%   A word no tokenizer produces, so no program can write it.
+constant_global_marker('$le constant global').
+
+%!  defines_global_removed(+Start, +End) is det.
+%
+%   `; defines global` is gone from the language (§2.2, §2.3): say so, at the
+%   template that still carries it, with what to write instead.
+defines_global_removed(Start, End) :-
+    (   le_kbs:current_compiling_module(M), M \== (-)
+    ->  le_i18n:le_msg(defines_global_removed_desc, [], Desc),
+        le_i18n:le_msg(defines_global_removed_fix, [], Fix),
+        assertz(M:le_issue(error, defines_global_removed, Desc, Fix, Start, End))
+    ;   true
+    ).
+
+% A template with a synonym must not carry any other addition (opposite,
+% prepositional, unknown, undefined). Report an issue if it does; the
 % synonym dicts are still produced so the surface forms remain usable.
 validate_synonym_template([], _, _, _, _, _, _) :- !.
 validate_synonym_template(Synonyms, Globals, Opposite, Prep, Unknown, Start, End) :-
@@ -1498,9 +1542,17 @@ validate_synonym_template(_, _, _, _, _, _, _).
 
 template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, FunctorArgs, TStart, TEnd) -->
     t(punctuation(';', _)),
-    (   kw(defines_global) ->
+    %   `; defines global <name>` was a third way to say what `the constants
+    %   are:` and `the functions are:` (§2.2, §2.3) now say between them: a
+    %   value with a name, and a value the rules compute, written where a value
+    %   goes. It is no longer part of the language. The keyword is still read,
+    %   so that a program that has it is told exactly that, at the line, rather
+    %   than failing to parse a template for no stated reason; the name still
+    %   works while the author moves it, so nothing silently changes meaning.
+    (   global_marker(Written) ->
         template_instance(Tokens),
-        { reconstruct_name(Tokens, G) },
+        { reconstruct_name(Tokens, G),
+          ( Written == true -> defines_global_removed(TStart, TEnd) ; true ) },
         template_additions(Gs, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, FunctorArgs, TStart, TEnd),
         { Globals = [G|Gs] }
     ;   kw(opposite) ->
@@ -2021,6 +2073,78 @@ check_global_abbreviation(Words, Templates, Var, VMIn, VMOut) :-
         VMOut = [global_template(Functor)-Var, extra_goal(Goal) | VMIn]
     ).
 
+%!  check_function_application(+Parts, +Templates, -Value, +VMIn, -VMOut,
+%!                              +AllowVars, +Depth) is semidet.
+%
+%   Parts are a declared function (`the functions are:`, §2.3) written without
+%   its last place — `the price of a cup with capacity 200` where a value is
+%   expected. Match them against the function's words up to its copula, which
+%   binds its other arguments, and give back the variable of the last place as
+%   the value, with the goal that computes it as an extra goal. Like a
+%   constant's goal (is_global_extra_goal/2), that goal is placed BEFORE the
+%   literal using the value, since it is what binds it.
+%
+%   The same application written twice in one sentence is one goal and one
+%   variable: a function may be a relation with several answers, and asking it
+%   twice would multiply them.
+check_function_application(Parts, Templates, Value, VMIn, VMOut, AllowVars, Depth) :-
+    Depth =< 1,
+    %  Cheapest test first: this runs for every value of every sentence, and a
+    %  program that declares no function must pay almost nothing for it.
+    once(( member(D0, Templates), function_dict(D0) )),
+    %  Not a complete instance of anything: `the price … is 30` is a literal,
+    %  not the value of a function.
+    \+ match_template(Parts, Templates, VMIn, _, _, AllowVars, Depth),
+    member(Dict, Templates), function_dict(Dict),
+    copy_term(Dict, dict(FunctorArgs, _, WV, _, _, _, _, _, _, _)),
+    function_prefix(WV, Prefix, ValueVar),
+    match_instance_to_template(Parts, Prefix, VMIn, VM1, Templates, AllowVars, Depth),
+    Goal =.. FunctorArgs,
+    !,
+    (   member(function_app(Seen)-SeenVar, VM1), Seen =@= Goal
+    ->  Value = SeenVar, VMOut = VM1
+    ;   Value = ValueVar,
+        VMOut = [function_app(Goal)-ValueVar, extra_goal(Goal) | VM1]
+    ).
+
+%!  as_function_dict(+Dict, -FunctionDict) is det.
+%
+%   Mark one line of `the functions are:` as a function, having checked that it
+%   can be one. A template that is not of the form "... is *a value*" is
+%   reported (function_not_is_form) and left unmarked, so the rest of the
+%   program still parses and only the functional shorthand is missing.
+as_function_dict(Dict0, Dict) :-
+    Dict0 = dict(FA, NTs, WV, Start, End, Globals, Opposite, Prep, Unknown),
+    FA = [_|Args], length(Args, N),
+    (   function_prefix(WV, _, _)
+    ->  Dict = dict(FA, NTs, WV, Start, End, [function(N)|Globals], Opposite, Prep, Unknown)
+    ;   (   le_kbs:current_compiling_module(M), M \== (-)
+        ->  le_i18n:le_msg(function_not_is_form_desc, [], Desc),
+            le_i18n:le_msg(function_not_is_form_fix, [], Fix),
+            assertz(M:le_issue(error, function_not_is_form, Desc, Fix, Start, End))
+        ;   true
+        ),
+        Dict = Dict0
+    ).
+as_function_dict(Dict, Dict).
+
+%!  function_prefix(+WordsAndVars, -Prefix, -Value) is semidet.
+%
+%   A function's words up to its value: WordsAndVars is Prefix, then the copula
+%   ("is"), then the one variable the function gives. Prefix is what a use
+%   without the last place has to match.
+function_prefix(WV, Prefix, Value) :-
+    append(Prefix, [Is, Value], WV),
+    var(Value),
+    nonvar(Is), atom(Is),
+    le_i18n:kw_synonym_words(marker_is, [Is]), !.
+
+%!  function_dict(+Dict) is semidet.
+%
+%   A template declared in `the functions are:` (as_function_dict/2 marks it).
+function_dict(dict(_, _, _, _, _, _, Globals, _, _, _)) :-
+    is_list(Globals), memberchk(function(_), Globals).
+
 extract_value_from_parts(Parts, Value, VMIn, VMOut, Templates, NoTransform, AllowVars, Depth) :-
     (   Parts = [Part], extract_value(Part, Value, VMIn, VMOut, Templates, AllowVars) -> true
         % A list literal written in a rule body arrives as raw tokens ('[' ...
@@ -2035,6 +2159,12 @@ extract_value_from_parts(Parts, Value, VMIn, VMOut, Templates, NoTransform, Allo
           (   check_global_abbreviation(Words, Templates, Value, VMIn, VMOut) -> true
               ; allow_var_name(AllowVars, Words, Name),
                 definite_is_anaphoric(Words, Name, VMIn) -> unify_with_vmap(Name, Value, VMIn, VMOut, true)
+              % A declared function (`the functions are:`) written without its
+              % last place: the value it gives, here. Before transform_instance,
+              % which never fails (it falls back to reading the words as a
+              % constant), and after the variable branch, so a name a variable
+              % already has still wins.
+              ; check_function_application(Parts, Templates, Value, VMIn, VMOut, AllowVars, Depth) -> true
               ; NoTransform \== true, transform_instance(Parts, Templates, VMIn, VMOut, Value, AllowVars, Depth) -> true
               ; is_proper_name(Words) -> tokens_to_string(Parts, Value), VMOut = VMIn
               ; \+ definite_hyphenated_name(Words, Parts),
@@ -2481,6 +2611,7 @@ is_meta_template(dict(FA, _, WordsAndVars, _, _, _, _, _, _)) :-
 
 get_dicts(predicates(Ds), Ds).
 get_dicts(templates(Ds), Ds).
+get_dicts(functions(Ds), Ds).
 get_dicts(fluents(Ds), Ds).
 get_dicts(events(Ds), Ds).
 get_dicts(actions(Ds), Ds).
@@ -2939,7 +3070,8 @@ well_formed_image_url(URL0) :-
 
 % is_global_extra_goal(+Templates, +Goal) is semidet.
 %
-%   True when Goal was introduced by a "defines global" abbreviation: its functor
+%   True when Goal was introduced by a name standing for a value — a constant
+%   (§2.2) or a function written without its last place (§2.3): its functor
 %   is the head of a template that declares a (non-empty) global. Such goals bind
 %   the global's value and so are placed before the literal that uses them, unlike
 %   prepositional extra goals which constrain a variable the literal introduces.
@@ -2963,7 +3095,7 @@ collect_extra_goals_acc([_|Rest], Gs) :- collect_extra_goals_acc(Rest, Gs).
 %   range (i.e. they are all prepositional-chain goals), reorder them by that range
 %   so the compiled body reflects the textual order — e.g. for "we will make a
 %   payment under this policy in respect of a claim", the `under` goal precedes the
-%   `in respect of` goal. When any goal lacks a range (e.g. a "defines global"
+%   `in respect of` goal. When any goal lacks a range (e.g. a named-value
 %   binding), the collected order is kept unchanged.
 order_extra_goals_by_source(Goals, Ordered) :-
     (   maplist(extra_goal_source_key, Goals, Keys)
@@ -4137,7 +4269,7 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
           % inline-connective branches below take the line.
           \+ swallowed_connective(Literal, Tokens, Templates, VMIn) ->
             collect_literal_extra_goals(VM1, VMIn, LiteralExtraGoals),
-            % A global ("defines global") abbreviation contributes a goal that
+            % A named value (a constant, or a function applied) contributes a goal that
             % BINDS the global's variable, so it must run immediately BEFORE the
             % literal that uses it. Prepositional extra goals instead further
             % constrain a variable the literal itself introduces, so they stay

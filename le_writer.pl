@@ -72,6 +72,7 @@
     render_ground_literal/3,     % +Dicts, +Literal, -Text
     render_constant/2,           % +Value, -Text
     template_text_dict/2,        % +Text, -dict(FA, NTs, WV)
+    function_shaped/1,           % +Text          (can it be a `the functions are:` line?)
     kb_to_ir/2,                  % +KB, -IR
     le_write_kb/2,               % +KB, -Text
     prolog_to_ir/3,              % +Terms, +Options, -IR
@@ -192,13 +193,39 @@ item_td(Item, td(F, N, WV, NTs, Kind, Adds, Text)) :-
         fail
     ).
 
+%!  function_shaped(+Text) is semidet.
+%
+%   Whether a template's text can be declared in `the functions are:` (§2.3):
+%   it ends with the copula and one place — "the price of *a cup* is *an
+%   amount*" — so its value may be written without that last place. For a
+%   translator deciding which of the relations it found are functions: a
+%   relation that does not end in its value ("*an exposure* is insured under
+%   *a policy*", "... is *a value* under table rates") is not one.
+function_shaped(Text0) :-
+    to_text(Text0, Text),
+    kw(marker_is, Is),
+    atomic_list_concat([' ', Is, ' '], Sep),
+    atomic_list_concat(Parts, Sep, Text), Parts = [_, _|_],
+    last(Parts, Last),
+    sub_atom(Last, 0, 1, _, '*'),
+    sub_atom(Last, _, 1, 0, '*'),
+    atomic_list_concat(Stars, '*', Last), length(Stars, 3).
+
+to_text(X, A) :- ( atom(X) -> A = X ; atom_string(A, X) ).
+
 template_item(template(F, Text), template, F, Text, []).
 template_item(template(F, Text, Adds), template, F, Text, Adds).
+%   A function is an ordinary template of the form "... is *a value*", declared
+%   in `the functions are:` (§2.3): its sentence may be written without that
+%   last place wherever the value is used, which is what write_rule/4 does
+%   through compact_functions/4.
+template_item(function(F, Text), function, F, Text, []).
+template_item(function(F, Text, Adds), function, F, Text, Adds).
 template_item(fluent(F, Text, Adds), fluent, F, Text, Adds).
 template_item(event(F, Text, Adds), event, F, Text, Adds).
 template_item(action(F, Text, Adds), action, F, Text, Adds).
 %   A named constant is the template `the value of <name> is *a <type>*` with
-%   `; defines global <name>` (le_summary.md §2.2); F is its functor.
+%   its name (docs/user/reference/language.md §2.2); F is its functor.
 template_item(constant(F, Name, Value), constant, F, Text, [defines_global(Name)]) :-
     constant_template_text(Name, Value, Text).
 
@@ -346,6 +373,7 @@ write_templates(ctx(Dicts, _, Target), _Items) :-
         write_template_section(Dicts, fluent, fluents)
     ;   true
     ),
+    write_template_section(Dicts, function, functions),
     write_template_section(Dicts, template, templates).
 
 %   `the constants are:` — one line per named value.
@@ -652,25 +680,32 @@ write_rule(Ctx, Head, Body0, Opts) :-
     simplify_body(Body1, Body),
     (   Body == true
     ->  write_fact(Ctx, Head, Opts)
-    ;   forall(member(comment(C), Opts), write_comment_block(0, C)),
-        write_rule_label(Opts),
-        copy_term(Head-Body-Hints0, H-B1-Hints),
-        name_globals(Ctx, B1, B2), simplify_body(B2, B),
+    ;   copy_term(Head-Body-Hints0, H-B1-Hints),
+        name_globals(Ctx, B1, B2),
+        compact_functions(Ctx, H, B2, B3), simplify_body(B3, B),
         b_setval(le_writer_hints, Hints),
-        clause_naming(Ctx, rule, H, B, St),
-        render_head(Ctx, St, H, HT),
-        kw(if, If),
-        St = st(_, _, M, _), arg(1, M, Before),
-        (   option(numbered(true), Opts),
-            numbered_body(Ctx, St, B, Lines)
-        ->  format("~w ~w:~n", [HT, If]),
-            forall(member(L, Lines), format("~w~n", [L]))
-        ;   setarg(1, M, Before),                % a failed numbered attempt mentioned nothing
-            body_nodes(Ctx, St, B, Nodes),
-            format("~w ~w~n", [HT, If]),
-            write_nodes(Nodes, 4, last)
-        ),
-        nl
+        %  Compaction can empty a body outright: a rule whose only condition
+        %  asked a function for the value its head states — "the label of
+        %  thimble is our currency." That is a fact, not "... if true".
+        (   B == true
+        ->  write_fact(Ctx, H, Opts)
+        ;   forall(member(comment(C), Opts), write_comment_block(0, C)),
+            write_rule_label(Opts),
+            clause_naming(Ctx, rule, H, B, St),
+            render_head(Ctx, St, H, HT),
+            kw(if, If),
+            St = st(_, _, M, _), arg(1, M, Before),
+            (   option(numbered(true), Opts),
+                numbered_body(Ctx, St, B, Lines)
+            ->  format("~w ~w:~n", [HT, If]),
+                forall(member(L, Lines), format("~w~n", [L]))
+            ;   setarg(1, M, Before),            % a failed numbered attempt mentioned nothing
+                body_nodes(Ctx, St, B, Nodes),
+                format("~w ~w~n", [HT, If]),
+                write_nodes(Nodes, 4, last)
+            ),
+            nl
+        )
     ).
 
 %   An integrity constraint of a timeless program (le_summary.md §3.3):
@@ -681,7 +716,8 @@ write_constraint(Ctx, Body0, Opts) :-
     simplify_body(Body1, Body),
     forall(member(comment(C), Opts), write_comment_block(0, C)),
     copy_term(Body-Hints0, B1-Hints),
-    name_globals(Ctx, B1, B2), simplify_body(B2, B),
+    name_globals(Ctx, B1, B2),
+    compact_functions(Ctx, true, B2, B3), simplify_body(B3, B),
     b_setval(le_writer_hints, Hints),
     clause_naming(Ctx, rule, true, B, St),
     body_nodes(Ctx, St, B, Nodes),
@@ -690,8 +726,194 @@ write_constraint(Ctx, Body0, Opts) :-
     write_nodes(Nodes, 4, last),
     nl.
 
-%   The goal LE inserts where a global name (`; defines global`, a named
-%   constant) is used: the name is written instead, where its value is read.
+%!  compact_functions(+Ctx, +Head, +Body0, -Body) is det.
+%
+%   A function (`the functions are:`, §2.3) written the compact way: the
+%   condition that asks it is dropped, and its value is written, where it is
+%   used, as the function's sentence without its last place —
+%
+%       and the price of the cup is a price and the price > 10
+%
+%   becomes
+%
+%       and the price of the cup > 10.
+%
+%   The phrase may appear more than once: written English that repeats it
+%   still asks the function once (le_grammar:check_function_application/7),
+%   which is why repeating it is faithful rather than wasteful.
+%
+%   Dropping a condition is only safe when nothing else needed it *there*, so
+%   a goal is compacted only when the value is a variable used elsewhere and
+%   every other argument is already known where the goal stood: ground, or a
+%   variable the head or an earlier condition binds. A function asked to
+%   enumerate — its inputs still open — keeps its condition.
+compact_functions(Ctx, Head, Body0, Body) :-
+    %  Only a body that is a plain conjunction, and only conditions of that
+    %  conjunction. Inside an `otherwise` cascade, a negation, a universal or
+    %  an aggregate, the goal LE re-inserts where the phrase is written would
+    %  land INSIDE that structure — a different program: an alternative of a
+    %  cascade guarded by one more condition, a value bound only within a
+    %  negation. A Socotra twin showed exactly that (a premium whose cascade
+    %  was nested under the condition that bound its value), which is why this
+    %  pass stays out of everything but the flat case.
+    (   plain_conjunction(Body0),
+        body_conjuncts(Body0, Cs),
+        compact_pass(Ctx, Head, [], Cs, Dropped),
+        Dropped \== []
+    %  The conditions that are left keep the shape they had: a body is
+    %  rewritten in place, not flattened and rebuilt, so a clause the writer
+    %  did not change comes back out of the reader exactly as it went in.
+    ->  drop_conjuncts(Dropped, Body0, Body)
+    ;   Body = Body0
+    ).
+
+body_conjuncts(and(A, B), Cs) :- !,
+    body_conjuncts(A, As), body_conjuncts(B, Bs), append(As, Bs, Cs).
+body_conjuncts(G, [G]).
+
+%   `and`s of conditions, nothing else: no cascade, negation, universal,
+%   aggregate or nested block anywhere in the body.
+plain_conjunction(and(A, B)) :- !, plain_conjunction(A), plain_conjunction(B).
+plain_conjunction(G) :-
+    \+ ( sub_term(S, G), nonvar(S), control_structure(S) ).
+
+control_structure(otherwise(_)).
+control_structure(or(_, _)).
+control_structure(not(_)).
+control_structure(forall(_, _)).
+control_structure(agg(_, _, _, _)).
+control_structure(all_of(_)).
+control_structure(either(_)).
+
+%   The conjuncts that are left, in the shape they had. A dropped one is
+%   removed, not replaced by `true`: the writer renders a body's conjuncts as
+%   sentences, and a `true` among them comes out as a condition named "true",
+%   which is no condition at all (an OIPA twin was written that way once).
+drop_conjuncts(Dropped, T0, T) :-
+    (   var(T0) -> T = T0
+    ;   member_eq(T0, Dropped) -> T = true
+    ;   T0 = and(A, B)
+    ->  drop_conjuncts(Dropped, A, A1), drop_conjuncts(Dropped, B, B1),
+        (   A1 == true -> T = B1
+        ;   B1 == true -> T = A1
+        ;   T = and(A1, B1)
+        )
+    ;   T = T0
+    ).
+
+member_eq(X, [Y|Ys]) :- ( X == Y -> true ; member_eq(X, Ys) ).
+
+%   Which conditions can go, deciding them left to right: Before is what is
+%   known by the time each one is reached. The marker is bound here, which is
+%   what makes every use of the value write the function's own words.
+compact_pass(_, _, _, [], []).
+compact_pass(Ctx, Head, Before, [C|Cs], Dropped) :-
+    (   function_value_goal(Ctx, C, V, Inputs, Marker),
+        %  the value is used somewhere else, which is where the phrase goes
+        ( sub_var(V, Cs) ; sub_var(V, Head) ),
+        %  and every use is a place where the phrase can be written at all
+        forall(( member(U, [Head|Cs]), sub_var(V, U) ), safe_function_use(Ctx, V, U)),
+        %  and nowhere that the phrase could not be written: a function
+        %  applied is not an arithmetic operand (§2.3), so a value that feeds
+        %  a formula — `N = round(the lookup of the key * 0.9)` — keeps the
+        %  condition that binds it. Writing the phrase there would produce a
+        %  document that does not read back.
+        \+ value_in_arithmetic(V, [Head|Cs]),
+        %  and the inputs are known where this condition stood
+        forall(member(I, Inputs), known_here(I, Head, Before))
+    ->  V = Marker,
+        Dropped = [C|Rest],
+        compact_pass(Ctx, Head, Before, Cs, Rest)
+    ;   compact_pass(Ctx, Head, [C|Before], Cs, Dropped)
+    ).
+
+%   C asks a function for its value: V is its last place, still open, Inputs
+%   the others, and Marker what V becomes so that every place it is used
+%   writes the function's sentence instead (arg_text/4).
+function_value_goal(Ctx, C, V, Inputs, '$function'(F/N, Inputs)) :-
+    Ctx = ctx(Dicts, _, _),
+    compound(C), functor(C, F, N), N >= 1,
+    lookup_td(Dicts, F, N, TD),
+    td_kind(function, TD),
+    function_td_prefix(TD, _, _),          % it really is "... is *a value*"
+    C =.. [_|Args],
+    append(Inputs, [V], Args),
+    var(V),
+    \+ ( member(I, Inputs), I == V ).
+
+%   The function's words up to its copula (and the copula, and the value
+%   place): "the price of a cup with capacity *a number* ml" | is | *an amount*.
+function_td_prefix(td(_, _, WV, _, _, _, _), Prefix, Value) :-
+    append(Prefix, [Is, Value], WV),
+    var(Value),
+    nonvar(Is), atom(Is), kw(marker_is, Is), !.
+
+%!  function_text(+Ctx, +St, +Marker, -Text) is semidet.
+%
+%   The function's sentence without its last place, with its inputs written
+%   in — "the price of the cup" — in the words of the template itself, and
+%   with the clause's own variable names (which is why this waits until the
+%   arguments are being written).
+function_text(Ctx, St, '$function'(F/N, Inputs), Text) :-
+    Ctx = ctx(Dicts, _, _),
+    lookup_td(Dicts, F, N, TD),
+    copy_term(TD, TDc),
+    function_td_prefix(TDc, Prefix, _),
+    TDc = td(_, _, WV1, _, _, _, _),
+    template_fa_vars(WV1, FAVars),
+    append(Inputs, [_Value], Args),
+    length(FAVars, N), length(Args, N),
+    maplist(arg_marker, Args, FAVars),
+    render_wv(Ctx, St, Prefix, Text).
+
+%!  safe_function_use(+Ctx, +V, +Goal) is semidet.
+%
+%   Whether the function's phrase may be written where Goal uses its value.
+%
+%   It may not OPEN a sentence that goes on with the copula: the function's
+%   own words would then match that sentence from the start and swallow what
+%   follows. "the select recalled of the policy is in [\"Yes\"]" — written for
+%   a value that `is in` a list — reads back as the function's value being
+%   `in [\"Yes\"]`, a condition that is never true. A Socotra twin lost ten
+%   expectations to exactly that.
+%
+%   So: a symbolic comparison or assignment is safe (there is no copula in
+%   it); an argument of a declared template is safe unless the template opens
+%   with that very place; a word form ("… is in …", "… is equal to …") is safe
+%   only where the value is not the phrase that opens it. Anything else — a
+%   goal with no template of its own — is left alone.
+safe_function_use(_, _, G) :- comparison_goal(G, _, _, _), !.
+safe_function_use(_, _, G) :- assign_goal(G, _, _), !.
+safe_function_use(_, V, G) :-
+    word_system_goal(G, [First|_]), !,
+    \+ ( First = arg(A), A == V ).
+safe_function_use(ctx(Dicts, _, _), V, G) :-
+    callable(G), functor(G, F, N), lookup_td(Dicts, F, N, TD), !,
+    TD = td(_, _, WV, _, _, _, _),
+    (   WV = [Opens|_], var(Opens)
+    ->  copy_term(WV, WV1),
+        WV1 = [Opens1|_],
+        template_fa_vars(WV1, FAVars),
+        nth1(I, FAVars, Fv), Fv == Opens1,
+        G =.. [_|Args], nth1(I, Args, A),
+        A \== V
+    ;   true
+    ).
+
+%   V is an operand of a formula somewhere in T.
+value_in_arithmetic(V, T) :-
+    sub_term(S, T), nonvar(S), arith_expr(S), sub_var(V, S), !.
+
+%   Whether X is known where a dropped condition stood: a value, or a variable
+%   the head or one of the earlier conditions mentions.
+known_here(X, _, _) :- nonvar(X), !.
+known_here(X, Head, _) :- sub_var(X, Head), !.
+known_here(X, _, Before) :- member(C, Before), sub_var(X, C), !.
+
+sub_var(V, T) :- \+ \+ ( sub_term(S, T), S == V ), !.
+
+%   The goal LE inserts where a named constant (§2.2) is used: the name is
+%   written instead, where its value is read.
 name_globals(Ctx, T0, T) :-
     (   var(T0) -> T = T0
     ;   global_goal(Ctx, T0, V, Name) -> V = '$global'(Name), T = true
@@ -1265,8 +1487,18 @@ prolog_walk_arg(A, P0-O0, P-O) :-
 %   (A walk, not findall/3: findall copies its solutions, and a copied
 %   variable is a stranger to the clause.)
 id_vars(Term, Vs) :-
-    id_walk(Term, [], Vs0),
+    %  A function's phrase (compact_functions/4) is written in the words of its
+    %  own template, so the variables inside it are template places and not
+    %  arithmetic operands: they take their names from their places, not ids.
+    %  Without this, "the price of the cup > 10" came out as "the price of C".
+    mask_functions(Term, Masked),
+    id_walk(Masked, [], Vs0),
     list_to_set_eq(Vs0, Vs).
+
+mask_functions(T, T) :- var(T), !.
+mask_functions(T, '$masked') :- T = '$function'(_, _), !.
+mask_functions(T, O) :- compound(T), !, T =.. [F|As], maplist(mask_functions, As, As1), O =.. [F|As1].
+mask_functions(T, T).
 
 id_walk(T, Acc, Acc) :- var(T), !.
 id_walk(T, Acc0, Acc) :-
@@ -1595,6 +1827,7 @@ tidy_punctuation(T0, T) :-
 %   argument of a meta template such as `*a person* says that *a sentence*`).
 arg_text(Ctx, St, X, T) :- var(X), !, var_text(Ctx, St, X, T).
 arg_text(_, _, '$global'(Name), Name) :- !.
+arg_text(Ctx, St, X, T) :- nonvar(X), X = '$function'(_, _), !, function_text(Ctx, St, X, T).
 arg_text(Ctx, St, X, T) :-
     compound(X), \+ is_list(X), \+ X = date(_, _, _), \+ arith_expr(X), \+ X = '$VAR'(_), !,
     goal_text(Ctx, St, X, T).
@@ -2075,7 +2308,7 @@ kb_constant_functor(KB, F/N) :-
 own_range(Start) :- integer(Start), Start < 10000000.     % not in an included resource
 
 kb_templates(KB, Items) :-
-    findall(Start-template(F, Text, Adds1),
+    findall(Start-Item,
             ( current_predicate(KB:le_dict/1),
               clause(KB:le_dict(D), true, Ref),
               D = dict([F|Args], NTs, WV, Globals, Opp, Prep, Unknown),
@@ -2086,7 +2319,13 @@ kb_templates(KB, Items) :-
               wv_template_text(WV, NTs, Text),
               length(Args, N),
               template_additions(KB, F, N, Args, Globals, Opp, Prep, Unknown, Adds),
-              ( own_range(Start) -> Adds1 = Adds ; Adds1 = [included|Adds] ) ),
+              ( own_range(Start) -> Adds1 = Adds ; Adds1 = [included|Adds] ),
+              %  a template declared in `the functions are:` is written back
+              %  there, and its value may be written the compact way
+              (   current_predicate(KB:le_function/1), KB:le_function(F/N)
+              ->  Item = function(F, Text, Adds1)
+              ;   Item = template(F, Text, Adds1)
+              ) ),
             Pairs),
     keysort(Pairs, Sorted),
     %  A template with an opposite is two dicts from one declaration (one
@@ -2131,7 +2370,7 @@ template_additions(KB, F, N, Args, Globals, Opp, Prep, Unknown, Adds) :-
             ;   Unknown == unknown, A = assumable
             ;   Unknown == judged, A = judged
             ;   Prep == prepositional, A = prepositional
-            ;   member(G, Globals), A = defines_global(G)
+            ;   member(G, Globals), atom(G), A = defines_global(G)
             ;   nonvar(Opp), opposite_dict_text(KB, Opp, Args, OT), A = opposite(OT)
             ;   synonym_text(KB, F, N, ST), A = synonym(ST)
             ;   current_predicate(KB:le_service_template/2), KB:le_service_template(F/N, S), A = via_service(S)

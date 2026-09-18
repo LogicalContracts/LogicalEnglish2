@@ -6,6 +6,7 @@ the knowledge base uses temporal includes these resources:
 the templates are:
     *a person* was born on *a date*; undefined.
     *a person* can drive on *a date*.
+    *a person* can vote on *a date*.
     *a person* claimed *an amount* on *a date*; undefined.
     the recent claims of *a person* on *a date* total *an amount*.
 
@@ -15,6 +16,12 @@ a person can drive on a date if
     the person was born on a birth date
     and the age on the date of someone born on the birth date is a number N
     and N >= 16.
+
+% The library's accessors are FUNCTIONS (§2.3), so the age can be written
+% where it is compared instead of in a condition of its own.
+a person can vote on a date if
+    the person was born on a birth date
+    and the age on the date of someone born on the birth date >= 18.
 
 the recent claims of a person on a date total an amount T if
     the person was born on a birth date
@@ -29,6 +36,7 @@ scenario one is:
     ann claimed 50 on 2026-05-01.
     before expects answers ["2026-02-28 is 3 calendar months before 2026-05-31"].
     drive expects answers ["ann can drive on 2026-09-13", "bob can drive on 2026-09-13"].
+    vote expects answers ["ann can vote on 2026-09-13"].
     claims expects answers ["the recent claims of ann on 2026-09-13 total 100", "the recent claims of bob on 2026-09-13 total 0"].
 
 query before is:
@@ -36,6 +44,9 @@ query before is:
 
 query drive is:
     which person can drive on 2026-09-13.
+
+query vote is:
+    which person can vote on 2026-09-13.
 
 query claims is:
     the recent claims of which person on 2026-09-13 total which amount.

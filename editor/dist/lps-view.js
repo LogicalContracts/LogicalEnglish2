@@ -118,6 +118,13 @@ var keywords = {
         "are"
       ]
     ],
+    "functions": [
+      [
+        "the",
+        "functions",
+        "are"
+      ]
+    ],
     "constant_value_of": [
       [
         "the",
@@ -182,6 +189,10 @@ var keywords = {
       ],
       [
         "the",
+        "functions"
+      ],
+      [
+        "the",
         "contract"
       ],
       [
@@ -224,6 +235,9 @@ var keywords = {
       ],
       [
         "templates"
+      ],
+      [
+        "functions"
       ],
       [
         "contract"
@@ -1605,6 +1619,13 @@ var keywords = {
         "s\xE3o"
       ]
     ],
+    "functions": [
+      [
+        "as",
+        "fun\xE7\xF5es",
+        "s\xE3o"
+      ]
+    ],
     "constant_value_of": [
       [
         "o",
@@ -1689,6 +1710,11 @@ var keywords = {
         "s\xE3o"
       ],
       [
+        "as",
+        "fun\xE7\xF5es",
+        "s\xE3o"
+      ],
+      [
         "os",
         "eventos",
         "s\xE3o"
@@ -1732,6 +1758,9 @@ var keywords = {
       ],
       [
         "modelos"
+      ],
+      [
+        "fun\xE7\xF5es"
       ],
       [
         "eventos"
@@ -3416,6 +3445,13 @@ var keywords = {
         "son"
       ]
     ],
+    "functions": [
+      [
+        "las",
+        "funciones",
+        "son"
+      ]
+    ],
     "constant_value_of": [
       [
         "el",
@@ -3493,6 +3529,11 @@ var keywords = {
         "son"
       ],
       [
+        "las",
+        "funciones",
+        "son"
+      ],
+      [
         "los",
         "fluentes",
         "son"
@@ -3532,6 +3573,9 @@ var keywords = {
       ],
       [
         "ontolog\xEDa"
+      ],
+      [
+        "funciones"
       ],
       [
         "contrato"
@@ -5156,6 +5200,13 @@ var keywords = {
         "sont"
       ]
     ],
+    "functions": [
+      [
+        "les",
+        "fonctions",
+        "sont"
+      ]
+    ],
     "constant_value_of": [
       [
         "la",
@@ -5228,6 +5279,11 @@ var keywords = {
         "sont"
       ],
       [
+        "les",
+        "fonctions",
+        "sont"
+      ],
+      [
         "la",
         "taxonomie",
         "est"
@@ -5272,6 +5328,9 @@ var keywords = {
       ],
       [
         "pr\xE9dicats"
+      ],
+      [
+        "fonctions"
       ],
       [
         "contrat"
@@ -6854,6 +6913,13 @@ var keywords = {
         "sono"
       ]
     ],
+    "functions": [
+      [
+        "le",
+        "funzioni",
+        "sono"
+      ]
+    ],
     "constant_value_of": [
       [
         "il",
@@ -6921,6 +6987,11 @@ var keywords = {
       ],
       [
         "le",
+        "funzioni",
+        "sono"
+      ],
+      [
+        "le",
         "costanti",
         "sono"
       ],
@@ -6972,6 +7043,9 @@ var keywords = {
       ],
       [
         "predicati"
+      ],
+      [
+        "funzioni"
       ],
       [
         "modelli"
@@ -8602,7 +8676,7 @@ function buildLeMonarchTokens(lang) {
   const W = "[A-Za-z\xC0-\xD6\xD8-\xF6\xF8-\xFF0-9_]";
   const b = (re) => `(?<!${W})(?:${re})(?!${W})`;
   const headers = alt(T, ["kb_open", "contract_open", "scenario", "query", "ontology", "meta_target", "constants"]);
-  const templateHeaders = alt(T, ["predicates", "templates", "fluents", "events", "actions", "prolog_events"]);
+  const templateHeaders = alt(T, ["predicates", "templates", "functions", "fluents", "events", "actions", "prolog_events"]);
   const structural = alt(T, [
     "resources_include",
     "kb_include",
@@ -8666,7 +8740,7 @@ function buildLeMonarchTokens(lang) {
   const qualifiers = words(T, ["qualifier"]);
   const copulas = words(T, ["copula", "ignorable", "meta_marker", "that"]);
   const preps = words(T, ["connective_heuristic", "of"]);
-  const additions = alt(T, ["defines_global", "opposite", "synonym", "prepositional", "unknown", "undefined", "known_as", "judged", "via_service", "by_default"]);
+  const additions = alt(T, ["opposite", "synonym", "prepositional", "unknown", "undefined", "known_as", "judged", "via_service", "by_default"]);
   return {
     tokenizer: {
       root: [

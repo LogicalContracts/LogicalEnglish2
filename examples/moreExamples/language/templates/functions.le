@@ -1,0 +1,88 @@
+the target language is: prolog.
+
+% Demonstrates "the functions are:" (docs/user/reference/language.md §2.3).
+%
+% A function is an ordinary template of the form "... is *a value*", declared
+% in a section of its own. Declaring it lets the sentence be written WITHOUT
+% its last place wherever a value is expected: "the price of a cup with
+% capacity 200" then means the price itself, so a condition about it reads as
+% one phrase instead of two.
+%
+% Nothing else changes. The full sentence still works, whatever defines the
+% function is an ordinary rule or fact, and a function may be a relation with
+% more than one answer — "our currency" below is one value in the knowledge
+% base and another in a scenario, and every sentence that uses it then has two
+% answers.
+
+the templates are:
+    the capacity of *a cup* is *a number* ml.
+    *a cup* is expensive.
+    *a cup* is worth its price.
+    the label of *a cup* is *a text*.
+
+the functions are:
+    the price of a cup with capacity *a number* ml is *an amount*.
+    the price of a cup with capacity *a number* is *an amount*.
+    our currency is *a text*.
+
+the knowledge base functions includes:
+
+% What defines a function is an ordinary rule: nothing about it is special.
+the price of a cup with capacity a number ml is an amount
+    if the amount is the number / 10.
+
+the price of a cup with capacity a number is an amount
+    if the price of a cup with capacity the number ml is the amount.
+
+our currency is "EUR".
+
+% The function written without its last place, in a comparison. The prefix here
+% ends in a word ("ml"); the second function's ends in its own place, and both
+% forms are read the same way.
+a cup is expensive
+    if the capacity of the cup is a capacity ml
+    and the price of a cup with capacity the capacity ml > 10.
+
+% The same application twice in one sentence is asked once — one goal, one
+% value — so a function with several answers does not multiply them. Here the
+% one price is compared twice: a thimble's 2 is not over 5.
+a cup is worth its price
+    if the capacity of the cup is a capacity ml
+    and the price of a cup with capacity the capacity > 5
+    and the price of a cup with capacity the capacity < 100.
+
+% A function with no place of its own is a value with a name.
+the label of a cup is a label
+    if the capacity of the cup is a capacity ml
+    and the label is our currency.
+
+scenario one_currency is:
+    the capacity of mug is 200 ml.
+    the capacity of thimble is 20 ml.
+    expensive expects answers ["mug is expensive"].
+    worth expects answers ["mug is worth its price"].
+    priced expects answers ["the price of a cup with capacity 200 ml is 20"].
+    compact expects answers ["the price of a cup with capacity 200 is 20"].
+    labels expects answers ["the label of mug is EUR", "the label of thimble is EUR"].
+
+% A second value for a function of no places: every answer that reads it now
+% has two readings, and the explanation shows which one it used.
+scenario two_currencies is:
+    the capacity of mug is 200 ml.
+    our currency is "USD".
+    labels expects answers ["the label of mug is EUR", "the label of mug is USD"].
+
+query expensive is:
+    which cup is expensive.
+
+query worth is:
+    which cup is worth its price.
+
+query priced is:
+    the price of a cup with capacity 200 ml is which amount.
+
+query compact is:
+    the price of a cup with capacity 200 is which amount.
+
+query labels is:
+    the label of which cup is which label.

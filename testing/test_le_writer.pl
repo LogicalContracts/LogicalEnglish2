@@ -112,6 +112,77 @@ test(ir_forms_are_the_current_language) :-
     assertion(sub_string(Text, _, _, _, "% RESIDUE r1 BEGIN")),
     assertion(sub_string(Text, _, _, _, "%   | premium = base * factor(state);")).
 
+%   A function (`the functions are:`, §2.3): its own section, and its value
+%   written where it is used rather than in a condition of its own.
+function_ir(program([kb(cups)], [
+    template(expensive, "*a cup* is expensive", []),
+    template(capacity, "the capacity of *a cup* is *a number* ml", [undefined]),
+    function(price, "the price of *a cup* is *an amount*", []),
+    rule(price(C, A), and(capacity(C, K), A is K / 10), []),
+    rule(expensive(C2), and(capacity(C2, _), and(price(C2, P), le_gt(P, 10))), []),
+    scenario(one, [ fact(capacity(mug, 200)), fact(capacity(thimble, 20)),
+                    expects(dear, [expensive(mug)]) ], []),
+    query(dear, expensive(_))
+])).
+
+test(a_function_is_a_section_and_is_used_compactly) :-
+    function_ir(IR),
+    le_write(IR, Text, Issues),
+    assertion(\+ member(issue(error, _, _), Issues)),
+    assertion(sub_string(Text, _, _, _, "the functions are:")),
+    assertion(sub_string(Text, _, _, _, "the price of *a cup* is *an amount*")),
+    %  the value where it is used, and no condition of its own
+    assertion(sub_string(Text, _, _, _, "and the price of the cup > 10")),
+    assertion(\+ sub_string(Text, _, _, _, "the price of the cup is an amount")),
+    %  and it reads back: the program it wrote answers its own expectation
+    text_errors(Text, Errors),
+    assertion(Errors == []),
+    text_results(Text, Results),
+    assertion(all_pass(Results)).
+
+%   A value that feeds a formula is NOT written the compact way: a function
+%   applied is not an arithmetic operand (§2.3), so the condition that binds it
+%   stays and the document still reads back.
+test(a_function_feeding_arithmetic_keeps_its_condition) :-
+    le_write(program([kb(cups)], [
+        template(expensive, "*a cup* is expensive", []),
+        template(capacity, "the capacity of *a cup* is *a number* ml", [undefined]),
+        function(price, "the price of *a cup* is *an amount*", []),
+        rule(expensive(C), and(capacity(C, _), and(price(C, P), le_gt(P * 2, 10))), [])
+    ]), Text, Issues),
+    assertion(\+ member(issue(error, _, _), Issues)),
+    assertion(sub_string(Text, _, _, _, "the price of the cup is an amount")),
+    assertion(\+ sub_string(Text, _, _, _, "the price of the cup * 2")).
+
+%   A value used where WORDS FOLLOW the phrase keeps its condition: written
+%   compactly, "the select recalled of the policy is in [...]" reads back as
+%   the function's value being `in [...]`. Ten expectations of a Socotra twin
+%   went that way before the writer knew it.
+test(a_function_before_a_word_form_keeps_its_condition) :-
+    le_write(program([kb(uw)], [
+        template(note, "the note for *a policy* is *a text*", []),
+        function(recalled, "the select recalled of *a policy* is *a value*", [undefined]),
+        rule(note(P, "rejected"), and(recalled(P, V), le_is_in(V, ["Yes"])), [])
+    ]), Text, Issues),
+    assertion(\+ member(issue(error, _, _), Issues)),
+    assertion(sub_string(Text, _, _, _, "the select recalled of the policy is a value")),
+    assertion(\+ sub_string(Text, _, _, _, "the select recalled of the policy is in")).
+
+%   Conditions that compact away are REMOVED, not replaced by `true`: a `true`
+%   among a body's conditions is written as a condition named "true", which no
+%   template declares. An OIPA twin lost six expectations that way.
+test(compacted_conditions_leave_no_true) :-
+    le_write(program([kb(dates)], [
+        template(due, "the due date of *an activity* is *a date*", []),
+        function(advanced, "the months advanced of *an activity* is *a number*", [undefined]),
+        function(paid, "the paid to date of *an activity* is *a date*", [undefined]),
+        rule(due(A, D), and(paid(A, P), and(advanced(A, N), le_is_months_after(D, N, P))), [])
+    ]), Text, Issues),
+    assertion(\+ member(issue(error, _, _), Issues)),
+    assertion(\+ sub_string(Text, _, _, _, "    true")),
+    assertion(sub_string(Text, _, _, _,
+        "the date is the months advanced of the activity months after the paid to date of the activity")).
+
 test(missing_template_is_reported) :-
     le_write(program([kb(x)], [template(p, "*a thing* is p", []), rule(p(X), q(X), [])]), _, Issues),
     assertion(memberchk(issue(error, no_template, _), Issues)).

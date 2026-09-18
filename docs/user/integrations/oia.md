@@ -147,7 +147,7 @@ they come from state no licence, so the twins are not published elsewhere.
 |---|---|
 | a boolean attribute of the global entity | a template; `; opposite:` when a rule concludes it false; `; scenario element` when no rule concludes it: `*a customer* is a gold member; scenario element.` |
 | a value attribute | a template with a place for the value: `the fee is *a fee*.`; `the value of … is …` when the text begins with a word Logical English reserves (`the value of the contract price is a price P`) |
-| a role of the global entity ("the claim", "the Father") | a typed place and a global bound to the case's one individual: `the Father in the case is *a father*; defines global the Father.` |
+| a role of the global entity ("the claim", "the Father") | a typed place of the templates that speak about it, and a named constant standing for the case's one individual: `the constants are:` with `the Father is "the Father".` |
 | a rule `… if` with conditions | a rule, labelled and cited: `rule warranty_claims_intro_rules_r0 with provenance "Warranty Claims (Intro) Rules.docx", confer "The claim is covered by warranty if":` |
 | Word levels mixing `and` and `or` | a numbered outline, as the Word document shows it: `5. either:` / `5.1. …; or` / `5.2. …` |
 | the automatic *otherwise false* | negation as failure: what no rule concludes is false |
@@ -173,13 +173,12 @@ they come from state no licence, so the twins are not published elsewhere.
 OIA's rules about one case speak of its people and things by name: "the
 Father", "the Child", "the claim". A phrase that Oracle's parse gives as the
 subject of two or more attributes becomes a **role**. The templates get a
-typed place for it, and a global names the case's one individual, so the
-rules keep reading as written:
+typed place for it, and a named constant (the language reference §2.2) says
+which individual of the case it is, so the rules keep reading as written:
 
 ```le
-the Father in the case is *a father*; defines global the Father.
-...
-the Father in the case is "the Father".
+the constants are:
+    the Father is "the Father".
 ```
 
 A sentence a rule concludes in its negative form, or one that would read

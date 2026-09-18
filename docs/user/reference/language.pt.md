@@ -17,6 +17,7 @@ verificador) valham para ambas.
 - [2. Modelos](#2-modelos)
   - [2.1 Modelos preposicionais](#21-modelos-preposicionais)
   - [2.2 Constantes com nome: `as constantes são:`](#22-constantes-com-nome-as-constantes-são)
+  - [2.3 Funções: `as funções são:`](#23-funções-as-funções-são)
 - [3. Regras e factos](#3-regras-e-factos)
   - [3.1 Secções de regras](#31-secções-de-regras)
   - [3.2 Corpos de consultas](#32-corpos-de-consultas)
@@ -76,8 +77,7 @@ Uma definição de modelo pode ser seguida de adições, cada uma introduzida po
 - `; sinónimo: <modelo>` (também `sinônimo`) — declara uma **forma equivalente**. O sinónimo aponta para o **mesmo** predicado, pelo que factos, cabeças e corpos de regras e consultas podem usar qualquer das formas; as suas `*variáveis*` emparelham **posicionalmente** com as do modelo principal, pelo que ambas as formas devem listar os argumentos pela mesma ordem. Podem encadear-se vários `; sinónimo ...`.
   - Exemplo: `*um pagamento* é relativo a *um sinistro*; sinónimo: *um pagamento* cobre *um sinistro*.`
   - **Apresentação:** por omissão usa-se a forma principal (a primeira). Numa explicação, cada nó é apresentado na forma usada no seu local de origem; uma consulta apresenta as suas respostas na forma usada na consulta.
-  - **Restrição:** um modelo com sinónimo **não pode ter outras adições** (`define global`, `oposto`, `preposicional`, `desconhecido`, `indefinido`); caso contrário é assinalado o erro `synonym_with_other_additions`.
-- `; define global <nome>` — declara uma abreviatura global (podem encadear-se vários).
+  - **Restrição:** um modelo com sinónimo **não pode ter outras adições** (`oposto`, `preposicional`, `desconhecido`, `indefinido`); caso contrário é assinalado o erro `synonym_with_other_additions`.
 - `; preposicional` — marca um modelo **preposicional** (ver §2.1). O sinónimo `; composto` (ou `; composta`) é aceite com o mesmo significado.
 - `; desconhecido` — marca o modelo como **assumível** (abdutível): objetivos que não se conseguem provar são assumidos verdadeiros e reportados como desconhecidos, na medida em que as restrições de integridade o permitam (§3.3). São aceites os sinónimos `; desconhecida`, `; assumido`, `; assumida` e `; assumível`.
 - `; indefinido` — marca o modelo como **elemento de cenário**: os seus factos só devem aparecer em cenários, nunca como factos ou cabeças de regras na base de conhecimento. São aceites os sinónimos `; indefinida` e `; elemento de cenário`.
@@ -117,20 +117,90 @@ Uma secção de valores com nome, uma linha cada, `<nome> é <valor>.`:
 as constantes são:
     o limite isento é 10.
 ```
-Cada linha abrevia um modelo com um nome global e um facto — `o valor de o
-limite isento é *um número*; define global o limite isento.` e `o valor de o
-limite isento é 10.` — pelo que o nome é um global (§6.0) onde quer que uma
-regra, cenário ou consulta o use:
+O nome passa a valer pelo valor onde quer que uma regra, um cenário ou uma
+consulta o use:
 ```le
 um cliente paga imposto
     se a encomenda de o cliente pesa um número kg
     e o número > o limite isento.
 ```
-Uma explicação mostra o valor como razão. O tipo do valor vem do literal (um
-número, um texto ou um nome); o nome pode conter `é` (o valor é o que está
-depois do último). O verificador assinala uma constante que nada usa
-(`unused_constant`). Como qualquer global, um nome não é operando aritmético:
-compare com ele, ou leia-o primeiro para uma variável.
+Uma explicação mostra o valor como razão.
+
+Cada linha declara o modelo `o valor de <nome> é *um <tipo>*` e enuncia o seu
+único facto, pelo que o valor também pode ser lido para uma variável — `o
+valor de o limite isento é um limite L` — que é como usá-lo em aritmética: um
+nome **não** é operando aritmético. Compare com ele, ou leia-o primeiro.
+
+O tipo do valor vem do literal (um número, um texto ou um nome); o nome pode
+conter `é` (o valor é o que está depois do último). O verificador assinala uma
+constante que nada usa (`unused_constant`).
+
+Uma constante é o caso particular de uma **função** (§2.3) cujo valor está
+escrito em vez de ser calculado; um valor que as regras calculam pede essa
+secção.
+
+### 2.3 Funções: `as funções são:`
+Uma **função** é um modelo comum da forma `... é *um valor*` — o seu último
+lugar, depois da cópula, é o valor que dá — declarado numa secção própria:
+```le
+as funções são:
+    o preço de uma caneca com capacidade *um número* ml é *um montante*.
+```
+Declará-la permite escrever a frase **sem esse último lugar** onde quer que se
+espere um valor. As duas condições
+
+```le
+    e o preço de uma caneca com capacidade a capacidade ml é um preço
+    e o preço > 10
+```
+
+passam a poder escrever-se como uma só:
+
+```le
+    e o preço de uma caneca com capacidade a capacidade ml > 10
+```
+
+Nada mais muda. A frase completa continua a funcionar; o que define a função é
+uma regra ou um facto comuns; e uma função pode ser uma relação com **várias
+respostas**, caso em que também tem várias cada frase que a use. A mesma
+aplicação escrita duas vezes na mesma frase é perguntada **uma só vez**, pelo
+que repetir a frase não multiplica as respostas.
+
+Uma função sem lugar próprio é um valor com um nome — `a nossa apólice é *uma
+apólice*` usada como `a nossa apólice` — que era para isso que servia a adição
+`; define global`. Essa adição foi removida: um valor escrito é uma constante
+(§2.2), e um valor que as regras calculam é uma função, cujo nome são as
+palavras da própria frase em vez de um nome inventado ao lado. Um programa que
+ainda traga `; define global` é avisado nessa linha
+(`defines_global_removed`).
+
+Pontos a saber:
+
+- **Onde se pode escrever.** Em qualquer lugar onde se espere um valor: uma
+  comparação, um `é`, um lugar de outro modelo, o valor da cabeça de uma regra
+  (um facto cujo valor é o de uma função é uma regra).
+- **Não é operando aritmético**, tal como uma constante não é. Leia primeiro o
+  valor para uma variável e faça depois a aritmética.
+- **Nada pode seguir-se à frase quando a frase continua com `é`.** `o preço da
+  caneca > 10` está bem, e `a etiqueta é a nossa moeda` também; `o preço da
+  caneca está em [10, 20]` não — a frase da própria função corresponde desde o
+  início e lê `em [10, 20]` como o seu valor. Nessas formas, ligue o valor numa
+  condição própria.
+- **A condição vem antes.** O objetivo que pergunta a função é colocado antes
+  da condição que usa o seu valor, o que é o que faz uma comparação funcionar.
+- **A forma é verificada.** Uma linha da secção que não seja `... é *um
+  valor*` é assinalada (`function_not_is_form`) e continua a ser um modelo
+  comum.
+- **LPS.** A mesma secção, e a mesma leitura, em `a linguagem alvo é: lps.`.
+  Um fluente, um evento ou uma ação mantém a sua própria secção de declaração,
+  que é o que lhe confere o papel em LPS, pelo que o valor de um fluente
+  continua a escrever-se por inteiro.
+- **O escritor** escreve a secção de volta (item da IR `function(F, Text)`) e
+  escreve o valor de uma função na forma compacta onde ele é usado — que é o
+  que os tradutores de migração emitem.
+
+O exemplo trabalhado é
+`examples/moreExamples/language/templates/functions.le`.
 
 ## 3. Regras e factos
 - **Facto:** uma frase simples terminada em ponto.
@@ -747,9 +817,11 @@ alternativa se aplica. Detalhes:
   a linha `caso contrário`.
 
 ### 17.3 Tabelas de decisão
-Uma **tabela de decisão** é uma secção própria, ligada ao ÚNICO modelo cujas
-palavras a nomeiam (`... segundo a tabela envio` — as palavras do modelo acabam
-em `tabela <nome>`):
+Uma **tabela de decisão** escreve uma relação como uma grelha: uma coluna por
+argumento, uma linha por caso. É uma secção própria e pertence ao ÚNICO modelo
+cujas palavras a nomeiam — o modelo diz `segundo a tabela <nome>` e a secção
+diz `a tabela <nome> é`:
+
 ```le
 os modelos são:
     o custo de envio para um peso de *um número* kg é *um custo* segundo a tabela envio.
@@ -760,44 +832,137 @@ a tabela envio é, com primeira correspondência:
     m       | > 1 e <= 10      | 12
     g       | > 10             | 30
 ```
-- **Colunas ↔ argumentos, por ordem.** Quando a tabela tem uma coluna a mais do
-  que o modelo tem argumentos, a primeira coluna é o **id da linha** (citado nas
-  explicações); senão as linhas são numeradas. A **última** coluna é a saída; as
-  outras são entradas.
-- **Células:** uma constante (lida como um valor de cenário), `qualquer` ou `-`
-  (sem condição), uma lista de constantes ligadas por `ou`, ou uma condição —
-  comparações `<`, `<=`, `>`, `>=`, `=`, `!=` ligadas por `e`/`ou`
-  (`> 1 e <= 10`). Uma entrada com uma célula-condição tem de estar conhecida
-  quando a tabela é consultada.
-- **Políticas de correspondência** (DMN): `com primeira correspondência` (a
-  primeira linha cujas entradas correspondem), `com correspondência única` (por
-  omissão: duas linhas correspondentes são um erro em execução),
-  `com todas as correspondências` (todas as linhas — para uma relação como uma
-  lista de códigos).
-- **Tabelas carregadas:** `a tabela códigos é carregada de cp.csv, com todas as correspondências:`
-  (também `carregada a partir de`) seguida da linha de cabeçalho; o CSV (junto
-  do programa ou numa pasta dentro dele) fornece as linhas. Uma primeira linha
-  do CSV que repete o cabeçalho é ignorada. As linhas são guardadas em cache e
-  relidas quando o ficheiro muda.
-- **As explicações** citam a linha: `linha g da tabela envio`.
-- **Uma coluna de citação.** Uma coluna de uma tabela inline pode citar, linha
-  a linha, a passagem que cada linha codifica. O cabeçalho é `confira` (as
-  passagens estão no documento que o `com proveniência` da tabela nomeia) ou
-  `conforme consta em <documento>` (outro documento); cada célula é uma passagem
-  entre aspas, ou vazia:
-  ```le
-  a tabela escalões é, com primeira correspondência, com proveniência a lei:
-      linha | valor  | escalão | confira
-      a     | <= 10  | baixo   | "até dez"
-      b     | > 10   | alto    | ""
-  ```
-  A coluna não é um argumento do modelo. A passagem de cada linha torna-se a
-  proveniência da linha, como a de um facto (§17.1). Tabelas carregadas (CSV)
-  não têm coluna de citação.
-- A tabela compila para uma cláusula do seu modelo, `Cabeça :- le_table(Nome,
-  Args)`, mais registos de linhas. Erros no carregamento:
-  `table_without_template`, `table_arity_mismatch`, `table_row_width`,
-  `table_bad_cell`, `table_bad_output`, `table_csv_missing`.
+
+Leia-se cada linha como uma regra: a linha `m` diz *o custo de envio para um
+peso de um peso kg é 12 se o peso > 1 e o peso <= 10*. É também para isso que
+a tabela compila, pelo que uma consulta, uma explicação e o verificador vêem
+regras sobre `o custo de envio …`. O que a grelha acrescenta é o que as regras
+não dizem num só lugar: uma ordem pela qual tentar as linhas e o que fazer
+quando mais do que uma serve (**política de correspondência**, abaixo).
+
+**Consultar a tabela.** `segundo a tabela envio` faz parte das palavras do
+modelo, pelo que uma regra (ou uma consulta) que consulte a tabela também as
+escreve:
+
+```le
+o custo de envio para um cliente é um custo
+    se a encomenda do cliente pesa um número kg
+    e o custo de envio para um peso do número kg é o custo segundo a tabela envio.
+```
+
+**A linha de cabeçalho.** `a tabela <nome> é` e depois, nesta ordem e cada um
+deles opcional:
+
+| Escrito | Significado |
+|---|---|
+| `carregada de <ficheiro>.csv` | as linhas estão num ficheiro CSV, não na secção (*Linhas num ficheiro*, abaixo); também `carregada a partir de` |
+| `, com primeira correspondência` / `, com correspondência única` / `, com todas as correspondências` | a política de correspondência; não dizer nada é o mesmo que dizer `com correspondência única` |
+| `, com proveniência <documento>` | o documento que esta tabela codifica, exactamente como numa regra rotulada (§17.1) — e o documento onde estão as passagens de uma coluna `confira` |
+
+e por fim `:`. A proveniência pode trazer a passagem que a tabela como um todo
+codifica, como a de uma regra: `, com proveniência <documento>, confira
+"<passagem>"`.
+
+**Colunas e argumentos.** As colunas são os argumentos do modelo, **por
+ordem**, e a **última** coluna é aquela que a tabela conclui; as outras são as
+suas entradas. Duas colunas não são argumentos:
+
+- **O nome da linha**, numa coluna extra à esquerda. As explicações citam então
+  a linha por esse nome (`linha m da tabela envio`); sem ela, citam o seu
+  número (`linha 2`).
+- **Uma coluna de citação**, em qualquer posição (*Citar uma passagem por
+  linha*, abaixo).
+
+`table_arity_mismatch` é reportado quando o que resta não corresponde aos
+argumentos do modelo.
+
+**O que uma célula pode dizer.** Uma célula de uma coluna de **entrada** diz o
+que esse argumento tem de ser:
+
+| Célula | Corresponde a |
+|---|---|
+| um valor — `seda`, `5`, `"De seda"`, `2026-08-31` | esse valor, lido exactamente como as mesmas palavras seriam lidas num cenário |
+| nada, `-` ou `qualquer` | qualquer coisa: esta coluna nada diz sobre esta linha |
+| `seda ou lã ou algodão` | qualquer um desses valores |
+| `> 1 e <= 10` | uma condição: `<`, `<=`, `>`, `>=`, `=`, `!=` (`=<` e `==` também são aceites), ligadas por `e` / `ou` |
+
+Uma célula só conta como condição quando *todas* as suas partes o são, pelo que
+um valor cujas palavras incluem `e` ou `ou` continua a ser esse valor
+(`com bronquite aguda e crónica`).
+
+Uma célula da **última** coluna é a resposta, não um teste: um valor, ou vários
+ligados por `ou`, que respondem então um a um. `table_bad_output` é reportado
+para qualquer outra coisa.
+
+Uma entrada cuja célula, em alguma linha, é uma **condição** tem de estar
+conhecida quando a tabela é consultada — uma condição pode ser verificada
+contra um valor, mas não o pode produzir. Perguntar com ela desconhecida é um
+erro em execução que nomeia essa coluna.
+
+**Políticas de correspondência.** As linhas são tentadas de cima para baixo.
+
+| Política | Quando mais do que uma linha serve | Para |
+|---|---|---|
+| `com primeira correspondência` | a primeira responde e as restantes não são tentadas | escalões e cascatas, em que as últimas linhas são o caso geral |
+| `com correspondência única` (por omissão) | um erro em execução que nomeia as linhas: a tabela afirmava que o caso era inequívoco, e não era | tabelas cujas linhas se pretendem mutuamente exclusivas |
+| `com todas as correspondências` | todas as linhas que servem respondem, uma resposta cada | uma relação e não uma função — uma lista de códigos, uma tabela de pares |
+
+`com correspondência única` só se queixa de um caso que lhe foi de facto
+perguntado: várias linhas podem servir uma entrada ainda desconhecida.
+
+**Linhas num ficheiro.** Uma tabela longa vive num ficheiro CSV junto do
+programa (ou numa pasta dentro dele). A secção passa a ser a linha de
+cabeçalho e os nomes das colunas, mais nada:
+
+```le
+a tabela códigos é carregada de cp.csv, com correspondência única:
+    código postal | região
+```
+
+As células são lidas como acima, com duas diferenças que contam para dados:
+
+- **A célula de saída de uma linha do CSV é sempre um valor**, mesmo quando o
+  seu texto contém `ou` ou `e` (`distrofia de Duchenne ou de Becker` é uma
+  resposta, não duas).
+- **Os códigos mantêm a sua forma.** Uma célula de texto é re-citada ao ser
+  lida, pelo que `012` ou `G71.01` continua a ser esse código em vez de se
+  tornar o número 12.
+
+Uma primeira linha do CSV que repete os nomes das colunas é ignorada. As
+linhas são guardadas em cache e relidas quando o ficheiro muda. Uma tabela
+carregada não tem coluna de citação, e `table_csv_missing` é reportado quando
+o ficheiro não está lá.
+
+**Citar uma passagem por linha.** Uma coluna de uma tabela escrita no programa
+pode citar, linha a linha, a passagem que essa linha codifica — a linha da lei
+de um escalão, a linha da pauta de uma subposição. O seu cabeçalho é `confira`,
+para passagens do documento que o `com proveniência` da tabela nomeia, ou
+`conforme consta em <documento>`, para passagens de outro documento. Cada
+célula é uma passagem entre aspas, ou vazia:
+
+```le
+a tabela escalões é, com primeira correspondência, com proveniência a lei:
+    linha | valor  | escalão | confira
+    a     | <= 10  | baixo   | "até dez"
+    b     | > 10   | alto    | ""
+```
+
+A coluna é posta de lado antes de as outras serem associadas aos argumentos do
+modelo, pelo que não é um deles. A passagem de cada linha torna-se a
+proveniência dessa linha, exactamente como a de um facto (§17.1): o nó da
+explicação para a linha leva-a consigo (o seu selo **§** abre a passagem), *Ver
+Texto Original* sobre a linha encontra-a, e o verificador confere a citação
+contra o texto do documento (`quote_not_found`).
+
+**Para que compila.** Uma cláusula do modelo, `Cabeça :- le_table(Nome, Args)`,
+e um registo por linha (`le_table/6`, `le_table_row/6`). Uma explicação cita a
+linha que respondeu — `linha m da tabela envio` — e, numa tabela escrita no
+programa, essa citação aponta para a linha propriamente dita.
+
+Reportado ao carregar o programa: `table_without_template` (nenhum modelo diz
+`segundo a tabela <nome>`), `table_arity_mismatch`, `table_row_width` (uma
+linha com o número errado de células), `table_bad_cell`, `table_bad_output`,
+`table_csv_missing`.
 
 ### 17.4 O esqueleto de decisão: aplicabilidade, questão, remédio
 Nenhuma palavra-chave nova: a macro-estrutura de uma decisão — *a regra é

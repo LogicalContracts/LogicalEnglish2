@@ -135,7 +135,12 @@ write_document(KB, p(Settings, F, E, A, PE, Body, Obs)) :-
 	write_section(KB, 'the prolog events are', PE),
 	write_section(KB, 'the fluents are', F),
 	timeless_templates(KB, [F, E, A, PE], Timeless0),
-	partition(constant_template(KB), Timeless0, Constants, Timeless),
+	partition(constant_template(KB), Timeless0, Constants, Timeless1),
+	%  A template declared in `the functions are:` is written back there:
+	%  the section is what says its value may be written without its last
+	%  place (LE2's docs/user/reference/language.md §2.3).
+	partition(function_template(KB), Timeless1, Functions, Timeless),
+	write_section(KB, 'the functions are', Functions),
 	write_section(KB, 'the templates are', Timeless),
 	partition(constant_fact(KB, Constants), Body, ConstFacts, Body1),
 	write_constants(KB, ConstFacts),
@@ -144,11 +149,21 @@ write_document(KB, p(Settings, F, E, A, PE, Body, Obs)) :-
 	( Obs == [] -> true ; write_scenario(KB, Obs) ).
 
 %   A named constant (`the constants are:`): a one-place timeless template
-%   that defines a global, and its fact.
+%   that names its value, and its fact. The name is an ATOM in the dict's
+%   globals field — a `the functions are:` template carries function(Arity)
+%   in the same field and is written back as a function, below.
 constant_template(KB, T) :-
 	functor(T, F, 1), rename_in(KB, T, T1), functor(T1, F1, 1),
 	current_predicate(KB:le_dict/1),
-	KB:le_dict(D), D =.. [dict, [F1, _], _, _, [_|_]|_], !,
+	KB:le_dict(D), D =.. [dict, [F1, _], _, _, Globals|_],
+	is_list(Globals), member(G, Globals), atom(G), !,
+	F = F.
+
+%   A template declared in `the functions are:` (le_kbs records which).
+function_template(KB, T) :-
+	functor(T, F, N), rename_in(KB, T, T1), functor(T1, F1, N),
+	current_predicate(KB:le_function/1),
+	KB:le_function(F1/N), !,
 	F = F.
 
 constant_fact(KB, Constants, Fact) :-
