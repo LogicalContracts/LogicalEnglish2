@@ -502,8 +502,12 @@ process_section_acc(kb(Name, Content, Start, End), M) :-
     assertz(M:le_source_info(Ref, Start, End, Name)),
     forall(member(Item, Content), process_item(Item, M)).
 
-process_section_acc(scenario(Name, Content, Start, End), M) :-
+process_section_acc(scenario(Name, Content0, Start, End), M) :-
     dynamic(M:le_expected/4),
+    % a decision table written among the facts: already compiled by the second
+    % pass under this scenario's scope, it only needs its template bound.
+    partition(is_table_done_item, Content0, TableItems, Content),
+    forall(member(TableItem, TableItems), process_section_acc(TableItem, M)),
     partition(is_expected_item, Content, ExpectedItems, FactItems),
     findall(D, M:le_dict(D), Dicts),
     le_grammar:prepare_templates(Dicts, AllTemplates),
@@ -589,16 +593,24 @@ process_section_acc(lps_setting(Key, Value, Start, End), M) :-
 % A decision table, already interpreted in the second pass (le_tables.pl): assert
 % the one clause binding its template, Head :- le_table(Name, Args), with the
 % table's source range so explanations and the verifier point at the table.
-process_section_acc(table_done(Name, Start, End), M) :-
+% The clause names the table, not its key: which table answers — a scenario's
+% or the global one — is decided when the goal is solved (le_tables:
+% table_in_force/4), so several scenarios may give the same table their own
+% rows and the template is bound just once.
+process_section_acc(table_done(Key, Start, End), M) :-
     (   current_predicate(M:le_table/6),
-        M:le_table(Name, _, F/A, _, _, _)
+        M:le_table(Key, _, F/A, _, _, _)
     ->  functor(Head, F, A),
         Head =.. [F|Args],
         dynamic(M:F/A),
-        format(atom(ID), 'table_~w', [Name]),
-        assertz(M:(Head :- le_table(Name, Args)), Ref),
-        assertz(M:le_source_info(Ref, Start, End, ID)),
-        assertz(M:le_source_section(main, ID))
+        le_tables:table_name(Key, Name),
+        le_tables:table_clause_id(Key, ID),
+        (   functor(Probe, F, A), catch(clause(M:Probe, le_table(Name, _)), _, fail)
+        ->  true                          % already bound by another scope's table
+        ;   assertz(M:(Head :- le_table(Name, Args)), Ref),
+            assertz(M:le_source_info(Ref, Start, End, ID)),
+            assertz(M:le_source_section(main, ID))
+        )
     ;   true
     ).
 
@@ -1221,6 +1233,12 @@ assert_dict_with_source(dict(FA, NTs, WV, Start, End), M) :-
 assert_dict_with_source(dict(FA, NTs, WV), M) :-
     assert_le_dict(M, dict(FA, NTs, WV, [], _, _, _)).
 
+% A decision table, written among the rules of a knowledge base or the facts of
+% a scenario rather than as a section of its own (le_grammar:kb_items//1): the
+% same work as the section does.
+process_item(table_done(Key, Start, End), M) :- !,
+    process_section_acc(table_done(Key, Start, End), M).
+
 % A section marker switches the section that subsequent rules are recorded under.
 process_item(section_marker(Name, _Start, _End), _M) :-
     retractall(current_section(_)),
@@ -1406,10 +1424,15 @@ negateSessionFact(SessionModule, Fact) :-
 setScenarion(SessionModule, ScenarioName) :-
     ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
     ( current_predicate(KBmodule:scenario/2) -> 
-        (   KBmodule:scenario(ScenarioName, Facts) -> true
-        ;   atom(ScenarioName), atom_number(ScenarioName, Num), KBmodule:scenario(Num, Facts) -> true
+        (   KBmodule:scenario(ScenarioName, Facts) -> Loaded = ScenarioName
+        ;   atom(ScenarioName), atom_number(ScenarioName, Num), KBmodule:scenario(Num, Facts) -> Loaded = Num
         ;   fail
         ),
+        % Which scenario is the case: a decision table written in a scenario
+        % answers only while that scenario is loaded (le_tables:table_in_force/4).
+        dynamic(SessionModule:le_current_scenario/1),
+        ( SessionModule:le_current_scenario(Loaded) -> true
+        ; assertz(SessionModule:le_current_scenario(Loaded)) ),
         forall(member(Fact, Facts), addSessionFact(SessionModule, Fact)),
         add_scenario_provenance(SessionModule, KBmodule, Facts)
     ; fail).
@@ -1426,6 +1449,7 @@ clearSession(SessionModule) :-
     ; true),
     dynamic(SessionModule:le_neg/1),
     dynamic(SessionModule:debug_mode/0),
+    dynamic(SessionModule:le_current_scenario/1),
     dynamic(SessionModule:sessionClause/1),
     dynamic(SessionModule:le_source_info/4),
     dynamic(SessionModule:le_provenance/5).
@@ -2955,6 +2979,9 @@ collect_and_assert_types(M) :-
 
 is_expected_item(expected(_, _, _, _, _)).
 is_expected_item(expected_changes(_, _, _, _)).
+
+% A decision table of a scenario, compiled by the second pass.
+is_table_done_item(table_done(_, _, _)).
 
 %!  verify(+LEfilePath:atom) is det.
 %

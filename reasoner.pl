@@ -316,11 +316,12 @@ solve_real_actual(le_type_check(Arg, Type), SM, KM, _Anc, _D, _MyID, [], [succes
 
 % Decision table (le_tables.pl): the row that answers under the table's hit
 % policy. The explanation cites that row ("row l of table shipping"), pointing
-% at it in the source when it is an inline row.
-solve_real_actual(le_table(Name, Args), _SM, KM, _Anc, _D, _MyID, [],
+% at it in the source when it is an inline row. The session is passed because a
+% table written in a scenario answers only while that scenario is the case.
+solve_real_actual(le_table(Name, Args), SM, KM, _Anc, _D, _MyID, [],
                   [success(le_table_row(Name, RowId), RowRef, [])]) :- !,
     KM \== none,
-    le_tables:table_solution(KM, Name, Args, RowId, RowRange),
+    le_tables:table_solution(SM, KM, Name, Args, RowId, RowRange),
     ( RowRange = range(_, _) -> RowRef = RowRange ; RowRef = table_row ).
 
 % The decision skeleton (le_sections.pl): where a query with no answer fails.

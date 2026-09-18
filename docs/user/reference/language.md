@@ -874,9 +874,8 @@ See `examples/regulatory/otherwise_table.le`.
 
 ### 17.3 Decision tables
 A **decision table** writes one relation as a grid: a column per argument, a
-row per case. It is a section of its own, and it belongs to the ONE template
-whose words name it — the template says `under table <name>`, and the section
-says `the table <name> is`:
+row per case. It belongs to the ONE template whose words name it — the template
+says `under table <name>`, and the table says `the table <name> is`:
 
 ```le
 the templates are:
@@ -895,6 +894,33 @@ compiles to, so a query, an explanation and the verifier all see rules about
 `the shipping cost …`. What the grid adds is what rules cannot say in one
 place: an order to try the rows in, and what to do when more than one fits
 (**hit policy**, below).
+
+**Where a table is written.** Wherever a rule may be: as a section of its own
+(as above), among the rules of a knowledge base, or, indented with them, among
+the facts of a scenario. The table ends at the first line that is not a row —
+one without a `|` — and the rules or facts after it go on as before.
+
+A table written in a **scenario** is that scenario's, exactly as its facts are:
+it answers only while that scenario is the case, and it **shadows** a table of
+the same name written elsewhere. That is how a case brings its own rates, its
+own price list, its own schedule:
+
+```le
+scenario year 2025 is:
+    the income of ann is 20000.
+    the table rates is, with first match:
+        band | income   | rate
+        low  | <= 10000 | 5
+        high | > 10000  | 30
+```
+
+Only an **indented** table belongs to a scenario, the way its facts are
+indented. One written at the margin after a scenario is a section of its own,
+the global table it has always been.
+
+A table of a **single column** is the exception: with no `|` to go by, its rows
+cannot be told apart from sentences, so they run to the next section — such a
+table is written as a section of its own.
 
 **Asking the table.** `under table shipping` is part of the template's words,
 so a rule (or a query) that consults the table writes them too:
@@ -980,7 +1006,9 @@ Cells are read as above, with two differences that matter for data:
 
 A first row of the CSV that repeats the column headings is skipped. The rows
 are cached and re-read when the file changes. A loaded table has no citation
-column, and `table_csv_missing` is reported when the file is not there.
+column, and `table_csv_missing` is reported when the file is not there. A
+scenario's table may be loaded from a file too, so a case can bring its own
+data file.
 
 **Citing a passage per row.** One column of a table written in the program may cite, row by row, the passage
 that row encodes — a band's line of a statute, a subheading's line of a
@@ -1003,17 +1031,21 @@ finds it, and the verifier checks the quotation against the document's text
 (`quote_not_found`).
 
 **What it compiles to.** One clause of the template, `Head :- le_table(Name, Args)`, and a record per
-row (`le_table/6`, `le_table_row/6`). An explanation cites the row that
-answered — `row m of table shipping` — and for a table written in the program
-that citation points at the row's own line.
+row (`le_table/6`, `le_table_row/6`, keyed by the table's name — or by
+`in_scenario(<scenario>, <name>)` for a scenario's table, which is how the same
+name can hold different rows in different scenarios). The template is bound
+once, whichever table is written first; which table answers is decided when the
+goal is solved, from the scenario the session has loaded. An explanation cites
+the row that answered — `row m of table shipping` — and for a table written in
+the program that citation points at the row's own line.
 
 Reported when the program is loaded: `table_without_template` (no template
 says `under table <name>`), `table_arity_mismatch`, `table_row_width` (a row
 with the wrong number of cells), `table_bad_cell`, `table_bad_output`,
 `table_csv_missing`.
 
-See `examples/regulatory/otherwise_table.le` and `loaded_table.le`
-(+ `shipping.csv`), and §16 of the [gentle
+See `examples/regulatory/otherwise_table.le`, `loaded_table.le`
+(+ `shipping.csv`) and `scenario_table.le` (a table per scenario), and §16 of the [gentle
 introduction](../tutorials/intro-to-le/intro-to-le.md#a-decision-table) for a
 table in a worked program.
 

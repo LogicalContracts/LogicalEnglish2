@@ -1,0 +1,63 @@
+% Where a decision table may be written (docs/user/reference/language.md §17.3).
+%
+% A table is written wherever a rule may be: as a section of its own, among the
+% rules of a knowledge base (as `the table brackets is` below), or, indented
+% with them, among the facts of a scenario.
+%
+% A table written in a SCENARIO is that scenario's, exactly as its facts are: it
+% answers only while that scenario is the case, and it shadows the table of the
+% same name written in the knowledge base. Here the knowledge base holds the
+% brackets in force, and each year that changed them states its own — one
+% program, one set of rules, a table per case.
+%
+% Only an indented table belongs to a scenario. One written at the margin after
+% a scenario is a section of its own, a global table.
+
+the target language is: prolog.
+
+the templates are:
+    the income of *a person* is *an amount*.
+    the rate for an income of *an amount* is *a rate* under table brackets.
+    the tax due by *a person* is *an amount*.
+    *a person* pays the top rate.
+
+the knowledge base scenario table includes:
+
+the tax due by a person is a tax
+    if the income of the person is an income
+    and the rate for an income of the income is a rate under table brackets
+    and the tax is the income * the rate / 100.
+
+the table brackets is, with first match:
+    band   | income   | rate
+    low    | <= 10000 | 10
+    middle | <= 50000 | 20
+    top    | > 50000  | 40
+
+a person pays the top rate
+    if the income of the person is an income
+    and the rate for an income of the income is a rate under table brackets
+    and the rate >= 40.
+
+scenario this year is:
+    the income of ann is 20000.
+    the income of bob is 80000.
+    tax expects answers ["the tax due by ann is 4000", "the tax due by bob is 32000"].
+    top expects answers ["bob pays the top rate"].
+
+scenario the year the top band was cut is:
+    the income of ann is 20000.
+    the income of bob is 80000.
+    the table brackets is, with first match:
+        band   | income   | rate
+        low    | <= 10000 | 10
+        middle | <= 50000 | 25
+        top    | > 50000  | 30
+    tax expects answers ["the tax due by ann is 5000", "the tax due by bob is 24000"].
+    top expects answers [].
+
+query tax is:
+    the tax due by which person is which amount.
+
+query top is:
+    which person pays the top rate.

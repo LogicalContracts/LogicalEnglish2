@@ -29,6 +29,8 @@
                  section(Name)   comment(Text)   blank   raw(Text)
                  residue(Id, Options)
                  scenario(Name, Lines, Options)   query(Name, Body)
+                     a scenario's Lines are its facts, its expectations, and
+                     table(Name, Options, Columns, Rows) for a table of its own
                  document(Name, Options)   view(Name, Sentences)
                  lps(InternalTerm)                              (target lps)
 
@@ -89,6 +91,7 @@
 :- use_module(library(csv)).
 :- use_module(le_i18n).
 :- use_module(le_grammar).
+:- use_module(le_tables).
 :- use_module(tokenizer).
 
 :- dynamic issue_sink/1.
@@ -431,11 +434,14 @@ addition_text(defines_global(G), T) :- kw(defines_global, K), format(atom(T), ';
 
 write_tables(Ctx, Items) :-
     forall(member(table(Name, Opts, Columns, Rows), Items),
-           write_table(Ctx, Name, Opts, Columns, Rows)).
+           write_table(Ctx, 0, Name, Opts, Columns, Rows)).
 
-write_table(_Ctx, Name, Opts, Columns, Rows) :-
+%   Indent is the column the header opens at: 0 for a table of its own, 4 for
+%   one written among the facts of a scenario (its rows go four deeper).
+write_table(_Ctx, Indent, Name, Opts, Columns, Rows) :-
     kw(table_open, TO),
-    forall(member(comment(C), Opts), write_comment_block(0, C)),
+    forall(member(comment(C), Opts), write_comment_block(Indent, C)),
+    tab(Indent),
     format("~w ~w ", [TO, Name]),
     kw(marker_is, Is),
     (   option(loaded_from(File), Opts)
@@ -454,14 +460,15 @@ write_table(_Ctx, Name, Opts, Columns, Rows) :-
     ;   true
     ),
     format(":~n"),
+    RowIndent is Indent + 4,
     maplist(cell_header_text, Columns, HTs),
     (   option(loaded_from(_), Opts)
     ->  atomic_list_concat(HTs, ' | ', HLine),
-        format("    ~w~n~n", [HLine])
+        tab(RowIndent), format("~w~n~n", [HLine])
     ;   maplist(row_texts, Rows, RTs),
         column_widths([HTs|RTs], Ws),
-        write_table_row(Ws, HTs),
-        forall(member(RT, RTs), write_table_row(Ws, RT)),
+        write_table_row(RowIndent, Ws, HTs),
+        forall(member(RT, RTs), write_table_row(RowIndent, Ws, RT)),
         nl
     ).
 
@@ -509,11 +516,11 @@ padded_cell(W, C, P) :-
     length(Sp, Pad), maplist(=(' '), Sp),
     atomic_list_concat([C|Sp], P).
 
-write_table_row(Ws, Cells) :-
+write_table_row(Indent, Ws, Cells) :-
     maplist(padded_cell, Ws, Cells, Padded),
     atomic_list_concat(Padded, ' | ', Line0),
     trim_right(Line0, Line),
-    format("    ~w~n", [Line]).
+    tab(Indent), format("~w~n", [Line]).
 
 trim_right(A, T) :-
     atom_codes(A, Cs), reverse(Cs, R), drop_spaces(R, R1), reverse(R1, Cs1), atom_codes(T, Cs1).
@@ -2110,6 +2117,9 @@ scenario_line(Ctx, expects_changes(Q, Sets)) :- !,
     atomic_list_concat(STs, ', ', SList),
     kw(expects, E), kw(changes, C),
     format("    ~w ~w ~w [~w].~n", [Q, E, C, SList]).
+%   A decision table of this scenario, written where its facts are.
+scenario_line(Ctx, table(Name, Opts, Columns, Rows)) :- !,
+    write_table(Ctx, 4, Name, Opts, Columns, Rows).
 scenario_line(_, comment(C)) :- !, write_comment_block(4, C).
 scenario_line(_, raw(T)) :- !, format("    ~w~n", [T]).
 scenario_line(Ctx, pending(Why, Line)) :- !,
@@ -2391,16 +2401,24 @@ synonym_text(KB, F, N, Text) :-
     \+ wv_derives(WV, F),
     wv_template_text(WV, NTs, Text).
 
+%   The GLOBAL tables of the knowledge base. A table written among the facts
+%   of a scenario belongs to that scenario, and is written there (kb_scenarios/2).
 kb_tables(KB, Items) :-
-    findall(table(Name, [policy(P)|Load], Columns, Rows),
+    findall(Item,
             ( current_predicate(KB:le_table/6),
-              KB:le_table(Name, Policy, _, Columns, _IdCol, Source),
-              policy_key(P, PK), policy_word(PK, Policy),
-              ( Source = csv(File) -> Load = [loaded_from(File)] ; Load = [] ),
-              findall(Row, ( current_predicate(KB:le_table_row/6),
-                             KB:le_table_row(Name, _, RowId, Cells, _, _),
-                             table_row_cells(RowId, Cells, Columns, Row) ), Rows) ),
+              KB:le_table(Key, _, _, _, _, _),
+              \+ table_scenario(Key, _),
+              kb_table_item(KB, Key, Item) ),
             Items).
+
+kb_table_item(KB, Key, table(Name, [policy(P)|Load], Columns, Rows)) :-
+    KB:le_table(Key, Policy, _, Columns, _IdCol, Source),
+    table_name(Key, Name),
+    policy_key(P, PK), policy_word(PK, Policy),
+    ( Source = csv(File) -> Load = [loaded_from(File)] ; Load = [] ),
+    findall(Row, ( current_predicate(KB:le_table_row/6),
+                   KB:le_table_row(Key, _, RowId, Cells, _, _),
+                   table_row_cells(RowId, Cells, Columns, Row) ), Rows).
 
 policy_word(PK, P) :- policy_key(P, PK), !.
 policy_word(P, P) :- policy_key(P, _), !.
@@ -2497,7 +2515,12 @@ kb_scenarios(KB, Items) :-
     keysort(Pairs, Sorted), pairs_values(Sorted, Items).
 
 scenario_lines(KB, Name, Terms, Lines) :-
-    findall(L, ( member(T, Terms), scenario_term_line(KB, T, L) ), Facts),
+    findall(L, ( member(T, Terms), scenario_term_line(KB, T, L) ), Facts0),
+    findall(Table, ( current_predicate(KB:le_table/6),
+                     KB:le_table(Key, _, _, _, _, _),
+                     table_scenario(Key, Name),
+                     kb_table_item(KB, Key, Table) ), Tables),
+    append(Facts0, Tables, Facts),
     findall(expects(Q, As, Us), ( current_predicate(KB:le_expected/4), KB:le_expected(Q, Name, As0, Us0),
                                   maplist(expect_string, As0, As), maplist(expect_string, Us0, Us) ), E1),
     findall(expects_changes(Q, Sets), ( current_predicate(KB:le_expected_changes/3),
