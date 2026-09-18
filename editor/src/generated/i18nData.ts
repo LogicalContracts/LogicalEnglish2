@@ -110,6 +110,13 @@ export const keywords: Record<string, KeywordTable> = {
         "are"
       ]
     ],
+    "functions": [
+      [
+        "the",
+        "functions",
+        "are"
+      ]
+    ],
     "constant_value_of": [
       [
         "the",
@@ -174,6 +181,10 @@ export const keywords: Record<string, KeywordTable> = {
       ],
       [
         "the",
+        "functions"
+      ],
+      [
+        "the",
         "contract"
       ],
       [
@@ -216,6 +227,9 @@ export const keywords: Record<string, KeywordTable> = {
       ],
       [
         "templates"
+      ],
+      [
+        "functions"
       ],
       [
         "contract"
@@ -1597,6 +1611,13 @@ export const keywords: Record<string, KeywordTable> = {
         "são"
       ]
     ],
+    "functions": [
+      [
+        "as",
+        "funções",
+        "são"
+      ]
+    ],
     "constant_value_of": [
       [
         "o",
@@ -1681,6 +1702,11 @@ export const keywords: Record<string, KeywordTable> = {
         "são"
       ],
       [
+        "as",
+        "funções",
+        "são"
+      ],
+      [
         "os",
         "eventos",
         "são"
@@ -1724,6 +1750,9 @@ export const keywords: Record<string, KeywordTable> = {
       ],
       [
         "modelos"
+      ],
+      [
+        "funções"
       ],
       [
         "eventos"
@@ -3408,6 +3437,13 @@ export const keywords: Record<string, KeywordTable> = {
         "son"
       ]
     ],
+    "functions": [
+      [
+        "las",
+        "funciones",
+        "son"
+      ]
+    ],
     "constant_value_of": [
       [
         "el",
@@ -3485,6 +3521,11 @@ export const keywords: Record<string, KeywordTable> = {
         "son"
       ],
       [
+        "las",
+        "funciones",
+        "son"
+      ],
+      [
         "los",
         "fluentes",
         "son"
@@ -3524,6 +3565,9 @@ export const keywords: Record<string, KeywordTable> = {
       ],
       [
         "ontología"
+      ],
+      [
+        "funciones"
       ],
       [
         "contrato"
@@ -5148,6 +5192,13 @@ export const keywords: Record<string, KeywordTable> = {
         "sont"
       ]
     ],
+    "functions": [
+      [
+        "les",
+        "fonctions",
+        "sont"
+      ]
+    ],
     "constant_value_of": [
       [
         "la",
@@ -5220,6 +5271,11 @@ export const keywords: Record<string, KeywordTable> = {
         "sont"
       ],
       [
+        "les",
+        "fonctions",
+        "sont"
+      ],
+      [
         "la",
         "taxonomie",
         "est"
@@ -5264,6 +5320,9 @@ export const keywords: Record<string, KeywordTable> = {
       ],
       [
         "prédicats"
+      ],
+      [
+        "fonctions"
       ],
       [
         "contrat"
@@ -6846,6 +6905,13 @@ export const keywords: Record<string, KeywordTable> = {
         "sono"
       ]
     ],
+    "functions": [
+      [
+        "le",
+        "funzioni",
+        "sono"
+      ]
+    ],
     "constant_value_of": [
       [
         "il",
@@ -6913,6 +6979,11 @@ export const keywords: Record<string, KeywordTable> = {
       ],
       [
         "le",
+        "funzioni",
+        "sono"
+      ],
+      [
+        "le",
         "costanti",
         "sono"
       ],
@@ -6964,6 +7035,9 @@ export const keywords: Record<string, KeywordTable> = {
       ],
       [
         "predicati"
+      ],
+      [
+        "funzioni"
       ],
       [
         "modelli"
@@ -8534,6 +8608,7 @@ export const keywordCategories: Record<string, string> = {
   "actions": "section",
   "prolog_events": "section",
   "constants": "section",
+  "functions": "section",
   "constant_value_of": "constant",
   "meta_target": "section",
   "marker": "section",

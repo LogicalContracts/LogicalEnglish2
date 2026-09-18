@@ -366,8 +366,10 @@ le_languages(Languages) :-
 %   the convention lps2's docs/dev/le-lps-interface.md §2 fixes for everything crossing
 %   this boundary — or `pos(none, none, 0, 0)` for a template with no source.
 %
-%   `Flags` carries what the additions said: `prepositional`, `unknown`,
-%   `opposite(F/A)`, `defines_global(G)`.
+%   `Flags` carries what the declaration said: `prepositional`, `unknown`,
+%   `opposite(F/A)`, `named(G)` (a named constant, `the constants are:`) and
+%   `function` (declared in `the functions are:`, so its value may be written
+%   without its last place).
 le_templates(KB, LEText, Templates) :-
     (   atom(KB), KB \== none, current_module(KB)
     ->  with_kb_reference(KB, templates_of(KB, LEText, Templates))
@@ -406,10 +408,16 @@ dict_flag(_, _, _, Unknown, judged) :- Unknown == judged.
 dict_flag(_, Opposite, _, _, opposite(OF/OA)) :-
     nonvar(Opposite),
     functor(Opposite, OF, OA).
-dict_flag(Globals, _, _, _, defines_global(G)) :-
+%   The same field carries both: the NAME of a constant (an atom) and the mark
+%   a `the functions are:` template gets (function(Arity)).
+dict_flag(Globals, _, _, _, named(G)) :-
     is_list(Globals),
     member(G0, Globals),
-    (   G0 = _-G1 -> G = G1 ; G = G0 ).
+    (   G0 = _-G1 -> G = G1 ; G = G0 ),
+    atom(G).
+dict_flag(Globals, _, _, _, function) :-
+    is_list(Globals),
+    memberchk(function(_), Globals).
 
 template_role(KB, F/A, Role) :-
     (   current_predicate(KB:le_lps_role/2),

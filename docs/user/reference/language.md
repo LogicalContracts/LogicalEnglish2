@@ -12,6 +12,7 @@ This document provides a summary of the Logical English constructs supported by 
     - [Template additions (after `;`)](#template-additions-after-)
     - [2.1 Prepositional templates](#21-prepositional-templates)
     - [2.2 Named constants: `the constants are:`](#22-named-constants-the-constants-are)
+    - [2.3 Functions: `the functions are:`](#23-functions-the-functions-are)
   - [3. Rules and Facts](#3-rules-and-facts)
     - [3.1 Rule Sections](#31-rule-sections)
     - [3.2 Query bodies](#32-query-bodies)
@@ -59,6 +60,7 @@ Sections define the context of the code. Each section header ends with a colon `
 - **Ontology:** `the ontology is:` (Used for taxonomy and class hierarchies)
 - **Templates:** `the predicates are:` or `the templates are:` (Used to define NL patterns)
 - **Constants:** `the constants are:` (named values, one per line: `the fee is 5.` — §2.2)
+- **Functions:** `the functions are:` (templates of the form `... is *a value*`, whose value may be written without that last place — §2.3)
 - **Bases (LPS target):** `the knowledge base <name> extends <base>, <base>.` — the bases' templates, laws and constraints, without their instance (`le_lps_surface.md` §1.1)
 - **Dynamics:** `the fluents are:` or `the events are:` (For temporal reasoning). In the LPS target a sentence needs times only where it relates two moments: `if there is a fire in a room and it is not the case that an alarm is on then an alarm goes on.` reads its conditions at one time and starts its action at it, and `when an alarm goes on then an alarm is on.` needs none either (`le_lps_surface.md` §3.1)
 - **Meta:** `the target language is: prolog.` (Required for Prolog generation)
@@ -79,8 +81,7 @@ A template definition can be followed by one or more additions, each introduced 
 - `; synonym <template>` — declares an **equivalent surface form**. The synonym maps to the **same** Prolog predicate as the main template, so facts, rule heads, rule bodies and queries may be written with either form interchangeably. Several `; synonym ...` additions may be chained. Its `*variables*` are matched **positionally** to the main template's, so both forms must list their arguments in the same order.
   - Example: `*a payment* is in respect of *a claim*; synonym *a payment* covers *a claim*.` — writing `p covers c` is the same fact as `p is in respect of c`.
   - **Rendering:** the main (first) form is used by default. In explanations, a node is rendered with the form actually used at its source location (the surface form of the clause that proves it); a query renders its answers with the form used in the query.
-  - **Restriction:** a template with a synonym **cannot carry any other addition** (`defines global`, `opposite`, `prepositional`, `unknown`, `undefined`); doing so raises a `synonym_with_other_additions` error.
-- `; defines global <name>; defines global <name2>...` — declares a global abbreviation.
+  - **Restriction:** a template with a synonym **cannot carry any other addition** (`opposite`, `prepositional`, `unknown`, `undefined`); doing so raises a `synonym_with_other_additions` error.
 - `; prepositional` — marks a **prepositional** template (see §2.1). The synonym `; composite` is accepted and means the same thing.
 - `; unknown` — marks the template as **assumable** (abducible): matching goals that cannot be proven are assumed true and reported as unknowns, as far as the integrity constraints allow (§3.3). The synonyms `; assumed` and `; assumable` are accepted and mean the same thing.
 - `; undefined` — marks the template as a **scenario element**: its facts are expected to appear only in scenarios, never as facts or rule heads in the knowledge base. The synonym `; scenario element` (two words) is also accepted. Effect on verification:
@@ -118,18 +119,91 @@ the constants are:
     the tax free allowance is 12570.
     the unlimited allowance is 115792089237316195423570985008687907853269984665640564039457584007913129639935.
 ```
-Each line is short for a template with a global name and one fact — `the value
-of the tax free allowance is *a number*; defines global the tax free
-allowance.` and `the value of the tax free allowance is 12570.` — so the name
-is a global (§6.0) wherever a rule, scenario or query uses it: `a person pays
-tax if the person earns an income and the income > the tax free allowance.`
-An explanation shows the value as a reason. The value's type is taken from the
-literal (a number, a text, or a name); the name may contain `is` (the value is
-after the last one). The verifier reports a constant nothing uses
-(`unused_constant`); `le_writer.pl` writes the section back (IR item
-`constant(F, Name, Value)`). Like any global, a name is not an arithmetic
-operand: compare with it, or read it into a variable first (`the value of the
-tax free allowance is an allowance A`).
+The name then stands for the value wherever a rule, a scenario or a query uses
+it: `a person pays tax if the person earns an income and the income > the tax
+free allowance.` An explanation shows the value as a reason.
+
+Each line declares the template `the value of <name> is *a <type>*` and states
+its one fact, so the value can also be read into a variable — `the value of
+the tax free allowance is an allowance A` — which is how to use it in
+arithmetic: a name is **not** an arithmetic operand. Compare with it, or read
+it first.
+
+The value's type is taken from the literal (a number, a text, or a name); the
+name may contain `is` (the value is the part after the last one). The verifier
+reports a constant nothing uses (`unused_constant`); `le_writer.pl` writes the
+section back (IR item `constant(F, Name, Value)`).
+
+A constant is the special case of a **function** (§2.3) whose value is written
+down rather than worked out; a value the rules compute wants that section
+instead.
+
+### 2.3 Functions: `the functions are:`
+A **function** is an ordinary template of the form `... is *a value*` — its
+last place, after the copula, is the value it gives — declared in a section of
+its own:
+```le
+the functions are:
+    the price of a cup with capacity *a number* ml is *an amount*.
+```
+Declaring it lets the sentence be written **without that last place** wherever
+a value is expected. The two conditions
+
+```le
+    and the price of a cup with capacity the capacity ml is a price
+    and the price > 10
+```
+
+can then be written as one:
+
+```le
+    and the price of a cup with capacity the capacity ml > 10
+```
+
+Nothing else changes. The full sentence still works; what defines the function
+is an ordinary rule or fact (`the price of a cup with capacity a number ml is
+an amount if the amount is the number / 10.`); and a function may be a
+relation with **several answers**, in which case every sentence that uses it
+has several too. The same application written twice in one sentence is asked
+**once**, so repeating the phrase does not multiply the answers.
+
+A function with no place of its own is a value with a name — `our policy is *a
+policy*` used as `our policy` — which is what the `; defines global` addition
+used to be for. That addition has been removed: a value written down is a
+constant (§2.2), and a value the rules compute is a function, whose name is
+the sentence's own words instead of one invented beside it. A program that
+still carries `; defines global` is told so at that line
+(`defines_global_removed`).
+
+Details worth knowing:
+
+- **Where it may be written.** Anywhere a value is expected: a comparison, an
+  `is`, a place of another template, the value of a rule's head (`the label of
+  thimble is our currency.` — a fact whose value is a function's is a rule).
+- **Not an arithmetic operand**, exactly as a constant is not: `the total is
+  the price of a cup with capacity 200 ml + 5` does not read the function.
+  Read the value into a variable first, then do the arithmetic.
+- **Nothing may follow the phrase where the sentence goes on with `is`.**
+  `the price of the cup > 10` is fine, and so is `the label is our currency`;
+  `the price of the cup is in [10, 20]` is not — the function's own sentence
+  matches from the start and reads `in [10, 20]` as its value. For those
+  forms (`is in`, `is equal to`, `is a`, or a template that opens with the
+  place you are filling), bind the value in a condition of its own.
+- **The condition goes first.** The goal that asks the function is placed
+  before the condition that uses its value, which is what lets a comparison
+  work.
+- **The form is checked.** A line of the section that is not `... is *a
+  value*` is reported (`function_not_is_form`) and stays an ordinary template.
+- **LPS.** The same section, and the same reading, in `the target language is:
+  lps.` (`/lps2/examples/le/functions.le`). A fluent, an event or an action
+  keeps its own declaration section, which is what confers its LPS role, so
+  the value of a fluent is still written in full.
+- **The writer** writes the section back (IR item `function(F, Text)`), and
+  writes a function's value the compact way where the value is used once its
+  inputs are known — which is what the migration translators emit.
+
+The worked example is
+`examples/moreExamples/language/templates/functions.le`.
 
 ## 3. Rules and Facts
 - **Fact:** A simple statement ending in a period.
@@ -799,8 +873,11 @@ the failure of all earlier ones and exactly one applies. Details:
 See `examples/regulatory/otherwise_table.le`.
 
 ### 17.3 Decision tables
-A **decision table** is a section of its own, bound to the ONE template whose
-words name it (`... under table shipping`):
+A **decision table** writes one relation as a grid: a column per argument, a
+row per case. It is a section of its own, and it belongs to the ONE template
+whose words name it — the template says `under table <name>`, and the section
+says `the table <name> is`:
+
 ```le
 the templates are:
     the shipping cost for a weight of *a number* kg is *a cost* under table shipping.
@@ -811,49 +888,134 @@ the table shipping is, with first match:
     m    | > 1 and <= 10      | 12
     l    | > 10               | 30
 ```
-- **Columns ↔ arguments, in order.** When the table has one column more than
-  the template has arguments, the first column is the **row id** (cited by
-  explanations); otherwise rows are numbered (`row 2`). The **last** column is
-  the output; the others are inputs.
-- **Cells**: a constant (read exactly like a scenario value), `any` or `-`
-  (no condition), a list of constants joined by `or`, or a condition —
-  comparisons `<`, `<=`, `>`, `>=`, `=`, `!=` joined by `and`/`or`
-  (`> 1 and <= 10`). An input with a condition cell must be known when the
-  table is consulted.
-- **Hit policies** (DMN): `with first match` (the first row whose inputs
-  match answers), `with unique match` (the default: two matching rows are a
-  run-time error), `with all matches` (every matching row — the policy for a
-  relation such as a code list or a code-pair edit).
-- **Loaded tables**: `the table postcode_region is loaded from postcodes.csv, with unique match:`
-  followed by the header line; the CSV (next to the program or in a directory
-  under it) supplies the rows, cells as above. A first CSV row repeating the
-  header is skipped. Rows are cached and re-read when the file changes.
-- **Explanations** cite the row: `row l of table shipping`, pointing at the
-  row in the source for an inline table.
-- **A citation column.** One column of an inline table may cite, row by
-  row, the passage each row encodes — a band's line of the statute, a
-  subheading's line of a tariff. Its header is `confer` (the passages are in
-  the document the table's `with provenance` names) or `as stated in
-  <document>` (another document); each cell is a quoted passage, or empty:
-  ```le
-  the table woven is, with first match, with provenance HTSUS General Rules of Interpretation,
-          confer "the classification of goods in the subheadings of a heading ...":
-      row | heading | material | code      | as stated in HTSUS Chapter 62
-      w93 | 6214    | silk     | "6214.10" | "Of silk or silk waste:6214.10"
-  ```
-  The column is not one of the template's (it is set aside before columns
-  and arguments are matched). Each row's passage becomes the row's
-  provenance, like a fact's (§17.1): the explanation's node for the row
-  carries it (its **§** badge opens the passage), "View Original Text" on the
-  row finds it, and the verifier checks the quotation against the document's
-  text (`quote_not_found`). Loaded (CSV) tables have no citation column.
-- The table compiles to one clause of its template, `Head :- le_table(Name,
-  Args)`, plus row records (`le_table/6`, `le_table_row/6`). Errors reported
-  at load time: `table_without_template`, `table_arity_mismatch`,
-  `table_row_width`, `table_bad_cell`, `table_bad_output`,
-  `table_csv_missing`.
 
-See `examples/regulatory/otherwise_table.le` and `loaded_table.le` (+ `shipping.csv`).
+Read a row as a rule: the row `m` says *the shipping cost for a weight of a
+weight kg is 12 if the weight > 1 and the weight <= 10*. That is also what it
+compiles to, so a query, an explanation and the verifier all see rules about
+`the shipping cost …`. What the grid adds is what rules cannot say in one
+place: an order to try the rows in, and what to do when more than one fits
+(**hit policy**, below).
+
+**Asking the table.** `under table shipping` is part of the template's words,
+so a rule (or a query) that consults the table writes them too:
+
+```le
+the shipping cost for a customer is a cost
+    if the order of the customer weighs a number kg
+    and the shipping cost for a weight of the number kg is the cost under table shipping.
+```
+
+**The header line.** `the table <name> is`, then, in this order and each of them optional:
+
+| Written | Meaning |
+|---|---|
+| `loaded from <file>.csv` | the rows are in a CSV file, not in the section (*Rows in a file*, below) |
+| `, with first match` / `, with unique match` / `, with all matches` | the hit policy; `with unique match` is what you get by saying nothing |
+| `, with provenance <document>` | the document this table encodes, exactly as for a labelled rule (§17.1) — and the document a `confer` column's passages are in |
+
+and then `:`. The provenance may carry the passage the table as a whole
+encodes, as a rule's may: `, with provenance <document>, confer "<passage>"`.
+
+**Columns and arguments.** The columns are the template's arguments, **in order**, and the **last**
+column is the one the table concludes; the others are its inputs. Two columns
+are not arguments:
+
+- **A row name**, in one extra column at the front. Explanations then cite the
+  row by that name (`row m of table shipping`); without it they cite its
+  number (`row 2`).
+- **A citation column**, anywhere (*Citing a passage per row*, below).
+
+`table_arity_mismatch` is reported when what is left does not match the
+template's arguments.
+
+**What a cell may say.** A cell of an **input** column says what that argument has to be:
+
+| Cell | Matches |
+|---|---|
+| a value — `silk`, `5`, `"Of silk"`, `2026-08-31` | that value, read exactly as the same words in a scenario would be |
+| nothing at all, `-`, or `any` | anything: this column says nothing about this row |
+| `silk or wool or cotton` | any one of those values |
+| `> 1 and <= 10` | a condition: `<`, `<=`, `>`, `>=`, `=`, `!=` (`=<` and `==` are accepted too), joined by `and` / `or` |
+
+A cell counts as a condition only when *every* part of it is one, so a value
+whose own words include `and` or `or` is still that value (`with acute and
+chronic bronchitis`).
+
+A cell of the **last** column is the answer, not a test: a value, or several
+joined by `or`, which then answer one at a time. `table_bad_output` is
+reported for anything else.
+
+An input whose cell in some row is a **condition** has to be known by the time
+the table is consulted — a condition can be checked against a value, but it
+cannot produce one. Asking with it unknown is a run-time error naming that
+column.
+
+**Hit policies.** The rows are tried from the top.
+
+| Policy | When more than one row fits | For |
+|---|---|---|
+| `with first match` | the first one answers and the rest are not tried | bands and cascades, where the last rows are the general case |
+| `with unique match` (the default) | a run-time error naming the rows: the table claimed the case was unambiguous, and it was not | tables whose rows are meant to be mutually exclusive |
+| `with all matches` | every row that fits answers, one answer each | a relation rather than a function — a code list, a table of pairs |
+
+`with unique match` only complains about a case it was actually asked about:
+several rows may fit an input that is still unknown.
+
+**Rows in a file.** A long table lives in a CSV file beside the program (or in a directory under
+it). The section is then the header line and the column headings, nothing
+else:
+
+```le
+the table postcode_region is loaded from postcodes.csv, with unique match:
+    postcode | region
+```
+
+Cells are read as above, with two differences that matter for data:
+
+- **The output cell of a CSV row is always a value**, even when its text
+  contains `or` or `and` (`Duchenne or Becker muscular dystrophy` is one
+  answer, not two).
+- **Codes keep their shape.** A cell of text is re-quoted as it is read, so
+  `012` or `G71.01` stays that code instead of becoming the number 12.
+
+A first row of the CSV that repeats the column headings is skipped. The rows
+are cached and re-read when the file changes. A loaded table has no citation
+column, and `table_csv_missing` is reported when the file is not there.
+
+**Citing a passage per row.** One column of a table written in the program may cite, row by row, the passage
+that row encodes — a band's line of a statute, a subheading's line of a
+tariff. Its heading is `confer`, for passages of the document the table's
+`with provenance` names, or `as stated in <document>`, for passages of another
+one. Each cell is a quoted passage, or empty:
+
+```le
+the table woven is, with first match, with provenance HTSUS General Rules of Interpretation,
+        confer "the classification of goods in the subheadings of a heading ...":
+    row | heading | material | code      | as stated in HTSUS Chapter 62
+    w93 | 6214    | silk     | "6214.10" | "Of silk or silk waste:6214.10"
+```
+
+The column is set aside before the others are matched to the template's
+arguments, so it is not one of them. Each row's passage becomes that row's
+provenance, exactly like a fact's (§17.1): the explanation's node for the row
+carries it (its **§** badge opens the passage), *View Original Text* on the row
+finds it, and the verifier checks the quotation against the document's text
+(`quote_not_found`).
+
+**What it compiles to.** One clause of the template, `Head :- le_table(Name, Args)`, and a record per
+row (`le_table/6`, `le_table_row/6`). An explanation cites the row that
+answered — `row m of table shipping` — and for a table written in the program
+that citation points at the row's own line.
+
+Reported when the program is loaded: `table_without_template` (no template
+says `under table <name>`), `table_arity_mismatch`, `table_row_width` (a row
+with the wrong number of cells), `table_bad_cell`, `table_bad_output`,
+`table_csv_missing`.
+
+See `examples/regulatory/otherwise_table.le` and `loaded_table.le`
+(+ `shipping.csv`), and §16 of the [gentle
+introduction](../tutorials/intro-to-le/intro-to-le.md#a-decision-table) for a
+table in a worked program.
 
 ### 17.4 The decision skeleton: applicability, question, remedy
 No new keyword: the macro-structure of a decision — *is the rule applicable,

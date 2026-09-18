@@ -81,7 +81,7 @@ export function buildLeMonarchTokens(lang: string): any {
     const b = (re: string) => `(?<!${W})(?:${re})(?!${W})`;
 
     const headers = alt(T, ['kb_open', 'contract_open', 'scenario', 'query', 'ontology', 'meta_target', 'constants']);
-    const templateHeaders = alt(T, ['predicates', 'templates', 'fluents', 'events', 'actions', 'prolog_events']);
+    const templateHeaders = alt(T, ['predicates', 'templates', 'functions', 'fluents', 'events', 'actions', 'prolog_events']);
     const structural = alt(T, [
         'resources_include', 'kb_include', 'if', 'only_if', 'either', 'any_of',
         'all_of', 'at_least_one_of', 'unless', 'and_unless', 'forall',
@@ -109,7 +109,11 @@ export function buildLeMonarchTokens(lang: string): any {
     const qualifiers = words(T, ['qualifier']);
     const copulas = words(T, ['copula', 'ignorable', 'meta_marker', 'that']);
     const preps = words(T, ['connective_heuristic', 'of']);
-    const additions = alt(T, ['defines_global', 'opposite', 'synonym', 'prepositional', 'unknown', 'undefined', 'known_as', 'judged', 'via_service', 'by_default']);
+    //  `defines_global` is deliberately absent: it is no longer part of the
+    //  language (docs/user/reference/language.md §2.2, §2.3), and a program
+    //  that still writes it gets an error saying so, not highlighting saying
+    //  it is fine.
+    const additions = alt(T, ['opposite', 'synonym', 'prepositional', 'unknown', 'undefined', 'known_as', 'judged', 'via_service', 'by_default']);
 
     return {
         tokenizer: {

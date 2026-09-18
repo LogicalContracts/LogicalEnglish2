@@ -4,7 +4,7 @@ Each folder illustrates part of the language reference, docs/user/reference/lang
 
 | Folder | Programs | Reference |
 |---|---|---|
-| [`templates/`](templates/README.md) | synonyms, named_vars, white_rabbit, is_a_class_of, longsentence, subset | §2, §6 |
+| [`templates/`](templates/README.md) | functions, synonyms, named_vars, white_rabbit, is_a_class_of, longsentence, subset | §2, §6 |
 | [`rules/`](rules/README.md) | rule_id_test | §3.1, §15.5 (labels) |
 | [`negation/`](negation/README.md) | only_if, propositional, alice_propositional, inequality | §4, §15.1 |
 | [`aggregates/`](aggregates/README.md) | sums, ecommerce | §5 |

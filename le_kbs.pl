@@ -528,7 +528,7 @@ process_section_acc(extends(Name, Bases, Start, End), M) :-
 process_section_acc(predicates(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
 process_section_acc(templates(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
 %   `the constants are:` (le_summary.md §2.2): each line is a template with a
-%   `defines global` name and its one fact; le_constant(Name, F/1) records
+%   name for its value and its one fact; le_constant(Name, F/1) records
 %   which templates are constants, for the verifier and the writer.
 process_section_acc(constants(Dicts, Facts, _, _), M) :-
     forall(member(D, Dicts),
@@ -536,6 +536,18 @@ process_section_acc(constants(Dicts, Facts, _, _), M) :-
              D =.. [dict, [F|Args], _, _, _, _, [Name|_]|_], length(Args, N),
              assertz(M:le_constant(Name, F/N)) )),
     forall(member(Item, Facts), process_item(Item, M)).
+%   `the functions are:` (docs/user/reference/language.md §2.3): templates whose
+%   value may be written without their last place. The templates are asserted
+%   exactly as `the templates are:` asserts them (the functional reading is a
+%   parse-time affair, le_grammar:check_function_application/7); le_function/1
+%   records which predicates they are, for the writer and the editor.
+process_section_acc(functions(Dicts), M) :-
+    forall(member(D, Dicts),
+           ( assert_dict_with_source(D, M),
+             D =.. [dict, [F|Args]|_],
+             length(Args, N),
+             ( M:le_function(F/N) -> true ; assertz(M:le_function(F/N)) )
+           )).
 process_section_acc(fluents(Dicts), M) :- assert_role_dicts(Dicts, fluent, M).
 process_section_acc(events(Dicts), M) :- assert_role_dicts(Dicts, event, M).
 process_section_acc(actions(Dicts), M) :- assert_role_dicts(Dicts, action, M).
@@ -2234,7 +2246,7 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
             or_render_word(OrW),
             append(ALE, [OrW | BLE], WordsAndVars)
         ; or_render_word(OrW), WordsAndVars = [A, OrW, B])
-    ;   % A "defines global" template's goal renders by its global name, e.g.
+    ;   % A named constant's goal renders by its name, e.g.
         % "the period of insurance is 123" rather than "our period of insurance
         % is 123" — matching how the global reads at its use sites.
         Head =.. [Functor, Value],
@@ -2453,10 +2465,14 @@ prep_phrase(KBmodule, PrepGoal, Phrase) :-
     flatten(RestWV2, Phrase).
 
 % global_template_name(+KBmodule, +Functor, -GlobalName): the (first) global name
-% declared with "defines global" for the template whose predicate is Functor.
+% of `the constants are:` for the template whose predicate is Functor.
 global_template_name(KBmodule, Functor, GlobalName) :-
     KBmodule:le_dict(dict([Functor|_], _, _, Globals, _, _, _)),
-    is_list(Globals), Globals = [GlobalName|_].
+    is_list(Globals),
+    %  A NAME, not the function(Arity) mark a `the functions are:` template
+    %  carries in the same field: a function's goal renders by its own words,
+    %  which are a sentence already.
+    member(GlobalName, Globals), atom(GlobalName), !.
 
 check_types([]).
 check_types([Var-Type|NTs]) :-
@@ -2864,6 +2880,9 @@ is_system_predicate(le_lps_functor/2).
 is_system_predicate(le_lps_item/3).
 % `the constants are:` (le_summary.md §2.2): which templates are named constants.
 is_system_predicate(le_constant/2).
+% `the functions are:` (docs/user/reference/language.md §2.3): which predicates were
+% declared as functions, so that the writer and the editor can say so.
+is_system_predicate(le_function/1).
 % `; <value> by default` on a fluent (le_lps_surface.md §2), and `extends`
 % (§1.1): the bases of a knowledge base, and the laws a child replaces.
 is_system_predicate(le_lps_default/2).

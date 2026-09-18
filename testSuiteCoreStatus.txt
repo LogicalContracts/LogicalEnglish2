@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      core (this repository alone; extension-dependent trees excluded)
 Command:    testing/run_tests.sh le   (or: runTests)
 Sibling:    testSuiteStatus.txt — all (core + trees requiring the proprietary le_extensions.pl)
-Generated:  2026-09-17 22:15:47 UTC
+Generated:  2026-09-18 05:14:50 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 192
-Total tests:     1036
-Passed:          1036
+Files processed: 193
+Total tests:     1042
+Passed:          1042
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -60,6 +60,7 @@ Detailed File Summary:
   [NONE] examples/moreExamples/language/scasp/clp_coverage.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/language/scasp/dual_engine_demo.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/rules/rule_id_test.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/templates/functions.le: 6 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/templates/is_a_class_of.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/templates/longsentence.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/templates/named_vars.le: 1 Pass, 0 Fail, 0 Error

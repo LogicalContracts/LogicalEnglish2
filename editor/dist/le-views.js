@@ -104,6 +104,13 @@ var keywords = {
         "are"
       ]
     ],
+    "functions": [
+      [
+        "the",
+        "functions",
+        "are"
+      ]
+    ],
     "constant_value_of": [
       [
         "the",
@@ -168,6 +175,10 @@ var keywords = {
       ],
       [
         "the",
+        "functions"
+      ],
+      [
+        "the",
         "contract"
       ],
       [
@@ -210,6 +221,9 @@ var keywords = {
       ],
       [
         "templates"
+      ],
+      [
+        "functions"
       ],
       [
         "contract"
@@ -1591,6 +1605,13 @@ var keywords = {
         "s\xE3o"
       ]
     ],
+    "functions": [
+      [
+        "as",
+        "fun\xE7\xF5es",
+        "s\xE3o"
+      ]
+    ],
     "constant_value_of": [
       [
         "o",
@@ -1675,6 +1696,11 @@ var keywords = {
         "s\xE3o"
       ],
       [
+        "as",
+        "fun\xE7\xF5es",
+        "s\xE3o"
+      ],
+      [
         "os",
         "eventos",
         "s\xE3o"
@@ -1718,6 +1744,9 @@ var keywords = {
       ],
       [
         "modelos"
+      ],
+      [
+        "fun\xE7\xF5es"
       ],
       [
         "eventos"
@@ -3402,6 +3431,13 @@ var keywords = {
         "son"
       ]
     ],
+    "functions": [
+      [
+        "las",
+        "funciones",
+        "son"
+      ]
+    ],
     "constant_value_of": [
       [
         "el",
@@ -3479,6 +3515,11 @@ var keywords = {
         "son"
       ],
       [
+        "las",
+        "funciones",
+        "son"
+      ],
+      [
         "los",
         "fluentes",
         "son"
@@ -3518,6 +3559,9 @@ var keywords = {
       ],
       [
         "ontolog\xEDa"
+      ],
+      [
+        "funciones"
       ],
       [
         "contrato"
@@ -5142,6 +5186,13 @@ var keywords = {
         "sont"
       ]
     ],
+    "functions": [
+      [
+        "les",
+        "fonctions",
+        "sont"
+      ]
+    ],
     "constant_value_of": [
       [
         "la",
@@ -5214,6 +5265,11 @@ var keywords = {
         "sont"
       ],
       [
+        "les",
+        "fonctions",
+        "sont"
+      ],
+      [
         "la",
         "taxonomie",
         "est"
@@ -5258,6 +5314,9 @@ var keywords = {
       ],
       [
         "pr\xE9dicats"
+      ],
+      [
+        "fonctions"
       ],
       [
         "contrat"
@@ -6840,6 +6899,13 @@ var keywords = {
         "sono"
       ]
     ],
+    "functions": [
+      [
+        "le",
+        "funzioni",
+        "sono"
+      ]
+    ],
     "constant_value_of": [
       [
         "il",
@@ -6907,6 +6973,11 @@ var keywords = {
       ],
       [
         "le",
+        "funzioni",
+        "sono"
+      ],
+      [
+        "le",
         "costanti",
         "sono"
       ],
@@ -6958,6 +7029,9 @@ var keywords = {
       ],
       [
         "predicati"
+      ],
+      [
+        "funzioni"
       ],
       [
         "modelli"
@@ -8535,6 +8609,11 @@ var uiCatalog = {
     "Close": "Fechar",
     "Close this panel": "Fechar este painel",
     "Collapse All": "Recolher tudo",
+    "Failed to load examples.": "N\xE3o foi poss\xEDvel carregar os exemplos.",
+    "filter \u2014 type any part of a name": "filtro \u2014 escreva qualquer parte de um nome",
+    "Loading examples...": "A carregar exemplos...",
+    "loading\u2026": "a carregar\u2026",
+    "No example matches the filter.": "Nenhum exemplo corresponde ao filtro.",
     "The s(CASP) program could not be produced.": "N\xE3o foi poss\xEDvel produzir o programa s(CASP).",
     "condition": "condi\xE7\xE3o",
     "Continue": "Continuar",
@@ -8615,8 +8694,8 @@ var uiCatalog = {
     "None": "Nenhum",
     "Occurrences": "Ocorr\xEAncias",
     "Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window": "Abrir Varia\xE7\xF5es de Cen\xE1rio: altere o cen\xE1rio selecionado e corra uma ou mais consultas sobre a varia\xE7\xE3o, numa janela separada",
-    "Open copy from server...": "Abrir c\xF3pia do servidor...",
-    "Open from Server": "Abrir do servidor",
+    "Open example from server...": "Abrir exemplo do servidor...",
+    "Open example from server": "Abrir exemplo do servidor",
     "Open the Proof Game: interactively build a proof of the selected query by connecting its facts and rules": "Abrir o Jogo da Prova: construa interativamente uma prova da consulta selecionada ligando os seus factos e regras",
     "Open...": "Abrir...",
     "OpenAI API Key:": "Chave de API OpenAI:",
@@ -9136,6 +9215,11 @@ var uiCatalog = {
     "Close": "Cerrar",
     "Close this panel": "Cerrar este panel",
     "Collapse All": "Contraer todo",
+    "Failed to load examples.": "No se pudieron cargar los ejemplos.",
+    "filter \u2014 type any part of a name": "filtro \u2014 escriba cualquier parte de un nombre",
+    "Loading examples...": "Cargando ejemplos...",
+    "loading\u2026": "cargando\u2026",
+    "No example matches the filter.": "Ning\xFAn ejemplo coincide con el filtro.",
     "The s(CASP) program could not be produced.": "No se pudo producir el programa s(CASP).",
     "condition": "condici\xF3n",
     "Continue": "Continuar",
@@ -9216,8 +9300,8 @@ var uiCatalog = {
     "None": "Ninguno",
     "Occurrences": "Apariciones",
     "Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window": "Abrir Variaciones de escenario: modifique el escenario seleccionado y ejecute una o m\xE1s consultas sobre la variaci\xF3n, en una ventana separada",
-    "Open copy from server...": "Abrir copia del servidor...",
-    "Open from Server": "Abrir del servidor",
+    "Open example from server...": "Abrir ejemplo del servidor...",
+    "Open example from server": "Abrir ejemplo del servidor",
     "Open the Proof Game: interactively build a proof of the selected query by connecting its facts and rules": "Abrir el Juego de la Prueba: construya interactivamente una prueba de la consulta seleccionada conectando sus hechos y reglas",
     "Open...": "Abrir...",
     "OpenAI API Key:": "Clave de API OpenAI:",
@@ -9735,6 +9819,11 @@ var uiCatalog = {
     "Close": "Fermer",
     "Close this panel": "Fermer ce panneau",
     "Collapse All": "Tout replier",
+    "Failed to load examples.": "Impossible de charger les exemples.",
+    "filter \u2014 type any part of a name": "filtre \u2014 tapez une partie d'un nom",
+    "Loading examples...": "Chargement des exemples...",
+    "loading\u2026": "chargement\u2026",
+    "No example matches the filter.": "Aucun exemple ne correspond au filtre.",
     "The s(CASP) program could not be produced.": "Le programme s(CASP) n'a pas pu \xEAtre produit.",
     "condition": "condition",
     "Continue": "Continuer",
@@ -9815,8 +9904,8 @@ var uiCatalog = {
     "None": "Aucun",
     "Occurrences": "Occurrences",
     "Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window": "Ouvrir les Variations de sc\xE9nario : modifiez le sc\xE9nario s\xE9lectionn\xE9 et ex\xE9cutez une ou plusieurs requ\xEAtes sur la variation, dans une fen\xEAtre s\xE9par\xE9e",
-    "Open copy from server...": "Ouvrir une copie du serveur...",
-    "Open from Server": "Ouvrir depuis le serveur",
+    "Open example from server...": "Ouvrir un exemple du serveur...",
+    "Open example from server": "Ouvrir un exemple du serveur",
     "Open the Proof Game: interactively build a proof of the selected query by connecting its facts and rules": "Ouvrir le Jeu de la preuve : construisez interactivement une preuve de la requ\xEAte s\xE9lectionn\xE9e en reliant ses faits et ses r\xE8gles",
     "Open...": "Ouvrir...",
     "OpenAI API Key:": "Cl\xE9 d'API OpenAI :",
@@ -10334,6 +10423,11 @@ var uiCatalog = {
     "Close": "Chiudi",
     "Close this panel": "Chiudi questo pannello",
     "Collapse All": "Comprimi tutto",
+    "Failed to load examples.": "Impossibile caricare gli esempi.",
+    "filter \u2014 type any part of a name": "filtro \u2014 digita una parte qualsiasi di un nome",
+    "Loading examples...": "Caricamento esempi...",
+    "loading\u2026": "caricamento\u2026",
+    "No example matches the filter.": "Nessun esempio corrisponde al filtro.",
     "The s(CASP) program could not be produced.": "Non \xE8 stato possibile produrre il programma s(CASP).",
     "condition": "condizione",
     "Continue": "Continua",
@@ -10414,8 +10508,8 @@ var uiCatalog = {
     "None": "Nessuno",
     "Occurrences": "Occorrenze",
     "Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window": "Apri Variazioni di Scenario: modifica lo scenario selezionato ed esegui una o pi\xF9 interrogazioni sulla variazione, in una finestra separata",
-    "Open copy from server...": "Apri copia dal server...",
-    "Open from Server": "Apri dal server",
+    "Open example from server...": "Apri esempio dal server...",
+    "Open example from server": "Apri esempio dal server",
     "Open the Proof Game: interactively build a proof of the selected query by connecting its facts and rules": "Apri il Gioco della Prova: costruisci interattivamente una prova dell'interrogazione selezionata collegando i suoi fatti e le sue regole",
     "Open...": "Apri...",
     "OpenAI API Key:": "Chiave API OpenAI:",

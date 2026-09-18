@@ -22,22 +22,34 @@
 the knowledge base temporal includes these resources:
     temporal.pl.
 
-the templates are:
+% Each of these gives ONE value for its arguments, so they are declared
+% FUNCTIONS (§2.3 of the language reference): the sentence may be written
+% without its last place wherever a value is expected, which is how a
+% condition about a date reads best —
+%
+%     and the year of the start date > 2020
+%
+% rather than binding the year in one condition and testing it in another.
+% The full sentence still works, so nothing that was written before has to
+% change.
+the functions are:
     the age on *a date* of someone born on *a birth date* is *a number*.
     the number of whole years from *a date* to *a second date* is *a number*.
     the number of whole months from *a date* to *a second date* is *a number*.
     the number of days from *a date* to *a second date* is *a number*.
+    the first day of the month of *a date* is *a first date*.
+    the last day of the month of *a date* is *a last date*.
+    the year of *a date* is *a number*.
+    the month of *a date* is *a number*.
+    the weekday of *a date* is *a number*.
+
+the templates are:
     *a later date* is *a number* years after *a date*.
     *a later date* is *a number* calendar months after *a date*.
     *an earlier date* is *a number* calendar months before *a date*.
     *a date* is in the period from *a start date* to *an end date*.
     *a date* is within the last *a number* months before *a reference date*.
     *a date* is within the last *a number* days before *a reference date*.
-    the first day of the month of *a date* is *a first date*.
-    the last day of the month of *a date* is *a last date*.
-    the year of *a date* is *a number*.
-    the month of *a date* is *a number*.
-    the weekday of *a date* is *a number*.
     *a date* is in a leap year.
     the lock time *a number* is a block height.
     the lock time *a number* is a time.

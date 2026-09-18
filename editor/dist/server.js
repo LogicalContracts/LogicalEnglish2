@@ -8577,6 +8577,13 @@ var keywords = {
         "are"
       ]
     ],
+    "functions": [
+      [
+        "the",
+        "functions",
+        "are"
+      ]
+    ],
     "constant_value_of": [
       [
         "the",
@@ -8641,6 +8648,10 @@ var keywords = {
       ],
       [
         "the",
+        "functions"
+      ],
+      [
+        "the",
         "contract"
       ],
       [
@@ -8683,6 +8694,9 @@ var keywords = {
       ],
       [
         "templates"
+      ],
+      [
+        "functions"
       ],
       [
         "contract"
@@ -10064,6 +10078,13 @@ var keywords = {
         "s\xE3o"
       ]
     ],
+    "functions": [
+      [
+        "as",
+        "fun\xE7\xF5es",
+        "s\xE3o"
+      ]
+    ],
     "constant_value_of": [
       [
         "o",
@@ -10148,6 +10169,11 @@ var keywords = {
         "s\xE3o"
       ],
       [
+        "as",
+        "fun\xE7\xF5es",
+        "s\xE3o"
+      ],
+      [
         "os",
         "eventos",
         "s\xE3o"
@@ -10191,6 +10217,9 @@ var keywords = {
       ],
       [
         "modelos"
+      ],
+      [
+        "fun\xE7\xF5es"
       ],
       [
         "eventos"
@@ -11875,6 +11904,13 @@ var keywords = {
         "son"
       ]
     ],
+    "functions": [
+      [
+        "las",
+        "funciones",
+        "son"
+      ]
+    ],
     "constant_value_of": [
       [
         "el",
@@ -11952,6 +11988,11 @@ var keywords = {
         "son"
       ],
       [
+        "las",
+        "funciones",
+        "son"
+      ],
+      [
         "los",
         "fluentes",
         "son"
@@ -11991,6 +12032,9 @@ var keywords = {
       ],
       [
         "ontolog\xEDa"
+      ],
+      [
+        "funciones"
       ],
       [
         "contrato"
@@ -13615,6 +13659,13 @@ var keywords = {
         "sont"
       ]
     ],
+    "functions": [
+      [
+        "les",
+        "fonctions",
+        "sont"
+      ]
+    ],
     "constant_value_of": [
       [
         "la",
@@ -13687,6 +13738,11 @@ var keywords = {
         "sont"
       ],
       [
+        "les",
+        "fonctions",
+        "sont"
+      ],
+      [
         "la",
         "taxonomie",
         "est"
@@ -13731,6 +13787,9 @@ var keywords = {
       ],
       [
         "pr\xE9dicats"
+      ],
+      [
+        "fonctions"
       ],
       [
         "contrat"
@@ -15313,6 +15372,13 @@ var keywords = {
         "sono"
       ]
     ],
+    "functions": [
+      [
+        "le",
+        "funzioni",
+        "sono"
+      ]
+    ],
     "constant_value_of": [
       [
         "il",
@@ -15380,6 +15446,11 @@ var keywords = {
       ],
       [
         "le",
+        "funzioni",
+        "sono"
+      ],
+      [
+        "le",
         "costanti",
         "sono"
       ],
@@ -15431,6 +15502,9 @@ var keywords = {
       ],
       [
         "predicati"
+      ],
+      [
+        "funzioni"
       ],
       [
         "modelli"
