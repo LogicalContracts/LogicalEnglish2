@@ -5,7 +5,7 @@
 *Status: proposal for validation, 2026-09-16. Nothing described under "Proposal"
 has been implemented. Scope: the documentation shown to users by the LE2 editor
 (`LogicalEnglish2`, here `/work`) and the LPS2 IDE (`/lps2`), and every document
-in `LogicalEnglish2/docs`, `InsurLE2/docs` and `lps2/docs` (plus the READMEs
+in `LogicalEnglish2/docs`, `lpsPlus/docs` and `lps2/docs` (plus the READMEs
 around them). The private `vibeCodingNotes.md` files were left out of the
 inventory; they appear only in the exposure finding of §1.3.*
 
@@ -137,9 +137,9 @@ Inv investor or prospect. ★ marks a document users are shown today (§1).
 | Numbered rule bodies (`1.`, `4.2.1.`, `; and` / `; or`) | §15.5 | le_extensions §6 |
 | Embedded `prolog <goal>` resolution | §15.6, §14.1 | `le_extensions:resolve_prolog_tokens/5` |
 | Prepositional chaining, "this <type>" anchors | §2.1, §15.7 | le_extensions §7 |
-| *(system, not syntax)* the importers and exporters of other systems (File ▸ Open, Export) | `howToUse` (lists 4 of 11), `le_migration.md` | `InsurLE2/migration/le_importers.pl` |
+| *(system, not syntax)* the importers and exporters of other systems (File ▸ Open, Export) | `howToUse` (lists 4 of 11), `le_migration.md` | `lpsPlus/migration/le_importers.pl` |
 
-Despite its name and location, `InsurLE2/docs/LE_extensions_proposal.md`
+Despite its name and location, `lpsPlus/docs/LE_extensions_proposal.md`
 describes **core** constructs. Its §0 says so: provenance, `otherwise`, decision
 tables, sections, scoped proof, services and flip queries all live in LE2 core
 and in `le_summary §17`.

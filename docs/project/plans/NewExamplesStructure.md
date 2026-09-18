@@ -14,7 +14,7 @@ scope, apart from §1.
 
 ## 1. Done today: the migration twins left InsurLE2
 
-`InsurLE2/examples/migration/<source>/` was split according to the language
+`lpsPlus/examples/migration/<source>/` was split according to the language
 each twin is written in.
 
 | Source | Twin language | New home | Twins | Tests after the move |
@@ -49,7 +49,7 @@ from publication. If you confirm they can go public, it takes two commands:
 - `socotra` → `LogicalEnglish2/examples/migration/socotra`.
 - `epilog` splits: `kinship`, `blocks`, `graphs` → `LogicalEnglish2/examples/migration/epilog`; the ten games → `lps2/examples/migration/epilog`.
 
-In both cases, also flip the rows in `InsurLE2/migration/le2_paths.pl`
+In both cases, also flip the rows in `lpsPlus/migration/le2_paths.pl`
 `twins_home/2` and update the test paths in `test_epilog.pl` and `test_socotra.pl`.
 
 **Wiring changed so that nothing breaks.**

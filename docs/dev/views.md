@@ -44,7 +44,7 @@ table of the view sentences, are in the user documentation:
 ## 2. Compared with the proposal, and limits
 
 LE Views began as a proposal in a role-play review of the customs programs
-(CustomsOfficerReport.md, in the InsurLE repository): a JSON file of
+(CustomsOfficerReport.md, in the lpsPlus repository): a JSON file of
 widgets beside each program, followed by a section on writing views in Logical
 English instead. The Logical English form was built, and the JSON form was not:
 

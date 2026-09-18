@@ -57,7 +57,8 @@ answered with HTTP 500.
 | `le_kbs.pl` | the main interface: `load/2`, `load_text/2` (each program becomes a KB module), reasoning sessions (`createSession/2`, scenarios, a reaper for sessions idle over 30 min), `query/5`, explanations, the example test runner (`runTests/0`, `runAllTests/0`, the status files), example names and aliases, included resources. Loads `le_extensions.pl` if present |
 | `reasoner.pl` | meta-interpreter: conjunction, disjunction, negation as failure, aggregates, unknowns, success and failure explanation trees; the DAP tracer hooks |
 | `le_verifier.pl` | load-time checks behind the editor's diagnostics (missing templates, undefined or untested predicates, rules without variables, …) |
-| `le_extensions.pl` | **optional, proprietary**: a symlink into InsurLE2. `which`, `unless` in bodies, grouped alternatives, numbered bodies, `prolog` goals, prepositional chaining ([extensions.md](../user/reference/extensions.md)). Also loads InsurLE2's importers and exporters |
+| `le_extensions.pl` | **optional, proprietary**: a symlink into InsurLE2. `which`, `unless` in bodies, grouped alternatives, numbered bodies, `prolog` goals, prepositional chaining ([extensions.md](../user/reference/extensions.md)) |
+| `le_importers.pl` | **optional, proprietary**: a symlink to lpsPlus's `migration/le_importers.pl`, the table of importers and exporters of other systems that `le_import.pl` reads ([migration.md](migration.md)) |
 
 **Regulatory constructs** (language reference §17), all loaded by `le_kbs`:
 `le_provenance.pl` (provenance trailers), `le_tables.pl` (decision tables),
@@ -156,7 +157,9 @@ in [editor/README.md](../../editor/README.md).
   and `mcp-remote`, the `scasp` pack, and an editor build),
   `buildPush.sh` (builds from a dereferenced copy of the tree, then
   `fly deploy --local-only`), `fly.toml`.
-- **Sibling repositories**: InsurLE2 (`le_extensions.pl`, importers and
-  exporters, proprietary examples) and lps2 (runs LE-for-LPS programs; loads
+- **Sibling repositories**: InsurLE2 (`le_extensions.pl` and the examples of
+  those constructs), lpsPlus (`le_importers.pl` and the translators behind it,
+  the domain models and the twins whose sources may not be published) and lps2
+  (runs LE-for-LPS programs; loads
   LE2 as a library through `le_service.pl`; the interface is lps2's
   `docs/dev/le-lps-interface.md`).

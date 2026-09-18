@@ -703,12 +703,12 @@ shape of a regulatory decision (applicability, one contested predicate,
 remedy), where every fact has a source and the contested predicate is
 decided by someone. Examples live in `examples/regulatory/`;
 `eu261_integration.le` uses them all together on the facts of the CJEU's
-Wallentin-Hermann judgment. Two larger applications are kept in the InsurLE
+Wallentin-Hermann judgment. Two larger applications are kept in the lpsPlus
 repository (`examples/customs/`: tariff classification — the GRIs and the
 notes of Chapters 39, 61 and 62, run on CBP rulings and EU BTIs;
 `examples/medicare/`: the 58 DME MAC coverage policies, run on claims and on
-Medicare Appeals Council decisions); with InsurLE checked out beside this
-repository they appear under `examples/moreExamples/insureLE2/`.
+Medicare Appeals Council decisions); with lpsPlus checked out beside this
+repository they appear under `examples/moreExamples/lpsPlus/`.
 
 ### 17.1 Provenance trailers and judged templates
 Any scenario fact (and any knowledge-base fact) may carry **trailers**,
@@ -828,7 +828,7 @@ knitted, woven, … — "Did you mean knitted?". A value like none of them (a
 free description, a name) is not reported.
 
 See `examples/regulatory/judged_damage.le`, and the customs and Medicare
-programs of the InsurLE repository (`examples/customs/`,
+programs of the lpsPlus repository (`examples/customs/`,
 `examples/medicare/`), where every rule, table and fact cites its passage.
 
 ### 17.2 `otherwise` cascades
@@ -1368,6 +1368,6 @@ A tutorial, building a view step by step: [IntroducingLEViews.md](../tutorials/v
 See the views of `examples/regulatory/eu261_integration.le` (a claims desk),
 `flip_housing.le` (an interview), `judged_damage.le`, `sections_benefit.le`
 (its view *rent decision*: sections in its own words, why not, a flip that
-keeps a fact, a letter for each outcome) and, in the InsurLE repository,
+keeps a fact, a letter for each outcome) and, in the lpsPlus repository,
 `examples/customs/cbp_62.le` (a classification worksheet) and the coverage
 desks of `examples/medicare/pap_cases.le` and `pmd_cases.le`.

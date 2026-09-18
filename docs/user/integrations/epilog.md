@@ -92,11 +92,11 @@ when the Logical English installation beside it has the translators.
 ### The example twins
 
 The translator has been run on the Epilog site's own programs. The results,
-*twins*, are among the InsurLE examples, under `insureLE2/migration/epilog/`.
-They are visible only on installations with the InsurLE examples, to users
+*twins*, are among the lpsPlus examples, under `lpsPlus/migration/epilog/`.
+They are visible only on installations with the lpsPlus examples, to users
 with access; open them with **File ▸ Open example from server…**.
 
-- Rulesets of the Examples page: `insureLE2/migration/epilog/kinship`,
+- Rulesets of the Examples page: `lpsPlus/migration/epilog/kinship`,
   `…/blocks`, `…/graphs`. Each has the data sheet as the scenario `dataset`,
   and each view's query expects EpilogJS's own answers on the same rules and
   data. **Misc ▸ Run the Program's Tests…** shows that they pass.

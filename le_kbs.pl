@@ -146,6 +146,12 @@ example_dir_alias(rkBook, 'collections/kowalski-book').
 example_dir_alias('LogicalThinkingInAgeOfAI', 'collections/logical-thinking-talk').
 example_dir_alias('RulesRus', regulatory).
 example_dir_alias(testing, fixtures).
+%  The domain models and the private twins left the InsurLE tree for the
+%  lpsPlus repository (lpsPlus/README.md); `le_extensions.pl` and the
+%  programs of its constructs stayed behind, so only these three move.
+example_dir_alias('insureLE2/customs', 'lpsPlus/customs').
+example_dir_alias('insureLE2/medicare', 'lpsPlus/medicare').
+example_dir_alias('insureLE2/migration', 'lpsPlus/migration').
 
 %!  example_current_name(+Name:atom, -Current:atom) is det.
 %
@@ -198,6 +204,17 @@ le_example_relpath(Name0, Path) :-
 
 :- ( absolute_file_name(le2('le_extensions.pl'), F, [access(read), file_errors(fail)])
    -> use_module(F)
+   ;  true
+   ).
+
+%  The translators of other systems (File ▸ Open, File ▸ Export), in the
+%  private lpsPlus repository: `le_importers.pl` is a symbolic link in this
+%  directory to its `migration/le_importers.pl`, the table le_import.pl reads.
+%  Registering a translator loads none of them; an adapter is loaded when a
+%  file of its kind is opened, or a program is exported. Without the link LE2
+%  offers its own formats only.
+:- ( absolute_file_name(le2('le_importers.pl'), FI, [access(read), file_errors(fail)])
+   -> use_module(FI)
    ;  true
    ).
 
@@ -3144,12 +3161,16 @@ le_suite(all).
 %   `le_extensions.pl`. Matched case-insensitively against a '/'-terminated
 %   path, so a fragment names a whole directory anywhere in the tree. Written
 %   in lower case; the directories as they appear on disk are `insureLE2/`
-%   (the symlinked tree) and `InsurLE2/`.
+%   (the symlinked tree), `InsurLE2/` and `lpsPlus/`.
 %
 %   Add a row here when a new extension-dependent example tree appears —
 %   nothing else needs to change.
 extension_dependent_path_fragment('/insurele2/').
 extension_dependent_path_fragment('/insurle2/').
+%  The private lpsPlus tree: the domain models (customs, Medicare) and the
+%  twins of other systems whose sources may not be published. The twins are
+%  written with the extension constructs (grouped and numbered bodies).
+extension_dependent_path_fragment('/lpsplus/').
 %  The examples of the extension constructs themselves (docs/user/reference/extensions.md).
 extension_dependent_path_fragment('/language/extensions/').
 %  A twin of another system written with an extension construct: embedded

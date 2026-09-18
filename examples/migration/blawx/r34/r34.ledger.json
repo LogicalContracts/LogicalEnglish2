@@ -1507,7 +1507,7 @@
     "licence":"Blawx: MIT",
     "program":"r34",
     "source":"Legal Profession Professional Conduct Rules",
-    "translator":"InsurLE2/migration/blawx (blawx_twin.pl)"
+    "translator":"lpsPlus/migration/blawx (blawx_twin.pl)"
   },
   "pending_expectations":16,
   "source_tests":91

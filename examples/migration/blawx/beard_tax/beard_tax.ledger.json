@@ -217,7 +217,7 @@
     "licence":"Blawx: MIT",
     "program":"beard_tax",
     "source":"Beard Tax Act",
-    "translator":"InsurLE2/migration/blawx (blawx_twin.pl)"
+    "translator":"lpsPlus/migration/blawx (blawx_twin.pl)"
   },
   "pending_expectations":0,
   "source_tests":13

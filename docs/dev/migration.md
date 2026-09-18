@@ -4,15 +4,15 @@
 
 This is the reference for the infrastructure every translator into Logical
 English shares — Phase 0 of the roadmap in
-`InsurLE2/docs/migration/roadmap.md` (§4 and §8). The source-specific
+`lpsPlus/docs/migration/roadmap.md` (§4 and §8). The source-specific
 readers (Socotra, Oracle Intelligent Advisor, Bitcoin Miniscript, Solidity)
-live in the InsurLE repository (`InsurLE2/migration/`) and are described
+live in the lpsPlus repository (`lpsPlus/migration/`) and are described
 there; everything here is core LE and has no knowledge of any source system.
 The twins they write live with the language they are written in: timeless LE
 twins in this repository's `examples/migration/<source>/` (Blawx, LegalRuleML,
 Miniscript, s(CASP)), LE-for-LPS twins in `lps2/examples/migration/<source>/`
 (Daml, Drools, Solidity), and those whose sources are not cleared for
-publication in `InsurLE2/examples/migration/` (`le2_paths:twins_dir/2` there
+publication in `lpsPlus/examples/migration/` (`le2_paths:twins_dir/2` there
 says which).
 
 ```
@@ -39,8 +39,9 @@ program.le with RESIDUE blocks ──Contract Assistant, mode residue──▶ r
 `File > Open` in the editor, and the LPS2 IDE's `File > Open` for a `.sol`,
 send a file that is not Logical English to the operation `importForeign`,
 which hands it to the translator registered for it. A translator registers
-itself with one clause (the InsurLE translators are listed in
-`InsurLE2/migration/le_importers.pl`, loaded by `le_extensions.pl`):
+itself with one clause (the proprietary translators are listed in
+`lpsPlus/migration/le_importers.pl`, which `le_kbs.pl` loads through the
+`le_importers.pl` link in this directory):
 
 ```prolog
 le_import:importer(Id, Title, Extensions, File, Module:Import, Module:Detect).
@@ -100,8 +101,8 @@ KB is the loaded knowledge base, so an exporter reads the program through
 and shows the result to copy or save, with its notes and a button per link.
 Tests: `testing/test_le_import.pl` (a made-up exporter with a check),
 `editor/tests/import-foreign.spec.ts` (both ways, and a refusal). The
-InsurLE exporters and their checks are registered in
-`InsurLE2/migration/le_importers.pl` beside the importers.
+lpsPlus exporters and their checks are registered in
+`lpsPlus/migration/le_importers.pl` beside the importers.
 
 **Exporting: the check before the text.** What an exporter cannot express
 is never dropped silently, and there are two kinds of it. A *problem* loses
@@ -127,7 +128,7 @@ refuses the same way, with the same reply:
 
 | conversion | where | the check |
 |---|---|---|
-| LE → Miniscript, LegalRuleML, Daml | `InsurLE2/migration/{miniscript,legalruleml,daml}` | `check_miniscript/3`, `check_lrml/3`, `check_daml/3` |
+| LE → Miniscript, LegalRuleML, Daml | `lpsPlus/migration/{miniscript,legalruleml,daml}` | `check_miniscript/3`, `check_lrml/3`, `check_daml/3` |
 | LE → s(CASP) (See s(CASP), the s(CASP) engine) | `le_scasp.pl` | `le_scasp_check/3`: an emitter issue that loses meaning (docs/user/reference/scasp.md §8) |
 | LE for LPS → LPS (`getLps`, LPS2's `le_compile`, Deploy as Solidity, the LPS exporters) | `le_lps.pl` | any error issue, including `not_lps` (lps2's docs/user/reference/le-for-lps.md §8): no LPS text |
 | LPS → Solidity | LPS2 `lps_solidity.pl` | `lps_to_solidity/3`'s refusal (reactive rules, Prolog, enumeration, …) |

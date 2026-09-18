@@ -282,8 +282,8 @@ ledger, its source tests as scenarios, and its `sources/` folder.
 
 The twins in Logical English for LPS (Daml, Drools, Solidity) are among the
 examples of LPS2. The twins of Oracle Intelligent Advisor, OIPA, Socotra and
-Epilog are only on installations with the InsurLE examples (under
-`insureLE2/migration/`), for users with access.
+Epilog are only on installations with the lpsPlus examples (under
+`lpsPlus/migration/`), for users with access.
 
 ## See also
 

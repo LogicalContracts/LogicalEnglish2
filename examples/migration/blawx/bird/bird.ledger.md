@@ -1,7 +1,7 @@
 # Migration ledger: bird
 
 Source: New Bird Act — sources/bird.yaml, https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418
-Translator: InsurLE2/migration/blawx (blawx_twin.pl)
+Translator: lpsPlus/migration/blawx (blawx_twin.pl)
 Date: 2026-09-16
 Source licence: Blawx: MIT
 

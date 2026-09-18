@@ -124,18 +124,18 @@ it. For a rulebase, which has no Word text, it holds the uploaded files.
 
 ### Examples to try
 
-Five translated OIA projects are among the InsurLE examples, visible only on
+Five translated OIA projects are among the lpsPlus examples, visible only on
 installations that have them, to users with access. Open them with **File ▸
 Open example from server…**:
 
-- `insureLE2/migration/oia/warranty_claims`: three rules, the smallest;
-- `insureLE2/migration/oia/mom_paternity_leave`: Singapore's Government Paid
+- `lpsPlus/migration/oia/warranty_claims`: three rules, the smallest;
+- `lpsPlus/migration/oia/mom_paternity_leave`: Singapore's Government Paid
   Paternity Leave, with mixed `and`/`or` levels and date arithmetic;
-- `insureLE2/migration/oia/gst_at_settlement`: five Word documents of
+- `lpsPlus/migration/oia/gst_at_settlement`: five Word documents of
   Australian GST withholding, with 55 Excel test cases;
-- `insureLE2/migration/oia/vibect`: a deployed rulebase with a 383-row rule
+- `lpsPlus/migration/oia/vibect`: a deployed rulebase with a 383-row rule
   table and 97 Excel test cases;
-- `insureLE2/migration/oia/dctad`: a deployed rulebase with entities and five
+- `lpsPlus/migration/oia/dctad`: a deployed rulebase with entities and five
   rule tables.
 
 Each comes with its ledger and its `sources/` folder. The public projects
