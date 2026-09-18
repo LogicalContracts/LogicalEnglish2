@@ -5,6 +5,7 @@ and of LE Views (docs/user/tutorials/views.md):
 
 - `judged_damage.le` — provenance-bearing facts and judged templates (§17.1).
 - `otherwise_table.le`, `loaded_table.le` (+ `shipping.csv`) — `otherwise` and decision tables (§17.2, §17.3).
+- `scenario_table.le` — where a table may be written: among a knowledge base's rules, and a table per scenario (§17.3).
 - `sections_benefit.le` — the decision skeleton as sections, with views (§17.4, §17.10).
 - `scoped_notice.le` — source-scoped proof (§17.5).
 - `semantic_match.le`, `semantic_llm.le` — services and semantic predicates (§17.6).

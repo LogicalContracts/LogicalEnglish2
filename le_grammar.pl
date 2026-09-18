@@ -485,7 +485,7 @@ section(scenario(Name, Content, Start, End)) -->
     ;   t(punctuation(':', _)), { Default = [] }
     ),
     { reconstruct_name(Tokens, Name) },
-    kb_content(Content0, End),
+    kb_content(1, Content0, End),
     { append(Default, Content0, Content) }.
 
 % section(query(...)) parses a query section. The body is captured with its
@@ -498,47 +498,10 @@ section(query(Name, [query_raw(BodyTokens, BStart, End)], Start, End)) -->
     body(BodyTokens, End),
     { ( body_first_start(BodyTokens, BStart) -> true ; BStart = Start ) }.
 
-% section(table(...)) parses a decision table (docs/user/reference/language.md §17.3):
-%     the table shipping is, with first match:
-%         band | weight kg | cost
-%         s    | <= 1      | 5
-% or, with its rows in a CSV file,
-%     the table postcode_region is loaded from postcodes.csv, with unique match:
-%         postcode | region
-% The header and the rows are kept as token lines; le_tables.pl interprets them
-% in the second pass, where the template the table is bound to is known.
-% Either header may end with ", with provenance <provenance>" (as a labelled
-% rule, §15.5): the section is then table_prov(Table, ProvTokens).
-section(Section) -->
-    any_indent, kw_start(table_open, Start),
-    section_name_tokens(NameTokens), { NameTokens \== [] },
-    kw(marker_is),
-    (   kw(table_loaded_from)
-    ->  table_source_tokens(SrcTokens), { SrcTokens \== [],
-        reconstruct_resource_name(SrcTokens, File), Source = file(File) }
-    ;   { Source = inline }
-    ),
-    (   t(punctuation(',', _)), kw(with_provenance)
-    ->  rule_provenance_tokens(ProvTokens), { Policy = unique }
-    ;   t(punctuation(',', _)), kw(table_with)
-    ->  hit_policy(Policy),
-        (   t(punctuation(',', _)), kw(with_provenance)
-        ->  rule_provenance_tokens(ProvTokens)
-        ;   { ProvTokens = [] }
-        )
-    ;   { Policy = unique, ProvTokens = [] }
-    ),
-    t(punctuation(':', loc(_, HEnd))),
-    table_line(Header, _, HLineEnd),
-    table_rows(Rows),
-    {   reconstruct_name(NameTokens, Name),
-        (   last(Rows, row(_, _, End0)) -> End = End0
-        ;   HLineEnd > HEnd -> End = HLineEnd
-        ;   End = HEnd
-        ),
-        Table = table(Name, Policy, Source, Header, Rows, Start, End),
-        ( ProvTokens == [] -> Section = Table ; Section = table_prov(Table, ProvTokens) )
-    }.
+% section(table(...)) parses a decision table written as a section of its own.
+% The same block is also an item of a knowledge base or a scenario
+% (kb_items//1), so the grammar of a table lives in table_block//1.
+section(Section) --> table_block(Section).
 
 % section(view(...)) parses a view (docs/user/reference/language.md §17.10): "the view <name>
 % is:" and its sentences, which say how a screen shows the program — which
@@ -672,8 +635,74 @@ hit_policy(first) --> kw(first_match), !.
 hit_policy(all) --> kw(all_matches), !.
 hit_policy(unique) --> kw(unique_match).
 
+% table_block(Table) parses a decision table (docs/user/reference/language.md §17.3):
+%     the table shipping is, with first match:
+%         band | weight kg | cost
+%         s    | <= 1      | 5
+% or, with its rows in a CSV file,
+%     the table postcode_region is loaded from postcodes.csv, with unique match:
+%         postcode | region
+% The header and the rows are kept as token lines; le_tables.pl interprets them
+% in the second pass, where the template the table is bound to is known.
+% Either header may end with ", with provenance <provenance>" (as a labelled
+% rule, §15.5): the block is then table_prov(Table, ProvTokens).
+table_block(Section) --> table_block(_, Section).
+
+table_block(Indent, Section) -->
+    any_indent(Indent), kw_start(table_open, Start),
+    section_name_tokens(NameTokens), { NameTokens \== [] },
+    kw(marker_is),
+    (   kw(table_loaded_from)
+    ->  table_source_tokens(SrcTokens), { SrcTokens \== [],
+        reconstruct_resource_name(SrcTokens, File), Source = file(File) }
+    ;   { Source = inline }
+    ),
+    (   t(punctuation(',', _)), kw(with_provenance)
+    ->  rule_provenance_tokens(ProvTokens), { Policy = unique }
+    ;   t(punctuation(',', _)), kw(table_with)
+    ->  hit_policy(Policy),
+        (   t(punctuation(',', _)), kw(with_provenance)
+        ->  rule_provenance_tokens(ProvTokens)
+        ;   { ProvTokens = [] }
+        )
+    ;   { Policy = unique, ProvTokens = [] }
+    ),
+    t(punctuation(':', loc(_, HEnd))),
+    table_line(Header, _, HLineEnd),
+    { ( has_cell_separator(Header) -> RowsHaveCells = true ; RowsHaveCells = false ) },
+    table_data_rows(RowsHaveCells, Rows),
+    {   reconstruct_name(NameTokens, Name),
+        (   last(Rows, row(_, _, End0)) -> End = End0
+        ;   HLineEnd > HEnd -> End = HLineEnd
+        ;   End = HEnd
+        ),
+        Table = table(Name, Policy, Source, Header, Rows, Start, End),
+        ( ProvTokens == [] -> Section = Table ; Section = table_prov(Table, ProvTokens) )
+    }.
+
+% The rows of a decision table: the lines that hold a cell separator. A table
+% may be written inside a knowledge base or a scenario, among its rules and
+% facts (docs/user/reference/language.md §17.3), so the rows end at the first
+% line that is not one — an ordinary sentence, which belongs to the section the
+% table sits in — and not only at the next section header. A row with the wrong
+% number of cells is still a row (table_row_width says so); a line with no cell
+% separator at all is not.
+%
+% A table of a SINGLE column has no separator to go by: its rows are lines like
+% any other, so they run to the next section, as every table's did. Such a table
+% is written as a section of its own.
+table_data_rows(false, Rows) --> table_rows(Rows).
+table_data_rows(true, [row(Ts, S, E)|Rs]) -->
+    \+ next_section_start, table_line(Ts, S, E), { has_cell_separator(Ts) }, !,
+    table_data_rows(true, Rs).
+table_data_rows(true, []) --> [].
+
+has_cell_separator(Tokens) :-
+    member(T, Tokens), extract_simple_word(T, '|'), !.
+
 % One line of a table: the tokens between two line breaks (comments dropped,
-% comment-only lines skipped). Stops at the next section.
+% comment-only lines skipped). Stops at the next section. Used by the view
+% section, whose lines are sentences rather than rows.
 table_rows([row(Ts, S, E)|Rs]) -->
     \+ next_section_start, table_line(Ts, S, E), !, table_rows(Rs).
 table_rows([]) --> [].
@@ -938,21 +967,38 @@ resource_tokens([T|Ts]) -->
 is_punctuation(punctuation(P, _), P).
 
 % kb_content(Content, End) parses the items within a knowledge base or scenario.
-kb_content(Content, End) -->
-    kb_items(Content),
+% MinTableIndent is the least indentation at which a decision table counts as an
+% item of the section rather than as a section of its own: 0 in a knowledge base,
+% whose rules are written at the margin, and 1 in a scenario, whose facts are
+% indented — so that a table written at the margin after a scenario is the global
+% table it has always been, and only an indented one belongs to the scenario.
+kb_content(Content, End) --> kb_content(0, Content, End).
+
+kb_content(MinTableIndent, Content, End) -->
+    kb_items(MinTableIndent, Content),
     { ( Content = [] -> End = 0; last(Content, Last), get_item_end(Last, End)) }.
 
 get_item_end(rule(_, _, _, _, End, _), End) :- !.
 % A labelled rule with provenance ends where its rule does: the item's last
 % argument is the provenance's token list, not a position.
 get_item_end(rule_prov(Rule, _), End) :- !, get_item_end(Rule, End).
+% A table with provenance likewise ends where its table does.
+get_item_end(table_prov(Table, _), End) :- !, get_item_end(Table, End).
 get_item_end(Item, End) :-
     Item =.. List,
     last(List, End).
 
 % kb_items([I|Is]) parses a sequence of rules or facts.
-kb_items([I|Is]) --> \+ next_section_start, kb_item(I), !, kb_items(Is).
-kb_items([]) --> [].
+% A decision table is an item like any other: written among the rules of a
+% knowledge base, or among the facts of a scenario, it does not end the section
+% it is in (docs/user/reference/language.md §17.3). It is tried before the
+% next-section test because a table header DOES open a section at the top level
+% (section_opener//0).
+kb_items(Items) --> kb_items(0, Items).
+
+kb_items(Min, [I|Is]) --> table_block(N, I), { N >= Min }, !, kb_items(Min, Is).
+kb_items(Min, [I|Is]) --> \+ next_section_start, kb_item(I), !, kb_items(Min, Is).
+kb_items(_, []) --> [].
 
 % kb_item(section_marker(Name, Start, End)) divides the rules of a knowledge
 % base into named sections. Every rule that follows the marker belongs to
@@ -2636,37 +2682,68 @@ second_pass_section(Templates, M, scenario(Name, Content, Start, End), scenario(
     ->  le_provenance:scenario_default_provenance(M, Name, ProvTokens, PS, PE, Default)
     ;   Content1 = Content0, Default = none
     ),
-    le_provenance:with_default_provenance(Default,
-        maplist(le_grammar:second_pass_scenario_item_with_module(Templates, M), Content1, NewContent)).
+    with_scenario_scope(Name,
+        le_provenance:with_default_provenance(Default,
+            maplist(le_grammar:second_pass_scenario_item_with_module(Templates, M), Content1, NewContent))).
 second_pass_section(Templates, M, query(Name, Content, Start, End), query(Name, NewContent, Start, End)) :-
     exclude(is_section_marker, Content, Content1),
     maplist(second_pass_query_item_with_module(Templates, M), Content1, NewContent).
-% A decision table: interpreted by le_tables.pl against the templates, which
-% records le_table/6 and le_table_row/6; le_kbs then asserts the clause that
-% binds the table's template (process_section_acc(table_done(...))).
-second_pass_section(Templates, M, table_prov(Table, ProvTokens), Done) :-
-    !,
-    second_pass_section(Templates, M, Table, Done),
-    Table = table(Name, _, _, _, _, Start, End),
-    format(atom(ID), 'table_~w', [Name]),          % the id of the table's clause
-    le_provenance:record_rule_provenance(M, ID, ProvTokens, Start, End),
-    le_provenance:record_table_row_provenance(M, Name).
+% A decision table written as a section of its own: a GLOBAL table.
+second_pass_section(Templates, M, Table, Done) :-
+    is_table_item(Table), !,
+    compile_table_item(Templates, M, global, Table, Done).
 second_pass_section(_Templates, M, view(Name, Rows, Start, End), view_done(Name, Start, End)) :-
     !,
     le_views:record_view_source(M, Name, Rows, Start, End).
-second_pass_section(Templates, M, table(Name, Policy, Source0, Header, Rows, Start, End),
-                    table_done(Name, Start, End)) :-
+second_pass_section(_, _, S, S). % Keep other sections as is
+
+%!  compile_table_item(+Templates, +M, +Scope, +Table, -Done) is det.
+%
+%   A decision table, wherever it is written: a section of its own, an item of
+%   a knowledge base (Scope global) or an item of a scenario (Scope
+%   scenario(Name) — a table that holds only while that scenario is the case,
+%   docs/user/reference/language.md §17.3). It is interpreted by le_tables.pl
+%   against the templates, which records le_table/6 and le_table_row/6 under
+%   the table's KEY (le_tables:table_key/3); le_kbs then asserts the clause
+%   that binds the table's template (process_section_acc(table_done(...))).
+compile_table_item(Templates, M, Scope, table_prov(Table, ProvTokens), Done) :-
     !,
+    compile_table_item(Templates, M, Scope, Table, Done),
+    Table = table(Name, _, _, _, _, Start, End),
+    le_tables:table_key(Scope, Name, Key),
+    le_tables:table_clause_id(Key, ID),             % the id of the table's clause
+    le_provenance:record_rule_provenance(M, ID, ProvTokens, Start, End),
+    le_provenance:record_table_row_provenance(M, Key).
+compile_table_item(Templates, M, Scope, table(Name, Policy, Source0, Header, Rows, Start, End),
+                   table_done(Key, Start, End)) :-
+    le_tables:table_key(Scope, Name, Key),
     (   Source0 = file(File0)
     ->  table_file(File0, M, Source, Start, End)
     ;   Source = inline
     ),
     (   Source == missing
     ->  true
-    ;   le_tables:compile_table(M, Templates, Name, Policy, Source, Header, Rows, Start, End),
-        le_provenance:record_table_row_provenance(M, Name)
+    ;   le_tables:compile_table(M, Templates, Key, Policy, Source, Header, Rows, Start, End),
+        le_provenance:record_table_row_provenance(M, Key)
     ).
-second_pass_section(_, _, S, S). % Keep other sections as is
+
+is_table_item(table(_, _, _, _, _, _, _)).
+is_table_item(table_prov(_, _)).
+
+%!  with_scenario_scope(+Name, :Goal) is semidet.
+%
+%   Runs Goal with the scope a table written among the scenario's facts is
+%   compiled under (current_table_scope/1).
+:- meta_predicate with_scenario_scope(+, 0).
+
+with_scenario_scope(Name, Goal) :-
+    (   nb_current(le_table_scope, Old) -> true ; Old = global ),
+    setup_call_cleanup(nb_setval(le_table_scope, scenario(Name)),
+                       Goal,
+                       nb_setval(le_table_scope, Old)).
+
+current_table_scope(Scope) :-
+    ( nb_current(le_table_scope, S) -> Scope = S ; Scope = global ).
 
 % Resolve a loaded table's file against the including program's directory,
 % under the same local-path restriction as included resources.
@@ -2688,9 +2765,18 @@ table_file(File0, M, Source, Start, End) :-
 is_section_marker(section_marker(_, _, _)).
 
 second_pass_ontology_item_with_module(Templates, M, Item, NewItem) :-
+    is_table_item(Item), !,
+    compile_table_item(Templates, M, global, Item, NewItem).
+second_pass_ontology_item_with_module(Templates, M, Item, NewItem) :-
     second_pass_ontology_item(Templates, Item, NewItem, M),
     check_stray_asterisks(Item, NewItem, M).
 
+% A decision table written among a scenario's facts holds only while that
+% scenario is the case (docs/user/reference/language.md §17.3).
+second_pass_scenario_item_with_module(Templates, M, Item, NewItem) :-
+    is_table_item(Item), !,
+    current_table_scope(Scope),
+    compile_table_item(Templates, M, Scope, Item, NewItem).
 second_pass_scenario_item_with_module(Templates, M, rule_prov(Rule, ProvTokens), NewItem) :- !,
     second_pass_scenario_item_with_module(Templates, M, Rule, NewItem),
     Rule = rule(_, _, _, Start, End, ID),
@@ -2718,6 +2804,11 @@ second_pass_content(Items, Templates, NewItems, M) :-
     ( le_kbs:do_log -> length(Items, L), print_message(informational,'Second pass content: ~w items~n' - [L]); true),
     maplist(second_pass_item_with_module(Templates, M), Items, NewItems).
 
+% A decision table written among the rules of a knowledge base is a global
+% table, exactly as one written as a section of its own.
+second_pass_item_with_module(Templates, M, Item, NewItem) :-
+    is_table_item(Item), !,
+    compile_table_item(Templates, M, global, Item, NewItem).
 second_pass_item_with_module(Templates, M, rule_prov(Rule, ProvTokens), NewItem) :- !,
     % A rule whose label carries provenance: compile the rule as any other,
     % then record the provenance against its label.

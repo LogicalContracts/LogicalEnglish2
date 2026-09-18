@@ -25,13 +25,26 @@
     policy for relations).
 
     The table compiles to one clause, Head :- le_table(Name, Args), plus row
-    records; the reasoner solves le_table/2 through table_solution/5 and
+    records; the reasoner solves le_table/2 through table_solution/6 and
     explains an answer by the row that produced it.
+
+    A table may be written as a section of its own, among the rules of a
+    knowledge base (both GLOBAL tables) or among the facts of a scenario, and
+    a table written there holds only while that scenario is the case — the
+    rates in force that year, the price list of that case. That is its SCOPE:
+    the records of a scenario's table are keyed by in_scenario(Scenario, Name)
+    rather than by Name (table_key/3), and table_solution/6 reads the session's
+    scenario to choose between a scenario's table and the global one of the
+    same name, which the scenario's shadows.
 */
 
 :- module(le_tables, [
-    compile_table/9,        % +M, +Templates, +Name, +Policy, +Source, +HeaderTokens, +RowLines, +Start, +End
-    table_solution/5,       % +KM, +Name, +Args, -RowId, -RowRange
+    compile_table/9,        % +M, +Templates, +Key, +Policy, +Source, +HeaderTokens, +RowLines, +Start, +End
+    table_solution/6,       % +SM, +KM, +Name, +Args, -RowId, -RowRange
+    table_key/3,            % +Scope, +Name, -Key
+    table_name/2,           % +Key, -Name
+    table_scenario/2,       % +Key, -Scenario
+    table_clause_id/2,      % +Key, -Id
     table_row_words/3       % +Name, +RowId, -Words
 ]).
 
@@ -40,15 +53,46 @@
 
 :- dynamic csv_table_cache/4.     % csv_table_cache(Path, Stamp, HeaderCells, Rows)
 
-%!  compile_table(+M, +Templates, +Name, +Policy, +Source, +Header, +Rows, +Start, +End) is det.
+%!  table_key(+Scope, +Name, -Key) is det.
 %
-%   Called from the second pass. Records in module M:
-%       le_table(Name, Policy, F/A, Columns, IdColumn, Source)
-%       le_table_row(Name, Index, RowId, Cells, RowStart, RowEnd)   (inline rows)
+%   The key a table's records are stored under: its own name when the table is
+%   global (a section of its own, or an item of a knowledge base), and
+%   in_scenario(Scenario, Name) when it is written among a scenario's facts.
+table_key(global, Name, Name) :- !.
+table_key(scenario(Scenario), Name, in_scenario(Scenario, Name)) :- !.
+table_key(_, Name, Name).
+
+%!  table_name(+Key, -Name) is det.
+%
+%   The table's own name — what its template says and what its issues and
+%   explanations call it — whatever its scope.
+table_name(in_scenario(_, Name), Name) :- !.
+table_name(Name, Name).
+
+%!  table_scenario(+Key, -Scenario) is semidet.
+%
+%   The scenario a table belongs to; fails for a global table.
+table_scenario(in_scenario(Scenario, _), Scenario).
+
+%!  table_clause_id(+Key, -Id) is det.
+%
+%   The id of the clause binding the table's template, as source ranges and
+%   provenance records name it.
+table_clause_id(in_scenario(Scenario, Name), Id) :- !,
+    format(atom(Id), 'table_~w_in_~w', [Name, Scenario]).
+table_clause_id(Name, Id) :- format(atom(Id), 'table_~w', [Name]).
+
+%!  compile_table(+M, +Templates, +Key, +Policy, +Source, +Header, +Rows, +Start, +End) is det.
+%
+%   Called from the second pass. Records in module M, under the table's Key
+%   (table_key/3 — its name, or in_scenario(Scenario, Name)):
+%       le_table(Key, Policy, F/A, Columns, IdColumn, Source)
+%       le_table_row(Key, Index, RowId, Cells, RowStart, RowEnd)   (inline rows)
 %   and returns nothing: the clause binding the template is asserted by
 %   le_kbs when the section is processed (le_table_clause/4 below).
 %   Problems are asserted as le_issue/6 against the table.
-compile_table(M, Templates, Name, Policy, Source, HeaderTokens, RowLines, Start, End) :-
+compile_table(M, Templates, Key, Policy, Source, HeaderTokens, RowLines, Start, End) :-
+    table_name(Key, Name),
     split_cells(HeaderTokens, HeaderCells0),
     citation_column(HeaderCells0, Cite, HeaderCells),
     maplist(cell_text, HeaderCells, Columns),
@@ -70,9 +114,9 @@ compile_table(M, Templates, Name, Policy, Source, HeaderTokens, RowLines, Start,
             )
         ;   Rows = RowLines
         ),
-        assertz(M:le_table(Name, Policy, F/A, Columns, IdCol, Source)),
+        assertz(M:le_table(Key, Policy, F/A, Columns, IdCol, Source)),
         forall(nth1(I, Rows, Row),
-               compile_row(M, Name, I, K, IdCol, Cite, Row, Start, End))
+               compile_row(M, Key, I, K, IdCol, Cite, Row, Start, End))
     ;   table_issue(M, error, table_without_template, [name-Name], Start, End)
     ),
     !.
@@ -102,7 +146,8 @@ table_word(TW) :-
 
 contiguous(Sub, List) :- append(_, Tail, List), append(Sub, _, Tail), !.
 
-compile_row(M, Name, I, K, IdCol, Cite, row(Tokens, RS, RE), TStart, TEnd) :- !,
+compile_row(M, Key, I, K, IdCol, Cite, row(Tokens, RS, RE), TStart, TEnd) :- !,
+    table_name(Key, Name),
     split_cells(Tokens, CellToks0),
     (   Cite = cite(CiteCol, _),
         nth1(CiteCol, CellToks0, CiteToks, CellToks)
@@ -119,9 +164,9 @@ compile_row(M, Name, I, K, IdCol, Cite, row(Tokens, RS, RE), TStart, TEnd) :- !,
             citation_cell(CiteToks, Quote)
         ->  (   last(Cells, Out), \+ output_cell(Out)
             ->  table_issue(M, error, table_bad_output, [name-Name, row-RowId], RS, RE)
-            ;   assertz(M:le_table_row(Name, I, RowId, Cells, RS, RE)),
+            ;   assertz(M:le_table_row(Key, I, RowId, Cells, RS, RE)),
                 (   Quote \== none, RS \== 0, Cite = cite(_, Doc)
-                ->  assertz(M:le_table_row_citation(Name, RowId, Doc, Quote, RS, RE))
+                ->  assertz(M:le_table_row_citation(Key, RowId, Doc, Quote, RS, RE))
                 ;   true
                 )
             )
@@ -366,20 +411,40 @@ csv_cell_text(Cell, Text) :-
 % Solving
 % ---------------------------------------------------------------------------
 
-%!  table_solution(+KM, +Name, +Args, -RowId, -RowRange) is nondet.
+%!  table_solution(+SM, +KM, +Name, +Args, -RowId, -RowRange) is nondet.
 %
 %   Args (the template arguments, output last) are answered by table Name
 %   under its hit policy. RowRange is range(Start, End) for an inline row, or
-%   none for a loaded one.
-table_solution(KM, Name, Args, RowId, RowRange) :-
-    KM:le_table(Name, Policy, _, Columns, _, _),
+%   none for a loaded one. SM is the reasoning session, which says which
+%   scenario is the case: a table of that scenario answers instead of the
+%   global table of the same name (table_in_force/4).
+table_solution(SM, KM, Name, Args, RowId, RowRange) :-
+    table_in_force(SM, KM, Name, Key),
+    KM:le_table(Key, Policy, _, Columns, _, _),
     append(Inputs, [Output], Args),
     findall(I-RowId0-Cells-Range,
-            ( KM:le_table_row(Name, I, RowId0, Cells, S, E),
+            ( KM:le_table_row(Key, I, RowId0, Cells, S, E),
               ( S == 0 -> Range = none ; Range = range(S, E) ) ),
             Rows),
     inputs_bound_or_values(Name, Columns, Inputs, Rows),
     table_policy(Policy, Name, Inputs, Output, Rows, RowId, RowRange).
+
+%!  table_in_force(+SM, +KM, +Name, -Key) is det.
+%
+%   The table named Name that answers now: the one written in a scenario the
+%   session has loaded, when there is one, otherwise the global table. A
+%   scenario's table shadows a global table of the same name for that
+%   scenario only (docs/user/reference/language.md §17.3).
+table_in_force(SM, KM, Name, Key) :-
+    (   nonvar(SM), SM \== none,
+        current_predicate(SM:le_current_scenario/1),
+        current_predicate(KM:le_table/6),
+        SM:le_current_scenario(Scenario),
+        K = in_scenario(Scenario, Name),
+        KM:le_table(K, _, _, _, _, _)
+    ->  Key = K
+    ;   Key = Name
+    ).
 
 table_policy(first, _Name, Inputs, Output, Rows, RowId, RowRange) :-
     once(( member(_-RowId-Cells-RowRange, Rows),
