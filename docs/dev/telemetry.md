@@ -40,6 +40,14 @@ fragment (`#lzp=…`) never leaves the browser, but check *Top paths* after
 the first deployment to confirm that no `?text=` query string is kept (see
 §4).
 
+One class of browser report is dropped before it is sent (`ignoreErrors` in
+`telemetry.js`): "Object Not Found Matching Id:*N*, MethodName:update,
+ParamCount:4". It is not this page's error. Outlook — and the Office link
+scanner behind it — opens an address in a browser of its own and injects a
+script into the page; when that script fails, the page is what reports it,
+with no stack, from a window nobody was looking at. Nothing in this
+repository can cause it or fix it.
+
 An error message is written by the code that raised it, and a few Prolog
 errors quote the term they were about (a type error names the value it
 found); with 1000 characters at most, that is the one way a fragment of a
