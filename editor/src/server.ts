@@ -84,6 +84,9 @@ connection.onRequest('textDocument/semanticTokens/full', (params) => {
     // without this a looser "… under …" template would paint just "under" inside it.
     const declSections = templateDeclarationRanges(text);
     const inDeclaration = (offset: number) => declSections.some(r => offset >= r.start && offset < r.end);
+    // Comments are prose ABOUT the program, not program text: never colour inside one.
+    const comments = commentRanges(text);
+    const inComment = (start: number, end: number) => comments.some(c => start < c.end && end > c.start);
     const tokens: { start: number, length: number, typeIndex: number }[] = [];
 
     // 1. Find all template instances, most specific (longest) template first. A
@@ -120,6 +123,7 @@ connection.onRequest('textDocument/semanticTokens/full', (params) => {
                     if (lineEnd < 0) lineEnd = text.length;
                     if (text.slice(lineStart, lineEnd).includes('*')) continue;   // a template definition line
                     if (inDeclaration(matchStart)) continue;
+                    if (inComment(matchStart, matchEnd)) continue;
                     if (overlapsClaimed(matchStart, matchEnd)) continue;
                     claimedSpans.push({ start: matchStart, end: matchEnd });
                     tokens.push({ start: matchStart, length: match[0].length, typeIndex: 6 }); // templateWord
@@ -171,6 +175,8 @@ connection.onRequest('textDocument/semanticTokens/full', (params) => {
                 if (text.slice(lineStart, lineEnd).includes('*')) continue;
                 // Inside a template-declaration section: not an instance, leave it be.
                 if (inDeclaration(matchStart)) continue;
+                // Inside a comment: prose, not an instance, leave it be.
+                if (inComment(matchStart, matchEnd)) continue;
                 // A more specific template already owns this span — leave it be.
                 if (overlapsClaimed(matchStart, matchEnd)) continue;
                 claimedSpans.push({ start: matchStart, end: matchEnd });
@@ -353,6 +359,19 @@ interface Template {
 // Character ranges (start..end offsets) of each template-declaration section body —
 // the lines between a "the templates/predicates/fluents/events are:" header and the
 // next section header. Used to keep instance colouring out of declaration lines.
+// Character ranges (start..end offsets) of the document's comments — a "%" to the
+// end of its line, and a /* ... */ block. Taken from the shared tokenizer, so a
+// "%" inside a quoted string is text, not the start of a comment. Instance
+// colouring must never touch them: a comment that happens to paraphrase a rule
+// ("the driver stops the train in a station if ...", a large header comment of
+// examples/moreExamples/collections/kowalski-book/underground_emergency.le) would
+// otherwise be painted like the rule it describes.
+function commentRanges(text: string): { start: number, end: number }[] {
+    return tokenize(text)
+        .filter(t => t.type === TokenType.Comment)
+        .map(t => ({ start: t.start, end: t.end }));
+}
+
 function templateDeclarationRanges(text: string): { start: number, end: number }[] {
     const ranges: { start: number, end: number }[] = [];
     const sectionHeaderRegex = /^(?:the[ \t]+knowledge[ \t]+base|the[ \t]+contract|the[ \t]+ontology|the[ \t]+predicates|the[ \t]+templates|the[ \t]+fluents|the[ \t]+events|the[ \t]+target[ \t]+language|scenario|query)\b/im;
@@ -531,8 +550,9 @@ connection.onHover((params) => {
         let leType = 'Unknown';
         let description = '';
 
-        // 1. Check if it's part of a template instance first
-        const templates = templatesOf(params.textDocument.uri, text);
+        // 1. Check if it's part of a template instance first (never inside a
+        // comment: its words are prose about the program, not an instance).
+        const templates = token.type === TokenType.Comment ? [] : templatesOf(params.textDocument.uri, text);
         let templateMatch = null;
         
         // Sort templates by length descending to find the most specific match

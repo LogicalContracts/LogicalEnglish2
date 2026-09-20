@@ -1,6 +1,6 @@
-# Logical Thinking in the Age of AI: examples
+# Logical Thinking in the Age of AI: example drafts (not reviewed)
 
-Working Logical English programs for slides 5 to 8 of the draft presentation
+Preliminary draft Logical English programs for slides 5 to 8 of the draft presentation
 *Logical Thinking in the Age of AI: A Core Competency for Society*. Slide 4
 already points to `citizenship` and slide 9 to `cgt_assets`. Every program
 here passes its embedded tests (`expects answers ...`), and they run in the

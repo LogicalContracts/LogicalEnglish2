@@ -1,6 +1,6 @@
 # The Proof Game — A Teacher's Guide
 
-*Kind: guide · Audience: teachers · Status: current (2026-09-15)*
+*Kind: guide · Audience: teachers · Status: current (2026-09-20)*
 
 The **Proof Game** turns a Logical English query into a hands-on puzzle. Instead of
 reading a proof, students *build* one: they drag rules and facts together until they
@@ -41,8 +41,8 @@ guide use `examples/moreExamples/happy_dragon.le`.
    dropdowns.
 3. Press the **Proof Game** button. The game opens in a new window.
 
-> A query only becomes playable if it actually has an answer in the chosen scenario
-> — you can't build a proof of something that isn't true.
+> A query with **no** answer in the chosen scenario is playable too: the game then
+> builds the proof that it **fails** (see §6.1).
 
 ---
 
@@ -54,7 +54,7 @@ guide use `examples/moreExamples/happy_dragon.le`.
 | **Rule card** | A rule from the knowledge base: a **head** on top and one **condition** box per body condition underneath | Its head plugs **upward** into whatever it helps prove; each condition has a socket that must be filled. |
 | **Fact card** | A plain fact from the scenario or knowledge base | Plugs upward to satisfy a condition. Facts have no conditions of their own — they are where a branch of the proof ends. |
 | **Assumption card** (dashed amber border) | An **assumable** statement — a template declared `; assumable`, or an *"it is unknown whether …"* scenario item | Plays like a fact, but it is not *proved* — connecting it **assumes** it is true. This is how the game handles **abduction**: explaining an observation by assuming a candidate cause (e.g. *"the grass is wet"* because — assumed — *"it rained"*). |
-| **FAIL card** (a red stop sign) | "This does not hold" | Used to satisfy a **negation** — an *"it is not the case that …"* condition. |
+| **FAIL card** (a red stop sign) | "This does not hold" | Used to satisfy a **negation** — an *"it is not the case that …"* condition — and, in a game of a query that has no answer (§6.1), to say that nothing could prove a goal. |
 
 **Connections** are arrows. You make one by dragging from a card's **output**
 (its top) to a **condition socket** (the bottom of a condition box). An arrow means
@@ -167,6 +167,38 @@ each negation flips the polarity.
 needs **one** way to succeed; a negation needs **every** way to **fail**. Failing
 mode lets students experience that asymmetry instead of being told it.
 
+### 6.1 A query with no answer: playing the failure
+
+The same idea covers a **whole query that has no answer**. Choose such a scenario
+and query and open the game as usual: the toolbar says *"No answer: build the proof
+that this query FAILS"*, and the **query card itself** is in failing mode (dark
+red). What goes under it is a failure, exactly as under a negation: a **FAIL** card
+where nothing could prove a goal, and **one failing-mode card per rule that tried**,
+each with the condition it failed on built in turn. The proof is complete when every
+way the query could have succeeded has been shown to fail — **Show Proof** builds
+that answer key, as always.
+
+This is the game's counterpart of *Why not* in the editor (a failed query's unmet
+conditions): there the reasons are read out, here the class builds them.
+
+**Worked example.** A claim is payable if it is for an item with code "A1",
+furnished to a person, and that person is hypoxemic; a person is hypoxemic if their
+saturation is at most 88. The record states the item and the person, but no
+saturation. Query *"which claim is payable"* — no answer:
+
+```
+which claim is payable                 (fails)
+  a claim is payable                   (the rule that tried; its first three
+                                        conditions hold, the fourth does not)
+    Ann is hypoxemic                   (fails)
+      a person is hypoxemic            (the rule that tried)
+        the saturation of Ann is a number   (FAIL — the record is silent)
+```
+
+**Teaching point:** a query that fails is not an error and not a "no"; it is a
+conclusion with a proof of its own, and the proof names exactly what the case
+lacks.
+
 ---
 
 ## 7. Choosing which answer to prove
@@ -213,6 +245,7 @@ for *alice*). Because each card can only be wired into one place, you make a cop
 | Control | What it does |
 |---------|--------------|
 | **Answer to prove** | (Appears only with several answers.) Chooses which answer to build a proof for. |
+| **No answer: build the proof that this query FAILS** | (Appears only for a query with no answer.) A reminder that the whole board is in failing mode — see §6.1. |
 | **Child Mode (Hide Text)** | Hides all wording and shows only coloured shapes — students match by **colour and structure**, not reading. Great for younger learners or for emphasising the *shape* of a proof. Unchecked = full text. |
 | **Clone Tool** | (Appears only when needed.) Click to enable, then click a card to duplicate it. |
 | **Show Proof** | Builds the complete proof automatically — the "answer key". Use it to demo, to check a student's attempt, or to reveal a failure tree that is hard to find. |
@@ -260,7 +293,8 @@ A 30–40 minute session with `happy_dragon.le`:
 - **Clash** — a contradiction: a variable forced to be two different things.
 - **Proof tree** — query at the top, rules in the middle, facts at the bottom.
 - **Negation as failure** — something counts as "not true" precisely when every
-  attempt to prove it **fails**.
+  attempt to prove it **fails**. A query with no answer is played this way, whole
+  (§6.1).
 - **Assumption / abduction** — an assumable statement cannot be proved, only
   **assumed**; using one explains an observation by a hypothesis ("the grass is
   wet **if we assume** it rained").

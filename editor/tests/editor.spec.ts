@@ -218,6 +218,56 @@ test.describe('Logical English Editor', () => {
     await switchTo('Query', '#query-tab', '#assistant-tab');
   });
 
+  test('a comment is not coloured as a template instance', async ({ page }) => {
+    // Regression: the semantic-token provider (src/server.ts) matched template
+    // instances anywhere in the text, comments included — so the header comment
+    // of examples/moreExamples/collections/kowalski-book/underground_emergency.le,
+    // which paraphrases the rules in prose ("the driver stops the train IN a
+    // station if …"), was painted like the rules it describes.
+    test.setTimeout(60000);
+    const src = [
+      'the target language is: prolog.',
+      '',
+      '% Notes: the driver stops the train in a station if alerted,',
+      '% and a part of the train is in the station.',
+      '',
+      'the templates are:',
+      '*a driver* stops *a train* in *a station*.',
+      '*a driver* is alerted.',
+      '',
+      'the knowledge base t includes:',
+      '',
+      'the driver stops the train in a station',
+      '    if the driver is alerted.',
+      '',
+    ].join('\n');
+    await page.goto('index.html?text=' + encodeURIComponent(src));
+    await page.waitForFunction(() =>
+      typeof (window as any).monaco !== 'undefined' &&
+      (window as any).monaco.languages.getLanguages().some((l: any) => l.id === 'le')
+    );
+    // The token classes of the rendered line that STARTS WITH `text` (the
+    // comment quotes the rule, so "contains" would find the wrong line).
+    const classesOf = (text: string) => page.evaluate((t: string) => {
+      //  Monaco renders every space as a non-breaking one.
+      const textOf = (l: Element) => (l.textContent || '').replace(/\u00a0/g, ' ').trim();
+      const line = [...document.querySelectorAll('.view-line')]
+        .find((l) => textOf(l).startsWith(t));
+      if (!line) return null;
+      return [...line.querySelectorAll('span > span')].map((s) => (s as HTMLElement).className);
+    }, text);
+    // Wait until the semantic tokens have arrived: the RULE line is painted in
+    // several colours (template words and arguments) once they have.
+    await expect.poll(async () => {
+      const cs = await classesOf('the driver stops the train in a station');
+      return cs ? new Set(cs).size : 0;
+    }, { timeout: 30000 }).toBeGreaterThan(1);
+    // The comment says the same thing in prose, and is one colour throughout.
+    const comment = await classesOf('% Notes: the driver stops');
+    expect(comment).not.toBeNull();
+    expect(new Set(comment!).size).toBe(1);
+  });
+
   test('tolerates extra spaces in section headers when highlighting', async ({ page }) => {
     // Regression: a header with extra spaces (e.g. "the  templates are:") must
     // still be recognised, so the template definition lines below are

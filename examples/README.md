@@ -18,4 +18,8 @@ that repository is linked there, for users with access.
 
 **Names.** An example is opened by its name: `/editor/index.html?example=<name>`.
 When an example moves, its old name keeps working through
-`example_alias/2` / `example_dir_alias/2` in `le_kbs.pl`.
+`example_alias/2` / `example_dir_alias/2` in `le_kbs.pl`, and
+`testing/test_example_alias.pl` checks every row. For readers, the same thing is
+in the manual: [Example names, and the names they used to
+have](../docs/user/guide/editor.md#example-names-and-the-names-they-used-to-have),
+which carries the table of directory renamings (the test keeps the two in step).
