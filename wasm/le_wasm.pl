@@ -27,7 +27,10 @@
         talking a websocket to the editor;
       * no accounts, so nothing restricted: the build serves the examples it
         was built with, and le_api.pl's user is anonymous;
-      * no sub-processes, so no Assistant (it runs `opencode`);
+      * no sub-processes, so no *Deep* Assistant and no Contract Assistant
+        (both run `opencode`); the **Light Assistant runs**, in the request
+        rather than on a thread of its own, reaching its model through the
+        page's proxy;
       * time limits measured in inferences rather than seconds
         (wasm/shims/time.pl);
       * no s(CASP): it is an optional pack and the payload does not carry one,

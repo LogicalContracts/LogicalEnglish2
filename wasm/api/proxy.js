@@ -8,8 +8,14 @@
  *
  * So this: a Vercel Function, same origin as the page, that forwards a request
  * to an address on a list its operator wrote, adding the key from the
- * environment on the way through. The page never holds a key and can never
- * name a host that is not on the list.
+ * environment on the way through. The page can never name a host that is not
+ * on the list, and never learns the deployment's key.
+ *
+ * Where the deployment has *no* key for a host, the caller's own is forwarded
+ * instead — which is how "bring your own key" works in a browser, and is what
+ * lets the Light Assistant run in a page with the key its user typed.
+ * LE_PROXY_KEYS_ONLY=1 refuses that and serves only the keys the operator
+ * configured.
  *
  * It is deliberately small and deliberately suspicious:
  *
@@ -106,16 +112,42 @@ module.exports = async function handler(request, response) {
         });
     }
 
+    /*  Whose key goes on the request.
+     *
+     *  The deployment's, when it has one for this host: it is paying, and a
+     *  page must not be able to override it. Otherwise the caller's own, if
+     *  they sent one — which is what makes *bring your own key* work in the
+     *  browser, where the page is the client and there is nowhere else to
+     *  keep a key. A deployment that would rather refuse that (its function
+     *  invocations, after all) sets LE_PROXY_KEYS_ONLY=1, and then a request
+     *  with no server-side key for its host is turned away.
+     *
+     *  Either way the forwarded request carries exactly one credential, and
+     *  the page never learns the server's. */
+    const key = KEYS[host];
+    const ourKey = key && process.env[key.env];
+    const keysOnly = /^(1|true|yes)$/i.test(process.env.LE_PROXY_KEYS_ONLY || '');
+    const CREDENTIALS = ['authorization', 'x-api-key', 'x-goog-api-key'];
+
     const headers = {};
+    let theirKey = false;
     for (const pair of req.headers || []) {
         if (!Array.isArray(pair) || pair.length !== 2) continue;
         const name = String(pair[0]).toLowerCase();
-        /* The page does not get to set these: they are the request's identity. */
-        if (['host', 'authorization', 'x-api-key', 'x-goog-api-key', 'cookie'].includes(name)) continue;
+        if (name === 'host' || name === 'cookie') continue;
+        if (CREDENTIALS.includes(name)) {
+            if (ourKey || keysOnly) continue;      /* ours wins; or none at all */
+            theirKey = true;
+        }
         headers[name] = String(pair[1]);
     }
-    const key = KEYS[host];
-    if (key && process.env[key.env]) headers[key.header] = key.prefix + process.env[key.env];
+    if (ourKey) headers[key.header] = key.prefix + process.env[key.env];
+    if (!ourKey && !theirKey && keysOnly) {
+        return response.status(403).json({
+            status: 0, headers: {}, body: '',
+            error: `this deployment has no key for ${host} and does not forward one`
+        });
+    }
     if (host === 'api.anthropic.com' && !headers['anthropic-version']) {
         headers['anthropic-version'] = '2023-06-01';
     }

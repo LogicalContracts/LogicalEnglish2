@@ -79,7 +79,7 @@ each failing here exactly as a user of this deployment would find it:
 
 | Spec | Needs |
 |---|---|
-| `contract-assistant.spec.ts`, the *Write it in English…* cases of `query-editor.spec.ts` and `scenario-editor.spec.ts` | a sub-process (`opencode`) or a model, and a key |
+| `contract-assistant.spec.ts`, the *Write it in English…* cases of `query-editor.spec.ts` and `scenario-editor.spec.ts` | a sub-process (`opencode`) or a model, and a key. The **Light** Assistant is not among them: it runs in this build, and was checked end to end in the engine with a scripted model — `wasm/dist` has no key for the suite to use, which is why no spec covers it here |
 | `editor.spec.ts` "LE Debugger: …" (2) | a second thread and a websocket |
 | `editor.spec.ts` "non-terminating query can be interrupted" | a second thread |
 | `e2e/auth.spec.ts` (3), and the `/login` half of `i18n-ui.spec.ts` (2) — whose assertions about the *editor's* own Portuguese pass first | accounts |

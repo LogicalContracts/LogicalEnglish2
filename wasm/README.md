@@ -18,7 +18,7 @@ cd wasm/dist && vercel deploy --prod
 |---|---|
 | `build.sh` | the whole build, in eight steps it names as it goes |
 | `le_wasm.pl` | the browser transport: a JSON request in, a JSON reply out, over `le_api.pl` — the same operations the server runs |
-| `pack.pl` | what goes into the payload, and (more to the point) what must not: the rule is `restricted_paths.pl`'s own, for a visitor with no roles |
+| `pack.pl` | what goes into the payload, and (more to the point) what must not: the rule is `restricted_paths.pl`'s own, for a visitor with no roles. It also carries `docs/user/**.md`, which is what the Light Assistant searches and cites |
 | `shims/` | the libraries SWI-Prolog's WebAssembly image does not have, each stood in for; `shims/README.md` is the list |
 | `runtime/boot.js` | replaces `window.fetch` before the page's own scripts run, so that `/leapi` is answered by the worker |
 | `runtime/worker.js` | the worker: SWI-Prolog, the payload unpacked into its file system, and the one call |
