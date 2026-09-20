@@ -80,6 +80,20 @@ function mergeFailPlan(into: FailPlan, other: FailPlan) {
     into.rules.push(...other.rules);
 }
 
+// The plan for the body condition `idx` of `rule`, which failed as the
+// explanation node `ch` says. null when the condition is engine-checked (a
+// computed condition, "4.9 is greater than or equal to 5.0", has no socket, so
+// nothing goes below the card).
+function conditionFailPlan(rule: any, idx: number, ch: any, rules: any[]): FailPlan | null {
+    if ((rule.bodyTypeCheck || []).includes(idx)) return null;
+    // A negation ("it is not the case that Frank has a contraindication
+    // to ...") fails because the goal it negates holds: its explanation
+    // is that goal's proof. A FAIL there would say the opposite.
+    const holds = (rule.bodyNaf || []).includes(idx)
+        ? (ch.children || []).find((c: any) => c.type === 'success') : null;
+    return holds ? { fail: false, rules: [], proof: holds } : failurePlan(ch, rules);
+}
+
 function failurePlan(expFail: any, rules: any[]): FailPlan {
     const plan: FailPlan = { fail: false, rules: [] };
     const failChildren = (expFail?.children || []).filter((c: any) => c.type === 'failure');
@@ -115,16 +129,9 @@ function failurePlan(expFail: any, rules: any[]): FailPlan {
         let rule = provRules.find((r: any) => (r.bodyRanges || []).some((br: any) => br.start === ch.start && br.end === ch.end));
         if (rule) {
             const idx = rule.bodyRanges.findIndex((br: any) => br.start === ch.start && br.end === ch.end);
-            // A card that fails at a computed condition ("4.9 is greater than or
-            // equal to 5.0") needs nothing below it: that condition has no socket.
-            const computed = (rule.bodyTypeCheck || []).includes(idx);
-            // A negation ("it is not the case that Frank has a contraindication
-            // to ...") fails because the goal it negates holds: its explanation
-            // is that goal's proof. A FAIL there would say the opposite.
-            const holds = (rule.bodyNaf || []).includes(idx)
-                ? (ch.children || []).find((c: any) => c.type === 'success') : null;
-            plan.rules.push({ ruleId: rule.id, conds: computed ? new Map()
-                : new Map([[idx, holds ? { fail: false, rules: [], proof: holds } : failurePlan(ch, rules)]]) });
+            const sub = conditionFailPlan(rule, idx, ch, rules);
+            plan.rules.push({ ruleId: rule.id,
+                conds: sub ? new Map([[idx, sub]]) : new Map() });
             continue;
         }
         // ... except the disjuncts of an "A or B" condition, whose ranges lie
@@ -132,16 +139,43 @@ function failurePlan(expFail: any, rules: any[]): FailPlan {
         // the one card and its one socket.
         const within = (br: any) => br.end > br.start && br.start <= ch.start && ch.end <= br.end;
         rule = provRules.find((r: any) => (r.bodyRanges || []).some(within));
-        if (!rule) continue;
-        const idx = rule.bodyRanges.findIndex(within);
-        const key = `${rule.id}/${idx}`;
-        let card = disjunctCards.get(key);
-        if (!card) {
-            card = { ruleId: rule.id, conds: new Map([[idx, { fail: false, rules: [] }]]) };
-            disjunctCards.set(key, card);
-            plan.rules.push(card);
+        if (rule) {
+            const idx = rule.bodyRanges.findIndex(within);
+            const key = `${rule.id}/${idx}`;
+            let card = disjunctCards.get(key);
+            if (!card) {
+                card = { ruleId: rule.id, conds: new Map([[idx, { fail: false, rules: [] }]]) };
+                disjunctCards.set(key, card);
+                plan.rules.push(card);
+            }
+            mergeFailPlan(card.conds.get(idx)!, failurePlan(ch, rules));
+            continue;
         }
-        mergeFailPlan(card.conds.get(idx)!, failurePlan(ch, rules));
+        // ... and except the whole BODY of a rule with more than one condition:
+        // a conjunction ("p if q and r") fails as ONE node spanning all of them,
+        // whose own failure children are the conditions that failed. Matching no
+        // single body range, it used to be dropped — and with it that rule's
+        // whole branch of the plan: "p if q and r" and "p if s" showed only the
+        // s branch failing (examples/moreExamples/language/negation/propositional.le).
+        const spans = (br: any) => br.end > br.start && ch.start <= br.start && br.end <= ch.end;
+        rule = provRules.find((r: any) => (r.bodyRanges || []).some(spans));
+        if (!rule) continue;
+        const card: FailRulePlan = { ruleId: rule.id, conds: new Map() };
+        for (const gc of (ch.children || []).filter((c: any) => c.type === 'failure')) {
+            const idx = rule.bodyRanges.findIndex((br: any) =>
+                (br.start === gc.start && br.end === gc.end) ||
+                (br.end > br.start && br.start <= gc.start && gc.end <= br.end));
+            if (idx < 0) continue;
+            const sub = conditionFailPlan(rule, idx, gc, rules);
+            if (!sub) continue;
+            const prev = card.conds.get(idx);
+            // Two failures of one condition (the disjuncts of "A or B", each
+            // failing) share its one socket, as above.
+            if (!prev) card.conds.set(idx, sub);
+            else if (sub.proof) prev.proof = sub.proof;
+            else mergeFailPlan(prev, sub);
+        }
+        plan.rules.push(card);
     }
     if (!plan.fail && plan.rules.length === 0) plan.fail = true;
     return plan;
