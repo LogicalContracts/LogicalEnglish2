@@ -1,6 +1,6 @@
 # How to use the Logical English 2 web application
 
-*Kind: guide · Audience: users · Status: current (2026-09-16)*
+*Kind: guide · Audience: users · Status: current (2026-09-20)*
 
 The Logical English (LE) web application is a simple IDE designed for developing, testing, and debugging Logical English programs.
 
@@ -13,6 +13,7 @@ The Logical English (LE) web application is a simple IDE designed for developing
   - [File Operations](#file-operations)
     - [Opening and Saving](#opening-and-saving)
     - [Other systems' files: import and export](#other-systems-files-import-and-export)
+    - [Example names, and the names they used to have](#example-names-and-the-names-they-used-to-have)
     - [Saving via URL (Quick Save)](#saving-via-url-quick-save)
     - [Several documents: file tabs](#several-documents-file-tabs)
   - [Writing Logic and Issue Reporting](#writing-logic-and-issue-reporting)
@@ -137,6 +138,44 @@ Full guide: [Other systems: importing and exporting](../integrations/index.md), 
 *   **Exporters** (`File > Export to Another System…`, which offers only those that apply to the program): a Bitcoin Miniscript policy (with a link to the Minsc playground); LegalRuleML; Daml, for an LE for LPS program. The result is shown with its notes, **Copy** and **Save…**.
 *   **Refusals.** An exporter that cannot write the program faithfully writes nothing: a dialog lists each problem with its line (a link to it) and the program's words there. **See s(CASP)** and the s(CASP) engine refuse the same way.
 *   **The twins.** The translators' results on published programs are among the examples, under `migration/` (Blawx, LegalRuleML, Miniscript, s(CASP)), each with its migration ledger and its `sources/` folder, which **Show the Original** opens.
+
+### Example names, and the names they used to have
+
+An example is opened by **name**: `/editor/index.html?example=<name>`, and the
+same name names it to the executive view (`/executive?program=<name>`), the QR
+code, the landing page and the web API. The name is the example's path inside
+the example tree, without the `.le` — `citizenship`, `domains/tax/payg`,
+`collections/kowalski-book/underground_emergency`,
+`regulatory/eu261_integration`.
+
+**An example that moves keeps its old name.** The trees were regrouped by
+purpose, and every link, QR code, paper and video written before that still
+works: an old name is redirected to the current one, so
+`?example=rkBook/underground_emergency` opens
+`collections/kowalski-book/underground_emergency`. The redirection is a table in
+the server, `example_alias/2` (one example) and `example_dir_alias/2` (a whole
+directory), in `le_kbs.pl`; `testing/test_example_alias.pl` checks that every
+row of it still leads to a file that exists.
+
+The directory renamings are these — each applies to everything under it:
+
+| Old name | Opens today |
+|---|---|
+| `abduction/…` | `language/abduction/…` |
+| `prolog_resources/…` | `language/includes/prolog_resources/…` |
+| `tax/…` | `domains/tax/…` |
+| `rkBook/…` | `collections/kowalski-book/…` |
+| `LogicalThinkingInAgeOfAI/…` | `collections/logical-thinking-talk/…` |
+| `RulesRus/…` | `regulatory/…` |
+| `testing/…` | `fixtures/…` (the test fixtures, listed to logged-in users) |
+| `insureLE2/customs/…` | `lpsPlus/customs/…` |
+| `insureLE2/medicare/…` | `lpsPlus/medicare/…` |
+| `insureLE2/migration/…` | `lpsPlus/migration/…` |
+
+Individual programs that moved on their own — `sums`, `citizenship_including`,
+`white_rabbit` and about thirty others — are the `example_alias/2` rows, one
+line each; that predicate is the full list. Nothing has to be done to use an old
+name: it simply opens the example.
 
 ### Saving via URL (Quick Save)
 The editor automatically synchronizes the current code into the browser's URL using a `text` parameter. 

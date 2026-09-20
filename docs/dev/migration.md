@@ -131,7 +131,7 @@ refuses the same way, with the same reply:
 | LE → Miniscript, LegalRuleML, Daml | `lpsPlus/migration/{miniscript,legalruleml,daml}` | `check_miniscript/3`, `check_lrml/3`, `check_daml/3` |
 | LE → s(CASP) (See s(CASP), the s(CASP) engine) | `le_scasp.pl` | `le_scasp_check/3`: an emitter issue that loses meaning (docs/user/reference/scasp.md §8) |
 | LE for LPS → LPS (`getLps`, LPS2's `le_compile`, Deploy as Solidity, the LPS exporters) | `le_lps.pl` | any error issue, including `not_lps` (lps2's docs/user/reference/le-for-lps.md §8): no LPS text |
-| LPS → Solidity | LPS2 `lps_solidity.pl` | `lps_to_solidity/3`'s refusal (reactive rules, Prolog, enumeration, …) |
+| LPS → Solidity | `lpsPlus/migration/solidity/lps_solidity.pl` (LPS2's Deploy as Solidity, loaded by its `src/syntax/lps_plus.pl`) | `lps_to_solidity/3`'s refusal (reactive rules, Prolog, enumeration, …) |
 | LPS → LE (a document) | `le_lps_write.pl` | `le_lps_check/3`; `residue(true)` (a translator into LE) writes a comment instead |
 
 Out of scope, and why: LE → Prolog is LE's own compilation, not a

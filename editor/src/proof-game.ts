@@ -235,6 +235,10 @@ class QueryNode extends ClassicPreset.Node {
     // the same shape a RuleNode takes). With a single goal `rule` stays null and
     // the node keeps the one plain 'in' socket it has always had.
     public rule: any = null;
+    // The query has NO answer and is played as a failure: the card is the goal
+    // that fails, its socket(s) carry the failure (a FAIL, and one failing-mode
+    // card per rule that tried), so they take several links, like a negation's.
+    public failing: boolean = false;
     public bodyTokens: any[][] = [];
     public bodyNaf: number[] = [];
     public bodyForall: any[] = [];
@@ -247,8 +251,10 @@ class QueryNode extends ClassicPreset.Node {
         super(label);
         this.type = 'query';
         const body: string[] = (conds && Array.isArray(conds.body)) ? conds.body : [];
+        const failed = !!(conds && conds.failed);
+        this.failing = failed;
         if (body.length < 2) {
-            this.addInput('in', new ClassicPreset.Input(new ClassicPreset.Socket('query-socket')));
+            this.addInput('in', new ClassicPreset.Input(new ClassicPreset.Socket('query-socket'), undefined, failed));
             return;
         }
         this.bodyTokens = Array.isArray(conds.bodyTokens) ? conds.bodyTokens : [];
@@ -268,7 +274,7 @@ class QueryNode extends ClassicPreset.Node {
             } else if (this.bodyNaf.includes(i)) {
                 this.addInput(`in-${i}`, new ClassicPreset.Input(socket, undefined, true));
             } else {
-                this.addInput(`in-${i}`, new ClassicPreset.Input(socket));
+                this.addInput(`in-${i}`, new ClassicPreset.Input(socket, undefined, failed));
             }
         });
     }
@@ -927,6 +933,38 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         }
     }
 
+    // A query with NO answer is played as a FAILURE: the board builds the proof
+    // that it fails, exactly as it already does under a negation — a FAIL where
+    // nothing could prove a goal, and one failing-mode card per rule that tried.
+    // The server sends that failure explanation as the spine, with `failed`.
+    const queryFailed = !!gameData.failed;
+
+    // The explanation hanging from the query card's socket `input` ('in', or
+    // 'in-<i>' for one conjunct of a conjunctive query) when it is a FAILURE —
+    // the spine the cards there must reproduce. Null for a query with an answer
+    // (and for the conjuncts of a failed conjunctive query that DID hold, which
+    // are proved positively, as always).
+    function queryFailSpine(input: string): any {
+        if (!queryFailed || typeof input !== 'string') return null;
+        let i = 0;
+        if (input !== 'in') {
+            const m = /^in-(\d+)$/.exec(input);
+            if (!m) return null;
+            i = parseInt(m[1]);
+        }
+        const exps = Array.isArray(gameData.explanation) ? gameData.explanation : [gameData.explanation];
+        const e = exps[i];
+        return (e && e.type === 'failure') ? e : null;
+    }
+
+    if (queryFailed) {
+        const banner = document.getElementById('failed-banner') as HTMLElement | null;
+        if (banner) {
+            banner.textContent = t('No answer: build the proof that this query FAILS');
+            banner.style.display = '';
+        }
+    }
+
     // Populate template colors
     templateColors.clear();
     const predicateTemplates = new Set<string>();
@@ -1184,6 +1222,16 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                 // body. Checking a single connection (as this used to) called the
                 // proof done as soon as any one conjunct was wired.
                 if (node.rule) return bodyComplete(node);
+                // A query with no answer: what is built under it is its FAILURE,
+                // validated against the explanation's spine like any other.
+                const spine = queryFailSpine('in');
+                if (spine) {
+                    const conns = connections.filter(c => c.target === nodeId);
+                    if (conns.length === 0) return false;
+                    if (!failureGoalMatches(conns.map(c => c.source), spine)) return false;
+                    conns.forEach(c => markFragment(c.source));
+                    return true;
+                }
                 const conn = connections.find(c => c.target === nodeId);
                 if (!conn) return false;
                 return isComplete(conn.source);
@@ -1201,7 +1249,15 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             {
                 const bodyCount = node.rule.body ? node.rule.body.length : 0;
                 for (let i = 0; i < bodyCount; i++) {
-                    if (Array.isArray(node.bodyTypeCheck) && node.bodyTypeCheck.includes(i)) {
+                    const querySpine = node instanceof QueryNode ? queryFailSpine(`in-${i}`) : null;
+                    if (querySpine) {
+                        // A conjunct of a query that has no answer, and which is the
+                        // one that failed: its socket carries the failure.
+                        const conns = connections.filter(c => c.target === nodeId && c.targetInput === `in-${i}`);
+                        if (conns.length === 0) return false;
+                        if (!failureGoalMatches(conns.map(c => c.source), querySpine)) return false;
+                        conns.forEach(c => markFragment(c.source));
+                    } else if (Array.isArray(node.bodyTypeCheck) && node.bodyTypeCheck.includes(i)) {
                         continue;   // engine-checked type guard: nothing to connect
                     } else if (node.forallIndexSet.has(i)) {
                         // The condition socket decides which: a FAIL means the
@@ -1300,6 +1356,14 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         return parts.length === 2 && targetNode.bodyNaf.includes(parseInt(parts[1]));
     }
 
+    // The sockets under which a FAILURE is built: a negation's, and — when the
+    // query itself has no answer — the query card's own. Polarity flips under
+    // each of them, so everything below is in failing mode.
+    function isFailureSocket(targetNode: any, targetInput: string): boolean {
+        if (isNafSocket(targetNode, targetInput)) return true;
+        return targetNode instanceof QueryNode && !!queryFailSpine(targetInput);
+    }
+
     // A "not the case" link is consistent only if the connected failing rule
     // denotes the SAME goal the parent's bindings actually negate. The parent
     // reports its bound inner goal (e.g. "alice smokes") in bodyNafInner[i]; the
@@ -1347,7 +1411,7 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             if (visiting.has(id)) return false;
             visiting.add(id);
             const up = conns.find(c => c.source === id);
-            const f = up ? failingNode(up.target) !== isNafSocket(editor.getNode(up.target), up.targetInput) : false;
+            const f = up ? failingNode(up.target) !== isFailureSocket(editor.getNode(up.target), up.targetInput) : false;
             visiting.delete(id);
             memo.set(id, f);
             return f;
@@ -1415,6 +1479,9 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         };
         for (const c of conns) {
             const target = editor.getNode(c.target) as any;
+            // The failure of a query with no answer hangs from the query card.
+            const querySpine = target instanceof QueryNode ? queryFailSpine(c.targetInput) : null;
+            if (querySpine) { assign(c.source, querySpine); continue; }
             if (isNafSocket(target, c.targetInput) && !failingNow.has(c.target)) {
                 const i = parseInt(c.targetInput.split('-')[1]);
                 const range = target.bodyRanges[i];
@@ -1501,7 +1568,9 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         const failing = computeFailing();
         nodes.forEach(n => {
             const old = (n as any).failing;
-            (n as any).failing = failing.has(n.id);
+            // The query card of a query with no answer is itself the goal that
+            // fails, and stays in failing mode however the board is wired.
+            (n as any).failing = failing.has(n.id) || (queryFailed && n instanceof QueryNode);
             if (old !== (n as any).failing) area.update('node', n.id);
         });
         updateSocketMultiplicity(failing);
@@ -1745,7 +1814,8 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             bodyNaf: gameData.queryNaf,
             bodyForall: gameData.queryForall,
             bodyRanges: gameData.queryRanges,
-            bodyTypeCheck: gameData.queryTypeCheck
+            bodyTypeCheck: gameData.queryTypeCheck,
+            failed: queryFailed
         });
         queryNode.tokens = gameData.queryTokens || [];
         await editor.addNode(queryNode);
@@ -1782,7 +1852,9 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
 
     // Add a generic FAIL node when any rule has a negation-as-failure condition.
     // A single FAIL node can be connected to every such condition.
-    const hasNaf = (gameData.rules || []).some((r: any) => Array.isArray(r.bodyNaf) && r.bodyNaf.length > 0);
+    // (a failed query needs one too: nothing proving a goal is shown by a FAIL)
+    const hasNaf = queryFailed
+        || (gameData.rules || []).some((r: any) => Array.isArray(r.bodyNaf) && r.bodyNaf.length > 0);
     if (hasNaf) {
         const failNode = new FailNode('FAIL', '#d32f2f');
         await editor.addNode(failNode);
@@ -2129,10 +2201,14 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
 
         if ((queryNode as QueryNode).rule) {
             for (let i = 0; i < explanations.length; i++) {
-                await connectQueryCondition(explanations[i], queryNode as QueryNode, i);
+                const spine = queryFailSpine(`in-${i}`);
+                if (spine) await buildFailure(spine, queryNode.id, `in-${i}`);
+                else await connectQueryCondition(explanations[i], queryNode as QueryNode, i);
             }
         } else {
-            await connectNode(explanations[0], queryNode.id, 'in');
+            const spine = queryFailSpine('in');
+            if (spine) await buildFailure(spine, queryNode.id, 'in');
+            else await connectNode(explanations[0], queryNode.id, 'in');
         }
         updateConnectionLabels();
         updateFailingLabels();

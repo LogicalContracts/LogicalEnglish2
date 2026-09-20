@@ -2386,15 +2386,6 @@ handle_get_game_data(Dict, Response) :-
               ; Query = QueryName )
         ),
         (   nonvar(ErrorQuery) -> Response = _{error: ErrorQuery}
-            % A query with no answer cannot be proven, so there is nothing to
-            % play. Gate on having a successful explanation before building the
-            % game (we try both the original Query term and the named query).
-        ;   \+ ( catch(query(SM, Query, _, _, _), _, fail)
-               ; ( get_dict(query, Dict, QNameStr0), atom_string(QName0, QNameStr0),
-                   catch(query(SM, QName0, _, _, _), _, fail) )
-               ) ->
-            print_message(warning, 'Proof Game: No answer for query'),
-            Response = _{error: "You need a query with an answer to play"}
         ;   le_proof_game:extract_rules_and_facts(KB, SM, Query, Rules, ExtractedFacts, QueryTokens),
             ( nonvar(QueryLE) -> true
             ; KB \== none, le_kbs:item_to_instance(KB, Query, QueryTokens0) -> le_kbs:canonical_string(QueryTokens0, QueryLE)
@@ -2417,10 +2408,22 @@ handle_get_game_data(Dict, Response) :-
             ( nth0(Idx, Answers, _-SelWhy) -> SelIdx = Idx
             ; Answers = [_-SelWhy|_] -> SelIdx = 0
             ; SelWhy = (-), SelIdx = 0 ),
-            ( SelWhy == (-) ->
-                JSONWhy = null,
-                print_message(warning, 'Proof Game: No explanation found for query')
-            ;   convert_why(SelWhy, KB, JSONWhy),
+            % A query with NO answer is played as a failure: the spine is the
+            % query's failure explanation, and the board is the one the game
+            % already knows from a negation — a FAIL where nothing could prove a
+            % goal, and one failing-mode card per rule that tried. `failed` tells
+            % the client the whole proof is of a failure (proof-game.ts).
+            (   SelWhy == (-)
+            ->  (   game_failure_why(SM, Dict, Query, FailWhy)
+                ->  Failed = true,
+                    convert_why(FailWhy, KB, JSONWhy),
+                    print_message(informational, 'Proof Game: Found failure explanation for query')
+                ;   Failed = false,
+                    JSONWhy = null,
+                    print_message(warning, 'Proof Game: No explanation found for query')
+                )
+            ;   Failed = false,
+                convert_why(SelWhy, KB, JSONWhy),
                 print_message(informational, 'Proof Game: Found explanation for query')
             ),
             findall(AL, member(AL-_, Answers), AnswerLabels),
@@ -2437,7 +2440,7 @@ handle_get_game_data(Dict, Response) :-
                                      queryForall: QCards.conditionForall,
                                      queryTypeCheck: QCards.conditionTypeCheck,
                                      explanation: JSONWhy, answers: AnswerLabels,
-                                     answerIndex: SelIdx}, result: "ok"}
+                                     answerIndex: SelIdx, failed: Failed}, result: "ok"}
         )
     ).
 
@@ -2452,6 +2455,27 @@ game_answer_query(SM, Dict, Query, AnswerQuery) :-
     ;   get_dict(query, Dict, QNameStr), atom_string(QName, QNameStr),
         AnswerQuery = QName
     ).
+
+%!  game_failure_why(+SM, +Dict, +Query, -Why) is semidet.
+%
+%   The failure explanation of a query with no answer, for a game played on a
+%   failure. Its shape is the one the board already reads under a negation
+%   (failurePlan in proof-game.ts): one node per goal that failed, its children
+%   the conditions that held and the one that did not. DETAILED failures are
+%   off while it is built: they add a node per clause tried (rule_attempt),
+%   which no card on the board stands for. The query is tried as the resolved
+%   goal and then, as everywhere here, by its name.
+game_failure_why(SM, Dict, Query, Why) :-
+    catch(dynamic(SM:detailed_failures), _, true),
+    ( catch(SM:detailed_failures, _, fail) -> Was = true ; Was = false ),
+    setup_call_cleanup(
+        catch(retractall(SM:detailed_failures), _, true),
+        (   catch(le_kbs:query_explain(SM, Query, _, _, Why), _, fail)
+        ->  true
+        ;   get_dict(query, Dict, QNameStr), atom_string(QName, QNameStr),
+            catch(le_kbs:query_explain(SM, QName, _, _, Why), _, fail)
+        ),
+        ( Was == true -> catch(assertz(SM:detailed_failures), _, true) ; true )).
 
 % answer_label_with_assumptions(+KB, +AnswerLE, +Unknowns, -Label): an answer that
 % holds only by ASSUMING its unknowns (abduction) is labelled with them, e.g.

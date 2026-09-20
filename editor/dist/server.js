@@ -4,11 +4,20 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __esm = (fn, res) => function __init() {
-  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+var __esm = (fn, res, err) => function __init() {
+  if (err) throw err[0];
+  try {
+    return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+  } catch (e) {
+    throw err = [e], e;
+  }
 };
 var __commonJS = (cb, mod) => function __require() {
-  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  try {
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  } catch (e) {
+    throw mod = 0, e;
+  }
 };
 var __export = (target, all) => {
   for (var name in all)
@@ -1416,47 +1425,45 @@ var require_messageBuffer = __commonJS({
         let chunkIndex = 0;
         let offset = 0;
         let chunkBytesRead = 0;
-        row:
-          while (chunkIndex < this._chunks.length) {
-            const chunk = this._chunks[chunkIndex];
-            offset = 0;
-            column:
-              while (offset < chunk.length) {
-                const value = chunk[offset];
-                switch (value) {
-                  case CR:
-                    switch (state) {
-                      case 0:
-                        state = 1;
-                        break;
-                      case 2:
-                        state = 3;
-                        break;
-                      default:
-                        state = 0;
-                    }
+        row: while (chunkIndex < this._chunks.length) {
+          const chunk = this._chunks[chunkIndex];
+          offset = 0;
+          column: while (offset < chunk.length) {
+            const value = chunk[offset];
+            switch (value) {
+              case CR:
+                switch (state) {
+                  case 0:
+                    state = 1;
                     break;
-                  case LF:
-                    switch (state) {
-                      case 1:
-                        state = 2;
-                        break;
-                      case 3:
-                        state = 4;
-                        offset++;
-                        break row;
-                      default:
-                        state = 0;
-                    }
+                  case 2:
+                    state = 3;
                     break;
                   default:
                     state = 0;
                 }
-                offset++;
-              }
-            chunkBytesRead += chunk.byteLength;
-            chunkIndex++;
+                break;
+              case LF:
+                switch (state) {
+                  case 1:
+                    state = 2;
+                    break;
+                  case 3:
+                    state = 4;
+                    offset++;
+                    break row;
+                  default:
+                    state = 0;
+                }
+                break;
+              default:
+                state = 0;
+            }
+            offset++;
           }
+          chunkBytesRead += chunk.byteLength;
+          chunkIndex++;
+        }
         if (state !== 4) {
           return void 0;
         }
@@ -3024,9 +3031,8 @@ var require_ril = __commonJS({
 var require_main = __commonJS({
   "node_modules/vscode-jsonrpc/lib/browser/main.js"(exports) {
     "use strict";
-    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
+    var __createBinding = exports && exports.__createBinding || (Object.create ? (function(o, m, k, k2) {
+      if (k2 === void 0) k2 = k;
       var desc = Object.getOwnPropertyDescriptor(m, k);
       if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
         desc = { enumerable: true, get: function() {
@@ -3034,15 +3040,12 @@ var require_main = __commonJS({
         } };
       }
       Object.defineProperty(o, k2, desc);
-    } : function(o, m, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
+    }) : (function(o, m, k, k2) {
+      if (k2 === void 0) k2 = k;
       o[k2] = m[k];
-    });
+    }));
     var __exportStar = exports && exports.__exportStar || function(m, exports2) {
-      for (var p in m)
-        if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p))
-          __createBinding(exports2, m, p);
+      for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p)) __createBinding(exports2, m, p);
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createMessageConnection = exports.BrowserMessageWriter = exports.BrowserMessageReader = void 0;
@@ -6011,9 +6014,8 @@ var require_connection2 = __commonJS({
 var require_api2 = __commonJS({
   "node_modules/vscode-languageserver-protocol/lib/common/api.js"(exports) {
     "use strict";
-    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
+    var __createBinding = exports && exports.__createBinding || (Object.create ? (function(o, m, k, k2) {
+      if (k2 === void 0) k2 = k;
       var desc = Object.getOwnPropertyDescriptor(m, k);
       if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
         desc = { enumerable: true, get: function() {
@@ -6021,15 +6023,12 @@ var require_api2 = __commonJS({
         } };
       }
       Object.defineProperty(o, k2, desc);
-    } : function(o, m, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
+    }) : (function(o, m, k, k2) {
+      if (k2 === void 0) k2 = k;
       o[k2] = m[k];
-    });
+    }));
     var __exportStar = exports && exports.__exportStar || function(m, exports2) {
-      for (var p in m)
-        if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p))
-          __createBinding(exports2, m, p);
+      for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p)) __createBinding(exports2, m, p);
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.LSPErrorCodes = exports.createProtocolConnection = void 0;
@@ -6057,9 +6056,8 @@ var require_api2 = __commonJS({
 var require_main2 = __commonJS({
   "node_modules/vscode-languageserver-protocol/lib/browser/main.js"(exports) {
     "use strict";
-    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
+    var __createBinding = exports && exports.__createBinding || (Object.create ? (function(o, m, k, k2) {
+      if (k2 === void 0) k2 = k;
       var desc = Object.getOwnPropertyDescriptor(m, k);
       if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
         desc = { enumerable: true, get: function() {
@@ -6067,15 +6065,12 @@ var require_main2 = __commonJS({
         } };
       }
       Object.defineProperty(o, k2, desc);
-    } : function(o, m, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
+    }) : (function(o, m, k, k2) {
+      if (k2 === void 0) k2 = k;
       o[k2] = m[k];
-    });
+    }));
     var __exportStar = exports && exports.__exportStar || function(m, exports2) {
-      for (var p in m)
-        if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p))
-          __createBinding(exports2, m, p);
+      for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p)) __createBinding(exports2, m, p);
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createProtocolConnection = void 0;
@@ -8112,9 +8107,8 @@ var require_server = __commonJS({
 var require_api3 = __commonJS({
   "node_modules/vscode-languageserver/lib/common/api.js"(exports) {
     "use strict";
-    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
+    var __createBinding = exports && exports.__createBinding || (Object.create ? (function(o, m, k, k2) {
+      if (k2 === void 0) k2 = k;
       var desc = Object.getOwnPropertyDescriptor(m, k);
       if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
         desc = { enumerable: true, get: function() {
@@ -8122,15 +8116,12 @@ var require_api3 = __commonJS({
         } };
       }
       Object.defineProperty(o, k2, desc);
-    } : function(o, m, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
+    }) : (function(o, m, k, k2) {
+      if (k2 === void 0) k2 = k;
       o[k2] = m[k];
-    });
+    }));
     var __exportStar = exports && exports.__exportStar || function(m, exports2) {
-      for (var p in m)
-        if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p))
-          __createBinding(exports2, m, p);
+      for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p)) __createBinding(exports2, m, p);
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.ProposedFeatures = exports.NotebookDocuments = exports.TextDocuments = exports.SemanticTokensBuilder = void 0;
@@ -8171,9 +8162,8 @@ var require_browser2 = __commonJS({
 var require_main3 = __commonJS({
   "node_modules/vscode-languageserver/lib/browser/main.js"(exports) {
     "use strict";
-    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
+    var __createBinding = exports && exports.__createBinding || (Object.create ? (function(o, m, k, k2) {
+      if (k2 === void 0) k2 = k;
       var desc = Object.getOwnPropertyDescriptor(m, k);
       if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
         desc = { enumerable: true, get: function() {
@@ -8181,15 +8171,12 @@ var require_main3 = __commonJS({
         } };
       }
       Object.defineProperty(o, k2, desc);
-    } : function(o, m, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
+    }) : (function(o, m, k, k2) {
+      if (k2 === void 0) k2 = k;
       o[k2] = m[k];
-    });
+    }));
     var __exportStar = exports && exports.__exportStar || function(m, exports2) {
-      for (var p in m)
-        if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p))
-          __createBinding(exports2, m, p);
+      for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p)) __createBinding(exports2, m, p);
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createConnection = void 0;
@@ -17113,8 +17100,7 @@ function detectProgramLanguage(text) {
     let s = line.trim();
     if (inBlockComment) {
       const end = s.indexOf("*/");
-      if (end === -1)
-        continue;
+      if (end === -1) continue;
       s = s.slice(end + 2).trim();
       inBlockComment = false;
     }
@@ -17126,15 +17112,13 @@ function detectProgramLanguage(text) {
       }
       s = s.slice(end + 2).trim();
     }
-    if (!s || s.startsWith("%"))
-      continue;
+    if (!s || s.startsWith("%")) continue;
     firstStatement = s;
     break;
   }
   const norm = firstStatement.toLowerCase().replace(/\s+/g, " ");
   for (const info of languages) {
-    if (info.opener && norm.startsWith(info.opener.toLowerCase()))
-      return info.code;
+    if (info.opener && norm.startsWith(info.opener.toLowerCase())) return info.code;
   }
   return "en";
 }
@@ -17177,10 +17161,8 @@ function tokenize(text) {
       let indent = 0;
       const start2 = i;
       while (i < text.length && (text[i] === " " || text[i] === "	")) {
-        if (text[i] === "	")
-          indent += 8;
-        else
-          indent += 1;
+        if (text[i] === "	") indent += 8;
+        else indent += 1;
         i++;
       }
       if (indent > 0) {
@@ -17263,8 +17245,7 @@ function tokenize(text) {
         if (nextQuote === -1 || nextQuote >= lineEnd) {
           end++;
           const tail = text.substring(end).match(/^[a-zA-Z0-9_]*/);
-          if (tail)
-            end += tail[0].length;
+          if (tail) end += tail[0].length;
         }
       }
       tokens.push({ type: 1 /* Word */, value: text.substring(i, end), start, end });
@@ -17312,12 +17293,13 @@ connection.onInitialize((params) => {
 });
 connection.onRequest("textDocument/semanticTokens/full", (params) => {
   const document2 = documents.get(params.textDocument.uri);
-  if (!document2)
-    return { data: [] };
+  if (!document2) return { data: [] };
   const text = document2.getText();
   const templates = templatesOf(params.textDocument.uri, text);
   const declSections = templateDeclarationRanges(text);
   const inDeclaration = (offset) => declSections.some((r) => offset >= r.start && offset < r.end);
+  const comments = commentRanges(text);
+  const inComment = (start, end) => comments.some((c) => start < c.end && end > c.start);
   const tokens = [];
   const sortedTemplates = [...templates].sort((a, b) => b.label.length - a.label.length);
   const claimedSpans = [];
@@ -17326,8 +17308,7 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
     const parts = template.label.split(/\*[^*]+\*/);
     if (parts.length < 2) {
       const lit = parts[0].trim();
-      if (!lit)
-        continue;
+      if (!lit) continue;
       const litRegex = lit.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
       try {
         const regex = new RegExp("\\b" + litRegex + "\\b", "gi");
@@ -17337,14 +17318,11 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
           const matchEnd = matchStart + match[0].length;
           const lineStart = text.lastIndexOf("\n", matchStart) + 1;
           let lineEnd = text.indexOf("\n", matchStart);
-          if (lineEnd < 0)
-            lineEnd = text.length;
-          if (text.slice(lineStart, lineEnd).includes("*"))
-            continue;
-          if (inDeclaration(matchStart))
-            continue;
-          if (overlapsClaimed(matchStart, matchEnd))
-            continue;
+          if (lineEnd < 0) lineEnd = text.length;
+          if (text.slice(lineStart, lineEnd).includes("*")) continue;
+          if (inDeclaration(matchStart)) continue;
+          if (inComment(matchStart, matchEnd)) continue;
+          if (overlapsClaimed(matchStart, matchEnd)) continue;
           claimedSpans.push({ start: matchStart, end: matchEnd });
           tokens.push({ start: matchStart, length: match[0].length, typeIndex: 6 });
         }
@@ -17359,33 +17337,27 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
       const core = raw.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
       if (i > 0) {
         regexStr += "(" + argPattern + ")";
-        if (core)
-          regexStr += /^\s/.test(raw) ? "\\s+" : "\\s*";
+        if (core) regexStr += /^\s/.test(raw) ? "\\s+" : "\\s*";
       }
       if (core) {
         regexStr += core;
-        if (i < parts.length - 1)
-          regexStr += /\s$/.test(raw) ? "\\s+" : "\\s*";
+        if (i < parts.length - 1) regexStr += /\s$/.test(raw) ? "\\s+" : "\\s*";
       }
     }
     try {
       const regex = new RegExp("\\b" + regexStr.trim() + "\\b", "gi");
       let match;
       while ((match = regex.exec(text)) !== null) {
-        if (match[0].includes("*"))
-          continue;
+        if (match[0].includes("*")) continue;
         const matchStart = match.index;
         const matchEnd = match.index + match[0].length;
         const lineStart = text.lastIndexOf("\n", matchStart) + 1;
         let lineEnd = text.indexOf("\n", matchStart);
-        if (lineEnd < 0)
-          lineEnd = text.length;
-        if (text.slice(lineStart, lineEnd).includes("*"))
-          continue;
-        if (inDeclaration(matchStart))
-          continue;
-        if (overlapsClaimed(matchStart, matchEnd))
-          continue;
+        if (lineEnd < 0) lineEnd = text.length;
+        if (text.slice(lineStart, lineEnd).includes("*")) continue;
+        if (inDeclaration(matchStart)) continue;
+        if (inComment(matchStart, matchEnd)) continue;
+        if (overlapsClaimed(matchStart, matchEnd)) continue;
         claimedSpans.push({ start: matchStart, end: matchEnd });
         let currentOffset = match.index;
         const fullMatch = match[0];
@@ -17418,8 +17390,7 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
     }
   }
   tokens.sort((a, b) => {
-    if (a.start !== b.start)
-      return a.start - b.start;
+    if (a.start !== b.start) return a.start - b.start;
     return b.length - a.length;
   });
   const uniqueTokens = [];
@@ -17447,8 +17418,7 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
 });
 connection.onRequest("textDocument/foldingRange", (params) => {
   const document2 = documents.get(params.textDocument.uri);
-  if (!document2)
-    return null;
+  if (!document2) return null;
   const text = document2.getText();
   const lines = text.split("\n");
   const foldingRanges = [];
@@ -17475,8 +17445,7 @@ connection.onRequest("textDocument/foldingRange", (params) => {
       let lastContentLine = i;
       while (j < lines.length) {
         const nextLine = lines[j];
-        if (sectionHeaderRegex.test(nextLine))
-          break;
+        if (sectionHeaderRegex.test(nextLine)) break;
         if (nextLine.trim().length > 0) {
           if (/^\s/.test(nextLine)) {
             hasIndented = true;
@@ -17532,6 +17501,9 @@ async function validateTextDocument(textDocument) {
   }
   connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
+function commentRanges(text) {
+  return tokenize(text).filter((t) => t.type === 6 /* Comment */).map((t) => ({ start: t.start, end: t.end }));
+}
 function templateDeclarationRanges(text) {
   const ranges = [];
   const sectionHeaderRegex = /^(?:the[ \t]+knowledge[ \t]+base|the[ \t]+contract|the[ \t]+ontology|the[ \t]+predicates|the[ \t]+templates|the[ \t]+fluents|the[ \t]+events|the[ \t]+target[ \t]+language|scenario|query)\b/im;
@@ -17552,8 +17524,7 @@ connection.onNotification("le/includedTexts", (params) => {
   const own = [];
   for (const text of params.texts || []) {
     for (const t of getTemplates(text)) {
-      if (system.has(t.label) || seen.has(t.label))
-        continue;
+      if (system.has(t.label) || seen.has(t.label)) continue;
       seen.add(t.label);
       own.push({ ...t, detail: "Included Template" });
     }
@@ -17594,12 +17565,11 @@ function getTemplates(text) {
           const oppMatch = trimmed.slice(semiIdx + 1).match(/opposite:\s*(.+)/i);
           if (oppMatch) {
             const opp = oppMatch[1].replace(/[.,;]\s*$/, "").trim();
-            if (opp)
-              templates.push({
-                label: opp,
-                insertText: opp.replace(/\*/g, ""),
-                detail: "User Template"
-              });
+            if (opp) templates.push({
+              label: opp,
+              insertText: opp.replace(/\*/g, ""),
+              detail: "User Template"
+            });
           }
         }
       }
@@ -17668,8 +17638,7 @@ connection.onCompletion((params) => {
 });
 connection.onHover((params) => {
   const document2 = documents.get(params.textDocument.uri);
-  if (!document2)
-    return null;
+  if (!document2) return null;
   const text = document2.getText();
   const offset = document2.offsetAt(params.position);
   const tokens = tokenize(text);
@@ -17677,13 +17646,12 @@ connection.onHover((params) => {
   if (token) {
     let leType = "Unknown";
     let description = "";
-    const templates = templatesOf(params.textDocument.uri, text);
+    const templates = token.type === 6 /* Comment */ ? [] : templatesOf(params.textDocument.uri, text);
     let templateMatch = null;
     const sortedTemplates = [...templates].sort((a, b) => b.label.length - a.label.length);
     for (const template of sortedTemplates) {
       const parts = template.label.split(/\*[^*]+\*/);
-      if (parts.length < 2)
-        continue;
+      if (parts.length < 2) continue;
       const regexParts = parts.map((p) => p.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+"));
       const regexStr = "\\b" + regexParts.join("\\s+(" + argPattern + ")\\s*") + "\\b";
       try {
@@ -17715,8 +17683,7 @@ connection.onHover((params) => {
             break;
           }
         }
-        if (templateMatch)
-          break;
+        if (templateMatch) break;
       } catch (e) {
       }
     }

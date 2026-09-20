@@ -572,16 +572,18 @@ as for `answeringQuery`; optional `hideRepeated`; optional `answerIndex`
                 "queryConditions": [ ... ], "queryConditionTokens": [ ... ],
                 "queryRanges": [ ... ], "queryNaf": [ ... ], "queryForall": [ ... ],
                 "queryTypeCheck": [ ... ],
-                "explanation": <explanation of the chosen answer>,
-                "answers": [ "<answer label>", ... ], "answerIndex": 0 } }
+                "explanation": <explanation of the chosen answer, or of the failure>,
+                "answers": [ "<answer label>", ... ], "answerIndex": 0,
+                "failed": false } }
 ```
 
 The rule and fact cards are built by `le_proof_game.pl` for the Proof Game
 window ([the Proof Game](../guide/proof-game.md)); their shape is that
 window's. `answers` holds up to 25 answers, an answer that holds by
-assumption labelled with its assumptions. A query without an answer replies
-`{ "error": "You need a query with an answer to play" }`; a failure to build
-the game replies `{ "error": "...", "gameDataError": true }`.
+assumption labelled with its assumptions. A query with NO answer is played as
+a failure: `answers` is empty, `failed` is `true` and `explanation` is the
+query's failure explanation — the spine of the failure the board builds. A
+failure to build the game replies `{ "error": "...", "gameDataError": true }`.
 
 ### `unifyGameNodes` — Check a Proof Game board
 

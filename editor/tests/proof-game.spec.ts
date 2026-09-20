@@ -375,3 +375,71 @@ test.describe('Proof Game — heart failure guideline', () => {
         await expect(frank.locator('.rule-node', { hasText: 'Frank has a contraindication to aldosterone antagonists' }).first()).toBeVisible();
     });
 });
+
+// A query with NO answer used to be refused ("You need a query with an answer to
+// play"). It is now played as a FAILURE: the server sends the query's failure
+// explanation as the spine, and the board builds why it fails — exactly as it
+// already did under a negation. Here the record states no saturation for Ann, so
+// nothing proves "Ann is hypoxemic" and the claim is not payable.
+const NO_ANSWER = `the target language is: prolog.
+
+the templates are:
+    *a claim* is payable.
+    *a claim* is for *an item*; undefined.
+    the code of *an item* is *a code*; undefined.
+    *an item* is furnished to *a person*; undefined.
+    the saturation of *a person* is *a number*; undefined.
+    *a person* is hypoxemic.
+
+the knowledge base oxygen includes:
+
+a claim is payable
+    if the claim is for an item
+    and the code of the item is "A1"
+    and the item is furnished to a person
+    and the person is hypoxemic.
+
+a person is hypoxemic
+    if the saturation of the person is a number
+    and the number <= 88.
+
+scenario ann is:
+    claim 1 is for the concentrator.
+    the code of the concentrator is "A1".
+    the concentrator is furnished to Ann.
+
+query pay is:
+    which claim is payable.
+`;
+
+test.describe('Proof Game — a query with no answer', () => {
+    test('plays the failure, and Show Proof completes it', async ({ page }) => {
+        test.setTimeout(120000);
+        const popup = await openGame(page, NO_ANSWER, 'ann', 'pay');
+        // the toolbar says what is being built
+        await expect(popup.locator('#failed-banner')).toBeVisible();
+        // the query card is the goal that fails: it plays in failing mode, and its
+        // socket takes several links (every rule that tried must fail)
+        await expect.poll(async () => popup.evaluate(() => {
+            const q = (window as any).__pgTest.nodes().find((n: any) => n.kind === 'QueryNode');
+            return !!q && q.failing;
+        }), { timeout: 30000 }).toBe(true);
+        await showProofCompletes(popup, 0);
+        // the failure bottoms out in a FAIL: nothing states Ann's saturation
+        const board = await popup.evaluate(() => {
+            const t = (window as any).__pgTest;
+            const nodes = t.nodes();
+            const query = nodes.find((n: any) => n.kind === 'QueryNode');
+            const conns = t.connections();
+            const under = conns.filter((c: any) => c.target === query.id).map((c: any) => c.source);
+            return {
+                fails: nodes.filter((n: any) => n.kind === 'FailNode').length,
+                failingCards: nodes.filter((n: any) => n.kind === 'RuleNode' && n.failing).length,
+                underQuery: under.length,
+            };
+        });
+        expect(board.fails).toBeGreaterThan(0);
+        expect(board.failingCards).toBe(2);   // the payable rule and the hypoxemic rule
+        expect(board.underQuery).toBe(1);
+    });
+});
