@@ -18,7 +18,7 @@
 :- use_module(library(plunit)).
 :- use_module('../le_kbs').
 :- use_module('../le_documents').
-:- use_module('../classic_web_api').
+:- use_module('../le_api').
 :- use_module(library(pcre)).
 :- dynamic user:le_test_seen_quote/0.
 
@@ -624,7 +624,7 @@ query q is:
     which person is happy.
 ", KB),
     createSession(KB, SM),
-    classic_web_api:handle_answering_query(
+    le_api:handle_answering_query(
         _{sessionModule: SM, customScenario: "Bob has a pet, as stated in the register at page 2.", query: "q"}, R),
     destroySession(SM),
     R.results = [Res|_],

@@ -98,6 +98,7 @@
 ]).
 
 :- use_module(library(http/json)).
+:- use_module(library(time)).      % call_with_time_limit/2 (autoloaded before; the WASM build has a shim)
 :- use_module(le_i18n).
 :- use_module(library(base64)).
 :- use_module(library(process)).

@@ -576,7 +576,7 @@ comment_prefix([L0|Ls], Cs) :-
 %   Collects example dicts (name, summary) from Dir and its subdirectories.
 %   Subdirectory examples have names of the form "subdir/name".
 %   An MCP/REST client has no session and so no roles: like the editor's own
-%   listing (classic_web_api:list_examples_in_dir/4), the listing leaves out
+%   listing (le_api:list_examples_in_dir/4), the listing leaves out
 %   the role-gated trees (restricted_paths.pl) — which also spares it loading
 %   every program of them for a summary.
 list_examples_with_summaries(Dir, Prefix, Examples) :-
@@ -606,10 +606,10 @@ list_examples_with_summaries(Dir, Prefix, Examples) :-
     append(DirectExamples, SubExamplesFlat, Examples).
 
 %   A copy of a lib/ library beside the programs that include it
-%   (classic_web_api:library_copy/2), when the web API is loaded.
+%   (le_api:library_copy/2), when the web API is loaded.
 library_copy_in(Dir, Base) :-
     ( sub_atom(Dir, _, 1, 0, '/') -> D = Dir ; atom_concat(Dir, '/', D) ),
-    catch(classic_web_api:library_copy(D, Base), _, fail).
+    catch(le_api:library_copy(D, Base), _, fail).
 
 % --- MCP Helpers ---
 

@@ -17,7 +17,7 @@
 :- use_module('../le_kbs').
 :- use_module('../le_verifier').
 :- use_module('../nl_to_le').
-:- use_module('../classic_web_api').
+:- use_module('../le_api').
 
 program("the target language is: prolog.
 
@@ -69,7 +69,7 @@ test(values_written_right_are_silent) :-
 test(typed_in_case_reports_value_warnings, [nondet]) :-
     program(P), load_text(P, KB),
     createSession(KB, SM),
-    classic_web_api:handle_answering_query(
+    le_api:handle_answering_query(
         _{sessionModule: SM, customScenario: "the claims of p3 is \"2\".", query: "loading"}, R),
     get_dict(valueWarnings, R, [W]),
     assertion(W.kind == mistyped),
@@ -97,7 +97,7 @@ scenario yes is:
     the input is complete.
 ", KB),
     createSession(KB, SM),
-    classic_web_api:handle_answering_query(
+    le_api:handle_answering_query(
         _{sessionModule: SM, scenario: "yes", customQuery: "the business_event is valid"}, R),
     assertion(\+ get_dict(error, R, _)),
     R.results = [_|_].

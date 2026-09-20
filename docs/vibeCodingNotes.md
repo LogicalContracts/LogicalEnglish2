@@ -2288,7 +2288,7 @@ display(timeless, [
 
 ...again not covering 3 of the 5 fluents (and I think we should display at least all fluents that CHANGE over the program's execution), and which resulted in the weird rendering in underground.png , notice the '_24584:fire'. 
 
-## No such session
+## 'No such session' bug
 
 Received this issue from Sentry. I just know the user was fiddling with a 2d display, clicking back and forth between program, timeline, 2d display:
 

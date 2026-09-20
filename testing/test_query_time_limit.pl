@@ -11,7 +11,7 @@
 :- module(test_query_time_limit, []).
 
 :- use_module(library(plunit)).
-:- use_module('../classic_web_api').
+:- use_module('../le_api').
 :- use_module('../le_kbs').
 
 %   Exponentially many proofs of "40 is reachable", each then failing on
@@ -57,7 +57,7 @@ test(a_looping_query_times_out_with_a_reply) :-
     le_kbs:createSession(KB, SM),
     le_kbs:setScenarion(SM, s),
     get_time(T0),
-    classic_web_api:run_interruptible_query(SM, "loop", KB, 2, Response),
+    le_api:run_interruptible_query(SM, "loop", KB, 2, Response),
     get_time(T1),
     le_kbs:destroySession(SM),
     assertion(get_dict(timedOut, Response, true)),
@@ -65,9 +65,9 @@ test(a_looping_query_times_out_with_a_reply) :-
     assertion(T1 - T0 < 30).
 
 test(the_operation_limits) :-
-    classic_web_api:operation_time_limit(_{operation: "answeringQuery"}, L1),
-    classic_web_api:operation_time_limit(_{operation: "answeringQuery", debug: true}, L2),
-    classic_web_api:operation_time_limit(_{operation: "load"}, L3),
+    le_api:operation_time_limit(_{operation: "answeringQuery"}, L1),
+    le_api:operation_time_limit(_{operation: "answeringQuery", debug: true}, L2),
+    le_api:operation_time_limit(_{operation: "load"}, L3),
     assertion(L1 == 300), assertion(L2 == 3660), assertion(L3 == 300).
 
 :- end_tests(query_time_limit).

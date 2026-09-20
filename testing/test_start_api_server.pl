@@ -15,7 +15,7 @@
 :- use_module(library(plunit)).
 :- use_module(library(socket)).
 % classic_web_api.pl lives in the repo root, one level up from this file.
-:- use_module('../classic_web_api').
+:- use_module('../le_api').
 
 % Open a listening socket on an OS-assigned (ephemeral) loopback port so the
 % test never collides with a real service. Port is unified with the chosen port.

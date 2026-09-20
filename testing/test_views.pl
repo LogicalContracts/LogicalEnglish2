@@ -14,7 +14,7 @@
 :- use_module(library(plunit)).
 :- use_module('../le_kbs').
 :- use_module('../le_views').
-:- use_module('../classic_web_api').
+:- use_module('../le_api').
 
 program(View, Text) :-
     format(string(Text), "the target language is: prolog.
@@ -274,7 +274,7 @@ test(automatic_view) :-
     assertion(J.judged == true),
     assertion(length(G.facts, 3)),
     createSession(KB, SM), atom_string(SM, SMS),
-    classic_web_api:handle_automatic_view(_{sessionModule: SMS, name: "regulatory/benefit.le"}, R),
+    le_api:handle_automatic_view(_{sessionModule: SMS, name: "regulatory/benefit.le"}, R),
     assertion(R.view.title == "Help"),
     destroySession(SM).
 
@@ -282,11 +282,11 @@ test(automatic_view) :-
 test(open_questions_and_checklist) :-
     program("", P), load_text(P, KB),
     createSession(KB, SM), atom_string(SM, SMS),
-    classic_web_api:handle_open_questions(_{sessionModule: SMS, scenario: "bob", query: "help"}, R),
+    le_api:handle_open_questions(_{sessionModule: SMS, scenario: "bob", query: "help"}, R),
     assertion(R.holds == false),
     findall(L, member(_{literal: L, label: _, goal: _, values: _}, R.missing), Ls),
     assertion(Ls == ["bob is on a low income"]),
-    classic_web_api:handle_answering_query(_{sessionModule: SMS, scenario: "ann", query: "help"}, A),
+    le_api:handle_answering_query(_{sessionModule: SMS, scenario: "ann", query: "help"}, A),
     assertion(A.checklist == []).
 
 % A view in the program's language: its sentences are rows of keywords.csv,

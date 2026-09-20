@@ -22,7 +22,7 @@
 :- use_module(library(plunit)).
 :- use_module('../le_kbs').
 :- use_module('../le_verifier').
-:- use_module('../classic_web_api').
+:- use_module('../le_api').
 
 garments("the target language is: prolog.
 
@@ -297,7 +297,7 @@ test(as_stated_in_column_names_the_document) :-
 test(row_node_and_citation) :-
     tax("confer", P), load_text(P, KB),
     createSession(KB, SM), atom_string(SM, SMS),
-    classic_web_api:handle_answering_query(_{sessionModule: SMS, query: "q", scenario: "s"}, R),
+    le_api:handle_answering_query(_{sessionModule: SMS, query: "q", scenario: "s"}, R),
     R.results = [Answer|_],
     assertion(row_quote(Answer.why, "20 percent up to 50,000")),
     sub_string(P, B, _, _, "    b2 "), !,
@@ -336,7 +336,7 @@ query q is:
     which person is eligible.
 ", KB),
     createSession(KB, SM), atom_string(SM, SMS),
-    classic_web_api:handle_answering_query(_{sessionModule: SMS, query: "q", scenario: "s"}, R),
+    le_api:handle_answering_query(_{sessionModule: SMS, query: "q", scenario: "s"}, R),
     R.results = [Answer|_],
     assertion(plain_of(Answer.why, "ann is resident")).
 

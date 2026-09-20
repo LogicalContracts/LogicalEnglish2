@@ -17,7 +17,7 @@
 :- use_module(library(plunit)).
 :- use_module('../le_kbs').
 :- use_module('../reasoner').
-:- use_module('../classic_web_api').
+:- use_module('../le_api').
 
 % The type of the explanation node whose literal is exactly Lit, for query `happy`
 % run against Scenario.
@@ -25,7 +25,7 @@ node_type_for(Scenario, Lit, Type) :-
     le_kbs:load('testing/fixtures/le/assumed_coloring.le', KB),
     le_kbs:createSession(KB, SM),
     le_kbs:setScenarion(SM, Scenario),
-    classic_web_api:run_answering_query(SM, happy, KB, Response),
+    le_api:run_answering_query(SM, happy, KB, Response),
     get_dict(results, Response, [R|_]),
     get_dict(why, R, Why),
     once(find_node_type(Why, Lit, Type)),

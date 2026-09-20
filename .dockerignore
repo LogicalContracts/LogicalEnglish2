@@ -12,3 +12,7 @@ examples/moreExamples/._*
 docs/vibeCodingNotes.md
 docs/RK_book
 docs/papers
+
+# The WebAssembly build: not in the image (the Dockerfile copies neither), and
+# 32 MB of context if it were left in.
+wasm/dist

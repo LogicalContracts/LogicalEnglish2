@@ -20,7 +20,7 @@
 :- use_module(library(filesex)).
 :- use_module('../le_kbs').
 :- use_module('../le_import').
-:- use_module('../classic_web_api').
+:- use_module('../le_api').
 :- use_module('../le_documents').
 
 :- prolog_load_context(file, F), retractall(this_file(_)), assertz(this_file(F)).
@@ -172,7 +172,7 @@ test(formats_listed) :-
 %   File > Show the Original lists that folder (operation originals).
 test(originals_kept_beside_the_program) :-
     import_upload("my rules.arrows", text("a => b\n"), R, []),
-    classic_web_api:handle_originals(_{source: R.source}, O),
+    le_api:handle_originals(_{source: R.source}, O),
     O.files == ["sources/my rules.arrows"],
     le_example_relpath(R.source, Path), file_directory_name(Path, Dir),
     le_documents:document_text("sources/my rules.arrows", Dir, [], T),
@@ -183,11 +183,11 @@ test(originals_of_an_archive) :-
     zip_of(Zip, ['proj/rules.arrows'-"p => q\n", 'proj/readme.txt'-"hello"]),
     base64_of_file(Zip, B64),
     import_upload("proj.zip", base64(B64), R, []),
-    classic_web_api:handle_originals(_{source: R.source}, O),
+    le_api:handle_originals(_{source: R.source}, O),
     O.files == ["sources/readme.txt", "sources/rules.arrows"].
 
 test(no_originals_for_a_program_not_converted) :-
-    classic_web_api:handle_originals(_{source: "moreExamples/citizenship"}, O),
+    le_api:handle_originals(_{source: "moreExamples/citizenship"}, O),
     O.files == [].
 
 %   The way back: only the exporters that can write a program are offered,

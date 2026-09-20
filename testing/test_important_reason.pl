@@ -17,7 +17,7 @@
 
 :- use_module(library(plunit)).
 :- use_module('../le_kbs').
-:- use_module('../classic_web_api').
+:- use_module('../le_api').
 
 % failed_query_reason(+Program, +Scenario, +Query, -Reason, -Path)
 failed_query_reason(Program, Scenario, Query, Reason, Path) :-
@@ -25,7 +25,7 @@ failed_query_reason(Program, Scenario, Query, Reason, Path) :-
     le_kbs:createSession(KB, SM),
     setup_call_cleanup(true,
         ( le_kbs:setScenarion(SM, Scenario),
-          classic_web_api:run_answering_query(SM, Query, KB, Response),
+          le_api:run_answering_query(SM, Query, KB, Response),
           get_dict(results, Response, []),                 % zero answers (failed)
           get_dict(strongestReason, Response, Reason),
           get_dict(strongestReasonPath, Response, Path)
@@ -93,7 +93,7 @@ test(type_guard_nodes_are_excluded) :-
             _{type: "failure", literal: "x is a payment", typeCheck: true, children: []}
         ]}
     ]},
-    classic_web_api:important_reason_failed(Tree, false, Reason, Path),
+    le_api:important_reason_failed(Tree, false, Reason, Path),
     assertion(sub_atom_icasechk(Reason, _, "shallow reason")),
     assertion(\+ sub_atom_icasechk(Reason, _, "payment")),
     assertion(Path == "1.1").
@@ -123,8 +123,8 @@ test(rule_attempt_wrappers_are_depth_transparent) :-
             ]}
         ]}
     ]},
-    classic_web_api:important_reason_failed(Plain, false, RP, _),
-    classic_web_api:important_reason_failed(Detailed, false, RD, _),
+    le_api:important_reason_failed(Plain, false, RP, _),
+    le_api:important_reason_failed(Detailed, false, RD, _),
     assertion(sub_atom_icasechk(RP, _, "the real reason")),
     assertion(RP == RD).
 
@@ -140,7 +140,7 @@ four_deepest_tree(_{type: "failure", literal: "the query fails", children: [
 
 test(larger_reasons_lists_up_to_three_deepest) :-
     four_deepest_tree(Tree),
-    classic_web_api:important_reason_failed(Tree, true, Reason, Path),
+    le_api:important_reason_failed(Tree, true, Reason, Path),
     assertion(sub_atom_icasechk(Reason, _, "it is not the case that a is missing")),
     assertion(sub_atom_icasechk(Reason, _, "nor that b is missing")),
     assertion(sub_atom_icasechk(Reason, _, "nor that c is missing")),
@@ -150,7 +150,7 @@ test(larger_reasons_lists_up_to_three_deepest) :-
 
 test(single_reason_uses_only_the_first) :-
     four_deepest_tree(Tree),
-    classic_web_api:important_reason_failed(Tree, false, Reason, _),
+    le_api:important_reason_failed(Tree, false, Reason, _),
     assertion(sub_atom_icasechk(Reason, _, "a is missing")),
     assertion(\+ sub_atom_icasechk(Reason, _, "b is missing")).
 
@@ -161,7 +161,7 @@ test(larger_reasons_no_truncation_when_three) :-
         _{type: "failure", literal: "b is missing", children: []},
         _{type: "failure", literal: "c is missing", children: []}
     ]},
-    classic_web_api:important_reason_failed(Tree, true, Reason, _),
+    le_api:important_reason_failed(Tree, true, Reason, _),
     assertion(sub_atom_icasechk(Reason, _, "nor that c is missing")),
     assertion(\+ sub_atom(Reason, _, _, _, "…")).
 
@@ -183,7 +183,7 @@ success_subtree_tree(_{type: "failure", literal: "top fails", children: [
 
 test(larger_reasons_span_depths_and_skip_success_subtrees) :-
     success_subtree_tree(Tree),
-    classic_web_api:important_reason_failed(Tree, true, Reason, _),
+    le_api:important_reason_failed(Tree, true, Reason, _),
     assertion(sub_atom_icasechk(Reason, _, "the shallow condition")),   % depth-2 leaf
     assertion(sub_atom_icasechk(Reason, _, "nor that the deep condition")),  % depth-3 leaf
     assertion(\+ sub_atom_icasechk(Reason, _, "exhausted")),            % under SUCCESS — skipped
@@ -191,7 +191,7 @@ test(larger_reasons_span_depths_and_skip_success_subtrees) :-
 
 test(single_reason_is_the_deepest_leaf_skipping_success) :-
     success_subtree_tree(Tree),
-    classic_web_api:important_reason_failed(Tree, false, Reason, _),
+    le_api:important_reason_failed(Tree, false, Reason, _),
     assertion(sub_atom_icasechk(Reason, _, "the deep condition")),
     assertion(\+ sub_atom_icasechk(Reason, _, "shallow condition")),
     assertion(\+ sub_atom_icasechk(Reason, _, "exhausted")).

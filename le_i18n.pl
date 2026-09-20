@@ -95,8 +95,12 @@ LANG=C.UTF-8).', [Lang]))
 %   for every letter the ASCII-only ctype cannot see. Written as numeric codes,
 %   not as literals: this very file would be mis-decoded under the locale the
 %   check exists to detect.
+%   Both tests are of Unicode-table classes (tokenizer:word_char/1 asks for
+%   `alnum`, never `csym`): a build whose C library has no locales — the
+%   WebAssembly one — passes them, and a server under LANG=C still fails them,
+%   which is the case the warning is for.
 utf8_ctype_ok :-
-    code_type(0'\xE3\, csym),
+    code_type(0'\xE3\, alnum),
     code_type(0'\xE9\, alpha).
 
 :- thread_local active_language_flag/1.
