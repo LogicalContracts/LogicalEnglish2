@@ -443,3 +443,41 @@ test.describe('Proof Game — a query with no answer', () => {
         expect(board.underQuery).toBe(1);
     });
 });
+
+// examples/moreExamples/language/negation/propositional.le, as reported: the
+// suggested solution had ONE branch under the query where it should have two.
+// "p if q and r." is written on one line, so its whole body is compiled as a
+// conjunction with a source range of its own and fails as a single explanation
+// node spanning both conditions — which matched no body range, so that rule was
+// dropped from the plan and only "p if s" was shown failing.
+const PROPOSITIONAL = fs.readFileSync(
+    path.join(__dirname, '../../examples/moreExamples/language/negation/propositional.le'), 'utf8');
+
+test.describe('Proof Game — a goal failing through a one-line conjunctive body', () => {
+    test('shows every rule that tried, not just the one with a single condition', async ({ page }) => {
+        test.setTimeout(120000);
+        const popup = await openGame(page, PROPOSITIONAL, 'u', 'p');
+        await showProofCompletes(popup, 0);
+        const board = await popup.evaluate(() => {
+            const t = (window as any).__pgTest;
+            const nodes = t.nodes(), conns = t.connections();
+            const query = nodes.find((n: any) => n.kind === 'QueryNode');
+            const under = conns.filter((c: any) => c.target === query.id)
+                .map((c: any) => nodes.find((n: any) => n.id === c.source));
+            // the failing "r if t" card, under the "p if q and r" branch
+            const pqr = under.find((n: any) => n && n.inputs.length === 2);
+            const belowR = pqr ? conns.filter((c: any) => c.target === pqr.id && c.targetInput === 'in-1')
+                .map((c: any) => nodes.find((n: any) => n.id === c.source)) : [];
+            return {
+                heads: under.map((n: any) => n && n.head).sort(),
+                sockets: under.map((n: any) => n && n.inputs.length).sort(),
+                belowR: belowR.map((n: any) => n && (n.head || n.kind)),
+            };
+        });
+        // both rules for p fail, and both are on the query's socket
+        expect(board.heads).toEqual(['p', 'p']);
+        expect(board.sockets).toEqual([1, 2]);   // "p if s" and "p if q and r"
+        // and the branch that was missing carries on: r fails because t does
+        expect(board.belowR).toEqual(['r']);
+    });
+});

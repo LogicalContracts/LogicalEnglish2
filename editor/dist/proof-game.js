@@ -125964,6 +125964,11 @@ function mergeFailPlan(into, other) {
   into.fail = into.fail || other.fail;
   into.rules.push(...other.rules);
 }
+function conditionFailPlan(rule, idx, ch, rules) {
+  if ((rule.bodyTypeCheck || []).includes(idx)) return null;
+  const holds = (rule.bodyNaf || []).includes(idx) ? (ch.children || []).find((c2) => c2.type === "success") : null;
+  return holds ? { fail: false, rules: [], proof: holds } : failurePlan(ch, rules);
+}
 function failurePlan(expFail, rules) {
   const plan = { fail: false, rules: [] };
   const failChildren = (expFail?.children || []).filter((c2) => c2.type === "failure");
@@ -125986,24 +125991,43 @@ function failurePlan(expFail, rules) {
     }
     let rule = provRules.find((r2) => (r2.bodyRanges || []).some((br) => br.start === ch.start && br.end === ch.end));
     if (rule) {
-      const idx2 = rule.bodyRanges.findIndex((br) => br.start === ch.start && br.end === ch.end);
-      const computed = (rule.bodyTypeCheck || []).includes(idx2);
-      const holds = (rule.bodyNaf || []).includes(idx2) ? (ch.children || []).find((c2) => c2.type === "success") : null;
-      plan.rules.push({ ruleId: rule.id, conds: computed ? /* @__PURE__ */ new Map() : /* @__PURE__ */ new Map([[idx2, holds ? { fail: false, rules: [], proof: holds } : failurePlan(ch, rules)]]) });
+      const idx = rule.bodyRanges.findIndex((br) => br.start === ch.start && br.end === ch.end);
+      const sub = conditionFailPlan(rule, idx, ch, rules);
+      plan.rules.push({
+        ruleId: rule.id,
+        conds: sub ? /* @__PURE__ */ new Map([[idx, sub]]) : /* @__PURE__ */ new Map()
+      });
       continue;
     }
     const within = (br) => br.end > br.start && br.start <= ch.start && ch.end <= br.end;
     rule = provRules.find((r2) => (r2.bodyRanges || []).some(within));
-    if (!rule) continue;
-    const idx = rule.bodyRanges.findIndex(within);
-    const key = `${rule.id}/${idx}`;
-    let card = disjunctCards.get(key);
-    if (!card) {
-      card = { ruleId: rule.id, conds: /* @__PURE__ */ new Map([[idx, { fail: false, rules: [] }]]) };
-      disjunctCards.set(key, card);
-      plan.rules.push(card);
+    if (rule) {
+      const idx = rule.bodyRanges.findIndex(within);
+      const key = `${rule.id}/${idx}`;
+      let card2 = disjunctCards.get(key);
+      if (!card2) {
+        card2 = { ruleId: rule.id, conds: /* @__PURE__ */ new Map([[idx, { fail: false, rules: [] }]]) };
+        disjunctCards.set(key, card2);
+        plan.rules.push(card2);
+      }
+      mergeFailPlan(card2.conds.get(idx), failurePlan(ch, rules));
+      continue;
     }
-    mergeFailPlan(card.conds.get(idx), failurePlan(ch, rules));
+    const spans = (br) => br.end > br.start && ch.start <= br.start && br.end <= ch.end;
+    rule = provRules.find((r2) => (r2.bodyRanges || []).some(spans));
+    if (!rule) continue;
+    const card = { ruleId: rule.id, conds: /* @__PURE__ */ new Map() };
+    for (const gc of (ch.children || []).filter((c2) => c2.type === "failure")) {
+      const idx = rule.bodyRanges.findIndex((br) => br.start === gc.start && br.end === gc.end || br.end > br.start && br.start <= gc.start && gc.end <= br.end);
+      if (idx < 0) continue;
+      const sub = conditionFailPlan(rule, idx, gc, rules);
+      if (!sub) continue;
+      const prev2 = card.conds.get(idx);
+      if (!prev2) card.conds.set(idx, sub);
+      else if (sub.proof) prev2.proof = sub.proof;
+      else mergeFailPlan(prev2, sub);
+    }
+    plan.rules.push(card);
   }
   if (!plan.fail && plan.rules.length === 0) plan.fail = true;
   return plan;
