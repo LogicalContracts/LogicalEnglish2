@@ -46,11 +46,12 @@ Bundling Monaco is a change to the editor's build, not to this one; LPS2's IDE
 already bundles its own.
 
 What the site does carry is about 30 MB on disk, of which the visitor
-downloads **about 3 MB compressed** before the first question can be answered —
+downloads **about 3.2 MB compressed** before the first question can be answered —
 the SWI-Prolog runtime (0.8 MB of WebAssembly and 1.2 MB of its library) and
-one payload file of 1.1 MB carrying LE2's Prolog, the i18n dictionaries, the
-shared LE libraries, the examples and the originals the migrated ones were
-converted from. The rest — the editor's own bundle,
+one payload file of 1.3 MB carrying LE2's Prolog, the i18n dictionaries, the
+shared LE libraries, the examples, the originals the migrated ones were
+converted from, and the user documentation as text (which the Light Assistant
+searches). The rest — the editor's own bundle,
 Monaco from a CDN, the documentation and its images — arrives as it is needed,
 and the browser caches all of it.
 
@@ -159,6 +160,7 @@ vercel env add LE_PROXY_ALLOW production    # optional: the hostnames, comma-sep
 |---|---|
 | `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `MISTRAL_API_KEY`, `DEEPSEEK_API_KEY`, `GEMINI_API_KEY` | the key added to a request to that provider. A provider with no key configured is still forwarded to, without one |
 | `LE_PROXY_ALLOW` | the hostnames that may be reached, comma-separated. Unset means the default list (the providers `llm/llm_client.pl` knows, plus `raw.githubusercontent.com`); **empty means none**, which turns the outbound half off |
+| `LE_PROXY_KEYS_ONLY` | `1` to refuse a request for a host the deployment has no key of its own for. Without it, the proxy forwards the **caller's** key when it has none — which is what makes bring-your-own-key work in a browser, and what the Light Assistant uses when a visitor types their own key into the editor |
 
 To deploy with no proxy at all, set `proxy: ''` in
 `wasm/dist/le-wasm/config.js` (it is a plain file, editable after the build)
@@ -198,7 +200,7 @@ Check what a build contains at any time:
 | | Why | What the user sees |
 |---|---|---|
 | The **HTTP API itself** — `POST /leapi`, `/list_examples`, `/query`, `/verify`, and **MCP** at `/mcp` | they are addresses *other programs* call, and this deployment is a page, not a service: the operations run inside the tab, and nothing listens on the outside | `curl` gets a 404; an MCP client cannot use this deployment at all |
-| The **LE Assistant** and the **Contract Assistant** | they run `opencode` as a sub-process; a tab cannot start a program | the operation answers that it failed |
+| The **Deep** LE Assistant and the **Contract Assistant** | they run `opencode` as a sub-process, in a working directory; a tab has neither | Deep mode answers "choose Light mode, which runs here"; the Contract Assistant reports its job failed |
 | The **debugger** (*Trace*) | it is a second thread talking a websocket to the editor, and there is one thread | tracing is not offered |
 | **Interrupting** a running query | the interrupt arrives on another thread, and there is one | a query runs to its limit |
 | **Accounts**, restricted examples | no server, nothing private shipped | no login link (the page is built without one) |
@@ -206,6 +208,27 @@ Check what a build contains at any time:
 | Running the **test suite** from the landing page | it is a server's job | the button is not there |
 | A landing page **focused on one folder** (`/?dir=…`) | the page is rendered once, at build time, and a static host cannot render a different one per query | the full list; the folders still collapse and expand, which is client-side |
 | **Sentry**, web analytics | no server to report to | `/telemetry.js` is an empty file |
+
+**The Light Assistant does work**, and is the exception worth stating
+separately. It is a Prolog-native agentic loop — the model, then in-process
+tools (verify, query, search the documentation) — with no sub-process anywhere
+in it, so the only thing it needed was somewhere to run without a thread: it
+runs *in* the request instead (`le_assistant.pl`, guarded by
+`current_prolog_flag(threads, true)`). Three consequences, all of them the
+single thread's:
+
+* the call does not return until the loop is done, so the progress lines
+  arrive together at the end rather than streaming, and no other operation is
+  answered while it runs (the page stays responsive — the engine is in a
+  worker);
+* `assistant_interrupt` has nothing to interrupt, and says the job is
+  finished, which by then it is;
+* the model is reached through the proxy, so a deployment that wants the
+  assistant needs `/api/proxy` — with a key of its own, or with the user's own
+  key forwarded (§ *The environment*).
+
+The build carries `docs/user/**.md` in the payload for it, so the assistant
+searches and cites the documentation exactly as the server's does.
 
 The first row is the one to keep in mind when choosing between the two
 deployments: **the WebAssembly build is an application, not a service.** A

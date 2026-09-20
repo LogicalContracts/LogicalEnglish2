@@ -243,13 +243,36 @@ handle_assistant_command(Dict, Response) :-
         % from ?lang= by set_request_language), so its progress messages come
         % out localized.
         le_i18n:le_active_language(UILang),
-        thread_create(le_i18n:with_le_language(UILang,
-                le_assistant_light:run_light_assistant_thread(JobID, Command, Content, Model, APIKeys, UserRoles, MaxSteps)), ThreadID, [detached(true)]),
-        asserta(assistant_job(JobID, ThreadID)),
+        Job = le_i18n:with_le_language(UILang,
+                  le_assistant_light:run_light_assistant_thread(JobID, Command, Content,
+                                                                Model, APIKeys, UserRoles, MaxSteps)),
+        (   current_prolog_flag(threads, true)
+        ->  thread_create(Job, ThreadID, [detached(true)]),
+            asserta(assistant_job(JobID, ThreadID))
+        ;   %  No threads: the WebAssembly build (wasm/le_wasm.pl). The Light
+            %  Assistant needs none of what the Deep one does — no
+            %  sub-process, no working directory, only the model and the
+            %  in-process tools — so it runs here instead, in the request.
+            %
+            %  What that costs, and it is worth knowing: this call does not
+            %  return until the whole loop is done (a minute or so for ten
+            %  steps), so the progress lines all arrive at once at the end and
+            %  `assistant_interrupt` has nothing to interrupt. The page itself
+            %  is not blocked — the engine is in a worker — but no other
+            %  operation is answered while it runs.
+            call(Job)
+        ),
         Response = _{
             result: ok,
             job_id: JobID
         }
+    ;   \+ current_prolog_flag(threads, true)
+    ->  %  Deep mode is `opencode` in a sub-process, in a working directory of
+        %  its own. A browser has neither (wasm/shims/process.pl), and the
+        %  failure it would otherwise produce — an existence error on a file
+        %  nobody asked for — tells the user nothing. Say what to do instead.
+        le_i18n:le_msg(assistant_deep_needs_server, [], Msg),
+        Response = _{result: error, error: Msg}
     ;   ( get_dict(command, Dict, Command) -> true ; Command = "" ),
         ( get_dict(content, Dict, Content) -> true ; Content = "" ),
         ( get_dict(session_id, Dict, SessionID0) -> 
@@ -488,6 +511,13 @@ handle_assistant_interrupt(Dict, Response) :-
             Response = _{result: ok, message: "Job interrupted"}
         ;   Response = _{result: ok, message: "Job already finished"}
         )
+    ;   %  A job with a status but no thread or process of its own: the Light
+        %  Assistant run inline, where there are no threads to run it on
+        %  (handle_assistant_command/2). It is finished by the time anything
+        %  can ask about it, and saying "not found" of a job whose result is
+        %  sitting right there would be a lie.
+        assistant_job_status(JobID, _)
+    ->  Response = _{result: ok, message: "Job already finished"}
     ;   Response = _{result: error, error: "Job not found"}
     ).
 

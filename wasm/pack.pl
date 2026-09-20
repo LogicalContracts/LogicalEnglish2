@@ -51,9 +51,17 @@
 %!  payload_tree(?Spec) is nondet.
 %
 %   Spec is dir(Rel, Extensions) — every file under Rel whose extension is in
-%   the list (`any` for all of them) — or files(Rel, Extensions) for one
-%   directory without its subdirectories.
+%   the list (`any` for all of them) — files(Rel, Extensions) for one
+%   directory without its subdirectories, or prefixed(Rel, Prefix, Extensions)
+%   for the files of one directory whose names begin with Prefix.
 payload_tree(files('.',      [pl])).           % LE2 itself
+%   The Light Assistant's system prompt, and its translations
+%   (le_i18n:localized_asset/3 finds AGENTS_LE_template.<lang>.md beside it).
+%   Without this file the assistant fails at its first step with an
+%   existence_error on a name nobody would connect to a payload list. By
+%   prefix, so a new language's copy comes along; not `files('.', [md])`,
+%   which would also ship this repository's own README and notes.
+payload_tree(prefixed('.', 'AGENTS_LE_template', [md])).
 payload_tree(dir('wasm',     [pl])).           % this build's entry and its shims
 payload_tree(dir('i18n',     [csv, pl])).      % the dictionaries, read at load
 payload_tree(files('llm',    [pl])).
@@ -65,6 +73,12 @@ payload_tree(dir('examples', [le, pl, md, csv, json, txt, png, jpg, svg])).
 %   menu entry that finds nothing. Their own formats, which are nobody else's
 %   extensions — a LegalRuleML file, an OIA policy, a Daml or Solidity source.
 payload_tree(dir('examples', [lrml, policy, yaml, html, cpp, py, sol, daml, drl, epilog])).
+%   The user documentation, as text. Not for reading — the site serves the
+%   same files for that — but because the Light Assistant searches it for the
+%   request and cites what it finds (le_docs_search.pl, over docs/user and its
+%   nav.json). 0.2 MB compressed, and without it the assistant answers
+%   questions about Logical English with no documents to point at.
+payload_tree(dir('docs/user', [md, json])).
 
 %!  never(+Rel) is semidet.
 %
@@ -112,6 +126,12 @@ tree_file(Root, dir(Sub, Exts), Rel) :-
 tree_file(Root, files(Sub, Exts), Rel) :-
     directory_member_rel(Root, Sub, false, Rel0),
     extension_ok(Rel0, Exts),
+    Rel = Rel0.
+tree_file(Root, prefixed(Sub, Prefix, Exts), Rel) :-
+    directory_member_rel(Root, Sub, false, Rel0),
+    extension_ok(Rel0, Exts),
+    file_base_name(Rel0, Base),
+    sub_atom(Base, 0, _, _, Prefix),
     Rel = Rel0.
 
 extension_ok(_, any) :- !.
