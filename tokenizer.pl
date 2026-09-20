@@ -309,7 +309,28 @@ white_prefix(VW, CC) --> [C], { code_type(C, white), C \== 10, C \== 13 }, !,
     white_prefix(VW1, CC1), { VW is VW1 + VInc, CC is CC1 + CInc }.
 white_prefix(0, 0) --> [].
 
-word_remainder([C|Cs]) --> [C], { code_type(C, csym) }, !, word_remainder(Cs).
+%!  word_char(+Code) is semidet.
+%
+%   A character that continues a word. `csym` is the answer — letters, digits
+%   and the underscore — and on a server with a UTF-8 locale it is the whole
+%   answer.
+%
+%   `alnum` is here for the ones where it is not. code_type/2 classifies
+%   `csym` through the C library's LC_CTYPE, and two builds do not have a
+%   useful one: a server started under LANG=C (le_i18n:ensure_utf8_ctype
+%   warns about it) and the WebAssembly build, whose C library has no locales
+%   at all. In both, 'ã' is not `csym`, so "são" tokenized as "s", "ã", "o"
+%   and a perfectly well formed Portuguese program came back malformed.
+%   `alnum` and `alpha` are classified from SWI-Prolog's own Unicode tables
+%   instead, and are right everywhere.
+%
+%   This widens nothing where the locale works: alnum is csym without the
+%   underscore, so the second clause can only add characters the first one
+%   should have matched and did not.
+word_char(C) :- code_type(C, csym), !.
+word_char(C) :- code_type(C, alnum).
+
+word_remainder([C|Cs]) --> [C], { word_char(C) }, !, word_remainder(Cs).
 % A lone apostrophe (no matching quote before the end of the line) attaches to the
 % word, so templates may contain possessives/contractions, e.g. "employers'",
 % "don't". At most one apostrophe per word; a quote that has a partner ahead on
@@ -321,7 +342,7 @@ word_remainder([])     --> [].
 
 % Like word_remainder, but never absorbs a further apostrophe: this caps a word at
 % a single apostrophe, keeping a second quote available to delimit a string.
-word_remainder_no_quote([C|Cs]) --> [C], { code_type(C, csym) }, !, word_remainder_no_quote(Cs).
+word_remainder_no_quote([C|Cs]) --> [C], { word_char(C) }, !, word_remainder_no_quote(Cs).
 word_remainder_no_quote([])     --> [].
 
 % Lookahead: unify Rest with the remaining input without consuming anything.

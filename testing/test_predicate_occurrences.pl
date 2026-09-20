@@ -1,8 +1,8 @@
 % Tests for the editor's "Show occurrences" backing operation
-% (classic_web_api:predicate_occurrences/4, reached from /leapi as
+% (le_api:predicate_occurrences/4, reached from /leapi as
 % predicateOccurrences). No server: the KB is loaded straight from text.
 :- use_module('../le_kbs').
-:- use_module('../classic_web_api').
+:- use_module('../le_api').
 
 :- begin_tests(predicate_occurrences).
 
@@ -36,11 +36,11 @@ kb(KB) :- program(P), le_kbs:load_text(P, KB).
 
 % The kinds of every occurrence of F/A, in document order.
 kinds(KB, F, A, Kinds) :-
-    classic_web_api:predicate_occurrences(KB, F, A, R),
+    le_api:predicate_occurrences(KB, F, A, R),
     findall(K, member(_{start: _, end: _, kind: K, context: _, text: _}, R.occurrences), Kinds).
 
 occurrences(KB, F, A, Occs) :-
-    classic_web_api:predicate_occurrences(KB, F, A, R),
+    le_api:predicate_occurrences(KB, F, A, R),
     Occs = R.occurrences.
 
 % A predicate defined by one rule and asked about in a query: its declaration,
@@ -107,13 +107,13 @@ test(cursor_on_a_condition_finds_that_predicate) :-
     program(P),
     sub_string(P, Before, _, _, "if the person is healthy"), !,
     Pos is Before + 10,
-    assertion(classic_web_api:predicate_at_pos(KB, Pos, "    if the person is healthy.", is_healthy, 1)).
+    assertion(le_api:predicate_at_pos(KB, Pos, "    if the person is healthy.", is_healthy, 1)).
 
 % A position with nothing at it fails rather than inventing a predicate: the
 % handler turns that into "No predicate at this position".
 test(no_predicate_at_a_blank_position) :-
     kb(KB),
-    assertion(\+ classic_web_api:predicate_at_pos(KB, 0, "", _, _)).
+    assertion(\+ le_api:predicate_at_pos(KB, 0, "", _, _)).
 
 % A knowledge base whose LAST item is a rule labelled with provenance: its
 % source range must still end at a position. It used to end at the label's
@@ -139,8 +139,8 @@ test(kb_ending_with_a_provenance_rule_has_a_numeric_range) :-
            assertion((integer(S), integer(E)))),
     sub_string(P, Before, _, _, "a good is a suit"), !,
     Pos is Before + 3,
-    assertion(classic_web_api:predicate_at_pos(KB, Pos, "a good is a suit", Before, is_a_suit, 1)),
-    classic_web_api:predicate_occurrences(KB, is_a_suit, 1, R),
+    assertion(le_api:predicate_at_pos(KB, Pos, "a good is a suit", Before, is_a_suit, 1)),
+    le_api:predicate_occurrences(KB, is_a_suit, 1, R),
     assertion(R.occurrences \== []).
 
 :- end_tests(predicate_occurrences).
@@ -203,15 +203,15 @@ line_at(Program, Prefix, LineStart, Line, Pos) :-
 test(cursor_on_a_prepositional_head_finds_the_head_predicate) :-
     fold_kb(KB), fold_program(P),
     line_at(P, "we will make a payment under this policy in respect of a claim\n", LS1, L1, Pos1),
-    assertion(classic_web_api:predicate_at_pos(KB, Pos1, L1, LS1, we_will_make, 1)),
+    assertion(le_api:predicate_at_pos(KB, Pos1, L1, LS1, we_will_make, 1)),
     line_at(P, "we will make a payment under this policy in respect of a claim against", LS2, L2, Pos2),
-    assertion(classic_web_api:predicate_at_pos(KB, Pos2, L2, LS2, we_will_make, 1)).
+    assertion(le_api:predicate_at_pos(KB, Pos2, L2, LS2, we_will_make, 1)).
 
 % ... and "Fold all rules" then has BOTH rules to fold, the second one being
 % the head with the extra prepositional argument.
 test(both_rules_of_the_folded_predicate_are_returned) :-
     fold_kb(KB), fold_program(P),
-    classic_web_api:predicate_places(KB, we_will_make, 1, R),
+    le_api:predicate_places(KB, we_will_make, 1, R),
     assertion(length(R.rules, 2)),
     findall(S, member(_{start: S, end: _}, R.rules), Starts),
     sub_string(P, First, _, _, "we will make a payment under this policy in respect of a claim\n"),
@@ -225,7 +225,7 @@ test(both_rules_of_the_folded_predicate_are_returned) :-
 test(head_wins_on_word_fraction_without_the_line_offset) :-
     fold_kb(KB), fold_program(P),
     line_at(P, "we will make a payment under this policy in respect of a claim\n", _, L1, Pos1),
-    assertion(classic_web_api:predicate_at_pos(KB, Pos1, L1, we_will_make, 1)).
+    assertion(le_api:predicate_at_pos(KB, Pos1, L1, we_will_make, 1)).
 
 % A condition still resolves to the condition, on both paths: the line offset
 % says "not the head line", and the fraction score prefers the literal the line
@@ -233,9 +233,9 @@ test(head_wins_on_word_fraction_without_the_line_offset) :-
 test(cursor_on_a_condition_of_such_a_rule_finds_the_condition) :-
     fold_kb(KB), fold_program(P),
     line_at(P, "    and the payment in respect of the claim fulfills", LS, L, Pos),
-    assertion(classic_web_api:predicate_at_pos(KB, Pos, L, LS,
+    assertion(le_api:predicate_at_pos(KB, Pos, L, LS,
                   in_respect_of_fulfills_all_the_general_conditions_of, 3)),
     line_at(P, "    if the claim is covered by this section", LS2, L2, Pos2),
-    assertion(classic_web_api:predicate_at_pos(KB, Pos2, L2, LS2, is_covered_by_this_section, 1)).
+    assertion(le_api:predicate_at_pos(KB, Pos2, L2, LS2, is_covered_by_this_section, 1)).
 
 :- end_tests(predicate_at_cursor).

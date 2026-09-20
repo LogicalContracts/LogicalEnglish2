@@ -6,7 +6,7 @@
 %   '<session>':le_kb_module_fact/1").
 
 :- use_module(library(plunit)).
-:- use_module('../classic_web_api').
+:- use_module('../le_api').
 
 :- begin_tests(session_expired_ops).
 
@@ -14,7 +14,7 @@ gone('sbe9a5a39-b20c-11f1-ae01-dead737d1823').
 
 test(predicate_at_on_a_gone_session) :-
     gone(SM),
-    classic_web_api:handle_operation(_{operation: "predicateAt", sessionModule: SM,
+    le_api:handle_operation(_{operation: "predicateAt", sessionModule: SM,
                                        position: 10, line: "a person is happy", lineStart: 0}, R),
     assertion(get_dict(session_expired, R, true)).
 
@@ -22,11 +22,11 @@ test(every_session_operation) :-
     gone(SM),
     forall(member(Op, ["predicateOccurrences", "provenanceAt", "originalTextAt", "getProlog",
                        "getScasp", "openQuestions", "testReport", "graph"]),
-           ( classic_web_api:handle_operation(_{operation: Op, sessionModule: SM, position: 0, line: ""}, R),
+           ( le_api:handle_operation(_{operation: Op, sessionModule: SM, position: 0, line: ""}, R),
              assertion(get_dict(session_expired, R, true)) )).
 
 test(no_session_is_not_expired) :-
-    classic_web_api:handle_operation(_{operation: "importFormats"}, R),
+    le_api:handle_operation(_{operation: "importFormats"}, R),
     assertion(\+ get_dict(session_expired, R, _)).
 
 :- end_tests(session_expired_ops).

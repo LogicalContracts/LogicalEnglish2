@@ -18,7 +18,7 @@
 :- use_module(library(plunit)).
 :- use_module('../le_kbs').
 :- use_module('../le_why_not').
-:- use_module('../classic_web_api').
+:- use_module('../le_api').
 :- use_module('../nl_to_le').
 
 oxygen("the target language is: prolog.
@@ -136,11 +136,11 @@ test(rule_progress_counts, [nondet]) :-
 test(api_unmet_and_open_questions) :-
     oxygen(P), load_text(P, KB),
     createSession(KB, SM), atom_string(SM, SMS),
-    classic_web_api:handle_answering_query(_{sessionModule: SMS, scenario: "ann", query: "pay", whyNot: true}, R),
+    le_api:handle_answering_query(_{sessionModule: SMS, scenario: "ann", query: "pay", whyNot: true}, R),
     assertion(R.results == []),
     R.unmet = [U],
     assertion(U.kind == not_stated),
-    classic_web_api:handle_open_questions(_{sessionModule: SMS, scenario: "ann", query: "pay"}, Q),
+    le_api:handle_open_questions(_{sessionModule: SMS, scenario: "ann", query: "pay"}, Q),
     get_dict(missing, Q, Missing),
     Missing = [L|_], get_dict(literal, L, Lit),
     assertion(sub_string(Lit, 0, _, _, "the saturation of Ann")),

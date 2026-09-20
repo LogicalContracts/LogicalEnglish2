@@ -18,7 +18,7 @@
 :- use_module('../le_kbs').
 :- use_module('../le_lps_legal').
 :- use_module('../le_writer').
-:- use_module('../classic_web_api').
+:- use_module('../le_api').
 
 bank("the target language is: lps.
 
@@ -234,13 +234,13 @@ test(no_actions_said) :-
 
 test(operation) :-
     bank(Doc),
-    classic_web_api:handle_legal_view(_{le: Doc}, R),
+    le_api:handle_legal_view(_{le: Doc}, R),
     get_dict(document, R, D),
     assertion(sub_string(D, _, _, _, "may transfer")),
     assertion(R.name == 'bank').
 
 test(operation_refuses_prolog) :-
-    classic_web_api:handle_legal_view(_{le: "the target language is: prolog.\n\nthe knowledge base k includes:\n\nalice is happy.\n"}, R),
+    le_api:handle_legal_view(_{le: "the target language is: prolog.\n\nthe knowledge base k includes:\n\nalice is happy.\n"}, R),
     assertion(get_dict(error, R, _)).
 
 :- end_tests(lps_legal_api).

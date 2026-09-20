@@ -12,8 +12,8 @@
 :- module(test_answer_explain_api, []).
 
 :- use_module(library(plunit)).
-% classic_web_api.pl lives in the repo root, one level up from this file.
-:- use_module('../classic_web_api').
+% le_api.pl (the operations) lives in the repo root, one level up from this file.
+:- use_module('../le_api').
 
 citizenship(Doc) :-
     read_file_to_string('examples/moreExamples/citizenship.le', Doc, []).
@@ -27,27 +27,27 @@ result_literal(Result, Literal) :-
 
 test(explain_returns_explanations) :-
     citizenship(Doc),
-    classic_web_api:handle_explain(_{document: Doc, theQuery: "one", scenario: "alice"}, R),
+    le_api:handle_explain(_{document: Doc, theQuery: "one", scenario: "alice"}, R),
     get_dict(results, R, [First|_]),
     result_literal(First, Literal),
     assertion(Literal == "John acquires British citizenship on 2021-10-09").
 
 test(answer_returns_one_explanation) :-
     citizenship(Doc),
-    classic_web_api:handle_answer(_{document: Doc, theQuery: "one", scenario: "harry"}, R),
+    le_api:handle_answer(_{document: Doc, theQuery: "one", scenario: "harry"}, R),
     get_dict(answer, R, Answer),
     result_literal(Answer, Literal),
     assertion(Literal == "John acquires British citizenship on 2021-10-09").
 
 test(unknown_scenario_is_reported) :-
     citizenship(Doc),
-    classic_web_api:handle_explain(_{document: Doc, theQuery: "one", scenario: "nobody"}, R),
+    le_api:handle_explain(_{document: Doc, theQuery: "one", scenario: "nobody"}, R),
     assertion(get_dict(error, R, "Scenario not found")).
 
 % A document with relative includes finds them through `source`, as `load` does.
 test(includes_resolve_against_source) :-
     Doc = "the target language is: prolog.\n\nthe knowledge base k includes these resources:\n    citizenship.\n\nthe knowledge base k includes:\n\nscenario s is:\n    Bob is born in the UK on 2021-10-09.\n    2021-10-09 is after commencement.\n    Ann is the mother of Bob.\n    Ann is a British citizen on 2021-10-09.\n\nquery q is:\n    which person acquires British citizenship on which date.\n",
-    classic_web_api:handle_explain(_{document: Doc, theQuery: "q", scenario: "s", source: "citizenship"}, R),
+    le_api:handle_explain(_{document: Doc, theQuery: "q", scenario: "s", source: "citizenship"}, R),
     get_dict(results, R, [First|_]),
     result_literal(First, Literal),
     assertion(Literal == "Bob acquires British citizenship on 2021-10-09").
@@ -84,7 +84,7 @@ scenario s is, as stated in the order book at page 12:
 query q is:
     the discount of which guest is which percentage.
 ",
-    classic_web_api:handle_explain(_{document: Doc, theQuery: "q", scenario: "s"}, R),
+    le_api:handle_explain(_{document: Doc, theQuery: "q", scenario: "s"}, R),
     get_dict(results, R, Results),
     findall(T-L-P, ( json_node(Results, N), is_dict(N), get_dict(literal, N, L), get_dict(type, N, T),
                      ( get_dict(provenance, N, P0) -> P = P0 ; P = none ) ), Nodes),
@@ -122,7 +122,7 @@ scenario s is:
 query q is:
     the age of which person is which number.
 ",
-    classic_web_api:handle_explain(_{document: Doc, theQuery: "q", scenario: "s",
+    le_api:handle_explain(_{document: Doc, theQuery: "q", scenario: "s",
                                      source: "migration/miniscript/liana_inheritance/liana_inheritance"}, R),
     get_dict(results, R, [First|_]),
     result_literal(First, Literal),

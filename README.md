@@ -39,6 +39,7 @@ The LE 2.0 environment provides a powerful, web-based IDE for developing and tes
 You can configure the deployment using the following environment variables:
 - `NO_RESTRICTIONS`: Set to `true` to disable the role restrictions on example trees (`restricted_paths.pl`).
 - `ALLOWED_LE_EXPORTS`: Comma-separated directories whose examples the `/source/` endpoint may serve (fly.toml sets `examples/moreExamples`).
+- `LE_STATIC_EXPORT`: Set to `1` when the server is being *copied* rather than used: the server-rendered pages then leave out the login link and the button that runs the test suite, which a static copy cannot honour. `wasm/build.sh` sets it while it fetches those pages for the WebAssembly build ([docs/dev/deploy-vercel.md](./docs/dev/deploy-vercel.md)).
 - `OPENAI_API_KEY`: API key for OpenAI models.
 - `ANTHROPIC_API_KEY`: API key for Anthropic models.
 - `GEMINI_API_KEY`, `GOOGLE_API_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`: API key for Google Gemini models.
@@ -152,6 +153,23 @@ docker run -p 3050:3050 le2
 The editor will be available at `http://localhost:3050/editor/`.
 
 The public deployment runs on fly.io (`fly.toml`): `buildPush.sh` builds the image from a copy of the tree with symlinks dereferenced (so the proprietary extensions and examples are included) and runs `fly deploy --local-only`. API keys are set as fly secrets.
+
+### Without a server: the WebAssembly build
+
+There is a second deployment, which needs no container and no server at all:
+`wasm/build.sh` turns LE2 into a directory of static files, with SWI-Prolog
+compiled to WebAssembly and running in the visitor's own tab. Both deployments
+answer the same operations — `le_api.pl`, which has no transport in it — so an
+operation is implemented once.
+
+```bash
+./wasm/build.sh                                 # → wasm/dist/
+node wasm/runtime/serve.mjs wasm/dist 8080      # → http://localhost:8080/
+cd wasm/dist && vercel deploy --prod            # or any static host
+```
+
+What it can and cannot do (no assistants, no debugger, no accounts, no HTTP
+API), and how to deploy it: [docs/dev/deploy-vercel.md](./docs/dev/deploy-vercel.md).
 
 ---
 

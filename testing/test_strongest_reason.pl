@@ -12,7 +12,7 @@
 :- module(test_strongest_reason, []).
 
 :- use_module(library(plunit)).
-:- use_module('../classic_web_api').
+:- use_module('../le_api').
 
 leaf(Lit, _{literal:Lit, children:[]}).
 node(Lit, Children, _{literal:Lit, children:Children}).
@@ -21,12 +21,12 @@ node(Lit, Children, _{literal:Lit, children:Children}).
 :- begin_tests(strongest_reason).
 
 test(empty_tree_no_reason) :-
-    classic_web_api:strongest_reason([], none, R, _),
+    le_api:strongest_reason([], none, R, _),
     assertion(R == "").
 
 test(single_node_is_its_own_reason) :-
     leaf("solo", T),
-    classic_web_api:strongest_reason(T, none, R, _),
+    le_api:strongest_reason(T, none, R, _),
     assertion(R == "solo").
 
 test(node_closest_to_half_wins) :-
@@ -35,7 +35,7 @@ test(node_closest_to_half_wins) :-
     leaf("a1", A1), leaf("a2", A2), leaf("b", B),
     node("a", [A1, A2], A),
     node("root", [A, B], T),
-    classic_web_api:strongest_reason(T, none, R, P),
+    le_api:strongest_reason(T, none, R, P),
     assertion(R == "a"),
     assertion(P == "1.1").
 
@@ -44,7 +44,7 @@ test(forest_total_is_all_nodes) :-
     % larger subtree (r1) wins.
     leaf("x", X), leaf("y", Y), leaf("r2", R2),
     node("r1", [X, Y], R1),
-    classic_web_api:strongest_reason([R1, R2], none, R, _),
+    le_api:strongest_reason([R1, R2], none, R, _),
     assertion(R == "r1").
 
 test(tie_breaks_to_larger_subtree) :-
@@ -52,20 +52,20 @@ test(tie_breaks_to_larger_subtree) :-
     % equal leaves tie and resolve deterministically (by literal order) to c1.
     leaf("c1", C1), leaf("c2", C2),
     node("root", [C1, C2], T),
-    classic_web_api:strongest_reason(T, none, R, _),
+    le_api:strongest_reason(T, none, R, _),
     assertion(R == "c1").
 
 test(failure_node_gets_negation_prefix) :-
     % A chosen failure node reads as "it is not the case that <literal>".
     T = _{literal:"bob smokes", type:"failure", children:[]},
-    classic_web_api:strongest_reason(T, none, R, _),
+    le_api:strongest_reason(T, none, R, _),
     assertion(R == "it is not the case that bob smokes").
 
 test(failed_naf_node_drops_its_prefix) :-
     % A failed NAF node already reads "it is not the case that X"; negating it strips
     % the phrase back to "X" rather than double-prefixing.
     T = _{literal:"it is not the case that bob smokes", type:"failure", children:[]},
-    classic_web_api:strongest_reason(T, none, R, _),
+    le_api:strongest_reason(T, none, R, _),
     assertion(R == "bob smokes").
 
 test(weightier_internal_node_beats_leaves) :-
@@ -74,7 +74,7 @@ test(weightier_internal_node_beats_leaves) :-
     leaf("l1", L1), leaf("l2", L2), leaf("l3", L3), leaf("says", Says),
     node("Harry is the father of John", [Says], Father),   % weight 2
     node("root", [L1, L2, Father, L3], T),
-    classic_web_api:strongest_reason(T, none, R, _),
+    le_api:strongest_reason(T, none, R, _),
     assertion(R == "Harry is the father of John").
 
 :- end_tests(strongest_reason).
@@ -94,7 +94,7 @@ tree(T) :-
 
 test(rule_attempt_node_is_transparent) :-
     tree(T),
-    classic_web_api:strongest_reason(T, none, R, _),
+    le_api:strongest_reason(T, none, R, _),
     assertion(R \== "rule-attempt"),
     assertion(memberchk(R, ["m1", "m2", "x1", "x2"])).
 
@@ -103,7 +103,7 @@ test(without_the_marker_the_node_would_win) :-
     leaf("m1", M1), leaf("m2", M2), leaf("x1", X1), leaf("x2", X2),
     node("plain", [M1, M2], M),
     node("R", [M, X1, X2], T),
-    classic_web_api:strongest_reason(T, none, R, _),
+    le_api:strongest_reason(T, none, R, _),
     assertion(R == "plain").
 
 :- end_tests(strongest_reason_transparency).
@@ -120,7 +120,7 @@ dtree(_{literal:"root", children:[
 
 pending_path(Answers, Path) :-
     dtree(T),
-    classic_web_api:drill_loop(none, T, Answers, "", [], [], _Qs, _Top, _Und, Pending),
+    le_api:drill_loop(none, T, Answers, "", [], [], _Qs, _Top, _Und, Pending),
     ( Pending == null -> Path = done ; get_dict(path, Pending, Path) ).
 
 test(first_question_is_strongest) :- pending_path([], P), assertion(P == "1.1").
@@ -134,14 +134,14 @@ test(tree_root_is_never_offered) :-
     % being explained) must never be offered — only their descendants (a/b).
     leaf("a", A), leaf("b", B), leaf("r2", R2),
     node("r1", [A, B], R1),
-    classic_web_api:drill_loop(none, [R1, R2], [], "", [], [], _Qs, _Top, _Und, Pending),
+    le_api:drill_loop(none, [R1, R2], [], "", [], [], _Qs, _Top, _Und, Pending),
     Pending \== null,
     get_dict(text, Pending, T),
     assertion(memberchk(T, ["a", "b"])).
 
 test(understood_and_questions_tracked) :-
     dtree(T),
-    classic_web_api:drill_loop(none, T, ["not_yet","yes"], "", [], [], Qs, Top, Und, _P),
+    le_api:drill_loop(none, T, ["not_yet","yes"], "", [], [], Qs, Top, Und, _P),
     % Descended into "a" (1.1), then understood "a1" (1.1.1).
     assertion(Top == "1.1"),
     assertion(Und == ["1.1.1"]),
@@ -154,7 +154,7 @@ test(exhausted_region_returns_to_enclosing_region) :-
     pending_path(["not_yet","yes","yes"], P),
     assertion(P == "1.3"),
     dtree(T),
-    classic_web_api:drill_loop(none, T, ["not_yet","yes","yes"], "", [], [], _, Top, Und, _),
+    le_api:drill_loop(none, T, ["not_yet","yes","yes"], "", [], [], _, Top, Und, _),
     assertion(Top == ""),
     assertion(memberchk("1.1", Und)).
 
@@ -173,12 +173,12 @@ ntree(_{literal:"root", type:"success", children:[
 
 test(negation_pair_is_one_reason_at_the_row_reading_as_it) :-
     ntree(T),
-    classic_web_api:strongest_reason(T, none, R, P),
+    le_api:strongest_reason(T, none, R, P),
     assertion(R == "x"), assertion(P == "1.1.1").
 
 test(negation_pair_is_asked_once) :-
     ntree(T),
-    classic_web_api:drill_loop(none, T, ["not_yet","yes","yes"], "", [], [], Qs, _, _, Pending),
+    le_api:drill_loop(none, T, ["not_yet","yes","yes"], "", [], [], Qs, _, _, Pending),
     maplist([Q,X]>>get_dict(text, Q, X), Qs, Texts),
     assertion(Texts == ["x", "x1", "x2"]),
     get_dict(text, Pending, PT), assertion(PT == "b").

@@ -90,6 +90,20 @@ Other Prolog/editor commands:
 - Verify LE file: `SWIPL -g "use_module(le_kbs), verify('examples/moreExamples/citizenship.le'), halt."`
 - Editor build: `cd editor && npm run build`; start: `cd editor && npm start`.
 
+**Two deployments, one set of operations.** Everything the editor asks for is
+`handle_operation/2` in `le_api.pl`, which has no transport in it.
+`classic_web_api.pl` is the HTTP half (the server on fly.io: routes, pages,
+login, docs); `wasm/le_wasm.pl` is the other half (the browser: LE2 compiled to
+WebAssembly, served as static files from Vercel — `docs/dev/deploy-vercel.md`,
+`wasm/README.md`). **A new operation goes in `le_api.pl` and both get it; a new
+route or page goes in `classic_web_api.pl` and only the server has it.** Build
+and check the browser one with:
+- `./wasm/build.sh --skip-editor` → `wasm/dist/`
+- `node wasm/runtime/serve.mjs wasm/dist 8080` (the deployment's own routing)
+- `cd editor && npx playwright test -c playwright.wasm.config.ts` — the editor's
+  own e2e suite against it; `wasm/TESTING.md` says what passes and what
+  cannot (the assistants, the debugger, the REST/MCP endpoints).
+
 **IMPORTANT:** You MUST run `testing/run_tests.sh` (which covers the Prolog unit, LE
 example, and Editor E2E Playwright suites) after completing every feature or making
 any changes. Do NOT commit your changes to git.

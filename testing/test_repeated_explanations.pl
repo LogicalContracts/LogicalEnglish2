@@ -13,7 +13,7 @@
 :- module(test_repeated_explanations, []).
 
 :- use_module(library(plunit)).
-:- use_module('../classic_web_api').
+:- use_module('../le_api').
 
 % A forest whose subtree "x" (non-leaf: x -> leaf) appears under both "a" and "b".
 % Client paths:  root=1, a=1.1, x(first)=1.1.1, b=1.2, x(proxy)=1.2.1.
@@ -35,8 +35,8 @@ first_proxy(J, P) :-
 
 marked_json(JSON) :-
     sample_forest(Forest),
-    classic_web_api:mark_cross_tree_repeats(Forest, Marked),
-    classic_web_api:convert_why(Marked, none, JSON).
+    le_api:mark_cross_tree_repeats(Forest, Marked),
+    le_api:convert_why(Marked, none, JSON).
 
 :- begin_tests(repeated_explanations).
 

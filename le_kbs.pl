@@ -55,6 +55,7 @@
 :- use_module(le_sections).
 :- use_module(le_services).
 :- use_module(le_flip).
+:- use_module(library(time)).      % call_with_time_limit/2; the WASM build substitutes wasm/shims/time.pl
 :- use_module(library(uuid)).
 :- use_module(library(pcre)).
 :- use_module(library(www_browser)).
