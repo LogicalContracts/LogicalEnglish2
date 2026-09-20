@@ -25,3 +25,7 @@ le_best_match,any list any,the best match of {1} among {2} is {3},a melhor corre
 le_satisfies_description,any any,{1} satisfies the description {2},{1} satisfaz a descrição {2},{1} satisface la descripción {2},{1} satisfait la description {2},{1} soddisfa la descrizione {2}
 le_published_at,any any,{1} is published at {2},{1} está publicado em {2}|{1} está publicada em {2},{1} está publicado en {2}|{1} está publicada en {2},{1} est publié à {2}|{1} est publiée à {2},{1} è pubblicato a {2}|{1} è pubblicata a {2}
 le_text_at,any any,the text of {1} is at {2},o texto de {1} está em {2},el texto de {1} está en {2},le texte de {1} est à {2},il testo di {1} è a {2}
+le_gas_of,any number,the gas of {1} is {2},o gás de {1} é {2},el gas de {1} es {2},le gaz de {1} est {2},il gas di {1} è {2}
+le_code_size,number,the code size of the contract is {1},o tamanho do código do contrato é {1},el tamaño del código del contrato es {1},la taille du code du contrat est {1},la dimensione del codice del contratto è {1}
+le_call_data_of,any number,the call data of {1} is {2} bytes,os dados de chamada de {1} são {2} bytes,los datos de llamada de {1} son {2} bytes,les données d'appel de {1} sont {2} octets,i dati di chiamata di {1} sono {2} byte
+le_largest_number,number,the largest whole number is {1},o maior número inteiro é {1},el número entero más grande es {1},le plus grand nombre entier est {1},il più grande numero intero è {1}

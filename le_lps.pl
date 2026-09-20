@@ -1122,6 +1122,83 @@ builtin(le_is_in(X, L),       member(X, L)).
 builtin(le_known(X),          ground(X)).
 builtin(prolog_call(G),       G).
 
+		 /*******************************
+		 *	 resource budgets	*
+		 *******************************/
+
+%!  budget_goal(?Goal, ?Which, ?Of) is nondet.
+%
+%   The three sentences an author writes about what the *contract* this
+%   program becomes may cost (i18n/system_templates.csv: `the gas of …`, `the
+%   code size of the contract is …`, `the call data of … is … bytes`). They
+%   are conditions of an ordinary integrity constraint, and LPS lowers them to
+%   nothing: they are addressed to an exporter.
+%   lpsPlus/migration/solidity/lps_solidity.pl reads them off the program and
+%   checks each against what it measured of the contract it wrote — the sizes
+%   from solc, the gas from an EVM replay of the program's own scenario —
+%   refusing to emit a contract that breaks one
+%   (lpsPlus/docs/strategy/ExtendingLanguagesCoverage.md §2.1.5 E2).
+budget_goal(le_gas_of(Of, _),       gas,       Of).
+budget_goal(le_code_size(_),        code_size, contract).
+budget_goal(le_call_data_of(Of, _), call_data, Of).
+
+%   And this is what one does when the program is *run* rather than deployed:
+%   it says the figure is not modelled here, once, and fails. There is no
+%   contract to measure in a run and no gas model yet (§2.1.4's G2), so the
+%   alternative would be a budget that quietly holds — worse than no budget.
+%   Defined in `user` because a compiled knowledge base is its own module and
+%   resolves what it does not define there.
+:- multifile
+	user:le_gas_of/2,
+	user:le_code_size/1,
+	user:le_call_data_of/2.
+
+user:le_gas_of(Of, _)       :- le_lps:budget_not_modelled(gas, Of).
+user:le_code_size(_)        :- le_lps:budget_not_modelled(code_size, contract).
+user:le_call_data_of(Of, _) :- le_lps:budget_not_modelled(call_data, Of).
+
+:- dynamic budget_said/2.
+
+budget_not_modelled(Which, Of) :-
+	(   budget_said(Which, Of)
+	->  true
+	;   assertz(budget_said(Which, Of)),
+	    budget_words(Which, Key),
+	    le_i18n:le_msg(Key, [what-Of], M),
+	    print_message(warning, format('~w', [M]))
+	),
+	fail.
+
+budget_words(gas, budget_gas_not_modelled).
+budget_words(code_size, budget_size_not_modelled).
+budget_words(call_data, budget_calldata_not_modelled).
+
+%!  user:le_largest_number(-N) is det.
+%
+%   `the largest whole number is *a number*` (i18n/system_templates.csv): the
+%   largest value a whole number can take where this program is *deployed*.
+%   It is here so that a program can say the bound its target enforces anyway
+%   —
+%
+%       it must not be true that
+%           a depositor deposits an amount
+%           and the balance of the depositor is a second amount
+%           and the largest whole number is a third amount
+%           and second amount + amount > the third amount.
+%
+%   — and then mean the same thing in a run as on the chain: LPS refuses the
+%   action, and the contract's checked `+` reverts (Panic 0x11) at the same
+%   point. Without the sentence the two differ silently, which is what
+%   lpsPlus/docs/strategy/ExtendingLanguagesCoverage.md §2.1.2 is about.
+%
+%   The figure is 2^256 - 1: the EVM's word, which is what
+%   lpsPlus/migration/solidity/lps_solidity.pl gives every number it has no
+%   narrower type for. A program deployed somewhere narrower says its own
+%   bound with an ordinary constant instead.
+:- multifile user:le_largest_number/1.
+
+user:le_largest_number(115792089237316195423570985008687907853269984665640564039457584007913129639935).
+
 strip_le_at(le_at(G, _, _), G) :- !.
 strip_le_at(G, G).
 
@@ -1183,6 +1260,12 @@ body_goal(goals(L), G) :- !, body_goal(L, G).
 body_goal(X, X).
 
 %   What a goal is that LPS cannot evaluate, in words (i18n keys).
+%
+%   The resource budgets are the exception among LE's own built-ins: they are
+%   read by whoever deploys the program, not by LPS, so LPS keeps them as they
+%   are written instead of refusing the program that carries one.
+not_lps_goal(_, G, _) :- budget_goal(G, _, _), !, fail.
+not_lps_goal(_, le_largest_number(_), _) :- !, fail.
 not_lps_goal(_, G, What) :-
 	compound(G), functor(G, F, N),
 	memberchk(F/N, [le_at/3, lps_at/2, lps_from_to/3, lps_from/2, lps_to/2,
