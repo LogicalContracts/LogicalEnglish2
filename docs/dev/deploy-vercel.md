@@ -179,7 +179,12 @@ by this build.
 On top of that: no symbolic links (`le_extensions.pl`, `le_importers.pl` and
 the `insureLE2`/`lpsPlus` example trees are links into private repositories,
 and a link resolves perfectly well on the machine that builds — which is
-exactly what makes it dangerous), and no `le_users.db`.
+exactly what makes it dangerous), and no `le_users.db`. The second rule is
+the one that keeps `restricted_paths:open_to_everyone/1` out of the payload:
+the files it names (the Medicare power mobility policy) pass the first rule,
+but they sit in a linked tree and need `le_extensions.pl`, so the static site
+neither ships nor could run them — the pages that link to them name the
+server.
 
 `--private` turns both off, for a deployment that is not public. The build
 says so, loudly, when it does.
