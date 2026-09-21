@@ -148,7 +148,10 @@ A first component that is a language code with an `examples/<lang>/` tree
 
 Some example trees are restricted to roles (`restricted_paths.pl`). The
 server reads the roles from the login session cookie (`/login`); a request
-without one has no roles.
+without one has no roles. A few programs of a restricted tree are open to
+everyone by name — those a public page links to, such as
+`"lpsPlus/medicare/pmd_cases"` — while their folder stays out of
+`listExamples`.
 
 ---
 

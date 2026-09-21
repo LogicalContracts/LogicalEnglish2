@@ -36,7 +36,7 @@ workers.
 | `/multilingual`, `/executive` | a language picker, or with `?lang=` a landing page for `examples/<lang>/`; the executive view |
 | `/docs/…` | the user documentation, only under `docs/user/` (`public_doc/1`); a document name answers the markdown viewer `web_extras/docsview/viewer.html`; old paths redirect (`doc_moved/2`) |
 | `/source/<example>` | an example's `.le` text, only under the directories listed in `ALLOWED_LE_EXPORTS` and allowed for the user's roles |
-| `/login`, `/logout`, `/whoami` | sessions for users of `le_users.db` (`le_users.pl`); roles gate example trees (`restricted_paths.pl`) |
+| `/login`, `/logout`, `/whoami` | sessions for users of `le_users.db` (`le_users.pl`); roles gate example trees (`restricted_paths.pl`); single files of a gated tree that a public page links to are let out by name (`open_to_everyone/1`: the program, what it includes, the texts it cites — never a folder), and `testing/test_restricted_paths.pl` keeps the exception that narrow |
 | `/telemetry.js`, `/telemetry_test` | Sentry and Cloudflare configuration, off unless configured ([telemetry.md](telemetry.md)) |
 | `POST /test_services/…` | stub services for programs that declare services (`le_services.pl`) |
 | `/build_info` | the build string |
