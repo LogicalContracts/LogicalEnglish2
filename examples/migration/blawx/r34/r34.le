@@ -50,11 +50,7 @@ the templates are:
     *a payment* is of payment type *a payment type*; scenario element.
     *a payment* has *a compensation type*; scenario element.
     *a legal practitioner* may accept the EA *an executive appointment*.
-    % `; memorable` (language.md §2.4): the rules ask "is X a business entity"
-    % hundreds of times with the same X in one query; its proof, a cascade of
-    % negations over the entity's other classifications, is computed once per
-    % query and replayed — the tests of this program run about three times faster.
-    *a business entity* is a business entity; memorable.
+    *a business entity* is a business entity.
     *a service* is a service; scenario element.
     *an executive appointment* is an executive appointment in *a business entity*.
     *a business entity* provides *a service*; scenario element.
