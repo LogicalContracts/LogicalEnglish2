@@ -12,8 +12,9 @@
 % equal to`, ...); this library adds what those do not give.
 %
 % Each template is implemented by the predicate of temporal.pl named after it
-% (LE's functor for the template, e.g. `is_years_after/3`), so the library is
-% core LE: no embedded `prolog` goals, which need le_extensions.pl.
+% (LE's functor for the template, e.g. `is_years_after/3`), so the LE file
+% carries no Prolog text: no embedded `prolog` goals (language.md §15.6),
+% only sentences.
 %
 % What is NOT here: Oracle Intelligent Advisor's change-point semantics
 % (attributes as step functions recomputed over time). A rulebase that leans

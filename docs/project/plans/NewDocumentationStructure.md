@@ -135,7 +135,7 @@ Inv investor or prospect. ★ marks a document users are shown today (§1).
 | `unless` / `and unless` | §15.3 | le_extensions §4 |
 | Grouped alternatives: `either:`, `any of:`, `at least one of:`, `all of:` | §15.4 | le_extensions §5 |
 | Numbered rule bodies (`1.`, `4.2.1.`, `; and` / `; or`) | §15.5 | le_extensions §6 |
-| Embedded `prolog <goal>` resolution | §15.6, §14.1 | `le_extensions:resolve_prolog_tokens/5` |
+| Embedded `prolog <goal>` resolution | §15.6, §14.1 | core LE since 2026-09-22: `le_grammar:resolve_prolog_tokens/5` |
 | Prepositional chaining, "this <type>" anchors | §2.1, §15.7 | le_extensions §7 |
 | *(system, not syntax)* the importers and exporters of other systems (File ▸ Open, Export) | `howToUse` (lists 4 of 11), `le_migration.md` | `lpsPlus/migration/le_importers.pl` |
 

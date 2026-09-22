@@ -124,7 +124,7 @@ server…**:
   `isdapermissioncorrected` (sentences as values), `itispermittedthat`,
   `list` (its own universal, and a list pattern as residue), `loanwithcure`
   and `obligation` (dates), `minicontract`, `simplerps`, `subset`,
-  `turingcomplete` (which needs the InsurLE extensions to load);
+  `turingcomplete` (embedded `prolog` goals for s(CASP)'s list built-ins);
 - classics of s(CASP)'s own examples: `birds` (classical negation), `family`,
   `classic_negation_inconstistent`, `abdbirds` (abducibles).
 

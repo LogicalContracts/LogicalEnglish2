@@ -2310,7 +2310,22 @@ Tags
 
 environment = production  handled = yes  interface_type = exception level = error  logger = lps2  mechanism = generic  operation = timeline release = lps2@2026-09-18T06:27:56.969Z  server = lps2 server_name = lps2
 
+# Memoization
+Two tasks:
 
+First, move "embedded prolog goals" (...prolog G...) from proprietary extensions to the open source core, they are there by mistake; update documentation and examples accordingly.
+
+Second, a new query evaluation feature:
+
+Currently we already detect redundancies in explanations, but only after fully executing a query and building its explanation tree for each answer. Time to anticipate this technique to query execution, introducing partial memoization. I'm not comfortable with using tabling, because of complications with multithreading etc., neither with the cost memoizing all calls. So instead let's cache specific predicates on request, to address specific performance problems in some large proghrama:
+- new template addition: "memorable". 
+- A memorable predicate gets its call and answers with explanations list cached (during execution of the query; I think it's unsafe to cache it in the LE session, given scenario changes etc, but let me know otherwise)
+- cache hitting is via call term variance, not unification; a memorable predicate call must be a variant of of a cached call for the cache to be used; use term hashes for indexing
+- only completely cached calls are used (to avoid a recomputation), meaning, the call must have produced all answers and FAIL; naturally the cache may contain incomplete calls, which are still active
+- if some NAF construct (negation, otherwise, unless, etc) calls a memorable predicate, issue a warning (as the memorable calls may be unable to complete, therefore their caching effort will be useless)
+- if a memorable predicate calls a Prolog embedded goal, issue a warning (as this goal could alter state invalidating the cached answers)
+
+Draft a couple examples for illustrating this. Also look at the slowest program in the LE test suite, and try to add a single memorable addition to there to try to improve speed. Update documentation.
 
 ## TBD
 

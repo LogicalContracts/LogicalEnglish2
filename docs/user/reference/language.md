@@ -13,6 +13,7 @@ This document provides a summary of the Logical English constructs supported by 
     - [2.1 Prepositional templates](#21-prepositional-templates)
     - [2.2 Named constants: `the constants are:`](#22-named-constants-the-constants-are)
     - [2.3 Functions: `the functions are:`](#23-functions-the-functions-are)
+    - [2.4 Memorable templates: `; memorable`](#24-memorable-templates--memorable)
   - [3. Rules and Facts](#3-rules-and-facts)
     - [3.1 Rule Sections](#31-rule-sections)
     - [3.2 Query bodies](#32-query-bodies)
@@ -91,6 +92,7 @@ A template definition can be followed by one or more additions, each introduced 
 - `; via service <name>` — the template is answered at run time by a declared service (§17.6).
 - `; <value> by default` — **LPS target, fluents only** (`le_lps_surface.md` §2): the value the template's last place holds for a key no fact is stored for (`the balance of *an account* is *an amount*; 0 by default`, `…; the zero address by default`). A default on any other template is reported (`default_not_lps`).
 - `; judged` — marks an **open-textured** predicate whose instances are *decided*, not derived (synonyms `; open textured`, `; evaluative`). Solved like `; assumable`, except that once an outcome (the last argument) is recorded for a question no other outcome is assumed; a rule concluding it is an error, and its open instances render as *judgment needed*. See §17.1.
+- `; memorable` — the calls on the template are **memoized** during a query: each distinct call is computed once, answers and explanations, and replayed wherever it recurs (§2.4). The synonyms `; memoised`, `; memoized` and `; cached` are accepted.
 
 ### 2.1 Prepositional templates
 A prepositional template is a binary template that **starts with an argument** and is used to extend a previous condition. When chaining, the leading argument can be omitted and is filled in automatically from the previous condition's type-compatible variable.
@@ -204,6 +206,62 @@ Details worth knowing:
 
 The worked example is
 `examples/moreExamples/language/templates/functions.le`.
+
+### 2.4 Memorable templates: `; memorable`
+A query on a large program often proves the same thing many times over: the
+same condition, with the same values, reached from several rules or from
+several cases of one rule. The explanation shows this afterwards, collapsing
+the repeated sub-explanations; `; memorable` avoids the repeated work
+itself, for the templates the author chooses:
+```le
+the templates are:
+    *an ancestor* is an ancestor of *a person*; memorable.
+```
+- **What is cached.** Within one query, the first call of each *distinct*
+  call on the template computes **every** answer of that call, each with its
+  unknowns and its explanation; every later call that is the same call up to
+  the renaming of variables (a *variant*: `which ancestor is an ancestor of
+  Lettice` again, not `is Owen an ancestor of Lettice`, which is a call of
+  its own) replays them. Calls are looked up by a hash of their shape.
+- **Only completed calls are replayed.** A call is cached once all its answers
+  have been computed. While a call is still being computed, a recursive
+  variant of it inside that computation is solved as usual (and the ancestor
+  check that stops infinite recursion applies exactly as without the marker).
+- **Same answers, same explanations.** The marker changes when the work is
+  done, not what is concluded: a replayed call yields the answers the first
+  one did, in the same order, and its explanation is the same sub-proof, so
+  the editor collapses repeated explanations as it always does. The
+  failure explanation of a replayed call that has no answer, and the
+  exhausted alternatives of a replayed choice point, are read from the
+  first call's attempt. (One difference: the first call computes all its
+  answers before the first is used, so a query that would have stopped
+  early — `once`, a time limit — does that work up front.)
+- **Per query, not per session.** The cache is emptied when a query starts:
+  the facts a session holds change between queries (a scenario is set, a
+  flip query tries changes), and a cached answer computed under other facts
+  would be wrong. Within a query, a nested proof — a why-not attempt, a
+  section check, a constraint check of an assumption, a flip — has a cache
+  of its own; a scoped proof (`according to`, §17.5) is cached apart.
+- **When it pays.** A template called repeatedly with the same arguments
+  and an expensive proof behind it — a recursive count, a classification
+  consulted by many rules, a closure over facts. A cheap lookup (a fact
+  table) gains nothing and pays the hashing. Choose the templates from the
+  repeated sub-explanations the editor shows.
+- **Warnings.** The verifier reports:
+  - `memorable_under_negation` — a memorable call under `it is not the case
+    that`, `unless` or the guard of `otherwise`: a negation stops at the
+    first answer, while the memorable call computes all of them before
+    giving the first, so the effort is wasted unless the same call is also
+    made outside a negation;
+  - `memorable_calls_prolog` — a rule of the memorable predicate runs an
+    embedded `prolog` goal (§15.6): a goal that changes state would make the
+    cached answers stale without the cache knowing.
+- **Not for the other targets.** The marker is read by the Prolog target's
+  reasoner; the s(CASP) and LPS targets ignore it (the writer keeps it when
+  it writes the program back).
+
+See `examples/moreExamples/language/memoization/` (`lattice_paths.le`,
+`family_relatives.le`, `memorable_warnings.le`).
 
 ## 3. Rules and Facts
 - **Fact:** A simple statement ending in a period.
@@ -556,7 +614,7 @@ Logical English programs can include other LE programs using the `includes these
 - **Source positions:** each included `.le` resource is parsed with its character offsets moved into a range of its own (a multiple of `le_grammar:resource_offset_unit/1`, one per resource, `le_kbs:resource_base/2`), so nothing recorded for it — a rule's range or id, a condition, an issue, a provenance record — is confused with the including document's. Every `/leapi` reply annotates a range inside a resource with `resource`, `resourceExample`, `resourceLine`, `resourceStart`, `resourceEnd` (`le_kbs:annotate_resource_ranges/2`); the editor then opens the resource at that line in a new tab instead of selecting text in the document on screen (explanation nodes, graph nodes, *Show definition*), shows the resource's issues on the `includes these resources:` section, and printed diagnostics read `(apparel.le, line 53)`.
 
 ### 14.1 Prolog resources (`.pl`)
-A resource named with an explicit `.pl` extension (file or URL) is a **Prolog resource** — a way to back an LE knowledge base with a Prolog facts/predicates file (e.g. a large lookup table) exposed through a *thin LE layer*: a few templates plus rules with `prolog` bodies ([extensions.md](extensions.md) §15.6). The main program includes the layer, and the layer includes the `.pl`:
+A resource named with an explicit `.pl` extension (file or URL) is a **Prolog resource** — a way to back an LE knowledge base with a Prolog facts/predicates file (e.g. a large lookup table) exposed through a *thin LE layer*: a few templates plus rules with `prolog` bodies (§15.6). The main program includes the layer, and the layer includes the `.pl`:
 ```le
 % layer.le
 the knowledge base layer includes these resources:
@@ -603,12 +661,12 @@ translators), so a program and its libraries form one directory.
   its twins with it.
 
 ## 15. LE Extensions
-Features beyond the core constructs summarised above. `only if` rules (§15.1)
-and rule labels with their provenance (§15.5) are core LE. The other
-constructs of this section — `which` relative clauses (§15.2), `unless` inside
-rule bodies (§15.3), grouped alternatives `either:` / `any of:` /
-`at least one of:` / `all of:` (§15.4), numbered rule bodies (§15.5),
-embedded `prolog` goals (§15.6) and prepositional chaining (§15.7) — need the
+Features beyond the core constructs summarised above. `only if` rules (§15.1),
+rule labels with their provenance (§15.5) and embedded `prolog` goals (§15.6)
+are core LE, documented here. The other constructs of this section — `which`
+relative clauses (§15.2), `unless` inside rule bodies (§15.3), grouped
+alternatives `either:` / `any of:` / `at least one of:` / `all of:` (§15.4),
+numbered rule bodies (§15.5) and prepositional chaining (§15.7) — need the
 proprietary `le_extensions.pl` module, installed where Logical English is
 offered as a hosted service, and are unavailable without it. They are
 documented, under the same section numbers, in [LE Extensions](extensions.md).
@@ -656,6 +714,30 @@ document, §17.1). The trailers of a fact (`according to`, `as stated in`,
 editor show it (§17.1, *Documents*). A decision table header takes the same
 addition: `the table apparel is, with first match, with provenance ...:`
 (recorded under the table's id, `table_<name>`).
+
+### 15.6 Embedded Prolog goals
+A body condition of the form `prolog <goal>` (parenthesise conjunctions:
+`prolog (g1, g2)`) calls raw Prolog. LE variables are referenced inside the
+goal as `the <name>` phrases, `*a name*` markers, or ALL-CAPS ids, and are
+bound to the goal's results; the system predicates of §13 are commonly used,
+and a Prolog resource (§14.1) is reached this way:
+```le
+an id has designator a d if
+    prolog (le_my_kb(KB), KB:le_source_element(the id, the d, the g)).
+
+a postcode is in a region if
+    prolog postcode_region(the postcode, the region).
+```
+- **Safety:** every `prolog` goal is checked by `library(sandbox)` before it
+  runs (§14.1); a goal the sandbox rejects stops the query with an error.
+- **Explanations** show the goal as a built-in step; the other execution
+  targets do not run it (s(CASP) reports it as unsupported, [scasp.md](scasp.md)).
+- **Memoization:** a memorable template (§2.4) whose rules call a `prolog`
+  goal is reported (`memorable_calls_prolog`), since a goal with side effects
+  could make its cached answers stale.
+
+See `examples/moreExamples/language/prolog/prolog_call.le`,
+`language/includes/prolog_resources/` and `language/rules/rule_id_test.le`.
 
 ## 16. Humanizing LE
 LE programs are read by lawyers and domain experts more often than they are

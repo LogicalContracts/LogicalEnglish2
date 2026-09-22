@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      all (core + trees requiring the proprietary le_extensions.pl)
 Command:    testing/run_tests.sh le --with-extensions   (or: runAllTests)
 Sibling:    testSuiteCoreStatus.txt — core (this repository alone; extension-dependent trees excluded)
-Generated:  2026-09-18 12:40:15 UTC
+Generated:  2026-09-22 10:32:57 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 418
-Total tests:     4312
-Passed:          4312
+Files processed: 422
+Total tests:     4324
+Passed:          4324
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -233,6 +233,10 @@ Detailed File Summary:
   [PASS] examples/moreExamples/lpsPlus/migration/socotra/commercial_general_liability/commercial_general_liability.le: 80 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/lpsPlus/migration/socotra/errors_omissions/errors_omissions.le: 80 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/lpsPlus/migration/socotra/travel_multi_trip/travel_multi_trip.le: 20 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/prolog/prolog_call.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/memoization/family_relatives.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/memoization/lattice_paths.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/memoization/memorable_warnings.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/language/negation/alice_propositional.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/negation/inequality.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/negation/only_if.le: 4 Pass, 0 Fail, 0 Error
@@ -250,7 +254,6 @@ Detailed File Summary:
   [NONE] examples/moreExamples/language/scasp/clp_coverage.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/language/scasp/dual_engine_demo.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/extensions/numbering_test.le: 5 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/language/extensions/prolog_call.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/rules/rule_id_test.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/templates/functions.le: 6 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/templates/is_a_class_of.le: 1 Pass, 0 Fail, 0 Error
@@ -328,6 +331,7 @@ Detailed File Summary:
   [PASS] examples/regulatory/otherwise_table.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/regulatory/precedent.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/regulatory/precedent_pattern.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/scenario_table.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/regulatory/scoped_notice.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/regulatory/sections_benefit.le: 8 Pass, 0 Fail, 0 Error
   [NONE] examples/regulatory/semantic_llm.le: 0 Pass, 0 Fail, 0 Error

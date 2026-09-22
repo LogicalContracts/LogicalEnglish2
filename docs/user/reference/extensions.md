@@ -9,8 +9,9 @@ them do not parse. The module is installed as a symlink next to the LE2
 sources (see the InsurLE2 README).
 
 The section numbers continue those of the language reference
-([language.md](language.md) §15), where §15.1 (`only if` rules) and the
-labels and provenance of §15.5 are documented as core LE. References to
+([language.md](language.md) §15), where §15.1 (`only if` rules), the
+labels and provenance of §15.5 and embedded `prolog` goals (§15.6) are
+documented as core LE. References to
 sections not on this page (§2.1, §4, §13, …) are to that document.
 
 ## Contents
@@ -18,7 +19,7 @@ sections not on this page (§2.1, §4, §13, …) are to that document.
 - [15.3 `unless` inside rule bodies](#153-unless-inside-rule-bodies-requires-le_extensionspl)
 - [15.4 Grouped alternatives](#154-grouped-alternatives-either--any-of--at-least-one-of--all-of-requires-le_extensionspl)
 - [15.5 Numbered rule bodies](#155-numbered-rule-bodies-requires-le_extensionspl)
-- [15.6 Embedded Prolog goals](#156-embedded-prolog-goals-resolution-requires-le_extensionspl)
+- [15.6 Embedded Prolog goals](#156-embedded-prolog-goals-core-le) — core LE, see language.md
 - [15.7 Prepositional chaining](#157-prepositional-chaining-requires-le_extensionspl)
 
 ### 15.2 `which` relative clauses **[requires le_extensions.pl]**
@@ -103,16 +104,11 @@ Each numbered condition is addressable by its hierarchical designator through
 which supports clause-level traceability to the source text. See
 `examples/moreExamples/language/extensions/numbering_test.le`.
 
-### 15.6 Embedded Prolog goals **[resolution requires le_extensions.pl]**
-A body condition of the form `prolog <goal>` (parenthesise conjunctions:
-`prolog (g1, g2)`) calls raw Prolog. LE variables are referenced inside the
-goal as `the <name>` phrases, `*a name*` markers, or ALL-CAPS ids, and are
-bound to the goal's results; the system predicates of §13 are commonly used:
-```le
-an id has designator a d if
-    prolog (le_my_kb(KB), KB:le_source_element(the id, the d, the g)).
-```
-See `examples/moreExamples/language/extensions/prolog_call.le` and `language/rules/rule_id_test.le`.
+### 15.6 Embedded Prolog goals **[core LE]**
+`prolog <goal>` body conditions are part of core LE and no longer need this
+module: see [language.md](language.md) §15.6 (and §14.1 for Prolog
+resources). Inside a numbered rule body (§15.5) a `prolog` item is read the
+same way.
 
 ### 15.7 Prepositional chaining **[requires le_extensions.pl]**
 The `; prepositional` template marker and its chained usage are described in

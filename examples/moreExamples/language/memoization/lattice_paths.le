@@ -1,0 +1,44 @@
+the target language is: prolog.
+
+% Lattice paths: in how many ways can one walk from a corner of a grid of
+% streets to the opposite corner, going only east and north?
+%
+% The count for a corner (e, n) is the count for (e-1, n) plus the count for
+% (e, n-1): the same corner is reached along many routes, so without memory
+% the same call is solved again and again — the 7 by 7 grid asks the count
+% of some corner 6,863 times. With `; memorable` on the template each of
+% the 64 distinct calls is solved once, and its answer, explanation
+% included, is replayed for the others (docs/user/reference/language.md
+% §2.4): the query runs several times faster. The explanation is the same
+% either way — every replayed call shows its full sub-proof — so the editor
+% still collapses its repeated parts as usual.
+%
+% Remove `; memorable` and run the query to compare.
+
+the templates are:
+    walking *an east* blocks east and *a north* blocks north can be done in *a total* ways; memorable.
+
+the knowledge base lattice includes:
+
+walking an east blocks east and a north blocks north can be done in 1 ways if
+    the east = 0
+    or the north = 0.
+
+walking an east blocks east and a north blocks north can be done in a total ways if
+    the east > 0
+    and the north > 0
+    and a shorter east is the east - 1
+    and a shorter north is the north - 1
+    and walking the shorter east blocks east and the north blocks north can be done in a first count ways
+    and walking the east blocks east and the shorter north blocks north can be done in a second count ways
+    and the total is the first count + the second count.
+
+scenario grids is:
+    small expects answers ["walking 3 blocks east and 2 blocks north can be done in 10 ways"].
+    square expects answers ["walking 7 blocks east and 7 blocks north can be done in 3432 ways"].
+
+query small is:
+    walking 3 blocks east and 2 blocks north can be done in which ways.
+
+query square is:
+    walking 7 blocks east and 7 blocks north can be done in which ways.

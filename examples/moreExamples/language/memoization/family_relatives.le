@@ -1,0 +1,79 @@
+the target language is: prolog.
+
+% Relatives: two people are relatives when they descend from the same
+% root of the family tree. Every rule below asks "who are the ancestors of
+% X?" or "who descends from the root?" — the relatives of a person, the
+% members of the family, how many relatives each has — and the same call,
+% with the same person, comes up in several rules of one query and many
+% times over in a query about everybody.
+%
+% `; memorable` on the ancestor template makes the reasoner compute each
+% distinct call once per query and replay its answers, explanation
+% included, wherever that call recurs (docs/user/reference/language.md
+% §2.4). The answers are the same with or without the marker; so are the
+% explanations: a replayed call shows the same sub-proof the first one did.
+%
+% Calls are cached by their shape: "which ancestor is an ancestor of
+% Lettice" (first place free, second bound) and "Owen is an ancestor of
+% which person" (the reverse) are two calls, each computed once; "is Owen
+% an ancestor of Lettice" (both bound) would be a third.
+
+the templates are:
+    *a person* is a parent of *a child*.
+    *an ancestor* is an ancestor of *a person*; memorable.
+    *a person* is a relative of *an other person*.
+    *a person* is a family member.
+    *a person* has *a number* relatives.
+
+the knowledge base relatives includes:
+
+an ancestor is an ancestor of a person if
+    the ancestor is a parent of the person.
+
+an ancestor is an ancestor of a person if
+    a parent is a parent of the person
+    and the ancestor is an ancestor of the parent.
+
+a person is a relative of an other person if
+    a root is an ancestor of the person
+    and it is not the case that
+        a parent is a parent of the root
+    and the root is an ancestor of the other person
+    and the person is different from the other person.
+
+a person is a family member if
+    a root is an ancestor of the person
+    and it is not the case that
+        a parent is a parent of the root.
+
+a person has a number relatives if
+    the person is a family member
+    and the number is the count of each relative such that
+        the person is a relative of the relative.
+
+scenario tudors is:
+    Owen is a parent of Henry.
+    Henry is a parent of Mary.
+    Henry is a parent of Elizabeth.
+    Henry is a parent of Edward.
+    Mary is a parent of Anne.
+    Elizabeth is a parent of Robert.
+    Robert is a parent of Lettice.
+    Robert is a parent of Penelope.
+    Edward is a parent of Jane.
+    ancestors expects answers ["Robert is an ancestor of Lettice", "Elizabeth is an ancestor of Lettice", "Henry is an ancestor of Lettice", "Owen is an ancestor of Lettice"].
+    relatives expects answers ["Lettice is a relative of Henry", "Lettice is a relative of Mary", "Lettice is a relative of Elizabeth", "Lettice is a relative of Edward", "Lettice is a relative of Anne", "Lettice is a relative of Robert", "Lettice is a relative of Penelope", "Lettice is a relative of Jane"].
+    count expects answers ["Lettice has 8 relatives"].
+    everybody expects answers ["Henry has 8 relatives", "Mary has 8 relatives", "Elizabeth has 8 relatives", "Edward has 8 relatives", "Anne has 8 relatives", "Robert has 8 relatives", "Lettice has 8 relatives", "Penelope has 8 relatives", "Jane has 8 relatives"].
+
+query ancestors is:
+    which ancestor is an ancestor of Lettice.
+
+query relatives is:
+    Lettice is a relative of which person.
+
+query count is:
+    Lettice has which number relatives.
+
+query everybody is:
+    which person has which number relatives.

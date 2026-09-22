@@ -43,9 +43,10 @@ you can call it from anywhere. Use it as the default check:
   nothing about core LE.
 
 The exclusion is a hardwired table, `extension_dependent_path_fragment/1` in
-`le_kbs.pl` (currently the `insureLE2/`, `InsurLE2/` and `lpsPlus/` trees, and the
-migration twin `examples/migration/scasp/turingcomplete/`). Add a row there when
-a new extension-dependent example tree appears; nothing else needs to change.
+`le_kbs.pl` (currently the `insureLE2/`, `InsurLE2/` and `lpsPlus/` trees, and
+`language/extensions/`). Add a row there when a new extension-dependent example
+tree appears; nothing else needs to change. (Embedded `prolog` goals are core
+LE, language.md §15.6: a program that only uses them belongs to the core suite.)
 
 Each variant writes its own committed status snapshot and never touches the other's
 (`suite_status_file/2`): core → `testSuiteCoreStatus.txt`, all → `testSuiteStatus.txt`.
