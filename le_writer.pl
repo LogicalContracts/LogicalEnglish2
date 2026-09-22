@@ -45,10 +45,15 @@
     It writes the CURRENT language: decision tables where the IR has tables,
     `otherwise` cascades where it has ordered alternatives, provenance
     trailers where it has source locations — not comments standing in for
-    them. Where the core grammar cannot express a nesting (a negation that
-    must be the first line of a nested conjunction, say), it uses the
-    `all of` / `either` blocks of the InsurLE extensions when they are
-    available, and records an issue when they are not.
+    them. It writes CORE LE unless the header asks for the InsurLE
+    extensions (`extensions(true)`): a nested group that has no line of its
+    own to open with (an `otherwise` cascade, a conjunction whose first
+    condition is a negation block, a universal or an aggregate) is written
+    under one of its own plain conditions, moved to the front when that
+    changes nothing (core_single/4); only when that is impossible does it
+    fall back to an `all of` / `either` block of the extensions, and records
+    an issue. A numbered outline (`numbered(true)`) is written only with the
+    extensions; without them the rule is a plain body.
 
     Everything it cannot write is reported, never dropped silently:
     le_write/3 returns issue(Severity, Code, Message) terms. The round-trip
@@ -313,11 +318,17 @@ write_program_(Header, Items, Text) :-
 
 kb_name(Header, Name) :- ( memberchk(kb(Name), Header) -> true ; Name = program ).
 
-%   Whether nested forms may use the InsurLE `all of` / `either` blocks.
+%   Whether the document may use the InsurLE extensions (`all of` / `either`
+%   blocks, numbered outlines). Default false: what the writer produces must
+%   read on a server without le_extensions.pl — the twins of other systems
+%   are published that way. `extensions(true)` allows them; `extensions(auto)`
+%   allows them when the module is loaded (its predicate, not its name: a
+%   module-qualified goal in le_grammar creates the module `le_extensions`
+%   without the file).
 extensions_mode(Header, Ext) :-
-    option(extensions(E), Header, auto),
+    option(extensions(E), Header, false),
     (   E == auto
-    ->  ( current_module(le_extensions) -> Ext = true ; Ext = false )
+    ->  ( current_predicate(le_extensions:parse_numbered_body/7) -> Ext = true ; Ext = false )
     ;   Ext = E
     ).
 
@@ -704,6 +715,7 @@ write_rule(Ctx, Head, Body0, Opts) :-
             kw(if, If),
             St = st(_, _, M, _), arg(1, M, Before),
             (   option(numbered(true), Opts),
+                Ctx = ctx(_, true, _),           % a numbered outline needs the extensions
                 numbered_body(Ctx, St, B, Lines)
             ->  format("~w ~w:~n", [HT, If]),
                 forall(member(L, Lines), format("~w~n", [L]))
@@ -1149,14 +1161,106 @@ single(Ctx, St, G, node(none, T, [])) :-
 %   leftmost condition is the line, every connective up the left spine a child.
 compound_single(Ctx, St, B, Node) :-
     left_spine(B, Leaf, Steps),
-    %  A negation cannot carry continuation lines: `it is not the case that X`
-    %  with lines nested under it reads them as its own scope.
-    (   line_goal(Leaf), \+ Leaf = not(_)
+    (   plain_line(Leaf)
     ->  goal_text(Ctx, St, Leaf, LT),
         maplist(step_node(Ctx, St), Steps, Kids),
         Node = node(none, LT, Kids)
+    ;   Ctx = ctx(_, Ext, _), Ext \== true,
+        core_single(Ctx, St, B, Node)
+    ->  true
     ;   block_single(Ctx, St, B, Node)
     ).
+
+%   A condition that can be a line with other lines nested under it. A
+%   negation cannot: `it is not the case that X` with lines nested under it
+%   reads them as its own scope.
+plain_line(G) :- line_goal(G), \+ G = not(_).
+
+%   The same group in core LE, under a plain condition of its own.
+%
+%   An `otherwise` cascade nested under a connective is written under the
+%   first condition of its first alternative: a line that opens with
+%   `otherwise` starts a new alternative of the block it is in, and the
+%   block is that condition with the lines nested under it, so the guard of
+%   the first alternative is the whole alternative, as the cascade means
+%   (language.md §17.2; le_grammar:otherwise_guard/2).
+%
+%   A conjunction whose first condition needs lines of its own (a negation
+%   block, a universal, an aggregate) is written under the first plain
+%   condition of the chain that can be moved in front of the conditions
+%   before it. It can when every variable it shares with them is bound by
+%   then: mentioned earlier in the rule — and, where the condition jumped
+%   over binds its variables (an aggregate its result, a nested group), not
+%   merely in the head, whose variables may be the rule's outputs. A
+%   negation or a universal binds nothing, so a variable it shares with the
+%   moved condition need only have been mentioned. Fails — the block of the
+%   extensions is then written — when no such condition exists.
+core_single(Ctx, St, B, Node) :-
+    otherwise_pattern(B, A, Alt), !,
+    core_single(Ctx, St, otherwise([A, Alt]), Node).
+core_single(Ctx, St, otherwise([A|As]), Node) :- !,
+    (   left_spine(A, Leaf, _), plain_line(Leaf) -> A1 = A
+    ;   rotate_front(St, A, A1)
+    ),
+    seq(Ctx, St, otherwise([A1|As]), [node(none, T, K)|Rest]),
+    append(K, Rest, Kids),
+    Node = node(none, T, Kids).
+core_single(Ctx, St, B, Node) :-
+    (   rotate_front(St, B, B1)
+    ->  true
+    ;   rotate_alternatives(St, B, B1)
+    ),
+    compound_single(Ctx, St, B1, Node).
+
+%   rotate_front(+St, +B, -B1): B with a plain condition of its leftmost
+%   `and` chain moved to the front, when one may be (see core_single/4).
+rotate_front(St, B, B1) :-
+    left_spine(B, Leaf, Steps),
+    \+ plain_line(Leaf),
+    and_prefix(Steps, Chain, Rest),
+    \+ memberchk(otherwise-_, Rest),      % a guard is a set of conditions in an order; leave it
+    St = st(_, _, M, _), M = m(Mentioned, HeadVars),
+    append(Before, [G|After], Chain),
+    plain_line(G),
+    term_variables(G, GVs),
+    forall(member(X, [Leaf|Before]), may_precede(GVs, X, Mentioned, HeadVars)),
+    !,
+    append(Before, After, Others),
+    foldl(and_step, [Leaf|Others], G, C),
+    foldl(apply_step, Rest, C, B1).
+
+%   rotate_alternatives(+St, +B, -B1): a disjunction whose first alternative
+%   cannot open the group (a negation alone, say), with the first alternative
+%   that can moved to the front. The alternatives of a disjunction are
+%   independent — one binds nothing another reads — so their order changes
+%   only the order in which the answers are found.
+rotate_alternatives(St, B, B1) :-
+    top_connective(B, or),
+    or_alternatives(B, Alts),
+    append(Before, [A|After], Alts), Before \== [],
+    (   left_spine(A, Leaf, _), plain_line(Leaf) -> A1 = A
+    ;   rotate_front(St, A, A1)
+    ),
+    !,
+    append(Before, After, Others),
+    foldl(or_step, Others, A1, B1).
+
+or_step(R, Acc, or(Acc, R)).
+
+%   A condition with the variables GVs may be evaluated before X.
+may_precede(GVs, X, Mentioned, HeadVars) :-
+    term_variables(X, XVs),
+    ( ( X = not(_) ; X = forall(_, _) ) -> Binds = false ; Binds = true ),
+    forall(( member(V, GVs), member(V1, XVs), V == V1 ),
+           ( member(V2, Mentioned), V2 == V,
+             ( Binds == true -> \+ ( member(V3, HeadVars), V3 == V ) ; true ) )).
+
+and_prefix([and-R|Steps], [R|Chain], Rest) :- !, and_prefix(Steps, Chain, Rest).
+and_prefix(Steps, [], Steps).
+
+and_step(R, Acc, and(Acc, R)).
+apply_step(and-R, Acc, and(Acc, R)).
+apply_step(or-R, Acc, or(Acc, R)).
 
 %   left_spine(+Tree, -Leaf, -Steps): Tree = op_n(...op_2(Leaf, R_2)..., R_n),
 %   Steps = [op_2-R_2, ..., op_n-R_n].
@@ -1178,7 +1282,8 @@ step_node(Ctx, St, Op-R, Node) :-
     single(Ctx, St, R, N0), set_op(N0, Op, Node).
 
 %   The leftmost condition needs children of its own (a negation block, a
-%   universal, an aggregate): the whole group becomes an `all of` block (an
+%   universal, an aggregate) and core_single/4 found no plain condition to
+%   write the group under: the whole group becomes an `all of` block (an
 %   `either` block for a disjunction), from the InsurLE extensions.
 block_single(ctx(D, Ext, T), St, B, Node) :-
     (   Ext == true -> true
@@ -1363,7 +1468,8 @@ agg_var(V, V).
 %   (Id none, or the id atom); Mentioned a mutable list of the variables
 %   already written (setarg/3 — writing is deterministic).
 
-clause_naming(Ctx, Mode, Head, Body, st(Mode, Names, m([]), Ctx)) :-
+clause_naming(Ctx, Mode, Head, Body, st(Mode, Names, m([], HeadVars), Ctx)) :-
+    term_variables(Head, HeadVars),          % the head's variables: mentioned first, not thereby bound
     term_variables(Head-Body, Vars),
     id_vars(Head-Body, IdVars1),
     prolog_local_vars(Head-Body, Locals),

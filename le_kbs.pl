@@ -3202,8 +3202,10 @@ le_suite(all).
 extension_dependent_path_fragment('/insurele2/').
 extension_dependent_path_fragment('/insurle2/').
 %  The private lpsPlus tree: the domain models (customs, Medicare) and the
-%  twins of other systems whose sources may not be published. The twins are
-%  written with the extension constructs (grouped and numbered bodies).
+%  twins of other systems whose sources may not be published. Its programs
+%  are core LE (the writer writes core LE by default, le_writer.pl), but a
+%  clean checkout of this repository does not have the tree, so the core
+%  suite — what such a checkout can make green — leaves it out.
 extension_dependent_path_fragment('/lpsplus/').
 %  The examples of the extension constructs themselves (docs/user/reference/extensions.md).
 %  (Embedded `prolog` goals are core LE — language.md §15.6 — so the programs

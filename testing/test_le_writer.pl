@@ -211,8 +211,8 @@ test(multilingual_articles) :-
     assertion(sub_string(Text, _, _, _, "uma pessoa fica rica se")),
     assertion(sub_string(Text, _, _, _, "a pessoa aposta em um número.")).
 
-test(numbered_body, [condition(current_module(le_extensions))]) :-
-    IR = program([kb(pension)], [
+test(numbered_body, [condition(current_predicate(le_extensions:parse_numbered_body/7))]) :-
+    IR = program([kb(pension), extensions(true)], [
         template(eligible, "*a claimant* is eligible for a pension", []),
         template(poor, "*a claimant* is poor", [undefined]),
         template(sick, "*a claimant* is sick", [undefined]),
@@ -226,6 +226,73 @@ test(numbered_body, [condition(current_module(le_extensions))]) :-
     assertion(sub_string(Text, _, _, _, "2.2. it is not the case that the claimant has another form of income.")),
     text_results(Text, Results),
     assertion(all_pass(Results)).
+
+%   Without `extensions(true)` a numbered outline is written as a plain body.
+test(numbered_body_needs_extensions) :-
+    IR = program([kb(pension)], [
+        template(eligible, "*a claimant* is eligible for a pension", []),
+        template(poor, "*a claimant* is poor", [undefined]),
+        template(sick, "*a claimant* is sick", [undefined]),
+        template(other_income, "*a claimant* has another form of income", [undefined]),
+        rule(eligible(C), or(poor(C), and(sick(C), not(other_income(C)))), [label(pension), numbered(true)]),
+        scenario(sick, [fact(sick(ann)), expects(q, [eligible(ann)])], []),
+        scenario(income, [fact(sick(ann)), fact(other_income(ann)), expects(q, [])], []),
+        query(q, eligible(_))]),
+    le_write(IR, Text, Issues),
+    assertion(Issues == []),
+    assertion(\+ sub_string(Text, _, _, _, "if:")),
+    assertion(\+ sub_string(Text, _, _, _, "1.")),
+    text_results(Text, Results),
+    assertion(all_pass(Results)).
+
+%   An `otherwise` cascade nested under `and` (a Socotra premium: a
+%   discount on one channel) is core LE: written under the first condition
+%   of its first alternative, whose guard is then the whole alternative.
+test(nested_cascade_is_core_le) :-
+    IR = program([kb(auto)], [
+        template(value, "the value of *a vehicle* is *a number*", [undefined]),
+        template(direct, "*a vehicle* is sold direct", [undefined]),
+        template(premium, "the premium of *a vehicle* is *a number*", []),
+        rule(premium(V, N), and(value(V, M), otherwise([and(direct(V), N = M * 0.9), N = M])), []),
+        scenario(direct, [fact(value(car, 100)), fact(direct(car)), expects(q, [premium(car, 90.0)])], []),
+        scenario(agent, [fact(value(car, 100)), expects(q, [premium(car, 100)])], []),
+        query(q, premium(_, _))]),
+    le_write(IR, Text, Issues),
+    assertion(Issues == []),
+    assertion(\+ sub_string(Text, _, _, _, "all of")),
+    assertion(sub_string(Text, _, _, _, "    and the vehicle is sold direct\n        and the number is equal to N * 0.9\n        otherwise the number is equal to N.")),
+    text_results(Text, Results),
+    assertion(all_pass(Results)).
+
+%   An alternative opening with a negation block is written under a plain
+%   condition of its own moved to the front (the negation binds nothing);
+%   one opening with an aggregate whose result the other condition reads
+%   cannot be, and keeps the `all of` block of the extensions, reported.
+test(negation_first_group_is_core_le) :-
+    IR = program([kb(auto)], [
+        template(value, "the value of *a vehicle* is *a number*", [undefined]),
+        template(direct, "*a vehicle* is sold direct", [undefined]),
+        template(big, "*a vehicle* is big", [undefined]),
+        template(ok, "*a vehicle* is ok", []),
+        rule(ok(V), or(big(V), and(not(and(direct(V), big(V))), value(V, _))), []),
+        scenario(s, [fact(value(car, 100)), fact(direct(car)), fact(big(van)), expects(q, [ok(car), ok(van)])], []),
+        query(q, ok(_))]),
+    le_write(IR, Text, Issues),
+    assertion(Issues == []),
+    assertion(\+ sub_string(Text, _, _, _, "either")),
+    assertion(sub_string(Text, _, _, _, "    or the value of the vehicle is a number\n        and it is not the case that\n")),
+    text_results(Text, Results),
+    assertion(all_pass(Results)).
+
+test(aggregate_first_group_keeps_the_block) :-
+    IR = program([kb(auto)], [
+        template(value, "the value of *a vehicle* is *a number*", [undefined]),
+        template(big, "*a vehicle* is big", [undefined]),
+        template(size, "the fleet size of *a vehicle* is *a number*", []),
+        rule(size(V, N), or(and(big(V), N = 1), and(agg(count, X, value(X, _), N), N > 2)), [])]),
+    le_write(IR, Text, Issues),
+    assertion(sub_string(Text, _, _, _, "or all of\n        N is the count of each")),
+    assertion(memberchk(issue(warning, needs_extensions, _), Issues)).
 
 test(scenario_header_with_a_locator_keeps_its_lines) :-
     le_write(program([kb(x)], [template(p, "*a thing* is p", [undefined]),

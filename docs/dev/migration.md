@@ -160,7 +160,7 @@ program(Header, Items)
 | `extends([Base, ...])` | `the knowledge base N extends Base, ....` (target `lps`, le_lps_surface.md §1.1) |
 | `services([service(Name, Address, Kind), ...])` | `... includes these services:` |
 | `provenance_required` | `scenario facts require provenance.` |
-| `extensions(auto\|true\|false)` | whether nested forms may use the InsurLE `all of`/`either` blocks (default: when `le_extensions` is loaded) |
+| `extensions(true\|false\|auto)` | whether the document may use the InsurLE extensions — `all of`/`either` blocks, numbered outlines. Default **false**: the writer produces core LE, which reads on a server without `le_extensions.pl`; `auto` allows them when the module is loaded |
 | `setting(max_time, N)` etc. | LPS settings |
 
 ### Items
@@ -171,7 +171,7 @@ program(Header, Items)
 | `constant(F, Name, Value)` | a line of `the constants are:` (`Name is Value.`, le_summary.md §2.2); `F` is the functor of its template `the value of Name is *a type*` (`the_value_of_<name words>_is`), whose one-place goal a body uses where the value is read — the writer writes the name there |
 | `function(F, Text)` / `function(F, Text, Additions)` | a line of `the functions are:` (docs/user/reference/language.md §2.3): a template of the form `... is *a value*` whose value may be written without that last place. Emit it for a relation the source says is functional (a rate, a lookup, a computed field), and the writer writes the compact form — `and the price of the cup > 10` rather than a condition binding the value and another using it — wherever the value is used and its inputs are already known |
 | `fluent/event/action(F, Text, Additions)` | the LPS declaration sections |
-| `rule(Head, Body, Options)` | a rule. Options: `label(L)` (`rule L:`), `provenance(P)` (with a label: `rule L with provenance ...:`), `numbered(true)` (a numbered outline, docs/user/reference/extensions.md §15.5), `comment(Text)` |
+| `rule(Head, Body, Options)` | a rule. Options: `label(L)` (`rule L:`), `provenance(P)` (with a label: `rule L with provenance ...:`), `numbered(true)` (a numbered outline, docs/user/reference/extensions.md §15.5 — written only with `extensions(true)` in the header, a plain body otherwise), `comment(Text)` |
 | `fact(Head, Options)` | a fact; Options `provenance(P)` (trailers), `ontology` (in `the ontology is:`) |
 | `constraint(Body, Options)` | an integrity constraint, `it must not be true that` and the conditions (le_summary.md §3.3); Options `comment(Text)` |
 | `table(Name, Options, Columns, Rows)` | a decision table (§17.3). Options: `policy(first\|unique\|all)`, `loaded_from(File)`, `provenance(P)`. Cells: a constant, `any`, `or_list([...])`, `cond(E)` with `E` built from `Op-Value` (`(>=)-1`) and `and/2`, `or/2`, `quote(Text)` (a citation column), `raw(Text)` |
@@ -230,8 +230,16 @@ InsurLE blocks when they are unavailable, a constant it had to quote).
 **Nesting.** A body is written as a tree of lines the way LE reads it back:
 sibling lines fold left to right with their connectives, and a line's nested
 lines fold onto that line's literal — `and(a, or(b, c))` is `a` / `and b` /
-`    or c`. A group whose first condition needs lines of its own (a negation
-block, a universal, an aggregate) is written as an `all of` / `either` block.
+`    or c`. A group with no line of its own to open with is written under one
+of its plain conditions: an `otherwise` cascade nested under a connective
+under the first condition of its first alternative (a line opening with
+`otherwise` starts a new alternative of the block it is in, so the guard is
+the whole alternative, language.md §17.2); a group whose first condition is
+a negation block, a universal or an aggregate under the first plain
+condition that can be moved in front of it — one whose variables shared
+with the conditions jumped over are bound by then (`core_single/4`). Only
+when no such condition exists is the group an `all of` / `either` block of
+the extensions, and the writer reports it (`needs_extensions`).
 
 **Variables** are named from the type of the template place each first fills
 (`a person`, `a second person`, `the person`); one that takes part in
