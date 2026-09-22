@@ -12,4 +12,6 @@ Each folder illustrates part of the language reference, docs/user/reference/lang
 | [`abduction/`](abduction/README.md) | grass_is_wet, sunglasses, diagnosis, loan_approval | §2, §3.3 |
 | [`includes/`](includes/README.md) | citizenship_including (+ citizenship_premier), prolog_resources/ | §14 |
 | [`scasp/`](scasp/README.md) | dual_engine_demo, clp_coverage | docs/user/reference/scasp.md |
-| [`extensions/`](extensions/README.md) | numbering_test, prolog_call | extensions.md §15.5, §15.6 (need le_extensions.pl) |
+| [`prolog/`](prolog/README.md) | prolog_call | §15.6 (embedded `prolog` goals), §13 |
+| [`memoization/`](memoization/README.md) | lattice_paths, family_relatives, memorable_warnings | §2.4 (`; memorable`) |
+| [`extensions/`](extensions/README.md) | numbering_test | extensions.md §15.5 (needs le_extensions.pl) |

@@ -5,4 +5,5 @@ Programs using the constructs of docs/user/reference/extensions.md that the prop
 service), and are left out of the core test suite.
 
 - `numbering_test.le` — numbered rule bodies (§15.5).
-- `prolog_call.le` — embedded `prolog` goals (§15.6).
+
+Embedded `prolog` goals (§15.6) are core LE: see `../prolog/prolog_call.le`.

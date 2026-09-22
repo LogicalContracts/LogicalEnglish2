@@ -113,7 +113,7 @@ export function buildLeMonarchTokens(lang: string): any {
     //  language (docs/user/reference/language.md §2.2, §2.3), and a program
     //  that still writes it gets an error saying so, not highlighting saying
     //  it is fine.
-    const additions = alt(T, ['opposite', 'synonym', 'prepositional', 'unknown', 'undefined', 'known_as', 'judged', 'via_service', 'by_default']);
+    const additions = alt(T, ['opposite', 'synonym', 'prepositional', 'unknown', 'undefined', 'known_as', 'judged', 'memorable', 'via_service', 'by_default']);
 
     return {
         tokenizer: {

@@ -1,0 +1,52 @@
+the target language is: prolog.
+
+% The two warnings of `; memorable` (docs/user/reference/language.md §2.4).
+% The program runs, and its answers are right; the verifier says where the
+% marker does not pay, or is not safe:
+%
+% - memorable_under_negation: "a person is childless" calls the memorable
+%   template under `it is not the case that`. A negation stops at the first
+%   answer it finds, while a memorable call computes every answer before
+%   giving the first — wasted work, unless the same call is also made
+%   outside the negation (as `descendants` does here for Elizabeth).
+%
+% - memorable_calls_prolog: the rule for "a person is on record" runs an
+%   embedded `prolog` goal. Such a goal could change the state the answers
+%   were computed from, and the cached answers would not know.
+
+the templates are:
+    *a person* is a parent of *a child*.
+    *an ancestor* is an ancestor of *a person*; memorable.
+    *a person* is childless.
+    *a person* is on record; memorable.
+
+the knowledge base checks includes:
+
+an ancestor is an ancestor of a person if
+    the ancestor is a parent of the person.
+
+an ancestor is an ancestor of a person if
+    a parent is a parent of the person
+    and the ancestor is an ancestor of the parent.
+
+a person is childless if
+    the person is on record
+    and it is not the case that
+        the person is an ancestor of a descendant.
+
+a person is on record if
+    a parent is a parent of the person
+    and prolog atom(the person).
+
+scenario tudors is:
+    Henry is a parent of Elizabeth.
+    Henry is a parent of Edward.
+    Elizabeth is a parent of Robert.
+    descendants expects answers ["Elizabeth is an ancestor of Robert"].
+    childless expects answers ["Edward is childless", "Robert is childless"].
+
+query descendants is:
+    Elizabeth is an ancestor of which person.
+
+query childless is:
+    which person is childless.

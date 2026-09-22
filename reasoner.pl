@@ -8,6 +8,7 @@
 
 :- module(reasoner, [i/4, explain/4, is_built_in/1, solve/8, goal_attempt/4, goal_attempt/5, with_saved_reasoner_state/1,
                      hide_repeated_explanations/0, set_show_repeated_explanations/1,
+                     memo_statistics/2, memorable_goal/3,
                      consistent_assumptions/3, consistent_assumptions/4, case_breaks_constraint/5, rejected_assumption_sets/1, clear_rejected_assumptions/0]).
 
 :- use_module(library(time)).
@@ -16,6 +17,9 @@
 :- dynamic equal_to/2.
 :- thread_local called/3, called_clause/3, counter/1, success_in_not/2, succeeded/1, solved_binding/2.
 :- thread_local checking_assumptions/1, rejected_assumptions/2.
+% Memoization of `; memorable` templates (memo_solve/8 below).
+:- thread_local memo_done/3, memo_active/2, memo_answer/6, memo_alias/2,
+                memo_generation/1, memo_gen_counter/1, memo_depth/1, memo_stat/2.
 
 % When set (the default), repeated sub-explanations are collapsed; the client can
 % turn this off per query so the full tree is built and shown. Tracked per worker
@@ -44,7 +48,7 @@ i(Goal, SessionModule, Unknowns, Whys) :-
     init_counter,
     ( SessionModule:le_kb_module_fact(KBmodule) ->  true; KBmodule = none),
     setup_call_cleanup(
-        le_kbs:set_kb_module(KBmodule),
+        ( le_kbs:set_kb_module(KBmodule), memo_enter(Memo) ),
         (
             solve(Goal, SessionModule, KBmodule, [], 0, none, Unknowns0, Whys),
             \+ (
@@ -57,7 +61,7 @@ i(Goal, SessionModule, Unknowns, Whys) :-
             remove_variant_duplicates(Unknowns0, Unknowns1),
             consistent_assumptions(Unknowns1, Unknowns, SessionModule, KBmodule)
         ),
-        le_kbs:clear_kb_module
+        ( memo_exit(Memo), le_kbs:clear_kb_module )
     ).
 
 
@@ -73,7 +77,7 @@ explain(Goal, SessionModule, Unknowns, Whys) :-
     init_counter,
     ( SessionModule:le_kb_module_fact(KBmodule) ->  true; KBmodule = none),
     setup_call_cleanup(
-        le_kbs:set_kb_module(KBmodule),
+        ( le_kbs:set_kb_module(KBmodule), memo_enter(Memo) ),
         (   case_breaks_constraint(SessionModule, KBmodule, CID, CRef, CWhys) ->
             % The facts break a constraint: the explanation is that proof.
             Unknowns = [],
@@ -90,7 +94,7 @@ explain(Goal, SessionModule, Unknowns, Whys) :-
             Unknowns = [],
             findall(W, (called(0, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Whys)
         ),
-        le_kbs:clear_kb_module
+        ( memo_exit(Memo), le_kbs:clear_kb_module )
     ).
 
 %!  solve(+Goal:term, +SM:atom, +KM:atom, +Anc:list, +Depth:integer, +ParentID:any, -Us:list, -Whys:list) is nondet.
@@ -369,7 +373,20 @@ solve_real_actual(le_flip(Goal, Changes), SM, KM, _Anc, _D, _MyID, [],
 solve_real_actual(le_at(Goal, Start, End), SM, KM, Anc, D, MyID, Us, Whys) :- !,
     solve(Goal, SM, KM, Anc, D, MyID, Us, Whys0),
     maplist(attach_range(Start, End), Whys0, Whys).
-solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
+% A literal of a `; memorable` template (docs/user/reference/language.md §2.4):
+% its answers, with their explanations, are computed once per distinct call in
+% a query and replayed for every later variant of that call (memo_solve/8).
+solve_real_actual(G, SM, KM, Anc, D, MyID, Us, Whys) :-
+    memorable_goal(G, SM, KM), !,
+    memo_solve(G, SM, KM, Anc, D, MyID, Us, Whys).
+solve_real_actual(G, SM, KM, Anc, D, MyID, Us, Whys) :-
+    solve_literal(G, SM, KM, Anc, D, MyID, Us, Whys).
+
+%!  solve_literal(+G, +SM, +KM, +Anc, +D, +MyID, -Us, -Whys) is nondet.
+%
+%   A literal: a built-in, an is_a/2 goal, a clause of the session or the
+%   knowledge base, or an assumption (an `; unknown` template).
+solve_literal(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
 
     (   D > 100 -> throw('Tried to solve too deep') ; true % Depth limit
     ),
@@ -426,6 +443,145 @@ solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
           solve(UnkBody, SM, KM, [le_unknown(G)|Anc], D1, MyID, [], _) ->  
             Us = [G], WhysBody = [], Ref = unknown
     ).
+
+% ── Memoization of `; memorable` templates ──────────────────────────────────
+%
+%   docs/user/reference/language.md §2.4. A program marks a template
+%   `; memorable` when the same call on it is made many times in a query —
+%   the repeated sub-proofs that the explanation's redundancy detection
+%   (group_variant_whys/2, le_api:mark_cross_tree_repeats/2) finds after the
+%   fact. The reasoner then does the work once: the FIRST call of each
+%   distinct call (distinct up to variable renaming — a variant, not merely a
+%   unifiable term) computes EVERY answer of the call, each with its
+%   unknowns and its explanation, and the later variant calls of the same
+%   query replay them. Only a completed call is replayed: while a call is
+%   being computed (memo_active/2) a recursive variant of it inside the
+%   computation is solved as usual, so that the loop check on the ancestor
+%   list decides recursion exactly as it does without the marker.
+%
+%   The cache lives for ONE query (memo_enter/1 at i/4 and explain/4): a
+%   session's facts change between queries (a scenario is set, a fact
+%   asserted, a flip query tries changes), and an entry computed under other
+%   facts would be a wrong answer with a confident explanation. Within a
+%   query each nested proof — a why-not attempt, a section check, a flip,
+%   the constraint checks of consistent_assumptions/4 — gets a generation of
+%   its own (with_saved_reasoner_state/1), and entries of other generations
+%   are never consulted: those proofs run under other assumptions or other
+%   facts. A scoped proof (`according to`, §17.5) is part of the key.
+%
+%   Answers are indexed by the hash of the call (variant_sha1/2 on a copy
+%   without attributes), one clause per answer (memo_answer/6), so a replay
+%   copies one answer at a time; the type constraints the answer's free
+%   variables carried (when/2 goals) are stored beside it and re-attached.
+%   memo_alias/2 lets a replayed call's failure explanation — and the
+%   exhausted alternatives of a replayed choice point — be read from the
+%   records of the call that did the work (failure_children/2).
+%
+%   Not memoized: a call made while a variant of it is still active (above),
+%   and every literal of a template without the marker. The verifier warns
+%   about a memorable call under a negation (a negation stops at the first
+%   answer, the memorable call computes them all) and about a memorable
+%   predicate whose rules run an embedded `prolog` goal (which could change
+%   state under the cached answers).
+
+%!  memorable_goal(+G, +SM, +KM) is semidet.
+%
+%   G is a literal of a template marked `; memorable` in the knowledge base
+%   (or the session, when it is the program itself).
+memorable_goal(G, SM, KM) :-
+    (   compound(G) -> functor(G, F, A) ; atom(G), F = G, A = 0 ),
+    (   KM \== none, current_predicate(KM:le_memorable/2)
+    ->  KM:le_memorable(F, A)
+    ;   current_predicate(SM:le_memorable/2),
+        SM:le_memorable(F, A)
+    ), !.
+
+%!  memo_solve(+G, +SM, +KM, +Anc, +D, +MyID, -Us, -Whys) is nondet.
+memo_solve(G, SM, KM, Anc, D, MyID, Us, Whys) :-
+    memo_generation(Gen),
+    memo_key(G, Key),
+    (   memo_done(Key, Gen, FirstID)
+    ->  memo_count(hits),
+        ( le_kbs:do_log -> format('Memo hit: ~p~n', [G]) ; true ),
+        % The replayed call answers from the records of the first: its
+        % failure explanation, or why its choice point had no other answer.
+        ( MyID == FirstID -> true ; assertz(memo_alias(MyID, FirstID)) ),
+        memo_replay(Key, Gen, G, Us, Whys)
+    ;   memo_active(Key, Gen)
+    ->  % A variant of a call still being computed (recursion through the
+        % memorable predicate): solved as usual, not recorded.
+        solve_literal(G, SM, KM, Anc, D, MyID, Us, Whys)
+    ;   memo_count(misses),
+        setup_call_cleanup(
+            assertz(memo_active(Key, Gen)),
+            findall(answer(G, Us1, Whys1),
+                    solve_literal(G, SM, KM, Anc, D, MyID, Us1, Whys1),
+                    Answers),
+            retractall(memo_active(Key, Gen))),
+        forall(member(Answer, Answers),
+               ( copy_term(Answer, answer(G2, Us2, Whys2), Constraints),
+                 assertz(memo_answer(Key, Gen, G2, Us2, Whys2, Constraints)) )),
+        assertz(memo_done(Key, Gen, MyID)),
+        memo_replay(Key, Gen, G, Us, Whys)
+    ).
+
+memo_replay(Key, Gen, G, Us, Whys) :-
+    memo_answer(Key, Gen, G, Us, Whys, Constraints),
+    maplist(call, Constraints).
+
+%   The key of a call: its shape up to variable renaming, together with the
+%   scope of the proof it is made in (a scoped proof admits fewer facts).
+%   copy_term/3 leaves the type constraints of the variables behind, which
+%   variant_sha1/2 cannot hash and which are not part of what the call asks.
+memo_key(G, Key) :-
+    current_scope(Scope),
+    copy_term(G-Scope, Plain, _),
+    variant_sha1(Plain, Key).
+
+%   memo_enter(-Saved) / memo_exit(+Saved): the cache of a query. The
+%   outermost i/4 or explain/4 of a thread starts with an empty cache; each
+%   call (nested ones included: a query run inside a service or a test of a
+%   test) gets a generation of its own, restored on exit.
+memo_enter(saved(Depth, OldGen)) :-
+    ( memo_depth(Depth) -> true ; Depth = 0 ),
+    ( Depth =:= 0 -> clear_memo ; true ),
+    Depth1 is Depth + 1,
+    retractall(memo_depth(_)), assertz(memo_depth(Depth1)),
+    ( memo_generation(OldGen) -> true ; OldGen = 0 ),
+    new_memo_generation.
+
+memo_exit(saved(Depth, OldGen)) :-
+    retractall(memo_depth(_)), assertz(memo_depth(Depth)),
+    set_memo_generation(OldGen).
+
+new_memo_generation :-
+    ( retract(memo_gen_counter(N)) -> true ; N = 0 ),
+    N1 is N + 1,
+    assertz(memo_gen_counter(N1)),
+    set_memo_generation(N1).
+
+set_memo_generation(Gen) :-
+    retractall(memo_generation(_)),
+    assertz(memo_generation(Gen)).
+
+clear_memo :-
+    retractall(memo_done(_, _, _)),
+    retractall(memo_active(_, _)),
+    retractall(memo_answer(_, _, _, _, _, _)),
+    retractall(memo_alias(_, _)),
+    retractall(memo_stat(_, _)).
+
+memo_count(Kind) :-
+    ( retract(memo_stat(Kind, N)) -> N1 is N + 1 ; N1 = 1 ),
+    assertz(memo_stat(Kind, N1)).
+
+%!  memo_statistics(-Hits:integer, -Misses:integer) is det.
+%
+%   Of the last query of this thread: the memorable calls replayed from the
+%   cache, and those that had to be computed (each distinct call once).
+memo_statistics(Hits, Misses) :-
+    ( memo_stat(hits, Hits) -> true ; Hits = 0 ),
+    ( memo_stat(misses, Misses) -> true ; Misses = 0 ).
 
 %!  goal_attempt(+Goal, +SM, +KM, -Result) is det.
 %
@@ -494,9 +650,14 @@ with_saved_reasoner_state(Goal) :-
     findall(succeeded(A), succeeded(A), Succ),
     findall(solved_binding(A, B), solved_binding(A, B), SB),
     findall(counter(A), counter(A), Ctr),
+    findall(memo_alias(A, B), memo_alias(A, B), Aliases),
     ( le_kbs:le_kb_module(KBM) -> true ; KBM = none ),
+    % The nested proof has a memo generation of its own: what it computes
+    % (under its own assumptions or facts) is not replayed outside it, nor
+    % the enclosing proof's entries inside it.
+    ( memo_generation(OldGen) -> true ; OldGen = 0 ),
     setup_call_cleanup(
-        ( clear_reasoner_state, init_counter ),
+        ( clear_reasoner_state, init_counter, new_memo_generation ),
         once(Goal),
         ( clear_reasoner_state,
           forall(member(T, Called), assertz(T)),
@@ -504,7 +665,9 @@ with_saved_reasoner_state(Goal) :-
           forall(member(T, SIN), assertz(T)),
           forall(member(T, Succ), assertz(T)),
           forall(member(T, SB), assertz(T)),
+          forall(member(T, Aliases), assertz(T)),
           retractall(counter(_)), forall(member(T, Ctr), assertz(T)),
+          set_memo_generation(OldGen),
           ( KBM == none -> le_kbs:clear_kb_module ; le_kbs:set_kb_module(KBM) ) )).
 
 clear_reasoner_state :-
@@ -512,7 +675,8 @@ clear_reasoner_state :-
     retractall(called_clause(_, _, _)),
     retractall(success_in_not(_, _)),
     retractall(succeeded(_)),
-    retractall(solved_binding(_, _)).
+    retractall(solved_binding(_, _)),
+    retractall(memo_alias(_, _)).
 
 current_scope(Scope) :-
     ( nb_current(le_scope, S), S \== [] -> Scope = S ; Scope = none ).
@@ -985,11 +1149,14 @@ build_failure_tree(ID, Whys) :-
 %   failures (the default path, and non-rule calls). Shared by
 %   build_failure_tree/2 and the choice-point display below.
 failure_children(ID, AllWhys) :-
+    % A replayed memorable call (memo_solve/8) made no calls of its own: the
+    % records of the call that did the work stand for it.
+    ( memo_alias(ID, FirstID) -> Src = FirstID ; Src = ID ),
     findall(failed_rule(Ref, ClauseWhys),
-            ( called_clause(ID, ClauseID, Ref),
+            ( called_clause(Src, ClauseID, Ref),
               clause_failure_children(ClauseID, ClauseWhys) ),
             RuleNodes),
-    clause_failure_children(ID, DirectWhys),
+    clause_failure_children(Src, DirectWhys),
     combine_clause_children(RuleNodes, DirectWhys, AllWhys).
 
 % Collect and group the failure subtrees of the calls made directly under ID.

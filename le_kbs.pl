@@ -131,7 +131,10 @@ example_alias(scenario_element_test, 'fixtures/scenario_element_test').
 example_alias(numbering_test, 'language/extensions/numbering_test').
 example_alias(clp_coverage, 'language/scasp/clp_coverage').
 example_alias('AItest', 'fixtures/AItest').
-example_alias(prolog_call, 'language/extensions/prolog_call').
+example_alias(prolog_call, 'language/prolog/prolog_call').
+%  Embedded `prolog` goals became core LE (2026-09-22); the example left the
+%  extensions folder.
+example_alias('language/extensions/prolog_call', 'language/prolog/prolog_call').
 example_alias(subset, 'language/templates/subset').
 example_alias('testing/happpy_dragon', happy_dragon).
 example_alias('short/sets', 'language/templates/subset').
@@ -2948,6 +2951,9 @@ is_system_predicate(le_service/3).
 % The expected minimal change sets of a flip query (le_flip.pl), per scenario.
 is_system_predicate(le_expected_changes/3).
 is_system_predicate(le_service_template/2).
+% `; memorable` templates (docs/user/reference/language.md §2.4): the predicates the
+% reasoner memoizes within a query (reasoner:memo_solve/8).
+is_system_predicate(le_memorable/2).
 % Decision tables (le_tables.pl): the table and its rows.
 is_system_predicate(le_table/6).
 is_system_predicate(le_table_row/6).
@@ -3200,10 +3206,10 @@ extension_dependent_path_fragment('/insurle2/').
 %  written with the extension constructs (grouped and numbered bodies).
 extension_dependent_path_fragment('/lpsplus/').
 %  The examples of the extension constructs themselves (docs/user/reference/extensions.md).
+%  (Embedded `prolog` goals are core LE — language.md §15.6 — so the programs
+%  that only use them, examples/migration/scasp/turingcomplete/ among them,
+%  belong to the core suite.)
 extension_dependent_path_fragment('/language/extensions/').
-%  A twin of another system written with an extension construct: embedded
-%  Prolog goals (s(CASP)'s list built-ins, which core LE has no sentence for).
-extension_dependent_path_fragment('/migration/scasp/turingcomplete/').
 
 %!  suite_includes(+Suite:atom, +Path:atom) is semidet.
 %

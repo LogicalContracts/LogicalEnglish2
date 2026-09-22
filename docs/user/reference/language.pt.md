@@ -87,6 +87,7 @@ Uma definição de modelo pode ser seguida de adições, cada uma introduzida po
 - `; via serviço <nome>` (também `; através do serviço <nome>`) — o modelo é respondido em tempo de execução por um serviço declarado (§17.6).
 - `; <valor> por omissão` (também `por defeito`, `por padrão`) — **só no alvo lps, só em fluentes** (`le_lps_surface.md` §2): o valor que o último argumento do modelo tem para uma chave sem facto guardado. Um valor por omissão noutro modelo é assinalado (`default_not_lps`).
 - `; julgado` — marca um predicado de **textura aberta** cujas instâncias são *decididas*, não derivadas (sinónimos `; julgada`, `; avaliativo`, `; avaliativa`). É resolvido como `; assumível`, exceto que, uma vez registado um resultado (o último argumento) para uma questão, nenhum outro resultado é assumido; uma regra que o conclua é um erro, e as suas instâncias em aberto aparecem como *julgamento necessário*. Ver §17.1.
+- `; memorável` — as chamadas ao modelo são **memorizadas** durante uma consulta: cada chamada distinta é calculada uma vez, respostas e explicações, e repetida onde quer que volte a ocorrer (§2.4). São aceites os sinónimos `; memorizável`, `; memorizado` e `; memorizada`.
 
 ### 2.1 Modelos preposicionais
 Um modelo preposicional é um modelo binário que **começa por um argumento** e
@@ -201,6 +202,40 @@ Pontos a saber:
 
 O exemplo trabalhado é
 `examples/moreExamples/language/templates/functions.le`.
+
+### 2.4 Modelos memoráveis: `; memorável`
+Uma consulta a um programa grande prova muitas vezes a mesma coisa: a mesma
+condição, com os mesmos valores, atingida a partir de várias regras ou de
+vários casos de uma regra. A explicação mostra-o depois, colapsando as
+sub-explicações repetidas; `; memorável` evita o próprio trabalho repetido,
+nos modelos que o autor escolher:
+```le
+os modelos são:
+    *um antepassado* é antepassado de *uma pessoa*; memorável.
+```
+- **O que é guardado.** Numa consulta, a primeira chamada de cada chamada
+  *distinta* ao modelo calcula **todas** as respostas dessa chamada, cada uma
+  com os seus desconhecidos e a sua explicação; cada chamada posterior que
+  seja a mesma a menos do nome das variáveis (uma *variante*) repete-as. As
+  chamadas são procuradas por um resumo (hash) da sua forma.
+- **Só chamadas completas são repetidas.** Uma chamada fica em cache quando
+  todas as suas respostas foram calculadas; enquanto está a ser calculada,
+  uma variante recursiva dela no interior desse cálculo é resolvida como de
+  costume.
+- **As mesmas respostas, as mesmas explicações.** O marcador muda quando o
+  trabalho é feito, não o que se conclui: uma chamada repetida dá as respostas
+  da primeira, pela mesma ordem, com a mesma sub-prova.
+- **Por consulta, não por sessão.** A cache é esvaziada quando uma consulta
+  começa (os factos de uma sessão mudam entre consultas); dentro de uma
+  consulta, uma prova aninhada (porquê-não, secções, restrições, flip) tem
+  cache própria, e uma prova com âmbito (`segundo`, §17.5) é guardada à parte.
+- **Avisos.** `memorable_under_negation` — uma chamada memorável sob `não é o
+  caso que`, `a menos que` ou `caso contrário`: a negação para na primeira
+  resposta, a chamada memorável calcula todas; `memorable_calls_prolog` — uma
+  regra do predicado memorável executa um objetivo `prolog` embutido (§15.6),
+  que poderia alterar o estado sob as respostas em cache.
+
+Ver `examples/moreExamples/language/memoization/`.
 
 ## 3. Regras e factos
 - **Facto:** uma frase simples terminada em ponto.
@@ -551,8 +586,10 @@ Funcionalidades para além das construções nucleares acima. As marcadas
 **[requer le_extensions.pl]** dependem do módulo proprietário
 `le_extensions.pl` e só estão disponíveis onde ele está instalado (o serviço
 alojado); sem ele não são analisadas, pelo que convém preferir as formas
-nucleares. A referência inglesa destas construções é
-[extensions.md](extensions.md).
+nucleares. As regras `apenas se` (§15.1), os rótulos de regras (§15.5) e os
+objetivos Prolog embutidos (§15.6) são LE nuclear. A referência inglesa
+destas construções é [extensions.md](extensions.md) e, para as nucleares,
+[language.md](language.md).
 
 ### 15.1 Regras `apenas se` (condições necessárias)
 `Cabeça apenas se Corpo.` (sinónimo: `somente se`) diz que Corpo é uma condição
@@ -657,7 +694,7 @@ um requerente é elegível se:
 Cada condição numerada é endereçável pelo seu designador hierárquico através de
 `le_source_element(IdRegra, Designador, Objetivo)`.
 
-### 15.6 Objetivos Prolog embutidos **[a resolução requer le_extensions.pl]**
+### 15.6 Objetivos Prolog embutidos
 Uma condição da forma `prolog <objetivo>` (conjunções entre parênteses:
 `prolog (g1, g2)`) chama Prolog diretamente. As variáveis LE referem-se dentro
 do objetivo como frases `o <nome>` / `a <nome>`, marcadores `*um nome*` ou
@@ -667,6 +704,10 @@ um sinistro tem identificador um id se
     o sinistro está coberto
     e prolog le_my_id(o id).
 ```
+LE nuclear (não requer `le_extensions.pl`). Cada objetivo `prolog` passa pelo
+`library(sandbox)` antes de correr (§14.1). Um modelo memorável (§2.4) cujas
+regras chamam um objetivo `prolog` é assinalado (`memorable_calls_prolog`).
+Ver `examples/moreExamples/language/prolog/prolog_call.le`.
 
 ### 15.7 Encadeamento preposicional **[requer le_extensions.pl]**
 O marcador `; preposicional` e o seu uso encadeado estão descritos em §2.1; o

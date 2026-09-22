@@ -974,6 +974,20 @@ export const keywords: Record<string, KeywordTable> = {
         "provenance"
       ]
     ],
+    "memorable": [
+      [
+        "memorable"
+      ],
+      [
+        "memoised"
+      ],
+      [
+        "memoized"
+      ],
+      [
+        "cached"
+      ]
+    ],
     "judged": [
       [
         "open",
@@ -2711,6 +2725,20 @@ export const keywords: Record<string, KeywordTable> = {
         "cenário",
         "exigem",
         "proveniência"
+      ]
+    ],
+    "memorable": [
+      [
+        "memorizável"
+      ],
+      [
+        "memorizado"
+      ],
+      [
+        "memorizada"
+      ],
+      [
+        "memorável"
       ]
     ],
     "judged": [
@@ -4524,6 +4552,20 @@ export const keywords: Record<string, KeywordTable> = {
         "procedencia"
       ]
     ],
+    "memorable": [
+      [
+        "memorizable"
+      ],
+      [
+        "memorizado"
+      ],
+      [
+        "memorizada"
+      ],
+      [
+        "memorable"
+      ]
+    ],
     "judged": [
       [
         "evaluativo"
@@ -6237,6 +6279,17 @@ export const keywords: Record<string, KeywordTable> = {
         "exigent",
         "une",
         "provenance"
+      ]
+    ],
+    "memorable": [
+      [
+        "mémorisable"
+      ],
+      [
+        "mémorisée"
+      ],
+      [
+        "mémorisé"
       ]
     ],
     "judged": [
@@ -8036,6 +8089,20 @@ export const keywords: Record<string, KeywordTable> = {
         "provenienza"
       ]
     ],
+    "memorable": [
+      [
+        "memorizzabile"
+      ],
+      [
+        "memorizzato"
+      ],
+      [
+        "memorizzata"
+      ],
+      [
+        "memorabile"
+      ]
+    ],
     "judged": [
       [
         "valutativo"
@@ -8698,6 +8765,7 @@ export const keywordCategories: Record<string, string> = {
   "lps_this_constraint_replaces": "lps",
   "lps_of": "lps",
   "provenance_required": "section",
+  "memorable": "template_addition",
   "judged": "template_addition",
   "according_to": "provenance",
   "as_stated_in": "provenance",

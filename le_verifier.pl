@@ -88,6 +88,8 @@ check_issue(KB, _, Issue) :- quote_not_found(KB, Issue).
 check_issue(KB, _, Issue) :- unread_value(KB, Issue).
 check_issue(KB, _, Issue) :- mistyped_value(KB, Issue).
 check_issue(KB, _, Issue) :- le_views:view_issue(KB, Issue).
+check_issue(KB, _, Issue) :- memorable_under_negation(KB, Issue).
+check_issue(KB, _, Issue) :- memorable_calls_prolog(KB, Issue).
 
 % --- A value no rule reads, and one they do read is close ---
 % A scenario fact puts a constant where the program's rules test constants —
@@ -322,6 +324,86 @@ service_undeclared(KB, issue(service_undeclared, Description, Fix, Start, End)) 
 
 semantic_matcher_declared(KB) :-
     catch(le_services:semantic_matcher(KB, _), _, fail).
+
+% --- `; memorable` templates (docs/user/reference/language.md §2.4) ---
+
+%   A memorable call under a negation. `it is not the case that`, `unless`
+%   and the guard of `otherwise` all compile to not/1, and a negation stops
+%   at the first answer of its goal — while a memorable call computes every
+%   answer before giving the first (reasoner:memo_solve/8). The caching
+%   effort is wasted unless the same call is also made outside a negation.
+%   Reported at the negation (its source range when it has one, else the
+%   rule's), once per negation and template; a negation nested in the goal
+%   of another is not reported again.
+memorable_under_negation(KB, issue(memorable_under_negation, Description, Fix, Start, End)) :-
+    current_predicate(KB:le_memorable/2),
+    kb_rule(KB, _Head, Body, Ref),
+    negated_goal(Body, Goal, NegRange),
+    find_in_body(Goal, Lit),
+    memorable_literal(KB, Lit, F, A),
+    memorable_label(KB, F, A, Label),
+    le_i18n:le_msg(memorable_under_negation_desc, [name-Label], Description),
+    le_i18n:le_msg(memorable_under_negation_fix, [name-Label], Fix),
+    (   NegRange = range(Start, End) -> true
+    ;   clause(KB:le_source_info(Ref, Start, End, _), true) -> true
+    ;   Start = 0, End = 0
+    ).
+
+%   A memorable predicate whose rule runs an embedded `prolog` goal
+%   (§15.6): the goal could change the state the cached answers were
+%   computed from, and the cache would not know.
+memorable_calls_prolog(KB, issue(memorable_calls_prolog, Description, Fix, Start, End)) :-
+    current_predicate(KB:le_memorable/2),
+    KB:le_memorable(F, A),
+    functor(Head, F, A),
+    le_kbs:kb_own_predicate(KB, Head),
+    clause(KB:Head, Body, Ref),
+    body_has_prolog_goal(Body),
+    memorable_label(KB, F, A, Label),
+    le_i18n:le_msg(memorable_calls_prolog_desc, [name-Label], Description),
+    le_i18n:le_msg(memorable_calls_prolog_fix, [name-Label], Fix),
+    ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true ; Start = 0, End = 0 ).
+
+kb_rule(KB, Head, Body, Ref) :-
+    current_predicate(KB:F/A),
+    \+ is_system_predicate(F/A),
+    functor(Head, F, A),
+    le_kbs:kb_own_predicate(KB, Head),
+    clause(KB:Head, Body, Ref),
+    Body \== true.
+
+memorable_literal(KB, Lit, F, A) :-
+    callable(Lit),
+    functor(Lit, F, A),
+    KB:le_memorable(F, A).
+
+memorable_label(KB, F, A, Label) :-
+    (   le_kbs:template_of(KB, F, A, _, Label0) -> Label = Label0
+    ;   format(atom(Label), "~w/~w", [F, A])
+    ).
+
+%   negated_goal(+Body, -Goal, -Range): Goal is negated somewhere in Body
+%   (the goal of a not/1, not descended into further); Range is the
+%   negation's source range, range(Start, End), or none.
+negated_goal(le_at(not(G), S, E), G, range(S, E)) :- !.
+negated_goal(le_at(B, _, _), G, R) :- !, negated_goal(B, G, R).
+negated_goal(not(G), G, none) :- !.
+negated_goal((A, B), G, R) :- !, ( negated_goal(A, G, R) ; negated_goal(B, G, R) ).
+negated_goal(and(A, B), G, R) :- !, ( negated_goal(A, G, R) ; negated_goal(B, G, R) ).
+negated_goal((A ; B), G, R) :- !, ( negated_goal(A, G, R) ; negated_goal(B, G, R) ).
+negated_goal(or(A, B), G, R) :- !, ( negated_goal(A, G, R) ; negated_goal(B, G, R) ).
+negated_goal((C -> T ; E), G, R) :- !, ( negated_goal(C, G, R) ; negated_goal(T, G, R) ; negated_goal(E, G, R) ).
+negated_goal(forall(A, B), G, R) :- !, ( negated_goal(A, G, R) ; negated_goal(B, G, R) ).
+negated_goal(once(B), G, R) :- !, negated_goal(B, G, R).
+negated_goal(le_scoped(B, _), G, R) :- !, negated_goal(B, G, R).
+negated_goal(le_flip(B, _), G, R) :- !, negated_goal(B, G, R).
+negated_goal(Agg, G, R) :-
+    compound(Agg), Agg =.. [Type, _, B, _],
+    memberchk(Type, [sum, count, min, max, average]), !,
+    negated_goal(B, G, R).
+
+body_has_prolog_goal(Body) :-
+    sub_term(T, Body), compound(T), T = prolog_call(_), !.
 
 
 % --- Judged templates and provenance (docs/user/reference/language.md §3.3) ---

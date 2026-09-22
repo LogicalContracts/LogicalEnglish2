@@ -9,7 +9,8 @@
     kb_items//1, second_pass_item/4, parse_literal/6, prepare_templates/2,
     set_token_pos/1, get_token_pos/1, is_id/1, is_article/1, is_reserved/1, is_ignorable/1, is_proper_name_atom/1, is_punct/1,
     extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6, second_pass_item_extension/4,
-    extract_var_name/2, unify_with_vmap/5, extract_simple_word/2, extract_var_info_from_words/3, head_noun_type/2]).
+    extract_var_name/2, unify_with_vmap/5, extract_simple_word/2, extract_var_info_from_words/3, head_noun_type/2,
+    resolve_prolog_tokens/5]).
 
 :- multifile extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6, second_pass_item_extension/4, match_template_with_chaining/8.
 
@@ -1638,6 +1639,15 @@ template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, 
         % verifier, the explanation and flip queries key on the marker.
         { Unknown = judged },
         template_additions(Globals, Opposite, OppositeWV, Prep, _, Synonyms, NTs, FunctorArgs, TStart, TEnd)
+    ;   kw(memorable) ->
+        % "; memorable" (docs/user/reference/language.md §2.4): calls on this
+        % template are memoized during a query — the first call of each
+        % distinct (variant) call computes every answer, with its explanation,
+        % and the later variant calls of the same query replay them
+        % (reasoner:memo_solve/8). Recorded as le_memorable(F, A) in the
+        % compiling module, like a service binding.
+        { record_memorable_template(FunctorArgs) },
+        template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, FunctorArgs, TStart, TEnd)
     ;   kw(via_service) ->
         % "; via service matcher": goals on this template are answered at run
         % time by the declared service (le_services.pl), called once per
@@ -1720,6 +1730,21 @@ record_template_default(FunctorArgs, Value, TStart, TEnd) :-
         ;   le_i18n:le_msg(default_not_lps_desc, [], Desc),
             le_i18n:le_msg(default_not_lps_fix, [], Fix),
             assertz(M:le_issue(warning, default_not_lps, Desc, Fix, TStart, TEnd))
+        )
+    ;   true
+    ).
+
+%!  record_memorable_template(+FunctorArgs) is det.
+%
+%   `; memorable` (docs/user/reference/language.md §2.4): records
+%   le_memorable(F, A) in the compiling module; the reasoner memoizes the
+%   calls of that predicate within a query (reasoner:memorable_goal/3).
+record_memorable_template(FunctorArgs) :-
+    (   le_kbs:current_compiling_module(M), M \== (-)
+    ->  FunctorArgs = [F|Args], length(Args, A),
+        (   current_predicate(M:le_memorable/2), M:le_memorable(F, A)
+        ->  true
+        ;   assertz(M:le_memorable(F, A))
         )
     ;   true
     ).
@@ -4305,12 +4330,93 @@ drop_trailing_comments(Tokens, Stripped) :-
     drop_trailing_comments(Front, Stripped).
 drop_trailing_comments(Tokens, Tokens).
 
+% ── Embedded Prolog goals (docs/user/reference/language.md §15.6) ────────────
+%
+%!  resolve_prolog_tokens(+Tokens, +Templates, +VMIn, -VMOut, -Goal) is semidet.
+%
+%   The tokens after the word `prolog` on a body line, read as a Prolog goal.
+%   LE variables inside the text — `*a name*` markers, `the <name>` phrases
+%   (an article followed by words) and ALL-CAPS ids — are replaced by generated
+%   Prolog variable names (`VAR_<hash>`) and, once the text is read with
+%   read_term_from_atom/3, bound to the rule's own variables through the
+%   variable map; `(...)` groups (expr tokens) are written back in
+%   parentheses. The body condition is then prolog_call(Goal), which the
+%   reasoner runs under the sandbox (reasoner:call_reasoner_built_in/2).
+%   Also used by the numbered bodies of le_extensions.pl for a `prolog` item.
+resolve_prolog_tokens(Tokens, Templates, VMIn, VMOut, Goal) :-
+    % 1. Identify LE variables in Tokens and replace them with unique Prolog variable names
+    tokens_to_prolog_string(Tokens, Templates, VMIn, VMOut, String, VarNames),
+    % 2. Parse the string as a Prolog term
+    ( VarNames == [] -> 
+        (catch(term_string(Goal, String), _, fail) -> true ; fail)
+    ; 
+        (catch(read_term_from_atom(String, Goal, [variable_names(PrologVarNames)]), _, fail) -> true ; fail),
+        % 3. Unify the parsed variables with the LE variables
+        unify_prolog_vars(PrologVarNames, VarNames)
+    ).
+
+tokens_to_prolog_string(Tokens, Templates, VMIn, VMOut, String, VarNames) :-
+    tokens_to_prolog_parts(Tokens, Templates, VMIn, VMOut, Parts, VarNames),
+    atomic_list_concat(Parts, String).
+
+tokens_to_prolog_parts([], _, VM, VM, [], []).
+tokens_to_prolog_parts([var(Words, _)|Ts], Templates, VMIn, VMOut, [Part|Parts], [PName-Var|VarNames]) :-
+    !,
+    extract_var_info_from_words(Words, Name, _Type),
+    unify_with_vmap(Name, Var, VMIn, VM1, true),
+    variant_sha1(Name, Hash),
+    sub_atom(Hash, 0, 8, _, ShortHash),
+    atomic_list_concat(['VAR_', ShortHash], PName),
+    Part = PName,
+    tokens_to_prolog_parts(Ts, Templates, VM1, VMOut, Parts, VarNames).
+tokens_to_prolog_parts(Tokens, Templates, VMIn, VMOut, [Part|Parts], VarNames) :-
+    % Try to match a variable (greedy: try longer sequences first)
+    findall(L-VT-R, (append(VT, R, Tokens), VT \== [], length(VT, L)), Splits),
+    sort(1, @>=, Splits, SortedSplits),
+    member(_-VarTokens-Rest, SortedSplits),
+    extract_var_name_from_tokens(VarTokens, Name),
+    !,
+    unify_with_vmap(Name, Var, VMIn, VM1, true),
+    % Generate a unique name for this variable in the Prolog string
+    variant_sha1(Name, Hash),
+    sub_atom(Hash, 0, 8, _, ShortHash),
+    atomic_list_concat(['VAR_', ShortHash], PName),
+    Part = PName,
+    VarNames = [PName-Var | RestVarNames],
+    tokens_to_prolog_parts(Rest, Templates, VM1, VMOut, Parts, RestVarNames).
+tokens_to_prolog_parts([expr(E)|Ts], Templates, VMIn, VMOut, [Part|Parts], VarNames) :-
+    !,
+    tokens_to_prolog_string(E, Templates, VMIn, VM1, InnerString, InnerVarNames),
+    format(atom(Part), '(~w)', [InnerString]),
+    append(InnerVarNames, RestVarNames, VarNames),
+    tokens_to_prolog_parts(Ts, Templates, VM1, VMOut, Parts, RestVarNames).
+tokens_to_prolog_parts([T|Ts], Templates, VMIn, VMOut, [Part|Parts], VarNames) :-
+    extract_simple_word(T, Word),
+    ( Word == '' -> Part = ' ' ; Part = Word ), % avoid empty parts
+    tokens_to_prolog_parts(Ts, Templates, VMIn, VMOut, Parts, VarNames).
+
+unify_prolog_vars([], _).
+unify_prolog_vars([PName=Var|Rest], VarNames) :-
+    ( member(PName-LEVar, VarNames) -> Var = LEVar ; true ),
+    unify_prolog_vars(Rest, VarNames).
+
+% Helper to extract variable name from tokens
+extract_var_name_from_tokens(Tokens, Name) :-
+    maplist(extract_simple_word, Tokens, Words),
+    (   Words = ['*' | Rest], append(VarWords, ['*'], Rest), \+ member('*', VarWords) ->
+        extract_var_info_from_words(VarWords, Name, _)
+    ;   Words = [Art | Rest], Rest \== [], le_i18n:class_member(article_narrow, Art),
+        forall(member(W, Rest), (atom(W), \+ is_punct(W))) ->
+        extract_var_info_from_words(Words, Name, _)
+    ;   Words = [ID], is_id(ID) -> Name = ID
+    ).
+
 parse_node([], Children, Templates, VMIn, VMOut, Logic) :- !,
     hierarchy_to_logic(Children, Templates, VMIn, VMOut, Logic).
 parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
     ( le_kbs:do_log -> maplist(extract_simple_word, Tokens, Words), print_message(informational,'Parsing node: ~w~n' - [Words]); true),
     (   Tokens = [word(prolog, _)|Rest], Children == [] ->
-        le_extensions:resolve_prolog_tokens(Rest, Templates, VMIn, VMOut, Goal),
+        resolve_prolog_tokens(Rest, Templates, VMIn, VMOut, Goal),
         Logic = prolog_call(Goal)
     ;   parse_node_extension(Tokens, Children, Templates, VMIn, VMOut, Logic) -> 
         ( le_kbs:do_log -> print_message(informational,'  Extension succeeded: ~w~n' - [Logic]); true),

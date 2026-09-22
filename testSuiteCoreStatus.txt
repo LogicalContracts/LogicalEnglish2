@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      core (this repository alone; extension-dependent trees excluded)
 Command:    testing/run_tests.sh le   (or: runTests)
 Sibling:    testSuiteStatus.txt — all (core + trees requiring the proprietary le_extensions.pl)
-Generated:  2026-09-21 14:39:03 UTC
+Generated:  2026-09-22 10:23:58 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 194
-Total tests:     1046
-Passed:          1046
+Files processed: 199
+Total tests:     1057
+Passed:          1057
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -43,6 +43,10 @@ Detailed File Summary:
   [PASS] examples/moreExamples/domains/tax/sbpp_0.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/domains/tax/sbppxml1.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/domains/tax/small_business.le: 25 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/prolog/prolog_call.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/memoization/family_relatives.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/memoization/lattice_paths.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/memoization/memorable_warnings.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/language/negation/alice_propositional.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/negation/inequality.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/negation/only_if.le: 4 Pass, 0 Fail, 0 Error
@@ -178,6 +182,7 @@ Detailed File Summary:
   [NONE] examples/migration/scasp/loanwithcure/loanwithcure.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/scasp/minicontract/minicontract.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/scasp/isdapermissioncorrected/isdapermissioncorrected.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/scasp/turingcomplete/turingcomplete.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/scasp/family_le/family_le.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/scasp/family/family.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/scasp/impossibleancestor/impossibleancestor.le: 2 Pass, 0 Fail, 0 Error
