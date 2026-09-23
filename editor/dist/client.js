@@ -968,6 +968,20 @@ var keywords = {
         "provenance"
       ]
     ],
+    "memorable": [
+      [
+        "memorable"
+      ],
+      [
+        "memoised"
+      ],
+      [
+        "memoized"
+      ],
+      [
+        "cached"
+      ]
+    ],
     "judged": [
       [
         "open",
@@ -2705,6 +2719,20 @@ var keywords = {
         "cen\xE1rio",
         "exigem",
         "proveni\xEAncia"
+      ]
+    ],
+    "memorable": [
+      [
+        "memoriz\xE1vel"
+      ],
+      [
+        "memorizado"
+      ],
+      [
+        "memorizada"
+      ],
+      [
+        "memor\xE1vel"
       ]
     ],
     "judged": [
@@ -4518,6 +4546,20 @@ var keywords = {
         "procedencia"
       ]
     ],
+    "memorable": [
+      [
+        "memorizable"
+      ],
+      [
+        "memorizado"
+      ],
+      [
+        "memorizada"
+      ],
+      [
+        "memorable"
+      ]
+    ],
     "judged": [
       [
         "evaluativo"
@@ -6231,6 +6273,17 @@ var keywords = {
         "exigent",
         "une",
         "provenance"
+      ]
+    ],
+    "memorable": [
+      [
+        "m\xE9morisable"
+      ],
+      [
+        "m\xE9moris\xE9e"
+      ],
+      [
+        "m\xE9moris\xE9"
       ]
     ],
     "judged": [
@@ -8030,6 +8083,20 @@ var keywords = {
         "provenienza"
       ]
     ],
+    "memorable": [
+      [
+        "memorizzabile"
+      ],
+      [
+        "memorizzato"
+      ],
+      [
+        "memorizzata"
+      ],
+      [
+        "memorabile"
+      ]
+    ],
     "judged": [
       [
         "valutativo"
@@ -8759,6 +8826,7 @@ var uiCatalog = {
     "scenario name": "nome do cen\xE1rio",
     "Are you sure you want to miss the excitement of finding the proof yourself?": "Tem a certeza de que quer perder a emo\xE7\xE3o de encontrar a prova por si mesmo?",
     "No proof found for this query.": "Nenhuma prova encontrada para esta consulta.",
+    "No answer: build the proof that this query FAILS": "Sem resposta: construa a prova de que esta consulta FALHA",
     "(empty)": "(vazio)",
     "A query name must be a single word or number (no spaces).": "O nome de uma consulta tem de ser uma \xFAnica palavra ou n\xFAmero (sem espa\xE7os).",
     "A scenario name must be a single word (no spaces).": "O nome de um cen\xE1rio tem de ser uma \xFAnica palavra (sem espa\xE7os).",
@@ -9189,7 +9257,14 @@ var uiCatalog = {
     "Other systems: import and export": "Outros sistemas: importar e exportar",
     "The map of the integrations with other rule and contract systems, and a document for each.": "O mapa das integra\xE7\xF5es com outros sistemas de regras e de contratos, e um documento para cada um.",
     "Start here: a hands-on tutorial that builds small programs \u2014 a tea party, a flying dragon, a slice of British nationality law, a tea shop \u2014 teaching how to write, query, test and debug LE in the editor, then citations, views and a second engine.": "Comece aqui: um tutorial pr\xE1tico que constr\xF3i pequenos programas \u2014 um ch\xE1, um drag\xE3o que voa, um peda\xE7o da lei da nacionalidade brit\xE2nica, uma casa de ch\xE1 \u2014 e ensina a escrever, consultar, testar e depurar LE no editor, e depois cita\xE7\xF5es, vistas e um segundo motor.",
-    "A hands-on tutorial: write, query, test and debug small LE programs.": "Um tutorial pr\xE1tico: escrever, consultar, testar e depurar pequenos programas LE."
+    "A hands-on tutorial: write, query, test and debug small LE programs.": "Um tutorial pr\xE1tico: escrever, consultar, testar e depurar pequenos programas LE.",
+    "MENU LANGUAGE": "IDIOMA DOS MENUS",
+    "The language of the menus, buttons and messages. The language of a program is set by the program's own first sentence, not here.": "O idioma dos menus, bot\xF5es e mensagens. O idioma de um programa \xE9 definido pela primeira frase do pr\xF3prio programa, n\xE3o aqui.",
+    "Show the menus, buttons and messages in this language (the page reloads)": "Mostrar os menus, bot\xF5es e mensagens neste idioma (a p\xE1gina \xE9 recarregada)",
+    "Copy the web address of this folder": "Copiar o endere\xE7o web desta pasta",
+    "(guide)": "(guia)",
+    "Logical English in other languages": "Logical English noutras l\xEDnguas",
+    "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Escrever programas em portugu\xEAs, espanhol, franc\xEAs ou italiano, e escolher o idioma dos menus."
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -9365,6 +9440,7 @@ var uiCatalog = {
     "scenario name": "nombre del escenario",
     "Are you sure you want to miss the excitement of finding the proof yourself?": "\xBFEst\xE1 seguro de que quiere perderse la emoci\xF3n de encontrar la prueba usted mismo?",
     "No proof found for this query.": "No se encontr\xF3 ninguna prueba para esta consulta.",
+    "No answer: build the proof that this query FAILS": "Sin respuesta: construya la prueba de que esta consulta FALLA",
     "(empty)": "(vac\xEDo)",
     "A query name must be a single word or number (no spaces).": "El nombre de una consulta debe ser una sola palabra o n\xFAmero (sin espacios).",
     "A scenario name must be a single word (no spaces).": "El nombre de un escenario debe ser una sola palabra (sin espacios).",
@@ -9793,7 +9869,14 @@ var uiCatalog = {
     "Other systems: import and export": "Otros sistemas: importar y exportar",
     "The map of the integrations with other rule and contract systems, and a document for each.": "El mapa de las integraciones con otros sistemas de reglas y de contratos, y un documento para cada uno.",
     "Start here: a hands-on tutorial that builds small programs \u2014 a tea party, a flying dragon, a slice of British nationality law, a tea shop \u2014 teaching how to write, query, test and debug LE in the editor, then citations, views and a second engine.": "Empiece aqu\xED: un tutorial pr\xE1ctico que construye peque\xF1os programas \u2014 una merienda, un drag\xF3n que vuela, un fragmento de la ley de nacionalidad brit\xE1nica, una teter\xEDa \u2014 y ense\xF1a a escribir, consultar, probar y depurar LE en el editor, y luego citas, vistas y un segundo motor.",
-    "A hands-on tutorial: write, query, test and debug small LE programs.": "Un tutorial pr\xE1ctico: escribir, consultar, probar y depurar peque\xF1os programas LE."
+    "A hands-on tutorial: write, query, test and debug small LE programs.": "Un tutorial pr\xE1ctico: escribir, consultar, probar y depurar peque\xF1os programas LE.",
+    "MENU LANGUAGE": "IDIOMA DE LOS MEN\xDAS",
+    "The language of the menus, buttons and messages. The language of a program is set by the program's own first sentence, not here.": "El idioma de los men\xFAs, botones y mensajes. El idioma de un programa lo fija la primera oraci\xF3n del propio programa, no aqu\xED.",
+    "Show the menus, buttons and messages in this language (the page reloads)": "Mostrar los men\xFAs, botones y mensajes en este idioma (la p\xE1gina se recarga)",
+    "Copy the web address of this folder": "Copiar la direcci\xF3n web de esta carpeta",
+    "(guide)": "(gu\xEDa)",
+    "Logical English in other languages": "Logical English en otros idiomas",
+    "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Escribir programas en portugu\xE9s, espa\xF1ol, franc\xE9s o italiano, y elegir el idioma de los men\xFAs."
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -9969,6 +10052,7 @@ var uiCatalog = {
     "scenario name": "nom du sc\xE9nario",
     "Are you sure you want to miss the excitement of finding the proof yourself?": "\xCAtes-vous s\xFBr de vouloir manquer le plaisir de trouver la preuve vous-m\xEAme ?",
     "No proof found for this query.": "Aucune preuve trouv\xE9e pour cette requ\xEAte.",
+    "No answer: build the proof that this query FAILS": "Aucune r\xE9ponse : construisez la preuve que cette requ\xEAte \xC9CHOUE",
     "(empty)": "(vide)",
     "A query name must be a single word or number (no spaces).": "Le nom d'une requ\xEAte doit \xEAtre un seul mot ou un nombre (sans espaces).",
     "A scenario name must be a single word (no spaces).": "Le nom d'un sc\xE9nario doit \xEAtre un seul mot (sans espaces).",
@@ -10397,7 +10481,14 @@ var uiCatalog = {
     "Other systems: import and export": "Autres syst\xE8mes : import et export",
     "The map of the integrations with other rule and contract systems, and a document for each.": "La carte des int\xE9grations avec d'autres syst\xE8mes de r\xE8gles et de contrats, et un document pour chacun.",
     "Start here: a hands-on tutorial that builds small programs \u2014 a tea party, a flying dragon, a slice of British nationality law, a tea shop \u2014 teaching how to write, query, test and debug LE in the editor, then citations, views and a second engine.": "Commencez ici : un tutoriel pratique qui construit de petits programmes \u2014 un go\xFBter, un dragon qui vole, un morceau du droit britannique de la nationalit\xE9, un salon de th\xE9 \u2014 pour apprendre \xE0 \xE9crire, interroger, tester et d\xE9boguer LE dans l'\xE9diteur, puis les citations, les vues et un second moteur.",
-    "A hands-on tutorial: write, query, test and debug small LE programs.": "Un tutoriel pratique : \xE9crire, interroger, tester et d\xE9boguer de petits programmes LE."
+    "A hands-on tutorial: write, query, test and debug small LE programs.": "Un tutoriel pratique : \xE9crire, interroger, tester et d\xE9boguer de petits programmes LE.",
+    "MENU LANGUAGE": "LANGUE DES MENUS",
+    "The language of the menus, buttons and messages. The language of a program is set by the program's own first sentence, not here.": "La langue des menus, des boutons et des messages. La langue d'un programme est fix\xE9e par la premi\xE8re phrase du programme lui-m\xEAme, pas ici.",
+    "Show the menus, buttons and messages in this language (the page reloads)": "Afficher les menus, les boutons et les messages dans cette langue (la page se recharge)",
+    "Copy the web address of this folder": "Copier l'adresse web de ce dossier",
+    "(guide)": "(guide)",
+    "Logical English in other languages": "Logical English dans d'autres langues",
+    "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "\xC9crire des programmes en portugais, espagnol, fran\xE7ais ou italien, et choisir la langue des menus."
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -10573,6 +10664,7 @@ var uiCatalog = {
     "scenario name": "nome dello scenario",
     "Are you sure you want to miss the excitement of finding the proof yourself?": "Sei sicuro di voler perdere l'emozione di trovare la prova da solo?",
     "No proof found for this query.": "Nessuna prova trovata per questa interrogazione.",
+    "No answer: build the proof that this query FAILS": "Nessuna risposta: costruisci la prova che questa interrogazione FALLISCE",
     "(empty)": "(vuoto)",
     "A query name must be a single word or number (no spaces).": "Il nome di un'interrogazione deve essere una singola parola o un numero (senza spazi).",
     "A scenario name must be a single word (no spaces).": "Il nome di uno scenario deve essere una singola parola (senza spazi).",
@@ -11001,7 +11093,14 @@ var uiCatalog = {
     "Other systems: import and export": "Altri sistemi: importazione ed esportazione",
     "The map of the integrations with other rule and contract systems, and a document for each.": "La mappa delle integrazioni con altri sistemi di regole e di contratti, e un documento per ciascuno.",
     "Start here: a hands-on tutorial that builds small programs \u2014 a tea party, a flying dragon, a slice of British nationality law, a tea shop \u2014 teaching how to write, query, test and debug LE in the editor, then citations, views and a second engine.": "Inizia qui: un tutorial pratico che costruisce piccoli programmi \u2014 un t\xE8, un drago che vola, un pezzo della legge britannica sulla cittadinanza, una sala da t\xE8 \u2014 e insegna a scrivere, interrogare, testare ed eseguire il debug di LE nell'editor, poi citazioni, viste e un secondo motore.",
-    "A hands-on tutorial: write, query, test and debug small LE programs.": "Un tutorial pratico: scrivere, interrogare, testare ed eseguire il debug di piccoli programmi LE."
+    "A hands-on tutorial: write, query, test and debug small LE programs.": "Un tutorial pratico: scrivere, interrogare, testare ed eseguire il debug di piccoli programmi LE.",
+    "MENU LANGUAGE": "LINGUA DEI MENU",
+    "The language of the menus, buttons and messages. The language of a program is set by the program's own first sentence, not here.": "La lingua dei menu, dei pulsanti e dei messaggi. La lingua di un programma \xE8 stabilita dalla prima frase del programma stesso, non qui.",
+    "Show the menus, buttons and messages in this language (the page reloads)": "Mostra i menu, i pulsanti e i messaggi in questa lingua (la pagina si ricarica)",
+    "Copy the web address of this folder": "Copia l'indirizzo web di questa cartella",
+    "(guide)": "(guida)",
+    "Logical English in other languages": "Logical English in altre lingue",
+    "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Scrivere programmi in portoghese, spagnolo, francese o italiano, e scegliere la lingua dei menu."
   }
 };
 var languages = [
@@ -11059,14 +11158,63 @@ function keywordPhrases(lang, key) {
 
 // src/i18n.ts
 var STORAGE_KEY = "le-ui-lang";
-function uiLang() {
+var COOKIE = "le_ui_lang";
+function isLanguage(code) {
+  return !!code && languages.some((x) => x.code === code);
+}
+function browserUiLang() {
+  let prefs = [];
   try {
-    const l = localStorage.getItem(STORAGE_KEY);
-    if (l && languages.some((x) => x.code === l))
-      return l;
+    prefs = navigator.languages?.length ? navigator.languages : [navigator.language];
   } catch (e) {
   }
+  for (const p of prefs) {
+    const code = (p || "").toLowerCase().split("-")[0];
+    if (isLanguage(code))
+      return code;
+  }
   return "en";
+}
+function setUiLang(code) {
+  if (!isLanguage(code))
+    return;
+  try {
+    localStorage.setItem(STORAGE_KEY, code);
+  } catch (e) {
+  }
+  try {
+    document.cookie = `${COOKIE}=${code};path=/;max-age=31536000;SameSite=Lax`;
+  } catch (e) {
+  }
+}
+var cachedLang = null;
+function uiLang() {
+  if (cachedLang)
+    return cachedLang;
+  let stored = null;
+  try {
+    stored = localStorage.getItem(STORAGE_KEY);
+  } catch (e) {
+  }
+  if (isLanguage(stored)) {
+    cachedLang = stored;
+  } else {
+    cachedLang = browserUiLang();
+    setUiLang(cachedLang);
+  }
+  return cachedLang;
+}
+function uiLanguageName(code) {
+  try {
+    const n = new Intl.DisplayNames([code], { type: "language" }).of(code);
+    if (n && n !== code)
+      return n.charAt(0).toLocaleUpperCase(code) + n.slice(1);
+  } catch (e) {
+  }
+  return code;
+}
+function languageList() {
+  return languages;
 }
 function t(key) {
   const lang = uiLang();
@@ -11346,7 +11494,7 @@ function buildLeMonarchTokens(lang) {
   const qualifiers = words(T, ["qualifier"]);
   const copulas = words(T, ["copula", "ignorable", "meta_marker", "that"]);
   const preps = words(T, ["connective_heuristic", "of"]);
-  const additions = alt(T, ["opposite", "synonym", "prepositional", "unknown", "undefined", "known_as", "judged", "via_service", "by_default"]);
+  const additions = alt(T, ["opposite", "synonym", "prepositional", "unknown", "undefined", "known_as", "judged", "memorable", "via_service", "by_default"]);
   return {
     tokenizer: {
       root: [
@@ -14316,6 +14464,32 @@ function issueDocLink(type, text) {
   }
   return void 0;
 }
+function fillUiLanguageMenu() {
+  const host = document.getElementById("menu-ui-languages");
+  if (!host)
+    return;
+  const current = uiLang();
+  host.innerHTML = "";
+  for (const info of languageList()) {
+    const item = document.createElement("div");
+    item.className = "dropdown-item";
+    item.id = `menu-ui-lang-${info.code}`;
+    item.setAttribute("lang", info.code);
+    item.title = t("Show the menus, buttons and messages in this language (the page reloads)");
+    const check = document.createElement("span");
+    check.textContent = "\u2713";
+    check.style.marginRight = "5px";
+    check.style.visibility = info.code === current ? "visible" : "hidden";
+    item.append(check, uiLanguageName(info.code));
+    item.addEventListener("click", () => {
+      if (info.code === uiLang())
+        return;
+      setUiLang(info.code);
+      window.location.reload();
+    });
+    host.appendChild(item);
+  }
+}
 async function fillHelpMenu() {
   const box = document.getElementById("help-docs");
   if (!box)
@@ -14365,10 +14539,7 @@ async function start() {
   };
   installLeApiLang();
   applyI18nDom();
-  const homeLink = document.querySelector("a.home-link");
-  if (homeLink && uiLang() !== "en") {
-    homeLink.setAttribute("href", `/multilingual?lang=${encodeURIComponent(uiLang())}`);
-  }
+  fillUiLanguageMenu();
   void fillHelpMenu();
   const issueFixes = /* @__PURE__ */ new Map();
   const getMarkerKey = (marker) => {
@@ -14566,6 +14737,11 @@ async function start() {
   });
   let activeDoc = firstDoc;
   let panelDoc = firstDoc;
+  const homeLink = document.querySelector("a.home-link");
+  const programLang = detectProgramLanguage(initialValue);
+  if (homeLink && programLang !== "en") {
+    homeLink.setAttribute("href", `/multilingual?lang=${encodeURIComponent(programLang)}`);
+  }
   let lspOpen = (_doc) => {
   };
   let lspChange = (_doc) => {

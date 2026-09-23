@@ -606,7 +606,14 @@
    "Other systems: import and export": "Outros sistemas: importar e exportar",
    "The map of the integrations with other rule and contract systems, and a document for each.": "O mapa das integrações com outros sistemas de regras e de contratos, e um documento para cada um.",
    "Start here: a hands-on tutorial that builds small programs — a tea party, a flying dragon, a slice of British nationality law, a tea shop — teaching how to write, query, test and debug LE in the editor, then citations, views and a second engine.": "Comece aqui: um tutorial prático que constrói pequenos programas — um chá, um dragão que voa, um pedaço da lei da nacionalidade britânica, uma casa de chá — e ensina a escrever, consultar, testar e depurar LE no editor, e depois citações, vistas e um segundo motor.",
-   "A hands-on tutorial: write, query, test and debug small LE programs.": "Um tutorial prático: escrever, consultar, testar e depurar pequenos programas LE."
+   "A hands-on tutorial: write, query, test and debug small LE programs.": "Um tutorial prático: escrever, consultar, testar e depurar pequenos programas LE.",
+   "MENU LANGUAGE": "IDIOMA DOS MENUS",
+   "The language of the menus, buttons and messages. The language of a program is set by the program's own first sentence, not here.": "O idioma dos menus, botões e mensagens. O idioma de um programa é definido pela primeira frase do próprio programa, não aqui.",
+   "Show the menus, buttons and messages in this language (the page reloads)": "Mostrar os menus, botões e mensagens neste idioma (a página é recarregada)",
+   "Copy the web address of this folder": "Copiar o endereço web desta pasta",
+   "(guide)": "(guia)",
+   "Logical English in other languages": "Logical English noutras línguas",
+   "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Escrever programas em português, espanhol, francês ou italiano, e escolher o idioma dos menus."
   },
   "es": {
    "+ Add": "+ Añadir",
@@ -1211,7 +1218,14 @@
    "Other systems: import and export": "Otros sistemas: importar y exportar",
    "The map of the integrations with other rule and contract systems, and a document for each.": "El mapa de las integraciones con otros sistemas de reglas y de contratos, y un documento para cada uno.",
    "Start here: a hands-on tutorial that builds small programs — a tea party, a flying dragon, a slice of British nationality law, a tea shop — teaching how to write, query, test and debug LE in the editor, then citations, views and a second engine.": "Empiece aquí: un tutorial práctico que construye pequeños programas — una merienda, un dragón que vuela, un fragmento de la ley de nacionalidad británica, una tetería — y enseña a escribir, consultar, probar y depurar LE en el editor, y luego citas, vistas y un segundo motor.",
-   "A hands-on tutorial: write, query, test and debug small LE programs.": "Un tutorial práctico: escribir, consultar, probar y depurar pequeños programas LE."
+   "A hands-on tutorial: write, query, test and debug small LE programs.": "Un tutorial práctico: escribir, consultar, probar y depurar pequeños programas LE.",
+   "MENU LANGUAGE": "IDIOMA DE LOS MENÚS",
+   "The language of the menus, buttons and messages. The language of a program is set by the program's own first sentence, not here.": "El idioma de los menús, botones y mensajes. El idioma de un programa lo fija la primera oración del propio programa, no aquí.",
+   "Show the menus, buttons and messages in this language (the page reloads)": "Mostrar los menús, botones y mensajes en este idioma (la página se recarga)",
+   "Copy the web address of this folder": "Copiar la dirección web de esta carpeta",
+   "(guide)": "(guía)",
+   "Logical English in other languages": "Logical English en otros idiomas",
+   "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Escribir programas en portugués, español, francés o italiano, y elegir el idioma de los menús."
   },
   "fr": {
    "+ Add": "+ Ajouter",
@@ -1816,7 +1830,14 @@
    "Other systems: import and export": "Autres systèmes : import et export",
    "The map of the integrations with other rule and contract systems, and a document for each.": "La carte des intégrations avec d'autres systèmes de règles et de contrats, et un document pour chacun.",
    "Start here: a hands-on tutorial that builds small programs — a tea party, a flying dragon, a slice of British nationality law, a tea shop — teaching how to write, query, test and debug LE in the editor, then citations, views and a second engine.": "Commencez ici : un tutoriel pratique qui construit de petits programmes — un goûter, un dragon qui vole, un morceau du droit britannique de la nationalité, un salon de thé — pour apprendre à écrire, interroger, tester et déboguer LE dans l'éditeur, puis les citations, les vues et un second moteur.",
-   "A hands-on tutorial: write, query, test and debug small LE programs.": "Un tutoriel pratique : écrire, interroger, tester et déboguer de petits programmes LE."
+   "A hands-on tutorial: write, query, test and debug small LE programs.": "Un tutoriel pratique : écrire, interroger, tester et déboguer de petits programmes LE.",
+   "MENU LANGUAGE": "LANGUE DES MENUS",
+   "The language of the menus, buttons and messages. The language of a program is set by the program's own first sentence, not here.": "La langue des menus, des boutons et des messages. La langue d'un programme est fixée par la première phrase du programme lui-même, pas ici.",
+   "Show the menus, buttons and messages in this language (the page reloads)": "Afficher les menus, les boutons et les messages dans cette langue (la page se recharge)",
+   "Copy the web address of this folder": "Copier l'adresse web de ce dossier",
+   "(guide)": "(guide)",
+   "Logical English in other languages": "Logical English dans d'autres langues",
+   "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Écrire des programmes en portugais, espagnol, français ou italien, et choisir la langue des menus."
   },
   "it": {
    "+ Add": "+ Aggiungi",
@@ -2421,7 +2442,14 @@
    "Other systems: import and export": "Altri sistemi: importazione ed esportazione",
    "The map of the integrations with other rule and contract systems, and a document for each.": "La mappa delle integrazioni con altri sistemi di regole e di contratti, e un documento per ciascuno.",
    "Start here: a hands-on tutorial that builds small programs — a tea party, a flying dragon, a slice of British nationality law, a tea shop — teaching how to write, query, test and debug LE in the editor, then citations, views and a second engine.": "Inizia qui: un tutorial pratico che costruisce piccoli programmi — un tè, un drago che vola, un pezzo della legge britannica sulla cittadinanza, una sala da tè — e insegna a scrivere, interrogare, testare ed eseguire il debug di LE nell'editor, poi citazioni, viste e un secondo motore.",
-   "A hands-on tutorial: write, query, test and debug small LE programs.": "Un tutorial pratico: scrivere, interrogare, testare ed eseguire il debug di piccoli programmi LE."
+   "A hands-on tutorial: write, query, test and debug small LE programs.": "Un tutorial pratico: scrivere, interrogare, testare ed eseguire il debug di piccoli programmi LE.",
+   "MENU LANGUAGE": "LINGUA DEI MENU",
+   "The language of the menus, buttons and messages. The language of a program is set by the program's own first sentence, not here.": "La lingua dei menu, dei pulsanti e dei messaggi. La lingua di un programma è stabilita dalla prima frase del programma stesso, non qui.",
+   "Show the menus, buttons and messages in this language (the page reloads)": "Mostra i menu, i pulsanti e i messaggi in questa lingua (la pagina si ricarica)",
+   "Copy the web address of this folder": "Copia l'indirizzo web di questa cartella",
+   "(guide)": "(guida)",
+   "Logical English in other languages": "Logical English in altre lingue",
+   "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Scrivere programmi in portoghese, spagnolo, francese o italiano, e scegliere la lingua dei menu."
   }
  },
  "languages": [

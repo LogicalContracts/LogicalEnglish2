@@ -2327,6 +2327,12 @@ Currently we already detect redundancies in explanations, but only after fully e
 
 Draft a couple examples for illustrating this. Also look at the slowest program in the LE test suite, and try to add a single memorable addition to there to try to improve speed. Update documentation.
 
+# Language changing, editor tab selection
+An user of LE complained that the IDE rendering its menus in Spanish, just because he was writing a program in Espanol Lógico.
+First, let's make the preferred language settable in the IDE, persisting in LocalStorage; on first use, adopt the browser's preferred language
+Second, add some user documentation on the use of the multiple Logical English dialects (Espanol Lógico, Português Lógico etc); I couldn't find it easily
+Finally, another request relating to the IDE's UI, both LE and /lps2's: make sure that, when several tabs are open in the editor, if the user navigates from the entry page to the editor by clicking an example... this example's tab is selected, which is currently not always the case
+
 ## TBD
 
 In the editor, "Show s(CASP)" should appear only if the selected engine is s(CASP)

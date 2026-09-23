@@ -20,6 +20,7 @@
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_json)).
+:- use_module(library(http/json), [atom_json_term/3]).
 :- use_module(library(http/http_client)).
 :- use_module(library(http/http_parameters)).
 :- use_module(library(http/http_files)).
@@ -199,16 +200,40 @@ set_request_language(Request) :-
 
 %!  set_cookie_language(+Request) is det.
 %
-%   Sets the active language from the le_ui_lang cookie (used by the
-%   server-rendered /login page — decision O-13; the landing pages render in
-%   a fixed language and SET the cookie instead).
+%   Sets the active language from the le_ui_lang cookie, the reader's menu
+%   language, which the editor keeps (used by the server-rendered /login page
+%   and feedback form — decision O-13; the landing pages render in a fixed
+%   language). Without the cookie, the first language of the browser's
+%   Accept-Language header that the dictionaries know, as the editor does on
+%   first use.
 set_cookie_language(Request) :-
     (   member(cookie(Cookies), Request),
         memberchk(le_ui_lang=Lang, Cookies),
         le_i18n:known_language(Lang)
     ->  le_i18n:set_le_language(Lang)
+    ;   memberchk(accept_language(Accept), Request),
+        accept_language_known(Accept, Lang)
+    ->  le_i18n:set_le_language(Lang)
     ;   le_i18n:set_le_language(default)
     ).
+
+%!  accept_language_known(+Header:atom, -Lang:atom) is semidet.
+%
+%   The first language of an Accept-Language header ("pt-BR,pt;q=0.9,en;q=0.8")
+%   that the dictionaries know, by its primary code; English counts.
+accept_language_known(Header, Lang) :-
+    atomic_list_concat(Items, ',', Header),
+    member(Item, Items),
+    atomic_list_concat([Range|_], ';', Item),
+    normalize_space(atom(Range1), Range),
+    downcase_atom(Range1, Range2),
+    atomic_list_concat([Lang|_], '-', Range2),
+    Lang \== '',
+    (   Lang == en
+    ->  true
+    ;   le_i18n:known_language(Lang)
+    ),
+    !.
 
 % Shorthand used by the server-rendered pages below.
 uit(Key, Text) :- le_i18n:ui_text(Key, Text).
@@ -255,8 +280,8 @@ le_api:le_api_user(Email, Roles) :-
 
 handle_landing_page(Request) :-
     % The standard landing page IS the English page: it always renders in
-    % English. It does NOT touch the UI-language preference — only the
-    % /multilingual pages set it (their back-to-English link resets it).
+    % English. It does NOT touch the reader's menu language, which the
+    % editor keeps (Misc > MENU LANGUAGE).
     le_i18n:set_le_language(default),
     http_parameters(Request, [run_tests(RunTests, [boolean, optional(true), default(false)]),
                               dir(DirParam0, [optional(true), default('')])]),
@@ -299,7 +324,7 @@ handle_landing_page(Request) :-
     (   DirParam == '' ->
         landing_example_items(Dir, UserRoles, ExampleItems),
         FocusNote = ''
-    ;   safe_example_subdir(DirParam, Dir, SubDirPath, UserRoles) ->
+    ;   example_focus_dir(DirParam, Dir, SubDirPath, UserRoles) ->
         atom_concat(DirParam, '/', Prefix),
         landing_example_items(SubDirPath, Prefix, UserRoles, ExampleItems),
         FocusNote = span([' showing ', b([DirParam, '/']), ' ', a(href('/'), '[show all]')])
@@ -321,6 +346,18 @@ handle_landing_page(Request) :-
     uit('Search the documentation', SearchDocsTxt),
     uit('Search', SearchTxt),
     landing_doc_items(DocItems),
+    %  The programs written in the other languages of Logical English, each
+    %  language on a landing page of its own, and the guide to them.
+    uit('Other languages: ', OtherLangsTxt),
+    findall([' ', a(href(LangUrl), LangAutonym)], (
+        language_examples_dir(L, _),
+        le_i18n:language_autonym(L, LangAutonym),
+        format(atom(LangUrl), '/multilingual?lang=~w', [L])
+    ), LangLinkParts),
+    append(LangLinkParts, LangLinks),
+    uit('(guide)', GuideTxt),
+    append([[b(OtherLangsTxt)], LangLinks,
+            [' ', a(href('/docs/user/guide/languages'), GuideTxt)]], OtherLangsLine),
     uit('Test Suite', TestSuiteTxt),
     uit('Run All Tests', RunAllTests),
     %  Running the whole suite is a server's job, and a static copy has none.
@@ -340,7 +377,10 @@ handle_landing_page(Request) :-
          % in LocalStorage; ?expand=all opens everything (script embedded below).
          style('li.le-folder-item { list-style: none; } \c
                 details.le-folder > summary { cursor: pointer; } \c
-                .le-folder-blurb { color: #666; font-weight: normal; }'),
+                .le-folder-blurb { color: #666; font-weight: normal; } \c
+                a.folder-link { margin-left: 6px; font-size: 0.8em; opacity: 0.45; text-decoration: none; } \c
+                a.folder-link:hover, a.folder-link.copied { opacity: 1; } \c
+                details.folder-target > summary { background: rgba(255, 200, 0, 0.25); }'),
          script([type('text/javascript')], FolderScript)],
         [
             AuthCorner,
@@ -367,6 +407,7 @@ handle_landing_page(Request) :-
                     br([]),
                     small(ExecBlurb)
                 ]),
+                li([id('le-other-languages')], OtherLangsLine),
                 li(a(href('https://github.com/LogicalContracts/LogicalEnglish2'), GitHubRepo))
             ]),
             h2(DocumentationTxt),
@@ -451,16 +492,29 @@ handle_logout(Request) :-
 
 %!  landing_folders_script(-JS:atom) is det.
 %
-%   Client-side script (embedded inline in the landing page) that makes the
+%   Client-side script (embedded inline in the landing pages) that makes the
 %   example <details class="le-folder"> elements remember their open/closed state
 %   in LocalStorage, keyed by data-path, and supports ?expand=all plus the
-%   expand-all / collapse-all controls. Kept here (not in web_extras/, which is for
-%   additional apps) since it is part of a core feature. The script content of a
-%   <script> element is emitted verbatim by html_write, so no escaping is needed;
-%   it avoids "//" comments and any "</" sequence on purpose.
-landing_folders_script('(function(){
+%   expand-all / collapse-all controls. It also puts a link symbol after each
+%   folder's name: a click copies the web address of the folder (the page
+%   with ?dir=<folder>), and the symbol is a real link, so the browser's own
+%   "Copy link" works too. Opening such an address opens that folder and the
+%   folders around it and scrolls to it, which works on every landing page,
+%   the static copies of the WebAssembly deployment included; the standard
+%   page's server also narrows the list to the folder where it can
+%   (example_focus_dir/4). Kept here (not in web_extras/, which is for
+%   additional apps) since it is part of a core feature. The script content of
+%   a <script> element is emitted verbatim by html_write, so no escaping is
+%   needed; it avoids "//" comments and any "</" sequence on purpose.
+landing_folders_script(JS) :-
+    uit('Copy the web address of this folder', Tip),
+    uit('Copied', Done),
+    atom_json_term(TipJs, Tip, [as(atom)]),
+    atom_json_term(DoneJs, Done, [as(atom)]),
+    format(atom(JS), '(function(){
   "use strict";
   var P = "le-folder:";
+  var TIP = ~w, DONE = ~w;
   function folders(){
     return Array.prototype.slice.call(document.querySelectorAll("details.le-folder[data-path]"));
   }
@@ -473,6 +527,54 @@ landing_folders_script('(function(){
   function wantAll(){
     var v = new URLSearchParams(window.location.search).get("expand");
     return v === "all" || v === "1" || v === "true" || v === "expanded";
+  }
+  function folderPath(f){ return (f.getAttribute("data-path") || "").replace(/\\/+$/, ""); }
+  function folderUrl(f){
+    var u = new URL(window.location.href);
+    u.hash = "";
+    u.searchParams.delete("expand");
+    u.searchParams.set("dir", folderPath(f));
+    return u.toString();
+  }
+  function copyText(text, done){
+    function fallback(){
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly", "");
+      ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      try { if (document.execCommand("copy")) done(); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else { fallback(); }
+  }
+  function addLink(f){
+    var s = f.querySelector("summary"), title = s ? s.querySelector("b") : null;
+    if (!title) return;
+    var a = document.createElement("a");
+    a.className = "folder-link";
+    a.href = folderUrl(f);
+    a.title = TIP; a.setAttribute("aria-label", TIP);
+    a.textContent = "\\u{1F517}";
+    a.addEventListener("click", function(e){
+      e.preventDefault(); e.stopPropagation();
+      copyText(a.href, function(){
+        a.textContent = DONE; a.classList.add("copied");
+        setTimeout(function(){ a.textContent = "\\u{1F517}"; a.classList.remove("copied"); }, 1500);
+      });
+    });
+    title.insertAdjacentElement("afterend", a);
+  }
+  function reveal(all){
+    var d = new URLSearchParams(window.location.search).get("dir");
+    if (!d) return;
+    d = d.replace(/\\/+$/, "");
+    var f = all.filter(function(x){ return folderPath(x) === d; })[0];
+    if (!f) return;
+    for (var p = f; p; p = p.parentElement ? p.parentElement.closest("details") : null) p.open = true;
+    f.classList.add("folder-target");
+    f.scrollIntoView({ block: "start" });
   }
   function init(){
     var all = folders();
@@ -490,6 +592,8 @@ landing_folders_script('(function(){
       f.addEventListener("toggle", function(){ save(f); });
     });
     if (openAll) all.forEach(save);
+    all.forEach(addLink);
+    reveal(all);
     var ex = document.getElementById("le-expand-all");
     if (ex) ex.addEventListener("click", function(e){ e.preventDefault(); setAll(true); });
     var co = document.getElementById("le-collapse-all");
@@ -497,7 +601,7 @@ landing_folders_script('(function(){
   }
   if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", init); }
   else { init(); }
-})();').
+})();', [TipJs, DoneJs]).
 
 %!  normalize_dir_param(+DirParam0:atom, -DirParam:atom) is det.
 %
@@ -520,6 +624,28 @@ example_current_dir(Dir0, Dir) :-
     ;   le_kbs:example_dir_alias(Dir0, Dir1) -> Dir = Dir1
     ;   le_kbs:example_current_name(Dir0, Dir)
     ).
+
+%!  example_focus_dir(+DirParam:atom, +BaseDir:atom, -SubDirPath:atom, +UserRoles:list) is semidet.
+%
+%   The directory a landing page's ?dir= names: a subdirectory of the main
+%   examples BaseDir, or one of the extra example trees shown beside it
+%   (le_kbs:le_extra_examples_dir/2, listed under their name, e.g.
+%   ?dir=regulatory or ?dir=migration/blawx) — every folder whose link the
+%   landing page offers.
+example_focus_dir(DirParam, BaseDir, SubDirPath, UserRoles) :-
+    safe_example_subdir(DirParam, BaseDir, SubDirPath, UserRoles),
+    !.
+example_focus_dir(DirParam, _BaseDir, SubDirPath, UserRoles) :-
+    atomic_list_concat([Root|Rest], '/', DirParam),
+    le_kbs:le_extra_examples_dir(Root, RootDir),
+    (   Rest == []
+    ->  exists_directory(RootDir),
+        is_path_allowed(RootDir, UserRoles),
+        SubDirPath = RootDir
+    ;   atomic_list_concat(Rest, '/', RestPath),
+        safe_example_subdir(RestPath, RootDir, SubDirPath, UserRoles)
+    ),
+    !.
 
 %!  safe_example_subdir(+DirParam:atom, +BaseDir:atom, -SubDirPath:atom, +UserRoles:list) is semidet.
 %
@@ -618,9 +744,10 @@ handle_multilingual(Request) :-
 %!  multilingual_picker_page is det.
 %
 %   Language chooser: one link per registered non-English language with an
-%   examples/<lang>/ tree, each shown by its autonym. Rendered neutrally in
-%   English; it sets no language preference on load, but its back-to-English
-%   link resets the preference like the per-language pages' one.
+%   examples/<lang>/ tree, each shown by its autonym, and a link to the guide
+%   to writing Logical English in other languages. Rendered neutrally in
+%   English. Like every landing page it leaves the reader's menu language
+%   alone: that is chosen in the editor (Misc > MENU LANGUAGE).
 multilingual_picker_page :-
     le_i18n:set_le_language(default),
     findall(li(a(href(Url), Autonym)), (
@@ -628,15 +755,15 @@ multilingual_picker_page :-
         le_i18n:language_autonym(Lang, Autonym),
         format(atom(Url), '/multilingual?lang=~w', [Lang])
     ), LangItems),
-    ui_lang_pref_script('', PrefScript),
     reply_html_page(
         [title('Logical English — Multilingual'),
-         script([src('/telemetry.js')], []),
-         script([type('text/javascript')], PrefScript)],
+         script([src('/telemetry.js')], [])],
         [
             h1('Logical English — Multilingual'),
             p(b('Choose a language: ')),
             ul(LangItems),
+            p(a([href('/docs/user/guide/languages'), id('le-languages-guide')],
+                'Writing Logical English in other languages (guide)')),
             p(a([href('/'), id('le-back-english')], 'Logical English (in English)'))
         ]
     ).
@@ -644,11 +771,11 @@ multilingual_picker_page :-
 %!  multilingual_landing_page(+Lang:atom, +LangDir:atom) is det.
 %
 %   The landing page circumscribed to one language: only the examples of the
-%   examples/<Lang>/ tree, all chrome strings in Lang. Visiting it also makes
-%   Lang the UI-language preference (localStorage + cookie, decision O-13),
-%   so the editor pages linked from here render in Lang too; clicking the
-%   back link to the standard (English) landing page resets the preference
-%   to English (the standard page itself never touches it).
+%   examples/<Lang>/ tree, all chrome strings in Lang. The page does NOT
+%   touch the reader's menu language (it once did, and a reader who opened a
+%   program in Español Lógico found the whole editor in Spanish): the editor
+%   keeps its own preference, Misc > MENU LANGUAGE, the browser's language
+%   until one is chosen.
 multilingual_landing_page(Lang, LangDir) :-
     le_i18n:set_le_language(Lang),
     (   http_in_session(_SessionId),
@@ -678,7 +805,6 @@ multilingual_landing_page(Lang, LangDir) :-
     landing_example_items(LangDir, Prefix, UserRoles, ExampleItems),
     build_info(BuildInfo),
     landing_folders_script(FolderScript),
-    ui_lang_pref_script(Lang, PrefScript),
     % The syntax summary, when a translation exists (docs/user/reference/language.<lang>.md).
     (   atomic_list_concat(['docs/user/reference/language.', Lang, '.md'], SummaryFile),
         exists_file(SummaryFile)
@@ -738,40 +864,13 @@ multilingual_landing_page(Lang, LangDir) :-
          script([src('/telemetry.js')], []),
          style('li.le-folder-item { list-style: none; } \c
                 details.le-folder > summary { cursor: pointer; } \c
-                .le-folder-blurb { color: #666; font-weight: normal; }'),
-         script([type('text/javascript')], FolderScript),
-         script([type('text/javascript')], PrefScript)],
+                .le-folder-blurb { color: #666; font-weight: normal; } \c
+                a.folder-link { margin-left: 6px; font-size: 0.8em; opacity: 0.45; text-decoration: none; } \c
+                a.folder-link:hover, a.folder-link.copied { opacity: 1; } \c
+                details.folder-target > summary { background: rgba(255, 200, 0, 0.25); }'),
+         script([type('text/javascript')], FolderScript)],
         Body
     ).
-
-%!  ui_lang_pref_script(+Lang:atom, -JS:atom) is det.
-%
-%   Client-side script for the /multilingual pages — the ONLY places that set
-%   the UI-language preference (the editor's localStorage key plus the
-%   le_ui_lang cookie the server-rendered /login page reads). When Lang is
-%   non-empty (a per-language landing page) it stores Lang on load; in every
-%   case it wires the back-to-English link to reset the preference to English
-%   (the standard landing page itself never touches the preference). Same
-%   conventions as landing_folders_script (verbatim script content: no "//"
-%   comments, no "</" sequence).
-ui_lang_pref_script(Lang, JS) :-
-    (   Lang == ''
-    ->  SetNow = ''
-    ;   format(atom(SetNow), '  setLang("~w");~n', [Lang])
-    ),
-    format(atom(JS), '(function(){
-  "use strict";
-  function setLang(l){
-    try { window.localStorage.setItem("le-ui-lang", l); } catch (e) {}
-    document.cookie = "le_ui_lang=" + l + ";path=/;max-age=31536000;SameSite=Lax";
-  }
-~wfunction init(){
-    var back = document.getElementById("le-back-english");
-    if (back) back.addEventListener("click", function(){ setLang("en"); });
-  }
-  if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", init); }
-  else { init(); }
-})();', [SetNow]).
 
 format_test_results(Results, UserRoles, [h3('Test Results'), table([border(1), cellpadding(5)], [
     tr([th('File'), th('Pass'), th('Fail'), th('Error'), th('Status')])

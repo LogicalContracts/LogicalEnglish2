@@ -116773,7 +116773,14 @@ var uiCatalog = {
     "Other systems: import and export": "Outros sistemas: importar e exportar",
     "The map of the integrations with other rule and contract systems, and a document for each.": "O mapa das integra\xE7\xF5es com outros sistemas de regras e de contratos, e um documento para cada um.",
     "Start here: a hands-on tutorial that builds small programs \u2014 a tea party, a flying dragon, a slice of British nationality law, a tea shop \u2014 teaching how to write, query, test and debug LE in the editor, then citations, views and a second engine.": "Comece aqui: um tutorial pr\xE1tico que constr\xF3i pequenos programas \u2014 um ch\xE1, um drag\xE3o que voa, um peda\xE7o da lei da nacionalidade brit\xE2nica, uma casa de ch\xE1 \u2014 e ensina a escrever, consultar, testar e depurar LE no editor, e depois cita\xE7\xF5es, vistas e um segundo motor.",
-    "A hands-on tutorial: write, query, test and debug small LE programs.": "Um tutorial pr\xE1tico: escrever, consultar, testar e depurar pequenos programas LE."
+    "A hands-on tutorial: write, query, test and debug small LE programs.": "Um tutorial pr\xE1tico: escrever, consultar, testar e depurar pequenos programas LE.",
+    "MENU LANGUAGE": "IDIOMA DOS MENUS",
+    "The language of the menus, buttons and messages. The language of a program is set by the program's own first sentence, not here.": "O idioma dos menus, bot\xF5es e mensagens. O idioma de um programa \xE9 definido pela primeira frase do pr\xF3prio programa, n\xE3o aqui.",
+    "Show the menus, buttons and messages in this language (the page reloads)": "Mostrar os menus, bot\xF5es e mensagens neste idioma (a p\xE1gina \xE9 recarregada)",
+    "Copy the web address of this folder": "Copiar o endere\xE7o web desta pasta",
+    "(guide)": "(guia)",
+    "Logical English in other languages": "Logical English noutras l\xEDnguas",
+    "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Escrever programas em portugu\xEAs, espanhol, franc\xEAs ou italiano, e escolher o idioma dos menus."
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -117378,7 +117385,14 @@ var uiCatalog = {
     "Other systems: import and export": "Otros sistemas: importar y exportar",
     "The map of the integrations with other rule and contract systems, and a document for each.": "El mapa de las integraciones con otros sistemas de reglas y de contratos, y un documento para cada uno.",
     "Start here: a hands-on tutorial that builds small programs \u2014 a tea party, a flying dragon, a slice of British nationality law, a tea shop \u2014 teaching how to write, query, test and debug LE in the editor, then citations, views and a second engine.": "Empiece aqu\xED: un tutorial pr\xE1ctico que construye peque\xF1os programas \u2014 una merienda, un drag\xF3n que vuela, un fragmento de la ley de nacionalidad brit\xE1nica, una teter\xEDa \u2014 y ense\xF1a a escribir, consultar, probar y depurar LE en el editor, y luego citas, vistas y un segundo motor.",
-    "A hands-on tutorial: write, query, test and debug small LE programs.": "Un tutorial pr\xE1ctico: escribir, consultar, probar y depurar peque\xF1os programas LE."
+    "A hands-on tutorial: write, query, test and debug small LE programs.": "Un tutorial pr\xE1ctico: escribir, consultar, probar y depurar peque\xF1os programas LE.",
+    "MENU LANGUAGE": "IDIOMA DE LOS MEN\xDAS",
+    "The language of the menus, buttons and messages. The language of a program is set by the program's own first sentence, not here.": "El idioma de los men\xFAs, botones y mensajes. El idioma de un programa lo fija la primera oraci\xF3n del propio programa, no aqu\xED.",
+    "Show the menus, buttons and messages in this language (the page reloads)": "Mostrar los men\xFAs, botones y mensajes en este idioma (la p\xE1gina se recarga)",
+    "Copy the web address of this folder": "Copiar la direcci\xF3n web de esta carpeta",
+    "(guide)": "(gu\xEDa)",
+    "Logical English in other languages": "Logical English en otros idiomas",
+    "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Escribir programas en portugu\xE9s, espa\xF1ol, franc\xE9s o italiano, y elegir el idioma de los men\xFAs."
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -117983,7 +117997,14 @@ var uiCatalog = {
     "Other systems: import and export": "Autres syst\xE8mes : import et export",
     "The map of the integrations with other rule and contract systems, and a document for each.": "La carte des int\xE9grations avec d'autres syst\xE8mes de r\xE8gles et de contrats, et un document pour chacun.",
     "Start here: a hands-on tutorial that builds small programs \u2014 a tea party, a flying dragon, a slice of British nationality law, a tea shop \u2014 teaching how to write, query, test and debug LE in the editor, then citations, views and a second engine.": "Commencez ici : un tutoriel pratique qui construit de petits programmes \u2014 un go\xFBter, un dragon qui vole, un morceau du droit britannique de la nationalit\xE9, un salon de th\xE9 \u2014 pour apprendre \xE0 \xE9crire, interroger, tester et d\xE9boguer LE dans l'\xE9diteur, puis les citations, les vues et un second moteur.",
-    "A hands-on tutorial: write, query, test and debug small LE programs.": "Un tutoriel pratique : \xE9crire, interroger, tester et d\xE9boguer de petits programmes LE."
+    "A hands-on tutorial: write, query, test and debug small LE programs.": "Un tutoriel pratique : \xE9crire, interroger, tester et d\xE9boguer de petits programmes LE.",
+    "MENU LANGUAGE": "LANGUE DES MENUS",
+    "The language of the menus, buttons and messages. The language of a program is set by the program's own first sentence, not here.": "La langue des menus, des boutons et des messages. La langue d'un programme est fix\xE9e par la premi\xE8re phrase du programme lui-m\xEAme, pas ici.",
+    "Show the menus, buttons and messages in this language (the page reloads)": "Afficher les menus, les boutons et les messages dans cette langue (la page se recharge)",
+    "Copy the web address of this folder": "Copier l'adresse web de ce dossier",
+    "(guide)": "(guide)",
+    "Logical English in other languages": "Logical English dans d'autres langues",
+    "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "\xC9crire des programmes en portugais, espagnol, fran\xE7ais ou italien, et choisir la langue des menus."
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -118588,7 +118609,14 @@ var uiCatalog = {
     "Other systems: import and export": "Altri sistemi: importazione ed esportazione",
     "The map of the integrations with other rule and contract systems, and a document for each.": "La mappa delle integrazioni con altri sistemi di regole e di contratti, e un documento per ciascuno.",
     "Start here: a hands-on tutorial that builds small programs \u2014 a tea party, a flying dragon, a slice of British nationality law, a tea shop \u2014 teaching how to write, query, test and debug LE in the editor, then citations, views and a second engine.": "Inizia qui: un tutorial pratico che costruisce piccoli programmi \u2014 un t\xE8, un drago che vola, un pezzo della legge britannica sulla cittadinanza, una sala da t\xE8 \u2014 e insegna a scrivere, interrogare, testare ed eseguire il debug di LE nell'editor, poi citazioni, viste e un secondo motore.",
-    "A hands-on tutorial: write, query, test and debug small LE programs.": "Un tutorial pratico: scrivere, interrogare, testare ed eseguire il debug di piccoli programmi LE."
+    "A hands-on tutorial: write, query, test and debug small LE programs.": "Un tutorial pratico: scrivere, interrogare, testare ed eseguire il debug di piccoli programmi LE.",
+    "MENU LANGUAGE": "LINGUA DEI MENU",
+    "The language of the menus, buttons and messages. The language of a program is set by the program's own first sentence, not here.": "La lingua dei menu, dei pulsanti e dei messaggi. La lingua di un programma \xE8 stabilita dalla prima frase del programma stesso, non qui.",
+    "Show the menus, buttons and messages in this language (the page reloads)": "Mostra i menu, i pulsanti e i messaggi in questa lingua (la pagina si ricarica)",
+    "Copy the web address of this folder": "Copia l'indirizzo web di questa cartella",
+    "(guide)": "(guida)",
+    "Logical English in other languages": "Logical English in altre lingue",
+    "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Scrivere programmi in portoghese, spagnolo, francese o italiano, e scegliere la lingua dei menu."
   }
 };
 var languages = [
@@ -118641,13 +118669,48 @@ var languages = [
 
 // src/i18n.ts
 var STORAGE_KEY = "le-ui-lang";
-function uiLang() {
+var COOKIE = "le_ui_lang";
+function isLanguage(code) {
+  return !!code && languages.some((x2) => x2.code === code);
+}
+function browserUiLang() {
+  let prefs = [];
   try {
-    const l2 = localStorage.getItem(STORAGE_KEY);
-    if (l2 && languages.some((x2) => x2.code === l2)) return l2;
+    prefs = navigator.languages?.length ? navigator.languages : [navigator.language];
   } catch (e) {
   }
+  for (const p2 of prefs) {
+    const code = (p2 || "").toLowerCase().split("-")[0];
+    if (isLanguage(code)) return code;
+  }
   return "en";
+}
+function setUiLang(code) {
+  if (!isLanguage(code)) return;
+  try {
+    localStorage.setItem(STORAGE_KEY, code);
+  } catch (e) {
+  }
+  try {
+    document.cookie = `${COOKIE}=${code};path=/;max-age=31536000;SameSite=Lax`;
+  } catch (e) {
+  }
+}
+var cachedLang = null;
+function uiLang() {
+  if (cachedLang) return cachedLang;
+  let stored = null;
+  try {
+    stored = localStorage.getItem(STORAGE_KEY);
+  } catch (e) {
+  }
+  if (isLanguage(stored)) {
+    cachedLang = stored;
+  } else {
+    cachedLang = browserUiLang();
+    setUiLang(cachedLang);
+  }
+  return cachedLang;
 }
 function t(key) {
   const lang = uiLang();

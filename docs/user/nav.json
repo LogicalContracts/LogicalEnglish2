@@ -36,6 +36,14 @@
           "landing": true
         },
         {
+          "path": "guide/languages",
+          "title": "Logical English in other languages",
+          "blurb": "Programs in Português Lógico, Español Lógico, Français Logique and Italiano Logico: the first sentence that chooses the language, the keywords of each, numbers, where the examples are, and how to choose the language of the menus separately.",
+          "menu": "Logical English in other languages",
+          "menuTip": "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.",
+          "landing": true
+        },
+        {
           "path": "guide/executive-view",
           "title": "The executive view",
           "blurb": "Running a program without its text: choosing a scenario and query, citations and the source viewer, why not, views, shareable links, login."

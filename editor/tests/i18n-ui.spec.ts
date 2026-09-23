@@ -1,15 +1,15 @@
 // UI-language (chrome i18n) regression tests: the editor renders its menus
-// and assistant greeting in the selected UI language (Portuguese here),
-// driven by the shared i18n/ui.csv catalog. The preference is set ONLY by
-// the /multilingual pages (?lang=X sets X, their back link resets to
-// English); there is no in-editor language selector, and the Home link
-// returns to the landing page matching the active UI language. /login
-// honors the cookie; the standard landing page always renders in English
-// but leaves the preference alone.
+// and assistant greeting in the reader's menu language (Portuguese here),
+// driven by the shared i18n/ui.csv catalog. The reader chooses it in the
+// editor (Misc > MENU LANGUAGE); until then the browser's language is
+// adopted, and remembered. The language of the program being edited never
+// changes it, and neither do the landing pages. The Home link returns to the
+// landing page of the program's language. /login honors the cookie the
+// editor sets.
 import { test, expect } from '@playwright/test';
 
 test.describe('UI language', () => {
-    test('Portuguese chrome, Home link and login', async ({ page }) => {
+    test('Portuguese chrome and login', async ({ page }) => {
         await page.addInitScript(() => localStorage.setItem('le-ui-lang', 'pt'));
         await page.goto('/editor/index.html');
         await expect(page.locator('#menu-save-as')).toHaveText('Guardar como...');
@@ -21,10 +21,8 @@ test.describe('UI language', () => {
         // The assistant greeting is localized too.
         await expect(page.locator('#assistant-history .chat-message').first())
             .toHaveText('Olá! Sou o seu Assistente de Logical English. Como posso ajudar hoje?');
-        // No language selector in the Misc menu (the landing pages set the language).
-        await expect(page.locator('#language-menu-items')).toHaveCount(0);
-        // Home returns to the Portuguese landing page.
-        await expect(page.locator('a.home-link')).toHaveAttribute('href', '/multilingual?lang=pt');
+        // An English program: Home returns to the standard landing page.
+        await expect(page.locator('a.home-link')).toHaveAttribute('href', '/');
 
         // /login honors the preference cookie...
         await page.context().addCookies([{ name: 'le_ui_lang', value: 'pt', url: 'http://localhost:3000' }]);
@@ -39,11 +37,43 @@ test.describe('UI language', () => {
         expect(cookies.find(c => c.name === 'le_ui_lang')?.value).toBe('pt');
     });
 
-    test('English remains the default', async ({ page }) => {
+    test('English remains the default for an English browser', async ({ page }) => {
         await page.goto('/editor/index.html');
         await expect(page.locator('#menu-save-as')).toHaveText('Save As...');
         await expect(page.locator('a.home-link')).toHaveAttribute('href', '/');
         await page.goto('/login');
         await expect(page.locator('h1')).toHaveText('Login');
+    });
+
+    test('the menu language is chosen in the Misc menu, and kept', async ({ page }) => {
+        await page.goto('/editor/index.html');
+        // One item per language, named in its own language, English ticked.
+        await expect(page.locator('#menu-ui-lang-en')).toContainText('English');
+        await expect(page.locator('#menu-ui-lang-pt')).toContainText('Português');
+        await expect(page.locator('#menu-ui-lang-es')).toContainText('Español');
+        await expect(page.locator('#menu-ui-lang-en span')).toHaveCSS('visibility', 'visible');
+        await expect(page.locator('#menu-ui-lang-es span')).toHaveCSS('visibility', 'hidden');
+        // Choosing Español reloads the editor in Spanish, and remembers it.
+        await page.evaluate(() => (document.getElementById('menu-ui-lang-es') as HTMLElement).click());
+        await expect(page.locator('#btn-query')).toHaveText('Consulta');
+        await expect(page.locator('#menu-ui-lang-es span')).toHaveCSS('visibility', 'visible');
+        expect(await page.evaluate(() => localStorage.getItem('le-ui-lang'))).toBe('es');
+        const cookies = await page.context().cookies();
+        expect(cookies.find(c => c.name === 'le_ui_lang')?.value).toBe('es');
+        // Back to English the same way.
+        await page.evaluate(() => (document.getElementById('menu-ui-lang-en') as HTMLElement).click());
+        await expect(page.locator('#menu-save-as')).toHaveText('Save As...');
+    });
+});
+
+// A browser whose preferred language is Portuguese gets Portuguese menus the
+// first time, and the choice is remembered.
+test.describe('UI language on first use', () => {
+    test.use({ locale: 'pt-BR' });
+    test('adopts the browser language', async ({ page }) => {
+        await page.goto('/editor/index.html');
+        await expect(page.locator('#menu-save-as')).toHaveText('Guardar como...');
+        expect(await page.evaluate(() => localStorage.getItem('le-ui-lang'))).toBe('pt');
+        await expect(page.locator('#menu-ui-lang-pt span')).toHaveCSS('visibility', 'visible');
     });
 });
