@@ -81,8 +81,16 @@
                  * injects a script into the page; when that script fails, the
                  * page reports it — "Object Not Found Matching Id:3,
                  * MethodName:update, ParamCount:4", with no stack, from a
-                 * window nobody was looking at. */
-                ignoreErrors: [/Object Not Found Matching Id:/],
+                 * window nobody was looking at.
+                 *
+                 * And Monaco's "Canceled: Canceled" in Safari: on every click
+                 * and key press the editor readies a clipboard write for a
+                 * copy that may come, and cancels the previous one. Safari
+                 * reports each cancelled write as an unhandled rejection
+                 * (vs/platform/clipboard/browser/clipboardService.ts); nothing
+                 * is wrong, and copying still works. Monaco raises this error
+                 * only for work it chose to drop, and ignores it itself. */
+                ignoreErrors: [/Object Not Found Matching Id:/, /^Canceled: Canceled$/],
                 beforeSend: cleanEvent,
                 beforeBreadcrumb: function (b) {
                     cleanFields(b.data, ['url', 'from', 'to']);

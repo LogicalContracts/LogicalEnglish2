@@ -48,6 +48,12 @@ script into the page; when that script fails, the page is what reports it,
 with no stack, from a window nobody was looking at. Nothing in this
 repository can cause it or fix it.
 
+A second class is dropped too: "Canceled: Canceled" from the code editor
+(Monaco) in Safari. On every click and key press the editor gets a copy to
+the clipboard ready, in case one follows, and cancels the one it got ready
+before. Safari reports each cancelled copy as an error nobody handled.
+Nothing is wrong, and copying still works.
+
 An error message is written by the code that raised it, and a few Prolog
 errors quote the term they were about (a type error names the value it
 found); with 1000 characters at most, that is the one way a fragment of a
