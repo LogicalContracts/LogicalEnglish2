@@ -133,6 +133,7 @@ refuses the same way, with the same reply:
 | LE for LPS → LPS (`getLps`, LPS2's `le_compile`, Deploy as Solidity, the LPS exporters) | `le_lps.pl` | any error issue, including `not_lps` (lps2's docs/user/reference/le-for-lps.md §8): no LPS text |
 | LPS → Solidity | `lpsPlus/migration/solidity/lps_solidity.pl` (LPS2's Deploy as Solidity, loaded by its `src/syntax/lps_plus.pl`) | `lps_to_solidity/3`'s refusal (reactive rules, Prolog, enumeration, …) |
 | LPS → LE (a document) | `le_lps_write.pl` | `le_lps_check/3`; `residue(true)` (a translator into LE) writes a comment instead |
+| an LPS program in the older syntax → LE | `le_lps_write.pl`, `le_lps_from_internal/4` | the templates are invented from the relations' own names and tied back with `; known as`; everything the surface cannot say comes back as an issue. LPS2's `src/syntax/lps_to_le.pl` reads the `.lps` file and calls it |
 
 Out of scope, and why: LE → Prolog is LE's own compilation, not a
 translation; the Mermaid export is a diagram of the program, not a program;

@@ -2,17 +2,18 @@
 
 *Kind: tutorial · Audience: users · Status: current (2026-09-16)*
 
-*A tutorial. You need the Logical English 2 editor and server (`start_api_server`,
-then http://localhost:3050/editor/index.html); every program named here is in
-`examples/regulatory/` of this repository. Language reference:
-[le_summary.md](../reference/language.md) §17.10.*
+*A tutorial. You need the Logical English 2 editor and its server (start the
+server with `start_api_server`, then open http://localhost:3050/editor/index.html).
+Every program named here is in `examples/regulatory/`, among the files of this
+project. Language reference: [le_summary.md](../reference/language.md) §17.10.*
 
-A Logical English program answers questions. The editor shows it to the person
-who writes it: the text, the queries, the explanations as proof trees. The
-people it decides for — a caseworker, a claims handler, a customs specialist, a
-citizen — need something else: a **screen for one kind of decision**. It asks for
-the facts of a case in their order, shows the result in their terms, gives the
-reasons and the sources, and says what is missing.
+A Logical English (LE) program answers questions. The editor shows the program
+to the person who writes it: the text, the queries, and the explanations as
+proof trees. The people the program decides for — a caseworker, a claims
+handler, a customs specialist, a citizen — need something else: a **screen for
+one kind of decision**. Such a screen asks for the facts of a case in the order
+those people use, shows the result in their terms, gives the reasons and the
+sources, and says what is missing.
 
 A **view** is how the program's author describes that screen, in Logical English:
 
@@ -29,23 +30,26 @@ the view rent help is:
     the result asks what is missing.
 ```
 
-These are a dozen fixed sentences at the end of the program. The **executive
-view** renders them with generic widgets: fact forms, a result card, the stage
-reached, the citations, the missing facts, an interview, a what-if, answer
-tables, a comparison, the documents, a case list and a draft text.
+A view is a dozen or so set sentences at the end of the program. The
+**executive view** draws those sentences on the screen with parts that suit any
+program: forms for the facts, a card for the result, the stage reached, the
+citations, the missing facts, an interview, a what-if, tables of answers, a
+comparison, the documents, a list of cases and a draft text.
 
 Four properties come with that design:
 
-- **Nothing in a view is about a domain.** The widgets know templates, queries,
-  scenarios and documents. The words "applicant", "euros" and "Is your income
-  low?" are the view's, which means the program's. No rent, flight or tariff
-  enters LE.
+- **Nothing in a view is about one subject in particular.** The parts that draw
+  the screen know about templates, queries, scenarios and documents, and about
+  nothing else. The words "applicant", "euros" and "Is your income low?" belong
+  to the view, and so to the program. No rent, flight or tariff enters Logical
+  English itself.
 - **The sentences are checked.** A view names the program's templates, queries
-  and scenarios, and the verifier reports any it does not have, at the line.
-- **A view changes nothing else.** Nothing reasons with it. The program
-  answers, and its tests pass, exactly as without it.
-- **A view is written in the program's language.** Its phrases are rows of the
-  i18n dictionaries, like every other keyword.
+  and scenarios, and the verifier reports, at the line, every name the program
+  does not have.
+- **A view changes nothing else.** No reasoning uses a view. The program gives
+  the same answers, and its tests pass, exactly as they do without a view.
+- **A view is written in the program's own language.** The phrases of a view are
+  rows of the translation dictionaries, as every other keyword is.
 
 The tutorial builds a view step by step for a small program, then shows the two
 other kinds of screen (an interview and a professional's desk), what the
@@ -101,13 +105,13 @@ the help for a person is an amount
     and the amount is the rent / 2.
 ```
 
-It has four scenarios: `yes` (ann, who gets 400), `out_of_scope`,
-`not_eligible` and `no_rent`. It also has two queries: `help` ("the help for
-which person is which amount") and `stage`.
+The program has four scenarios: `yes` (ann, who gets 400), `out_of_scope`,
+`not_eligible` and `no_rent`. The program also has two queries: `help` ("the
+help for which person is which amount") and `stage`.
 
-Three templates are marked `; undefined`: these are the facts a case states.
-The others are what the rules conclude. The view builds on exactly that
-distinction.
+Three templates are marked `; undefined`, and those three are the facts a case
+states. The other templates are what the rules conclude. A view is built on
+exactly that distinction.
 
 ## 2. A first view, drafted for you
 
@@ -134,42 +138,46 @@ the view sections benefit is:
     the result can be flipped.
 ```
 
-- **The facts** are every template a case can state: those marked
-  `; undefined` or `; judged`, or that no rule concludes. They form one group.
-  Judged templates, if any, would get a `the judgments are …` sentence of their
-  own.
-- **The result** is the program's first query. A program without one gets
-  `the result is whether <its top conclusion>`.
-- **What the program can show** is added only where it can: the stage because
-  the program has the reserved sections, the citations and documents only if the
-  program cites something.
+- **The facts** are every template a case can state: the templates marked
+  `; undefined` or `; judged`, and those no rule concludes. All of them form
+  one group. Judged templates, had the program any, would get a
+  `the judgments are …` sentence of their own.
+- **The result** is the program's first query. A program with no query at all
+  gets `the result is whether <its top conclusion>`.
+- **What the program can show** is added only where the program can show it:
+  the stage, because this program has the reserved sections; the citations and
+  the documents, only if the program cites something.
 - **The name** is the knowledge base's (`sections benefit`). A program whose
   knowledge base has no name, such as a contract, takes its file's name.
 - A template worded with a comma or a full stop is left out: a view separates
   its facts with commas and ends its sentences at a full stop.
 
-The draft is appended as one edit, so **Ctrl+Z** takes it back. The assistant's
-reply links to the view (**Open the view**), which opens it as it is in the
-editor at the moment you follow the link: nothing needs saving. It also puts a request in the input box, *Refine the
-view section…*, which you can send if a model is configured (Misc → API
-Keys). The refinement in this tutorial is done by hand.
+The draft is added to the program as a single edit, so **Ctrl+Z** takes it
+back. The assistant's reply carries a link to the view (**Open the view**),
+which opens the view as the editor has it at the moment you follow the link:
+nothing needs saving first. The assistant also puts a request in the box where
+you type, *Refine the view section…*, which you can send if a language model
+has been set up (Misc → API Keys). In this tutorial the refining is done by
+hand.
 
-**You may not need to generate it at all.** A program that declares no view of
-its own offers an **Automatic view** in the executive view: this same draft,
-drawn from the program only when you open it, and always in step with the
-program. Generate LE view is how you get it as text, to change it. Once the
-program declares a view, the declared views replace the automatic one.
+**You may not need to generate a view at all.** A program that declares no view
+of its own offers an **Automatic view** in the executive view. The automatic
+view is this same draft, worked out from the program at the moment you open it,
+and so always in step with the program. Generate LE view is how you get that
+draft as text, to change it. Once the program declares a view, the declared
+views take the place of the automatic one.
 
 ## 3. Opening the view
 
 A view is shown by the executive view, the editor's companion for people who
-run programs rather than write them. There are three ways to open it:
+run programs rather than write them. There are three ways to open a view:
 
 - **Misc → Open Executive View** in the editor opens the program in a new
-  tab, on the scenario and query picked in the editor. It shows the program as
-  it is in the editor, unsaved changes included: the editor hands its text to
-  the new tab through the browser's storage. A link copied from that tab shows
-  the saved program in another browser.
+  tab, on the scenario and query picked in the editor. The new tab shows the
+  program as it stands in the editor, unsaved changes included, because the
+  editor hands its text to the new tab through the browser's own storage. A
+  link copied from that tab shows the saved program when someone opens the link
+  in another browser.
 - On the program's executive page (`/executive?program=regulatory/sections_benefit`),
   a row of links lists the program's views (for a program without any, its
   automatic view). **Without a view** goes back to the plain
@@ -178,26 +186,27 @@ run programs rather than write them. There are three ways to open it:
 
 ![The drafted view, on the scenario no_rent](views/02-draft-view.png)
 
-This is the draft, unedited, on the scenario `no_rent` (dee: resident, on a low
-income, no rent stated). Every card on the screen comes from one sentence:
+The picture shows the draft, unedited, on the scenario `no_rent` (dee:
+resident, on a low income, no rent stated). Every card on the screen comes from
+one sentence:
 
-| Card | Sentence | What it shows here |
+| Card | Sentence | What the card shows here |
 |---|---|---|
-| **The case** | `the case is a scenario` | a picker of the program's scenarios, and *New case* |
-| the group *THE CASE* | `the facts about "the case" are …` | dee's facts as editable rows, one field per placeholder. The template the case does not state, *the rent of a person is an amount — not stated*, is a click away. |
+| **The case** | `the case is a scenario` | a list of the program's scenarios, and *New case* |
+| the group *THE CASE* | `the facts about "the case" are …` | dee's facts as rows you can edit, one field for each place in the template. The template the case does not state, *the rent of a person is an amount — not stated*, is a click away. |
 | **Result** | `the result is the answer to query help` | *No answer*, and where it failed: *fails at remedy* |
 | **Stage** | `the result shows the stage it reaches` | applicability passed, question passed, remedy failed |
 | **Reasons** | `the result shows its reasons` | the facts the result rests on or failed on: ✓ dee is resident, ✗ the rent of dee is an amount |
 | **What is missing** | `the result asks what is missing` | the case fact the failed proof looked for, as a question, with *Yes, state it* |
 | **What would change this?** | `the result can be flipped` | *Find the smallest changes*: the minimal additions or removals that would change the result (a flip query, §17.7) |
 
-Press **Yes, state it**. A row for dee's rent appears, its amount still to be
-typed; until it is, the screen leaves the row out (a rent of "an amount" would
-be true of every amount). Type 800 into it: the screen runs again, the result
-becomes **400**, the stage shows remedy passed, and *What is missing* says
-nothing is missing. Edits stay on the
-screen, as a new case built from the scenario; the program's text does not
-change.
+Press **Yes, state it**. A row for dee's rent appears, with the amount still to
+be typed. Until the amount is typed, the screen leaves the row out, because a
+rent of "an amount" would be true of every amount. Type 800 into the row: the
+screen works the answer out again, the result becomes **400**, the stage shows
+remedy passed, and *What is missing* says that nothing is missing. Edits stay
+on the screen, as a new case built from the scenario; the program's text does
+not change.
 
 The layout is fixed on purpose:
 
@@ -206,12 +215,13 @@ The layout is fixed on purpose:
 - Tables, the comparison and the documents go on the right.
 - The case list and the draft run full width below.
 - Within a column, the cards follow the order of the sentences.
-- Below 1000 pixels the columns stack into one, as on a phone.
+- On a screen narrower than 1000 pixels the columns stack into a single
+  column, as they do on a phone.
 
 ## 4. Refining it
 
-The draft is correct but generic. The final view of `sections_benefit.le` makes
-seven changes:
+The draft is correct, but it would suit any program. The final view of
+`sections_benefit.le` makes seven changes:
 
 ```le
 the view rent help is:
@@ -239,16 +249,17 @@ the view rent help is:
    which amount". Heading by *the amount* shows the value of `which amount` in
    large type (400), with the whole answer beneath it. Add `, in euros` and the
    unit follows the number.
-4. **The flip is dropped.** It is useful for people exploring the program, but
-   a caseworker's screen does without it.
+4. **The flip is dropped.** A flip is useful to someone exploring the program,
+   but a caseworker's screen does without one.
 5. **`the cases are listed with their results`.** Every scenario of the program
-   is listed with its result and its expectation (the scenario's
-   `expects answers`), marked ✓ where they agree. A small program's cases run as
-   the screen opens; a larger one waits for *Run all cases*. A case's name opens
-   it.
-6. **`the draft reads "…"`.** A text filled from the screen, with a *Copy*
-   button: the start of a letter or a decision. The draft can use these
-   placeholders:
+   is listed with its result and with what the scenario expects (its
+   `expects answers`), marked ✓ where the two agree. A small program's cases run
+   as the screen opens; a larger program waits for *Run all cases*. Clicking a
+   case's name opens that case.
+6. **`the draft reads "…"`.** A text filled in from the screen, with a *Copy*
+   button: the start of a letter or of a decision. The draft can use the
+   following placeholders, each of which is replaced by something taken from
+   the screen:
 
    | Placeholder | Becomes |
    |---|---|
@@ -269,16 +280,18 @@ table shows all four scenarios agreeing with their expectations.
 
 ## 5. What only the author knows
 
-Generate LE view needs no language model: it reads the program's structure, so
-it drafts the same view every time, and the executive view can show that draft
-without any declaration (the automatic view, section 2). Why write views at all,
-then? Because most of what makes a view useful is not in the structure. The
-draft knows which templates a case states, which queries there are, whether the
-program cites sources or has sections. It cannot know:
+Generate LE view needs no language model. Generate LE view reads how the
+program is built, so it drafts the same view every time, and the executive view
+can show that draft even where the program declares nothing (the automatic
+view, section 2). Why write views at all, then? Because most of what makes a
+view useful cannot be read off how the program is built. The draft knows which
+templates a case states, which queries there are, and whether the program cites
+sources or has sections. The draft cannot know:
 
 - **Grouping and order.** The draft lists every fact a case can state in one
-  group. For a small program that is fine. For an insurance policy it is some
-  sixty facts under "the case", which nobody can work through. "The booking",
+  group. For a small program one group is fine. For an insurance policy one
+  group means some sixty facts under "the case", which nobody can work
+  through. "The booking",
   "the cancellation" and "the event" of the EU 261 desk are the author's
   knowledge of how a claim file is read, and in what order.
 - **Which answer matters.** A program with several queries gets the first as its
@@ -289,28 +302,29 @@ program cites sources or has sections. It cannot know:
   rules says how to ask a citizen, or how to tell them the outcome.
 - **Audience.** Desk or interview; which scenario to compare a case with; which
   other questions deserve a table; what the draft letter says; what to leave out
-  (the caseworker's rent-help view drops the flip). These are decisions about
-  the people using the screen, not about the rules.
+  (the caseworker's rent-help view drops the flip). All of those are decisions
+  about the people using the screen, not about the rules.
 
 So:
 
-- **Start with the automatic view.** It follows the program as it changes, with
-  nothing to maintain. It is often enough to try a program out, or to show it to
-  someone.
+- **Start with the automatic view.** The automatic view follows the program as
+  the program changes, and there is nothing to keep up to date. It is often
+  enough for trying a program out, or for showing the program to someone.
 - **Write a view when the screen has users.** Generate LE view gives you the
   automatic view as text, to edit. From then on the declared view replaces the
   automatic one.
 - **Keep it short.** A view says only what it changes. The facts no group lists
   still appear, under *Other facts*, so a view can be as small as a title and
   `the result is the answer to query 3, headed by the amount.`
-- **Let the verifier keep it honest.** A declared view can fall behind the
-  program; the verifier reports whatever it names that the program no longer
-  has.
+- **Let the verifier keep the view honest.** A declared view can fall behind
+  the program; the verifier reports every name in the view that the program no
+  longer has.
 
 ## 6. When a view is wrong
 
-The verifier reads a view against the whole program, including its included
-resources, as it reads everything else. Here is a view with typical mistakes:
+The verifier reads a view against the whole program, the resources the program
+includes among them, just as the verifier reads everything else. Here is a view
+with the usual kinds of mistake:
 
 ```le
 the view rent help is:
@@ -340,7 +354,7 @@ be applied:
 | `scenario nobody` | … compares with scenario 'nobody', which the program does not define. | Name one of the program's scenarios. |
 | `the colour is blue` | This sentence of view 'rent help' is not one a view understands: "the colour is blue". | Write it as one of the view sentences, ending with a full stop. |
 
-These are the checks, by severity:
+The checks, in order of severity, are these:
 
 - **Errors**:
   - a sentence no view form reads;
@@ -359,17 +373,17 @@ These are the checks, by severity:
   - citations or documents in a program that cites nothing.
 
 The second warning matters most. A view that let a user state a conclusion
-would let them bypass the rules. The verifier cannot stop a program from being
-written that way, but it points it out.
+would let that user go round the rules. The verifier cannot stop a program from
+being written that way, but the verifier does point the danger out.
 
 ## 7. An interview: a citizen's check on a phone
 
 A caseworker edits a case; a citizen answers questions.
 `examples/regulatory/flip_housing.le` holds Kowalski's housing-benefit rules
-(*Computational Logic and Human Thinking*, §5.7): help to pay rent comes with
-housing benefit. That is for someone on other benefits, working part-time, or
-working full-time on a low income — unless they are ineligible, which they are
-without a low income. Its view:
+(*Computational Logic and Human Thinking*, §5.7): help to pay the rent comes
+with housing benefit. Housing benefit is for someone on other benefits, or
+working part-time, or working full-time on a low income — unless that person is
+ineligible, which a person is without a low income. The program's view:
 
 ```le
 the view benefit check is:
@@ -389,20 +403,20 @@ the view benefit check is:
 
 - **`the case is about the applicant`** names the subject. Each *yes* states a
   fact about *the applicant* ("the applicant works part-time"). There is no
-  scenario picker and no fact form.
+  list of scenarios and no form of facts.
 - **`the facts are asked one at a time`** turns the screen into an interview.
   The next question is the first of the view's questions that the proof still
   looks at, given the answers so far. Once the result holds, nothing more is
   asked. Answer *No* to "Do you receive other benefits?" and the part-time
-  question comes next. Answer *Yes* to it, and the proof goes on to the income.
-  The screen counts "Question 2 of at most 4". *Not sure* leaves a fact unstated,
-  and *Back* undoes the last answer.
+  question comes next. Answer *Yes* to the part-time question, and the proof
+  goes on to the income. The screen counts "Question 2 of at most 4". *Not
+  sure* leaves a fact unstated, and *Back* undoes the last answer.
 - **`the question for <fact> is "<text>"`** words each fact. The wording is
   reused in the reasons ("Do you work part-time? — yes") and in the flip
   ("Answering yes to “Is your income low?”").
-- **`the result is whether <fact>`** is a yes/no result, written in the view
+- **`the result is whether <fact>`** is a yes-or-no result, written in the view
   rather than as a query of the program. **`the result reads "…" when it holds`
-  / `when it does not`** puts it in the view's words.
+  / `when it does not`** puts the result in the view's own words.
 
 ![The interview: a question, then the answer, why, and what would change it](views/05-housing-interview.png)
 
@@ -413,12 +427,13 @@ turn the result is to answer yes to the income question.
 
 ## 8. A professional's desk
 
-A view grows with the program. `examples/regulatory/eu261_integration.le` decides
-EU Regulation 261 compensation for a cancelled flight. Its facts are attributed
-to their sources ("according to Alitalia, as stated in the carrier letter at
-paragraph 2"). Its open-textured judgments — was the event *inherent in the
-normal exercise of the activity of the carrier*? — are decided from CJEU
-precedent. Its amounts come from a decision table. Its view:
+A view grows as the program grows. `examples/regulatory/eu261_integration.le`
+decides EU Regulation 261 compensation for a cancelled flight. Each of its
+facts names the source it comes from ("according to Alitalia, as stated in the
+carrier letter at paragraph 2"). Its judgments on open-ended questions — was
+the event *inherent in the normal exercise of the activity of the carrier*? —
+are decided from the precedents of the Court of Justice of the European Union
+(CJEU). Its amounts come from a decision table. The program's view:
 
 ```le
 the view claim desk is:
@@ -457,22 +472,24 @@ the view claim desk is:
 The sentences this view adds:
 
 - **`the judgments are …`** puts the `; judged` facts in a group of their own.
-  They are not stated by the passenger or the carrier; they are decided, here
-  by precedent, which the citations show.
+  Such facts are not stated by the passenger or by the carrier; they are
+  decided, here by precedent, as the citations show.
 - **`every fact shows who states it`** puts the `according to` of each fact on
   its row, as a badge: the carrier's facts carry *Alitalia*.
 - **`the result shows its citations`** lists the steps of the proof that cite a
-  source. Each comes with its document and locator, and a precedent's comes with
-  the Court's reasoning ("technical problems which come to light during
-  maintenance cannot constitute, in themselves, extraordinary circumstances").
-  *Copy* puts them on the clipboard. Where the program says where a document's
-  text is (`the text of <document> is at "<url or file>"`), a § opens the
-  passage in it.
+  source. Each step comes with its document and the place within that document,
+  and a step resting on a precedent comes with the Court's reasoning
+  ("technical problems which come to light during maintenance cannot
+  constitute, in themselves, extraordinary circumstances"). *Copy* takes the
+  citations away, ready to paste elsewhere. Where the program says where a
+  document's text is to be found
+  (`the text of <document> is at "<url or file>"`), a § opens the passage
+  inside that document.
 - **`the answers to "<query body>" are listed as "<title>"`** adds a table of
-  another question's answers, one column per `which`. The question must be one
-  the program can answer as asked. A precedent library whose rules need a bound
-  situation cannot list every "forced" answer, so this view asks for the factors
-  and the decided cases instead.
+  another question's answers, with one column for each `which`. The question
+  must be one the program can answer as it stands. A precedent library whose
+  rules need a particular situation to be named cannot list every "forced"
+  answer, so this view asks for the factors and the decided cases instead.
 - **`the result is compared with scenario bird_strike`** shows the same
   question on another scenario: here no compensation, failing at *question*,
   because a bird strike is an extraordinary circumstance.
@@ -482,7 +499,7 @@ The sentences this view adds:
 - **`the case is a scenario, with the documents it is stated in`** makes the
   case's own document (its `as stated in`) the first one shown.
 
-Two more views in the repository show the rest:
+Two more views among the project's files show the rest:
 
 - **`judged_damage.le`, "claim file"** shows a result that holds only
   *provided that* a judgment goes one way: "claim one is payable, provided that:
@@ -491,10 +508,10 @@ Two more views in the repository show the rest:
 
   ![The claim file: a result that waits for a judgment](views/07-claim-file.png)
 
-- **`customs/cbp_62.le`, "worksheet"** (in the lpsPlus repository,
-  `examples/customs/`) is the classification worksheet a US
+- **`customs/cbp_62.le`, "worksheet"** (kept in lpsPlus, a separate store of
+  files, under `examples/customs/`) is the classification worksheet a US
   customs specialist asked for, in a review of the customs programs
-  (CustomsOfficerReport.md, in the lpsPlus repository):
+  (CustomsOfficerReport.md, also in lpsPlus):
   - the good's facts as the CBP ruling states them, grouped as article, fabric,
     composition and measurements, each with the ruling's passage;
   - the subheading, headed by the code, with 41 cited steps reaching the tariff's
@@ -502,17 +519,17 @@ Two more views in the repository show the rest:
   - the ruling beside it, with the stated facts highlighted;
   - a draft CLASSIFICATION paragraph filled from all of it.
 
-  Nothing about tariffs is in LE: the view is about twenty lines at the end of
-  the customs program.
+  Nothing about tariffs is built into Logical English: the view is about twenty
+  lines at the end of the customs program.
 
   ![The customs classification worksheet](views/08-customs-worksheet.png)
 
 ## 9. Views in other languages
 
-Every phrase of a view is a row of `i18n/keywords.csv` (category `view`) in
-English, Portuguese, Spanish, French and Italian, so a program writes its view
-in its own language. For the Portuguese citizenship program
-(`examples/pt/cidadania.le`):
+Every phrase of a view is a row of `i18n/keywords.csv` (in the category
+`view`), given in English, Portuguese, Spanish, French and Italian, so that a
+program writes its view in its own language. Here is the view of the Portuguese
+citizenship program (`examples/pt/cidadania.le`):
 
 ```le
 a vista balcão é:
@@ -527,13 +544,14 @@ a vista balcão é:
     os casos são listados com os seus resultados.
 ```
 
-The verifier answers in Portuguese as well. This view gets one warning, because
-the program has a rule for who the father is (from what a qualified person
-says): *A vista 'balcão' pede "uma pessoa é o pai de uma pessoa" como facto do
-caso, mas as regras do programa concluem-no: afirmá-lo contornaria as regras.*
-The screen shows each fact in the view's words. The widgets' own labels
-(*Result*, *Stage*, *not stated*) follow the user's interface language, as the
-rest of the interface does.
+The verifier answers in Portuguese as well. The view above gets one warning,
+because the program has a rule for who the father is, drawn from what a
+qualified person says: *A vista 'balcão' pede "uma pessoa é o pai de uma
+pessoa" como facto do caso, mas as regras do programa concluem-no: afirmá-lo
+contornaria as regras.* The screen shows each fact in the view's words. The
+labels of the screen's own parts (*Result*, *Stage*, *not stated*) follow the
+language the user has chosen for the interface, as the rest of the interface
+does.
 
 ## 10. Where a view lives
 
@@ -557,16 +575,16 @@ rest of the interface does.
       the result is the answer to query help, headed by the amount.
   ```
 
-  and each program includes it, as it includes any resource:
+  and each program includes `desk.le`, as it includes any other resource:
 
   ```le
   the knowledge base sections benefit includes these resources:
       desk.
   ```
 
-  The view in `desk.le` is read against the program that includes it: its
-  templates, queries and scenarios. That is how one worksheet could serve every
-  rulings file of a tariff.
+  The view in `desk.le` is read against the program that includes it, that is,
+  against that program's templates, queries and scenarios. That is how a single
+  worksheet could serve every rulings file of a tariff.
 
 ## 11. Reference: the sentences
 
@@ -574,14 +592,14 @@ rest of the interface does.
 |---|---|
 | `the view <name> is:` | opens the section; the name is used in links |
 | `the title is "<text>"` | the screen's title |
-| `the case is a scenario[, with the documents it is stated in]` | a picker of the program's scenarios, and *New case*; the case's own document first |
+| `the case is a scenario[, with the documents it is stated in]` | a list of the program's scenarios, and *New case*; the case's own document first |
 | `the case is about <constant>` | the subject of the facts an interview's answers state |
-| `the facts about "<title>" are <instance>, <instance>, …` | a group of editable fact rows, each with its citation (❝); the group's facts the case does not state, a click away |
+| `the facts about "<title>" are <instance>, <instance>, …` | a group of fact rows you can edit, each with its citation (❝); the group's facts that the case does not state, a click away |
 | `the judgments are <instance>, …` | the `; judged` facts, apart |
 | `the other facts can be added` / `the other facts cannot be added` | whether the case may state facts of templates no group lists (it may by default) |
 | `every fact shows who states it` | each fact's `according to`, as a badge |
 | `the result is the answer to query <name>[, headed by <the word>][, in <unit>]` | the query's answers; headed, the value of its `which <word>` in large type |
-| `the result is whether <instance>` | a yes/no result, the query written in the view |
+| `the result is whether <instance>` | a yes-or-no result, the query written in the view |
 | `the result reads "<text>" when it holds` / `… when it does not` | the result in the view's words |
 | `the result shows its citations` | the cited steps of the proof, each with its passage, and *Copy* |
 | `the result shows its reasons` | the facts the result rests on; for a result that fails, *Why not*: the conditions it did not meet, each *not stated* or *not met*, with the rule that asks for it and its passage |
@@ -592,7 +610,7 @@ rest of the interface does.
 | `the result can be flipped[, as "<text>"]` | the minimal changes that would change the result (§17.7) |
 | `the flip keeps <instance>, …` | the facts the flip leaves as they are (those that define the case) |
 | `the section <name> reads "<text>"` | a section of the stage, in the view's words |
-| `the answers to "<query body>" are listed as "<title>"` | a table of another question's answers, one column per `which` |
+| `the answers to "<query body>" are listed as "<title>"` | a table of another question's answers, with one column for each `which` |
 | `the result is compared with scenario <name>` | the result of another scenario, and where it fails |
 | `the documents of the case are shown beside the facts` | the cited documents, with their passages |
 | `the cases are listed with their results` | every scenario, its result and its expectation, run one after another ("running case i of N", and a button to stop) |
@@ -606,5 +624,5 @@ lines of a list end with commas.
 
 ## How it works
 
-How the server reads and checks a view, the operations the widgets use, and how the
+How the server reads and checks a view, the operations the screen's parts use, and how the
 sentences compare with the original proposal: [LE Views: how they work](../../dev/views.md).

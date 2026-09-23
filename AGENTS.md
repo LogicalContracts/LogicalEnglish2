@@ -12,6 +12,18 @@ published user documentation (its table of contents, `docs/user/nav.json`,
 builds the Help menu, the landing page and the viewer), `docs/dev/` is for
 developers, `docs/project/` holds plans, papers and archived documents. A new
 user document goes under `docs/user/` and into `nav.json`.
+
+**How documentation is written.** Documents, and every piece of text the
+software shows a reader (menu tips, explanations of an answer, the
+assistants' replies), are written for a reader with no technical training:
+name the thing rather than writing *it*/*this*/*they*, keep computing jargon
+out or explain it in the same sentence, one idea per sentence, spell out an
+abbreviation at first use. The rule in full, with its examples, is the "How
+documents are written" section of `docs/README.md` (kept identical in LE2 and
+LPS2). The names of Logical English's own ideas — a template, a scenario, a
+fluent — are part of what is being taught: use them, and define each at first
+use.
+
 If /lps2 exists, it contains the Logic Production Systems repository, which depends on ours.
 
 ## Build, Lint, and Test

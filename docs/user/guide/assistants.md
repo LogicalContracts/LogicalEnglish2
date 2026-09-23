@@ -2,8 +2,9 @@
 
 *Kind: guide · Audience: users · Status: current (2026-09-16)*
 
-Three features of LE2 use a large language model (LLM) to write Logical
-English for you:
+Three features of Logical English 2 (LE2) use a large language model — an LLM,
+a program trained on great quantities of text so that it can read and write
+ordinary language — to write Logical English for you:
 
 - the **LE Assistant**, a chat panel in the editor that reads, writes and
   checks the program in front of you;
@@ -13,9 +14,9 @@ English for you:
   (wording, schedule, cases) into a tested program, or writes one scenario or
   one query for a program you already have, as a background job.
 
-In all three, what the model writes is checked by the Logical English
-verifier before you get it, and the verifier's problems are reported to you.
-The model never decides answers: the program does, when you run it.
+In all three, the Logical English verifier checks what the model has written
+before the text reaches you, and tells you about any problem it finds. The
+model never decides the answers; your program decides them, when you run it.
 
 Two things in the editor need no model: **Generate LE view** in the LE
 Assistant's header, which drafts a view from the program itself (see
@@ -40,20 +41,22 @@ Open **Misc ▸ API Keys & Assistant Settings…** in the editor:
 
 - **Assistant Model** lists the models this server knows, each with its
   provider (OpenAI, Anthropic, Google, Groq, Together).
-- One **API key** field per provider. A key the server already has for a
-  provider is shown as *Provided by server* and cannot be edited. You need a
-  key of your own only for a provider the server has no key for.
+- One **API key** field per provider. An API key is the pass phrase that lets
+  the editor use that provider's models. Where the server already has a key
+  for a provider, the field reads *Provided by server* and you cannot change
+  it. You need a key of your own only for a provider the server has no key for.
 - **Assistant Max Steps (1–50)**: how many turns the LE Assistant's Light
-  mode may take on one request (10 by default).
+  mode may take over one request. It takes up to 10 unless you change the
+  number.
 
-Keys and settings are stored in your browser's local storage and sent with
-each request that needs them. The same model and keys serve the LE Assistant
-and Write it in English. The Contract Assistant page reads the same stored
-keys, so a key set in one place works in both.
+Your browser keeps the keys and the settings in a store of its own, and the
+editor sends them with each request that needs them. The same model and keys
+serve the LE Assistant and Write it in English. The Contract Assistant page
+reads the same stored keys, so a key you set in one place works in both.
 
-If no model is selected, or the selected model's provider has no key, the LE
-Assistant replies with a warning that points to this dialog, and Write it in
-English disables its **Generate** button.
+If you have selected no model, or the selected model's provider has no key,
+the LE Assistant answers with a warning pointing back to this dialog, and
+Write it in English switches off its **Generate** button.
 
 ## The LE Assistant
 
@@ -66,86 +69,94 @@ for example:
 - *Add a rule: a person is a citizen if a parent is a citizen.*
 - *Draft a program for the following regulation: …*
 
-While it works, a line under the input shows its latest activity, and
-**Interrupt** stops it. When it finishes, the panel shows its explanation in
-Markdown. If it changed the program, the editor's text is replaced with the
-new version, and the panel says *I have updated the editor content with the
-changes.* The replacement is a single edit, so **Undo** in the editor brings
-back the previous text. A reply may have a *System Logs (stderr)* section,
-folded, with the technical log of the run.
+While the assistant works, a line under the input box says what it is doing at
+that moment, and **Interrupt** stops it. When the assistant has finished, the
+panel shows its explanation, laid out with headings and lists. If the
+assistant changed the program, the new version replaces the text in the
+editor, and the panel says *I have updated the editor content with the
+changes.* The whole replacement counts as one edit, so **Undo** in the editor
+brings the previous text straight back. A reply may also carry a folded
+*System Logs (stderr)* section, which holds the technical record of the run.
 
-Each open tab has its own conversation, and a reply goes to the program that
-asked for it even if you have switched tabs meanwhile.
+Each open tab has a conversation of its own, and a reply comes back to the
+program that asked for it, even if you have moved to another tab meanwhile.
 
-You can also ask it about Logical English or the editor — *How do I write a
-decision table?*, *What does "otherwise" do?* The assistant searches this
-documentation for what you asked, answers briefly, and ends with a few links
-(at most three) to the sections that say more; a link opens in a new browser
+You can also ask the assistant about Logical English or about the editor —
+*How do I write a decision table?*, *What does "otherwise" do?* The assistant
+searches this documentation for what you asked, answers briefly, and ends with
+up to three links to the sections that say more. A link opens in a new browser
 tab. A request to change the program gets no links.
 
 ### Light and Deep modes
 
-The **Light Mode** checkbox in the panel's header chooses how the assistant
-works. The choice is kept in your browser.
+The **Light Mode** box in the panel's header chooses how the assistant works.
+Your browser remembers the choice.
 
-- **Light** (the default) runs on the server itself. The model is given the
-  Logical English reference and a set of example programs, and it can use two
-  tools on the program it is editing: **verify** (load and check it) and
-  **query** (run a query on a scenario). It repeats, fixing what the verifier
-  reports and checking the tests, until it is done or reaches the maximum
-  number of steps. Each request starts from the program as it is in the
-  editor; earlier messages in the panel are not sent again.
-- **Deep** runs a full coding agent (`opencode`) on the server. It works on a
-  file with the same Logical English tools, and can also search files, fetch
-  web pages and run commands. It is slower to start and suits larger tasks,
-  such as a program from a regulation that needs research. It keeps its own
-  session across the requests of a tab. Deep mode needs `opencode` installed
-  on the server.
+- **Light** is what you get unless you change it, and it runs on the server
+  itself. The server gives the model the Logical English reference and a set
+  of example programs. The model can do two things to the program it is
+  editing: **verify** it, which loads the program and checks it, and **query**
+  it, which runs one query on one scenario. The model then goes round again,
+  mending whatever the verifier reported and checking the tests, until either
+  it is done or it has used up its allowance of steps. Every request starts
+  afresh from the program as it stands in the editor; the earlier messages in
+  the panel are not sent again.
+- **Deep** runs a full coding assistant on the server, the program
+  `opencode`. Deep mode works on a file, with the same two Logical English
+  tools, and can also look through files, fetch web pages and run commands.
+  Deep mode is slower to start and suits larger pieces of work, such as
+  drafting a program from a regulation that has to be researched first. Deep
+  mode also remembers the whole conversation of a tab from one request to the
+  next. The server must have `opencode` installed for Deep mode to work.
 
 ## Write it in English
 
 In the **Scenario Editor** (Edit ▸ Edit Scenarios…) the last entry of the
 **Add fact** menu is **Write it in English**. In the **Query Editor** (Edit ▸
-Edit Queries…) it is the last entry of **Add condition**. It opens a dialog:
+Edit Queries…) the same item is the last entry of **Add condition**. Choosing
+it opens a dialog:
 
 1. Type one or more sentences, such as *Alice is the mother of John, and John
    was born in the UK on 2021-10-09.* for facts, or a question for a query.
 2. Press **Generate** (or Ctrl/Cmd+Enter). The dialog shows which model it
    uses.
-3. The model writes facts (or query conditions) using **only the templates
-   your program already has**. It normalises wording and tense and keeps a
-   placeholder's own words (such as `a date`) where your sentence gives no
-   value. The result is checked against your program. Only problems that your
-   program did not already have count, and when there are some, the model is
-   given them to correct, for a few rounds.
-4. If the result checks clean, it is added straight away as ordinary rows,
-   which you can edit. If problems remain, the dialog shows the text and the
-   list of problems, errors first. You can then **Insert anyway**, or rephrase
-   and **Regenerate**. An *[error]* means the text would not do what it says,
-   so rephrasing is usually the better choice.
+3. The model writes facts, or query conditions, using **only the templates
+   your program already has**. The model settles the wording and the tense,
+   and where your sentence supplies no value it keeps the blank's own words,
+   such as `a date`. The editor then checks the result against your program.
+   Only problems your program did not already have are counted, and where
+   there are such problems the model is asked to correct them, for a few
+   rounds.
+4. If nothing new is wrong, the result is added straight away as ordinary
+   rows, which you can edit. If problems remain, the dialog shows the text
+   and the list of problems, errors first. You can then **Insert anyway**, or
+   reword your sentence and **Regenerate**. An *[error]* means the text would
+   not do what it says, so rewording is usually the better choice.
 
-If your sentence needs a predicate the program does not have, add the
-template first, in the editor or with the LE Assistant.
+If your sentence needs a kind of statement the program does not have, add the
+template for it first, in the editor or with the LE Assistant.
 
 **From a document.** In the Scenario Editor, the dialog has a folded **From a
-document** section. Give the document's name, and optionally the address of
-its text (a URL, or a file beside the program) with **Fetch text** to load it
-into the text area. Each generated fact then cites the passage that states it
-(`confer "…"`), and the scenario names the document.
+document** section. Give the document's name there. You may also give the
+address of its text — a web address, or a file beside the program — and press
+**Fetch text** to bring the text into the box. Each fact the model then writes
+cites the passage that states it, as `confer "…"`, and the scenario names the
+document.
 
 ## The Contract Assistant
 
 The Contract Assistant is a web page of its own, at
-**`/web_extras/contract_assistant/index.html`** on the server. It runs longer,
-budgeted jobs on the server. A run may make many model calls and take from
-minutes to hours, and its cost depends on the models and the effort you choose.
+**`/web_extras/contract_assistant/index.html`** on the server. The Contract
+Assistant runs longer pieces of work on the server, each within a budget you
+set. One run may call the model many times and take anything from minutes to
+hours, and what it costs depends on the models and on the effort you choose.
 
-It needs a model with a key (**3. Model**). A key field appears only for the
-provider of the model you picked, and only when the server has no key of its
-own for that provider. The **Judge model** is used only to merge the
-vocabulary samples and to write the coverage ledger, so a cheaper model
-usually does. **Additional instructions** and the **Effort budget** (below)
-apply to every mode.
+The Contract Assistant needs a model and a key for it (**3. Model**). A key
+field appears only for the provider of the model you picked, and only when the
+server has no key of its own for that provider. The **Judge model** does just
+two things — it merges the vocabulary samples and writes the coverage ledger —
+so a cheaper model usually serves. **Additional instructions** and the
+**Effort budget** described below apply whichever of the modes you use.
 
 ### What to generate
 
@@ -160,78 +171,88 @@ apply to every mode.
 - **One query**: the same, for a question; you get one `query … is:` block.
 - **Migration residue**: paste a program translated from another system that
   still has `RESIDUE` blocks ([importing and exporting](../integrations/index.md#what-could-not-be-translated)).
-  The assistant translates those blocks only, never the rest, then runs the
-  program's tests. A test that passed before and fails afterwards counts as a
-  regression to repair. Background text, such as the source system's
-  documentation, is optional.
+  The assistant translates those blocks and nothing else, then runs the
+  program's tests. A test that passed before and fails afterwards counts as
+  damage the assistant must repair. You may add background text, such as the
+  other system's own documentation, but you need not.
 
-In the scenario, query and residue modes, the program you paste is **input
-only**: it is never modified. The assistant does not invent templates. If
-the text needs vocabulary the program does not declare, it writes what it
-can and says in a `%` comment on the block what it could not express. A
-**Name** for the block is optional.
+In the scenario, query and residue modes, the assistant only reads the program
+you paste; it never changes it. The assistant does not invent templates.
+Where your text needs words the program does not declare, the assistant writes
+what it can and notes on the block, in a `%` comment, what it could not
+express. You may give the block a **Name**, but you need not.
 
-These modes are the budgeted counterpart of *Write it in English*, which is
-one call and a few seconds. Use the Contract Assistant when the block matters
-enough to pay for more checking.
+These three modes do the same work as *Write it in English*, with a budget
+behind them: *Write it in English* is a single call to the model and a few
+seconds' wait. Use the Contract Assistant when the block matters enough to pay
+for more checking.
 
 ### A whole program
 
 1. **Documents.** The **contract wording** is required. **Schedule** and
    **cases / claims** are optional and may be several files each. Markdown or
-   plain text works best. The server converts Word (`.docx`, with pandoc) and
-   PDF (with pdftotext) if those tools are installed. Schedules and cases may
-   also be JSON or CSV; a JSON array of claims becomes one case, and one
-   scenario, per element.
+   plain text works best. The server can also convert a Word file (`.docx`,
+   using the pandoc tool) and a PDF (using pdftotext), where those tools are
+   installed. Schedules and cases may also arrive as JSON or CSV, two common
+   ways of writing structured data as text. A JSON list of claims gives one
+   case, and so one scenario, for each item in the list.
 2. **Target section** (optional, strongly recommended): a section title (that
    section with its subsections, plus the general terms), or a span such as
    `from Employers' liability until Property definitions`, with `(inclusive)`
    to keep the closing section. Leave it empty for the whole wording.
-3. **Existing LE code** (optional): templates, scenarios with their expected
-   answers, and rules you have already written. The generated program must
-   contain this code and stay consistent with it. The result reports how much
-   of it survived verbatim.
-4. **Additional instructions** (optional): free text added to every drafting
-   and repair request, which overrides the default conventions where they
-   conflict. Scenarios are written only for the cases you supply, unless your
-   instructions ask for more.
-5. **Effort budget**: **Draft** (about 15 minutes), **Standard** (about 45
-   minutes) or **Thorough** (about 2 hours). The presets differ in how many
-   vocabulary samples are drawn, how many alternative drafts compete, and how
-   many edge-case probes test the winner. **Advanced** exposes each number and
-   feature. A **cost estimate** is shown before you start, once a wording file
-   is chosen.
+3. **Existing LE code** (optional): templates, scenarios with the answers you
+   expect of them, and rules you have already written. The program the
+   assistant writes must contain your code and must agree with it. The result
+   reports how much of your code came through word for word.
+4. **Additional instructions** (optional): anything you care to write, added
+   to every request to draft and to every request to repair. Where your
+   instructions disagree with the assistant's usual conventions, your
+   instructions win. The assistant writes scenarios only for the cases you
+   supply, unless your instructions ask for more.
+5. **Effort budget**: **Draft** takes about 15 minutes, **Standard** about 45
+   minutes and **Thorough** about 2 hours. The three differ in how many
+   vocabulary samples are drawn, how many competing drafts are written, and
+   how many awkward test cases the winning draft has to face. **Advanced**
+   shows each of those numbers and settings, for you to choose yourself. Once
+   you have chosen a wording file, the page shows an **estimate of the cost**
+   before you start.
 
-Press **Generate Logical English**. What the assistant does: several drafts
-are written, verified and repaired against the cases, and the best one is
-kept. The ranking favours a program with tests, then fewer errors, then more
-tests passed. With two or more cases, some are held back from drafting and
-used for a blind score.
+Press **Generate Logical English**. The assistant then writes several drafts,
+checks each one, and repairs it against the cases, keeping the best draft of
+them all. In judging the drafts, the assistant prefers a program that has
+tests; among those, one with fewer errors; and among those, one that passes
+more of its tests. If you supplied two or more cases, the assistant keeps some
+of them back while drafting and scores the result on those unseen cases.
 
 ### Running, leaving, coming back
 
-The run screen shows the stage, one card per draft with its errors, warnings
-and tests, a log, the elapsed time and **Cancel**. The job runs on the server,
-not in the page: you can close the tab. The job's identifier is in the page's
-address (after `#`), so reopening that address, or sharing it, reattaches to
-the job. Without an address, the setup screen lists **Your recent runs** from
-this browser. The server forgets jobs when it restarts, although a finished
-result can still be recovered from its files.
+The run screen shows which stage the work has reached, one card per draft with
+its errors, warnings and tests, a running record of what is happening, the
+time elapsed, and a **Cancel** button. The work goes on inside the server, not
+inside the page, so you may close the tab. The page's address carries the run's
+identifying name, after the `#`, so opening that address again — or giving it
+to someone else — joins the run once more. If you have no such address, the
+setup screen lists **Your recent runs** from this browser. The server forgets
+its runs when it restarts, though a finished result can still be recovered
+from the files it left behind.
 
 ### The result
 
-- the generated Logical English, with **Copy**, **Download .le** and **Open in
-  editor**. For a scenario or a query, Open in editor opens the block appended
-  to the program it was written for, as it was verified. A program too large
-  for an address must be downloaded and opened instead;
+- the Logical English the assistant wrote, with **Copy**, **Download .le** and
+  **Open in editor**. For a scenario or a query, **Open in editor** opens the
+  new block at the end of the program it was written for, exactly as it was
+  checked. A program too large to travel in a web address has to be downloaded
+  and opened from the file instead;
 - the score of the delivered program, and of each draft;
 - for a whole program, the **coverage ledger**: what was encoded, what was
   deliberately skipped, and what is missing;
-- reports, where they apply: probes that agree or disagree with the program
-  (a disagreement means either the program or the contract's reading is
-  wrong), how much of the existing code was kept, what a new scenario or query
-  answers when run against the program, and the paraphrase-stability score.
+- reports, where they apply: the test cases that agree with the program and
+  those that disagree with it — a disagreement means that either the program
+  or the reading of the contract is wrong; how much of your existing code was
+  kept; what a new scenario or query answers when it is run against the
+  program; and the score for how steadily the program behaves when the same
+  question is put in different words.
 
-Review the result as you would a colleague's draft. The tests show that the
-program decides the supplied cases as expected, and the ledger shows what it
-does not cover.
+Read the result as you would read a colleague's draft. The tests show that the
+program decides the cases you supplied as you expected, and the ledger shows
+what the program does not cover.

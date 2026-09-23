@@ -2,21 +2,23 @@
 
 *Kind: integration guide · Audience: users · Status: current (2026-09-16)*
 
-Miniscript is a structured way of writing Bitcoin Script. It is specified in
-BIP 379 and used by wallets such as Bitcoin Core and Liana. A *spending policy*
-says who can spend a coin and when. It is written in the policy language
+Miniscript is a structured way of writing Bitcoin Script. Miniscript is
+specified in BIP 379, one of the Bitcoin Improvement Proposals, and is used by
+wallets such as Bitcoin Core and Liana. A *spending policy* says who can spend
+a coin, and when. A policy can be written in the policy language
 (`and(pk(key_user),or(pk(key_service),older(12960)))`), in Miniscript itself
 (`and_v(v:pk(…),or_d(…))`), or inside an output descriptor (`wsh(…)`). The
-integration works both ways. **File ▸ Open…** (or **File ▸ Import from Another
-System…**) turns a file of policies into a Logical English program. The program
-has one cited rule per spending path, the policy's own analysis as scenarios,
-flip queries for lost keys, and a *custody explainer* view. **File ▸ Export to
-Another System…** writes a program in that vocabulary back as a policy. You get
-the Miniscript sipa's compiler makes of it, the descriptor when the program
-states the keys, and a link that opens the policy in the Minsc playground. The
-translators are part of the InsurLE extensions, so they are available only on
-installations that have them, such as the hosted service. The example twins are
-in every installation.
+translation works both ways. **File ▸ Open…** (or **File ▸ Import from Another
+System…**) turns a file of policies into a Logical English (LE) program. The
+program has one cited rule for each spending path, the policy's own analysis
+as scenarios, flip queries for lost keys, and a *custody explainer* view.
+**File ▸ Export to Another System…** writes a program that uses the same
+vocabulary back out as a policy. You get the Miniscript that sipa's compiler
+makes of the policy, the descriptor when the program states the keys, and a
+link that opens the policy in the Minsc playground. The translators are part
+of the InsurLE extensions, so they are available only on installations that
+have those extensions, such as the hosted service. The example twins are in
+every installation.
 
 ## Contents
 
@@ -47,9 +49,9 @@ the same translators, when the Logical English installation beside it has them.
 ### Opening a policy file
 
 1. Write the policies in a text file, one per line. Lines starting with `#`
-   are comments, and the comment just above a policy becomes its title. A
-   line `name = role` gives a key or hash a role, and holds for every policy
-   in the file. Here is a file that File ▸ Open reads:
+   are comments, and the comment just above a policy becomes that policy's
+   title. A line of the form `name = role` gives a key or a hash a role, and
+   applies to every policy in the file. Here is a file that File ▸ Open reads:
 
    ```
    key_user = the user
@@ -65,23 +67,25 @@ the same translators, when the Logical English installation beside it has them.
 3. The note under the menu bar gives, for each policy, the ledger counts and
    the result of the policy's own tests, for example *wallet: 5 ledger
    elements encoded, 1 approximated, 0 residue; 0 writer errors; the policy's
-   own analysis: 12 tests pass, 0 fail, 0 errors.* It starts with a
-   **WARNING** when consensus reads the policy differently from how it is
-   written (see [Traps](#traps)).
-4. The first policy of the file is the program opened. Each further policy
-   becomes a program of its own beside it (`<name>_2`, `<name>_3`, …). The note
-   names them, and so does a comment at the top of the first program.
-5. A line that is not a policy (a bare word, say) is not dropped. It becomes a
-   `% TODO` residue block in the first program, with the parser's complaint.
-   A file with no policy at all is not treated as Miniscript.
+   own analysis: 12 tests pass, 0 fail, 0 errors.* The note starts with a
+   **WARNING** when the Bitcoin network's consensus rules read the policy
+   differently from the way it is written (see [Traps](#traps)).
+4. The program that opens holds the first policy of the file. Each further
+   policy becomes a program of its own beside the first (`<name>_2`,
+   `<name>_3`, …). The note names those further programs, and so does a
+   comment at the top of the first program.
+5. A line that is not a policy (a bare word, say) is not thrown away. Such a
+   line becomes a `% TODO` residue block in the first program, together with
+   the complaint made by the part of the editor that reads policies. A file
+   with no policy at all is not treated as Miniscript.
 6. **Misc ▸ Run the Program's Tests…** runs the scenarios. **File ▸ Show the
    Original…** shows the uploaded file, kept in the program's `sources/`
    folder. The ledger, `<name>.ledger.md`, is written beside the program.
 
 ### Reading the program
 
-The comment at the top of the program shows the source four ways, so you need
-not decode a descriptor:
+The comment at the top of the program shows the source in four ways, so that
+you need not decipher a descriptor yourself:
 
 - as written;
 - laid out as an indented tree, with keys and hashes by role (`pk(<the user>)`);
@@ -101,38 +105,40 @@ the coin can be spent if
             and N >= 12960.
 ```
 
-The scenarios are the policy's *satisfaction analysis*. Each spending path gets
-a scenario that meets exactly its requirements, named after the rule it
-satisfies (`revocation` for rule `revocation`; `family_1`, `family_2` when rule
-`family` can be met in several ways, through an `or` or a `thresh` inside it).
-Each path also gets its *near misses*, with one requirement removed
-(`revocation_without_1`): a
+The scenarios are the policy's *satisfaction analysis*. Each spending path
+gets a scenario that meets exactly the requirements of that path, named after
+the rule it satisfies: `revocation` for the rule `revocation`, and `family_1`,
+`family_2` when the rule `family` can be met in several ways, through an `or`
+or a `thresh` inside it. Each path also gets its *near misses*, each with one
+requirement removed (`revocation_without_1`): a
 signature or a preimage missing, a delay one block short, a lock time one
-below. There is also an empty witness (`no_witness`). Every expected answer
-comes from the policy, computed by an evaluator that follows BIP 379, and never
-from the Logical English program. The queries are `spendable` (`the coin can
-be spent`), `flip_spend` and `flip_block`.
+below. One further scenario has an empty witness (`no_witness`). Every
+expected answer comes from the policy, worked out by a separate program that
+follows BIP 379, and never from the Logical English program. The queries are
+`spendable` (`the coin can be spent`), `flip_spend` and `flip_block`.
 
 ### The custody explainer and the flips
 
-Each program ends with a view, `custody explainer`. Open it with **Misc ▸ Open
-Executive View** and pick it from the **Views:** strip. It shows the witness
-(the signatures and preimages) and the timelocks (the block of the coin and of
-the spending transaction) as the facts of the case. It shows whether the coin
-can be spent, with the reasons and the citations. Its flip button, **What
-would let this coin be spent?**, keeps the block heights, so it answers in
-keys and preimages.
+Each program ends with a view, `custody explainer`. Open the view with
+**Misc ▸ Open Executive View**, and pick it from the **Views:** strip. The
+view shows the witness (the signatures and the preimages) and the timelocks
+(the block of the coin, and the block of the spending transaction) as the
+facts of the case. The view then says whether the coin can be spent, with the
+reasons and the citations. The view's flip button, **What would let this coin
+be spent?**, keeps the block heights as they stand, so the answer comes back
+in keys and preimages.
 
 The flip scenarios hold the key-loss analysis
 ([flip queries](../reference/language.md#177-flip-queries-which-minimal-change-flips-the-outcome)):
 
-- `flip_now` and `flip_after_delays` ask, with nothing signed, which minimal
-  sets of signatures and preimages let the coin be spent: now, and once every
-  delay has passed;
-- `lost_the_<role>` gives everything except that key's signature, after the
-  delays. It says whether the coin can still be spent, and if so, which
-  smallest removals would then block it. Those are the keys (and timelock
-  facts) that become indispensable once that key is gone.
+- `flip_now` and `flip_after_delays` start with nothing signed, and ask which
+  smallest sets of signatures and preimages let the coin be spent: now, and
+  once every delay has passed;
+- `lost_the_<role>` supplies everything except that key's signature, after the
+  delays. The answer says whether the coin can still be spent and, when it
+  can, which smallest removals would then block the spending. Those removals
+  name the keys, and the timelock facts, that become indispensable once the
+  lost key is gone.
 
 For example, in `cosigning_service` the user's key is indispensable. Losing
 the cosigning service leaves the coin spendable by the user alone, after the
@@ -140,7 +146,7 @@ delay.
 
 ### The example twins and their chain runs
 
-Twelve published policies have been translated. The results, *twins*, are
+Twelve published policies have been translated. The results, the *twins*, are
 among the examples under `migration/miniscript/`. Open them with **File ▸ Open
 example from server…**:
 
@@ -152,17 +158,18 @@ example from server…**:
 | `bolt3_to_local`, `bolt3_offered_htlc`, `bolt3_received_htlc` | sipa's page: the Lightning outputs of BOLT #3, with hash locks |
 | `halving_decay`, `hash_threshold`, `liquid_federation`, `revault_unvault` | Bitcoin Core's test policies: a decaying 4-of-4, a threshold of hashes, a federation with a time-based lock, Revault's unvault output with `after` |
 
-**File ▸ Show the Original…** on a twin lists what it was translated from. You
-get the cited excerpt as plain text, the page or files it comes from in full
-(`originals/`), `<id>.policy` (the policy in the format File ▸ Open reads, with
-sipa's compilation and the Minsc link), and `<id>.chain.json`.
+**File ▸ Show the Original…** on a twin lists what the twin was translated
+from: the cited excerpt as plain text, the page or files that excerpt comes
+from in full (`originals/`), `<id>.policy` (the policy in the form File ▸ Open
+reads, with sipa's compilation and the Minsc link), and `<id>.chain.json`.
 
 Every twin except `hash_threshold` has also been *run*. Each spending attempt
-of its satisfaction analysis (every path, every near miss, the empty witness)
-was built as a real transaction and broadcast. The network was **Tape**, Rewind
-Bitcoin's public regtest network, which runs Bitcoin Core's consensus and
-mempool rules. The node's verdicts are in the twins as the scenarios
-`chain_…`:
+in a twin's satisfaction analysis (every path, every near miss, and the empty
+witness) was built as a real transaction and sent out to a network. The
+network was **Tape**, Rewind Bitcoin's public regtest network, a test network
+with no real money, which runs Bitcoin Core's own consensus and mempool rules.
+The verdicts that the network's node gave are in the twins, as the scenarios
+named `chain_…`:
 
 ```le
 scenario chain_user_and_service_1 is, as stated in the Tape run of 2026-09-14 at the refusal of attempt path_1:
@@ -177,23 +184,24 @@ An accepted spend cites its transaction, and the document `the Tape run of …`
 links to the address on Tape's explorer. In the run of 14 September 2026, 90
 attempts on eleven twins gave 16 accepted spends and 74 refusals. The refusals
 came from missing signatures, wrong preimages, coins too young for `older`
-(BIP 68) and lock times not yet past (BIP 65/113). Every verdict agrees with
-its twin. The same attempts were also run on a private regtest node, where
-the coins are buried under enough blocks for the long relative locks, so the
-`older` paths are accepted too. That run is a check, and it is not recorded
-in the twins.
+(BIP 68), and lock times not yet past (BIP 65 and BIP 113). Every verdict the
+network gave agrees with its twin. The same attempts were also run on a
+private test node, where the coins are buried under enough blocks to satisfy
+the long relative locks, so the `older` paths are accepted there too. That
+second run is a check only, and it is not recorded in the twins.
 
-The signatures in these runs are made with *test keys* derived from the role
-names. Nobody holds the sources' private keys. The policy's structure is the
-source's. The editor does not broadcast anything: the chain runs are
-recorded material, not a feature you run.
+The signatures in these runs are made with *test keys*, worked out from the
+role names. Nobody holds the private keys of the sources. What comes from the
+source is the structure of the policy. The editor sends nothing to any
+network: the chain runs are recorded material, not something the editor does
+for you.
 
 ### Exporting a program as a policy
 
 1. Open a twin, or any program in the same vocabulary (below).
-2. Choose **File ▸ Export to Another System…**. It offers *Bitcoin Miniscript
-   policy (with its Miniscript and a Minsc link)*. It also offers LegalRuleML,
-   which refuses programs with a threshold (see
+2. Choose **File ▸ Export to Another System…**. The menu offers *Bitcoin
+   Miniscript policy (with its Miniscript and a Minsc link)*. The menu also
+   offers LegalRuleML, which refuses a program that has a threshold in it (see
    [LegalRuleML](legalruleml.md#traps)).
 3. The window shows the `.policy` text, with **Copy**, **Save…** and **Try it in
    Minsc**. The text has:
@@ -210,21 +218,22 @@ The exported file opens again with **File ▸ Open…**. Every twin comes back w
 the same policy (the same paths, keys and hashes by role, locks and hash
 functions).
 
-If a rule concluding `the coin can be spent` has a condition outside the
-vocabulary, the export is refused and nothing is written
+When a rule that concludes `the coin can be spent` has a condition outside
+that vocabulary, the exporter refuses and writes nothing
 ([refusals](index.md#when-an-export-is-refused)). The window lists each such
 condition with its line:
 *a condition Miniscript has no form for (a policy says only: signatures, hash
 preimages, relative and absolute time locks, and thresholds of them)*. An
-integrity constraint (`it must not be true that …`) is refused the same way.
-Rules the policy does not read, such as the rule for the coin's age, are not a
-problem.
+integrity constraint (`it must not be true that …`) is refused in the same
+way. Rules that the policy itself does not read, such as the rule for the
+coin's age, cause no trouble.
 
 ### Writing a policy in Logical English
 
-The program need not come from a policy. Any program that uses the twins'
-templates exports, so a spending policy can be written, tested and explained
-in Logical English first. Here is a minimal one:
+The program need not come from a policy at all. Any program that uses the
+twins' templates can be exported, so you can write a spending policy in
+Logical English first, test it and explain it there, and turn it into a policy
+afterwards. Here is the smallest such program:
 
 ```le
 the target language is: prolog.
@@ -244,12 +253,12 @@ the coin can be spent if
     the witness contains a signature by bob.
 ```
 
-It exports as `or(and(pk(alice),sha256(secret)),pk(bob))`, which sipa's
-compiler makes `andor(pk(alice),sha256(secret),pk(bob))`. The templates must
-be worded exactly as in the table below. To use real keys, and get a
-descriptor, state them: `the public key of the primary key is "[a5c6b76e/…]tpub…/<0;1>/*".`
-For a hash other than SHA-256, state its function: `the hash function of the
-payment hash is hash160.`
+The program exports as `or(and(pk(alice),sha256(secret)),pk(bob))`, which
+sipa's compiler turns into `andor(pk(alice),sha256(secret),pk(bob))`. The
+templates must be worded exactly as the table below words them. To use real
+keys, and to get a descriptor, state the keys: `the public key of the primary key is "[a5c6b76e/…]tpub…/<0;1>/*".`
+For a hash other than SHA-256, state which function it uses: `the hash
+function of the payment hash is hash160.`
 
 ## How Miniscript maps to Logical English
 
@@ -279,65 +288,70 @@ may add or remove.
 ## Traps
 
 - **The program is the policy, not the Script.** Witness sizes, fees,
-  malleability and the choice between equivalent fragments are not in it. Two
-  Miniscripts with the same policy give the same program.
+  malleability and the choice between equivalent fragments are not part of the
+  program. Two Miniscripts with the same policy give the same program.
 - **Weights disappear.** `99@` and `9@` guide sipa's compiler towards the
-  likelier path. They do not change who can spend, and the header says the
-  program leaves them out.
-- **`older(n)` reads only 16 bits.** BIP 68 ignores the higher bits, so
-  `older(65664)` is 128 blocks to consensus. File ▸ Open says so in a WARNING
-  (in the note, the header and the ledger), and the program states what
-  consensus reads (`N >= 128`). The export gives the policy back as written.
-  The longest relative lock is 65535 blocks, about 455 days. "One year and
-  three months" cannot be written in blocks.
+  likelier path. The weights do not change who can spend, and the comment at
+  the top of the program says that the program leaves them out.
+- **`older(n)` reads only 16 bits.** BIP 68 ignores the higher bits of the
+  number, so `older(65664)` means 128 blocks to the network. File ▸ Open says
+  so in a WARNING, in the note, in the comment at the top of the program and
+  in the ledger, and the program states what the network reads (`N >= 128`).
+  The export gives the policy back as written. The longest relative lock is
+  65535 blocks, about 455 days, so "one year and three months" cannot be
+  written in blocks.
 - **Mixed lock kinds.** A spending path that needs a lock by block height and a
-  lock by time cannot be met by any transaction. File ▸ Open warns about it
-  (BIP 379, timelock mixing). The parser does not otherwise re-check
-  Miniscript's type system.
+  lock by time cannot be met by any transaction. File ▸ Open warns about such
+  a path (BIP 379 calls it timelock mixing). Beyond that warning, the editor
+  does not check Miniscript's type system, the rules that say which fragments
+  fit together.
 - **`after(t)` needs the lock time to be past.** BIP 379 reads `after(t)` as
-  "the lock time is at least t". Consensus also refuses a transaction whose
+  "the lock time is at least t". The network also refuses a transaction whose
   lock time is not below its block's height or median time. The programs state
-  both. This was found when the Tape run refused spends the first programs
-  allowed.
+  both requirements. The second one came to light when the Tape run refused
+  spends that the first programs allowed.
 - **The block heights in the analysis are illustrative.** The scenarios place
   the coin at block 850000 and the spend just after the delays. The chain
   scenarios use the heights of the Tape run.
 - **Chain runs recorded before 16 September 2026 number their attempts.** The
   scenario names follow the rules (`chain_revocation`), but the citation keeps
-  the run's own attempt id (`at the refusal of attempt path_1`), which counts
-  the analysis's paths in the order it found them.
-- **The program's flip queries may propose removing block facts.** `flip_block`
-  answers include `remove: the coin was confirmed in block 850000`: true, but
-  not something a key holder can do. The view's flip keeps the timelock facts.
-  Use the view for questions about keys.
-- **Bounds.** A policy with more than 12 spending paths is sampled (the first,
-  the last and some in between). Key-loss scenarios are written for policies
-  of up to six keys. A flip looks at most three changes deep.
+  the run's own attempt id (`at the refusal of attempt path_1`), which numbers
+  the paths of the analysis in the order the analysis found them.
+- **The program's flip queries may propose removing block facts.** Answers to
+  `flip_block` include `remove: the coin was confirmed in block 850000`, which
+  is true but is not something a key holder can bring about. The view's flip
+  keeps the timelock facts. Use the view for questions about keys.
+- **Bounds.** When a policy has more than 12 spending paths, only some of them
+  are used: the first, the last, and some in between. Key-loss scenarios are
+  written for policies of up to six keys. A flip looks at most three changes
+  deep.
 - **Minsc links use test keys when the source names none.** A link or a
-  descriptor built from role names holds keys derived from those names. The
+  descriptor built from role names holds keys worked out from those names. The
   comment in the link says *a test key: the source names no key*. Never send
-  funds to an address made from them. The export writes a descriptor only when
-  the program states every key with `the public key of …`.
+  funds to an address made from such keys. The export writes a descriptor only
+  when the program states every key with `the public key of …`.
 - **An unstated hash function is SHA-256.** An exported program with
   `the witness reveals the preimage of …` and no `the hash function of … is …`
   fact writes `sha256`.
-- **sipa's compiler may decline.** When it cannot compile the policy to sane
-  Miniscript, the export writes the policy without Miniscript or descriptor,
-  and a note says why. `hash_threshold` is such a policy: two preimages spend
-  it with no signature. Minsc answers *"Top Level script is not safe on some
-  spendpath"*, and wallet libraries will not build its transactions, so it
-  has no chain run.
+- **sipa's compiler may decline.** When the compiler cannot turn the policy
+  into sane Miniscript, the export writes the policy alone, without Miniscript
+  and without a descriptor, and a note says why. `hash_threshold` is such a
+  policy: two preimages spend the coin with no signature at all. Minsc answers
+  *"Top Level script is not safe on some spendpath"*, and wallet software will
+  not build transactions for that policy, so `hash_threshold` has no chain
+  run.
 - **Wording must match.** The exporter reads rules by their templates. A
   program that says `the transaction is signed by alice` instead of `the
   witness contains a signature by alice` is not offered the Miniscript export,
   or is refused at that condition.
-- **`.txt` is shared.** Several translators read `.txt`. A `.txt` file is
-  treated as Miniscript only when at least one of its lines parses as a policy.
-  Use `.policy` to be sure.
-- **Expected warnings.** Single-signature paths have no variables. The
-  verifier's `rule_without_variables` warning on them is expected.
-- **Not covered:** Simplicity, and Script that is not Miniscript (decompile it
-  to Miniscript first).
+- **`.txt` is shared.** Several translators read `.txt` files. A `.txt` file
+  is treated as Miniscript only when at least one of its lines reads as a
+  policy. Name the file `.policy` to be sure.
+- **Expected warnings.** A path that needs a single signature has no
+  variables. The verifier's `rule_without_variables` warning on such rules is
+  expected.
+- **Not covered:** Simplicity, and Script that is not Miniscript (turn such
+  Script back into Miniscript first).
 
 ## See also
 

@@ -95,6 +95,8 @@
     % — the legal view of an LPS program (le_lps_legal.pl)
     le_legal_view/3,            % +LEText, -Text, -Issues
     le_legal_view/4,            % +LEText, +Options, -Text, -Issues
+    % — an LPS program in the older syntax, as Logical English (le_lps_write.pl)
+    le_lps_from_internal/4,     % +InternalTerms, +Options, -LEText, -Issues
     % — other systems' formats, both ways (le_import.pl)
     le_import_formats/1,        % -Formats
     le_export_formats/3,        % +LEText, +Options, -Formats
@@ -159,6 +161,21 @@ le_legal_view(LEText, Options, Text, Issues) :-
     le_lps_legal:legal_view_text(LEText, Options, Text, Issues).
 
 :- use_module(le_lps_legal, []).
+
+%!  le_lps_from_internal(+InternalTerms, +Options, -LEText, -Issues) is det.
+%
+%   The Logical English document an LPS program would have had, if it had
+%   been written in Logical English. InternalTerms are the LPS internal
+%   terms of an LPS program in the older, Prolog-like syntax — a `.lps`
+%   file, which has no template dictionary of its own — and this predicate
+%   invents one: see le_lps_write.pl's "A program that never had a
+%   dictionary". Options: kb(Name), comment(Text). Issues are
+%   issue(Severity, Code, Message) terms, and an empty list means nothing
+%   was lost on the way.
+le_lps_from_internal(Terms, Options, LEText, Issues) :-
+    le_lps_write:le_lps_from_internal(Terms, Options, LEText, Issues).
+
+:- use_module(le_lps_write, []).
 
 		 /*******************************
 		 *   OTHER SYSTEMS, BOTH WAYS   *

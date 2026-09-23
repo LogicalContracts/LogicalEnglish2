@@ -75,7 +75,7 @@ program includes.
 |---|---|
 | `le_scasp.pl` | emits s(CASP) from a loaded KB and runs it with `library(scasp)` (the `scasp` pack; optional) |
 | `le_lps.pl` | LE for LPS (`the target language is: lps.`) to LPS internal syntax with provenance; LPS2 runs it (`/lpsapi`, a separate server) |
-| `le_lps_legal.pl`, `le_lps_write.pl` | the legal view of an LPS program; LPS internal syntax back to LE |
+| `le_lps_legal.pl`, `le_lps_write.pl` | the legal view of an LPS program; LPS internal syntax back to LE. `le_lps_from_internal/4` is the same writer for a program that never had a Logical English original — an LPS program in the older, Prolog-like syntax: it invents a template for every relation the program mentions and ties each one back to the relation's name with `; known as`. LPS2 calls it through `le_service.pl` for its Misc ▸ Convert to Logical English |
 | `le_service.pl` | the surface LPS2 loads LE2 through, in-process |
 | `le_writer.pl`, `le_migration.pl` | Migration IR to LE text; migration ledger and source tests as scenarios ([migration.md](migration.md)) |
 | `le_import.pl` | File ▸ Open of other systems' files and Export; registries `importer/6`, `exporter/6`. The translators themselves are in InsurLE2 |
