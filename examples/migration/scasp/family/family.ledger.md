@@ -1,17 +1,17 @@
 # Migration ledger: family
 
 Source: an s(CASP) program — family.pl
-Translator: InsurLE2/migration/scasp (scasp_twin.pl)
-Date: 2026-09-15
+Translator: lpsPlus/migration/scasp (scasp_twin.pl)
+Date: 2026-09-23
 
 ## Summary
 
 | Verdict | Source elements |
 |---|---|
-| encoded | 27 |
+| encoded | 29 |
 | approximated | 0 |
 | residue | 0 |
-| **total** | 27 |
+| **total** | 29 |
 
 Fidelity: **1 of 1** source test expectation(s) reproduced (100%).
 
@@ -48,6 +48,8 @@ A source element is **encoded** when a documented mapping rule translated it wit
 | a clause of cousin/2 | rule | encoded | a clause -> an LE rule | the rules |  |
 | a clause of hardmath/1 | rule | encoded | a clause -> an LE rule | the rules |  |
 | ?- ancestor(bob,sam) | query | encoded | a ?- query -> a query, asked in every scenario | the queries |  |
+| a fact of test1/1 with a variable | source | encoded | as the source has it | the rules | As in the source: a fact with a variable holds for every value of it (the verifier notes a fact that introduces a variable). |
+| the rules of test1, test2, test3 | source | encoded | as the source has it | the rules | As in the source: these predicates depend on one another through negation (the program is not stratified). s(CASP) gives them its stable-model meaning; LE's Prolog engine may loop or differ, and the verifier says so. |
 
 ## Source tests
 

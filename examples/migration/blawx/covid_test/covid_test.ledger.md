@@ -2,7 +2,7 @@
 
 Source: Covid Test Rule — sources/covid_test.yaml, https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418
 Translator: lpsPlus/migration/blawx (blawx_twin.pl)
-Date: 2026-09-15
+Date: 2026-09-23
 Source licence: Blawx: MIT
 
 ## Summary
@@ -22,7 +22,7 @@ A source element is **encoded** when a documented mapping rule translated it wit
 
 | Source element | Kind | Verdict | Mapping | In the program | Note |
 |---|---|---|---|---|---|
-| test_result/1 | category, attribute or relationship | encoded | its #pred wording -> a template | *a test result* is a test result |  |
+| test_result/1 | category, attribute or relationship | encoded | its #pred wording -> a template | *a test result* is a test result | As in the source: facts are stated and no rule, constraint or test of the source reads them (the verifier reports them unconsumed). |
 | may_board/2 | category, attribute or relationship | encoded | its #pred wording -> a template | *a person* is permitted to board *a flight* |  |
 | person/1 | category, attribute or relationship | encoded | its #pred wording -> a template | *a person* is a person |  |
 | flight/1 | category, attribute or relationship | encoded | its #pred wording -> a template | *a flight* is a flight |  |

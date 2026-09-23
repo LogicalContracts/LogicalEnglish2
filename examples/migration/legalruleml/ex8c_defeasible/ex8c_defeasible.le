@@ -17,9 +17,8 @@ the knowledge base ex8c_defeasible includes these resources:
     deontic.
 
 the templates are:
-    *a thing* is a rel1.
-    *a thing* is a rel103.
-    *a thing* is a rel2.
+    *a thing* is a rel1; scenario element.
+    *a thing* is a rel2; scenario element.
     *a thing* is a rel3.
     *a thing* is not a rel3.
     the statement *a statement* applies.

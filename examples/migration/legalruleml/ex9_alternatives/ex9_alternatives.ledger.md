@@ -1,8 +1,8 @@
 # Migration ledger: ex9_alternatives
 
 Source: a LegalRuleML document (OASIS LegalRuleML Core 1.0) — ex9-alternatives-normal.lrml
-Translator: InsurLE2/migration/legalruleml (lrml_twin.pl)
-Date: 2026-09-15
+Translator: lpsPlus/migration/legalruleml (lrml_twin.pl)
+Date: 2026-09-23
 
 ## Summary
 

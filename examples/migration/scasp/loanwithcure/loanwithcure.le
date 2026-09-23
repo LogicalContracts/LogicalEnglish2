@@ -19,8 +19,8 @@ the templates are:
     *a borrower* defaults on *a date*.
     *a borrower* cures the failure of *an obligation* onorbefore *a date*.
     *a borrower* fails on *a date* to fulfil *an obligation*.
-    *a lender* notifies *a borrower* on *a date* that *a message*.
-    *a borrower* pays *an amount* to *a lender* on *a date*.
+    *a lender* notifies *a borrower* on *a date* that *a message*; scenario element.
+    *a borrower* pays *an amount* to *a lender* on *a date*; scenario element.
     the loan is accelerated on *a date*.
 
 the knowledge base loanwithcure includes:

@@ -1,8 +1,9 @@
 // The landing page's README panel (web_extras/landing/readme-panel.js): a
 // folder with a README.md has a button after its name that shows the README
 // beside the list, without opening or closing the folder; `?readme=<folder>`
-// opens it directly; a link to a program opens that program in the editor on
-// the scenario and question the link names.
+// opens it directly, and the link symbol at the top of the panel copies that
+// address; a link to a program opens that program in the editor on the
+// scenario and question the link names.
 import { test, expect } from '@playwright/test';
 
 const modelText = () => {
@@ -33,6 +34,25 @@ test.describe('landing page README panel', () => {
         const sources = await page.locator('.readme-src[data-for]').count();
         expect(sources).toBeGreaterThan(0);
         await expect(page.locator('.readme-button')).toHaveCount(sources);
+    });
+
+    test('the panel has a link that copies its address', async ({ page, context }) => {
+        await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+        await page.goto('/?expand=all');
+        await page.locator('details.le-folder[data-path="migration/blawx/"] > summary > .readme-button').click();
+        const copy = page.locator('.readme-panel a.readme-copy');
+        await expect(copy).toBeVisible();
+        const href = (await copy.getAttribute('href'))!;
+        const u = new URL(href);
+        expect(u.pathname).toBe('/');
+        expect(u.searchParams.get('readme')).toBe('migration/blawx');
+        expect(u.searchParams.get('expand')).toBeNull();
+        await copy.click();
+        await expect(copy).toHaveText('Copied');
+        expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(href);
+        // the copied address opens the same README
+        await page.goto(href);
+        await expect(page.locator('.readme-panel')).toContainText('Blawx');
     });
 
     test('a folder link in a README opens that folder\'s README', async ({ page }) => {

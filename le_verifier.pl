@@ -112,7 +112,10 @@ unread_value(KB, issue(unread_value, Description, Fix, Start, End)) :-
               compound(Head), Head \= (_ :- _),
               functor(Head, F, A), \+ sub_atom(F, 0, _, _, le_),
               arg(I, Head, V), atom(V),
-              \+ get_assoc(V, Known, _) ),
+              \+ get_assoc(V, Known, _),
+              % "policy level 1 is a policy level": a type the program
+              % declares (a placeholder's type), not a value its rules test.
+              \+ ( F == is_a, I == 2, current_predicate(KB:le_type/1), KB:le_type(V) ) ),
             Candidates),
     Candidates \== [],
     findall(Slot, member(c(Slot, _, _, _, _), Candidates), Slots0),
@@ -771,22 +774,44 @@ is_defined_real(KB, Literal) :-
                        le_holds/1]) -> true
     ;   (F == says_that, A == 2) -> true
     ;   safe_clause(KB, Literal) -> true
+    ;   prolog_resource_predicate(KB, F, A) -> true
     ;   safe_scenario_fact(KB, F, A) -> true
     ;   clause(KB:le_unknown(Literal), _) -> true
     ;   fail
     ).
 
+%   The predicate of Literal has a clause in the program: a rule or a fact of
+%   its own (dynamic), or a clause of a Prolog resource it includes (static,
+%   such as lib/temporal.pl's date arithmetic). Asked of the predicate, not of
+%   the call: `a party is obliged that the thing is a rel2` calls a defined
+%   predicate even when no rule concludes an obligation about rel2, and
+%   "undefined predicate is_obliged_that/2" would be false.
 safe_clause(KB, Literal) :-
     functor(Literal, F, A),
     current_predicate(KB:F/A),
-    le_kbs:kb_own_predicate(KB, Literal),
-    clause(KB:Literal, _).
+    functor(Head, F, A),
+    \+ predicate_property(KB:Head, imported_from(_)),
+    (   le_kbs:kb_own_predicate(KB, Head)
+    ->  clause(KB:Head, _)
+    ;   predicate_property(KB:Head, number_of_clauses(N)), N > 0
+    ).
+
+%   F/A is defined by a Prolog resource the program includes, directly or
+%   through an included Logical English library (lib/temporal.le includes
+%   temporal.pl): le_kbs:load_prolog_resource/4 loads each into a cache
+%   module, recorded as le_prolog_resource(Cache, Id).
+prolog_resource_predicate(KB, F, A) :-
+    current_predicate(KB:le_prolog_resource/2),
+    KB:le_prolog_resource(Cache, _),
+    current_predicate(Cache:F/A), !.
 
 safe_scenario_fact(KB, F, A) :-
     current_predicate(KB:scenario/2),
     clause(KB:scenario(_, Facts), _),
     member(FactItem, Facts),
-    ( FactItem = fact_with_source(Fact, _, _) -> true ; Fact = FactItem ),
+    ( FactItem = fact_with_source(Fact0, _, _) -> true ; Fact0 = FactItem ),
+    % a rule stated in a scenario defines its head's predicate
+    ( Fact0 = (Fact :- _) -> true ; Fact = Fact0 ),
     functor(Fact, F, A).
 
 is_built_in_literal(L) :- reasoner:is_built_in(L).
@@ -950,6 +975,33 @@ template_used(KB, F, A) :-
     KB:query_info(_, Goal, _),
     find_in_body(Goal, Literal),
     functor(Literal, F, A), !.
+%   Used inside an embedded sentence, the argument of a template such as
+%   `*a party* is obliged that *a sentence*`: "y is obliged that x is a rel4"
+%   uses `*a thing* is a rel4` as much as a condition would.
+template_used(KB, F, A) :-
+    current_predicate(KB:Other/OA),
+    \+ is_system_predicate(Other/OA),
+    functor(H, Other, OA),
+    le_kbs:kb_own_predicate(KB, H),
+    clause(KB:H, Body),
+    ( embeds_literal(H, F, A) ; find_in_body(Body, L), embeds_literal(L, F, A) ), !.
+template_used(KB, F, A) :-
+    current_predicate(KB:scenario/2),
+    KB:scenario(_, Facts),
+    member(Item, Facts),
+    ( Item = fact_with_source(Fact, _, _) -> true ; Fact = Item ),
+    embeds_literal(Fact, F, A), !.
+template_used(KB, F, A) :-
+    current_predicate(KB:query_info/3),
+    KB:query_info(_, Goal, _),
+    find_in_body(Goal, L),
+    embeds_literal(L, F, A), !.
+
+%   F/A is inside one of Literal's arguments (not Literal itself).
+embeds_literal(Literal, F, A) :-
+    compound(Literal),
+    arg(_, Literal, Sub),
+    contains_literal(Sub, F, A), !.
 
 %!  contains_literal(+Term, +F, +A) is semidet.
 %
@@ -1275,6 +1327,10 @@ redefined_system_template(KB, issue(redefined_system_template, Description, Fix,
     % So has a scenario element (`; undefined`): its facts come from the
     % scenarios, which a library of rules included by them does not have.
     \+ is_scenario_element_functor(KB, F, Arity),
+    % ... nor a fluent or action of an LPS program: its laws and its initial
+    % state (le_lps_item/3 payloads) define it, not Prolog clauses.
+    \+ ( current_predicate(KB:le_lps_item/3), KB:le_lps_item(_, Payload, _),
+         contains_literal(Payload, F, Arity) ),
     % Get source info
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0),
     canonical_string(WV, TemplateStr),
@@ -1461,13 +1517,27 @@ print_issue(issue(Type, Description, Fix, Start, End)) :-
     format(atom(Msg), "~w~n    Fix: ~w~n    Position: ~w-~w", [Description, Fix, Start, End]),
     print_message(warning, Type - [Msg]).
 
+%!  verifier_issue_kind(?Type) is semidet.
+%
+%   Type is a kind of issue the verifier reports: one of the kinds listed, or
+%   any kind with a description in i18n/messages.csv (`<kind>_desc`). A kind
+%   missing from the list (non_stratified was) made the message system read
+%   the text as a format string and fail with "too many arguments".
+verifier_issue_kind(Type) :-
+    atom(Type),
+    (   memberchk(Type, [missing_template, undefined_predicate, opposite_as_condition, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, unused_constant, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, mistyped_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited, view_unknown_section, view_keeps_derived])
+    ->  true
+    ;   atom_concat(Type, '_desc', Key),
+        le_i18n:msg_entry(en, Key, _)
+    ).
+
 % Extend prolog:message to handle our issues
 :- multifile prolog:message//1.
 prolog:message(Type - [Msg, Start, End]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, opposite_as_condition, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, unused_constant, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, mistyped_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited, view_unknown_section, view_keeps_derived]) },
+    { verifier_issue_kind(Type) },
     [ '~w: ~w at ~w-~w' - [Type, Msg, Start, End] ].
 prolog:message(Type - [Msg]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, opposite_as_condition, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, unused_constant, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, mistyped_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited, view_unknown_section, view_keeps_derived]) },
+    { verifier_issue_kind(Type) },
     [ '~w: ~w' - [Type, Msg] ].
 
 % ---------------------------------------------------------------------------

@@ -17,13 +17,13 @@ the templates are:
     *a person* is a parent of *a second person*.
     *a person* is citizen or settled *a date*.
     *a person* is the father of *a person*.
-    *a person* is born in *a place* on *a date*.
-    *a date* isafter commencement.
-    *a person* is the mother of *a person*.
-    *a person* is a British citizen on *a date*.
-    *a person* is settled in the UK on *a date*.
-    *a person* says that *a sentence*.
-    *a person* is qualified to determine fatherhood.
+    *a person* is born in *a place* on *a date*; scenario element.
+    *a date* isafter commencement; scenario element.
+    *a person* is the mother of *a person*; scenario element.
+    *a person* is a British citizen on *a date*; scenario element.
+    *a person* is settled in the UK on *a date*; scenario element.
+    *a person* says that *a sentence*; scenario element.
+    *a person* is qualified to determine fatherhood; scenario element.
 
 the knowledge base citizenshiptrust includes:
 

@@ -2421,9 +2421,33 @@ candidate_template(Templates, Words, Dict) :-
     % measurable parse-time regression on large programs.
     le_i18n:class_word_list(meta_marker, Ms),
     template_partition(Templates, Ms, Metas, Rest),
-    ( member(Dict, Metas) ; member(Dict, Rest) ),
-    Dict = dict(_FA, _NTs, _WV, _Start, _End, NIW, _Globals, _Opposite, _Prep, _Unknown),
-    contains_subsequence(NIW, Words).
+    (   outer_first(Metas, Words, Ordered), member(Dict, Ordered)
+    ;   member(Dict, Rest),
+        Dict = dict(_FA, _NTs, _WV, _Start, _End, NIW, _Globals, _Opposite, _Prep, _Unknown),
+        contains_subsequence(NIW, Words)
+    ).
+
+%!  outer_first(+Metas, +Words, -Ordered) is det.
+%
+%   The meta templates whose words occur in Words, the one whose first word
+%   comes EARLIEST in the sentence first. When meta templates nest — "the
+%   lender notifies the borrower on a date that the borrower fails to fulfil an
+%   obligation that a requirement" — every word of the outer template comes
+%   before the embedded sentence, since its marked slot is its last and takes
+%   the rest; so the template that starts first is the outer one. Tried in the
+%   templates' own order instead, `fails_to_fulfil_that` came before
+%   `notifies_on_that` and its first, ordinary slot swallowed "the lender
+%   notifies the borrower on a date that the borrower". Ties keep the
+%   templates' order (keysort is stable).
+outer_first(Metas, Words, Ordered) :-
+    findall(Pos-Dict,
+            ( member(Dict, Metas),
+              Dict = dict(_FA, _NTs, _WV, _Start, _End, NIW, _Globals, _Opposite, _Prep, _Unknown),
+              contains_subsequence(NIW, Words),
+              ( NIW = [W1|_], nth0(Pos0, Words, W1) -> Pos = Pos0 ; Pos = 0 ) ),
+            Pairs),
+    keysort(Pairs, Sorted),
+    pairs_values(Sorted, Ordered).
 
 %!  template_partition(+Templates, +MetaMarkers, -Metas, -Rest) is det.
 %

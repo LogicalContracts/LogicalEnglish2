@@ -1,8 +1,8 @@
 # Migration ledger: simplerps
 
 Source: an s(CASP) program — simpleRPS-scasp.pl
-Translator: InsurLE2/migration/scasp (scasp_twin.pl)
-Date: 2026-09-15
+Translator: lpsPlus/migration/scasp (scasp_twin.pl)
+Date: 2026-09-23
 
 ## Summary
 
@@ -24,11 +24,11 @@ A source element is **encoded** when a documented mapping rule translated it wit
 | beats/2 | predicate | encoded | a template (the #pred wording, else a naive one) | *a choice* beats *a choice* |  |
 | gets/2 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* gets *an amount* |  |
 | the_game_is_a_draw/0 | predicate | encoded | a template (the #pred wording, else a naive one) | the game is a draw |  |
-| inputs_and/3 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* inputs *a choice* and *an amount* |  |
+| inputs_and/3 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* inputs *a choice* and *an amount* | Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined). |
 | a clause of gets/2 | rule | encoded | a clause -> an LE rule | the rules |  |
 | a clause of the_game_is_a_draw/0 | rule | encoded | a clause -> an LE rule | the rules |  |
 | Scenario mbj | scenario | encoded | an LE1 scenario -> a scenario | mbj |  |
-| ?- gets(_180994,_180996) | query | encoded | a ?- query -> a query, asked in every scenario | the queries |  |
+| ?- gets(_201756,_201758) | query | encoded | a ?- query -> a query, asked in every scenario | the queries |  |
 
 ## Source tests
 

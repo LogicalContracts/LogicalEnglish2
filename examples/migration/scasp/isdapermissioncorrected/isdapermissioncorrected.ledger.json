@@ -14,7 +14,7 @@
       "in_program":"*an event* of Default occurs with respect to *a party* at *a time*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -22,7 +22,7 @@
       "in_program":"*an event* is continuing at *a time*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -30,7 +30,7 @@
       "in_program":"*a party* gives notice to *a party* at *a time* that *a message*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -38,7 +38,7 @@
       "in_program":"*a date* isonorbefore *a date*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -46,7 +46,7 @@
       "in_program":"*a time* isnot more than *a number* days after *a time*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -54,7 +54,7 @@
       "in_program":"the Schedule specifies that *a specification*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -62,7 +62,7 @@
       "in_program":"Automatic Early Termination applies to *a party* for *an event* of Default",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -70,7 +70,7 @@
       "in_program":"*an event* occurs at *a time*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -78,7 +78,7 @@
       "in_program":"*a party* designates that *an eventuality*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -98,7 +98,7 @@
       "verdict":"encoded"
     },
     {
-      "element":"?- it_is_permitted_that(designates_that(_72584,occurs_at(_72590,_72592)))",
+      "element":"?- it_is_permitted_that(designates_that(_78332,occurs_at(_78338,_78340)))",
       "in_program":"the queries",
       "kind":"query",
       "mapping":"a ?- query -> a query, asked in every scenario",
@@ -114,10 +114,10 @@
   },
   "meta": {
     "artifacts": ["isdapermissioncorrected-scasp.pl" ],
-    "date":"2026-09-15",
+    "date":"2026-09-23",
     "program":"isdapermissioncorrected",
     "source":"an s(CASP) program",
-    "translator":"InsurLE2/migration/scasp (scasp_twin.pl)"
+    "translator":"lpsPlus/migration/scasp (scasp_twin.pl)"
   },
   "pending_expectations":0,
   "source_tests":1

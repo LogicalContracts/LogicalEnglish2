@@ -16,7 +16,7 @@ the templates are:
     *a choice* beats *a choice*.
     *a person* gets *an amount*.
     the game is a draw.
-    *a person* inputs *a choice* and *an amount*.
+    *a person* inputs *a choice* and *an amount*; scenario element.
 
 the knowledge base simplerps includes:
 

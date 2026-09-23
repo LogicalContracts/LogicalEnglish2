@@ -15,14 +15,14 @@ the target language is: prolog.
 the templates are:
     It is permitted that *an eventuality*.
     the Schedule specifies that *a specification*.
-    *an event* of Default occurs with respect to *a party* at *a time*.
-    *an event* is continuing at *a time*.
-    *a party* gives notice to *a party* at *a time* that *a message*.
-    *a date* isonorbefore *a date*.
-    *a date* and are at most days apart *a time* with *a thing*.
-    Automatic Early Termination applies to *a party* for *an event* of Default.
-    *a party* designates at *a time* that *an eventuality*.
-    *an event* occurs at *a time*.
+    *an event* of Default occurs with respect to *a party* at *a time*; scenario element.
+    *an event* is continuing at *a time*; scenario element.
+    *a party* gives notice to *a party* at *a time* that *a message*; scenario element.
+    *a date* isonorbefore *a date*; scenario element.
+    *a date* and are at most days apart *a time* with *a thing*; scenario element.
+    Automatic Early Termination applies to *a party* for *an event* of Default; scenario element.
+    *a party* designates at *a time* that *an eventuality*; scenario element.
+    *an event* occurs at *a time*; scenario element.
 
 the knowledge base itispermittedthat includes:
 

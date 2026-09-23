@@ -15,11 +15,11 @@ the target language is: prolog.
 the templates are:
     *a contract* is a valid contract.
     The terms of the contract are met.
-    the service is delivered before *a date*.
-    the service recipient maintains all communication within the confines of *a domain*.
-    the service recipient delivers requested information before *a date*.
-    *a contract* is signed by the service provider.
-    *a contract* is also signed by the service recipient.
+    the service is delivered before *a date*; scenario element.
+    the service recipient maintains all communication within the confines of *a domain*; scenario element.
+    the service recipient delivers requested information before *a date*; scenario element.
+    *a contract* is signed by the service provider; scenario element.
+    *a contract* is also signed by the service recipient; scenario element.
 
 the knowledge base minicontract includes:
 

@@ -1,8 +1,8 @@
 # Migration ledger: classic_negation_inconstistent
 
 Source: an s(CASP) program — classic_negation_inconstistent.pl
-Translator: InsurLE2/migration/scasp (scasp_twin.pl)
-Date: 2026-09-15
+Translator: lpsPlus/migration/scasp (scasp_twin.pl)
+Date: 2026-09-23
 
 ## Summary
 
@@ -21,7 +21,7 @@ A source element is **encoded** when a documented mapping rule translated it wit
 
 | Source element | Kind | Verdict | Mapping | In the program | Note |
 |---|---|---|---|---|---|
-| p/1 | predicate | encoded | a template (the #pred wording, else a naive one) | *a thing* is a p |  |
+| p/1 | predicate | encoded | a template (the #pred wording, else a naive one) | *a thing* is a p | Its opposite (-p): As in the source: facts are stated and no rule or query of the source reads them (the verifier reports the facts unconsumed). |
 | ?- p(2) | query | encoded | a ?- query -> a query, asked in every scenario | the queries |  |
 
 ## Source tests

@@ -54,7 +54,7 @@
       "in_program":"*a person* has been made aware that *a fact*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -62,7 +62,7 @@
       "in_program":"*a person* understands *a language*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -70,7 +70,7 @@
       "in_program":"*a person* is represented by *a lawyer*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -78,7 +78,7 @@
       "in_program":"*a person* speaks *a language*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -86,7 +86,7 @@
       "in_program":"*a proceeding* has *a status*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -94,7 +94,7 @@
       "in_program":"*a thing* is the member of *a second thing*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Source defect: the source states facts of member/2, the name of a built-in, and its rules call only the built-in, so nothing reads them (the verifier reports the facts unconsumed).",
       "verdict":"encoded"
     },
     {
@@ -102,7 +102,7 @@
       "in_program":"*a person* isin danger of *a thing*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -110,7 +110,7 @@
       "in_program":"*a proceeding* isin the language *a language*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -118,7 +118,7 @@
       "in_program":"*a person* has *a right* in *a proceeding* under *an article*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"As in the source: declared and never used (the verifier reports the template unused).",
       "verdict":"encoded"
     },
     {
@@ -126,7 +126,7 @@
       "in_program":"*an exception* is an exception to *an article*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"As in the source: declared and never used (the verifier reports the template unused).",
       "verdict":"encoded"
     },
     {
@@ -134,7 +134,7 @@
       "in_program":"*a person* has *a right* in *a proceeding*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"As in the source: declared and never used (the verifier reports the template unused).",
       "verdict":"encoded"
     },
     {
@@ -202,7 +202,7 @@
       "verdict":"encoded"
     },
     {
-      "element":"?- exception_to_applies_to_under_of(_1588,_1590,_1592,_1594)",
+      "element":"?- exception_to_applies_to_under_of(_40040,_40042,_40044,_40046)",
       "in_program":"the queries",
       "kind":"query",
       "mapping":"a ?- query -> a query, asked in every scenario",
@@ -221,10 +221,10 @@
   },
   "meta": {
     "artifacts": ["criminaljustice-scasp.pl" ],
-    "date":"2026-09-15",
+    "date":"2026-09-23",
     "program":"criminaljustice",
     "source":"an s(CASP) program",
-    "translator":"InsurLE2/migration/scasp (scasp_twin.pl)"
+    "translator":"lpsPlus/migration/scasp (scasp_twin.pl)"
   },
   "pending_expectations":0,
   "source_tests":2

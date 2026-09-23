@@ -20,8 +20,8 @@ the templates are:
     *a borrower* cures the failure of *an obligation* on *a day* that *a requirement*.
     *a day* is on or before *a thing*.
     *a date* is days after *a thing* with *a second date*.
-    *a lender* notifies *a borrower* on *a date* that *a message*.
-    *a borrower* pays *an amount* to *a lender* on *a date*.
+    *a lender* notifies *a borrower* on *a date* that *a message*; scenario element.
+    *a borrower* pays *an amount* to *a lender* on *a date*; scenario element.
     *a party* performs *an action* at *a time*.
     *an event* occurs at *a time*.
 

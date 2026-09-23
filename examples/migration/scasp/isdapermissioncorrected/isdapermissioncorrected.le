@@ -14,15 +14,15 @@ the target language is: prolog.
 
 the templates are:
     it is permitted that *an eventuality*.
-    *an event* of Default occurs with respect to *a party* at *a time*.
-    *an event* is continuing at *a time*.
-    *a party* gives notice to *a party* at *a time* that *a message*.
-    *a date* isonorbefore *a date*.
-    *a time* isnot more than *a number* days after *a time*.
-    the Schedule specifies that *a specification*.
-    Automatic Early Termination applies to *a party* for *an event* of Default.
-    *an event* occurs at *a time*.
-    *a party* designates that *an eventuality*.
+    *an event* of Default occurs with respect to *a party* at *a time*; scenario element.
+    *an event* is continuing at *a time*; scenario element.
+    *a party* gives notice to *a party* at *a time* that *a message*; scenario element.
+    *a date* isonorbefore *a date*; scenario element.
+    *a time* isnot more than *a number* days after *a time*; scenario element.
+    the Schedule specifies that *a specification*; scenario element.
+    Automatic Early Termination applies to *a party* for *an event* of Default; scenario element.
+    *an event* occurs at *a time*; scenario element.
+    *a party* designates that *an eventuality*; scenario element.
 
 the knowledge base isdapermissioncorrected includes:
 

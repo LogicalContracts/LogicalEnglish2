@@ -1,5 +1,5 @@
 {
-  "counts": {"approximated":0,"encoded":11,"residue":1},
+  "counts": {"approximated":0,"encoded":12,"residue":1},
   "entries": [
     {
       "element":"is_a_subset_of/2",
@@ -30,7 +30,7 @@
       "in_program":"*a thing* is a set",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -38,7 +38,7 @@
       "in_program":"*a thing* belongs to *a set*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -46,7 +46,7 @@
       "in_program":"*a thing* has as head before *a second thing* with *a third thing*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Source defect: the source reads it and defines it nowhere. It is has_as_head_before/3 (a list, its head, its rest), a built-in of LE1 that s(CASP) does not have, so s(CASP) answers nothing through it, and neither does the twin (the verifier reports it undefined).",
       "verdict":"encoded"
     },
     {
@@ -74,7 +74,7 @@
       "verdict":"encoded"
     },
     {
-      "element":"?- is_a_subset_of(_92738,_92740)",
+      "element":"?- is_a_subset_of(_116878,_116880)",
       "in_program":"the queries",
       "kind":"query",
       "mapping":"a ?- query -> a query, asked in every scenario",
@@ -96,6 +96,14 @@
       "mapping":"a clause taking a list apart (no list patterns in LE)",
       "note":"Logical English has no list patterns (a list's first element and the rest, [H|T]); a recursive definition over a list is written with an included Prolog resource, or restated with aggregates",
       "verdict":"residue"
+    },
+    {
+      "element":"a fact of the_concatenation_of_then_is/3 with a variable",
+      "in_program":"the rules",
+      "kind":"source",
+      "mapping":"as the source has it",
+      "note":"As in the source: a fact with a variable holds for every value of it (the verifier notes a fact that introduces a variable).",
+      "verdict":"encoded"
     }
   ],
   "fidelity": {
@@ -106,10 +114,10 @@
   },
   "meta": {
     "artifacts": ["list-scasp.pl" ],
-    "date":"2026-09-15",
+    "date":"2026-09-23",
     "program":"list",
     "source":"an s(CASP) program",
-    "translator":"InsurLE2/migration/scasp (scasp_twin.pl)"
+    "translator":"lpsPlus/migration/scasp (scasp_twin.pl)"
   },
   "pending_expectations":0,
   "source_tests":1

@@ -1,8 +1,8 @@
 # Migration ledger: citizenshiptrust
 
 Source: an s(CASP) program — citizenshiptrust-scasp.pl
-Translator: InsurLE2/migration/scasp (scasp_twin.pl)
-Date: 2026-09-15
+Translator: lpsPlus/migration/scasp (scasp_twin.pl)
+Date: 2026-09-23
 
 ## Summary
 
@@ -25,13 +25,13 @@ A source element is **encoded** when a documented mapping rule translated it wit
 | is_a_parent_of/2 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* is a parent of *a second person* |  |
 | is_citizen_or_settled/2 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* is citizen or settled *a date* |  |
 | is_the_father_of/2 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* is the father of *a person* |  |
-| is_born_in_on/3 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* is born in *a place* on *a date* |  |
-| is_after_commencement/1 | predicate | encoded | a template (the #pred wording, else a naive one) | *a date* isafter commencement |  |
-| is_the_mother_of/2 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* is the mother of *a person* |  |
-| is_a_British_citizen_on/2 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* is a British citizen on *a date* |  |
-| is_settled_in_the_UK_on/2 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* is settled in the UK on *a date* |  |
-| says_that/2 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* says that *a sentence* |  |
-| is_qualified_to_determine_fatherhood/1 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* is qualified to determine fatherhood |  |
+| is_born_in_on/3 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* is born in *a place* on *a date* | Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined). |
+| is_after_commencement/1 | predicate | encoded | a template (the #pred wording, else a naive one) | *a date* isafter commencement | Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined). |
+| is_the_mother_of/2 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* is the mother of *a person* | Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined). |
+| is_a_British_citizen_on/2 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* is a British citizen on *a date* | Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined). |
+| is_settled_in_the_UK_on/2 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* is settled in the UK on *a date* | Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined). |
+| says_that/2 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* says that *a sentence* | Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined). |
+| is_qualified_to_determine_fatherhood/1 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* is qualified to determine fatherhood | Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined). |
 | a clause of acquires_British_citizenship_on/2 | rule | encoded | a clause -> an LE rule | the rules |  |
 | a clause of is_a_parent_of/2 | rule | encoded | a clause -> an LE rule | the rules |  |
 | a clause of is_citizen_or_settled/2 | rule | encoded | a clause -> an LE rule | the rules |  |
@@ -40,7 +40,7 @@ A source element is **encoded** when a documented mapping rule translated it wit
 | Scenario harry | scenario | encoded | an LE1 scenario -> a scenario | harry |  |
 | Scenario trust_harry | scenario | encoded | an LE1 scenario -> a scenario | trust_harry |  |
 | Scenario alice_harry | scenario | encoded | an LE1 scenario -> a scenario | alice_harry |  |
-| ?- acquires_British_citizenship_on(_140242,_140244) | query | encoded | a ?- query -> a query, asked in every scenario | the queries |  |
+| ?- acquires_British_citizenship_on(_112870,_112872) | query | encoded | a ?- query -> a query, asked in every scenario | the queries |  |
 
 ## Source tests
 

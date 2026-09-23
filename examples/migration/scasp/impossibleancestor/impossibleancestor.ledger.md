@@ -1,8 +1,8 @@
 # Migration ledger: impossibleancestor
 
 Source: an s(CASP) program — impossibleancestor-scasp.pl
-Translator: InsurLE2/migration/scasp (scasp_twin.pl)
-Date: 2026-09-15
+Translator: lpsPlus/migration/scasp (scasp_twin.pl)
+Date: 2026-09-23
 
 ## Summary
 
@@ -23,13 +23,13 @@ A source element is **encoded** when a documented mapping rule translated it wit
 |---|---|---|---|---|---|
 | is_a_grandparent_of/2 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* is a grandparent of *a person* |  |
 | is_an_ancestor_of/2 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* is an ancestor of *a person* |  |
-| is_a_parent_of/2 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* is a parent of *a person* |  |
-| is_impossible/1 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* is impossible |  |
+| is_a_parent_of/2 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* is a parent of *a person* | Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined). |
+| is_impossible/1 | predicate | encoded | a template (the #pred wording, else a naive one) | *a person* is impossible | Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined). |
 | a clause of is_a_grandparent_of/2 | rule | encoded | a clause -> an LE rule | the rules |  |
 | a clause of is_an_ancestor_of/2 | rule | encoded | a clause -> an LE rule | the rules |  |
 | Scenario one | scenario | encoded | an LE1 scenario -> a scenario | one |  |
 | Scenario two | scenario | encoded | an LE1 scenario -> a scenario | two |  |
-| ?- is_impossible(_41716) | query | encoded | a ?- query -> a query, asked in every scenario | the queries |  |
+| ?- is_impossible(_47306) | query | encoded | a ?- query -> a query, asked in every scenario | the queries |  |
 
 ## Source tests
 

@@ -14,7 +14,7 @@ the target language is: prolog.
 
 the templates are:
     *a person* is a grandparent of *a person*.
-    *a person* is a parent of *a person*.
+    *a person* is a parent of *a person*; scenario element.
 
 the knowledge base family_le includes:
 

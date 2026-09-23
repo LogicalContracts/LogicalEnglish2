@@ -2,7 +2,7 @@
 
 Source: a LegalRuleML document (OASIS LegalRuleML Core 1.0) — ex12-USC_17_504_context-normal.lrml
 Translator: lpsPlus/migration/legalruleml (lrml_twin.pl)
-Date: 2026-09-15
+Date: 2026-09-23
 
 ## Summary
 
@@ -33,7 +33,7 @@ A source element is **encoded** when a documented mapping rule translated it wit
 | Rel payWillfullyInfringement/2 | relation | encoded | Rel -> a template (the reviewer's wording) | increased statutory damages of between *a minimum* and *a maximum* are paid |  |
 | Rel sustainBurdenProving/1 | relation | encoded | Rel -> a template (the reviewer's wording) | *a party* sustains the burden of proof |  |
 | Rel willfullyInfringing/1 | relation | encoded | Rel -> a template (the reviewer's wording) | *an infringer* infringed wilfully |  |
-| constitutive statement cs1 | statement | encoded | ConstitutiveStatement -> an LE rule | cs1 |  |
+| constitutive statement cs1 | statement | encoded | ConstitutiveStatement -> an LE rule | cs1 | A rule with no conditions whose conclusion has a variable (lovo:Infringer of Var infringer): in the document, everyone is an infringer. The twin says so (`a person is an infringer.`), and the verifier warns that the fact holds for everything (single_variable_fact): the document's, kept as it is. |
 | prescriptive statement ps1 | statement | encoded | PrescriptiveStatement -> rules concluding obligations, permissions or prohibitions (deontic.le) | ps1 |  |
 | prescriptive statement ps2-tblock1 | statement | encoded | PrescriptiveStatement -> rules concluding obligations, permissions or prohibitions (deontic.le) | ps2_tblock1 |  |
 | prescriptive statement ps3-tblock1 | statement | encoded | PrescriptiveStatement -> rules concluding obligations, permissions or prohibitions (deontic.le) | ps3_tblock1 |  |

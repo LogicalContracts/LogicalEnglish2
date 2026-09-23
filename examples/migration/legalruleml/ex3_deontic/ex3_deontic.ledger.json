@@ -110,7 +110,7 @@
       "in_program":"ps1",
       "kind":"override",
       "mapping":"Override -> the under rule holds only when the over rule does not apply (E2)",
-      "note":"",
+      "note":"The document's statements depend on one another through negation, and the verifier says so (non_stratified): ps2 overrides ps1, so once ps2's prohibition is violated its next element keeps ps1 from applying; and ps1's reparations (rep1, rep3) oblige what ps2 forbids. SPINdle settles such a loop by the superiority of its rules; the twin states it as it is. The scenario violates nothing, so the loop is never entered.",
       "verdict":"encoded"
     },
     {
@@ -237,7 +237,7 @@
   },
   "meta": {
     "artifacts": ["ex3-deontic-normal.lrml" ],
-    "date":"2026-09-15",
+    "date":"2026-09-23",
     "program":"ex3_deontic",
     "source":"a LegalRuleML document (OASIS LegalRuleML Core 1.0)",
     "translator":"lpsPlus/migration/legalruleml (lrml_twin.pl)"

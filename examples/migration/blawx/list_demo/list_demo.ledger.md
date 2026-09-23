@@ -2,7 +2,7 @@
 
 Source: Lists Demonstration — sources/list_demo.yaml, https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418
 Translator: lpsPlus/migration/blawx (blawx_twin.pl)
-Date: 2026-09-15
+Date: 2026-09-23
 Source licence: Blawx: MIT
 
 ## Summary
@@ -24,17 +24,17 @@ A source element is **encoded** when a documented mapping rule translated it wit
 
 | Source element | Kind | Verdict | Mapping | In the program | Note |
 |---|---|---|---|---|---|
-| average_score/2 | category, attribute or relationship | encoded | its #pred wording -> a template | the average score adding a 10 of *a person* is *a number* |  |
-| person/1 | category, attribute or relationship | encoded | its #pred wording -> a template | *a person* is a person |  |
-| score/2 | category, attribute or relationship | encoded | its #pred wording -> a template | the score of *a person* is *a number* |  |
-| according_to(sec_1_section,average_score,_63382,_63384):-person(_63382),findall(_63404,score(_63382,_63404),_63408),coun... | rule | residue | not translated: kept verbatim as a residue block | section_1_residue | a list aggregate (findall): the rule collects values with findall and Blawx's list predicates |
+| average_score/2 | category, attribute or relationship | encoded | its #pred wording -> a template | the average score adding a 10 of *a person* is *a number* | Defined in the source only by clauses this twin keeps as residue blocks (see the residue entries), so nothing defines it here: the verifier reports it undefined. |
+| person/1 | category, attribute or relationship | encoded | its #pred wording -> a template | *a person* is a person | Used in the source only by clauses this twin keeps as residue blocks (see the residue entries): the verifier reports the template unused. |
+| score/2 | category, attribute or relationship | encoded | its #pred wording -> a template | the score of *a person* is *a number* | Used in the source only by clauses this twin keeps as residue blocks (see the residue entries): the verifier reports the template unused. |
+| according_to(sec_1_section,average_score,_69480,_69482):-person(_69480),findall(_69502,score(_69480,_69502),_69506),coun... | rule | residue | not translated: kept verbatim as a residue block | section_1_residue | a list aggregate (findall): the rule collects values with findall and Blawx's list predicates |
 | 0 blawx_as_of / blawx_during clauses | temporal boilerplate | encoded | left out: nothing reads it | nothing | Blawx writes these for every attribute and relationship; no rule or test of this project reads them0 |
 | 27 #pred annotations | natural language | encoded | the wording of each template; the holds / according_to / defeated forms are the rules themselves | the templates |  |
 | blawxtest test | test | encoded | a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py) | test |  |
 
 ## Residue
 
-- **according_to(sec_1_section,average_score,_63382,_63384):-person(_63382),findall(_63404,score(_63382,_63404),_63408),coun...** (rule) — not translated: kept verbatim as a residue block; in the program: section_1_residue. a list aggregate (findall): the rule collects values with findall and Blawx's list predicates
+- **according_to(sec_1_section,average_score,_69480,_69482):-person(_69480),findall(_69502,score(_69480,_69502),_69506),coun...** (rule) — not translated: kept verbatim as a residue block; in the program: section_1_residue. a list aggregate (findall): the rule collects values with findall and Blawx's list predicates
 
 ## Source tests
 

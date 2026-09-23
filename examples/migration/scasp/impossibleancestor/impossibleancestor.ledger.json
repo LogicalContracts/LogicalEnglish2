@@ -22,7 +22,7 @@
       "in_program":"*a person* is a parent of *a person*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -30,7 +30,7 @@
       "in_program":"*a person* is impossible",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -66,7 +66,7 @@
       "verdict":"encoded"
     },
     {
-      "element":"?- is_impossible(_41716)",
+      "element":"?- is_impossible(_47306)",
       "in_program":"the queries",
       "kind":"query",
       "mapping":"a ?- query -> a query, asked in every scenario",
@@ -85,10 +85,10 @@
   },
   "meta": {
     "artifacts": ["impossibleancestor-scasp.pl" ],
-    "date":"2026-09-15",
+    "date":"2026-09-23",
     "program":"impossibleancestor",
     "source":"an s(CASP) program",
-    "translator":"InsurLE2/migration/scasp (scasp_twin.pl)"
+    "translator":"lpsPlus/migration/scasp (scasp_twin.pl)"
   },
   "pending_expectations":0,
   "source_tests":2

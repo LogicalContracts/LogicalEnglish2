@@ -6,7 +6,7 @@
       "in_program":"*a thing* is a p",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Its opposite (-p): As in the source: facts are stated and no rule or query of the source reads them (the verifier reports the facts unconsumed).",
       "verdict":"encoded"
     },
     {
@@ -26,10 +26,10 @@
   },
   "meta": {
     "artifacts": ["classic_negation_inconstistent.pl" ],
-    "date":"2026-09-15",
+    "date":"2026-09-23",
     "program":"classic_negation_inconstistent",
     "source":"an s(CASP) program",
-    "translator":"InsurLE2/migration/scasp (scasp_twin.pl)"
+    "translator":"lpsPlus/migration/scasp (scasp_twin.pl)"
   },
   "pending_expectations":0,
   "source_tests":1

@@ -1,8 +1,8 @@
 # Migration ledger: birds
 
 Source: an s(CASP) program — birds.pl
-Translator: InsurLE2/migration/scasp (scasp_twin.pl)
-Date: 2026-09-15
+Translator: lpsPlus/migration/scasp (scasp_twin.pl)
+Date: 2026-09-23
 
 ## Summary
 
@@ -26,8 +26,8 @@ A source element is **encoded** when a documented mapping rule translated it wit
 | bird/1 | predicate | encoded | a template (the #pred wording, else a naive one) | *a thing* is a bird |  |
 | ab/1 | predicate | encoded | a template (the #pred wording, else a naive one) | *a thing* is an ab |  |
 | flies/1 | predicate | encoded | a template (the #pred wording, else a naive one) | *a thing* can fly |  |
-| penguin/2 | predicate | encoded | a template (the #pred wording, else a naive one) | *a thing* is the penguin of *a second thing* |  |
-| s/1 | predicate | encoded | a template (the #pred wording, else a naive one) | *a thing* is a s |  |
+| penguin/2 | predicate | encoded | a template (the #pred wording, else a naive one) | *a thing* is the penguin of *a second thing* | Source defect: the source reads it and defines it nowhere (and does not declare it dynamic), so nothing makes it true; s(CASP) answers nothing through it, and neither does the twin (the verifier reports it undefined). |
+| s/1 | predicate | encoded | a template (the #pred wording, else a naive one) | *a thing* is a s | Source defect: the source reads it and defines it nowhere (and does not declare it dynamic), so nothing makes it true; s(CASP) answers nothing through it, and neither does the twin (the verifier reports it undefined). |
 | a clause of bird/1 | rule | encoded | a clause -> an LE rule | the rules |  |
 | a clause of ab/1 | rule | encoded | a clause -> an LE rule | the rules |  |
 | a clause of flies/1 | rule | encoded | a clause -> an LE rule | the rules |  |
@@ -36,7 +36,7 @@ A source element is **encoded** when a documented mapping rule translated it wit
 | a clause of is_not_a_bird/1 | rule | encoded | a clause -> an LE rule | the rules |  |
 | a clause of is_not_a_penguin/1 | rule | encoded | a clause -> an LE rule | the rules |  |
 | a clause of is_not_an_ab/1 | rule | encoded | a clause -> an LE rule | the rules |  |
-| ?- flies(_187668) | query | encoded | a ?- query -> a query, asked in every scenario | the queries |  |
+| ?- flies(_74980) | query | encoded | a ?- query -> a query, asked in every scenario | the queries |  |
 
 ## Source tests
 

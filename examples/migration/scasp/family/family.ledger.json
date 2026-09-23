@@ -1,5 +1,5 @@
 {
-  "counts": {"approximated":0,"encoded":27,"residue":0},
+  "counts": {"approximated":0,"encoded":29,"residue":0},
   "entries": [
     {
       "element":"test1/1",
@@ -216,6 +216,22 @@
       "mapping":"a ?- query -> a query, asked in every scenario",
       "note":"",
       "verdict":"encoded"
+    },
+    {
+      "element":"a fact of test1/1 with a variable",
+      "in_program":"the rules",
+      "kind":"source",
+      "mapping":"as the source has it",
+      "note":"As in the source: a fact with a variable holds for every value of it (the verifier notes a fact that introduces a variable).",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the rules of test1, test2, test3",
+      "in_program":"the rules",
+      "kind":"source",
+      "mapping":"as the source has it",
+      "note":"As in the source: these predicates depend on one another through negation (the program is not stratified). s(CASP) gives them its stable-model meaning; LE's Prolog engine may loop or differ, and the verifier says so.",
+      "verdict":"encoded"
     }
   ],
   "fidelity": {
@@ -226,10 +242,10 @@
   },
   "meta": {
     "artifacts": ["family.pl" ],
-    "date":"2026-09-15",
+    "date":"2026-09-23",
     "program":"family",
     "source":"an s(CASP) program",
-    "translator":"InsurLE2/migration/scasp (scasp_twin.pl)"
+    "translator":"lpsPlus/migration/scasp (scasp_twin.pl)"
   },
   "pending_expectations":0,
   "source_tests":1
