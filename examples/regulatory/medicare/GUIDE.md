@@ -5,7 +5,7 @@ authors (people or agents) produce the same kind of program. Read
 `dmepos.le` (the library every policy includes), `pap.le` and `pmd.le` (two
 finished policies) and `pap_cases.le` / `pmd_cases.le` (their test cases)
 before writing; `docs/user/reference/language.md` (§2, §3, §4, §7, §17.1, §17.3, §17.4,
-§17.7) is the language reference; `../customs/README.md`
+§17.7) is the language reference; `../customs/DETAILS.md`
 ("Method") is the method this follows.
 
 ## What a policy program is

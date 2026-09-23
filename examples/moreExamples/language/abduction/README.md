@@ -1,63 +1,27 @@
 # Abduction in Logical English
 
-Working LE renderings of the abductive-reasoning examples from Kowalski &
-Calejo, *Teaching Logical Thinking through Logic Programming using Logical
-English, Argumentation Games and Animation* (PEG Lisbon 2026), plus a more
-more complex examples of our own.
+Programs that explain an observation by what it assumes. A template declared
+`; assumable` (or `; unknown`) may be assumed when the reasoner proves a goal.
+Each answer then comes with the assumptions it needs: "the grass is wet, if it
+rained". Two programs come from the slides of Kowalski and Calejo, *Teaching
+Logical Thinking through Logic Programming using Logical English,
+Argumentation Games and Animation* (PEG, Lisbon, 2026); two are our own.
 
-Logical English has **unknowns**:
-a template declared `; assumable` (synonym: `; unknown`) is an open/abducible
-predicate. When proving a goal, the reasoner may ASSUME an instance of an open
-predicate, returning it in the answer's unknowns list. Each answer plus its
-unknowns is one abductive explanation — equivalently a *conditional answer*
-(slide 26): "the grass is wet IF it rained". In the editor, assumed conditions
-show as yellow (unknown) nodes in the explanation tree. It also has
-**integrity constraints** (`it must not be true that …`, docs/user/reference/language.md
-§3.3), which reject the answers whose assumptions break them.
+## Start here
 
-| File | Origin | What it shows |
-|------|--------|---------------|
-| `grass_is_wet.le` | slide 24 | Explaining an observation: two alternative explanations of "the grass is wet" — assuming "it rained", or assuming "the sprinkler was on". |
-| `sunglasses.le` | slide 25 | Generating a plan: "alice likes you" is achieved by assuming the action "you wears sunglasses". |
-| `diagnosis.le` | own example, after slides 24–26 & 28 | Differential diagnosis: a conjunctive observation (fever and rash), several candidate diseases, a single-cause explanation ({measles}) competing with multi-cause ones, and constraint-style elimination of candidates. |
-| `loan_approval.le` | own example | Several alternative models (sets of assumptions) for one decision, richer than grass_is_wet and sunglasses. |
+- [Why is the grass wet?](grass_is_wet.le?scenario=observation&query=explain) — two explanations of one observation (slide 24).
+- [Sunglasses](sunglasses.le?scenario=planning&query=plan) — a plan: an action assumed to reach a goal (slide 25).
+- [Diagnosis](diagnosis.le?scenario=checkup&query=diagnose) — several diseases that could explain fever and a rash.
+- [Loan approval](loan_approval.le?scenario=application&query=approval) — several sets of assumptions for one decision.
 
-## Integrity constraints, and guards (slide 28)
+## Try this
 
-Slide 28 eliminates the sprinkler explanation with the passive integrity
-constraint "it is not the case that the sprinkler was on if the sprinkler is
-broken". LE can now say that directly:
+1. Open [the grass](grass_is_wet.le?scenario=observation&query=explain) and click **Query**. There are two answers, each with an *unknown*, shown in amber: "it rained", or "the sprinkler was on".
+2. Open [the diagnosis](diagnosis.le?scenario=checkup&query=diagnose) and click **Query**. Four explanations of bob's fever and rash come back, each with the diseases it assumes, measles among them.
+3. Choose the scenario **vaccinated**, which adds "bob is vaccinated against measles", and click **Query** again. One explanation is left: flu and a food allergy.
 
-    it must not be true that
-        the sprinkler was on
-        and the sprinkler is broken.
+## More
 
-(see docs/user/reference/language.md §3.3, and `../assumption_constraints.le`). These
-examples predate constraints and obtain the same effect another way, which is
-still useful: guarding the rules that USE an assumable with negation as
-failure over **closed** (scenario) predicates —
-`diagnosis.le` blames measles only when
-
-    it is not the case that the person is immune to measles
-
-and immunity is derived from the closed fact "bob is vaccinated against
-measles". Adding that one fact (the `vaccinated` scenario) kills every
-explanation that assumes measles, leaving only {flu, food allergy}.
-
-Caveat: the guard must test a closed predicate. Negation as failure attacks
-assumptions too — an assumable goal counts as (possibly) true, so a guard like
-"it is not the case that the person has measles" over the *assumable* predicate
-itself would never succeed.
-
-## Re-verifying
-
-From the repo root:
-
-```
-./myswipl.sh -g "use_module(le_kbs), runTestsFor('examples/moreExamples/language/abduction/<FILE>.le', R), print_test_result(R), halt."
-```
-
-All four files pass their embedded `expects answers [...] and unknowns [...]`
-tests (and are included in the `runTests` suite, which scans this directory).
-`grass_is_wet.le` carries two inherent `rule_without_variables` warnings: the
-slide's beliefs are genuinely propositional.
+- [Details](DETAILS.md) — integrity constraints, and the guards these programs use instead.
+- [The language reference](/docs/user/reference/language) — unknowns and integrity constraints, §3.3.
+- [The editor's manual](/docs/user/guide/editor) — reading an explanation, and its colours.

@@ -1,6 +1,6 @@
 % DMEPOS: the rules that every DME MAC policy shares, as a library for the
 % policy programs of this directory (pap.le, oxygen.le, pmd.le, ...). The
-% RulesRUs report, §2.1, is the plan; README.md the method and the results.
+% RulesRUs report, §2.1, is the plan; DETAILS.md the method and the results.
 %
 % Texts: the Standard Documentation Requirements article A55426 (the standard
 % written order, the written order prior to delivery, the face-to-face

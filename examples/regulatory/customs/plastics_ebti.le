@@ -11,7 +11,7 @@
 % a fact: the expectation is the six-digit subheading the model derives.
 % Selection: the most recent valid German BTI for 3923.21, 3923.90, 3924.90
 % and 3926.90 (September 2026); the first six digits of the BTI's CN code are
-% the HS subheading compared. See README.md for the method and results.
+% the HS subheading compared. See DETAILS.md for the method and results.
 %
 % DISCLAIMER. This program is an example of Logical English. It is provided
 % "as is", without warranty of any kind, express or implied, including any

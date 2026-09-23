@@ -1,6 +1,6 @@
 % Apparel rulings of U.S. Customs and Border Protection (CROSS, rulings.cbp.gov)
 % run through the whole modelled tariff (tariff.le). The first prototype's
-% sample of upper-body garments (see README.md).
+% sample of upper-body garments (see DETAILS.md).
 %
 % One scenario per ruling; each style is described by the facts the ruling
 % states: the scenario names the ruling ("scenario ny_n362700 is, as stated
@@ -11,7 +11,7 @@
 % Selection: the most recent rulings returned by CROSS for each of the
 % subheadings 6105.10-20, 6106.10-20, 6109.10-90, 6110.20-90, 6205.20,
 % 6206.30-40 (September 2026), keeping every style of each ruling. See
-% README.md for the method and the results.
+% DETAILS.md for the method and the results.
 %
 % DISCLAIMER. This program is an example of Logical English. It is provided
 % "as is", without warranty of any kind, express or implied, including any

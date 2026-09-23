@@ -345,6 +345,7 @@ handle_landing_page(Request) :-
     ),
     build_info(BuildInfo),
     landing_folders_script(FolderScript),
+    landing_readme_script(ReadmeScript),
     uit('Edit and Query: ', EditAndQuery),
     uit('[New Document]', NewDocument),
     uit('expand all', ExpandAll),
@@ -392,7 +393,8 @@ handle_landing_page(Request) :-
                 a.folder-link { margin-left: 6px; font-size: 0.8em; opacity: 0.45; text-decoration: none; } \c
                 a.folder-link:hover, a.folder-link.copied { opacity: 1; } \c
                 details.folder-target > summary { background: rgba(255, 200, 0, 0.25); }'),
-         script([type('text/javascript')], FolderScript)],
+         script([type('text/javascript')], FolderScript),
+         script([type('text/javascript')], ReadmeScript)],
         [
             AuthCorner,
             h1('Logical English 2.0'),
@@ -500,6 +502,44 @@ handle_logout(Request) :-
     ),
     safe_return(Request, Target),
     http_redirect(moved, Target, Request).
+
+%!  folder_readme_src(+Dir, +Prefix, -Element) is det.
+%
+%   A folder's README.md, as hidden text on the landing page, for the panel
+%   that shows it beside the list (web_extras/landing/readme-panel.js): keyed
+%   by the folder's data-path, with the prefix of its examples' names and its
+%   path in the repository, which the panel needs to make the README's
+%   relative links open the programs they name. The empty atom when the
+%   folder has no README.
+folder_readme_src(Dir, Prefix, Element) :-
+    directory_file_path(Dir, 'README.md', Readme),
+    (   exists_file(Readme),
+        catch(read_file_to_string(Readme, Text, [encoding(utf8)]), _, fail)
+    ->  ( sub_atom(Dir, 0, _, _, './') -> sub_atom(Dir, 2, _, 0, Repo) ; Repo = Dir ),
+        Element = div([class('readme-src'), hidden(hidden), 'data-for'(Prefix),
+                       'data-name'(Prefix), 'data-repo'(Repo)], Text)
+    ;   Element = ''
+    ).
+
+%!  landing_readme_script(-JS:atom) is det.
+%
+%   The panel that shows a folder's README (web_extras/landing/readme-panel.js,
+%   the same file as LPS2's src/edges/readme_panel.js), after its settings:
+%   a program opens in the editor, or in the executive view when the link
+%   names a view, and any other file of the repository on GitHub.
+landing_readme_script(JS) :-
+    uit('About this folder', About),
+    uit('Close', Close),
+    atom_json_term(AboutJs, About, [as(atom)]),
+    atom_json_term(CloseJs, Close, [as(atom)]),
+    (   catch(read_file_to_string('web_extras/landing/readme-panel.js', Panel, [encoding(utf8)]), _, fail)
+    ->  true
+    ;   Panel = ""
+    ),
+    format(atom(JS), 'window.EXAMPLE_README = { folders: "details.le-folder[data-path]", \c
+editor: "/editor/index.html?example=", viewer: "/executive?program=", programs: ["le"], keepExt: [], \c
+source: "https://github.com/LogicalContracts/LogicalEnglish2/blob/main/", about: ~w, close: ~w };~n~w',
+           [AboutJs, CloseJs, Panel]).
 
 %!  landing_folders_script(-JS:atom) is det.
 %
@@ -685,14 +725,15 @@ landing_example_items(Dir, UserRoles, Items) :-
     % each as one more collapsible folder named after its directory.
     findall(li([class('le-folder-item')],
                details(['data-path'(Prefix), class('le-folder')],
-                       [summary([b(Prefix)|Blurb]), ul(SubItems)])),
+                       [summary([b(Prefix)|Blurb]), ReadmeSrc, ul(SubItems)])),
             ( le_kbs:le_extra_examples_dir(Root, ExtraDir),
               exists_directory(ExtraDir),
               is_path_allowed(ExtraDir, UserRoles),
               atom_concat(Root, '/', Prefix),
               landing_example_items(ExtraDir, Prefix, UserRoles, SubItems),
               SubItems \== [],
-              folder_blurb(ExtraDir, Blurb) ),
+              folder_blurb(ExtraDir, Blurb),
+              folder_readme_src(ExtraDir, Prefix, ReadmeSrc) ),
             ExtraItems),
     append(Items0, ExtraItems, Items).
 
@@ -719,7 +760,7 @@ landing_example_items(Dir, Prefix, UserRoles, Items) :-
     % LocalStorage and an ?expand=all query can open them all.
     findall(SubDir-li([class('le-folder-item')],
                       details(['data-path'(SubPrefix), class('le-folder')],
-                              [summary([b([SubDir, '/'])|Blurb]), ul(SubItems)])), (
+                              [summary([b([SubDir, '/'])|Blurb]), ReadmeSrc, ul(SubItems)])), (
         member(SubDir, Files),
         \+ sub_atom(SubDir, 0, 1, _, '.'),
         directory_file_path(Dir, SubDir, SubDirPath),
@@ -728,7 +769,8 @@ landing_example_items(Dir, Prefix, UserRoles, Items) :-
         atomic_list_concat([Prefix, SubDir, '/'], SubPrefix),
         landing_example_items(SubDirPath, SubPrefix, UserRoles, SubItems),
         SubItems \= [],
-        folder_blurb(SubDirPath, Blurb)
+        folder_blurb(SubDirPath, Blurb),
+        folder_readme_src(SubDirPath, SubPrefix, ReadmeSrc)
     ), SubDirPairs),
     keysort(SubDirPairs, SubDirSorted),
     pairs_values(SubDirSorted, SubDirItems),
@@ -816,6 +858,7 @@ multilingual_landing_page(Lang, LangDir) :-
     landing_example_items(LangDir, Prefix, UserRoles, ExampleItems),
     build_info(BuildInfo),
     landing_folders_script(FolderScript),
+    landing_readme_script(ReadmeScript),
     % The syntax summary, when a translation exists (docs/user/reference/language.<lang>.md).
     (   atomic_list_concat(['docs/user/reference/language.', Lang, '.md'], SummaryFile),
         exists_file(SummaryFile)
@@ -879,7 +922,8 @@ multilingual_landing_page(Lang, LangDir) :-
                 a.folder-link { margin-left: 6px; font-size: 0.8em; opacity: 0.45; text-decoration: none; } \c
                 a.folder-link:hover, a.folder-link.copied { opacity: 1; } \c
                 details.folder-target > summary { background: rgba(255, 200, 0, 0.25); }'),
-         script([type('text/javascript')], FolderScript)],
+         script([type('text/javascript')], FolderScript),
+         script([type('text/javascript')], ReadmeScript)],
         Body
     ).
 
