@@ -2,10 +2,11 @@
 
 *Kind: guide · Audience: users · Status: current (2026-09-16)*
 
-The executive view runs an existing Logical English program for people who
-use it rather than write it. They ask it questions, try cases, and read why
-it answered as it did. The program's text is never shown and never changed.
-The page works on a phone as well as on a desk. It is at **`/executive`** on
+The executive view runs an existing Logical English program for the people who
+use the program rather than write it. They put questions to the program, try
+cases on it, and read why it answered as it did. The executive view never
+shows the program's text, and never changes it. The page works on a phone as
+well as on a desktop computer. You will find the page at **`/executive`** on
 the server (for example `http://localhost:3050/executive`), and the landing
 page links to it.
 
@@ -26,46 +27,48 @@ page links to it.
 
 ## Choosing a program
 
-Opening `/executive` with no parameters lists the example programs of the
-server. Type in **Filter…** to narrow the list, and tap a name to open that
-program. The **←** at the top left of a program returns to the list.
+Opening `/executive` with nothing added to its address lists the example
+programs the server holds. Type in **Filter…** to narrow the list, and tap a
+name to open that program. The **←** at the top left of a program takes you
+back to the list.
 
 ## Asking a question
 
-A program's screen has two pickers: **Scenario** (the program's named
-scenarios, or *(no scenario)*) and **Query** (the program's queries, each
-shown by its text). There is no Run button. The program opens on its first
-scenario and the selected query runs at once. Changing either picker runs the
+A program's screen has two pickers: **Scenario**, holding the program's named
+scenarios and *(no scenario)*, and **Query**, holding the program's queries,
+each shown by its text. There is no Run button. The program opens on its first
+scenario and runs the chosen query at once. Changing either picker runs the
 query again, and the answers appear below.
 
-If the program has load errors, the first few are listed at the top of the
-screen. A program with no queries says so.
+If anything went wrong while the program was loading, the screen lists the
+first few problems at the top. A program with no queries says so.
 
 ## Reading an answer
 
-Each answer is a card. Tap it to open its explanation. When the answer holds
-only on assumptions (facts the scenario marks as *unknown*), the card lists
-them after the answer, as *(assuming: …)*.
+Each answer is a card. Tap the card to open its explanation. Some answers hold
+only because something was assumed — a fact the scenario marks as *unknown*.
+Such a card lists those assumptions after the answer, as *(assuming: …)*.
 
-The explanation is an indented tree:
+The explanation is a tree of steps, each indented under the step it serves:
 
-- green for what was proved, red for what failed, amber for what was assumed;
-- a step that held because something failed (*it is not the case that …*,
-  *for all …*) keeps those failures folded behind a disclosure triangle, since
-  they record the search rather than the reasons;
-- a repeated sub-explanation is shown once, with its count (*×3*) or *(shown
-  above)*.
+- green marks what was proved, red what failed, and amber what was assumed;
+- a step may hold precisely because something else failed (*it is not the case
+  that …*, *for all …*). Such a step keeps those failures folded away behind a
+  small triangle, because the failures record the search rather than the
+  reasons;
+- a piece of explanation that occurs more than once is shown once, with the
+  number of times it occurred (*×3*) or the words *(shown above)*.
 
 ### Citations first
 
-When the program cites its sources, an opened answer starts with its
-**Citations**: the steps of the proof that cite a document, in the order of
-the proof. Rules and tables cite with `with provenance`, and facts with
-`as stated in …`, `according to …` or `confer "…"`
-(see [the language reference](../reference/language.md) §17.1). Each step shows
-the sentence proved and one line saying where it comes from: the rule, the
-document, and the quoted passage or the place in the document (*page 1*,
-*paragraph 25*).
+When a program cites its sources, an opened answer begins with its
+**Citations**: those steps of the proof that cite a document, listed in the
+order of the proof. A rule or a table cites its source with `with provenance`,
+and a fact cites its source with `as stated in …`, `according to …` or
+`confer "…"` (see [the language reference](../reference/language.md) §17.1).
+Each step shows the sentence that was proved, and one line saying where the
+sentence comes from: the rule, the document, and either the quoted passage or
+the place in the document, such as *page 1* or *paragraph 25*.
 
 - **Copy** puts the numbered list of cited steps on the clipboard, each with
   its citation.
@@ -76,45 +79,48 @@ An answer whose proof cites nothing shows the tree directly.
 
 ### The source viewer
 
-A cited step whose document has a text the server can reach (the program
-says where, with `the text of <document> is at "…"`) or a published address
-has a **§** button. It opens the document in the source viewer, with the
-cited passage marked. When the document has only a web address, it opens in a
-new tab.
+A cited step carries a **§** button in two cases: when the server can reach
+the text of the document, because the program says where the text is with
+`the text of <document> is at "…"`, and when the document has an address at
+which it is published. The **§** button opens the document in the source
+viewer, with the cited passage marked. Where all the program gives is a web
+address, the document opens in a new tab instead.
 
 ### When there is no answer: why not
 
 When a query has no answer, the card says *No — no answers for this query.*
-and lists **Why not**: the conditions the case did not meet. Where the
-program has several ways to reach the answer, only the ones that came closest
-count: those in which the most conditions held before one failed. Each
-condition is marked:
+and lists, under **Why not**, the conditions the case did not meet. A program
+may have several ways of reaching the answer. Only the ways that came closest
+are listed: those in which the most conditions held before one of them failed.
+Each condition carries one of two marks:
 
-- **not stated**: a fact the case could state but does not (the record is
-  silent);
+- **not stated**: a fact the case could have stated but does not. The record
+  is silent about it;
 - **not met**: a test that is false on the case's values, a fact the case
-  states otherwise, or a negation whose subject holds.
+  states otherwise, or a denial whose subject does hold.
 
-Each condition also shows the rule that asks for it and that rule's citation,
-and after *given:* the facts that rule compared. A **§** opens the passage, as
-above. The full failure explanation is folded below.
+Beside each condition stand the rule that asks for it and that rule's
+citation, and, after the word *given:*, the facts the rule compared. A **§**
+opens the passage, as described above. The full explanation of the failure is
+folded away below.
 
 ## Scenario Variations
 
 The **Scenario Variations** button between the two pickers opens the editor's
 Scenario Variations window on the same program, in a new tab, starting from
-the selected scenario and query. There you can edit, delete, add or assume
-facts and run queries on the altered case. The program is not changed. See
+the scenario and query you have chosen. In that window you can change, delete,
+add or assume facts, and run queries on the case as you have altered it. The
+program itself is left as it was. See
 [Scenario Variations](editor.md#scenario-variations) in the editor guide.
 
 ## Views
 
-A program can say how its screen should look, in a *view* section at its end
-(see [the language reference](../reference/language.md) §17.10, and the
-tutorial [LE Views](../tutorials/views.md)). A program with views lists them in
-a **Views:** strip at the top. Tap one to open it: the view takes the place of
-the two pickers, with the title and the screen its author described. Depending
-on the view, that is:
+A program can say how its screen should look, in a *view* section at the end
+of the program (see [the language reference](../reference/language.md) §17.10,
+and the tutorial [LE Views](../tutorials/views.md)). A program that has views
+lists them in a **Views:** strip at the top. Tap a view to open it. The view
+then takes the place of the two pickers, and shows the title and the screen
+its author described. What that screen holds depends on the view:
 
 - the case's facts in groups, editable;
 - the result in large type;
@@ -131,16 +137,19 @@ on the view, that is:
 
 **Without a view** returns to the pickers.
 
-A program that declares no view offers an **Automatic view**. The server draws
-it from the program when you open it (the same draft as the editor's
-*Generate LE view*), and a note says so.
+A program that declares no view of its own offers an **Automatic view**. The
+server draws the automatic view from the program as you open it — the same
+draft that the editor's *Generate LE view* button produces — and a note on the
+screen says as much.
 
-Opening a view takes a few seconds (the program loads, then the first result
-runs). The page says *Opening the view…* and shows a waiting cursor meanwhile.
+Opening a view takes a few seconds: the program has to load, and then the
+first result has to be worked out. Meanwhile the page says *Opening the view…*
+and shows a waiting cursor.
 
 ## Links: the address of a result
 
-Everything is in the address, so a result can be bookmarked or shared:
+The address holds everything the screen is showing, so you can bookmark a
+result or share it. These are the parts you can add to the address:
 
 | Parameter | Meaning |
 |---|---|
@@ -150,39 +159,39 @@ Everything is in the address, so a result can be bookmarked or shared:
 | `view=<name>` | a view of the program to open; `view=*` opens the automatic view |
 
 The pickers keep the address up to date as you change them, and so does a
-view's case picker (`scenario=`). A link that
-names a program, a scenario and a query runs that query when it opens, for
-example:
+view's own case picker, which sets `scenario=`. A link that names a program, a
+scenario and a query runs that query as soon as it opens, for example:
 
 ```
 /executive?program=citizenship&scenario=alice&query=one
 /executive?program=regulatory/eu261_integration&view=claim%20desk
 ```
 
-An unknown scenario or query name is ignored: the first scenario is selected
-instead.
+If the address names a scenario or a query the program does not have, the page
+passes over the name and selects the first scenario instead.
 
 ## From the editor
 
 **Misc ▸ Open Executive View** in the editor opens the program in the
-executive view, in a new tab, on the scenario and query selected in the
-editor. It shows the program *as it is in the editor*, unsaved changes
-included, and the views it lists come from that text. The **Open the view**
-link of *Generate LE view* works the same way. The text is handed over through
-the browser's storage, and the address carries a `text=` key that names it. If
-you open such a link in another browser, the page says that the editor's copy
-is not in that browser, and shows the program as saved.
+executive view, in a new tab, on the scenario and query chosen in the editor.
+The new tab shows the program *as it stands in the editor*, changes you have
+not saved included, and the views it lists come from that same text. The
+**Open the view** link of *Generate LE view* works in the same way. The editor
+hands the text over through the browser's own store, and the address carries a
+`text=` key naming where the text was put. If you open such a link in another
+browser, the page tells you that the editor's copy is not in that browser, and
+shows the program as it was last saved.
 
 ## Logging in
 
-The top right of the page shows **Login**, or the email of the user logged in
-and **Logout**, as on the landing page. Both return to the same page. Some
-example programs are restricted to users with a given role. Logging in with
-such a role lists them and lets them be opened, together with the documents
-they cite.
+The top right of the page shows **Login**, or, once you are logged in, your
+email address and **Logout**, just as the landing page does. Either one brings
+you back to the page you were on. Some example programs are open only to users
+who hold a particular role. If you log in with such a role, the list includes
+those programs, and you can open them and the documents they cite.
 
 ## Language
 
-The page's own words (buttons, labels, messages) follow the interface
-language chosen on the multilingual landing page (`/multilingual`). The
-program's sentences are in the program's language.
+The page's own words — buttons, labels and messages — follow the language
+chosen on the multilingual landing page (`/multilingual`). The program's own
+sentences stay in the language the program is written in.

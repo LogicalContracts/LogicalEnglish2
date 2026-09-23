@@ -2,20 +2,26 @@
 
 *Kind: integration guide · Audience: users · Status: current (2026-09-16)*
 
-Blawx is a web-based tool for Rules as Code, written by Jason Morris of
-Lexpedite. An author pastes legislation into Blawx, in a light markdown that
-numbers its sections. The author encodes each section with visual blocks:
-categories, attributes, relationships, rules, exceptions ("section 4 overrides
-section 3"), and tests. Blawx compiles the blocks into s(CASP) and answers the
-tests with s(CASP). The integration goes one way, into Logical English.
-**File ▸ Open…** (or **File ▸ Import from Another System…**) reads a Blawx
-project, as a `.blawx` export or as the YAML of one of Blawx's example projects,
-alone or zipped. The result is a Logical English program in the Act's own words.
-Each rule cites its section, the Act's text is kept beside the program, and the
-project's tests are scenarios whose expectations are Blawx's own answers. There
-is no export to Blawx. The translator is part of the InsurLE extensions, so it
-is available only on installations that have them, such as the hosted service.
-The twins of Blawx's example projects are in every installation.
+Blawx is a tool that runs in a web browser for writing law as rules a computer
+can follow, and it was written by Jason Morris of Lexpedite. An author pastes
+the legislation into Blawx, written in a simple marked-up text that numbers the
+sections. The author then encodes each section by dragging blocks together on
+the screen: categories, attributes, relationships, rules, exceptions ("section
+4 overrides section 3"), and tests. Blawx turns those blocks into s(CASP), and
+answers the tests with s(CASP).
+
+The translation goes one way only, into Logical English. **File ▸ Open…** (or
+**File ▸ Import from Another System…**) reads a Blawx project, either as a
+`.blawx` file exported from Blawx or as the YAML file of one of Blawx's own
+example projects; YAML is a plain-text way of writing structured data, and
+either file may be uploaded on its own or inside a zip. What comes out is a
+Logical English program in the Act's own words. Each rule cites the section it
+came from, the Act's text stays beside the program, and the project's tests
+become scenarios that expect the answers Blawx itself gives. Nothing writes a
+Blawx project back out. The translator is part of the InsurLE extensions, so
+only installations that have the extensions, such as the hosted service, offer
+it. The translations of Blawx's example projects, the *twins*, come with every
+installation.
 
 ## Contents
 
@@ -42,25 +48,32 @@ The twins of Blawx's example projects are in every installation.
 
 ### Opening a Blawx project
 
-1. In Blawx, export the project (a `.blawx` file). The YAML files of Blawx's
-   example projects work as they are. A `.zip` holding the file works too.
-2. Choose **File ▸ Open…** and pick the file. The file is read as Blawx when it
-   holds a `blawx.ruledoc`, Blawx's rule document.
-3. The program opens in a new tab. The note gives the ledger's counts and the
-   check against Blawx, for example *rps: 17 ledger elements encoded, 3
+1. In Blawx, export the project as a `.blawx` file. The YAML files of Blawx's
+   own example projects work just as they are. A `.zip` holding either kind of
+   file works too.
+2. Choose **File ▸ Open…** and pick the file. The editor reads a file as Blawx
+   when the file holds a `blawx.ruledoc`, which is Blawx's own rule document.
+3. The program opens in a new tab. A note gives the counts from the ledger, the
+   record of how each piece of the project was translated, together with the
+   comparison against Blawx — for example *rps: 17 ledger elements encoded, 3
    approximated, 0 residue; 0 writer errors; Blawx's tests and the generated
    cases: 11 pass, 0 fail, 0 errors.*
-4. The program's header names the project and how many sections it has.
-   **Misc ▸ Run the Program's Tests…** runs the scenarios.
+4. The program's header names the project and says how many sections the
+   project has. **Misc ▸ Run the Program's Tests…** runs the scenarios.
 5. **File ▸ Show the Original…** lists the project file and the Act's text,
-   `sources/<name>.md`. The ledger, `<name>.ledger.md`, has one row per element
-   of the encoding (category, rule, test, the clock, Blawx's boilerplate) and
-   says whether it was *encoded*, *approximated* or left as *residue*.
+   `sources/<name>.md`. The ledger, `<name>.ledger.md`, has one row for each
+   piece of the encoding — each category, rule and test, the clock, and the
+   lines Blawx adds to every project — and says whether that piece was
+   *encoded* (translated with its meaning intact), *approximated* (translated,
+   with a note on what changed) or left as *residue* (not translated).
 
-The expectations come from running Blawx's reasoner on the project. That needs
-the reasoner on the server: Blawx's preamble (fetched), Python with PyYAML, and
-SWI-Prolog's s(CASP) library. When it cannot run, the scenarios carry no
-expected answers, and a second note says which of the three is missing.
+The answers the scenarios expect come from running Blawx's own reasoner on the
+project. Running that reasoner needs three things on the server: Blawx's
+preamble, the block of rules Blawx puts in front of every project, which the
+server fetches; Python with the PyYAML package; and SWI-Prolog's s(CASP)
+library. Where the reasoner cannot run, the scenarios
+carry no expected answers at all, and a second note says which of the three
+things is missing.
 
 ### The sections, cited
 
@@ -72,8 +85,8 @@ the text of the Rock Paper Scissors Act is at "sources/rps.md".
 the text of the Blawx project is at "sources/rps.yaml".
 ```
 
-Each rule is labelled after its section and cites it. Each fact encoded in a
-section cites that section:
+Each rule is named after its section and cites that section. Each fact encoded
+in a section cites the section too:
 
 ```le
 rock beats scissors, as stated in the Rock Paper Scissors Act at section 3 a.
@@ -86,15 +99,17 @@ the winner of a game is a player if
     and the sign beats the second sign.
 ```
 
-A right-click on a citation in the editor offers **View Original Text**, which
-opens the Act's text. In an explanation, and in the executive view, a cited
-step shows its section with a § badge that opens the passage. A rule you read
-in Logical English is always one click from the words it encodes.
+Right-click a citation in the editor and the menu offers **View Original
+Text**, which opens the Act's text. In an explanation, and in the executive
+view, a step that cites a section shows a § badge, and the badge opens the
+passage. A rule you are reading in Logical English is always one click away
+from the words of the Act it encodes.
 
 ### The tests, as scenarios
 
-Each Blawx test becomes a scenario named after it, with the test's facts and
-its comments. Its query expects what Blawx answered:
+Each Blawx test becomes a scenario of the same name, holding the test's facts
+and the test's comments. The scenario's query expects whatever Blawx
+answered:
 
 ```le
 scenario pingu_on_plane_can_fly is, as stated in the Blawx project at test pingu_on_plane_can_fly:
@@ -105,34 +120,37 @@ scenario pingu_on_plane_can_fly is, as stated in the Blawx project at test pingu
     pingu_on_plane_can_fly expects answers ["pingu can fly"].
 ```
 
-Most example tests state no facts: they are starting points for Blawx's
-scenario editor. So the translator also writes cases from the rules, answered
-by Blawx the same way (`case_1`, `case_4_without_fact_1`, …). For each rule
-there is a case that meets every condition, with individuals named after their
-types (`penguin_a`) and numbers at the boundary of their comparisons. Each near
-miss leaves one fact out or misses one comparison by one. A rule with
-exceptions also gets a case with each exception added. There are at most 10
-cases per rule and 90 per project. These scenarios cite `the case analysis of
-the encoding at section …`.
+Most of the example tests state no facts at all, because they are meant as
+starting points for someone working in Blawx's own scenario editor. The
+translator therefore writes cases of its own from the rules, and Blawx answers
+those cases in the same way (`case_1`, `case_4_without_fact_1`, and so on). For
+each rule there is one case that meets every condition of the rule, with the
+individuals named after their types (`penguin_a`) and the numbers set right at
+the edge of the comparisons the rule makes. Beside it are the near misses, each
+leaving one fact out or missing one comparison by one. A rule that has
+exceptions also gets one case for each exception, with that exception added.
+There are at most 10 cases for a rule and 90 for a project. Each of these
+scenarios cites `the case analysis of the encoding at section …`.
 
-When the translator knows a test does not do what its name or comment says,
-the scenario says so in a `NOTE` and still expects Blawx's answer (see
-[Traps](#traps)).
+Where the translator can tell that a test does not do what its name or its
+comment claims, the scenario says so in a `NOTE` and still expects the answer
+Blawx gives (see [Traps](#traps)).
 
 ### The Act's view
 
-Each program ends with a view, `the act`. Open it with **Misc ▸ Open Executive
-View** and pick it from the **Views:** strip. It shows the facts of the case,
-the answer to the question most sections conclude (for the Bird Act, *which
-thing can fly*), its reasons and its citations, and a flip. When the answer is
-no, *Why not* lists the conditions the case did not meet, each with its
-section.
+Each program ends with a view named `the act`. Open the view with **Misc ▸
+Open Executive View**, then pick the view from the **Views:** strip. The view
+shows the facts of the case and the answer to the question most of the sections
+conclude — for the Bird Act, *which thing can fly* — with the reasons for the
+answer, the sections cited, and a flip, which shows what would have to change
+for the answer to change. When the answer is no, *Why not* lists the conditions
+the case failed to meet, each with the section it comes from.
 
 ### The example twins
 
-Blawx's fifteen example projects (Blawx v1.6.22-alpha, MIT licence) have been
-translated. The results, *twins*, are among the examples under
-`migration/blawx/`. Open them with **File ▸ Open example from server…**:
+Blawx's fifteen example projects (Blawx v1.6.22-alpha, MIT licence) have all
+been translated. The translations, the twins, sit among the examples under
+`migration/blawx/`. Open a twin with **File ▸ Open example from server…**:
 
 | Twin | Project |
 |---|---|
@@ -144,8 +162,9 @@ translated. The results, *twins*, are among the examples under
 | `logical_constraints`, `numerical_constraints` | Blawx's constraints |
 | `life_act`, `list_demo` | events and lists, kept as residue |
 
-All the active expectations pass (163 on 15 September 2026). Twenty-one more
-are kept as comments, each with its reason.
+Every expected answer that runs passes: 163 of them on 15 September 2026.
+Twenty-one further expected answers are kept as comments rather than run, each
+with the reason beside it.
 
 ## How Blawx maps to Logical English
 
@@ -172,10 +191,11 @@ are kept as comments, each with its reason.
 
 ### Exceptions: Blawx's defeasibility
 
-Blawx lets one section override another. The translator writes the override
-as plain Logical English rules. The defeated rule carries its defeaters'
-failure as a condition, and each defeater's conclusion is held per section.
-Here is the New Bird Act:
+Blawx lets one section override another. The translator writes an override out
+as plain Logical English rules. The rule that can be defeated gains a condition
+saying that the rules which would defeat it do not hold. Each defeating rule
+concludes under its own section, so the program can say which section a
+conclusion comes from. Here is the New Bird Act:
 
 ```le
 rule section_2 with provenance the New Bird Act at section 2:
@@ -195,65 +215,78 @@ a thing cannot fly if
     the thing cannot fly under section_3.
 ```
 
-In Blawx's examples the overriding sections always conclude different things
-(`can fly` against `cannot fly`), never rival values of one conclusion. The
-defeats never form a cycle, so the negation is stratified. The twins answer as
-Blawx does with LE's ordinary Prolog engine, and need no s(CASP). A project with
-a cycle of defeats would need `the target language is: scasp.`
-([s(CASP)](scasp.md)).
+In Blawx's examples the overriding sections always conclude different things,
+`can fly` against `cannot fly`, and never two rival values for one conclusion.
+No defeat ever comes round in a circle, so the rules can be put in layers,
+where each layer only negates a layer below. The twins therefore answer just as
+Blawx does under Logical English's ordinary Prolog engine, and need no s(CASP)
+at all. A project in which the defeats did come round in a circle would need
+`the target language is: scasp.` ([s(CASP)](scasp.md)).
 
 ## Traps
 
-- **The expectations are Blawx's answers, bugs included.** The twin follows
-  the encoding, not what the Act means. In the New Bird Act, section 5 says
-  "…, except for pingu", but Blawx never wires the exception into the rule. So
-  Blawx answers that pingu with a jetpack can fly, although the test is named
-  `pingu_with_jetpack_cant_fly`. The twin expects Blawx's answer and says so
-  in a `NOTE`. Its fact `section_5 does not apply to pingu under
-  section_5_pingu` is one that no rule reads, and the verifier warns about it.
-- **Without Blawx's reasoner there are no expectations.** A project opened on a
-  server that cannot run it gets scenarios with facts but no `expects answers`
-  lines, and no generated-case expectations. Its counts are all zero; the
-  second note says why (the preamble not fetched, no PyYAML, or no s(CASP)).
-- **Abductive tests and symbolic answers are pending.** A test that lets
-  s(CASP) assume facts (`#abducible`) gets hypotheses from Blawx. An LE
-  scenario states facts or does not. Such expectations, and answers that are a
-  variable or a constraint, are kept as `% pending —` comments with the reason.
-- **Dates are numbers of seconds.** Blawx stores dates as seconds since 1970,
-  and the twins keep them (`bob was born on 946710000`). They are instants, not
-  days. A date written in another form (`datetime(2000,1,5,0,0,0)`) is not a
-  number to Blawx's date rules, and fails in both.
-- **Today is fixed.** `blawx_today` becomes a fact of the day the twin was built.
-  Blawx answers with the day it runs. Update that fact to re-run a
-  date-dependent test.
-- **Events and lists are residue.** Blawx's event calculus (the Life Act) and its
-  list aggregates (the Lists Demonstration) are kept verbatim as `% RESIDUE`
-  blocks. A value that events change belongs in a program in Logical English
-  for LPS, or in periods from the temporal library.
-- **Rules Blawx's reasoner never applies.** Rules that call predicates Blawx
-  v1.6.22 does not define (the OAS Act's `datetime_add`, `not_after`), and
-  clauses Blawx's generator wrote so that they do not parse (Rule 34's
-  paragraphs 4 and 5), are residue. Their blocks say that they never apply in
-  Blawx. The answers stay those of the Act without them, as in Blawx.
-- **A circular rule is left out.** Rule 34 section 9(a) defines `business` from
-  itself. It adds nothing, and in s(CASP) it empties the predicate. The twin
-  leaves it out, and the ledger says so.
-- **Constants ending in `_<digits>`.** s(CASP) reads `bob_1` back as `bob`. In
-  Blawx, `bob_1` and `bob_2` are one individual. The generated cases use
-  `person_a`, `person_b` for that reason. Use such names in your own scenarios
-  if you compare with Blawx.
-- **Constraints make a case inconsistent.** The Logical Constraints example
-  gives Bob two ages and forbids it. As in Blawx, the case answers nothing, and
-  the explanation of the empty answer is the constraint.
-- **Wording follows Blawx's sentence forms.** They are the author's words in the
-  blocks, and sometimes clumsy: Rule 34's category guards are lines of their
-  own, and its template text *the EA* leaks into sentences. Section constants
-  keep underscores (`section_3`, `s3_1_a`), because LE would split a
-  parenthesis.
-- **Not read:** Blawx's scenario-editor data, its interview, and its Akoma
-  Ntoso output. The Act is cited as markdown, with sections as locators.
+- **The expected answers are Blawx's answers, mistakes included.** A twin
+  follows the encoding, not what the Act means. In the New Bird Act, section 5
+  says "…, except for pingu", but Blawx never connects that exception to the
+  rule. So Blawx answers that pingu with a jetpack can fly, even though the
+  test is named `pingu_with_jetpack_cant_fly`. The twin expects Blawx's answer
+  and says so in a `NOTE`. The twin's fact `section_5 does not apply to pingu
+  under section_5_pingu` is a fact no rule ever reads, and the verifier warns
+  about it.
+- **Without Blawx's reasoner there are no expected answers.** Open a project on
+  a server that cannot run the reasoner and the scenarios arrive with their
+  facts but with no `expects answers` lines, and the generated cases expect
+  nothing either. The counts are then all zero, and the second note says why:
+  the preamble was not fetched, or PyYAML is missing, or s(CASP) is.
+- **Abductive tests and answers that are not values wait rather than run.** A
+  test that lets s(CASP) assume facts of its own (`#abducible`) gets those
+  assumptions back from Blawx. A Logical English scenario, by contrast, either
+  states a fact or does not. Such expected answers, and answers that come back
+  as a variable or a constraint rather than a value, are kept as `% pending —`
+  comments, each with its reason.
+- **Dates are counts of seconds.** Blawx stores a date as the number of seconds
+  since 1970, and the twins keep the dates in that form (`bob was born on
+  946710000`). Such a date is an instant in time, not a day. A date written any
+  other way (`datetime(2000,1,5,0,0,0)`) is not a number to Blawx's date rules,
+  and fails in Blawx and in the twin alike.
+- **Today is fixed.** `blawx_today` becomes a fact stating the day the twin was
+  built, whereas Blawx answers with the day you run it. Change that fact before
+  running a test that depends on the date.
+- **Events and lists are left as residue.** Blawx's event calculus (the Life
+  Act) and its aggregates over lists (the Lists Demonstration) are kept word
+  for word inside `% RESIDUE` blocks. A value that events change belongs in a
+  program written in Logical English for LPS, or in the periods of the temporal
+  library.
+- **Rules Blawx's own reasoner never applies.** Two kinds of rule are left as
+  residue: rules that call predicates Blawx v1.6.22 never defines (the OAS
+  Act's `datetime_add` and `not_after`), and clauses Blawx wrote in a form its
+  own reasoner cannot read (paragraphs 4 and 5 of Rule 34). Each block says
+  that the rule never applies in Blawx either. The answers remain those the Act
+  gives without those rules, exactly as in Blawx.
+- **A rule that defines a thing from itself is left out.** Section 9(a) of Rule
+  34 defines `business` in terms of `business`. The definition adds nothing,
+  and in s(CASP) it empties the predicate altogether. The twin leaves that
+  definition out, and the ledger says so.
+- **Constants ending in `_<digits>`.** s(CASP) reads `bob_1` back as `bob`, so
+  `bob_1` and `bob_2` are one and the same individual. The generated cases use
+  `person_a` and `person_b` for that reason. Use names of that shape in your
+  own scenarios whenever you mean to compare answers with Blawx.
+- **Constraints can leave a case with no answer.** The Logical Constraints
+  example gives Bob two ages at once and forbids exactly that. As in Blawx, the
+  case answers nothing at all, and the explanation of the empty answer is the
+  constraint itself.
+- **The wording follows Blawx's sentence forms.** Those forms are the author's
+  own words in the blocks, and they are sometimes clumsy: the category guards
+  of Rule 34 sit on lines of their own, and the words *the EA* from its
+  template leak into the sentences. Constants naming sections keep their
+  underscores (`section_3`, `s3_1_a`), because Logical English would otherwise
+  break the name apart at the bracket.
+- **Not read:** the data of Blawx's scenario editor, its interview, and the
+  Akoma Ntoso documents it writes. The Act is cited as marked-up text, and the
+  sections are what the citations point at.
 - **No way back.** Nothing writes Blawx blocks. **See s(CASP)** writes the
-  program as s(CASP), which is what Blawx generates, but not a Blawx project.
+  program out as s(CASP), the language Blawx itself generates, but an s(CASP)
+  program is not a Blawx project.
 
 ## See also
 

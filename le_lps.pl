@@ -372,7 +372,15 @@ lps_expression(Tokens, Templates, VMIn, VMOut, Expr) :-
 	(   le_grammar:parse_expression(Tokens, VMIn, VMOut, Templates, Expr, true)
 	->  true
 	;   time_or_var(Tokens, VMIn, VMOut, Expr)
+	->  true
+	;   %  A constant: `... becomes side`. The older syntax says this
+	    %  often (`divert updates Old to side in trolley_on(Old)`), and
+	    %  without this the whole law was dropped, silently.
+	    constant_expression(Tokens, Expr), VMOut = VMIn
 	).
+
+constant_expression([number(N, _)], N) :- !.
+constant_expression([word(W, _)], W).
 
 strip_kw(Tokens, Key, Rest) :-
 	member(Key, [lps_initiate, lps_terminate]),
@@ -874,11 +882,27 @@ causal_entry(KB, Ante, Cons, Start, Entries, Issues) :-
 
 is_happens(happens(_, _, _)).
 
+%   A value that arithmetic would refuse: a variable (whatever it holds, it
+%   is already the new value) or a word. Numbers and expressions keep the
+%   `is/2` goal they have always had.
+plain_value(V) :- var(V), !.
+plain_value(V) :- number(V), !, fail.
+plain_value(V) :- atom(V), \+ current_arithmetic_function(V), !.
+plain_value(V) :- string(V).
+
 causal_law(KB, Trigger, Conds, C, Law) :-
 	(   C = lps_becomes(Fluent0, Old, Expr)
 	->  rename(Fluent0, Fluent),
-	    append(Conds, [New is Expr], Cs),
-	    Law = updated(Trigger, Fluent, Old-New, Cs)
+	    %  `becomes` with an arithmetic expression needs the goal that
+	    %  works it out; `becomes` with a value -- a variable the sentence
+	    %  already bound, or a word like `obstacle` -- must NOT have one.
+	    %  `New is obstacle` throws, which is how an update that simply
+	    %  carries a symbol across used to stop the program.
+	    (	plain_value(Expr)
+	    ->	Law = updated(Trigger, Fluent, Old-Expr, Conds)
+	    ;	append(Conds, [New is Expr], Cs),
+		Law = updated(Trigger, Fluent, Old-New, Cs)
+	    )
 	;   lower(KB, C, none, Lowered, _),
 	    (   Lowered = holds(not(F), _)
 	    ->  Law = terminated(Trigger, F, Conds)

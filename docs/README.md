@@ -21,6 +21,31 @@ Every document says under its title what kind of document it is, for whom,
 and whether it is current. A plan that has been implemented says where its
 result is documented.
 
+## How documents are written
+
+The readers are lawyers, underwriters, policy officers and other domain
+experts as much as programmers, so every document — and every piece of text
+the software puts in front of a reader, such as a menu tip, an explanation of
+an answer, or an assistant's reply — is written to be understood by someone
+with no technical training.
+
+- **Name the thing instead of pointing at it.** Use a pronoun only when the
+  noun it stands for is the one just before it and no other noun could be
+  meant. Never open a sentence with *it*, *this*, *that*, *these* or *they*
+  standing for the whole sentence before: repeat the noun.
+- **No computing jargon without plain words in the same sentence.** Words such
+  as *parse*, *instantiate*, *serialise*, *hook*, *callback*, *back end*,
+  *repository*, *endpoint* and *payload* are replaced by ordinary English, or
+  explained where they first appear. Name a file, a predicate or a setting
+  only where the reader has to go and look at it.
+- **One idea per sentence, in the order things happen.** Prefer a subject that
+  acts: *the editor checks the document*, rather than *the document is
+  checked*.
+- **Spell out an abbreviation the first time each document uses it.**
+- The names of the ideas these systems teach — a fluent, an event, a template,
+  a scenario, a reactive rule — are part of the language being taught. Use
+  them freely, and define each one at first use or in the glossary.
+
 **User documentation** (`user/`)
 
 - Tutorials: [Introduction to Logical English](user/tutorials/intro-to-le/intro-to-le.md), [querying a program](user/tutorials/querying-a-program.md), [LE Views](user/tutorials/views.md)

@@ -36,6 +36,20 @@
     This is what makes the round trip meaningful rather than circular: the
     names are derived from the templates, not carried over from the source, so
     a program that survives has survived losing them.
+
+    ## A program that never had a dictionary
+
+    Everything above needs a dictionary, because a template is what tells
+    `played(miguel, rock)` from `beats(rock, scissors)`. An LPS program
+    written in the older Prolog-like syntax — a `.lps` file — has no
+    dictionary and no Logical English original to take one from.
+    `le_lps_from_internal/4` is the answer for that case: it reads the
+    predicates out of the internal terms themselves, words a template for each
+    one from the predicate's own name, binds the wording back to the name with
+    `; known as`, and then writes the document the ordinary way. The wording is
+    a guess about English and nothing else depends on it being a good guess:
+    the binding, not the words, is what carries the meaning, which is why a
+    converted program runs exactly as the original did.
 */
 
 :- module(le_lps_write, [
@@ -43,7 +57,8 @@
     le_lps_document/4,           % +KBModule, +InternalTerms, -LEText, +Options
     le_lps_check/3,              % +KBModule, +InternalTerms, -Problems
     le_lps_dump/2,               % +KBModule, -LEText
-    le_lps_sentence/3            % +KBModule, +InternalTerm, -Sentence
+    le_lps_sentence/3,           % +KBModule, +InternalTerm, -Sentence
+    le_lps_from_internal/4       % +InternalTerms, +Options, -LEText, -Issues
   ]).
 
 :- use_module(library(lists)).
@@ -53,6 +68,10 @@
 :- use_module(le_kbs).
 :- use_module(le_lps).
 :- use_module(le_system_templates).
+%  Loaded, not imported: le_lps_from_internal/4 words its invented templates
+%  with le_writer's lexicon (functor_words/2, unary_words/2, ...), and the two
+%  modules have predicates of the same name.
+:- use_module(le_writer, []).
 :- use_module(library(pairs)).
 
 		 /*******************************
@@ -97,6 +116,11 @@ le_lps_document(KB, Terms, Text, Options) :-
 	%  the fluents' defaults (`defaults/1`), for their declaration lines
 	( memberchk(defaults(Ds), Terms) -> true ; Ds = [] ),
 	b_setval(le_lps_write_defaults, Ds),
+	%  the knowledge base's name: `lps` unless the caller says otherwise,
+	%  which is what a converted `.lps` program does (it names it after the
+	%  file, as a document written by hand would).
+	option(kb_name(KBName), Options, lps),
+	b_setval(le_lps_write_kb_name, KBName),
 	partition_terms(Terms, P),
 	setup_call_cleanup(nb_setval(le_lps_write_whole, true),
 			   with_output_to(string(Text), write_document(KB, P)),
@@ -144,7 +168,9 @@ write_document(KB, p(Settings, F, E, A, PE, Body, Obs)) :-
 	write_section(KB, 'the templates are', Timeless),
 	partition(constant_fact(KB, Constants), Body, ConstFacts, Body1),
 	write_constants(KB, ConstFacts),
-	format('the knowledge base lps includes:~n~n'),
+	le_writer:kw(kb_open, KBO), le_writer:kw(kb_include, KBI),
+	( nb_current(le_lps_write_kb_name, KBName) -> true ; KBName = lps ),
+	format('~w ~w ~w:~n~n', [KBO, KBName, KBI]),
 	forall(member(T, Body1), write_sentence(KB, T)),
 	( Obs == [] -> true ; write_scenario(KB, Obs) ).
 
@@ -936,3 +962,731 @@ ordinal(N, Ord) :- N > 9, format(atom(Ord), 'n~w', [N]).
 
 join([], _, '') :- !.
 join(L, Sep, Out) :- atomic_list_concat(L, Sep, Out).
+
+
+		 /*******************************
+		 *  A PROGRAM WITH NO DICTIONARY *
+		 *******************************/
+
+%!  le_lps_from_internal(+Terms, +Options, -LEText, -Issues) is det.
+%
+%   The Logical English document an LPS program would have had, if it had
+%   been written in Logical English. Terms are the LPS internal terms of
+%   lps2's plan-of-record §I.3, as its readers give them for a `.lps`
+%   program in the older Prolog-like syntax. Such a program has no template
+%   dictionary and no Logical English original to take one from, so this
+%   predicate makes one: a template for every predicate the program
+%   mentions, worded from the predicate's own name (`pick_up(Who, What)` ->
+%   `*a thing* picks up *a second thing*`) and bound back to that name with
+%   `; known as`, which is what keeps the two programs the same program.
+%
+%   Options:
+%
+%     * kb(Name)        the knowledge base's name. Default `lps`.
+%     * language(Lang)  the language to word the templates in. Default `en`.
+%     * comment(Text)   a comment block written above the document.
+%
+%   Issues come back as issue(Severity, Code, Message) terms, never as
+%   silence: a term with no Logical English form is written into the
+%   document as a residue comment and reported here as well.
+le_lps_from_internal(Terms0, Options, LEText, Issues) :-
+	option(language(Lang), Options, en),
+	le_i18n:with_le_language(Lang,
+	    le_lps_write:le_lps_from_internal_(Terms0, Options, LEText, Issues)).
+
+le_lps_from_internal_(Terms0, Options, LEText, Issues) :-
+	set_aside_drawings(Terms0, TermsA, DrawIssues),
+	maplist(clause_to_timeless, TermsA, TermsB),
+	normalise_declarations(TermsB, Terms1),
+	infer_declarations(Terms1, Terms),
+	option(kb(Name), Options, lps),
+	lps_predicates(Terms, Preds),
+	invented_templates(Preds, Lines, ClashIssues),
+	declarations_document(Lines, Name, Decls),
+	setup_call_cleanup(
+	    ( le_kbs:le_issue_reporting -> Was = true ; Was = false ),
+	    ( le_kbs:set_le_issue_reporting(false),
+	      le_kbs:load_text(Decls, KB) ),
+	    le_kbs:set_le_issue_reporting(Was)),
+	setup_call_cleanup(
+	    true,
+	    ( le_lps_check(KB, Terms, Problems),
+	      maplist(not_expressible_issue, Problems, CheckIssues),
+	      dropped_issues(Terms, DropIssues),
+	      register_issues(Terms, RegIssues),
+	      multi_kind_issues(Terms, KindIssues),
+	      nested_term_issues(Terms, NestIssues),
+	      le_lps_document(KB, Terms, Body, [residue(true), kb_name(Name)]),
+	      comment_block(Options, Comment),
+	      atomics_to_string([Comment, Body], LEText),
+	      append([ClashIssues, DrawIssues, DropIssues, RegIssues, KindIssues,
+		      NestIssues, CheckIssues], Issues) ),
+	    catch(le_kbs:le_kb_dispose(KB), _, true)).
+
+atomics_to_string(Parts, S) :-
+	atomic_list_concat(Parts, A), atom_string(A, S).
+
+comment_block(Options, Comment) :-
+	(   option(comment(Text), Options)
+	->  split_string(Text, "\n", "", Ls),
+	    findall(L1, ( member(L0, Ls), format(atom(L1), '% ~w~n', [L0]) ), L1s),
+	    atomic_list_concat(L1s, C0), atom_concat(C0, '\n', Comment)
+	;   Comment = ''
+	).
+
+not_expressible_issue(problem(_, Msg), issue(warning, lps_not_expressible, Msg)).
+
+%!	set_aside_drawings(+Terms0, -Terms, -Issues) is det.
+%
+%	`display/2` and `display3d/2` say how to draw a program's state: a
+%	list of shapes, colours and coordinates, which reads no better in
+%	English than in Prolog and has no Logical English form at all
+%	(docs/user/reference/le-for-lps.md §7). They belong in a companion
+%	`.lps` file, where the engine still reads them, and they are taken
+%	out here rather than written as sentences that mean nothing.
+set_aside_drawings(Terms0, Terms, Issues) :-
+	partition(drawing_term, Terms0, Drawings, Terms),
+	(   Drawings == []
+	->  Issues = []
+	;   length(Drawings, N),
+	    format(string(M),
+		   "~w drawing rule(s) (display/2, display3d/2) are not in this \c
+		    document: a list of shapes and coordinates has no Logical \c
+		    English form. Keep them in a companion .lps file beside it, \c
+		    which the engine reads together with this document",
+		   [N]),
+	    Issues = [issue(warning, lps_drawing_rules, M)]
+	).
+
+drawing_term(T) :- nonvar(T), T = (H :- _), !, drawing_term(H).
+drawing_term(T) :- nonvar(T), functor(T, F, N), memberchk(F/N, [display/2, display3d/2]).
+
+%	A plain Prolog clause is what LPS calls a timeless rule; the older
+%	syntax leaves it as a clause, and the internal vocabulary has a name
+%	for it.
+clause_to_timeless(T, l_timeless(H, B)) :- nonvar(T), T = (H :- B), nonvar(H), !.
+clause_to_timeless(T, T).
+
+%   A directive (`:- lps_engine(planning, ...)`) has no Logical English form
+%   at all -- not even a residue comment, because le_lps_document drops it
+%   with the declarations. Saying so is the whole of §I.9.6's discipline: a
+%   converted program that silently stopped planning would be a lie.
+dropped_issues(Terms, Issues) :-
+	findall(issue(error, lps_directive_dropped, Msg),
+		( member(T, Terms), T = (:- D), directive_message(D, Msg) ),
+		Issues).
+
+%	A document with a goal asks for the planning engine by itself (the
+%	goal IS that declaration, docs/user/reference/le-for-lps.md §3.8), so
+%	what is lost there is only the engine's settings -- and they are lost,
+%	which is worth a different sentence from a directive nothing carries.
+directive_message(lps_engine(planning, Opts), Msg) :-
+	Opts \== [], !,
+	format(string(Msg),
+	       "the planning engine's settings ~q have no Logical English form. \c
+		A document with a goal asks for the planning engine by itself, \c
+		but with the engine's own settings, which are not these. Keep \c
+		':- lps_engine(planning, ~q).' in a companion .lps file beside \c
+		the document", [Opts, Opts]).
+directive_message(D, Msg) :-
+	format(string(Msg),
+	       "the directive ':- ~q' has no Logical English form; keep it in a \c
+		companion .lps file beside the document", [D]).
+
+%   `fluent(F)` and `fluents([F, ...])` are the same declaration; the writer
+%   reads only the second, so the first is folded into it. A program whose
+%   declarations arrived one at a time would otherwise have them written out
+%   as facts.
+normalise_declarations(Terms0, Terms) :-
+	foldl(fold_declaration, Terms0, t([], [], [], [], []), t(F, E, A, P, RevRest)),
+	reverse(RevRest, Rest),
+	findall(D, ( declaration_section(W, Which),
+		     memberchk(Which-L0, [fluents-F, events-E, actions-A, prolog_events-P]),
+		     L0 \== [], variant_set(L0, L), D =.. [W, L] ),
+		Decls),
+	append(Decls, Rest, Terms).
+
+%	The declarations in the order the program gave them, each once. Their
+%	order is nothing to the engine, but a converted program that reordered
+%	them would look different from its original for no reason.
+variant_set([], []).
+variant_set([X|Xs], [X|Ys]) :- exclude(=@=(X), Xs, Rest), variant_set(Rest, Ys).
+
+%!	infer_declarations(+Terms0, -Terms) is det.
+%
+%	The older syntax lets a program use a predicate it never declared, or
+%	declare it at one arity and use it at another: `fluents carrying(_).`
+%	beside `take(Who, What) initiates carrying(Who, What).` The reader
+%	works out what such a literal is from where it stands, and Logical
+%	English has no such rule -- a sentence is timeless unless its template
+%	is declared a fluent, an event or an action. So what the older program
+%	left implicit is written down here, or the converted program would
+%	quietly lose the time from half its sentences.
+infer_declarations(Terms0, Terms) :-
+	declared_pairs(Terms0, Declared),
+	findall(fluent-L, ( member(T, Terms0), fluent_position(T, L0), proto(L0, L) ), Fs),
+	findall(K-L, ( member(T, Terms0), happening_position(T, K, L0), proto(L0, L) ), Hs),
+	append(Fs, Hs, Wanted0),
+	exclude(already_declared(Declared), Wanted0, Wanted1),
+	exclude(also_an_event(Wanted1), Wanted1, Wanted2),
+	variant_set(Wanted2, Wanted),
+	foldl(add_declaration, Wanted, Terms0, Terms).
+
+declared_pairs(Terms, Pairs) :-
+	findall(Kind-F/N,
+		( member(T, Terms), declared_literal(T, Kind, L),
+		  callable(L), functor(L, F, N) ),
+		Pairs0),
+	sort(Pairs0, Pairs).
+
+already_declared(Declared, _-L) :-
+	functor(L, F, N), memberchk(_-F/N, Declared).
+
+%	A composite event that a rule also brings about (`save_the_five`, the
+%	head of an `l_events` clause and the consequent of a maintenance
+%	goal) is an event: it is DEFINED, and what defines it is what says
+%	what it is.
+also_an_event(Wanted, action-L) :-
+	functor(L, F, N),
+	member(event-L2, Wanted), functor(L2, F, N), !.
+
+%	The prototype a declaration carries: the functor with fresh places.
+proto(L, P) :- callable(L), compound(L), !, functor(L, F, N), functor(P, F, N).
+proto(L, L) :- atom(L).
+
+%	Where a literal can only be a fluent.
+fluent_position(initial_state(Fs), F) :- is_list(Fs), member(F, Fs).
+fluent_position(achieve(Fs), F) :- ( is_list(Fs) -> member(F, Fs) ; F = Fs ).
+fluent_position(initiated(_, F, _), F).
+fluent_position(terminated(_, F, _), F).
+fluent_position(updated(_, F, _, _), F).
+fluent_position(T, F) :- lps_term_literal(T, holds(F0, _)), lps_strip(holds(F0, _), F).
+fluent_position(l_int(holds(F0, _), _), F) :- lps_strip(F0, F).
+
+%	Where a literal can only be something that happens. A consequent of a
+%	reactive rule is something the program DOES, which is an action;
+%	anything else that happens is an event.
+happening_position(reactive_rule(_, Cs), action, E) :- member(happens(E, _, _), Cs).
+happening_position(reactive_rule(_, Cs, _), action, E) :- member(happens(E, _, _), Cs).
+happening_position(initiated(happens(E, _, _), _, _), event, E).
+happening_position(terminated(happens(E, _, _), _, _), event, E).
+happening_position(updated(happens(E, _, _), _, _, _), event, E).
+happening_position(effects(happens(E, _, _), _, _), event, E).
+happening_position(observe(Es, _), event, E) :- ( is_list(Es) -> member(E, Es) ; E = Es ).
+happening_position(d_pre(Cs), event, E) :- is_list(Cs), member(happens(E, _, _), Cs).
+happening_position(l_events(happens(E, _, _), _), event, E).
+happening_position(reactive_rule(As, _), event, E) :- member(happens(E, _, _), As).
+
+add_declaration(Kind-L, Terms0, Terms) :-
+	declaration_section(W, Which),
+	memberchk(Kind-Which, [fluent-fluents, event-events, action-actions]),
+	(   select(D0, Terms0, Rest), D0 =.. [W, Ls], is_list(Ls)
+	->  append(Ls, [L], Ls1), D =.. [W, Ls1],
+	    Terms = [D|Rest0], Rest0 = Rest
+	;   D =.. [W, [L]], Terms = [D|Terms0]
+	).
+
+declaration_section(fluents, fluents).
+declaration_section(events, events).
+declaration_section(actions, actions).
+declaration_section(prolog_events, prolog_events).
+
+fold_declaration(T, t(F, E, A, P, Rest), Out) :-
+	(   declaration_of(T, Which, Ls)
+	->  (   Which == fluents -> append(F, Ls, F1), Out = t(F1, E, A, P, Rest)
+	    ;   Which == events  -> append(E, Ls, E1), Out = t(F, E1, A, P, Rest)
+	    ;   Which == actions -> append(A, Ls, A1), Out = t(F, E, A1, P, Rest)
+	    ;   append(P, Ls, P1), Out = t(F, E, A, P1, Rest)
+	    )
+	;   Out = t(F, E, A, P, [T|Rest])
+	).
+
+declaration_of(T, Which, Ls) :-
+	compound(T), T =.. [W, Arg],
+	(   memberchk(W, [fluents, events, actions, prolog_events]), is_list(Arg)
+	->  Which = W, Ls = Arg
+	;   memberchk(W-Which, [fluent-fluents, event-events, action-actions]),
+	    \+ is_list(Arg)
+	->  Ls = [Arg]
+	).
+
+		 /*******************************
+		 *   THE PROGRAM'S PREDICATES   *
+		 *******************************/
+
+%!  lps_predicates(+Terms, -Preds) is det.
+%
+%   Preds is p(Kind, Functor/Arity) for every predicate the program
+%   mentions, Kind one of `fluent`, `event`, `action`, `prolog_event` (from
+%   the declarations) or `timeless` (everything else: the ordinary
+%   relations a program calls, which need a template as much as a fluent
+%   does). Sorted, so the document does not change between two runs.
+lps_predicates(Terms, Preds) :-
+	findall(Kind-F/N,
+		( member(T, Terms), declared_literal(T, Kind, L),
+		  callable(L), functor(L, F, N) ),
+		Declared0),
+	sort(Declared0, Declared),
+	findall(F/N,
+		( member(T, Terms), lps_literal(T, L), functor(L, F, N) ),
+		Used0),
+	sort(Used0, Used),
+	findall(F/N, member(_-F/N, Declared), Names00), sort(Names00, Names0),
+	updated_fluents(Terms, Registers),
+	%  A name declared in two sections keeps ONE template, the first of
+	%  them: Logical English decides what a sentence is from the name, so
+	%  it cannot tell the two apart at all. multi_kind_issues/2 says so.
+	findall(p(Kind, F/N, Register),
+		( member(F/N, Names0), once(member(Kind-F/N, Declared)),
+		  register_of(Registers, Kind, F/N, Register) ),
+		Declared1),
+	subtract(Used, Names0, Undeclared),
+	findall(p(timeless, F/N, plain), member(F/N, Undeclared), Timeless),
+	append(Declared1, Timeless, Preds0),
+	sort(Preds0, Preds).
+
+register_of(Registers, fluent, F/N, register(I)) :- memberchk(F/N-I, Registers), !.
+register_of(_, _, _, plain).
+
+%!	updated_fluents(+Terms, -Registers) is det.
+%
+%	`F/N-Place` for every fluent an `updates` law changes, Place the
+%	argument the law replaces. Such a fluent is a register, and its
+%	template must END with `is *that place*`: the update sentence is `the
+%	battery that is a number becomes 100`, and the reader puts the literal
+%	back together as everything before `that`, then `is`, then the old
+%	value. A register whose changing place is not its last one cannot be
+%	said this way at all, and `register_issues/2` says so.
+updated_fluents(Terms, Registers) :-
+	findall(F/N-I,
+		( member(updated(_, Fluent, Old-_, _), Terms),
+		  callable(Fluent), compound(Fluent), functor(Fluent, F, N),
+		  arg(I, Fluent, A), A == Old ),
+		Rs0),
+	sort(Rs0, Registers).
+
+%!	nested_term_issues(+Terms, -Issues) is det.
+%
+%	A place of a Logical English sentence holds a name, a number, a date
+%	or a list -- never a term with a term inside it. An LPS program that
+%	observes `command(open(case))` is saying something Logical English
+%	cannot say, and what comes out the other end is the quoted text
+%	`'open(case)'`, which is a different value. Better to say so.
+nested_term_issues(Terms, Issues) :-
+	findall(F/N-A,
+		( member(T, Terms), lps_literal(T, L), compound(L),
+		  arg(_, L, A), compound(A), \+ is_list(A),
+		  functor(L, F, N) ),
+		Bad0),
+	sort(Bad0, Bad),
+	findall(issue(error, lps_nested_term, M),
+		( member(F/N-A, Bad),
+		  format(string(M),
+			 "~w/~w holds the term ~q in one of its places. A place of \c
+			  a Logical English sentence holds a name, a number, a \c
+			  date or a list, never a term with a term inside it: \c
+			  this one is written as the text '~q' instead, which is \c
+			  a different value", [F, N, A, A]) ),
+		Issues).
+
+%!	multi_kind_issues(+Terms, -Issues) is det.
+%
+%	A name the older syntax declares twice -- `temperature` both an event
+%	(what the world reports) and a fluent (what we believe) -- has no
+%	Logical English form. There, a sentence is an event or a fluent
+%	because of the section its template is declared in, and one name
+%	cannot be in two sections.
+multi_kind_issues(Terms, Issues) :-
+	declared_pairs(Terms, Pairs),
+	findall(F/N, member(_-F/N, Pairs), Names0), sort(Names0, Names),
+	findall(issue(error, lps_name_in_two_sections, M),
+		( member(F/N, Names),
+		  findall(K, member(K-F/N, Pairs), Ks0), sort(Ks0, Ks),
+		  Ks = [_, _|_],
+		  format(string(M),
+			 "~w/~w is declared as ~w. In Logical English a sentence \c
+			  is an event, an action or a fluent because of the \c
+			  section its template stands in, and one name cannot \c
+			  stand in two sections, so only the first is kept here. \c
+			  Rename one of them in the program, or keep the program \c
+			  in the older syntax", [F, N, Ks]) ),
+		Issues).
+
+%!	register_issues(+Terms, -Issues) is det.
+%
+%	The `updates` laws Logical English cannot say: the one construct of
+%	the older syntax with no surface here. Saying so is the whole point --
+%	a converted program that had quietly stopped updating a fluent would
+%	be worse than one that refused.
+register_issues(Terms, Issues) :-
+	updated_fluents(Terms, Registers),
+	findall(issue(error, lps_update_not_last_place, M),
+		( member(F/N-I, Registers), I < N,
+		  format(string(M),
+			 "~w/~w is updated in its place ~w, and an update is said \c
+			  in Logical English as `... that is <the old value> \c
+			  becomes <the new one>`, which can only change a \c
+			  relation's LAST place. Rewrite the program so that the \c
+			  changing value of ~w comes last, or keep this law in a \c
+			  companion .lps file", [F, N, I, F]) ),
+		Issues).
+
+declared_literal(D, Kind, L) :-
+	compound(D), D =.. [W, Ls], is_list(Ls),
+	memberchk(W-Kind, [fluents-fluent, events-event, actions-action,
+			   prolog_events-prolog_event]),
+	member(L, Ls).
+
+%   Every literal the program mentions, with the time wrappers taken off.
+lps_literal(T, L) :-
+	lps_term_literal(T, L0), lps_strip(L0, L1),
+	callable(L1), \+ lps_builtin(L1), L = L1.
+
+lps_term_literal(initial_state(Fs), F) :- is_list(Fs), member(F, Fs).
+lps_term_literal(achieve(Fs), F) :- ( is_list(Fs) -> member(F, Fs) ; F = Fs ).
+lps_term_literal(observe(Es, _), E) :- ( is_list(Es) -> member(E, Es) ; E = Es ).
+lps_term_literal(d_pre(Cs), C) :- is_list(Cs), member(C, Cs).
+lps_term_literal(initiated(Tr, F, Cs), L) :- ( L = Tr ; L = F ; member(L, Cs) ).
+lps_term_literal(terminated(Tr, F, Cs), L) :- ( L = Tr ; L = F ; member(L, Cs) ).
+lps_term_literal(updated(Tr, F, _, Cs), L) :- ( L = Tr ; L = F ; member(L, Cs) ).
+lps_term_literal(effects(Tr, Cs, Es), L) :- ( L = Tr ; member(L, Cs) ; member(L, Es) ).
+lps_term_literal(reactive_rule(As, Cs), L) :- ( member(L, As) ; member(L, Cs) ).
+lps_term_literal(reactive_rule(As, Cs, _), L) :- ( member(L, As) ; member(L, Cs) ).
+lps_term_literal(l_int(H, B), L) :- ( L = H ; body_literal(B, L) ).
+lps_term_literal(l_events(H, B), L) :- ( L = H ; body_literal(B, L) ).
+lps_term_literal(l_timeless(H, B), L) :- ( L = H ; body_literal(B, L) ).
+lps_term_literal(T, T) :- \+ lps_structural(T).
+
+body_literal(B, L) :- is_list(B), !, member(L, B).
+body_literal(B, L) :- nonvar(B), B = (X, Y), !, ( body_literal(X, L) ; body_literal(Y, L) ).
+body_literal(B, B).
+
+lps_structural(T) :-
+	nonvar(T), functor(T, F, N),
+	memberchk(F/N, [initial_state/1, achieve/1, observe/2, d_pre/1,
+			initiated/3, terminated/3, updated/4, effects/3,
+			reactive_rule/2, reactive_rule/3, l_int/2, l_events/2,
+			l_timeless/2, fluents/1, events/1, actions/1,
+			prolog_events/1, fluent/1, event/1, action/1,
+			unserializable/1, defaults/1, maxTime/1, maxRealTime/1,
+			minCycleTime/1, simulatedRealTimePerCycle/1,
+			simulatedRealTimeBeginning/1, display/2, display3d/2,
+			(:-)/1]).
+
+lps_strip(V, V) :- var(V), !.
+lps_strip(holds(F, _), L) :- !, lps_strip(F, L).
+lps_strip(happens(E, _, _), L) :- !, lps_strip(E, L).
+lps_strip(not(G), L) :- !, lps_strip(G, L).
+lps_strip(L, L).
+
+lps_builtin(L) :- var(L), !.
+lps_builtin(L) :- number(L), !.
+lps_builtin(L) :-
+	functor(L, F, N),
+	memberchk(F/N, [(=)/2, (\=)/2, (==)/2, (\==)/2, (<)/2, (>)/2, (=<)/2,
+			(>=)/2, (is)/2, (=:=)/2, (=\=)/2, (@<)/2, (@>)/2,
+			(@=<)/2, (@>=)/2, true/0, fail/0, false/0, (',')/2,
+			(;)/2, (->)/2, findall/3, forall/2, between/3,
+			member/2, memberchk/2, length/2, nth0/3, nth1/3,
+			append/3, state/1, next_state/1]).
+
+		 /*******************************
+		 *     WORDING A TEMPLATE       *
+		 *******************************/
+
+%!  invented_templates(+Preds, -Lines, -Issues) is det.
+%
+%   One template line per predicate, each worded from the predicate's own
+%   name. Two predicates that would be worded the same way are a real
+%   hazard -- the second would be read as the first -- so the clash is
+%   broken and reported rather than left to the grammar.
+invented_templates(Preds, Lines, Issues) :-
+	maplist(first_wording, Preds, Lines0),
+	findall(T, member(line(_, _, T), Lines0), Texts),
+	msort(Texts, Sorted),
+	findall(T, ( member(T, Sorted), aggregate_all(count, member(T, Texts), C), C > 1 ), Clashing0),
+	sort(Clashing0, Clashing),
+	break_clashes(Lines0, Clashing, [], Lines, Issues).
+
+first_wording(p(Kind, F/N, Register), line(Kind, F/N, Text)) :-
+	lps_template_text(Kind, Register, F, N, Text).
+
+%   A wording two predicates would share is broken on whichever of them has
+%   a second wording of its own: an event or an action can be said with
+%   `does` (`*a thing* does sing`, beside the fluent `*a thing* sings`),
+%   which is ordinary English. A predicate with no second wording keeps its
+%   name beside the words, which is ugly but never wrong, and either way the
+%   caller is told.
+%   Pass one: every event or action in a clashing group steps aside, since
+%   English gives it a second wording. Pass two: whatever still collides
+%   after that keeps its name beside the words, which is ugly but never
+%   wrong. Either way the caller is told.
+break_clashes(Lines0, Clashing, _, Lines, Issues) :-
+	foldl(step_aside(Clashing), Lines0, Lines1-[], []-RevA),
+	reverse(Lines1, Lines2),
+	findall(T, member(line(_, _, T), Lines2), Texts),
+	relabel(Lines2, Texts, [], Lines),
+	findall(issue(warning, lps_template_clash, M),
+		( member(line(_, F/N, T), Lines), sub_atom(T, _, _, _, ' ( '),
+		  format(string(M),
+			 "~w/~w and another predicate of this program would be \c
+			  worded the same way, and there is no second wording for \c
+			  it, so its name is written beside the words: '~w'",
+			 [F, N, T]) ),
+		Issues1),
+	reverse(RevA, Issues0),
+	append(Issues0, Issues1, Issues).
+
+step_aside(Clashing, line(Kind, F/N, T0), [line(Kind, F/N, T)|Ls]-Is0, Ls-Is) :-
+	(   memberchk(T0, Clashing), second_wording(Kind, F, N, T1),
+	    \+ memberchk(T1, Clashing)
+	->  T = T1,
+	    format(string(M),
+		   "~w/~w and another predicate of this program would be worded \c
+		    the same way, so ~w/~w is worded '~w'", [F, N, F, N, T]),
+	    Is = [issue(info, lps_template_clash, M)|Is0]
+	;   T = T0, Is = Is0
+	).
+
+%   Whatever still collides: the first keeps the words, the rest take their
+%   name beside them.
+relabel([], _, _, []).
+relabel([line(Kind, F/N, T0)|Ls], Texts, Taken, [line(Kind, F/N, T)|Rest]) :-
+	(   \+ memberchk(T0, Taken)
+	->  T = T0
+	;   format(atom(T), '~w ( ~w )', [T0, F])
+	),
+	relabel(Ls, Texts, [T0|Taken], Rest).
+
+%   `*a thing* does sing`: do-support, which English has for exactly this.
+second_wording(Kind, F, N, Text) :-
+	happening(Kind), N > 0,
+	le_writer:functor_words(F, Words),
+	length(Types, N), maplist(=(thing), Types),
+	le_writer:distinct_place_names(Types, Places),
+	maplist(le_writer:slot_text, Places, Slots),
+	subject_shape(Slots, [does|Words], All),
+	atomic_list_concat(All, ' ', Text0),
+	le_writer:unclash(Text0, Text).
+
+%!  lps_template_text(+Kind, +Functor, +Arity, -Text) is det.
+%
+%   An event or an action is something that happens, so its name is read as
+%   a verb and put in the third person: `praise(fox, crow)` becomes `*a
+%   thing* praises *a second thing*`. A fluent or an ordinary relation is
+%   something that holds, so its name is read as a state, the way
+%   le_writer.pl reads a Prolog predicate's name: `fooled(crow)` becomes `*a
+%   thing* is fooled`, `light(Room, Setting)` becomes `the light of *a
+%   thing* is *a second thing*`.
+%
+%   Every place is typed `thing`, because the older syntax declares no
+%   types. Places are told apart by their ordinal, as everywhere else in
+%   Logical English: `*a thing*`, `*a second thing*`.
+lps_template_text(Kind, Register, F, N, Text) :-
+	le_writer:functor_words(F, Words),
+	length(Types, N), maplist(=(thing), Types),
+	le_writer:distinct_place_names(Types, Places),
+	maplist(le_writer:slot_text, Places, Slots),
+	template_shape(Kind, Register, Words, Slots, All),
+	atomic_list_concat(All, ' ', Text0),
+	le_writer:unclash(Text0, Text).
+
+%   No places: the name is the whole sentence (`move forward`).
+template_shape(_, _, Words, [], Words) :- !.
+template_shape(Kind, _, Words, Slots, All) :-
+	happening(Kind), !,
+	third_person(Words, Verb),
+	subject_shape(Slots, Verb, All).
+%   A register: the changing value last, after the copula, whatever the name
+%   sounds like -- that is the only shape an update sentence can be put back
+%   together from.
+template_shape(_, register(I), Words, Slots, All) :-
+	length(Slots, N), I =:= N, !,
+	register_shape(Words, Slots, All).
+template_shape(_, _, Words, [S1], All) :- !,
+	one_place_shape(Words, S1, All).
+template_shape(_, _, Words, [S1, S2], All) :- !,
+	state_shape(Words, S1, S2, All).
+template_shape(_, _, Words, Slots, All) :-
+	subject_shape(Slots, Words, All).
+
+happening(event).
+happening(action).
+happening(prolog_event).
+
+%   `*a thing* picks up *a second thing* with *a third thing*`.
+subject_shape([S1], Words, [S1|Words]) :- !.
+subject_shape([S1, S2], Words, All) :- !,
+	append([[S1], Words, [S2]], All).
+subject_shape([S1, S2|More], Words, All) :-
+	findall(P, ( member(S, More), member(P, [with, S]) ), Tail),
+	append([[S1], Words, [S2], Tail], All).
+
+%   A one-place state. A verb takes its subject (`*a thing* sings`), and so
+%   does an adjective or a participle, with the copula (`*a thing* is
+%   fooled`). A noun must NOT: `*a thing* is a room` is how Logical English
+%   writes its own `*a thing* is a *a kind*` sentence, and a template of that
+%   shape is read as that sentence instead, which silently changes what the
+%   program says. A noun therefore reads as what it usually is in an LPS
+%   program -- a register holding a value: `the battery is *a thing*`.
+one_place_shape(Words, S1, All) :-
+	le_writer:unary_words(Words, Ws),
+	\+ article_word(Ws),
+	last(Words, W), \+ noun_like(W), !,
+	All = [S1|Ws].
+one_place_shape(Words, S1, All) :-
+	le_writer:writer_word(definite_m, The),
+	opening_words(The, Words, Opening),
+	append([Opening, [is, S1]], All).
+
+article_word(Ws) :- member(W, Ws), memberchk(W, [a, an]).
+
+%   `the battery is *a thing*`, `the at of *a thing* is *a second thing*`.
+register_shape(Words, [S1], All) :- !,
+	le_writer:writer_word(definite_m, The),
+	opening_words(The, Words, Opening),
+	append([Opening, [is, S1]], All).
+register_shape(Words, Slots, All) :-
+	append(Front, [Last], Slots),
+	front_phrase(Front, Parts),
+	le_writer:writer_word(definite_m, The),
+	opening_words(The, Words, Opening),
+	append([Opening, Parts, [is, Last]], All).
+
+%!	opening_words(+The, +Words, -Opening) is det.
+%
+%	`the battery`, and `the current target` where the plain form would
+%	open like a section of the document. `the target is *a thing*` begins
+%	with the words that open `the target language is: lps.`, and the
+%	reader stops reading the section there -- taking the rest of it with
+%	it. A qualifier is the cheapest way out, and it reads.
+opening_words(The, Words, Opening) :-
+	append([The], Words, Plain),
+	(   starts_like_section(Plain)
+	->  le_writer:writer_word(lps_register_qualifier, Q),
+	    append([The, Q], Words, Opening)
+	;   Opening = Plain
+	).
+
+%!	starts_like_section(+Words) is semidet.
+%
+%	Words open the way a section of a Logical English document opens.
+%	Two words are enough to fool the reader, so two words are what is
+%	compared.
+starts_like_section(Words) :-
+	le_i18n:kw_category_key(section, Key),
+	le_i18n:kw_synonym_words(Key, Kw),
+	Kw \== [],
+	( Kw = [K1, K2|_] -> Prefix = [K1, K2] ; Prefix = Kw ),
+	append(Prefix, _, Words), !.
+
+front_phrase([S1], [of, S1]) :- !.
+front_phrase([S1|More], All) :-
+	findall(P, ( member(S, More), member(P, [for, S]) ), Tail),
+	append([of, S1], Tail, All).
+
+%   `battery` ends in y and so looks like an adjective to le_writer's
+%   lexicon (`dusty`, `heavy`); a name that ends in y, er or ion is read here
+%   as the noun it almost always is in a program.
+noun_like(W) :-
+	member(Suffix, [y, er, or, ion, ity, ness, ment, ance, ence]),
+	sub_atom(W, _, _, 0, Suffix),
+	\+ memberchk(W, [ready, empty, dirty, busy, angry, happy, other]), !.
+
+%   A two-place state. A name that is already a verb (`has`, `owns`) or ends
+%   in a preposition (`is the father of`) takes its places around it; a name
+%   that is a preposition or an adjective takes the copula (`*a thing* is
+%   near *a second thing*`); a name that is a noun reads as a value (`the
+%   light of *a thing* is *a second thing*`), which is how the same word
+%   would be read in the older syntax.
+state_shape(Words, S1, S2, All) :-
+	Words = [W|_], state_verb(W), !,
+	append([[S1], Words, [S2]], All).
+state_shape([W], S1, S2, [S1, is, W, S2]) :-
+	( preposition(W) ; le_writer:adjective_like(W) ), !.
+state_shape(Words, S1, S2, All) :-
+	last(Words, WL), preposition(WL), !,
+	le_writer:writer_word(definite_m, The),
+	append([[S1, is, The], Words, [S2]], All).
+state_shape(Words, S1, S2, All) :-
+	le_writer:writer_word(definite_m, The),
+	opening_words(The, Words, Opening),
+	append([Opening, [of, S1, is, S2]], All).
+
+state_verb(W) :- already_third(W), !.
+state_verb(W) :- memberchk(W, [is, are, was, were, can, may, must, will, should, have]).
+
+preposition(W) :-
+	memberchk(W, [of, to, in, on, at, for, with, from, by, than, as, near,
+		      under, over, above, below, beside, inside, outside,
+		      between, before, after, during, within, against, into,
+		      onto, upon, toward, towards, about, around, behind]).
+
+%   The third person singular of the first word: `praise` -> `praises`,
+%   `pick up` -> `picks up`, `carry` -> `carries`, `push` -> `pushes`.
+third_person([W|Ws], [W3|Ws]) :- third_person_word(W, W3).
+
+third_person_word(W, W3) :- irregular_third(W, W3), !.
+third_person_word(W, W) :- already_third(W), !.
+third_person_word(W, W3) :-
+	(   sub_atom(W, _, 2, 0, S2), memberchk(S2, [ch, sh])
+	->  atom_concat(W, es, W3)
+	;   sub_atom(W, _, 1, 0, S1), memberchk(S1, [x, z])
+	->  atom_concat(W, es, W3)
+	;   atom_length(W, L), L > 1, sub_atom(W, _, 1, 0, y),
+	    L1 is L - 1, L2 is L1 - 1, sub_atom(W, L2, 1, _, C), \+ vowel(C)
+	->  sub_atom(W, 0, L2, _, Stem), atom_concat(Stem, ies, W3)
+	;   atom_concat(W, s, W3)
+	).
+
+irregular_third(go, goes).
+irregular_third(do, does).
+irregular_third(be, is).
+irregular_third(have, has).
+
+%   A word already in the third person (`sees`, `sings`, `has`): it ends in
+%   s, and not in the ss, us or is of a noun or an adjective.
+already_third(has).
+already_third(does).
+already_third(is).
+already_third(was).
+already_third(W) :-
+	sub_atom(W, _, 1, 0, s),
+	\+ ( member(E, [ss, us, is, os, as]), sub_atom(W, _, 2, 0, E) ).
+
+vowel(C) :- memberchk(C, [a, e, i, o, u]).
+
+		 /*******************************
+		 *   THE INVENTED DICTIONARY    *
+		 *******************************/
+
+%   A Logical English document holding nothing but the invented templates.
+%   Loading it is what turns them into a dictionary, and a dictionary is
+%   all le_lps_document/4 needs; the sections it writes for the finished
+%   document are its own.
+declarations_document(Lines, Name, Text) :-
+	le_writer:kw(meta_target, MT),
+	le_writer:kw(known_as, KA),
+	le_writer:kw(kb_open, KBO),
+	le_writer:kw(kb_include, KBI),
+	with_output_to(string(Text),
+	    (	format("~w: lps.~n~n", [MT]),
+		forall(( template_section(Kind, Key),
+			 include_lines(Lines, Kind, Ls), Ls \== [] ),
+		       (   le_writer:kw(Key, Header),
+			   format("~w:~n", [Header]),
+			   forall(member(line(_, F/_, T), Ls),
+				  format("    ~w; ~w ~w.~n", [T, KA, F])),
+			   nl
+		       )),
+		format("~w ~w ~w:~n~n", [KBO, Name, KBI])
+	    )).
+
+template_section(event, events).
+template_section(action, actions).
+template_section(prolog_event, prolog_events).
+template_section(fluent, fluents).
+template_section(timeless, templates).
+
+include_lines(Lines, Kind, Ls) :-
+	findall(line(Kind, X, T), member(line(Kind, X, T), Lines), Ls).

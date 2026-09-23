@@ -2,23 +2,30 @@
 
 *Kind: integration guide · Audience: users · Status: current (2026-09-16)*
 
-s(CASP) is a goal-directed reasoner for Answer Set Programming with
-constraints. It is used from SWI-Prolog and in Blawx. Its programs look like
-Prolog with more: classical negation (`-flies(X)`), abducibles, global
-constraints (`false :- …`), constraint comparisons (`#>`), and `#pred`
-annotations that say how a predicate reads in English. LE1, the first Logical
-English, compiled its documents into such programs. Logical English 2 meets
-s(CASP) and Prolog both ways, and the two ways are different in kind. Into
-Logical English, **File ▸ Open…** (or **File ▸ Import from Another System…**)
-translates a `.pl`, `.scasp` or `.lp` file, LE1's s(CASP) translations
-included, into a program. That translator is part of the InsurLE extensions,
-available on installations that have them, such as the hosted service. Out of
-Logical English there is no export menu, because every installation shows the
-program's other forms directly. **See s(CASP)** (a right-click in the editor)
-shows the whole program in s(CASP). The **Engine** picker runs a query with
-s(CASP) instead of Prolog. **See PROLOG** shows the Prolog clause Logical
-English compiles a rule into. Running with s(CASP) needs SWI-Prolog's s(CASP)
-pack on the server; the hosted service has it.
+s(CASP) is a reasoner: you give it a question, and it works backwards from the
+question through the rules to the facts. s(CASP) reasons in Answer Set
+Programming with constraints, a form of logic programming in which a program
+may have several consistent sets of conclusions rather than one. People run
+s(CASP) from SWI-Prolog, and Blawx runs it too. An s(CASP) program looks like
+Prolog with more in it: classical negation (`-flies(X)`), abducibles (facts the
+reasoner may assume), global constraints (`false :- …`), comparisons written
+as constraints (`#>`), and `#pred` lines that say how each predicate reads in
+English. LE1, the first Logical English, turned its documents into programs of
+exactly that kind.
+
+Logical English 2 meets s(CASP) and Prolog in both directions, and the two
+directions work quite differently. Coming in, **File ▸ Open…** (or **File ▸
+Import from Another System…**) translates a `.pl`, `.scasp` or `.lp` file into
+a Logical English program; a file LE1 wrote in s(CASP) is one such file. That
+translator is part of the InsurLE extensions, so only installations that have
+the extensions, such as the hosted service, offer it. Going out there is no
+export menu at all, because every installation can show you the program's other
+forms directly. **See s(CASP)**, which you reach by right-clicking in the
+editor, shows the whole program written in s(CASP). The **Engine** picker
+answers a query with s(CASP) rather than with Prolog. **See PROLOG** shows the
+Prolog clause that Logical English turns a rule into. Answering with s(CASP)
+needs SWI-Prolog's s(CASP) pack installed on the server, which the hosted
+service has.
 
 ## Contents
 
@@ -47,19 +54,23 @@ pack on the server; the hosted service has it.
 ### Opening an s(CASP) or Prolog file
 
 1. Choose **File ▸ Open…** and pick a `.pl`, `.scasp` or `.lp` file. The file
-   must hold Prolog clauses (s(CASP)'s operators allowed), at least one of them
-   not a directive.
-2. The program opens in a new tab. The note gives the ledger's counts and the
-   check against s(CASP), for example *birds: 16 source elements encoded, 0
-   approximated, 0 residue; 0 writer errors; the source's own answers
+   must hold Prolog clauses, s(CASP)'s own operators included, and at least one
+   of those clauses must be a rule or a fact rather than a directive.
+2. The program opens in a new tab. A note gives the counts from the ledger, the
+   record of how each piece of the file was translated, together with the
+   comparison against s(CASP) — for example *birds: 16 source elements encoded,
+   0 approximated, 0 residue; 0 writer errors; the source's own answers
    (s(CASP)): 1 expectations pass, 0 fail, 0 errors.*
-3. Each `?-` query of the file becomes a query `query_1`, `query_2`, …, asked
-   in every scenario. A file with no scenarios gets one, `the_program`, which
-   asks them of the program's own facts. Each expectation is the answer
-   s(CASP) gave on the source file.
-4. A clause Logical English cannot state becomes a `% RESIDUE … BEGIN`
-   block, with the clause verbatim and the reason: the clauses that take a list
-   apart, and the statements in clingo's syntax (below, Traps):
+3. Every `?-` query in the file becomes a query named `query_1`, `query_2` and
+   so on, and every scenario asks all of them. A file with no scenarios in it
+   gets one scenario, `the_program`, which asks the queries of the program's
+   own facts. The answer each query is expected to give is the answer s(CASP)
+   gave on the original file.
+4. A clause that Logical English cannot state becomes a `% RESIDUE … BEGIN`
+   block, holding the clause word for word together with the reason it was
+   left alone. Two kinds of clause end up there: a clause that takes a list
+   apart, and a statement written the way clingo, another Answer Set
+   Programming system, writes statements (see Traps, below):
 
    ```le
    % RESIDUE list_pattern_1 BEGIN: a clause that takes a list apart
@@ -67,26 +78,29 @@ pack on the server; the hosted service has it.
    % Logical English has no list patterns (a list's first element and the rest, [H|T]); a recursive definition over a list is written with an included Prolog resource, or restated with aggregates
    ```
 
-5. **File ▸ Show the Original…** shows the source file, kept in `sources/`,
-   which the program cites: `the text of the source program is at
-   "sources/…"`. The ledger is `<name>.ledger.md`.
-6. Check the templates first. Where the file has `#pred` annotations their
-   words are used. Elsewhere a wording is made from the predicate's name
-   (`parent(X, Y)` becomes `*a thing* is the parent of *a second thing*`).
-   Rename the templates to what the predicates mean.
+5. **File ▸ Show the Original…** shows the original file, which the editor
+   keeps in the program's `sources/` folder and the program cites: `the text of
+   the source program is at "sources/…"`. The ledger is `<name>.ledger.md`.
+6. Check the templates before anything else. Where the file has `#pred` lines,
+   the translator uses their words. Everywhere else the translator builds a
+   wording out of the predicate's name, so that `parent(X, Y)` becomes `*a
+   thing* is the parent of *a second thing*`. Rename those templates to say
+   what the predicates actually mean.
 
-**Misc ▸ Run the Program's Tests…** then runs the expectations.
+**Misc ▸ Run the Program's Tests…** then checks those expected answers.
 
-A round trip works too. Copy the text of **See s(CASP)** (below) into a
-`.scasp` file and open it with **File ▸ Open…**. The rules come back as
-Logical English. A rule with `or` comes back as several rules, because the
-s(CASP) text splits disjunctions. The scenarios and queries are not in that
-text, so they do not come back.
+You can also go out and back again. Copy the text that **See s(CASP)** shows
+(described below) into a `.scasp` file, and open that file with **File ▸
+Open…**. The rules come back as Logical English. A rule containing `or` comes
+back as several rules, because the s(CASP) text writes each alternative out
+separately. The scenarios and the queries are not in that text, so they do not
+come back with the rules.
 
 ### LE1's s(CASP) translations
 
-LE1 wrote each document as an s(CASP) program with `#pred` annotations, its
-scenarios as comment blocks and its queries after the program:
+LE1 wrote each of its documents out as an s(CASP) program: the sentences became
+rules with `#pred` lines, the scenarios became blocks of comments, and the
+queries came after the program:
 
 ```
 /* Scenario alice
@@ -95,15 +109,18 @@ is_born_in_on('John', the_UK, 1633737600.0).
 % */
 ```
 
-The translator reads all of these. Each scenario, either as a comment block or
-as live clauses between `/* Scenario x */` and `/* % */`, becomes a scenario.
-A rule inside a scenario becomes a rule of the scenario. LE1's metadata
-(`source_lang/1`, the module line, the loader's directives) is left out. LE1's
-dates, which are Unix times such as `1633737600.0` in a place typed `date`,
-become dates (`2021-10-09`). Its `is_days_after/3`, which LE1 programs call but
-do not define, becomes LE2's `*a date* is *a number* days after *a date*`. So an
-LE1 program comes into LE2 through its s(CASP) translation, with its scenarios
-and with s(CASP)'s answers as the tests:
+The translator reads all of these. Each of LE1's scenarios becomes a scenario,
+whether LE1 wrote it inside a comment or as live clauses between
+`/* Scenario x */` and `/* % */`. A rule written inside a scenario becomes a
+rule of that scenario. The lines LE1 wrote about the program rather than about
+the law — `source_lang/1`, the module line, the loader's directives — are left
+out. LE1 wrote a date as a Unix time, the count of seconds since 1970, such as
+`1633737600.0` in a place whose type is `date`; the translator turns such a
+number into a date, `2021-10-09`. LE1 programs call `is_days_after/3` without
+ever defining it, and the translator turns each call into LE2's `*a date* is *a
+number* days after *a date*`. An LE1 program therefore reaches LE2 through its
+s(CASP) translation, bringing its scenarios with it and using s(CASP)'s answers
+as its tests:
 
 ```le
 a person acquires British citizenship on a date if
@@ -115,9 +132,9 @@ a person acquires British citizenship on a date if
 
 ### The example twins
 
-Seventeen programs have been translated. The results, *twins*, are among the
-examples under `migration/scasp/`. Open them with **File ▸ Open copy from
-server…**:
+Seventeen programs have been translated already. The translated programs,
+called *twins*, sit among the examples under `migration/scasp/`. Open a twin
+with **File ▸ Open copy from server…**:
 
 - LE1's translations (from the s(CASP) pack's tests): `citizenshiptrust`,
   `criminaljustice`, `family_le`, `impossibleancestor` (a rule in a scenario),
@@ -128,19 +145,21 @@ server…**:
 - classics of s(CASP)'s own examples: `birds` (classical negation), `family`,
   `classic_negation_inconstistent`, `abdbirds` (abducibles).
 
-Every expectation in them is s(CASP)'s answer on the source. Two are kept as
-comments, each with its reason. In `obligation`, s(CASP) answers with a
-constraint rather than a value. In `loanwithcure`, s(CASP) says the borrower
-defaults, while the program's own cure rule holds on that date; the twin
-follows the rules.
+Every answer a twin expects is the answer s(CASP) gave on the original file.
+Two of those expected answers are kept as comments rather than as live tests,
+each with the reason beside it. In `obligation`, s(CASP) answers with a
+constraint instead of a value. In `loanwithcure`, s(CASP) says that the
+borrower defaults, while the program's own cure rule holds on that date; the
+twin follows the rules.
 
 ### See s(CASP): the program in s(CASP)
 
 Right-click anywhere in the editor and choose **See s(CASP)**. The **PROLOG
-Equivalent** panel opens with the whole program as s(CASP) emits it. That is
-`#pred` lines from the templates, the rules, classical negation for opposite
-forms, `false :- …` for the constraints, and at the end any compile-time
-issues as comments. **Copy** copies it. For `birds`:
+Equivalent** panel opens, holding the whole program as s(CASP) writes it: a
+`#pred` line for each template, the rules themselves, classical negation for
+the opposite forms, `false :- …` for the constraints, and, at the end, any
+problem found while writing the program, as a comment. **Copy** copies the
+whole text. Here is the program `birds`:
 
 ```
 #pred can_fly(A) :: '@(A:thing) can fly'.
@@ -151,42 +170,51 @@ can_fly(A) :-
     is_an_ab(A).
 ```
 
-If the program uses a construct s(CASP) cannot state faithfully (an aggregate,
-a `prolog` goal, a decision table, `is in`, date arithmetic, `according to`,
-…), no program is shown. The same *Not translated* window as a refused export
-lists each problem with its line. The full list is in
+When the program uses something that s(CASP) cannot say faithfully — an
+aggregate, a `prolog` goal, a decision table, `is in`, date arithmetic,
+`according to`, and so on — the editor shows no program at all. Instead the
+same *Not translated* window that a refused export uses lists each problem
+beside the line it is on. The full list of what s(CASP) cannot say is in
 [the s(CASP) reference, §8](../reference/scasp.md#8-unsupported-constructs--issues-errors).
-There is no **File ▸ Export** to s(CASP): See s(CASP) is the way out.
+There is no **File ▸ Export** to s(CASP): **See s(CASP)** is the way out.
 
 ### The s(CASP) engine
 
-The **Engine** picker beside **Query** chooses Prolog or s(CASP) for the query.
-It is shown for every program, or only for programs whose target is not
-Prolog (**Misc ▸ ENGINE PICKER**). A program that declares `the target language
-is: scasp.` selects s(CASP) when it loads, and the importer writes that
-declaration when the source has abducibles, classical negation or constraints.
-The choice is kept in the address as `engine=scasp`. s(CASP) adds constraint
-answers, possible worlds and abduction: each world of an abductive query lists
-what it assumes (*assuming tweety is a penguin*). **Trace** is Prolog only. A
-program s(CASP) cannot state is refused, as for See s(CASP). The
-[s(CASP) reference](../reference/scasp.md) documents the engine; this guide does
-not repeat it.
+The **Engine** picker beside **Query** chooses which reasoner answers the query,
+Prolog or s(CASP). **Misc ▸ ENGINE PICKER** decides whether the picker is shown
+for every program or only for programs whose target language is not Prolog. A
+program that declares `the target language is: scasp.` chooses s(CASP) as soon
+as the program loads, and the translator writes that declaration whenever the
+original file has abducibles, classical negation or constraints in it. The
+editor keeps your choice in the page's web address, as `engine=scasp`.
+
+s(CASP) gives you three things Prolog does not: answers that are constraints
+rather than values, several possible worlds for one question, and abduction,
+which is the assuming of facts that would make the answer hold. Each world of
+an abductive query lists what that world assumes (*assuming tweety is a
+penguin*). **Trace** works with Prolog only. A program s(CASP) cannot state is
+refused, just as **See s(CASP)** refuses it. The
+[s(CASP) reference](../reference/scasp.md) describes the reasoner in full, and
+this guide does not repeat what the reference says.
 
 ### See PROLOG: the PROLOG Equivalent panel
 
-Logical English is compiled to Prolog, and the Prolog engine runs that. Put the
-cursor in a rule, a fact or a scenario fact, right-click, and choose **See
-PROLOG**. The **PROLOG Equivalent** panel shows that one clause, with **Copy**:
+Logical English is turned into Prolog, and the Prolog engine runs the Prolog.
+Put the cursor in a rule, a fact or a scenario fact, right-click, and choose
+**See PROLOG**. The **PROLOG Equivalent** panel shows that one clause, with a
+**Copy** button:
 
 ```
 is_a_parent_of(A, B) :-
     le_at(is_the_mother_of(A, B), 1225, 1270).
 ```
 
-The clause carries LE's source positions (`le_at(Goal, Start, End)`), which
-link each step of an explanation back to the text. It is the clause as LE's
-reasoner runs it, not a standalone Prolog program. There is no export to
-Prolog: Prolog is LE's own compilation, not a translation. To use Prolog code
+The clause carries the positions of the words in the Logical English document
+(`le_at(Goal, Start, End)`), and those positions link each step of an
+explanation back to the sentence it came from. The clause is what Logical
+English's own reasoner runs, not a Prolog program that would run on its own.
+There is no export to Prolog, because Prolog is what Logical English turns
+itself into rather than another system to translate to. To use Prolog code
 *inside* a program, include a `.pl` resource
 ([Prolog resources](../reference/language.md#141-prolog-resources-pl)).
 
@@ -210,7 +238,7 @@ Prolog: Prolog is LE's own compilation, not a translation. To use Prolog code
 | `[H|T]` patterns | a residue block |
 | LE1: `/* Scenario x … % */`, Unix-time dates, `is_days_after/3` | a scenario, ISO dates, `… is … days after …` |
 
-Here is `birds`, from s(CASP)'s examples:
+Here is the twin `birds`, from s(CASP)'s own examples:
 
 ```le
 the target language is: scasp.
@@ -227,7 +255,7 @@ a thing can not fly if
     the thing is an ab.
 ```
 
-and a denial with abducibles, from a small file:
+and here is a denial with abducibles, from a small file:
 
 ```le
     *a person* votes; unknown; opposite: it is false that *a person* votes.
@@ -238,66 +266,77 @@ it must not be true that
     and the person is a minor.
 ```
 
-LE's s(CASP) output and this reader are two directions of one mapping. Over
-LE2's examples, LE → s(CASP) → LE → s(CASP) gives back the same s(CASP)
+Writing s(CASP) out and reading s(CASP) in are two directions of one and the
+same correspondence. Over LE2's examples, going from Logical English to s(CASP)
+to Logical English and out to s(CASP) again gives back the very same s(CASP)
 program for 83 of the 88 programs s(CASP) can state (14 September 2026;
 [§14 of the reference](../reference/scasp.md#14-reading-scasp-back-september-2026)).
 
 ## Traps
 
-- **The expectations need s(CASP) on the server.** The expected answers are
-  computed by running the source with SWI-Prolog's s(CASP) library. Without it
-  each expectation is kept as a comment, `% pending — s(CASP) did not answer on
+- **The expected answers need s(CASP) on the server.** The translator works
+  each expected answer out by running the original file with SWI-Prolog's
+  s(CASP) library. Where the server has no such library, the translator keeps
+  each expected answer as a comment, `% pending — s(CASP) did not answer on
   the source (…)`, and a note says that s(CASP) is not installed and how many
-  expectations are pending. Write your own `expects answers`
-  lines, or open the file on an installation with s(CASP).
-- **Only s(CASP) and Prolog syntax.** A `.lp` file in another ASP dialect is
-  not s(CASP). Each clingo-only statement (a choice rule `{a;b}.`, a
-  disjunctive head `a ; b.`, cardinality bounds `1 { … } 1`, `#count`
-  aggregates, ranges `1..n`, weak constraints `:~`, `#const`), and any line
-  that does not read, becomes a `% RESIDUE not_scasp_<n>` block with its text
-  and line, counted as residue. Expectations whose queries depend on what such
-  a block concludes are pending; when a block concludes nothing nameable (a
-  weak constraint, a `#const`) every expectation is pending, because s(CASP)
-  ran without it. Restate the choices in s(CASP) or Logical English.
-- **Wordings made from names read oddly.** `old(X)` becomes `*a thing* is an
-  old`, and `s(C)` becomes `*a thing* is a s`. `#pred` wordings are kept as
-  written, typos included (`isafter commencement`), and quoted constants keep
-  their underscores (`the_UK`). Edit the templates; the ledger lists them.
-- **Lists.** A clause that takes a list apart is residue. Restate it with an
-  aggregate or `is in`, or keep it in an included Prolog resource.
-- **Constraint answers are not values.** When s(CASP) answers with a
-  constraint (`A #> 3`) the expectation is pending. LE's scenarios compare
-  answers as text.
-- **Negation differs between the engines.** Negation as failure
-  (`it is not the case that`) and classical negation (the opposite form) are
-  different things. With the Prolog engine, a program that loops through
-  negation may loop or answer unsoundly, where s(CASP) computes the stable
-  models. The verifier warns about such programs. Run them with
-  `the target language is: scasp.`
-- **Opposite forms are not negation in a condition.** `the thing can not fly`
-  proves the opposite form, which must be concluded by a rule. It does not mean
-  `it is not the case that the thing can fly`.
-- **Constraints were queries before 15 September 2026.** Twins built before
-  then had a query `denial_<n>` that every scenario expected to have no answer.
-  Denials are now integrity constraints: a case whose facts meet one answers
-  nothing, and nothing assumed may meet it.
-- **s(CASP) and Logical English can disagree.** In `loanwithcure` they do,
-  through s(CASP)'s constructive negation over an anonymous variable. The twin
-  follows the rules and keeps s(CASP)'s answer as a pending comment. The twin is
-  never the oracle.
+  answers are waiting. Write your own `expects answers` lines, or open the file
+  on an installation that has s(CASP).
+- **Only s(CASP) and Prolog syntax.** Answer Set Programming has several
+  dialects, and a `.lp` file in one of the others is not s(CASP). Each
+  statement that only clingo understands becomes a `% RESIDUE not_scasp_<n>`
+  block, holding the statement's text and its line and counted as residue: a
+  choice rule `{a;b}.`, a head offering alternatives `a ; b.`, cardinality
+  bounds `1 { … } 1`, `#count` aggregates, ranges `1..n`, weak constraints
+  `:~`, and `#const`. Any line the translator cannot read at all goes the same
+  way. An expected answer whose query depends on what such a block would
+  conclude is left waiting. When a block concludes nothing that can be named at
+  all, as a weak constraint or a `#const` does, every expected answer is left
+  waiting, because s(CASP) ran without that block. Restate the choices in
+  s(CASP) or in Logical English.
+- **Wordings built from names read oddly.** `old(X)` becomes `*a thing* is an
+  old`, and `s(C)` becomes `*a thing* is a s`. The translator keeps a `#pred`
+  wording exactly as written, typos and all (`isafter commencement`), and a
+  quoted constant keeps its underscores (`the_UK`). Edit the templates; the
+  ledger lists every one of them.
+- **Lists.** A clause that takes a list apart is left as residue. Restate the
+  clause with an aggregate or with `is in`, or keep the clause in an included
+  Prolog resource.
+- **Constraint answers are not values.** When s(CASP) answers with a constraint
+  such as `A #> 3` rather than with a value, the expected answer is left
+  waiting. A Logical English scenario compares answers as pieces of text.
+- **The two reasoners treat negation differently.** Negation as failure, which
+  Logical English writes `it is not the case that`, and classical negation,
+  the opposite form, are two different things. Take a program in which a rule
+  negates a conclusion that depends on the rule itself. Run with Prolog, such a
+  program may go round in circles or give an unsound answer, where s(CASP)
+  works out the stable models instead. The verifier warns about such a program.
+  Run it with `the target language is: scasp.`
+- **An opposite form in a condition is not a negation.** `the thing can not
+  fly` asks for the opposite form to be proved, and some rule has to conclude
+  it. The opposite form does not mean the same as `it is not the case that the
+  thing can fly`.
+- **Constraints were queries before 15 September 2026.** A twin built before
+  that date carried a query `denial_<n>` that every scenario expected to have
+  no answer. A denial is now an integrity constraint instead: a case whose
+  facts meet the constraint answers nothing, and nothing the reasoner assumes
+  may meet it either.
+- **s(CASP) and Logical English can disagree.** The twin `loanwithcure` is one
+  such disagreement, and it arises from the way s(CASP) negates a condition
+  that holds an anonymous variable. The twin follows the rules and keeps
+  s(CASP)'s answer as a comment, waiting. The twin is never the final word on
+  what the rules mean.
 - **Constants ending in `_<digits>`.** The s(CASP) library reads `x_1` back as
-  `x`, so `x_1` and `x_2` are the same individual to the s(CASP) engine. Name
-  individuals `person_a`, `person_b`.
-- **Abducibles with a non-ground `is different from` constraint** can be
-  answered unsoundly by the s(CASP) library (1.1.4). Ground constraints are
-  sound.
-- **See s(CASP) refuses rather than approximates.** A program with an aggregate
-  or a `prolog` goal has no s(CASP) form. Use the Prolog engine for it: the two
-  engines complement each other.
-- **See PROLOG is one clause, and not an export.** It shows the clause under the
-  cursor, with source positions. Nothing on the menus writes the program as a
-  Prolog file.
+  `x`, so `x_1` and `x_2` are one and the same individual to s(CASP). Name your
+  individuals `person_a` and `person_b` instead.
+- **Abducibles with an `is different from` constraint whose values are not yet
+  fixed** can be answered unsoundly by the s(CASP) library (version 1.1.4). A
+  constraint between values that are already fixed is answered soundly.
+- **See s(CASP) refuses rather than approximates.** A program that uses an
+  aggregate or a `prolog` goal has no form in s(CASP) at all. Answer such a
+  program with the Prolog engine: the two reasoners complement each other.
+- **See PROLOG shows one clause, and is not an export.** **See PROLOG** shows
+  the clause under the cursor, with the positions of the words it came from.
+  Nothing on the menus writes the whole program out as a Prolog file.
 
 ## See also
 
