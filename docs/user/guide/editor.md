@@ -56,6 +56,15 @@ symbol shows "Copied" for a moment. The address is the page with
 The browser's own right-click command **Copy link** on the symbol copies the
 same address.
 
+A folder that has a README (a short text saying what is in the folder) also
+has a **📖 About this folder** button after its name. The button opens the
+README in a panel beside the list, without opening or closing the folder. A
+README says where to start, gives a short list of steps to try, and points to
+further reading. A link in it to a program opens that program in the editor,
+often on a chosen scenario and question, ready to run. **Close** or the Escape
+key closes the panel. The address of the page with `?readme=<the folder>`
+opens the panel on that folder's README.
+
 The line **Other languages** of the landing page leads to the programs written
 in Português Lógico, Español Lógico, Français Logique and Italiano Logico. The
 guide [Logical English in other languages](languages.md) explains how a

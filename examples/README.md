@@ -35,3 +35,17 @@ When an example moves, its old name keeps working through
 in the manual: [Example names, and the names they used to
 have](../docs/user/guide/editor.md#example-names-and-the-names-they-used-to-have),
 which carries the table of directory renamings (the test keeps the two in step).
+
+**A folder's README.** The landing page shows each folder's README in a
+panel (📖 *About this folder*; `web_extras/landing/readme-panel.js`). A README
+of a substantial folder is short (about 40 lines) and has the same parts: the
+title (its first line, which the landing page also shows as the folder's
+description), one to three sentences on what the folder holds, **Start here**
+(two to four programs), **Try this** (four to seven steps with the answers to
+expect), **More** (a `DETAILS.md` beside it for the long material, the manual,
+and online sources) and, for a model or a twin, the **Disclaimer**. Links are
+written as they work on GitHub, relative to the README: `x.le?scenario=s&query=q`
+opens the program in the editor on that scenario and question (`view=` opens
+the executive view), `sub/` opens that folder's README in the panel, and any
+other file opens on GitHub. `testing/test_example_readmes.pl` checks that every
+link leads to a file and every scenario and question it names exists.

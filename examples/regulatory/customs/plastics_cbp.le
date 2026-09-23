@@ -1,6 +1,6 @@
 % Plastics rulings of U.S. Customs and Border Protection (CROSS, rulings.cbp.gov)
 % run through the whole modelled tariff (tariff.le). The first prototype's
-% sample of articles of plastics (see README.md).
+% sample of articles of plastics (see DETAILS.md).
 %
 % One scenario per ruling, which the scenario names ("scenario n is, as
 % stated in ruling NY ...:"); each article is described by the facts the
@@ -11,7 +11,7 @@
 % a fact: the expectation is the six-digit subheading the model derives.
 % Selection: the most recent rulings returned by CROSS for 3923.21-90,
 % 3924.10-90 and 3926.20-90 (September 2026). Rulings N360188-N360191 are one
-% bag imported from four countries. See README.md for the method and results.
+% bag imported from four countries. See DETAILS.md for the method and results.
 %
 % DISCLAIMER. This program is an example of Logical English. It is provided
 % "as is", without warranty of any kind, express or implied, including any

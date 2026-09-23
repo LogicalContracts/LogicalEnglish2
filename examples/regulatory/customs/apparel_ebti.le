@@ -11,7 +11,7 @@
 % Selection: the most recent valid BTI (English, French or German) for each
 % of the same subheadings (September 2026). A BTI gives an eight-digit CN code
 % whose first six digits are the HS subheading compared here. See
-% README.md for the method and the results.
+% DETAILS.md for the method and the results.
 %
 % DISCLAIMER. This program is an example of Logical English. It is provided
 % "as is", without warranty of any kind, express or implied, including any
