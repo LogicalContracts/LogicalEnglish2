@@ -530,16 +530,20 @@ folder_readme_src(Dir, Prefix, Element) :-
 landing_readme_script(JS) :-
     uit('About this folder', About),
     uit('Close', Close),
+    uit('Copy the web address of this README', Copy),
+    uit('Copied', Copied),
     atom_json_term(AboutJs, About, [as(atom)]),
     atom_json_term(CloseJs, Close, [as(atom)]),
+    atom_json_term(CopyJs, Copy, [as(atom)]),
+    atom_json_term(CopiedJs, Copied, [as(atom)]),
     (   catch(read_file_to_string('web_extras/landing/readme-panel.js', Panel, [encoding(utf8)]), _, fail)
     ->  true
     ;   Panel = ""
     ),
     format(atom(JS), 'window.EXAMPLE_README = { folders: "details.le-folder[data-path]", \c
 editor: "/editor/index.html?example=", viewer: "/executive?program=", programs: ["le"], keepExt: [], \c
-source: "https://github.com/LogicalContracts/LogicalEnglish2/blob/main/", about: ~w, close: ~w };~n~w',
-           [AboutJs, CloseJs, Panel]).
+source: "https://github.com/LogicalContracts/LogicalEnglish2/blob/main/", about: ~w, close: ~w, copy: ~w, copied: ~w };~n~w',
+           [AboutJs, CloseJs, CopyJs, CopiedJs, Panel]).
 
 %!  landing_folders_script(-JS:atom) is det.
 %

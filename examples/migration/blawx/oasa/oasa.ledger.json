@@ -30,7 +30,7 @@
       "in_program":"*a person* meets the residence requirements of section 3_1_b_i",
       "kind":"category, attribute or relationship",
       "mapping":"its #pred wording -> a template",
-      "note":"",
+      "note":"Used in the source only by clauses this twin keeps as residue blocks (see the residue entries): the verifier reports the template unused.",
       "verdict":"encoded"
     },
     {
@@ -38,7 +38,7 @@
       "in_program":"*a person* was born on *a time*",
       "kind":"category, attribute or relationship",
       "mapping":"its #pred wording -> a template",
-      "note":"",
+      "note":"Used in the source only by clauses this twin keeps as residue blocks (see the residue entries): the verifier reports the template unused.",
       "verdict":"encoded"
     },
     {
@@ -46,7 +46,7 @@
       "in_program":"as of July 1977 *a person* resided in Canada",
       "kind":"category, attribute or relationship",
       "mapping":"its #pred wording -> a template",
-      "note":"",
+      "note":"Used in the source only by clauses this twin keeps as residue blocks (see the residue entries): the verifier reports the template unused.",
       "verdict":"encoded"
     },
     {
@@ -54,7 +54,7 @@
       "in_program":"as of July 1977 *a person* possessed a valid immigration visa",
       "kind":"category, attribute or relationship",
       "mapping":"its #pred wording -> a template",
-      "note":"",
+      "note":"Used in the source only by clauses this twin keeps as residue blocks (see the residue entries): the verifier reports the template unused.",
       "verdict":"encoded"
     },
     {
@@ -62,7 +62,7 @@
       "in_program":"as of July 1977 *a person* had resided in Canada after 18 years of age",
       "kind":"category, attribute or relationship",
       "mapping":"its #pred wording -> a template",
-      "note":"",
+      "note":"Used in the source only by clauses this twin keeps as residue blocks (see the residue entries): the verifier reports the template unused.",
       "verdict":"encoded"
     },
     {
@@ -70,7 +70,7 @@
       "in_program":"*a person* meets the age requirement of section 3_1_b_ii",
       "kind":"category, attribute or relationship",
       "mapping":"its #pred wording -> a template",
-      "note":"",
+      "note":"Used in the source only by clauses this twin keeps as residue blocks (see the residue entries): the verifier reports the template unused.",
       "verdict":"encoded"
     },
     {
@@ -78,7 +78,7 @@
       "in_program":"the date today is *a time*",
       "kind":"category, attribute or relationship",
       "mapping":"its #pred wording -> a template",
-      "note":"",
+      "note":"Read in the source only by clauses this twin keeps as residue blocks (see the residue entries), so no rule here reads its facts: the verifier reports them unconsumed.",
       "verdict":"encoded"
     },
     {
@@ -118,7 +118,7 @@
       "in_program":"*a person* satisfies the age requirement of s3_1_c_ii",
       "kind":"category, attribute or relationship",
       "mapping":"its #pred wording -> a template",
-      "note":"",
+      "note":"Used in the source only by clauses this twin keeps as residue blocks (see the residue entries): the verifier reports the template unused.",
       "verdict":"encoded"
     },
     {
@@ -198,7 +198,7 @@
       "in_program":"*a person* meets the residence requirements of section 3_1_b_i under *a provision*",
       "kind":"section conclusion",
       "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
-      "note":"",
+      "note":"Defined in the source only by clauses this twin keeps as residue blocks (see the residue entries), so nothing defines it here: the verifier reports it undefined.",
       "verdict":"encoded"
     },
     {
@@ -206,7 +206,7 @@
       "in_program":"*a person* meets the age requirement of section 3_1_b_ii under *a provision*",
       "kind":"section conclusion",
       "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
-      "note":"",
+      "note":"Defined in the source only by clauses this twin keeps as residue blocks (see the residue entries), so nothing defines it here: the verifier reports it undefined.",
       "verdict":"encoded"
     },
     {
@@ -230,7 +230,7 @@
       "in_program":"*a person* satisfies the age requirement of s3_1_c_ii under *a provision*",
       "kind":"section conclusion",
       "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
-      "note":"",
+      "note":"Defined in the source only by clauses this twin keeps as residue blocks (see the residue entries), so nothing defines it here: the verifier reports it undefined.",
       "verdict":"encoded"
     },
     {
@@ -306,7 +306,7 @@
       "verdict":"encoded"
     },
     {
-      "element":"according_to(sec_3__subsec_1__para_b__subpara_i_section,meets_residence_requirement_s3_1_b_i,_28566):-not(pensioner_july...",
+      "element":"according_to(sec_3__subsec_1__para_b__subpara_i_section,meets_residence_requirement_s3_1_b_i,_29188):-not(pensioner_july...",
       "in_program":"section_3_1_b_i_residue",
       "kind":"rule",
       "mapping":"not translated: kept verbatim as a residue block",
@@ -314,7 +314,7 @@
       "verdict":"residue"
     },
     {
-      "element":"according_to(sec_3__subsec_1__para_b__subpara_i_section,meets_residence_requirement_s3_1_b_i,_28344):-not(pensioner_july...",
+      "element":"according_to(sec_3__subsec_1__para_b__subpara_i_section,meets_residence_requirement_s3_1_b_i,_28966):-not(pensioner_july...",
       "in_program":"section_3_1_b_i_residue_2",
       "kind":"rule",
       "mapping":"not translated: kept verbatim as a residue block",
@@ -322,7 +322,7 @@
       "verdict":"residue"
     },
     {
-      "element":"according_to(sec_3__subsec_1__para_b__subpara_i_section,meets_residence_requirement_s3_1_b_i,_28122):-not(pensioner_july...",
+      "element":"according_to(sec_3__subsec_1__para_b__subpara_i_section,meets_residence_requirement_s3_1_b_i,_28744):-not(pensioner_july...",
       "in_program":"section_3_1_b_i_residue_3",
       "kind":"rule",
       "mapping":"not translated: kept verbatim as a residue block",
@@ -330,7 +330,7 @@
       "verdict":"residue"
     },
     {
-      "element":"according_to(sec_3__subsec_1__para_b__subpara_ii_section,meets_age_requirement_s3_1_b_ii,_27806):-blawx_today(_27816),bi...",
+      "element":"according_to(sec_3__subsec_1__para_b__subpara_ii_section,meets_age_requirement_s3_1_b_ii,_28428):-blawx_today(_28438),bi...",
       "in_program":"section_3_1_b_ii_residue",
       "kind":"rule",
       "mapping":"not translated: kept verbatim as a residue block",
@@ -394,7 +394,7 @@
       "verdict":"encoded"
     },
     {
-      "element":"according_to(sec_3__subsec_1__para_c__subpara_ii_section,meets_s3_1_c_ii,_26330):-blawx_today(_26340),birthdate(_26330,_...",
+      "element":"according_to(sec_3__subsec_1__para_c__subpara_ii_section,meets_s3_1_c_ii,_26952):-blawx_today(_26962),birthdate(_26952,_...",
       "in_program":"section_3_1_c_ii_residue",
       "kind":"rule",
       "mapping":"not translated: kept verbatim as a residue block",
@@ -696,7 +696,7 @@
       "sources/oasa.yaml",
       "https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418"
     ],
-    "date":"2026-09-15",
+    "date":"2026-09-23",
     "licence":"Blawx: MIT",
     "program":"oasa",
     "source":"Old Age Security Act",

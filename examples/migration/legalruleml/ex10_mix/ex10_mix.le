@@ -16,11 +16,6 @@ the target language is: prolog.
 the knowledge base ex10_mix includes these resources:
     deontic.
 
-the templates are:
-    *a thing* is a rel2.
-    *a thing* is a rel3.
-    the relevant date is *a date*.
-
 the knowledge base ex10_mix includes:
 
 the text of the source document is at "sources/ex10-mix-normal.lrml".

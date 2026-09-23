@@ -2,7 +2,7 @@
 
 Source: New Bird Act — sources/bird.yaml, https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418
 Translator: lpsPlus/migration/blawx (blawx_twin.pl)
-Date: 2026-09-16
+Date: 2026-09-23
 Source licence: Blawx: MIT
 
 ## Summary
@@ -26,17 +26,17 @@ A source element is **encoded** when a documented mapping rule translated it wit
 | penguin/1 | category, attribute or relationship | encoded | its #pred wording -> a template | *a penguin* is a penguin |  |
 | flies/1 | category, attribute or relationship | encoded | its #pred wording -> a template | *a thing* can fly |  |
 | on_plane/1 | category, attribute or relationship | encoded | its #pred wording -> a template | *a penguin* is on a plane |  |
-| blawx_applies/2 | category, attribute or relationship | encoded | its #pred wording -> a template | *a provision* applies to *a thing* |  |
+| blawx_applies/2 | category, attribute or relationship | encoded | its #pred wording -> a template | *a provision* applies to *a thing* | As in the source: section 5's "except for pingu" states the opposite of this template (*a provision* does not apply to *a thing*) only under section_5_pingu (holds(sec_5__span_pingu_section, -blawx_applies, ...)); Blawx's encoding never derives -blawx_applies from it, so nothing concludes the opposite and pingu with a jetpack can fly in Blawx too (see the scenario's note). The verifier reports the opposite used as a condition with nothing concluding it. |
 | cartoon_jetpack/1 | category, attribute or relationship | encoded | its #pred wording -> a template | *a penguin* is a cartoon with a jetpack |  |
 | holds(sec_3_section, neg(flies), ...) | section conclusion | encoded | the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>` | *a thing* cannot fly under *a provision* |  |
 | holds(sec_4_section, flies, ...) | section conclusion | encoded | the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>` | *a thing* can fly under *a provision* |  |
 | holds(sec_5_section, flies, ...) | section conclusion | encoded | the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>` | *a thing* can fly under *a provision* |  |
-| holds(sec_5__span_pingu_section, neg(blawx_applies), ...) | section conclusion | encoded | the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>` | *a provision* does not apply to *a thing* under *a provision* |  |
+| holds(sec_5__span_pingu_section, neg(blawx_applies), ...) | section conclusion | encoded | the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>` | *a provision* does not apply to *a thing* under *a provision* | As in the source: the fact of section 5 that it does not apply to pingu is stated under section_5_pingu and nothing in Blawx's encoding reads it (see the note on the opposite of *a provision* applies to *a thing*); the verifier reports it unconsumed. |
 | according_to(sec_1_section, bird, ...) :- ... | rule | encoded | a rule of the section, citing it | section_1 |  |
 | according_to(sec_2_section, flies, ...) :- ... | rule | encoded | a defeasible rule: guarded by the failure of its defeaters under their sections | section_2 |  |
 | according_to(sec_3_section, -flies, ...) :- ... | rule | encoded | a defeasible rule: guarded by the failure of its defeaters under their sections | section_3 |  |
 | according_to(sec_4_section, flies, ...) :- ... | rule | encoded | a rule of the section, citing it | section_4 |  |
-| blawx_applies(sec_5_section,_6140) :- ... | rule | encoded | a rule of the section, citing it | section_5 |  |
+| blawx_applies(sec_5_section,_338956) :- ... | rule | encoded | a rule of the section, citing it | section_5 |  |
 | according_to(sec_5_section, flies, ...) :- ... | rule | encoded | a rule of the section, citing it | section_5_2 |  |
 | penguin(pingu) | fact | encoded | a fact of the section, citing it | penguin(pingu) |  |
 | holds(sec_5__span_pingu_section,-blawx_applies,sec_5_section,pingu) | fact | encoded | a conclusion stated by a section -> a fact under that section | holds(sec_5__span_pingu_section,-blawx_applies,sec_5_section,pingu) |  |

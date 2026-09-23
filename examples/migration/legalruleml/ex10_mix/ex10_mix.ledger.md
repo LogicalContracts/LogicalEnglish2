@@ -2,15 +2,15 @@
 
 Source: a LegalRuleML document (OASIS LegalRuleML Core 1.0) — ex10-mix-normal.lrml
 Translator: lpsPlus/migration/legalruleml (lrml_twin.pl)
-Date: 2026-09-15
+Date: 2026-09-23
 
 ## Summary
 
 | Verdict | Source elements |
 |---|---|
-| encoded | 13 |
-| approximated | 7 |
-| residue | 20 |
+| encoded | 14 |
+| approximated | 5 |
+| residue | 21 |
 | **total** | 40 |
 
 Fidelity: 0 source test(s) translated to scenarios; not run.
@@ -21,8 +21,8 @@ A source element is **encoded** when a documented mapping rule translated it wit
 
 | Source element | Kind | Verdict | Mapping | In the program | Note |
 |---|---|---|---|---|---|
-| Rel rel2/1 | relation | approximated | Rel -> a template (a naive wording of its name, to be improved) | *a thing* is a rel2 |  |
-| Rel rel3/1 | relation | approximated | Rel -> a template (a naive wording of its name, to be improved) | *a thing* is a rel3 |  |
+| Rel rel2/1 | relation | residue | Rel -> no template: it occurs only in what the twin leaves out (a statement the translator could not read; see its entry) |  |  |
+| Rel rel3/1 | relation | encoded | Rel -> no template: it occurs only as the conclusion of a defeater, which concludes nothing (its rule is an exception of the rules it attacks) |  |  |
 | defeater ps2 | defeater | encoded | a defeater -> an exception (it is not the case that ...) of the rules it attacks | ps2 |  |
 | Reparation rep1 (pen1 for ps1) | reparation | encoded | Reparation -> the penalty's chain of obligations on the violation | rep1 |  |
 | source ref1 | source | encoded | LegalSource -> a document; the rules it is associated with cite it (with provenance) | ref1 |  |
@@ -64,6 +64,7 @@ A source element is **encoded** when a documented mapping rule translated it wit
 
 ## Residue
 
+- **Rel rel2/1** (relation) — Rel -> no template: it occurs only in what the twin leaves out (a statement the translator could not read; see its entry); in the program: . 
 - **an Atom with no Rel** (atom) — an Atom with no relation (a keyref the document does not resolve); in the program: . 
 - **statement ps1** (statement) — a statement the translator could not read (an atom with no relation, a keyref to nothing): left out; in the program: ps1. 
 - **Reparation rep1** (reparation) — a Reparation whose penalty or statement is missing: dropped; in the program: rep1. 

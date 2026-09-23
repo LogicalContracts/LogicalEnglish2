@@ -17,15 +17,16 @@ the knowledge base ex3_deontic includes these resources:
     deontic.
 
 the templates are:
-    *a thing* is a rel1.
+    *a thing* is a rel1; scenario element.
     *a thing* is a rel103.
-    *a thing* is a rel2.
+    *a thing* is a rel2; scenario element.
     *a thing* is a rel3.
-    *a thing* is not a rel3.
+    *a thing* is not a rel3; scenario element.
     *a thing* is a rel4.
     *a thing* is a rel5.
-    the statement *a statement* is violated.
+    the statement *a statement* is violated; scenario element.
     the statement *a statement* applies.
+    *a party* is permitted that *a sentence*; scenario element.
 
 the knowledge base ex3_deontic includes:
 

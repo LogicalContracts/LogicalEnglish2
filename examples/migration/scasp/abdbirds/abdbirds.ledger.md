@@ -1,8 +1,8 @@
 # Migration ledger: abdbirds
 
 Source: an s(CASP) program — abdbirds.pl
-Translator: InsurLE2/migration/scasp (scasp_twin.pl)
-Date: 2026-09-15
+Translator: lpsPlus/migration/scasp (scasp_twin.pl)
+Date: 2026-09-23
 
 ## Summary
 

@@ -46,7 +46,7 @@
       "in_program":"*a thing* is the penguin of *a second thing*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Source defect: the source reads it and defines it nowhere (and does not declare it dynamic), so nothing makes it true; s(CASP) answers nothing through it, and neither does the twin (the verifier reports it undefined).",
       "verdict":"encoded"
     },
     {
@@ -54,7 +54,7 @@
       "in_program":"*a thing* is a s",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Source defect: the source reads it and defines it nowhere (and does not declare it dynamic), so nothing makes it true; s(CASP) answers nothing through it, and neither does the twin (the verifier reports it undefined).",
       "verdict":"encoded"
     },
     {
@@ -122,7 +122,7 @@
       "verdict":"encoded"
     },
     {
-      "element":"?- flies(_187668)",
+      "element":"?- flies(_74980)",
       "in_program":"the queries",
       "kind":"query",
       "mapping":"a ?- query -> a query, asked in every scenario",
@@ -138,10 +138,10 @@
   },
   "meta": {
     "artifacts": ["birds.pl" ],
-    "date":"2026-09-15",
+    "date":"2026-09-23",
     "program":"birds",
     "source":"an s(CASP) program",
-    "translator":"InsurLE2/migration/scasp (scasp_twin.pl)"
+    "translator":"lpsPlus/migration/scasp (scasp_twin.pl)"
   },
   "pending_expectations":0,
   "source_tests":1

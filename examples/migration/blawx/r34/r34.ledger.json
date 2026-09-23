@@ -142,7 +142,7 @@
       "in_program":"*an occupation* is an occupation",
       "kind":"category, attribute or relationship",
       "mapping":"its #pred wording -> a template",
-      "note":"",
+      "note":"As in the source: facts are stated and no rule, constraint or test of the source reads them (the verifier reports them unconsumed).",
       "verdict":"encoded"
     },
     {
@@ -206,7 +206,7 @@
       "in_program":"*a payment type* is a payment type",
       "kind":"category, attribute or relationship",
       "mapping":"its #pred wording -> a template",
-      "note":"",
+      "note":"As in the source: facts are stated and no rule, constraint or test of the source reads them (the verifier reports them unconsumed).",
       "verdict":"encoded"
     },
     {
@@ -214,7 +214,7 @@
       "in_program":"*a compensation type* is a compensation type",
       "kind":"category, attribute or relationship",
       "mapping":"its #pred wording -> a template",
-      "note":"",
+      "note":"As in the source: facts are stated and no rule, constraint or test of the source reads them (the verifier reports them unconsumed).",
       "verdict":"encoded"
     },
     {
@@ -390,7 +390,7 @@
       "in_program":"*a globe* is a globe",
       "kind":"category, attribute or relationship",
       "mapping":"its #pred wording -> a template",
-      "note":"",
+      "note":"As in the source: facts are stated and no rule, constraint or test of the source reads them (the verifier reports them unconsumed).",
       "verdict":"encoded"
     },
     {
@@ -398,7 +398,7 @@
       "in_program":"*a jurisdiction* is a jurisdiction",
       "kind":"category, attribute or relationship",
       "mapping":"its #pred wording -> a template",
-      "note":"",
+      "note":"As in the source: facts are stated and no rule, constraint or test of the source reads them (the verifier reports them unconsumed).",
       "verdict":"encoded"
     },
     {
@@ -850,7 +850,7 @@
       "verdict":"encoded"
     },
     {
-      "element":"person(_172654) :- ...",
+      "element":"person(_663826) :- ...",
       "in_program":"section_34_1_d",
       "kind":"rule",
       "mapping":"a rule of the section, citing it",
@@ -858,7 +858,7 @@
       "verdict":"encoded"
     },
     {
-      "element":"payment_reason(_172626) :- ...",
+      "element":"payment_reason(_663798) :- ...",
       "in_program":"section_34_1_d_2",
       "kind":"rule",
       "mapping":"a rule of the section, citing it",
@@ -890,7 +890,7 @@
       "verdict":"encoded"
     },
     {
-      "element":"appointment_in(_171820,_171822) :- ...",
+      "element":"appointment_in(_662992,_662994) :- ...",
       "in_program":"section_34_3_2",
       "kind":"rule",
       "mapping":"a rule of the section, citing it",
@@ -1503,7 +1503,7 @@
       "sources/r34.yaml",
       "https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418"
     ],
-    "date":"2026-09-15",
+    "date":"2026-09-23",
     "licence":"Blawx: MIT",
     "program":"r34",
     "source":"Legal Profession Professional Conduct Rules",

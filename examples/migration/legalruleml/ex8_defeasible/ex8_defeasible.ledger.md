@@ -2,14 +2,14 @@
 
 Source: a LegalRuleML document (OASIS LegalRuleML Core 1.0) — ex8-defeasible-normal.lrml
 Translator: lpsPlus/migration/legalruleml (lrml_twin.pl)
-Date: 2026-09-15
+Date: 2026-09-23
 
 ## Summary
 
 | Verdict | Source elements |
 |---|---|
-| encoded | 6 |
-| approximated | 4 |
+| encoded | 7 |
+| approximated | 3 |
 | residue | 0 |
 | **total** | 10 |
 
@@ -22,7 +22,7 @@ A source element is **encoded** when a documented mapping rule translated it wit
 | Source element | Kind | Verdict | Mapping | In the program | Note |
 |---|---|---|---|---|---|
 | Rel rel1/1 | relation | approximated | Rel -> a template (a naive wording of its name, to be improved) | *a thing* is a rel1 |  |
-| Rel rel103/1 | relation | approximated | Rel -> a template (a naive wording of its name, to be improved) | *a thing* is a rel103 |  |
+| Rel rel103/1 | relation | encoded | Rel -> no template: it occurs only as the conclusion of a defeater, which concludes nothing (its rule is an exception of the rules it attacks) |  |  |
 | Rel rel2/1 | relation | approximated | Rel -> a template (a naive wording of its name, to be improved) | *a thing* is a rel2 |  |
 | Rel rel3/1 | relation | approximated | Rel -> a template (a naive wording of its name, to be improved) | *a thing* is a rel3 |  |
 | constitutive statement cs1 | statement | encoded | ConstitutiveStatement -> an LE rule | cs1 |  |

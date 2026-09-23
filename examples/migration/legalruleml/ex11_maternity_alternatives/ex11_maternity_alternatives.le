@@ -20,8 +20,8 @@ the templates are:
     *an income* is earned in *a year*.
     the maternity benefit is *an amount* in *a year*.
     *an income* is reported in *a year*.
-    *a number* is 80 percent of five twelfths of *an income*.
-    the interpretation adopted is *an interpretation*.
+    *a number* is 80 percent of five twelfths of *an income*; scenario element.
+    the interpretation adopted is *an interpretation*; scenario element.
 
 the knowledge base ex11_maternity_alternatives includes:
 

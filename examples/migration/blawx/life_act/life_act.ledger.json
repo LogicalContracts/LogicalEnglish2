@@ -6,7 +6,7 @@
       "in_program":"*a person* is a person",
       "kind":"category, attribute or relationship",
       "mapping":"its #pred wording -> a template",
-      "note":"",
+      "note":"Read in the source only by clauses this twin keeps as residue blocks (see the residue entries), so no rule here reads its facts: the verifier reports them unconsumed.",
       "verdict":"encoded"
     },
     {
@@ -14,7 +14,7 @@
       "in_program":"*a person* was born on *a time*",
       "kind":"category, attribute or relationship",
       "mapping":"its #pred wording -> a template",
-      "note":"",
+      "note":"Read in the source only by clauses this twin keeps as residue blocks (see the residue entries), so no rule here reads its facts: the verifier reports them unconsumed.",
       "verdict":"encoded"
     },
     {
@@ -22,7 +22,7 @@
       "in_program":"*a person* died on *a time*",
       "kind":"category, attribute or relationship",
       "mapping":"its #pred wording -> a template",
-      "note":"",
+      "note":"Read in the source only by clauses this twin keeps as residue blocks (see the residue entries), so no rule here reads its facts: the verifier reports them unconsumed.",
       "verdict":"encoded"
     },
     {
@@ -70,7 +70,7 @@
       "in_program":"when_did_bob_live",
       "kind":"test",
       "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
-      "note":"the query blawx_during(_24422,alive(bob),_24426) is not translated: ",
+      "note":"the query blawx_during(_25008,alive(bob),_25012) is not translated: ",
       "verdict":"residue"
     },
     {
@@ -78,7 +78,7 @@
       "in_program":"when_is_bob_not_alive",
       "kind":"test",
       "mapping":"a Blawx test -> a scenario; its expected answers are Blawx's own (oracle.py)",
-      "note":"the query blawx_during(_24282,-alive(bob),_24286) is not translated: ",
+      "note":"the query blawx_during(_24868,-alive(bob),_24872) is not translated: ",
       "verdict":"residue"
     }
   ],
@@ -88,7 +88,7 @@
       "sources/life_act.yaml",
       "https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418"
     ],
-    "date":"2026-09-15",
+    "date":"2026-09-23",
     "licence":"Blawx: MIT",
     "program":"life_act",
     "source":"Life Act.",

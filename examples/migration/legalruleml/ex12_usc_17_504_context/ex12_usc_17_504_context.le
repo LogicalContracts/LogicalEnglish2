@@ -18,17 +18,17 @@ the knowledge base ex12_usc_17_504_context includes these resources:
 
 the templates are:
     *a person* is an infringer.
-    *a copyright owner* elects statutory damages.
-    *a copyright owner* claims statutory damages.
-    *a copyright owner* is not the same person as *an infringer*.
-    *a copyright owner* owns the copyright in *a work*.
-    *a work* is a work protected by copyright.
-    *an infringer* uses *a work*.
+    *a copyright owner* elects statutory damages; scenario element.
+    *a copyright owner* claims statutory damages; scenario element.
+    *a copyright owner* is not the same person as *an infringer*; scenario element.
+    *a copyright owner* owns the copyright in *a work*; scenario element.
+    *a work* is a work protected by copyright; scenario element.
+    *an infringer* uses *a work*; scenario element.
     reduced statutory damages of between *a minimum* and *a maximum* are paid.
     statutory damages of between *a minimum* and *a maximum* are paid.
     increased statutory damages of between *a minimum* and *a maximum* are paid.
-    *a party* sustains the burden of proof.
-    *an infringer* infringed wilfully.
+    *a party* sustains the burden of proof; scenario element.
+    *an infringer* infringed wilfully; scenario element.
 
 the knowledge base ex12_usc_17_504_context includes:
 

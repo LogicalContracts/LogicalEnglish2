@@ -6,7 +6,7 @@
       "in_program":"the average score adding a 10 of *a person* is *a number*",
       "kind":"category, attribute or relationship",
       "mapping":"its #pred wording -> a template",
-      "note":"",
+      "note":"Defined in the source only by clauses this twin keeps as residue blocks (see the residue entries), so nothing defines it here: the verifier reports it undefined.",
       "verdict":"encoded"
     },
     {
@@ -14,7 +14,7 @@
       "in_program":"*a person* is a person",
       "kind":"category, attribute or relationship",
       "mapping":"its #pred wording -> a template",
-      "note":"",
+      "note":"Used in the source only by clauses this twin keeps as residue blocks (see the residue entries): the verifier reports the template unused.",
       "verdict":"encoded"
     },
     {
@@ -22,11 +22,11 @@
       "in_program":"the score of *a person* is *a number*",
       "kind":"category, attribute or relationship",
       "mapping":"its #pred wording -> a template",
-      "note":"",
+      "note":"Used in the source only by clauses this twin keeps as residue blocks (see the residue entries): the verifier reports the template unused.",
       "verdict":"encoded"
     },
     {
-      "element":"according_to(sec_1_section,average_score,_63382,_63384):-person(_63382),findall(_63404,score(_63382,_63404),_63408),coun...",
+      "element":"according_to(sec_1_section,average_score,_69480,_69482):-person(_69480),findall(_69502,score(_69480,_69502),_69506),coun...",
       "in_program":"section_1_residue",
       "kind":"rule",
       "mapping":"not translated: kept verbatim as a residue block",
@@ -64,7 +64,7 @@
       "sources/list_demo.yaml",
       "https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418"
     ],
-    "date":"2026-09-15",
+    "date":"2026-09-23",
     "licence":"Blawx: MIT",
     "program":"list_demo",
     "source":"Lists Demonstration",

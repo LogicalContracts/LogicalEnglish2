@@ -330,11 +330,10 @@ a legal practitioner must not accept the EA an executive appointment if
     and a second law practice is a law practice
     and the second law practice is located in singapore
     and the executive appointment is an executive appointment in law practice the second law practice
-    and all of
-        it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_2
-        and it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_3
-        and it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_4
-        and it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_5.
+    and it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_2
+    and it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_3
+    and it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_4
+    and it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_5.
 
 rule section_34_6_b with provenance the Legal Profession Professional Conduct Rules at section 34 6 b:
 a legal practitioner must not accept the EA an executive appointment if
@@ -342,11 +341,10 @@ a legal practitioner must not accept the EA an executive appointment if
     and the executive appointment is an executive appointment
     and a business entity is a business entity
     and the executive appointment is an executive appointment in the business entity
-    and all of
-        it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_2
-        and it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_3
-        and it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_4
-        and it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_5.
+    and it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_2
+    and it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_3
+    and it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_4
+    and it is not the case that the legal practitioner may accept the EA the executive appointment under section_34_5.
 
 rule section_34_9_c with provenance the Legal Profession Professional Conduct Rules at section 34 9 c:
 an executive appointment is an executive appointment if
@@ -1303,7 +1301,6 @@ the view the act is:
     the title is "Legal Profession Professional Conduct Rules, as Blawx encodes it".
     the case is a scenario, with the documents it is stated in.
     the facts about "the case" are
-        the EA an executive appointment is associated with a business,
         a business detracts from the dignity of the legal profession,
         a business is incompatible with the dignity of the legal profession,
         a business derogates from the dignity of the legal profession,
@@ -1316,7 +1313,8 @@ the view the act is:
         a business materially interferes with the representation of their clients of a legal practitioner,
         a legal work is legal work,
         a payment is a payment,
-        a business involves a payment.
+        a business involves a payment,
+        a person is the recipient of a payment.
     the result is the answer to query which_is_described_in_section_1.
     the result shows its reasons.
     the result shows its citations.

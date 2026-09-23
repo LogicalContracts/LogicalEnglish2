@@ -2,7 +2,7 @@
 
 Source: a LegalRuleML document (OASIS LegalRuleML Core 1.0) — ex3-deontic-normal.lrml
 Translator: lpsPlus/migration/legalruleml (lrml_twin.pl)
-Date: 2026-09-15
+Date: 2026-09-23
 
 ## Summary
 
@@ -34,7 +34,7 @@ A source element is **encoded** when a documented mapping rule translated it wit
 | prescriptive statement ps2 | statement | encoded | PrescriptiveStatement -> rules concluding obligations, permissions or prohibitions (deontic.le) | ps2_2 |  |
 | factual statement fact1 | statement | encoded | FactualStatement -> a fact | fact1 |  |
 | prescriptive statement ps3 | statement | encoded | PrescriptiveStatement -> rules concluding obligations, permissions or prohibitions (deontic.le) | ps3 |  |
-| Override ps2 over ps1 | override | encoded | Override -> the under rule holds only when the over rule does not apply (E2) | ps1 |  |
+| Override ps2 over ps1 | override | encoded | Override -> the under rule holds only when the over rule does not apply (E2) | ps1 | The document's statements depend on one another through negation, and the verifier says so (non_stratified): ps2 overrides ps1, so once ps2's prohibition is violated its next element keeps ps1 from applying; and ps1's reparations (rep1, rep3) oblige what ps2 forbids. SPINdle settles such a loop by the superiority of its rules; the twin states it as it is. The scenario violates nothing, so the loop is never entered. |
 | Reparation rep-implicit1 (pen1-v1 for ps2) | reparation | encoded | Reparation -> the penalty's chain of obligations on the violation | rep-implicit1 |  |
 | Reparation rep1 (pen1 for ps1) | reparation | encoded | Reparation -> the penalty's chain of obligations on the violation | rep1 |  |
 | Reparation rep3 (pen1 for ps1) | reparation | encoded | Reparation -> the penalty's chain of obligations on the violation | rep3 |  |

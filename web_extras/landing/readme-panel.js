@@ -11,7 +11,8 @@
             programs: ["le"],                          extensions of programs, dropped from a name
             keepExt:  ["pddl", "drl"],                 extensions of programs a name keeps
             source:   "https://github.com/…/blob/main/", where other files are read
-            about:    "About this folder",  close: "Close"
+            about:    "About this folder",  close: "Close",
+            copy:     "Copy the web address of this README",  copied: "Copied"
         };
 
     The server puts each folder's README.md, as text, in a hidden element
@@ -29,7 +30,9 @@
       - `customs/` or `customs/README.md`: that folder's README, in the panel,
         when the page lists the folder, else on GitHub;
       - any other relative file: on GitHub; an absolute address: as it is.
-    `?readme=<folder>` in the page's address opens that folder's README.
+    `?readme=<folder>` in the page's address opens that folder's README, and
+    the link symbol at the top of the panel copies that address (the symbol
+    is a real link, so the browser's own "Copy link" works too).
 
     It writes a closing tag as "<\/…", never with a bare slash, since the page
     inlines it.  */
@@ -178,7 +181,31 @@
     }
 
     /* ---- the panel ---- */
-    var panel, body;
+    var panel, body, copy;
+
+    function copyText(text, done) {
+        function fallback() {
+            var ta = document.createElement("textarea");
+            ta.value = text; ta.setAttribute("readonly", "");
+            ta.style.position = "fixed"; ta.style.opacity = "0";
+            document.body.appendChild(ta); ta.select();
+            try { if (document.execCommand("copy")) done(); } catch (e) {}
+            document.body.removeChild(ta);
+        }
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(done, fallback);
+        } else { fallback(); }
+    }
+
+    /* The page's address, opening on the README of the folder Key. */
+    function readmeUrl(key) {
+        var u = new URL(window.location.href);
+        u.hash = "";
+        u.searchParams.delete("expand");
+        u.searchParams.delete("dir");
+        u.searchParams.set("readme", key.replace(/\/+$/, ""));
+        return u.toString().replace(/%2F/gi, "/");
+    }
     function build() {
         if (panel) return;
         var st = document.createElement("style");
@@ -188,8 +215,11 @@
             "box-shadow:-6px 0 24px rgba(0,0,0,.18);overflow-y:auto;padding:14px 22px 40px;" +
             "font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;display:none}" +
             ".readme-panel.open{display:block}" +
-            ".readme-panel .readme-close{position:sticky;top:0;float:right;font-size:14px;cursor:pointer;" +
+            ".readme-panel .readme-bar{position:sticky;top:0;float:right;display:flex;gap:10px;align-items:center;background:var(--readme-bg,#fff);padding:2px 0 2px 8px}" +
+            ".readme-panel .readme-close{font-size:14px;cursor:pointer;" +
             "background:inherit;border:1px solid rgba(128,128,128,.4);border-radius:4px;padding:2px 8px;color:inherit}" +
+            ".readme-panel a.readme-copy{font-size:13px;text-decoration:none;opacity:.7;color:inherit}" +
+            ".readme-panel a.readme-copy:hover,.readme-panel a.readme-copy.copied{opacity:1}" +
             ".readme-panel h2,.readme-panel h3,.readme-panel h4,.readme-panel h5{text-transform:none;letter-spacing:normal;opacity:1}" +
             ".readme-panel h2{font-size:21px;margin:6px 0 10px}.readme-panel h3{font-size:17px;margin:18px 0 6px}" +
             ".readme-panel h4{font-size:15px;margin:14px 0 4px}" +
@@ -210,8 +240,24 @@
         close.className = "readme-close";
         close.textContent = "✕ " + (C.close || "Close");
         close.addEventListener("click", hide);
+        var label = "\uD83D\uDD17 " + (C.copy || "Copy the web address of this README");
+        copy = document.createElement("a");
+        copy.className = "readme-copy";
+        copy.textContent = label;
+        copy.title = C.copy || "Copy the web address of this README";
+        copy.addEventListener("click", function (e) {
+            e.preventDefault();
+            copyText(copy.href, function () {
+                copy.textContent = C.copied || "Copied"; copy.classList.add("copied");
+                setTimeout(function () { copy.textContent = label; copy.classList.remove("copied"); }, 1500);
+            });
+        });
+        var bar = document.createElement("div");
+        bar.className = "readme-bar";
+        bar.appendChild(copy);
+        bar.appendChild(close);
         body = document.createElement("div");
-        panel.appendChild(close);
+        panel.appendChild(bar);
         panel.appendChild(body);
         document.body.appendChild(panel);
         panel.addEventListener("click", function (e) {
@@ -229,9 +275,10 @@
         panel.classList.add("open");
         panel.scrollTop = 0;
         try {
+            copy.href = readmeUrl(key);
             var u = new URL(window.location.href);
             u.searchParams.set("readme", key.replace(/\/+$/, ""));
-            window.history.replaceState(null, "", u.toString());
+            window.history.replaceState(null, "", u.toString().replace(/%2F/gi, "/"));
         } catch (e) {}
     }
 

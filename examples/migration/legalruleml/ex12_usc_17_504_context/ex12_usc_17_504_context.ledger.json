@@ -102,7 +102,7 @@
       "in_program":"cs1",
       "kind":"statement",
       "mapping":"ConstitutiveStatement -> an LE rule",
-      "note":"",
+      "note":"A rule with no conditions whose conclusion has a variable (lovo:Infringer of Var infringer): in the document, everyone is an infringer. The twin says so (`a person is an infringer.`), and the verifier warns that the fact holds for everything (single_variable_fact): the document's, kept as it is.",
       "verdict":"encoded"
     },
     {
@@ -541,7 +541,7 @@
   },
   "meta": {
     "artifacts": ["ex12-USC_17_504_context-normal.lrml" ],
-    "date":"2026-09-15",
+    "date":"2026-09-23",
     "program":"ex12_usc_17_504_context",
     "source":"a LegalRuleML document (OASIS LegalRuleML Core 1.0)",
     "translator":"lpsPlus/migration/legalruleml (lrml_twin.pl)"

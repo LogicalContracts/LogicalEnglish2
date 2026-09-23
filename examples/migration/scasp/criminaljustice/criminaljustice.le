@@ -19,14 +19,14 @@ the templates are:
     *a person* is involved in *a proceeding*.
     *a proceeding* is ongoing.
     *a person* knows *a language*.
-    *a person* has been made aware that *a fact*.
-    *a person* understands *a language*.
-    *a person* is represented by *a lawyer*.
-    *a person* speaks *a language*.
-    *a proceeding* has *a status*.
+    *a person* has been made aware that *a fact*; scenario element.
+    *a person* understands *a language*; scenario element.
+    *a person* is represented by *a lawyer*; scenario element.
+    *a person* speaks *a language*; scenario element.
+    *a proceeding* has *a status*; scenario element.
     *a thing* is the member of *a second thing*.
-    *a person* isin danger of *a thing*.
-    *a proceeding* isin the language *a language*.
+    *a person* isin danger of *a thing*; scenario element.
+    *a proceeding* isin the language *a language*; scenario element.
     *a person* has *a right* in *a proceeding* under *an article*.
     *an exception* is an exception to *an article*.
     *a person* has *a right* in *a proceeding*.

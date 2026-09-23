@@ -1,5 +1,5 @@
 {
-  "counts": {"approximated":0,"encoded":19,"residue":0},
+  "counts": {"approximated":0,"encoded":21,"residue":0},
   "entries": [
     {
       "element":"has_that/3",
@@ -62,7 +62,7 @@
       "in_program":"*a lender* notifies *a borrower* on *a date* that *a message*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -70,7 +70,7 @@
       "in_program":"*a borrower* pays *an amount* to *a lender* on *a date*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"Declared dynamic by the source and given no clause there: data a scenario supplies, so the twin marks its template a scenario element (; undefined).",
       "verdict":"encoded"
     },
     {
@@ -78,7 +78,7 @@
       "in_program":"*a party* performs *an action* at *a time*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"As in the source: declared and never used (the verifier reports the template unused).",
       "verdict":"encoded"
     },
     {
@@ -86,7 +86,7 @@
       "in_program":"*an event* occurs at *a time*",
       "kind":"predicate",
       "mapping":"a template (the #pred wording, else a naive one)",
-      "note":"",
+      "note":"As in the source: declared and never used (the verifier reports the template unused).",
       "verdict":"encoded"
     },
     {
@@ -146,21 +146,37 @@
       "verdict":"encoded"
     },
     {
-      "element":"?- cures_the_failure_of_on_that(the_borrower,_66852,_66854,pays_to_on(the_borrower,_66862,the_lender,_66866))",
+      "element":"?- cures_the_failure_of_on_that(the_borrower,_63842,_63844,pays_to_on(the_borrower,_63852,the_lender,_63856))",
       "in_program":"the queries",
       "kind":"query",
       "mapping":"a ?- query -> a query, asked in every scenario",
       "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a fact of has_that/3 with a variable",
+      "in_program":"the rules",
+      "kind":"source",
+      "mapping":"as the source has it",
+      "note":"As in the source: a fact with a variable holds for every value of it (the verifier notes a fact that introduces a variable).",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a fact of notifies_on_that/4 with a variable",
+      "in_program":"the rules",
+      "kind":"source",
+      "mapping":"as the source has it",
+      "note":"As in the source: a fact with a variable holds for every value of it (the verifier notes a fact that introduces a variable).",
       "verdict":"encoded"
     }
   ],
   "fidelity": {"errors":0,"failed":0,"passed":0,"tests": []},
   "meta": {
     "artifacts": ["obligation-scasp.pl" ],
-    "date":"2026-09-15",
+    "date":"2026-09-23",
     "program":"obligation",
     "source":"an s(CASP) program",
-    "translator":"InsurLE2/migration/scasp (scasp_twin.pl)"
+    "translator":"lpsPlus/migration/scasp (scasp_twin.pl)"
   },
   "pending_expectations":1,
   "source_tests":1

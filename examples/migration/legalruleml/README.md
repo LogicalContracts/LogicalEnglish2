@@ -24,6 +24,7 @@ encode, since LegalRuleML ships no tests.
 - [LegalRuleML in Logical English](/docs/user/integrations/legalruleml): how the translation works, and the way back.
 - LegalRuleML Core Specification: https://docs.oasis-open.org/legalruleml/legalruleml-core-spec/v1.0/legalruleml-core-spec-v1.0.html
 - Written by `lpsPlus/migration/legalruleml/build.pl`; do not edit by hand.
+- The few warnings the editor still shows on these twins come from the originals, and the ledger says why. The schematic examples' rules are about one individual, x, as the specification writes them. In ex3, the statements depend on one another through negation. In ex12, a rule makes everyone an infringer.
 
 ## Disclaimer
 A twin is written by a translator (a program that rewrites another

@@ -15,8 +15,8 @@ the target language is: prolog.
 the templates are:
     *a person* is a grandparent of *a person*.
     *a person* is an ancestor of *a person*.
-    *a person* is a parent of *a person*.
-    *a person* is impossible.
+    *a person* is a parent of *a person*; scenario element.
+    *a person* is impossible; scenario element.
 
 the knowledge base impossibleancestor includes:
 

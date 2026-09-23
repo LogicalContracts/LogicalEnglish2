@@ -2,7 +2,7 @@
 
 Source: Rock Paper Scissors Act — sources/rps.yaml, https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418
 Translator: lpsPlus/migration/blawx (blawx_twin.pl)
-Date: 2026-09-15
+Date: 2026-09-23
 Source licence: Blawx: MIT
 
 ## Summary
@@ -24,7 +24,7 @@ A source element is **encoded** when a documented mapping rule translated it wit
 
 | Source element | Kind | Verdict | Mapping | In the program | Note |
 |---|---|---|---|---|---|
-| sign/1 | category, attribute or relationship | encoded | its #pred wording -> a template | *a sign* is a sign |  |
+| sign/1 | category, attribute or relationship | encoded | its #pred wording -> a template | *a sign* is a sign | As in the source: facts are stated and no rule, constraint or test of the source reads them (the verifier reports them unconsumed). |
 | beats/2 | category, attribute or relationship | encoded | its #pred wording -> a template | *a sign* beats *a second sign* |  |
 | winner/2 | category, attribute or relationship | encoded | its #pred wording -> a template | the winner of *a game* is *a player* |  |
 | game/1 | category, attribute or relationship | encoded | its #pred wording -> a template | *a game* is a game |  |

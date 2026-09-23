@@ -17,11 +17,11 @@ the knowledge base ex9_alternatives includes these resources:
     deontic.
 
 the templates are:
-    a holds.
+    a holds; scenario element.
     b holds.
     c holds.
-    d holds.
-    the interpretation adopted is *an interpretation*.
+    d holds; scenario element.
+    the interpretation adopted is *an interpretation*; scenario element.
 
 the knowledge base ex9_alternatives includes:
 

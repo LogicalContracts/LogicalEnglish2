@@ -38,7 +38,7 @@
       "in_program":"*a provision* applies to *a thing*",
       "kind":"category, attribute or relationship",
       "mapping":"its #pred wording -> a template",
-      "note":"",
+      "note":"As in the source: section 5's \"except for pingu\" states the opposite of this template (*a provision* does not apply to *a thing*) only under section_5_pingu (holds(sec_5__span_pingu_section, -blawx_applies, ...)); Blawx's encoding never derives -blawx_applies from it, so nothing concludes the opposite and pingu with a jetpack can fly in Blawx too (see the scenario's note). The verifier reports the opposite used as a condition with nothing concluding it.",
       "verdict":"encoded"
     },
     {
@@ -78,7 +78,7 @@
       "in_program":"*a provision* does not apply to *a thing* under *a provision*",
       "kind":"section conclusion",
       "mapping":"the conclusion of a section, read by a defeat, a fact or a test -> `... under <provision>`",
-      "note":"",
+      "note":"As in the source: the fact of section 5 that it does not apply to pingu is stated under section_5_pingu and nothing in Blawx's encoding reads it (see the note on the opposite of *a provision* applies to *a thing*); the verifier reports it unconsumed.",
       "verdict":"encoded"
     },
     {
@@ -114,7 +114,7 @@
       "verdict":"encoded"
     },
     {
-      "element":"blawx_applies(sec_5_section,_6140) :- ...",
+      "element":"blawx_applies(sec_5_section,_338956) :- ...",
       "in_program":"section_5",
       "kind":"rule",
       "mapping":"a rule of the section, citing it",
@@ -281,7 +281,7 @@
       "sources/bird.yaml",
       "https://github.com/Lexpedite/blawx/tree/3de892f67854292b304c9a55c5e2cd2058d3d418"
     ],
-    "date":"2026-09-16",
+    "date":"2026-09-23",
     "licence":"Blawx: MIT",
     "program":"bird",
     "source":"New Bird Act",

@@ -17,13 +17,13 @@ the knowledge base ex5_section29new includes these resources:
     deontic.
 
 the templates are:
-    *a person* engages in a credit activity.
-    *a person* holds a credit licence.
-    *a person* is imprisoned for *a term*.
+    *a person* engages in a credit activity; scenario element.
+    *a person* holds a credit licence; scenario element.
+    *a person* is imprisoned for *a term*; scenario element.
     *a person* pays *a number* civil penalty units.
     *a person* pays *a number* penalty units and is imprisoned for *a term*.
-    *a person* pays *a number* penalty units.
-    *a person* is a person.
+    *a person* pays *a number* penalty units; scenario element.
+    *a person* is a person; scenario element.
 
 the knowledge base ex5_section29new includes:
 
