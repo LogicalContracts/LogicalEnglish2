@@ -1,0 +1,256 @@
+% The Logical English twin of the OIPA transaction Issue of the plan termlife, written by the OIPA translator
+% from its XML configuration (kept in sources/).
+% Each rule cites the MathVariable it states; the expected values in the scenarios are
+% computed by an independent interpreter of OIPA math (oipa_eval.py), not by this program.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the knowledge base termlife_issue includes these resources:
+    temporal.
+
+the functions are:
+    the face amount of *an activity* is *an amount*.
+    the billing mode of *an activity* is *a value*.
+    the effective date of *an activity* is *a date*.
+    the insured date of birth of the policy before *an activity* is *a date*.
+    the insured gender of the policy before *an activity* is *a value*.
+    the insured tobacco of the policy before *an activity* is *a value*.
+    the issue age of *an activity* is *a number*.
+    the premium rate of *an activity* is *a number*.
+    the annual premium of *an activity* is *an amount*.
+    the modal factor of *an activity* is *a number*.
+    the modal premium of *an activity* is *an amount*.
+    the policy fee of the plan is *an amount*.
+    the issue date of the policy after *an activity* is *a value*.
+    the paid to date of the policy after *an activity* is *a value*.
+    the face amount of the policy after *an activity* is *a value*.
+    the billing mode of the policy after *an activity* is *a value*.
+    the modal premium of the policy after *an activity* is *a value*.
+    the policy status of the policy after *an activity* is *a value*.
+
+the templates are:
+    *an activity* is an issue.
+    *an activity* fails the check *a code*.
+    the term premium rate for issue age *a issue age* and gender *a gender* and tobacco *a tobacco* is *a rate* under table term_premium.
+
+the table term_premium is loaded from term_premium.csv, with unique match:
+    issue age | gender | tobacco | rate
+
+the knowledge base termlife_issue includes:
+
+the text of "Issue/Transaction.xml" is at "sources/Issue/Transaction.xml".
+
+the policy fee of the plan is 60, as stated in "PlanFields.csv" at PolicyFee.
+
+% An activity of this program is an issue: the Issue transaction it processes.
+an activity is an issue if
+    the effective date of the activity is a date.
+
+rule issue_age with provenance "Issue/Transaction.xml" at MathVariable IssueAgeMV:
+the issue age of an activity is a number if
+    a date is 6 months after the effective date of the activity
+    and the age on the date of someone born on the insured date of birth of the policy before the activity is the number.
+
+rule premium_rate with provenance "Issue/Transaction.xml" at MathVariable PremiumRateMV:
+the premium rate of an activity is a number N if
+    the issue age of the activity is a second number
+    and the insured gender of the policy before the activity is a value
+    and the insured tobacco of the policy before the activity is a second value
+    and the term premium rate for issue age the second number and gender the value and tobacco the second value is N under table term_premium
+    otherwise the activity is an issue
+    and N = 0.
+
+rule annual_premium with provenance "Issue/Transaction.xml" at MathVariable AnnualPremiumMV:
+the annual premium of an activity is an amount N if
+    the face amount of the activity is an amount M
+    and the premium rate of the activity is a number K
+    and the policy fee of the plan is an amount P
+    and N = round((M / 1000 * K + P) * 100) / 100.
+
+rule modal_factor with provenance "Issue/Transaction.xml" at MathVariable ModalFactorMV:
+the modal factor of an activity is a number N if
+    the billing mode of the activity is a value
+    and the value is equal to "12"
+    and N = 0.0875
+    otherwise the billing mode of the activity is a second value
+    and the second value is equal to "04"
+    and N = 0.26
+    otherwise the billing mode of the activity is a third value
+    and the third value is equal to "02"
+    and N = 0.51
+    otherwise the activity is an issue
+    and N = 1.
+
+rule modal_premium with provenance "Issue/Transaction.xml" at MathVariable ModalPremiumMV:
+the modal premium of an activity is an amount N if
+    the annual premium of the activity is an amount M
+    and the modal factor of the activity is a number K
+    and N = round(M * K * 100) / 100.
+
+% The insured's issue age of [the issue age] is outside 18 to 65.
+rule i001 with provenance "Issue/ValidateExpressions.xml" at Expression I001:
+an activity fails the check "I001" if
+    the issue age of the activity is a number N
+    and N < 18
+        or N > 65.
+
+% The face amount must be at least $50,000.
+rule i002 with provenance "Issue/ValidateExpressions.xml" at Expression I002:
+an activity fails the check "I002" if
+    the face amount of the activity < 50000.
+
+rule copy_issue_date with provenance "Issue/CopyToPolicyFields.xml" at Field IssueDate:
+the issue date of the policy after an activity is a value if
+    the effective date of the activity is the value
+    and it is not the case that the activity fails the check a code.
+
+rule copy_paid_to_date with provenance "Issue/CopyToPolicyFields.xml" at Field PaidToDate:
+the paid to date of the policy after an activity is a value if
+    the effective date of the activity is the value
+    and it is not the case that the activity fails the check a code.
+
+rule copy_face_amount with provenance "Issue/CopyToPolicyFields.xml" at Field FaceAmount:
+the face amount of the policy after an activity is a value if
+    the face amount of the activity is the value
+    and it is not the case that the activity fails the check a code.
+
+rule copy_billing_mode with provenance "Issue/CopyToPolicyFields.xml" at Field BillingMode:
+the billing mode of the policy after an activity is a value if
+    the billing mode of the activity is the value
+    and it is not the case that the activity fails the check a code.
+
+rule copy_modal_premium with provenance "Issue/CopyToPolicyFields.xml" at Field ModalPremium:
+the modal premium of the policy after an activity is a value if
+    the modal premium of the activity is the value
+    and it is not the case that the activity fails the check a code.
+
+rule copy_policy_status with provenance "Issue/CopyToPolicyFields.xml" at Field PolicyStatus:
+the policy status of the policy after an activity is Active if
+    the activity is an issue
+    and it is not the case that the activity fails the check a code.
+
+scenario monthly_payer_i1 is:
+    the face amount of i1 is 250000.
+    the billing mode of i1 is "12".
+    the effective date of i1 is 2024-04-01.
+    the insured date of birth of the policy before i1 is 1985-09-20.
+    the insured gender of the policy before i1 is "02".
+    the insured tobacco of the policy before i1 is N.
+    issue_age expects answers ["the issue age of i1 is 39"].
+    annual_premium expects answers ["the annual premium of i1 is 505"].
+    modal_premium expects answers ["the modal premium of i1 is 44.19"].
+    checks expects answers [].
+    policy_after_issue_date expects answers ["the issue date of the policy after i1 is 2024-04-01"].
+    policy_after_paid_to_date expects answers ["the paid to date of the policy after i1 is 2024-04-01"].
+    policy_after_face_amount expects answers ["the face amount of the policy after i1 is 250000"].
+    policy_after_billing_mode expects answers ["the billing mode of the policy after i1 is 12"].
+    policy_after_modal_premium expects answers ["the modal premium of the policy after i1 is 44.19"].
+    policy_after_policy_status expects answers ["the policy status of the policy after i1 is Active"].
+
+scenario annual_smoker_i1 is:
+    the face amount of i1 is 500000.
+    the billing mode of i1 is "01".
+    the effective date of i1 is 2024-08-01.
+    the insured date of birth of the policy before i1 is 1970-01-10.
+    the insured gender of the policy before i1 is "01".
+    the insured tobacco of the policy before i1 is Y.
+    issue_age expects answers ["the issue age of i1 is 55"].
+    annual_premium expects answers ["the annual premium of i1 is 5205"].
+    modal_premium expects answers ["the modal premium of i1 is 5205"].
+    checks expects answers [].
+    policy_after_issue_date expects answers ["the issue date of the policy after i1 is 2024-08-01"].
+    policy_after_paid_to_date expects answers ["the paid to date of the policy after i1 is 2024-08-01"].
+    policy_after_face_amount expects answers ["the face amount of the policy after i1 is 500000"].
+    policy_after_billing_mode expects answers ["the billing mode of the policy after i1 is 01"].
+    policy_after_modal_premium expects answers ["the modal premium of the policy after i1 is 5205"].
+    policy_after_policy_status expects answers ["the policy status of the policy after i1 is Active"].
+
+scenario too_old_i1 is:
+    the face amount of i1 is 40000.
+    the billing mode of i1 is "04".
+    the effective date of i1 is 2024-09-01.
+    the insured date of birth of the policy before i1 is 1958-02-01.
+    the insured gender of the policy before i1 is "01".
+    the insured tobacco of the policy before i1 is N.
+    issue_age expects answers ["the issue age of i1 is 67"].
+    annual_premium expects answers ["the annual premium of i1 is 60"].
+    modal_premium expects answers ["the modal premium of i1 is 15.6"].
+    checks expects answers ["i1 fails the check I001", "i1 fails the check I002"].
+    policy_after_issue_date expects answers [].
+    policy_after_paid_to_date expects answers [].
+    policy_after_face_amount expects answers [].
+    policy_after_billing_mode expects answers [].
+    policy_after_modal_premium expects answers [].
+    policy_after_policy_status expects answers [].
+
+scenario quarterly_just_18_i1 is:
+    the face amount of i1 is 100000.
+    the billing mode of i1 is "04".
+    the effective date of i1 is 2024-07-01.
+    the insured date of birth of the policy before i1 is 2006-12-01.
+    the insured gender of the policy before i1 is "01".
+    the insured tobacco of the policy before i1 is N.
+    issue_age expects answers ["the issue age of i1 is 18"].
+    annual_premium expects answers ["the annual premium of i1 is 120"].
+    modal_premium expects answers ["the modal premium of i1 is 31.2"].
+    checks expects answers [].
+    policy_after_issue_date expects answers ["the issue date of the policy after i1 is 2024-07-01"].
+    policy_after_paid_to_date expects answers ["the paid to date of the policy after i1 is 2024-07-01"].
+    policy_after_face_amount expects answers ["the face amount of the policy after i1 is 100000"].
+    policy_after_billing_mode expects answers ["the billing mode of the policy after i1 is 04"].
+    policy_after_modal_premium expects answers ["the modal premium of the policy after i1 is 31.2"].
+    policy_after_policy_status expects answers ["the policy status of the policy after i1 is Active"].
+
+query issue_age is:
+    the issue age of which activity is which number.
+
+query annual_premium is:
+    the annual premium of which activity is which amount.
+
+query modal_premium is:
+    the modal premium of which activity is which amount.
+
+query checks is:
+    which activity fails the check which code.
+
+query policy_after_issue_date is:
+    the issue date of the policy after which activity is which value.
+
+query policy_after_paid_to_date is:
+    the paid to date of the policy after which activity is which value.
+
+query policy_after_face_amount is:
+    the face amount of the policy after which activity is which value.
+
+query policy_after_billing_mode is:
+    the billing mode of the policy after which activity is which value.
+
+query policy_after_modal_premium is:
+    the modal premium of the policy after which activity is which value.
+
+query policy_after_policy_status is:
+    the policy status of the policy after which activity is which value.
+
+the view issue is:
+    the title is "Issue (termlife)".
+    the case is a scenario.
+    the facts about "the activity" are
+        the face amount of an activity is an amount,
+        the billing mode of an activity is a value,
+        the effective date of an activity is a date.
+    the facts about "the policy it finds" are
+        the insured date of birth of the policy before an activity is a date,
+        the insured gender of the policy before an activity is a value,
+        the insured tobacco of the policy before an activity is a value.
+    the result is the answer to query issue_age.
+    the answers to "which activity fails the check which code" are listed as "Checks".
+    the result shows its citations.
+

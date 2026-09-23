@@ -1,0 +1,349 @@
+{
+  "counts": {"approximated":1,"encoded":20,"residue":0},
+  "entries": [
+    {
+      "element":"Issue/Transaction.xml MathVariable FaceAmountMV",
+      "in_program":"FaceAmountMV",
+      "kind":"mathvariable",
+      "mapping":"FIELD -> the activity field FaceAmount, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Issue/Transaction.xml MathVariable BillingModeMV",
+      "in_program":"BillingModeMV",
+      "kind":"mathvariable",
+      "mapping":"FIELD -> the activity field BillingMode, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Issue/Transaction.xml MathVariable IssueDateMV",
+      "in_program":"IssueDateMV",
+      "kind":"mathvariable",
+      "mapping":"FIELD -> the activity field EffectiveDate, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Issue/Transaction.xml MathVariable DateOfBirthMV",
+      "in_program":"DateOfBirthMV",
+      "kind":"mathvariable",
+      "mapping":"POLICYFIELD -> the policy field InsuredDateOfBirth the activity finds, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Issue/Transaction.xml MathVariable GenderMV",
+      "in_program":"GenderMV",
+      "kind":"mathvariable",
+      "mapping":"POLICYFIELD -> the policy field InsuredGender the activity finds, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Issue/Transaction.xml MathVariable TobaccoMV",
+      "in_program":"TobaccoMV",
+      "kind":"mathvariable",
+      "mapping":"POLICYFIELD -> the policy field InsuredTobacco the activity finds, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Issue/Transaction.xml MathVariable IssueAgeMV",
+      "in_program":"IssueAgeMV",
+      "kind":"mathvariable",
+      "mapping":"FUNCTION ANBAgeOf -> the age six calendar months later (lib/temporal)",
+      "note":"",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Issue/Transaction.xml MathVariable PremiumRateMV",
+      "in_program":"PremiumRateMV",
+      "kind":"mathvariable",
+      "mapping":"RATE -> a decision table loaded from the plan's rates, DEFAULT as the last line",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Issue/Transaction.xml MathVariable PolicyFeeMV",
+      "in_program":"PolicyFeeMV",
+      "kind":"mathvariable",
+      "mapping":"PLANFIELD -> the plan field PolicyFee, a fact of the program (PlanFields.csv)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Issue/Transaction.xml MathVariable AnnualPremiumMV",
+      "in_program":"AnnualPremiumMV",
+      "kind":"mathvariable",
+      "mapping":"EXPRESSION -> a rule, the MathVariables it reads as conditions",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Issue/Transaction.xml MathVariable ModalFactorMV",
+      "in_program":"ModalFactorMV",
+      "kind":"mathvariable",
+      "mapping":"reassigned (MathIF) -> an otherwise cascade, the latest assignment first",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Issue/Transaction.xml MathVariable ModalPremiumMV",
+      "in_program":"ModalPremiumMV",
+      "kind":"mathvariable",
+      "mapping":"EXPRESSION -> a rule, the MathVariables it reads as conditions",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Issue/Transaction.xml MathVariable ActiveStatusMV",
+      "in_program":"ActiveStatusMV",
+      "kind":"mathvariable",
+      "mapping":"VALUE -> the constant Active",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Issue/ValidateExpressions.xml I001",
+      "in_program":"I001",
+      "kind":"validation",
+      "mapping":"ValidateExpressions Expression -> `the activity fails the check`",
+      "note":"The insured's issue age of $$$IssueAgeMV$$$ is outside 18 to 65.",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Issue/ValidateExpressions.xml I002",
+      "in_program":"I002",
+      "kind":"validation",
+      "mapping":"ValidateExpressions Expression -> `the activity fails the check`",
+      "note":"The face amount must be at least $50,000.",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Issue/CopyToPolicyFields.xml IssueDateMV -> IssueDate",
+      "in_program":"IssueDate",
+      "kind":"copy",
+      "mapping":"CopyToPolicyFields -> the policy field after the activity (only an activity that fails no check)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Issue/CopyToPolicyFields.xml IssueDateMV -> PaidToDate",
+      "in_program":"PaidToDate",
+      "kind":"copy",
+      "mapping":"CopyToPolicyFields -> the policy field after the activity (only an activity that fails no check)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Issue/CopyToPolicyFields.xml FaceAmountMV -> FaceAmount",
+      "in_program":"FaceAmount",
+      "kind":"copy",
+      "mapping":"CopyToPolicyFields -> the policy field after the activity (only an activity that fails no check)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Issue/CopyToPolicyFields.xml BillingModeMV -> BillingMode",
+      "in_program":"BillingMode",
+      "kind":"copy",
+      "mapping":"CopyToPolicyFields -> the policy field after the activity (only an activity that fails no check)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Issue/CopyToPolicyFields.xml ModalPremiumMV -> ModalPremium",
+      "in_program":"ModalPremium",
+      "kind":"copy",
+      "mapping":"CopyToPolicyFields -> the policy field after the activity (only an activity that fails no check)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Issue/CopyToPolicyFields.xml ActiveStatusMV -> PolicyStatus",
+      "in_program":"PolicyStatus",
+      "kind":"copy",
+      "mapping":"CopyToPolicyFields -> the policy field after the activity (only an activity that fails no check)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":40,
+    "tests": [
+      {"detail":"","query":"issue_age","result":"pass","scenario":"monthly_payer_i1"},
+      {"detail":"","query":"annual_premium","result":"pass","scenario":"monthly_payer_i1"},
+      {"detail":"","query":"modal_premium","result":"pass","scenario":"monthly_payer_i1"},
+      {"detail":"","query":"checks","result":"pass","scenario":"monthly_payer_i1"},
+      {
+	"detail":"",
+	"query":"policy_after_issue_date",
+	"result":"pass",
+	"scenario":"monthly_payer_i1"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_paid_to_date",
+	"result":"pass",
+	"scenario":"monthly_payer_i1"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_face_amount",
+	"result":"pass",
+	"scenario":"monthly_payer_i1"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_billing_mode",
+	"result":"pass",
+	"scenario":"monthly_payer_i1"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_modal_premium",
+	"result":"pass",
+	"scenario":"monthly_payer_i1"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_policy_status",
+	"result":"pass",
+	"scenario":"monthly_payer_i1"
+      },
+      {"detail":"","query":"issue_age","result":"pass","scenario":"annual_smoker_i1"},
+      {"detail":"","query":"annual_premium","result":"pass","scenario":"annual_smoker_i1"},
+      {"detail":"","query":"modal_premium","result":"pass","scenario":"annual_smoker_i1"},
+      {"detail":"","query":"checks","result":"pass","scenario":"annual_smoker_i1"},
+      {
+	"detail":"",
+	"query":"policy_after_issue_date",
+	"result":"pass",
+	"scenario":"annual_smoker_i1"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_paid_to_date",
+	"result":"pass",
+	"scenario":"annual_smoker_i1"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_face_amount",
+	"result":"pass",
+	"scenario":"annual_smoker_i1"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_billing_mode",
+	"result":"pass",
+	"scenario":"annual_smoker_i1"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_modal_premium",
+	"result":"pass",
+	"scenario":"annual_smoker_i1"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_policy_status",
+	"result":"pass",
+	"scenario":"annual_smoker_i1"
+      },
+      {"detail":"","query":"issue_age","result":"pass","scenario":"too_old_i1"},
+      {"detail":"","query":"annual_premium","result":"pass","scenario":"too_old_i1"},
+      {"detail":"","query":"modal_premium","result":"pass","scenario":"too_old_i1"},
+      {"detail":"","query":"checks","result":"pass","scenario":"too_old_i1"},
+      {"detail":"","query":"policy_after_issue_date","result":"pass","scenario":"too_old_i1"},
+      {
+	"detail":"",
+	"query":"policy_after_paid_to_date",
+	"result":"pass",
+	"scenario":"too_old_i1"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_face_amount",
+	"result":"pass",
+	"scenario":"too_old_i1"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_billing_mode",
+	"result":"pass",
+	"scenario":"too_old_i1"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_modal_premium",
+	"result":"pass",
+	"scenario":"too_old_i1"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_policy_status",
+	"result":"pass",
+	"scenario":"too_old_i1"
+      },
+      {"detail":"","query":"issue_age","result":"pass","scenario":"quarterly_just_18_i1"},
+      {
+	"detail":"",
+	"query":"annual_premium",
+	"result":"pass",
+	"scenario":"quarterly_just_18_i1"
+      },
+      {"detail":"","query":"modal_premium","result":"pass","scenario":"quarterly_just_18_i1"},
+      {"detail":"","query":"checks","result":"pass","scenario":"quarterly_just_18_i1"},
+      {
+	"detail":"",
+	"query":"policy_after_issue_date",
+	"result":"pass",
+	"scenario":"quarterly_just_18_i1"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_paid_to_date",
+	"result":"pass",
+	"scenario":"quarterly_just_18_i1"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_face_amount",
+	"result":"pass",
+	"scenario":"quarterly_just_18_i1"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_billing_mode",
+	"result":"pass",
+	"scenario":"quarterly_just_18_i1"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_modal_premium",
+	"result":"pass",
+	"scenario":"quarterly_just_18_i1"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_policy_status",
+	"result":"pass",
+	"scenario":"quarterly_just_18_i1"
+      }
+    ]
+  },
+  "meta": {
+    "artifacts": ["Issue/Transaction.xml" ],
+    "date":"2026-09-23",
+    "program":"termlife_issue",
+    "source":"an OIPA transaction (Rules Palette XML)",
+    "translator":"lpsPlus/migration/oipa (oipa_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":4
+}

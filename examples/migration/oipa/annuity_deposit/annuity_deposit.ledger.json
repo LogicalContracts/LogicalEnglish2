@@ -1,0 +1,152 @@
+{
+  "counts": {"approximated":0,"encoded":13,"residue":0},
+  "entries": [
+    {
+      "element":"Deposit/Transaction.xml MathVariable GrossAmountMV",
+      "in_program":"GrossAmountMV",
+      "kind":"mathvariable",
+      "mapping":"FIELD -> the activity field GrossAmount, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Deposit/Transaction.xml MathVariable AccountValueMV",
+      "in_program":"AccountValueMV",
+      "kind":"mathvariable",
+      "mapping":"POLICYFIELD -> the policy field AccountValue the activity finds, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Deposit/Transaction.xml MathVariable PremiumTaxRateMV",
+      "in_program":"PremiumTaxRateMV",
+      "kind":"mathvariable",
+      "mapping":"PLANFIELD -> the plan field PremiumTaxRate, a fact of the program (PlanFields.csv)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Deposit/Transaction.xml MathVariable PremiumTaxMV",
+      "in_program":"PremiumTaxMV",
+      "kind":"mathvariable",
+      "mapping":"EXPRESSION -> a rule, the MathVariables it reads as conditions",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Deposit/Transaction.xml MathVariable HighBonusRateMV",
+      "in_program":"HighBonusRateMV",
+      "kind":"mathvariable",
+      "mapping":"VALUE -> the constant 0.02",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Deposit/Transaction.xml MathVariable StandardBonusRateMV",
+      "in_program":"StandardBonusRateMV",
+      "kind":"mathvariable",
+      "mapping":"VALUE -> the constant 0.01",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Deposit/Transaction.xml MathVariable BonusRateMV",
+      "in_program":"BonusRateMV",
+      "kind":"mathvariable",
+      "mapping":"IIF -> an otherwise cascade",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Deposit/Transaction.xml MathVariable BonusMV",
+      "in_program":"BonusMV",
+      "kind":"mathvariable",
+      "mapping":"EXPRESSION -> a rule, the MathVariables it reads as conditions",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Deposit/Transaction.xml MathVariable NetDepositMV",
+      "in_program":"NetDepositMV",
+      "kind":"mathvariable",
+      "mapping":"EXPRESSION -> a rule, the MathVariables it reads as conditions",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Deposit/Transaction.xml MathVariable NewAccountValueMV",
+      "in_program":"NewAccountValueMV",
+      "kind":"mathvariable",
+      "mapping":"EXPRESSION -> a rule, the MathVariables it reads as conditions",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Deposit/ValidateExpressions.xml D001",
+      "in_program":"D001",
+      "kind":"validation",
+      "mapping":"ValidateExpressions Expression -> `the activity fails the check`",
+      "note":"The deposit must be a positive amount.",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Deposit/ValidateExpressions.xml D002",
+      "in_program":"D002",
+      "kind":"validation",
+      "mapping":"ValidateExpressions Expression -> `the activity fails the check`",
+      "note":"Deposits above $1,000,000 need home office approval.",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Deposit/CopyToPolicyFields.xml NewAccountValueMV -> AccountValue",
+      "in_program":"AccountValue",
+      "kind":"copy",
+      "mapping":"CopyToPolicyFields -> the policy field after the activity (only an activity that fails no check)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":12,
+    "tests": [
+      {"detail":"","query":"net_deposit","result":"pass","scenario":"steady_saver_d1"},
+      {"detail":"","query":"new_account_value","result":"pass","scenario":"steady_saver_d1"},
+      {"detail":"","query":"checks","result":"pass","scenario":"steady_saver_d1"},
+      {
+	"detail":"",
+	"query":"policy_after_account_value",
+	"result":"pass",
+	"scenario":"steady_saver_d1"
+      },
+      {"detail":"","query":"net_deposit","result":"pass","scenario":"steady_saver_d2"},
+      {"detail":"","query":"new_account_value","result":"pass","scenario":"steady_saver_d2"},
+      {"detail":"","query":"checks","result":"pass","scenario":"steady_saver_d2"},
+      {
+	"detail":"",
+	"query":"policy_after_account_value",
+	"result":"pass",
+	"scenario":"steady_saver_d2"
+      },
+      {"detail":"","query":"net_deposit","result":"pass","scenario":"steady_saver_d3"},
+      {"detail":"","query":"new_account_value","result":"pass","scenario":"steady_saver_d3"},
+      {"detail":"","query":"checks","result":"pass","scenario":"steady_saver_d3"},
+      {
+	"detail":"",
+	"query":"policy_after_account_value",
+	"result":"pass",
+	"scenario":"steady_saver_d3"
+      }
+    ]
+  },
+  "meta": {
+    "artifacts": ["Deposit/Transaction.xml" ],
+    "date":"2026-09-23",
+    "program":"annuity_deposit",
+    "source":"an OIPA transaction (Rules Palette XML)",
+    "translator":"lpsPlus/migration/oipa (oipa_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":3
+}

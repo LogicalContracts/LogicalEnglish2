@@ -1,0 +1,55 @@
+LCD L37535: Vitamin D Assay Testing
+Contractors: Wellpoint Federal
+Effective: 2026-04-01 00:00:00
+
+=== indication ===
+Hypovitaminosis D may result from inadequate intake, insufficient sunlight, malabsorption, liver, kidney and genetic disease. It results in the inadequate mineralization of bone. The CDC reported approximately 300,000 hip fractures, 60,000 fall-related deaths and 33 billion dollars in health care expenditures in 2014. This LCD identifies the indications and limitations of Medicare coverage for Vitamin D; 25 hydroxy and Vitamin D; 1, 25 dihydroxy laboratory assays in the medical management of patients.  Indications: Measurement of 25-OH Vitamin D level is indicated for patients with: 
+ 
+ chronic kidney disease stage III or greater 
+ cirrhosis 
+ hypocalcemia 
+ hypercalcemia 
+ hypercalciuria 
+ hypervitaminosis D 
+ parathyroid disorders 
+ malabsorption states 
+ obstructive jaundice 
+ osteomalacia 
+ osteoporosis if: 
+ i. T score on DEXA scan 
+ ii. History of fragility fractures or 
+ iii. FRAX> 3% 10-year probability of hip fracture or 20% 10-year probability of other major osteoporotic fracture or 
+ iv. FRAX> 3% (any fracture) with T-score 
+ v. Initiating bisphosphanate therapy (Vitamin D level and serum calcium levels should be determined and managed as necessary before bisphosphonate is initiated.) 
+ 
+ osteosclerosis/petrosis 
+ rickets 
+ vitamin D deficiency on replacement therapy related to a condition listed above; to monitor the efficacy of treatment. 
+ 
+ Measurement of 1, 25-OH Vitamin D level is indicated for patients with: 
+ 
+ unexplained hypercalcemia (suspected granulomatous disease or lymphoma) 
+ unexplained hypercalciuria (suspected granulomatous disease or lymphoma) 
+ suspected genetic childhood rickets 
+ suspected tumor-induced osteomalacia 
+ nephrolithiasis or hypercalciuria 
+ 
+ Limitations: 
+ 
+ 
+ Both assays of vitamin D need not be performed for each of the above conditions. 
+ 
+ 
+ Once a beneficiary has been shown to be vitamin D deficient, further testing may be medically necessary only to ensure adequate replacement has been accomplished. 
+ 
+ 
+ If Vitamin D level is between 20 and 50 ng/ml and patient is clinically stable, repeat testing is often unnecessary; if performed, documentation must clearly indicate the necessity of the test. 
+ 
+ 
+ If level 60 ng/ml are noted, a subsequent level(s) may be reimbursed until the level is within the normal range. 
+ 
+ 
+ Testing may not be used for routine or other screening.
+
+=== associated_info ===
+

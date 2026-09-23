@@ -1,0 +1,144 @@
+% The Logical English twin of the OIPA transaction Deposit of the plan annuity, written by the OIPA translator
+% from its XML configuration (kept in sources/).
+% Each rule cites the MathVariable it states; the expected values in the scenarios are
+% computed by an independent interpreter of OIPA math (oipa_eval.py), not by this program.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the knowledge base annuity_deposit includes these resources:
+    temporal.
+
+the functions are:
+    the effective date of *an activity* is *a date*.
+    the gross amount of *an activity* is *an amount*.
+    the account value of the policy before *an activity* is *an amount*.
+    the premium tax of *an activity* is *an amount*.
+    the bonus rate of *an activity* is *a number*.
+    the bonus of *an activity* is *an amount*.
+    the net deposit of *an activity* is *an amount*.
+    the new account value of *an activity* is *an amount*.
+    the premium tax rate of the plan is *a number*.
+    the account value of the policy after *an activity* is *a value*.
+
+the templates are:
+    *an activity* is a deposit.
+    *an activity* fails the check *a code*.
+
+the knowledge base annuity_deposit includes:
+
+the text of "Deposit/Transaction.xml" is at "sources/Deposit/Transaction.xml".
+
+the premium tax rate of the plan is 0.0235, as stated in "PlanFields.csv" at PremiumTaxRate.
+
+% An activity of this program is a deposit: the Deposit transaction it processes.
+an activity is a deposit if
+    the effective date of the activity is a date.
+
+rule premium_tax with provenance "Deposit/Transaction.xml" at MathVariable PremiumTaxMV:
+the premium tax of an activity is an amount N if
+    the gross amount of the activity is an amount M
+    and the premium tax rate of the plan is a number K
+    and N = round(M * K * 100) / 100.
+
+rule bonus_rate with provenance "Deposit/Transaction.xml" at MathVariable BonusRateMV:
+the bonus rate of an activity is a number N if
+    the gross amount of the activity is an amount M
+    and M >= 100000
+    and N = 0.02
+    otherwise the activity is a deposit
+    and N = 0.01.
+
+rule bonus with provenance "Deposit/Transaction.xml" at MathVariable BonusMV:
+the bonus of an activity is an amount N if
+    the gross amount of the activity is an amount M
+    and the premium tax of the activity is an amount K
+    and the bonus rate of the activity is a number P
+    and N = round((M - K) * P * 100) / 100.
+
+rule net_deposit with provenance "Deposit/Transaction.xml" at MathVariable NetDepositMV:
+the net deposit of an activity is an amount N if
+    the gross amount of the activity is an amount M
+    and the premium tax of the activity is an amount K
+    and the bonus of the activity is an amount P
+    and N = round((M - K + P) * 100) / 100.
+
+rule new_account_value with provenance "Deposit/Transaction.xml" at MathVariable NewAccountValueMV:
+the new account value of an activity is an amount N if
+    the account value of the policy before the activity is an amount M
+    and the net deposit of the activity is an amount K
+    and N = round((M + K) * 100) / 100.
+
+% The deposit must be a positive amount.
+rule d001 with provenance "Deposit/ValidateExpressions.xml" at Expression D001:
+an activity fails the check "D001" if
+    the gross amount of the activity <= 0.
+
+% Deposits above $1,000,000 need home office approval.
+rule d002 with provenance "Deposit/ValidateExpressions.xml" at Expression D002:
+an activity fails the check "D002" if
+    the gross amount of the activity > 1000000.
+
+rule copy_account_value with provenance "Deposit/CopyToPolicyFields.xml" at Field AccountValue:
+the account value of the policy after an activity is a value if
+    the new account value of the activity is the value
+    and it is not the case that the activity fails the check a code.
+
+scenario steady_saver_d1 is:
+    the effective date of d1 is 2020-03-15.
+    the gross amount of d1 is 50000.
+    the account value of the policy before d1 is 0.
+    net_deposit expects answers ["the net deposit of d1 is 49313.25"].
+    new_account_value expects answers ["the new account value of d1 is 49313.25"].
+    checks expects answers [].
+    policy_after_account_value expects answers ["the account value of the policy after d1 is 49313.25"].
+
+scenario steady_saver_d2 is:
+    the effective date of d2 is 2021-03-15.
+    the gross amount of d2 is 120000.
+    the account value of the policy before d2 is 49313.25.
+    net_deposit expects answers ["the net deposit of d2 is 119523.6"].
+    new_account_value expects answers ["the new account value of d2 is 168836.85"].
+    checks expects answers [].
+    policy_after_account_value expects answers ["the account value of the policy after d2 is 168836.85"].
+
+scenario steady_saver_d3 is:
+    the effective date of d3 is 2024-02-01.
+    the gross amount of d3 is 0.
+    the account value of the policy before d3 is 118836.850000000005821.
+    net_deposit expects answers ["the net deposit of d3 is 0"].
+    new_account_value expects answers ["the new account value of d3 is 118836.85"].
+    checks expects answers ["d3 fails the check D001"].
+    policy_after_account_value expects answers [].
+
+query net_deposit is:
+    the net deposit of which activity is which amount.
+
+query new_account_value is:
+    the new account value of which activity is which amount.
+
+query checks is:
+    which activity fails the check which code.
+
+query policy_after_account_value is:
+    the account value of the policy after which activity is which value.
+
+the view deposit is:
+    the title is "Deposit (annuity)".
+    the case is a scenario.
+    the facts about "the activity" are
+        the effective date of an activity is a date,
+        the gross amount of an activity is an amount.
+    the facts about "the policy it finds" are
+        the account value of the policy before an activity is an amount.
+    the result is the answer to query net_deposit.
+    the answers to "which activity fails the check which code" are listed as "Checks".
+    the result shows its citations.
+

@@ -191,9 +191,13 @@ The directory renamings are these — each applies to everything under it:
 | `LogicalThinkingInAgeOfAI/…` | `collections/logical-thinking-talk/…` |
 | `RulesRus/…` | `regulatory/…` |
 | `testing/…` | `fixtures/…` (the test fixtures, listed to logged-in users) |
-| `insureLE2/customs/…` | `lpsPlus/customs/…` |
-| `insureLE2/medicare/…` | `lpsPlus/medicare/…` |
+| `insureLE2/customs/…` | `regulatory/customs/…` |
+| `insureLE2/medicare/…` | `regulatory/medicare/…` |
 | `insureLE2/migration/…` | `lpsPlus/migration/…` |
+| `insureLE2/migration/oipa/…` | `migration/oipa/…` |
+| `lpsPlus/customs/…` | `regulatory/customs/…` |
+| `lpsPlus/medicare/…` | `regulatory/medicare/…` |
+| `lpsPlus/migration/oipa/…` | `migration/oipa/…` |
 
 Individual programs that moved on their own — `sums`, `citizenship_including`,
 `white_rabbit` and about thirty others — have one `example_alias/2` row each,

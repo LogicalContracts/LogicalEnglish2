@@ -1,0 +1,109 @@
+% The Logical English twin of the OIPA transaction FullSurrender of the plan annuity, written by the OIPA translator
+% from its XML configuration (kept in sources/).
+% Each rule cites the MathVariable it states; the expected values in the scenarios are
+% computed by an independent interpreter of OIPA math (oipa_eval.py), not by this program.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the knowledge base annuity_full_surrender includes these resources:
+    temporal.
+
+the functions are:
+    the effective date of *an activity* is *a date*.
+    the account value of the policy before *an activity* is *an amount*.
+    the issue date of the policy before *an activity* is *a date*.
+    the duration of *an activity* is *a number*.
+    the policy year of *an activity* is *a number*.
+    the surrender charge rate of *an activity* is *a number*.
+    the surrender charge of *an activity* is *an amount*.
+    the surrender value of *an activity* is *an amount*.
+    the account value of the policy after *an activity* is *a value*.
+    the policy status of the policy after *an activity* is *a value*.
+
+the templates are:
+    *an activity* is a full surrender.
+    the surrender charge rate for duration *a duration* is *a rate* under table surrender_charge.
+
+the table surrender_charge is loaded from surrender_charge.csv, with unique match:
+    duration | rate
+
+the knowledge base annuity_full_surrender includes:
+
+the text of "FullSurrender/Transaction.xml" is at "sources/FullSurrender/Transaction.xml".
+
+% An activity of this program is a full surrender: the FullSurrender transaction it processes.
+an activity is a full surrender if
+    the effective date of the activity is a date.
+
+rule duration with provenance "FullSurrender/Transaction.xml" at MathVariable DurationMV:
+the duration of an activity is a number if
+    the age on the effective date of the activity of someone born on the issue date of the policy before the activity is the number.
+
+rule policy_year with provenance "FullSurrender/Transaction.xml" at MathVariable PolicyYearMV:
+the policy year of an activity is a number N if
+    the duration of the activity is a number M
+    and N = M + 1.
+
+rule surrender_charge_rate with provenance "FullSurrender/Transaction.xml" at MathVariable SurrenderChargeRateMV:
+the surrender charge rate of an activity is a number N if
+    the policy year of the activity is a second number
+    and the surrender charge rate for duration the second number is N under table surrender_charge
+    otherwise the activity is a full surrender
+    and N = 0.
+
+rule surrender_charge with provenance "FullSurrender/Transaction.xml" at MathVariable SurrenderChargeMV:
+the surrender charge of an activity is an amount N if
+    the account value of the policy before the activity is an amount M
+    and the surrender charge rate of the activity is a number K
+    and N = round(M * K * 100) / 100.
+
+rule surrender_value with provenance "FullSurrender/Transaction.xml" at MathVariable SurrenderValueMV:
+the surrender value of an activity is an amount N if
+    the account value of the policy before the activity is an amount M
+    and the surrender charge of the activity is an amount K
+    and N = round((M - K) * 100) / 100.
+
+rule copy_account_value with provenance "FullSurrender/CopyToPolicyFields.xml" at Field AccountValue:
+the account value of the policy after an activity is 0 if
+    the activity is a full surrender.
+
+rule copy_policy_status with provenance "FullSurrender/CopyToPolicyFields.xml" at Field PolicyStatus:
+the policy status of the policy after an activity is Surrendered if
+    the activity is a full surrender.
+
+scenario drained_w1_fullsurrender is:
+    the effective date of w1_fullsurrender is 2022-07-01.
+    the account value of the policy before w1_fullsurrender is 1500.
+    the issue date of the policy before w1_fullsurrender is 2021-01-01.
+    surrender_value expects answers ["the surrender value of w1_fullsurrender is 1410"].
+    policy_after_account_value expects answers ["the account value of the policy after w1_fullsurrender is 0"].
+    policy_after_policy_status expects answers ["the policy status of the policy after w1_fullsurrender is Surrendered"].
+
+query surrender_value is:
+    the surrender value of which activity is which amount.
+
+query policy_after_account_value is:
+    the account value of the policy after which activity is which value.
+
+query policy_after_policy_status is:
+    the policy status of the policy after which activity is which value.
+
+the view full_surrender is:
+    the title is "FullSurrender (annuity)".
+    the case is a scenario.
+    the facts about "the activity" are
+        the effective date of an activity is a date.
+    the facts about "the policy it finds" are
+        the account value of the policy before an activity is an amount,
+        the issue date of the policy before an activity is a date.
+    the result is the answer to query surrender_value.
+    the result shows its citations.
+

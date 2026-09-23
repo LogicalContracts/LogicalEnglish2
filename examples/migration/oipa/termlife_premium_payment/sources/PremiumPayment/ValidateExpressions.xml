@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidateExpressions>
+  <Expression TYPE="ErrorOnTrue" MESSAGE="A payment of $$$AmountMV$$$ is less than one modal premium ($$$ModalPremiumMV$$$)." ERRORNUMBER="P001">AmountMV &lt; ModalPremiumMV</Expression>
+</ValidateExpressions>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CopyToPolicyFields>
+  <Fields>
+    <Field><From>IssueDateMV</From><To>IssueDate</To></Field>
+    <Field><From>IssueDateMV</From><To>PaidToDate</To></Field>
+    <Field><From>FaceAmountMV</From><To>FaceAmount</To></Field>
+    <Field><From>BillingModeMV</From><To>BillingMode</To></Field>
+    <Field><From>ModalPremiumMV</From><To>ModalPremium</To></Field>
+    <Field><From>ActiveStatusMV</From><To>PolicyStatus</To></Field>
+  </Fields>
+</CopyToPolicyFields>

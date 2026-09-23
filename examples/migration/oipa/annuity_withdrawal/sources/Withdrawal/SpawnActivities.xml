@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SpawnActivities>
+  <Spawn>
+    <Tests>
+      <Test>RemainingValueMV &lt; MinimumBalanceMV And RemainingValueMV &gt; 0</Test>
+    </Tests>
+    <Transaction SPAWNCODE="01">FullSurrender</Transaction>
+  </Spawn>
+</SpawnActivities>

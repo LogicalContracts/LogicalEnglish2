@@ -1,0 +1,26 @@
+LCD L33369: Therapeutic Shoes for Persons with Diabetes — revision history (Medicare Coverage Database export, 12 September 2026, lcd_x_revision_history)
+
+=== version 3, revision history date 2015-10-01 ===
+Revision Effective Date: 02/04/2011 (June 2014 Publication) COVERAGE INDICATIONS, LIMITATIONS AND/OR MEDICAL NECESSITY: Removed: Detailed written order verbiage regarding reasonable and necessary denial (reference related policy article and PIM 5.2.3).
+
+=== version 4, revision history date 2015-10-01 ===
+Revision Effective Date: 10/31/2014 COVERAGE INDICATIONS, LIMITATIONS AND/OR MEDICAL NECESSITY: Revised: Standard Documentation Language to add covered prior to a beneficiary’s Medicare eligibility DOCUMENTATION REQUIREMENTS: Revised: Standard Documentation Language to add who can enter date of delivery date on the POD Removed: ICD-9 CM reference
+
+=== version 7, revision history date 2016-07-01 ===
+Effective July 1, 2016 oversight for DME MAC LCDs is the responsibility of CGS Administrators, LLC 18003 and 17013 and Noridian Healthcare Solutions, LLC 19003 and 16013. No other changes have been made to the LCDs.
+
+=== version 12, revision history date 2016-07-01 ===
+Revision Effective Date 07/01/2016 DOCUMENTATION REQUIREMENTS: Revised: Standard documentation language for orders, added New order requirements, and Correct coding instructions; revised Proof of delivery instructions and removed Method 3 as it does not apply – Effective 04/28/16
+
+=== version 15, revision history date 2017-01-01 ===
+Revision Effective Date: 01/01/2017 COVERAGE INDICATIONS, INDICATIONS, LIMITATIONS AND/OR MEDICAL NECESSITY: Removed: Standard Documentation Language Added: New reference language and directions to Standard Documentation Requirements Added: General Requirements DOCUMENTATION REQUIREMENTS: Removed: Standard Documentation Language Added: General Documentation Requirements Added: New reference language and directions to Standard Documentation Requirements POLICY SPECIFIC DOCUMENTATION REQUIREMENTS: Removed: Standard Documentation Language Added: Direction to Standard Documentation Requirements Removed: Supplier Manual reference from Miscellaneous Removed: PIM reference from Appendices RELATED LOCAL COVERAGE DOCUMENTS: Added: LCD-related Standard Documentation Requirements article
+
+=== version 18, revision history date 2018-04-01 ===
+Revision Effective Date: 04/01/2018 HCPCS CODES: Added: K0903 to Group 1 Codes, per quarterly HCPCS code release (effective 04/01/2018) 04/26/2018: At this time 21st Century Cures Act will apply to new and revised LCDs that restrict coverage which requires comment and notice. This revision is not a restriction to the coverage determination; and, therefore not all the fields included on the LCD are applicable as noted in this policy.
+
+=== version 22, revision history date 2019-01-01 ===
+Revision Effective Date: 01/01/2019 HCPCS CODES: Removed: K0903 from Group 1 Codes, per annual HCPCS code release Added: A5514 to Group 1 codes, crosswalk from K0903, per annual HCPCS code release Revised: A5513 code narrative, per annual HCPCS code release
+
+=== version 26, revision history date 2020-01-01 ===
+Revision Effective Date: 01/01/2020 COVERAGE INDICATIONS, LIMITATIONS, AND/OR MEDICAL NECESSITY: Revised: Order information as a result of Final Rule 1713 CODING INFORMATION: Removed: Field titled “Bill Type” Removed: Field titled “Revenue Codes” Removed: Field titled “ICD-10 Codes that Support Medical Necessity” Removed: Field titled “ICD-10 Codes that DO NOT Support Medical Necessity” Removed: Field titled “Additional ICD-10 Information” GENERAL DOCUMENTATION REQUIREMENTS: Revised: “Prescriptions (orders)” to “SWO” 03/05/2020: Pursuant to the 21st Century Cures Act, these revisions do not require notice and comment because they are due to non-discretionary coverage updates reflective of CMS FR-1713.
+

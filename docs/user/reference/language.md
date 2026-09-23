@@ -823,14 +823,14 @@ rule applicable, what is the answer to the one contested question, and what
 follows. Every fact has a source, and someone decides the contested question.
 Examples live in `examples/regulatory/`, and `eu261_integration.le` uses all of
 these constructs together on the facts of the Wallentin-Hermann judgment of the
-Court of Justice of the European Union. Two larger applications are kept in the
-lpsPlus code repository. `examples/customs/` classifies goods under a tariff —
+Court of Justice of the European Union. Two larger applications
+are there too. `examples/regulatory/customs/` classifies goods under a tariff —
 the General Rules of Interpretation and the notes of Chapters 39, 61 and 62,
 run on rulings of US Customs and Border Protection and on EU binding tariff
-informations. `examples/medicare/` holds the 58 coverage policies for durable
-medical equipment, run on claims and on decisions of the Medicare Appeals
-Council. Where lpsPlus is checked out beside this repository, both appear under
-`examples/moreExamples/lpsPlus/`.
+informations. `examples/regulatory/medicare/` holds the 58 coverage policies
+for durable medical equipment, run on claims and on decisions of the Medicare
+Appeals Council. Both are examples, provided "as is" and not advice: each
+program's opening comment says so in full.
 
 ### 17.1 Provenance trailers and judged templates
 Any fact of a scenario, and any fact of the knowledge base, may carry
@@ -964,8 +964,8 @@ knitted?". A value that resembles none of them, such as a free description or a
 name, is not reported.
 
 See `examples/regulatory/judged_damage.le`, and the customs and Medicare
-programs of the lpsPlus repository (`examples/customs/`,
-`examples/medicare/`), where every rule, table and fact cites its passage.
+programs (`examples/regulatory/customs/`,
+`examples/regulatory/medicare/`), where every rule, table and fact cites its passage.
 
 ### 17.2 `otherwise` cascades
 A line of conditions that **opens** with `otherwise` starts a new alternative.
@@ -1582,6 +1582,6 @@ A tutorial, building a view step by step: [IntroducingLEViews.md](../tutorials/v
 See the views of `examples/regulatory/eu261_integration.le` (a claims desk),
 `flip_housing.le` (an interview), `judged_damage.le`, `sections_benefit.le`
 (its view *rent decision*: sections in its own words, why not, a flip that
-keeps a fact, a letter for each outcome) and, in the lpsPlus repository,
-`examples/customs/cbp_62.le` (a classification worksheet) and the coverage
-desks of `examples/medicare/pap_cases.le` and `pmd_cases.le`.
+keeps a fact, a letter for each outcome) and
+`examples/regulatory/customs/cbp_62.le` (a classification worksheet) and the
+coverage desks of `examples/regulatory/medicare/pap_cases.le` and `pmd_cases.le`.

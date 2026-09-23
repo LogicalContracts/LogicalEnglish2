@@ -1,0 +1,47 @@
+CBP ruling NY N309957 (2020-02-25): The tariff classification of polyvinyl chloride (PVC) plastic extrusions from China
+https://rulings.cbp.gov/ruling/N309957 — text as served by https://rulings.cbp.gov/api/ruling/N309957
+
+ N309957
+
+February 25, 2020
+
+CLA-2-39:OT:RR:NC:1:137 
+
+CATEGORY:	Classification
+
+TARIFF NO.:	3916.20.0091, 9903.88.02  
+
+Dinesh Bhojwani
+Turnkey Product Solutions, Inc. 
+2001 S. Main Street
+Blacksburg, Virginia 24060
+
+RE:	The tariff classification of polyvinyl chloride (PVC) plastic extrusions from China
+
+Dear Mr. Bhojwani:
+
+In your letter dated February 19, 2020 you requested a tariff classification ruling.  Two representative samples were provided with your submission and will be retained by our office.  
+
+The panels are composed of PVC.  The PVC is heated and extruded through a die that provides the shape of the profiles.  The profiles are used in the installation of swimming pool liners, holding the liner in place during installation.  The product is imported in rolls.  
+
+The applicable subheading for the PVC extrusions will be 3916.20.0091, Harmonized Tariff Schedule of the United States (HTSUS), which provides for monofilament of which any cross-sectional dimension exceeds 1 mm, rods, sticks and profile shapes, whether or not surface worked but not otherwise worked, of plastics: of polymers of polyvinyl chloride: other.  The general rate of duty will be 5.8 percent ad valorem.
+
+Pursuant to U.S. Note 20 to Subchapter III, Chapter 99, HTSUS, products of China classified under subheading 3916.20.0091, HTSUS, unless specifically excluded, are subject to an additional 25 percent ad valorem rate of duty.  At the time of importation, you must report the Chapter 99 subheading, i.e., 9903.88.02, in addition to subheading 3916.20.0091, HTSUS, listed above.
+ 
+The HTSUS is subject to periodic amendment so you should exercise reasonable care in monitoring the status of goods covered by the Note cited above and the applicable Chapter 99 subheading.  For background information regarding the trade remedy initiated pursuant to Section 301 of the Trade Act of 1974, you may refer to the relevant parts of the USTR and CBP websites, which are available at https://ustr.gov/issue-areas/enforcement/section-301-investigations/tariff-actions and https://www.cbp.gov/trade/remedies/301-certain-products-china, respectively.
+
+Duty rates are provided for your convenience and are subject to change.  The text of the most recent HTSUS and the accompanying duty rates are provided on the World Wide Web at https://hts.usitc.gov/current.
+
+This ruling is being issued under the provisions of Part 177 of the Customs Regulations (19 C.F.R. 177).
+
+A copy of the ruling or the control number indicated above should be provided with the entry documents filed at the time this merchandise is imported.  If you have any questions regarding the ruling, contact National Import Specialist Christina Allen at julie.c.allen@cbp.dhs.gov.
+
+Sincerely,
+
+
+
+
+Steven A. Mack
+Director
+National Commodity Specialist Division
+

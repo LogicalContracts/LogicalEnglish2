@@ -1,0 +1,135 @@
+{
+  "counts": {"approximated":0,"encoded":12,"residue":0},
+  "entries": [
+    {
+      "element":"FullSurrender/Transaction.xml MathVariable EffectiveDateMV",
+      "in_program":"EffectiveDateMV",
+      "kind":"mathvariable",
+      "mapping":"FIELD -> the activity field EffectiveDate, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"FullSurrender/Transaction.xml MathVariable AccountValueMV",
+      "in_program":"AccountValueMV",
+      "kind":"mathvariable",
+      "mapping":"POLICYFIELD -> the policy field AccountValue the activity finds, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"FullSurrender/Transaction.xml MathVariable IssueDateMV",
+      "in_program":"IssueDateMV",
+      "kind":"mathvariable",
+      "mapping":"POLICYFIELD -> the policy field IssueDate the activity finds, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"FullSurrender/Transaction.xml MathVariable DurationMV",
+      "in_program":"DurationMV",
+      "kind":"mathvariable",
+      "mapping":"FUNCTION -> LE's date and number built-ins",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"FullSurrender/Transaction.xml MathVariable PolicyYearMV",
+      "in_program":"PolicyYearMV",
+      "kind":"mathvariable",
+      "mapping":"EXPRESSION -> a rule, the MathVariables it reads as conditions",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"FullSurrender/Transaction.xml MathVariable SurrenderChargeRateMV",
+      "in_program":"SurrenderChargeRateMV",
+      "kind":"mathvariable",
+      "mapping":"RATE -> a decision table loaded from the plan's rates, DEFAULT as the last line",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"FullSurrender/Transaction.xml MathVariable SurrenderChargeMV",
+      "in_program":"SurrenderChargeMV",
+      "kind":"mathvariable",
+      "mapping":"EXPRESSION -> a rule, the MathVariables it reads as conditions",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"FullSurrender/Transaction.xml MathVariable SurrenderValueMV",
+      "in_program":"SurrenderValueMV",
+      "kind":"mathvariable",
+      "mapping":"EXPRESSION -> a rule, the MathVariables it reads as conditions",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"FullSurrender/Transaction.xml MathVariable ClosedValueMV",
+      "in_program":"ClosedValueMV",
+      "kind":"mathvariable",
+      "mapping":"VALUE -> the constant 0",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"FullSurrender/Transaction.xml MathVariable SurrenderedStatusMV",
+      "in_program":"SurrenderedStatusMV",
+      "kind":"mathvariable",
+      "mapping":"VALUE -> the constant Surrendered",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"FullSurrender/CopyToPolicyFields.xml ClosedValueMV -> AccountValue",
+      "in_program":"AccountValue",
+      "kind":"copy",
+      "mapping":"CopyToPolicyFields -> the policy field after the activity (only an activity that fails no check)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"FullSurrender/CopyToPolicyFields.xml SurrenderedStatusMV -> PolicyStatus",
+      "in_program":"PolicyStatus",
+      "kind":"copy",
+      "mapping":"CopyToPolicyFields -> the policy field after the activity (only an activity that fails no check)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":3,
+    "tests": [
+      {
+	"detail":"",
+	"query":"surrender_value",
+	"result":"pass",
+	"scenario":"drained_w1_fullsurrender"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_account_value",
+	"result":"pass",
+	"scenario":"drained_w1_fullsurrender"
+      },
+      {
+	"detail":"",
+	"query":"policy_after_policy_status",
+	"result":"pass",
+	"scenario":"drained_w1_fullsurrender"
+      }
+    ]
+  },
+  "meta": {
+    "artifacts": ["FullSurrender/Transaction.xml" ],
+    "date":"2026-09-23",
+    "program":"annuity_full_surrender",
+    "source":"an OIPA transaction (Rules Palette XML)",
+    "translator":"lpsPlus/migration/oipa (oipa_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":1
+}

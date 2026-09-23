@@ -1,0 +1,23 @@
+EU Binding Tariff Information FRBTIFR-BTI-2026-04256 — EBTI, https://ec.europa.eu/taxation_customs/dds2/ebti/ebti_consultation.jsp?Lang=en (search by the reference)
+
+BTI Reference FRBTIFR-BTI-2026-04256
+Issuing country FR
+Start date of validity 22/07/2026
+End date of validity 21/07/2029
+Nomenclature code 6105100000************
+Classification justification Règles générales 1 et 6 : le classement est déterminé par les notes de section et de chapitre, ainsi que par le libellé de position, de sous-position et de code NC. Règle générale 5 b) : les emballages suivent le classement de la marchandise. Note 2 A) de la Section XI : les produits textiles contenant deux ou plusieurs matières textiles sont classés comme s'ils étaient entièrement constitués de la matière textile qui prédomine en poids sur chacune des autres matières textiles. En l'occurrence, le coton. Note 7 de la Section XI : définition des articles confectionnés. Note 1 du Chapitre 61 : le présent chapitre ne comprend que les articles confectionnés en bonneterie. Note 4 du Chapitre 61 : les positions 6105 et 6106 ne couvrent pas les vêtements comportant des poches au-dessous de la taille ou des bords-côtes ou autres moyens permettant de resserrer le bas du vêtement. (...) Les chemises, chemisiers, blouses-chemisiers et chemisettes sont des vêtements destinés à couvrir la partie supérieure du corps et comportant des manches, longues ou courtes, ainsi qu'une ouverture, même partielle, partant de l'encolure. (...) Les chemisiers, blouses, blouses-chemisiers et chemisettes peuvent également avoir un col. Note 9 du Chapitre 61 : les vêtements du présent chapitre se fermant sur le devant, gauche sur droite, sont à considérer comme des vêtements pour hommes ou garçonnets. NESH relatives à la position 6105.
+Language fr
+Place of issue
+Date of issue 22/07/2026
+Name and adress FR005400 CSMR - Pôle RTC 11 RUE DES MESSAGERIES IM. LE FORUM 57036 METZ FR
+Description of goods Vêtement pour homme de haute visibilité, de type polo de couleur fluorescente jaune ou orangée, destiné à recouvrir la partie supérieure du corps et descendant jusqu’aux hanches, en bonneterie majoritairement de coton (55 % Coton - 45 % Polyester). Il comporte un col chemisier en bord-côte de couleur contrastée, une ouverture partielle sur le devant se fermant gauche sur droite au moyen de trois boutons, des manches courtes, deux bandes rétro-réfléchissantes cousues. Les bases du corps et des manches se terminent par un ourlet. Il existe en deux couleurs et de différentes tailles.
+Keywords POLO SHIRTS
+KNITTED OR CROCHETED
+OF COTTON
+OF POLYESTER
+WITH SHORT SLEEVES
+WITH COLLAR
+WITH PARTIAL OPENING
+WITH BUTTONING FLAP
+WITH REFLECTIVE STRIP
+FOR MEN

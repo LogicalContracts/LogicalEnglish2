@@ -13,7 +13,7 @@
     ships is a byte the visitor has — so anything a server would have asked a
     user to log in for is not shippable, and is left out.
 
-    On top of that rule, two exclusions of its own:
+    On top of that rule, three exclusions of its own:
 
       * **symbolic links.** `le_extensions.pl`, `le_importers.pl` and the
         `insureLE2`/`lpsPlus` example trees are links into private sibling
@@ -23,6 +23,9 @@
         and `--private` is the one way to include them, for a deployment that
         is not public.
       * **anything with an account in it**: `le_users.db`.
+      * **the large public trees** of light_excluded/1 (the customs and
+        Medicare models, the OIPA twins): the browser build is "LE light",
+        and a visitor should not unpack 12 MB before the first request.
 
     `payload_files(-Files)` is the list, relative to the repository root, in
     the order they should be unpacked. build.sh asks for it and hands it to
@@ -32,6 +35,7 @@
 :- module(le_wasm_pack, [
     payload_files/1,            % -Files:list(atom)
     payload_files/2,            % +Options, -Files
+    light_excluded_path/1,      % +Path
     print_payload_files/0,
     print_payload_files/1       % +Options
     ]).
@@ -96,6 +100,34 @@ never(Rel) :- sub_atom(Rel, 0, _, _, 'wasm/dist').
 never(Rel) :- sub_atom(Rel, _, _, _, 'node_modules').
 never(Rel) :- sub_atom(Rel, _, _, _, '/.').
 never(Rel) :- sub_atom(Rel, 0, 1, _, '.').
+%   The browser build is "LE light": the public examples a visitor meets
+%   first, not every public example. The trees below are public on the server
+%   (restricted_paths.pl lets anyone open them) but too large to unpack into
+%   every visitor's browser before the first request — the Medicare model
+%   alone is 10 MB of cited texts. Their old names are left out with them,
+%   since build.sh copies an alias only when its target was packed. Left out
+%   of a `--private` build too: light is what the browser build is, not a
+%   rule about who may read.
+never(Rel) :- light_excluded(Tree), sub_atom(Rel, 0, _, _, Tree).
+
+%!  light_excluded(?Tree:atom) is nondet.
+%
+%   A directory (with its trailing `/`) the browser build does not carry.
+%   Add a row to keep another large tree out; nothing else needs to change.
+light_excluded('examples/regulatory/customs/').      % 17 programs, 3 MB
+light_excluded('examples/regulatory/medicare/').     % 123 programs, 10 MB
+light_excluded('examples/migration/oipa/').          % 6 twins and their sources
+
+%!  light_excluded_path(+Path:atom) is semidet.
+%
+%   Path (a file or a directory, relative or absolute) is in one of the trees
+%   the browser build leaves out. The landing page the build copies from the
+%   server asks this, so that it does not list what the build does not carry.
+light_excluded_path(Path) :-
+    atom_concat(Path, '/', Slashed),
+    light_excluded(Tree),
+    sub_atom(Slashed, _, _, _, Tree),
+    !.
 
 payload_files(Files) :- payload_files([], Files).
 

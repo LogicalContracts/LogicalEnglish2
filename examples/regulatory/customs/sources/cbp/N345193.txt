@@ -1,0 +1,75 @@
+CBP ruling NY N345193 (2025-02-10): The tariff classification and country of origin a woman’s blazer; 19 CFR 102.21(c)(2)
+https://rulings.cbp.gov/ruling/N345193 — text as served by https://rulings.cbp.gov/api/ruling/N345193
+
+N345193 
+
+February 10, 2025 
+
+OT:RR:NC:N3:360
+
+CATEGORY: Classification, Origin
+
+TARIFF NO.: 6204.32.2030
+
+Ms. Vickey Chan
+Frontline Clothing Limited
+4/F Manley Tower
+828 Cheung Sha Wan Road  
+Hong Kong, China
+
+RE:  The tariff classification and country of origin a woman’s blazer; 19 CFR 102.21(c)(2)
+
+Dear Ms. Chan:  
+
+In your letter dated January 14, 2025, you requested a ruling on the country of origin of a woman’s blazer. Your sample will be returned.
+
+Style CD889301DKR is a woman’s woven blazer constructed from 99% cotton and 1% elastane woven fabric. The tailored jacket is fully lined and made from more than four panels sewn together lengthwise. The garment features long sleeves, a notched collar, two faux pockets at the waist, a full front opening secured by a single button closure, and a rear center vent.
+
+The manufacturing operations for style CD889301DKR are as follows:  
+
+China:
+
+Shell fabric, lining fabric, trims, and accessories are produced
+Lining fabric, trims, and accessories are shipped to Cambodia
+Shell fabric is cut into component parts (panels) and is shipped to Cambodia
+
+Cambodia:
+
+Lining fabric is cut
+Shell fabric, lining fabric, trims, and accessories are sewn and assembled
+Labels are attached
+Garment is washed, ironed, and packed
+
+CLASSIFICATION:
+
+The applicable subheading for style CD889301DKR will be 6204.32.2030, Harmonized Tariff Schedule of the United States (HTSUS), which provides for Women’s or girls’ suits, ensembles, suit-type jackets, blazers, dresses, skirts, divided skirts, trousers, bib and brace overalls, breeches and shorts (other than swimwear): Suit-type jackets and blazers: Of cotton: Other: Other: Women’s. The rate of duty will be 9.4 percent ad valorem.
+
+COUNTRY OF ORIGIN - LAW AND ANALYSIS:
+
+Section 334 of the Uruguay Round Agreements Act (codified at 19 U.S.C. 3592), enacted on December 8, 1994, provided rules of origin for textiles and apparel entered, or withdrawn from warehouse for consumption, on and after July 1, 1996.  Section 102.21, Customs Regulations (19 C.F.R. 102.21), published September 5, 1995, in the Federal Register, implements Section 334 (60 FR 46188).  Section 334 of the URAA was amended by section 405 of the Trade and Development Act of 2000, enacted on May 18, 2000, and accordingly, section 102.21 was amended (68 Fed. Reg. 8711).  Thus, the country of origin of a textile or apparel product shall be determined by the sequential application of the general rules set forth in paragraphs (c)(1) through (5) of Section 102.21.
+
+Paragraph (c)(1) states, “The country of origin of a textile or apparel product is the single country, territory, or insular possession in which the good was wholly obtained or produced.”  As the subject merchandise is not wholly obtained or produced in a single country, territory or insular possession, paragraph (c)(1) of Section 102.21 is inapplicable.
+
+Paragraph (c)(2) states, “Where the country of origin of a textile or apparel product cannot be determined under paragraph (c)(1) of this section, the country of origin of the good is the single country, territory, or insular possession in which each of the foreign materials incorporated in that good underwent an applicable change in tariff classification, and/or met any other requirement, specified for the good in paragraph (e) of this section:”  Paragraph (e) states, in pertinent part: “The following rules shall apply for purposes of determining the country of origin of a textile or apparel product under paragraph (c)(2) of this section:
+
+HTSUS Tariff shift and/or other requirements
+
+6201–6208 (1) If the good consists of two or more component parts, a change to an assembled good of heading 6201 through 6208 from unassembled components, provided that the change is the result of the good being wholly assembled in a single country, territory, or insular possession.”
+
+The subject garment consists of a shell fabric and a lining fabric, sewn and assembled with additional trims and accessories.  These unassembled components are shipped to Cambodia, where the unassembled component parts become an assembled good of heading 6204, HTSUS. Cambodia is where the “two or more” unassembled component parts change into an assembled good of heading 6204, HTSUS. In accordance with 19 C.F.R. 102.21(c)(2), the terms of the tariff shift requirement in paragraph (e) are met and the country of origin for the woman’s blazer is Cambodia.  
+
+HOLDING:
+
+The country of origin of the woman’s woven blazer is Cambodia.  This holding set forth above applies only to the specific factual situation and merchandise description as identified in the ruling request. This position is clearly set forth in Title 19, Code of Federal Regulations (CFR), Section 177.9(b)(1). This section states that a ruling letter is issued on the assumption that all of the information furnished in the ruling letter, whether directly, by reference, or by implication, is accurate and complete in every material respect. In the event that the facts are modified in any way, or if the goods do not conform to these facts at time of importation, you should bring this to the attention of U.S. Customs and Border Protection (CBP) and submit a request for a new ruling in accordance with 19 CFR 177.2. Additionally, we note that the material facts described in the foregoing ruling may be subject to periodic verification by CBP.
+
+Duty rates are provided for your convenience and are subject to change. The text of the most recent HTSUS and the accompanying duty rates are provided on World Wide Web at https://hts.usitc.gov/current.
+
+This ruling is being issued under the provisions of Part 177 of the Customs and Border Protection Regulations (19 C.F.R. 177).
+
+A copy of the ruling or the control number indicated above should be provided with the entry documents filed at the time this merchandise is imported. If you have any questions regarding the ruling, please contact National Import Specialist Kimberly Rackett at kimberly.rackett@cbp.dhs.gov.
+
+Sincerely, 
+
+Steven A. Mack 
+Director 
+National Commodity Specialist Division 

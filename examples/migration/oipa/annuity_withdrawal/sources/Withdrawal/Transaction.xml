@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic OIPA configuration (InsurLE2 Phase 2b): a partial withdrawal
+     from a deferred annuity, with a free amount, a surrender charge by policy
+     year (TYPE RATE), a MathIF, and the policy year from DurationOf. -->
+<Transaction>
+  <Fields>
+    <Field>
+      <Name>GrossAmount</Name>
+      <Display>Gross Amount</Display>
+      <DataType>Money</DataType>
+    </Field>
+  </Fields>
+  <Math>
+    <MathVariables>
+      <MathVariable VARIABLENAME="GrossAmountMV" TYPE="FIELD" DATATYPE="DECIMAL">Activity:GrossAmount</MathVariable>
+      <MathVariable VARIABLENAME="EffectiveDateMV" TYPE="FIELD" DATATYPE="DATE">Activity:EffectiveDate</MathVariable>
+      <MathVariable VARIABLENAME="AccountValueMV" TYPE="POLICYFIELD" DATATYPE="DECIMAL">AccountValue</MathVariable>
+      <MathVariable VARIABLENAME="IssueDateMV" TYPE="POLICYFIELD" DATATYPE="DATE">IssueDate</MathVariable>
+      <MathVariable VARIABLENAME="DurationMV" TYPE="FUNCTION" DATATYPE="INTEGER">DurationOf(IssueDateMV,EffectiveDateMV)</MathVariable>
+      <MathVariable VARIABLENAME="PolicyYearMV" TYPE="EXPRESSION" DATATYPE="INTEGER">DurationMV + 1</MathVariable>
+      <MathVariable VARIABLENAME="FreePercentMV" TYPE="PLANFIELD" DATATYPE="DECIMAL" DEFAULT="10">FreeWithdrawalPercent</MathVariable>
+      <MathVariable VARIABLENAME="FreeAmountMV" TYPE="EXPRESSION" DATATYPE="DECIMAL" ROUND="2">AccountValueMV * FreePercentMV / 100</MathVariable>
+      <MathVariable VARIABLENAME="ExcessMV" TYPE="EXPRESSION" DATATYPE="DECIMAL">GrossAmountMV - FreeAmountMV</MathVariable>
+      <MathVariable VARIABLENAME="ZeroMV" TYPE="VALUE" DATATYPE="DECIMAL">0</MathVariable>
+      <MathVariable VARIABLENAME="ChargeableAmountMV" TYPE="IIF" EXPRESSION="GrossAmountMV &gt; FreeAmountMV" DATATYPE="DECIMAL">ExcessMV,ZeroMV</MathVariable>
+      <MathVariable VARIABLENAME="SurrenderChargeRateMV" TYPE="RATE" DATATYPE="DECIMAL" DEFAULT="0">
+        <Parameters>
+          <RateDescription>SurrenderCharge</RateDescription>
+          <EffectiveDate>Activity:EffectiveDate</EffectiveDate>
+          <RateCriteria NAME="Duration">PolicyYearMV</RateCriteria>
+        </Parameters>
+      </MathVariable>
+      <MathVariable VARIABLENAME="SurrenderChargeMV" TYPE="EXPRESSION" DATATYPE="DECIMAL" ROUND="2">ChargeableAmountMV * SurrenderChargeRateMV</MathVariable>
+      <!-- after the surrender charge period, no charge whatever the table says -->
+      <MathIF IF="PolicyYearMV &gt; 7">
+        <MathVariable VARIABLENAME="SurrenderChargeMV" TYPE="VALUE" DATATYPE="DECIMAL">0</MathVariable>
+      </MathIF>
+      <MathVariable VARIABLENAME="NetAmountMV" TYPE="EXPRESSION" DATATYPE="DECIMAL" ROUND="2" LOG="Yes">GrossAmountMV - SurrenderChargeMV</MathVariable>
+      <MathVariable VARIABLENAME="RemainingValueMV" TYPE="EXPRESSION" DATATYPE="DECIMAL" ROUND="2" LOG="Yes">AccountValueMV - GrossAmountMV</MathVariable>
+      <MathVariable VARIABLENAME="MinimumBalanceMV" TYPE="PLANFIELD" DATATYPE="DECIMAL" DEFAULT="2000">MinimumBalance</MathVariable>
+    </MathVariables>
+  </Math>
+</Transaction>

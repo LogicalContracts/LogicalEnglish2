@@ -1,6 +1,6 @@
 # Migrating programs into Logical English: the shared machinery
 
-*Kind: reference · Audience: developers · Status: current (2026-09-16)*
+*Kind: reference · Audience: developers · Status: current (2026-09-23)*
 
 This is the reference for the infrastructure every translator into Logical
 English shares — Phase 0 of the roadmap in
@@ -10,7 +10,7 @@ live in the lpsPlus repository (`lpsPlus/migration/`) and are described
 there; everything here is core LE and has no knowledge of any source system.
 The twins they write live with the language they are written in: timeless LE
 twins in this repository's `examples/migration/<source>/` (Blawx, LegalRuleML,
-Miniscript, s(CASP)), LE-for-LPS twins in `lps2/examples/migration/<source>/`
+Miniscript, OIPA, s(CASP)), LE-for-LPS twins in `lps2/examples/migration/<source>/`
 (Daml, Drools, Solidity), and those whose sources are not cleared for
 publication in `lpsPlus/examples/migration/` (`le2_paths:twins_dir/2` there
 says which).
@@ -376,3 +376,12 @@ declined (only a comment saying why) or open. Tests:
   parsing hooks were not loaded; `le_kbs` loads them, and `verify/1` also
   prints the LPS emitter's own diagnostics. Propositional LPS templates are no
   longer reported as unused.
+
+## The disclaimer every twin carries
+
+`migration_text/3` closes the opening comment of every program it writes with
+a disclaimer: the program was written by a translator, is provided "as is",
+without warranty of any kind, may be wrong, and is not professional advice.
+The text is the `twin_disclaimer` row of `i18n/writer_words.csv`, in the
+program's language, wrapped at 78 columns (`with_disclaimer/2`). A translator
+therefore needs to do nothing to carry it, and rebuilding a twin keeps it.

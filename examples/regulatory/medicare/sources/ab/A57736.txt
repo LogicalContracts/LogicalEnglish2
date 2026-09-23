@@ -1,0 +1,17 @@
+Article A57736: Billing and Coding: Vitamin D Assay Testing
+Contractors: Wellpoint Federal
+Related: [{'article_id': '57736', 'article_version': '17', 'related_num': '2', 'r_article_id': '', 'r_article_version': '', 'r_lcd_id': '37535', 'r_lcd_version': '11', 'r_contractor_id': '297', 'last_updated': '2019-11-05 20:18:21.467000'}, {'article_id': '57736', 'article_version': '18', 'related_num': '2', 'r_article_id': '', 'r_article_version': '', 'r_lcd_id': '37535', 'r_lcd_version': '11', 'r_contractor_id': '297', 'last_updated': '2019-11-05 20:18:21.467000'}]
+
+=== description ===
+This article contains coding or other guidelines that complement the local coverage determination (LCD) for Vitamin D Assay Testing. Coding Information: Procedure codes may be subject to National Correct Coding Initiative (NCCI) edits or OPPS packaging edits. Refer to NCCI and OPPS requirements prior to billing Medicare. For services requiring a referring/ordering physician, the name and NPI of the referring/ordering physician must be reported on the claim. A claim submitted without a valid ICD-10-CM diagnosis code will be returned to the provider as an incomplete claim under Section 1833(e) of the Social Security Act. The diagnosis code(s) must best describe the patient's condition for which the service was performed. 
+ Documentation   
+ 
+ 
+ Documentation must justify the test(s) chosen for a particular disease entity. Various component sources of 25-OH Vitamin D, such as stored D or diet-derived D, should not be billed separately. 
+ 
+ 
+ If Vitamin D level is between 20 and 50 ng/ml and patient is clinically stable, documentation in the patient's medical record for repeat testing must clearly indicate the necessity of the test.
+
+=== HCPCS codes ===
+82306 (group 1): Vitamin d 25 hydroxy
+82652 (group 1): Vit d 1 25-dihydroxy

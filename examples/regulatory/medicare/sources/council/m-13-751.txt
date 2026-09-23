@@ -1,0 +1,148 @@
+Title: 2013.08.21 M-13-751 In the Case of Zoll Lifecor Corporation
+
+URL Source: https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/m-13-751.pdf
+
+Published Time: Mon, 29 Aug 2016 04:19:54 GMT
+
+Number of Pages: 9
+
+Markdown Content:
+DEPARTMENT OF HEALTH AND HUMAN SERVICES DEPARTMENTAL APPEALS BOARD 
+
+DECISION OF MEDICARE APPEALS COUNCIL 
+
+Docket Number: M-13-751 
+
+In the case of 
+
+Zoll LifeCor Corporation 
+
+(Appellant) 
+
+**** 
+
+(Beneficiary) 
+
+CIGNA Government Services/ DME MAC Jurisdiction C 
+
+(Contractor) 
+
+Claim for 
+
+Supplementary Medical Insurance Benefits (Part B) 
+
+**** 
+
+(HIC Number) 
+
+**** 
+
+(ALJ Appeal Number) 
+
+The Administrative Law Judge (ALJ) issued a decision dated September 26, 2012. The ALJ denied Medicare coverage for the rental of a wearable automatic external defibrillator (HCPCS code K0606), furnished to the beneficiary on September 17, 2010, and found the appellant liable for the non-covered costs. The appellant, by its attorney, has asked the Medicare Appeals Council (Council) to review this action. 
+
+The Council reviews the ALJ’s decision de novo . 42 C.F.R. § 405.1108(a). The Council will limit its review of the ALJ’s action to the exceptions raised by the party in the request for review, unless the appellant is an unrepresented beneficiary. 42 C.F.R. § 405.1112(c). 
+
+The appellant’s timely-filed request for review is admitted into the administrative record as Exhibit (Exh.) MAC-1. 
+
+The Council agrees with the ALJ’s ultimate conclusion that Medicare coverage is not available for the item at issue. However, the Council modifies the ALJ’s decision to more fully analyze the authorities applicable to this case and to expand the rationale for concurring with the ALJ’s decision. 2
+
+BACKGROUND 
+
+At issue before the Council is Medicare coverage for the rental of a wearable automatic external defibrillator (AED), the LifeVest®, furnished to the beneficiary on September 17, 2010. CIGNA Government Services, the contractor, denied coverage because the “document confirming diagnosis of dilated cardiomyopathy is after [the] date of service.” Exh. 1 at 11. CIGNA found the appellant liable for the non-covered charges. 
+
+Id. at 11-12. CIGNA’s rationale was brief and did not specifically cite the coverage authority on which it based its denial. 
+
+The appellant sought reconsideration. While the Qualified Independent Contractor (QIC) upheld CIGNA’s decision, it did so for a different reason. The QIC determined the appellant’s claim fails because “the beneficiary was an inpatient during the date of service September 17, 2010” and, “[f]or a beneficiary in a Part A inpatient stay, an institution is not defined as a beneficiary’s home for DMEPOS [durable medical equipment, prosthetics, orthotics].” Exh. 1 at 4. Like CIGNA, the QIC found the appellant liable for the denied charges. Id. 
+
+On further review, the ALJ upheld the denial. Among the ALJ’s factual findings were: (1) on September 17, 2010, the treating physician ordered the AED and the AED was delivered to the beneficiary on this date; (2) the appellant filed a claim for the AED for the September 17, 2010 date of service; and (3) the beneficiary was hospitalized on the date of service through the date of discharge on September 20, 2010. Dec. at 3-4. Citing the Medicare Claims Processing Manual (MCPM), Pub. 100-04, Ch. 20, § 110.3.1, the ALJ stated that a “supplier can deliver DME to a beneficiary who is a hospital inpatient no earlier than two days before her discharge.” Id. at 5. But, here, the appellant’s attorney acknowledged during the hearing that “the beneficiary was discharged later than Appellant anticipated and acknowledge[d] the date of service listed on the treating physician’s order is incorrect and should be listed as September 20, 2010.” The appellant “acknowledge[d] the treating physician’s order does not contain a valid date of service and that the AED was delivered to the Beneficiary in the hospital more than two days prior to her discharge.” Id. Accordingly, the ALJ concluded, the appellant did not comply with Medicare policies. Id. 3
+
+The ALJ also considered a coverage policy – Local Coverage Determination (LCD) L13877, Automatic External Defibrillators -not specifically discussed by CIGNA and the QIC. As the ALJ indicated, the LCD requires, inter alia , evidence of “documented prior myocardial infarction or dilated cardiomyopathy and a measured [left] EF [ejection fraction] of less than or equal to 
+
+0.35.” Id. 1 Addressing the medical evidence, the ALJ found that 
+
+an echocardiogram (ECG) indicated an ejection fraction of 35 percent. Progress notes, dated after the date of service, indicated that the beneficiary has cardiomyopathy. She also has cardiac arrhythmia with ventricular tachycardia. See id. at 4 (findings of fact 5, 7), 5 (analysis). The ALJ concluded that the “coverage requirements” were not met. Id. at 5. 
+
+Finally, on the liability question, the ALJ found no evidence of record indicating that the beneficiary was provided an advanced beneficiary notice of non-coverage, or that she knew or should have known that the AED would not be covered. The appellant, however, “is familiar with Medicare regulations and policies and the carrier’s LCDs” and “knew or should have known the AED it provided to the Beneficiary [would] not [be] covered by Medicare if it was delivered more than two days prior [to] the Beneficiary’s discharge from the hospital.” Id. at 5-6. The ALJ therefore concluded that the appellant, and not the beneficiary, will bear liability for the denied charges in accordance with section 1879 of the Social Security Act (Act). 
+
+Id. at 6. 
+
+DISCUSSION 
+
+Coverage 
+
+The appellant, by its attorney, raises as its primary dispute the ALJ’s determination that the treating physician’s order did not include a valid date of service and that the AED was furnished to the beneficiary in the hospital more than two days before the date of discharge. It states: 
+
+Medicare rules allow delivery of durable medical equipment to a Medicare beneficiary who is an inpatient provided the delivery does not occur more than 48 hours of the planned discharge. The date of service for the DME is the date of discharge in such              
+
+> 1The LCD specifically includes the word “left” which was omitted in the ALJ’s discussion.
+
+4
+
+cases. The claim for beneficiary was denied on the basis that the beneficiary was an inpatient. Zoll provided the LifeVest based on the beneficiary’s planned discharge date. The patient’s discharge was delayed which Zoll could not reasonably have anticipated. Based on the delay in discharge, the correct date of service should be the date of discharge, 9/20/2010. 
+
+Exh. MAC-1 at 2. 
+
+Section 1832(a) of the Act provides that benefits under Medicare Part B include “medical and other health services.” Section 1861(s)(6) of the Act defines “medical and other health services” as including DME. Section 1861(n) of the Act lists certain items that are classified as DME. The item at issue is not identified in section 1861(n) as DME. By its own terms, however, section 1861(n) is not an exhaustive list of those items that qualify as DME. DME is defined as equipment that can withstand repeated use; is primarily and customarily used to serve a medical purpose; generally is not useful to an individual in the absence of an illness or injury; and is appropriate for use in the home. 42 C.F.R. § 414.202. Medicare covers DME if it (1) meets the definition of DME; (2) is medically “reasonable and necessary”; and (3) the equipment is used in the beneficiary’s home. Medicare Benefit Policy Manual (MBPM), CMS Pub. 100-02, Ch. 15 at § 110. As the regulations in 42 C.F.R. section 410.38(a) provide, Medicare may pay for the rental or purchase of DME “if the equipment is used in the patient’s home or an institution that is used as a home.” An institution that is used as a home may not be a hospital or a critical access hospital or a skilled nursing facility as defined in sections 1861(e)(1), 1861(mm)(1), and 1819(a)(1) of the Act, respectively. 42 C.F.R. § 410.38(b). 
+
+The evidence clearly indicates that, on the date of service, the beneficiary was an inpatient in a hospital. See Exh. 3 at 42 (discharge summary, noting that the beneficiary was an “inpatient” from “9/1/2010-9/20/2010”). By its own statement, the appellant acknowledges that the beneficiary was an inpatient in a hospital on the date in question. Exh. MAC-1 at 2. The appellant does not dispute that, for the purpose of coverage of and payment for DME, an institution that is used as a home may not be a hospital. 5
+
+However, CMS manual guidance addresses certain circumstances under which DME (but not supplies) may be provided to a beneficiary who is in a patient facility that does not qualify as home. MCPM, Ch. 20, § 110.3. Subsection 110.3.1 sets out nine factors or “conditions,” all of which must be met, to permit a supplier to deliver DME to a beneficiary who is in a patient facility that does not qualify as his or her home. Of the nine, three in particular are at issue in this case -
+
+• The item is medically necessary on the date of discharge, i.e., there is a physician's order with a stated initial date of need that is no later than the date of discharge for home use. 
+
+• The supplier delivers the item to the beneficiary no earlier than two days before the day the facility discharges the beneficiary. 
+
+• The supplier does not claim payment for the item for any day prior to the date of discharge. 
+
+MCPM, Ch. 20, § 110.3.1, “conditions” numbered 2, 4, 7. 
+
+Therefore, in accordance with the MCPM conditions, one relevant consideration for determining whether the DME item delivered pre-discharge is considered “medically necessary on the date of discharge” is evidence that a physician ordered the item in question specifying an initial date of need that is no later than the date of discharge for home use. The record reflects that, on September 17, 2010, a physician signed Zoll LifeCor’s order form, dated September 14, 2010, for the LifeVest®. The physician did not indicate an initial date of need. Exh. 2 at 5. Moreover, the discharge summary, dated September 20, 2010, indicates only that the beneficiary was given a LifeVest®. Exh. 3 at 40. 
+
+As for the second condition, there is no dispute as to the date of delivery, which was September 17, 2010, and no dispute that the beneficiary was discharged three days later, on September 20, 2010. Finally, while the appellant now argues that the “correct” date of service should be September 20, 2010, the appellant clearly filed a claim for an item furnished on September 17, 2010, which the record consistently states is the date of service for this claim. The appellant has claimed payment for an item for a day prior to the date of discharge, contrary to the MCPM provisions. 6
+
+The appellant maintains that it provided the LifeVest® to the beneficiary based on the “planned discharge date,” but that the actual date of discharge was later than as planned, an event the appellant could not reasonably have anticipated. Exh. MAC-1 at 2. It is certainly conceivable that a planned or expected date of discharge may be changed to a later, or even earlier, date. It is also conceivable that a supplier might not be in a position to anticipate or be aware of a change in discharge plans made shortly before the actual date of discharge. However, the appellant merely avers that it acted reasonably, in accordance with the CMS manual guidelines, when it delivered an item of DME to an inpatient beneficiary based on a “planned discharge date,” without pointing to any evidence that supports its position. The Council has carefully reviewed the medical documentation of record, and in particular, the hospital records discussing discharge, and we are not able to find any specific reference to a planned or expected discharge date, or delay or change in plans to discharge. 
+
+Nor did the appellant offer, during the hearing, any testimony supporting the appellant’s position on this issue. During the hearing, the appellant’s counsel made arguments concerning an unanticipated delay on the discharge date, similar to the written argument in the request for review. The appellant’s attorney indicated that the appellant asked the contractor to change the date of service to September 20, 2010, the date of discharge, but the contractor did not correct the date. The ALJ asked whether the appellant has any documentation that the contractor refused to change the date of service. The appellant’s counsel indicated that the appellant did not, because these types of inquiries are handled telephonically. The ALJ then asked whether the appellant has a telephone log to support the appellant’s position concerning the delayed discharge date and the attempt to “correct” the date of service to the date of discharge. The appellant’s counsel indicated that the appellant likely would have such documentation. The ALJ permitted the appellant to supplement the record with such documentation. ALJ hearing CD 13:00 – 17:20. The record before the Council does not indicate that the appellant submitted such documentation to the ALJ; nor does the appellant indicate that it has such documentation it wants the Council to consider. 
+
+The LifeVest® order form bearing a physician’s signature on September 17, 2010 includes a handwritten entry of “unknown” for “Scheduled discharge date.” See Exh. 2 at 5. The same form states, also, “undetermined” for “Discharge to.” Neither the 7
+
+box for “Home” nor the box for “Skilled nursing facil/Rehab” is checked. Id. This information would suggest that, as of September 17, 2010, three days before the actual date of 
+
+discharge, there was no specific plan for a discharge date. 2
+
+Further, the order form identifies the hospital at which the beneficiary was an inpatient as of the dates on which the form was completed and signed. The appellant furnished the item on the day on which the physician signed the form. This information would suggest, also, that the appellant delivered the item to the inpatient beneficiary without specific information that the beneficiary would be discharged within two days to use the item at home. 
+
+The Council is mindful that, while the ALJ discussed the medical evidence to some extent and clearly considered the provisions of LCD L13877, the ALJ rested his denial of coverage primarily on his findings that “the treating physician’s order does not contain a valid date of service” and that “the AED was delivered to the Beneficiary in the hospital more than two days prior to her discharge.” Dec. at 5. In other words, the chief basis for the ALJ’s decision appears to have been that the MCPM section 110.3.1 guidelines were not met. On the coverage question, other than the contention quoted above, the appellant does not raise any specific dispute. Rather, the appellant states only that the item was “reasonable and medically necessary when it was provided” and that the appellant “could not have known of the delay in discharge” and, therefore, the Council should “reverse” the ALJ’s decision and “remand” the case to the ALJ “to evaluate the satisfaction of coverage criteria.” Exh. MAC-1 at 2. The appellant does not specify what the “coverage criteria” are, or dispute the ALJ’s application of LCD L13877 to this case, or otherwise identify any specific legal error in the ALJ’s decision. The Council sees no cause for a remand in this case. On the coverage question, the appellant has raised specific contentions on the ALJ’s findings related to the MCPM provisions, and we have fully addressed those contentions herein.                                                             
+
+> 2One of the nine conditions is that the beneficiary’s discharge must be to aqualified place of service (e.g., home, custodial facility), but not to another facility (e.g., inpatient or skilled nursing) that does not qualify as the beneficiary’s home. MCPM, Ch. 20, §110.3.1. The record indicates that the beneficiary was discharged to her home. See Exhs. 2at 3; 3at 40.
+
+8
+
+Liability 
+
+On the ALJ’s liability determination, the appellant states that, based on the beneficiary’s medical condition as evidenced in the medical documents, the appellant “reasonably believed” that Medicare would cover the item, a “life-saving” device. Nor did it have a reasonable basis to know that the beneficiary’s discharge would be delayed. It believed that the order was valid and that its claim fully satisfied Medicare coverage 
+
+criteria. Exh. MAC-1 at 2. 3
+
+There is no dispute that the beneficiary’s medical records indicate significant medical conditions, to include cardiac arrhythmia, or that a physician determined the beneficiary should use the LifeVest®. But the basis on which the ALJ determined that the appellant’s liability for the denied charges may not be waived under section 1879 of the Act was that the appellant “knew or should have known that the AED it provided to the Beneficiary is not covered by Medicare if it was delivered more than two days prior [to] the beneficiary’s discharge from the hospital.” Dec. at 5-6. The ALJ specifically found that the appellant is charged with knowledge of Medicare “policies” which would include the MCPM provisions. Id. The appellant avers that that it could not have anticipated a delay in discharge. The point is not whether a provider or supplier may not be in a position to anticipate, or know in advance, a change or in discharge plans. That certainly is possible, and we have acknowledged that. But the record does not actually indicate a delay or change in the discharge plans or the discharge date on which the appellant reasonably could have relied when it made the decision to deliver the item to a beneficiary who was a hospital inpatient on the date in question. 
+
+The appellant’s contentions on the liability issue provide no cause for changing the ALJ’s determination that the appellant will bear liability for the non-covered charges.                                         
+
+> 3The appellant does not dispute the ALJ’s finding that the record includes no evidence of an advance beneficiary notice of non-coverage. Nor does the appellant dispute the ALJ’s determination that section 1879 applies to this case to determine liability for the denied charges.
+
+9
+
+DECISION 
+
+The Council concludes that the wearable automatic external defibrillator (K0606) supplied by the appellant to the beneficiary on September 17, 2010 is not covered by Medicare. The appellant, and not the beneficiary, will remain liable for the denied charges. 
+
+The Council modifies the ALJ’s decision in accordance with the foregoing discussion. 
+
+MEDICARE APPEALS COUNCIL 
+
+/s/ Susan S. Yim Administrative Appeals Judge 
+
+/s/ Constance B. Tobias, Chair Departmental Appeals Board 
+
+Date: August 21, 2013

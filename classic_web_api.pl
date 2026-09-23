@@ -53,6 +53,7 @@
 :- use_module(llm/mcp, [handle_mcp/1, handle_rest_list_examples/1, handle_rest_query/1, handle_rest_verify/1, handle_rest_example_details/1]).
 :- use_module(le_users).
 :- use_module(restricted_paths).
+:- use_module(wasm/pack, [light_excluded_path/1]).
 :- use_module(le_telemetry).
 
 :- dynamic build_info/1.
@@ -178,10 +179,20 @@ prolog:message(error(le_server_error(port_in_use(Port)), _)) -->
 %
 %   What it changes is only what a static copy cannot honour: a login link to
 %   a server with no accounts, and a button that would run the test suite on a
-%   server that is not there. Everything else about the page is the same page,
+%   server that is not there. And the examples the browser build does not
+%   carry (light_excluded/1 in wasm/pack.pl) are not listed, since their links
+%   would lead nowhere there. Everything else about the page is the same page,
 %   which is the point of copying it rather than writing a second one.
 static_export :-
     getenv('LE_STATIC_EXPORT', V), V \== '', V \== '0'.
+
+%!  listed_example_path(+Path, +UserRoles) is semidet.
+%
+%   Path (an example or a folder of examples) goes on a landing page: the
+%   user may open it, and a static export carries it.
+listed_example_path(Path, UserRoles) :-
+    is_path_allowed(Path, UserRoles),
+    \+ ( static_export, light_excluded_path(Path) ).
 
 %!  set_request_language(+Request) is det.
 %
@@ -695,7 +706,7 @@ landing_example_items(Dir, Prefix, UserRoles, Items) :-
         \+ sub_atom(F, _, _, 0, '.le.tests'),
         file_name_extension(Base, le, F),
         atomic_list_concat([Dir, '/', F], ExPath),
-        is_path_allowed(ExPath, UserRoles)
+        listed_example_path(ExPath, UserRoles)
     ), Bases0),
     sort(Bases0, Bases),
     findall(li(a([href(Url)], Base)), (
@@ -713,7 +724,7 @@ landing_example_items(Dir, Prefix, UserRoles, Items) :-
         \+ sub_atom(SubDir, 0, 1, _, '.'),
         directory_file_path(Dir, SubDir, SubDirPath),
         exists_directory(SubDirPath),
-        is_path_allowed(SubDirPath, UserRoles),
+        listed_example_path(SubDirPath, UserRoles),
         atomic_list_concat([Prefix, SubDir, '/'], SubPrefix),
         landing_example_items(SubDirPath, SubPrefix, UserRoles, SubItems),
         SubItems \= [],

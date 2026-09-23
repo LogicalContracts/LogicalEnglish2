@@ -1,0 +1,159 @@
+Title: 2012.04.13 M-11-2642 In the Case of Chair & Equipment Rentals and Sales
+
+URL Source: https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/m_11_2642.pdf
+
+Published Time: Mon, 29 Aug 2016 04:20:00 GMT
+
+Number of Pages: 11
+
+Markdown Content:
+DEPARTMENT OF HEALTH AND HUMAN SERVICES 
+
+DEPARTMENTAL APPEALS BOARD 
+
+DECISION OF MEDICARE APPEALS COUNCIL 
+
+Docket Number: M-11-2642 
+
+In the case of 
+
+Chair & Equipment Rentals and Sales (Appellant) 
+
+Claim for 
+
+Supplementary Medical Insurance Benefits (Part B) 
+
+**** (Beneficiary) 
+
+**** (HIC Number) 
+
+CIGNA Government Services (Contractor) 
+
+**** (ALJ Appeal Number) 
+
+The Administrative Law Judge (ALJ) issued a decision in this case on September 20, 2011. The decision concerns Medicare coverage for a power wheelchair and wheelchair seating and accessories supplied to the beneficiary on March 26, 2009. The ALJ concluded that Medicare did not cover the items at issue and that the supplier was liable for their cost. The appellant has asked the Medicare Appeals Council (Council) to review the ALJ’s decision. The Council reviews the ALJ’s decision de novo . 42 C.F.R. § 405.1108(a). The Council will limit its review of the ALJ’s action to the exceptions raised by the party in the request for review, unless the appellant is an unrepresented beneficiary. 
+
+Id . § 405.1112(c). The Council admits the appellant’s timely-filed request for review into the record as Exhibit (Exh.) MAC-1. The Council also admits additional evidence, as identified below, into the record as Exh. MAC-2. The Council has reviewed the request for review and the record. As set forth below, the Council finds no basis to change the ALJ’s conclusion with regard to coverage for the items at issue. The Council also finds additional legal and evidentiary bases for the denial of coverage. However, the Council concludes that 2
+
+the items are payable under section 1879 of the Social Security Act (Act). Therefore, the Council reverses the ALJ’s decision. 
+
+PROCEDURAL HISTORY AND REQUEST FOR REVIEW 
+
+The appellant seeks Medicare coverage of a power wheelchair (K0861), seating, and accessories supplied to the beneficiary on March 26, 2009. The contractor denied coverage initially on the basis that the documentation submitted by the appellant did not substantiate the beneficiary’s need for the items at issue. See 
+
+Exh. 1 at 5—6. The appellant then sent additional documentation to support the medical necessity of the items and the contractor subsequently paid for them. See Exh. MAC-2. After the payment, the contractor determined that it made that payment in error and assessed an overpayment. See Exh. 1 at 10—19. The contractor upheld the overpayment in its redetermination, finding that the record did not support the medical necessity of the items. See id . at 20—22. 
+
+A Qualified Independent Contractor (QIC), in a reconsideration, reached the same conclusion and denied coverage. See Exh. 1 at 29—31. The QIC noted also that the beneficiary had a Medicare-covered power wheelchair already and it had not exceeded its reasonable useful lifetime of at least five years. See id . at 30. Therefore, the QIC stated that the documentation must, but did not, show a significant change in his condition to support the need for new and upgraded equipment. See id . The appellant then requested an ALJ hearing. 
+
+The ALJ held a hearing and issued an unfavorable decision. The ALJ agreed with the QIC and found that the coverage requirements were not satisfied. See Dec. at 7. The ALJ stated also that the appellant had not supplied a home assessment, as required by LCD L23613. See id . The ALJ concluded that the appellant was liable for the items at issue. See id . The appellant disagrees with the ALJ’s decision. 
+
+The appellant asserts that “no indication was” given “throughout the entire appeals process” that “a Home Assessment was lacking in the documentation as to cause [the] denial of coverage.” See 
+
+Exh. MAC-1. The appellant attaches a home assessment report to its request for review and states also that documentation in the record already indicated “that the home is accessible.” See id .The appellant requests a reversal of the ALJ’s decision, which 
+
+it describes as “based solely on the lack of” a home assessment report. See id .3
+
+AUTHORITIES 
+
+Medicare Part B covers durable medical equipment (DME) when it is medically reasonable and necessary. See Act, §§ 1861(s)(6), 1862(a)(1)(A); 42 C.F.R. § 410.38. To determine whether a power wheelchair meets that requirement, the ALJ correctly noted the applicable national coverage determination (NCD), NCD 280.3. The ALJ also considered the applicable LCD, LCD L23613. 1 As the ALJ explained, the LCD provides three basic criteria (A—C) for assessing the medical necessity of power mobility devices generally and then outlines additional criteria (a—e) for power wheelchairs. LCD L23613 also provides criteria, not discussed by the ALJ, for the specific type of power wheelchair at issue, K0861. Specifically, the LCD states that Medicare covers a K0861 power wheelchair if criteria (A) and (B) are met. Criteria (A) states that the “Group 3 criteria IV(A)” and “IV(B)” must be met, which are: A. All of the coverage criteria for power wheelchairs are met; and B. The patient’s mobility limitation is due to a neurological condition, myopathy, or congenital skeletal deformity. Criteria (B) then states that, for a multiple power option chair--K0861, the Group 2 “Multiple Power Options” criteria A and B must be met, which are: A. Criterion 1 or 2 is met: 1. The patient meets coverage criteria for a power tilt or a power recline seating system 2 and the system is being used on the wheelchair; or                                                                        
+
+> 1 The Council and ALJs are required to give substantial deference to LCDs when they are applicable to acase. See 42 C.F.R. §405.1062.
+> 2 This criteria is found in LCD L11451 for wheelchair options and accessories. The LCD’s criteria for apower tilt or apower recline seating system state, in short, that the beneficiary must meet the relevant criteria in LCD L23613 for apower wheelchair and that one of the following criteria must be met:
+
+4
+
+2. The patient uses a ventilator which is mounted on the wheelchair. B. Criteria 3 and 4 must be met: 3. The patient has had a specialty evaluation that was performed by a licensed/certified medical professional or a physician who has specific training and experience in rehabilitation wheelchair evaluations and that documents the medical necessity for the wheelchair and its special features. The medical professional or physician may have no financial relationship with the supplier. 4. The wheelchair is provided by a supplier that employs a RESNA-certified Assistive Technology Professional (ATP) who specializes in wheelchairs and who has direct, in-person involvement in the wheelchair selection for the beneficiary. LCD L23613 also contains documentation requirements. As the ALJ outlined, the supplier must have and provide a physician’s order for the power wheelchair, a report of a face-to-face examination by a physician containing certain information, a specialty evaluation, and a home assessment report. See Dec. at 5—7. As a general matter, in addition to these specific requirements, the beneficiary’s need for the wheelchair must be documented in his or her medical records. A physician’s certificate, letter, or other attestation of medical necessity does not, by itself, demonstrate the necessity of a wheelchair, or any other medical equipment, and must be substantiated by clinical records. See 
+
+Medicare Program Integrity Manual (MPIM) (CMS Pub. No. 100-08), ch. 5, § 5.7.                                                   
+
+> 4. The patient is at high risk for development of apressure ulcer and is unable to perform afunctional weight shift; or 5. The patient utilizes intermittent catheterization for bladder management and is unable to transfer independently from the wheelchair to bed; or 6. The power seating system is needed to manage increased tone or spasticity.
+
+5
+
+The LCDs for the seating and accessories at issue explain that Medicare extends coverage to such equipment only when the power wheelchair itself is covered by Medicare. See LCD L11451; LCD L15887. 
+
+If an item is denied Medicare coverage on the basis that it was not medically reasonable and necessary, section 1879 of the Act may limit the liability of the beneficiary and/or supplier for the cost of that item. Specifically, section 1879 limits the liability of a beneficiary and supplier if they did know, and could not reasonably have been expected to know, that Medicare would not cover an item based on its medical necessity. See 
+
+Act, § 1879; 42 C.F.R. §§ 411.404—411.406. When section 1879 limits the liability of both the beneficiary and the supplier, Medicare makes payment for the non-covered item. See 42 C.F.R. § 411.400. 
+
+In particular, the regulations provide: 
+
+§ 411.406 Criteria for determining that a provider, practitioner, or supplier knew that services were excluded from coverage as custodial care or as not reasonable and necessary. 
+
+(a) Basic rule. A provider, practitioner, or supplier that furnished services which constitute custodial care under § 411.15(g) or that are not reasonable and necessary under § 411.15(k) is considered to have known that the services were not covered if any one of the conditions specified in paragraphs (b) through (e) of this section is met. 
+
+b) Notice from the QIO, intermediary or carrier. The QIO, intermediary, or carrier had informed the provider, practitioner, or supplier that the services furnished were not covered, or that similar or reasonably comparable services were not covered. 
+
+. . . 
+
+(e) Knowledge based on experience, actual notice, or constructive notice. It is clear that the provider, practitioner, or supplier could have been expected to have known that the services were excluded from coverage on the basis of the following: 6
+
+(1) Its receipt of CMS notices, including manual issuances, bulletins, or other written guides or directives from intermediaries, carriers, or QIOs, including notification of QIO screening criteria specific to the condition of the beneficiary for whom the furnished services are at issue and of medical procedures subject to preadmission review by a QIO. . . . 
+
+DISCUSSION 
+
+The Council has reviewed the appellant’s contentions, but finds insufficient support in the record for the medical necessity of the power wheelchair, seating, and accessories. However, the Council concludes that, while not covered, the items are payable under section 1879. 
+
+Preliminary Evidentiary Issues 
+
+The appellant submitted several procedural and medical documents to the ALJ with its request for a hearing. The ALJ found that the documents were duplicates of documents submitted previously and excluded them from the record. See Dec. at 1. However, the ALJ’s finding was incorrect, as several of the documents are not duplicative. Moreover, the documents contain, and are relevant to, an argument raised by the appellant and not addressed by the ALJ in her decision. Specifically, the appellant has contended that it already received a favorable determination based on the medical necessity of the items and the fact that the contractor subsequently denied coverage on that same basis amounts to “double jeopardy.” In the interest of performing a complete review of the issues presented in this case, the Council admits the documents submitted with the appellant’s request for an ALJ hearing into the record. The case file also contains another set of documents identified as non-probative and duplicative and not listed in the exhibit list. 3 However, two of the documents--a power wheelchair form dated February 4, 2009, and an order dated January 30, 2009--are not duplicative and do not constitute non-probative evidence. Therefore, the Council considers those documents as a part of the record.             
+
+> 3 The record is unclear as to when these documents were submitted for review.
+
+7
+
+The Council also admits the home assessment report submitted with the request for review into the record. The ALJ’s decision stated that appellant had not supplied a home assessment report, a finding not made by the contractor or QIC, as pointed out by the appellant. See Exh. 1 at 21—22, 28—31; Dec. at 7; Exh. MAC-1. The Council finds that the appellant’s contention has merit and presents good cause for admitting the home assessment report into the record. 4 This document, along with the other documents identified here as a part of the record, are marked as Exh. MAC-2. 
+
+Coverage for Items at Issue 
+
+To start, the Council notes that the denial of coverage in this case was not based solely on the lack of a home assessment. The ALJ, while finding that the appellant had not supplied a home assessment, also agreed with the findings of the QIC. See Dec. at 7. The QIC found insufficient clinical information about the beneficiary to substantiate his need for the power wheelchair. 
+
+See Exh. 1 at 29—30. The record now contains the requisite home assessment report. See Exh. MAC-2. However, as outlined above, LCD L23613 lists several other criteria that must be satisfied to support the medical necessity of the wheelchair, which the appellant has not addressed in its request for review. See Exh. MAC-1. Based on our own review, the documentation in the record does not meet that criteria. The beneficiary was diagnosed with amyotrophic lateral sclerosis (ALS). ALS is a condition that, depending on its progression, can cause substantial limitations in mobility. However, a diagnosis of ALS, while significant, does not, by itself, demonstrate the beneficiary’s need for a power wheelchair under the criteria of LCD L23613. First, the Council finds that the LCD’s basic criteria (A—C) are not met. For example, applying criteria A, the evaluation notes and letter of medical necessity both state, summarily, that the beneficiary requires assistance for “all” of his ADLs and daily care tasks. See Exh. 2 at 2, 4. They do not contain detailed assessments of his ability to perform individual MRADLS, such as                                                           
+
+> 4 The Council notes that, because the LCD states specifically that asupplier must submit ahome assessment report to meet the criteria for coverage, the appellant could, and should, have been aware of its obligation to supply this report. See LCD L23613. However, the ALJ was the first level of review to identify, specifically, that the appellant had not supplied ahome assessment report.
+
+8
+
+toileting, feeding, dressing, grooming, and bathing. See id .Indeed, the information in the notes and letter is so general that they are not clear as to whether an actual evaluation of MRADLs was undertaken at that time. See id. The documents are also inconsistent with each other, as one states that he needs “moderate” assistance for all ADLs and the other states that he requires “maximum” assistance. See id . Similarly, applying criteria C, while the letter states that the beneficiary cannot use a manual wheelchair due to upper extremity weakness, the evaluation contains no notations about weakness. See id . at 2— 3. To the contrary, the evaluation notes indicate that he has “fair” strength and also “full” range of motion in his upper extremities, which is not consistent with an inability to use a manual wheelchair. See id . at 2. In short, the record does not contain enough clinical documentation about the beneficiary’s inability to perform MRADLS and inability to use a manual wheelchair. 
+
+Second, the Council finds insufficient information in the record to meet the LCD’s criteria for a power wheelchair with multiple power options (A—B for K0861). Because the beneficiary does not meet the basic group 3 criteria IV(A) for a power wheelchair, the first prong of criteria A is not met, even though he was diagnosed with a neurological condition, ALS, which meets group 3 criteria IV(B) the other prong under criteria A. See, infra ,at 3. Moreover, while the diagnosis of ALS is documented, the record does not contain any clinical information or past records supporting that diagnosis. See Exh. 2 at 2—4. Applying criteria B, the record does not identify clearly whether the beneficiary’s need for the multiple power options was due to 
+
+a high risk of pressure ulcers, use of intermittent catheterization, management of tone or spasticity, or use of a ventilator. Although the letter of medical necessity contains information that is relevant to some of these criteria, the notes from the evaluation do not address these criteria in any clear or substantial way. See id . at 2—3, 5. Nor has the appellant provided any explanation or clarified the record with respect to the specific reasons that the beneficiary needed the power wheelchair at issue. 
+
+In addition, given that the beneficiary had a Medicare-covered power wheelchair already, the documents must show a significant change in his condition. The evaluation notes state only that his previous power wheelchair is no longer “appropriate” for his “medical status and diagnosis.” See Exh. 2 at 2—3. The notes contain no specific or objective measurements of changes in the 9
+
+beneficiary’s condition. See id . Nor does the record include any prior medical records to document and evaluate changes in his condition, mobility, and functional abilities. Therefore, as the QIC found, the record does not demonstrate the need for anew, upgraded power wheelchair. 
+
+Lastly, the record in this case is not clear about whether the necessary specialty evaluation took place. The record contains no document clearly identified as a specialty evaluation. See generally Exh. 1; Exh. 2; Exh. MAC-2. Although the letter of medical necessity appears to contain the content of a specialty evaluation, it is identified as a letter of medical necessity, not as a specialty evaluation. See Exh. 2 at 4; Exh. MAC-2. In addition, a letter of medical necessity is not considered a medical record. See MPIM, ch. 5, § 5.7. As such, the record is unclear about whether the letter was intended to be a letter of medical necessity or a report of a specialty evaluation, or both. 
+
+Ultimately, then, the record does not contain enough information to demonstrate the medical necessity of the power wheelchair at issue. Therefore, Medicare does not cover the power wheelchair. Because the wheelchair is not covered, Medicare will not extend coverage to the seating and accessories. 
+
+Liability 
+
+First, the Council finds that the beneficiary is not liable for the cost of the non-covered items. None of the prior levels of review found the beneficiary liable and his liability is not in dispute now. See Exh. 1 at 20—22, 28—31; Dec. at 7. Nor does the evidence in the record indicate that the beneficiary knew, or should have known, that Medicare would not cover the items at issue. 10 
+
+Further, the Council finds that the supplier, the appellant, is not liable for the cost of the non-covered items. As stated above, while the contractor initially denied coverage for the items based on medical necessity, it subsequently paid for them on medical review on redetermination after the appellant appealed and supplied additional documentation to the contractor. See Exh. 1 at 5—6; Exh. MAC-2. Thus, based on the record, the contractor, before the subsequent reopening and revision which lead to the assessment of an overpayment, initially allowed payment based on a review of the merits of the appellant’s claim, concluding that the documentation was sufficient to substantiate the medical necessity of the items. 
+
+See Exh. MAC-2. 
+
+The contractor’s subsequent denial of coverage based, once again, on the medical necessity of the items is not “double jeopardy,” as contended by the appellant, as this term applies only in a criminal context. Nonetheless, the appellant’s underlying argument has some merit as the appellant had previously demonstrated to the satisfaction of the contractor the medical necessity of the items under the LCD, and was paid for them as a result. Therefore, under the standards for constructive knowledge set forth in the regulations at 42 C.F.R. § 411.406(e) the record supports a finding that it is not clear that the appellant could have been expected to know that the services were excluded from coverage. Nor, having received a favorable coverage determination previously, did the appellant have knowledge that the services were not covered under 42 C.F.R. § 411.406(b) based on prior notice from the contractor of non-coverage. 
+
+As such, the beneficiary and the supplier are not liable for the cost of the non-covered items. Therefore, the items are payable under section 1879. 
+
+DECISION 
+
+For the above reasons, the Council concludes that Medicare does not cover the power wheelchair and the wheelchair seating and accessories supplied to the beneficiary on March 26, 2009. The Council concludes also, however, that neither the beneficiary nor the appellant is liable for the items and thus their cost is payable under section 1879 of the Act. 11 
+
+The Council reverses the ALJ’s decision. 
+
+MEDICARE APPEALS COUNCIL 
+
+/s/ Clausen J. Krzywicki 
+
+Administrative Appeals Judge 
+
+/s/ Stanley I. Osborne, Jr. 
+
+Administrative Appeals Judge 
+
+Date: April 13, 2012

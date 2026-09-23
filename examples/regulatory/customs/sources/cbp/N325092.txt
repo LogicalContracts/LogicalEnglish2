@@ -1,0 +1,93 @@
+CBP ruling NY N325092 (2022-04-12): The tariff classification and status under the Dominican Republic-Central America-United States Free Trade Agreement (DR-CAFTA), of pajamas from Nicaragua
+https://rulings.cbp.gov/ruling/N325092 — text as served by https://rulings.cbp.gov/api/ruling/N325092
+
+N325092
+
+April 12, 2022
+
+CLA-2-62:OT:RR:NC:N3:348
+
+CATEGORY: Classification
+
+TARIFF NO.: 6207.21.0030; 6207.22.0000
+      
+Ms. Rebecca Cheung-Tran
+Macy's Merchandising Group, Inc.
+151 West 34th St
+New York, New York 10001
+
+RE:  The tariff classification and status under the Dominican Republic-Central America-United States Free Trade Agreement (DR-CAFTA), of pajamas from Nicaragua  
+
+Dear Ms. Cheung-Tran:
+
+In your letter dated March 28, 2022, you requested a tariff classification ruling.  The samples are being retained by this office.
+
+Style GRNSTRP_1SNAP_HGR is a pair of men’s pajamas.  The garments are constructed from 100% cotton yarn dyed woven fabric.  The top features a notched collar, full front button opening and long sleeves.  The pants feature an elasticized waistband with two functional snap closures, an open fly with a hidden functional snap button, and hemmed legs. The garments will be hung on separate hangers.  You state the garments are intended to be worn as sleepwear, and will be labeled, sold and marketed as such.   These garments will also be constructed from 65% polyester 35% cotton yarn dyed flannel woven fabric and identified as Style FGRNSTRP_1SNAP_HGR.
+
+Style LOBSTER_FAUXFLY_HGR is a pair of men’s pajamas.  The garments are constructed from 100% cotton yarn dyed woven fabric.  The top features a notched collar, full front button opening and long sleeves.  The pants feature an elasticized waistband with self-fabric ties, a faux fly and hemmed legs. The garments will be hung on separate hangers.  You state the garments are intended to be worn as sleepwear, and will be labeled, sold and marketed as such.  These garments will also be constructed from 65% polyester 35% cotton yarn dyed flannel woven fabric and identified as Style FLOBSTER_FAUXFLY_HGR. 
+
+Style LOBSTER_FAUXFLY_GIFTPK is a pair of men’s pajamas.  The garments are constructed from 100% cotton yarn dyed woven fabric.  The top features a notched collar, full front button opening and long sleeves.  The pants feature an elasticized waistband with self-fabric ties, a faux fly and hemmed legs.  The garments will be flat folded and secured in a belly band with a ribbon threaded through a cardboard band in the center.  The center front of the band will read “Club Room - Men’s Flannel Pajama Set.”  You state the garments are intended to be worn as sleepwear, and will be labeled, sold and marketed as such.  These garments will also be constructed from 65% polyester 35% cotton yarn dyed flannel woven fabric and identified as Style FLOBSTER_FAUXFLY_GIFTPK. 
+
+Style PLAID_1SNAP_GIFTPK is a pair of men’s pajamas.  The garments are constructed from 100% cotton yarn dyed woven fabric.  The top features a notched collar, full front button opening and long sleeves.  The pants feature an elasticized waistband with two functional snap closures, an open fly with a hidden functional snap button, and hemmed legs.  The garments will be flat folded and secured in a belly band with a ribbon threaded through a cardboard band in the center.  The center front of the band will read “Club Room - Men’s Flannel Pajama Set.”  You state the garments are intended to be worn as sleepwear, and will be labeled, sold and marketed as such.  You state the garments are intended to be worn as sleepwear, and will be labeled, sold and marketed as such.   These garments will also be constructed from 65% polyester 35% cotton yarn dyed flannel woven fabric and identified as Style FPLAID_1SNAP_GIFTPK
+
+The applicable subheading for Styles GRNSTRP_1SNAP_HGR, LOBSTER_FAUXFLY_GIFTPK, LOBSTER_FAUXFLY_HGR and PLAID_1SNAP_GIFTPK  will be 6207.21.0030, HTSUS, Harmonized Tariff Schedule of the United States (HTSUS), which provides for: men’s or boys' ... nightshirts, pajamas, bathrobes, dressing gowns and similar articles: nightshirts and pajamas: of cotton: with two or more colors in the warp and/or filling: men’s.  The duty rate will be 8.9% ad valorem.
+
+The applicable subheading for Styles FGRNSTRP_1SNAP_HGR, FLOBSTER_FAUXFLY_GIFTPK, FLOBSTER_FAUXFLY_HGR and FPLAID_1SNAP_GIFTPK will be 6207.22.0000, HTSUS, which provides for men’s or boys’ singlets and other undershirts, underpants, briefs, nightshirts, pajamas, bathrobes, dressing gowns and similar articles: nightshirts and pajamas: of man-made fibers.  The duty rate will be 16 percent ad valorem.
+
+The manufacturing operations are as follows:
+
+The woven fabrics are manufactured in an unknown country.
+
+The sewing thread is formed and finished in an unknown country.
+
+The elasticized waistband is formed and finished in an unknown country.
+
+The garment is cut, sewn and assembled in Nicaragua  
+
+The garment will be shipped directly from Nicaragua to the United States.
+
+General Note 29, HTSUS, sets forth the criteria for determining whether a good is originating under the DR-CAFTA.  General Note 29(b), HTSUS, (19 U.S.C. § 1202) states, in pertinent part, that
+
+For the purposes of this note, subject to the provisions of subdivisions (c), (d), (m) and (n) thereof, a good imported into the customs territory of the United States is eligible for treatment as an originating good under the terms of this note if—
+
+(i) the good is a good wholly obtained or produced entirely in the territory of one or more of the parties to the Agreement;
+
+(ii) the good was produced entirely in the territory of one or more of the parties to the Agreement, and—
+
+(A) each of the nonoriginating materials used in the production of the good undergoes an applicable change in tariff classification specified in subdivision (n) of this note; or
+
+(B) the good otherwise satisfies any applicable regional value content or other requirements specified in subdivision (n) of this note;
+
+and the good satisfies all other applicable requirements of this note; or
+
+(iii) the good was produced entirely in the territory of one or more of the parties to the Agreement exclusively from originating materials.
+
+As the good contains non-originating materials, it would have to undergo an applicable change in tariff classification in order to meet the requirements of General Note (GN) 29(b)(ii)(A). 
+
+On August 7, 2008, The United States Trade Representative published a notice in the Federal Register.  The notice established an effective date of August 15, 2008 for the amendments announced in Presidential Proclamation 8213, as modified by Proclamation 8272.  Section A of the Annex to Presidential Proclamation 8213 modified the list of apparel items subject to the single transformation rule.  Certain enumerated goods are only required to be cut or knit to shape, or both, and sewn or otherwise assembled in the CAFTA-DR beneficiary countries to qualify for preferential treatment.  These items are not subject to GN29 Chapter 62 Chapter rules 3, 4 and 5. Annex A lists 6207, HTSUS (for boxers, pajamas or nightwear only) and 6208, HTSUS (for boxers, pajamas or nightwear only) as one of the items eligible for the single transformation rule.
+
+For goods classified in subheadings 6207.21 and 6207.22, General Note 29/62.33 requires:
+
+A change to pajamas and sleepwear of subheadings 6207.21 or 6207.22, tariff items 6207.91.30 or 6207.99.85, subheadings 6208.21 or 6208.22 or tariff items 6208.91.30, 6208.92.00 or 6208.99.20 from any other chapter, provided that the good is cut or knit to shape, or both, and sewn or otherwise assembled in the territory of one or more of the parties to the Agreement.
+
+Based on the facts provided, the garments described above do qualify for DR-CAFTA preferential treatment.  The garments will therefore be entitled to a free rate of duty under the DR-CAFTA upon compliance with all applicable laws, regulations, and agreements.
+
+Duty rates are provided for your convenience and are subject to change.  The text of the most recent HTSUS and the accompanying duty rates are provided on the World Wide Web at
+https://hts.usitc.gov/current.
+
+This ruling is being issued under the provisions of Part 177 of the Customs Regulations (19 C.F.R. 177).
+
+A copy of the ruling or the control number indicated above should be provided with the entry documents filed at the time this merchandise is imported.  If you have any questions regarding the ruling, contact National Import Specialist Rosemarie Hayward via email at rosemariecasey.hayward@cbp.dhs.gov.
+
+Sincerely,
+
+
+
+
+Steven A. Mack
+Director
+National Commodity Specialist Division
+
+
+
+

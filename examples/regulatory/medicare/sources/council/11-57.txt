@@ -1,0 +1,133 @@
+Title: 2012.06.21  M-11-57 In the case of Michael Schill, DC
+
+URL Source: https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/11-57.pdf
+
+Published Time: Mon, 29 Aug 2016 04:19:52 GMT
+
+Number of Pages: 7
+
+Markdown Content:
+DEPARTMENT OF HEALTH AND HUMAN SERVICES 
+
+DEPARTMENTAL APPEALS BOARD 
+
+DECISION OF MEDICARE APPEALS COUNCIL 
+
+Docket Number: M-11-57 
+
+In the case of 
+
+Michael Schill, DC (Appellant) **** (Beneficiary) Highmark Medicare Services (Contractor) 
+
+Claim for 
+
+Supplementary Medical Insurance Benefits (Part B) **** (HIC Number) **** (ALJ Appeal Number) 
+
+The Administrative Law Judge (ALJ) issued a decision dated September 16, 2010, which concerned chiropractic services provided by the appellant to the beneficiary on various dates from June 22, 2009 through November 18, 2009. The ALJ determined that the services at issue were not covered by Medicare because the record did not contain sufficient documentation to establish that the chiropractic services were medically reasonable and necessary. Additionally, the ALJ held the appellant liable for the associated non-covered costs. The appellant has asked the Medicare Appeals Council (Council) to review this action. 
+
+The Council reviews the ALJ’s decision de novo . 42 C.F.R. § 405.1108(a). The Council will limit its review of the ALJ’s action to the exceptions raised by the party in the request for review, unless the appellant is an unrepresented beneficiary. 42 C.F.R. § 405.1112(c). 
+
+The Council admits the appellant’s request for review, dated October 5, 2010, into the record as Exhibit (Exh.) MAC-1. As set forth below, the Council adopts the ALJ’s decision. 2
+
+BACKGROUND 
+
+The appellant submitted a claim for Medicare coverage of chiropractic manipulative treatments (HCPCS code 98941) 1                            
+
+> 1 The Health Care Procedure Coding System (HCPCS) was developed by the Centers for Medicare &Medicaid Services (CMS) for processing, screening, identifying and paying Medicare claims. See 42 C.F.R. §414.2.
+
+,provided to the beneficiary on multiple dates of service from June 22, 2009 through November 18, 2009. The Medicare contractor denied all claims initially. On redetermination the contractor maintained the denial of coverage, concluding that the record failed to support a need for the services. Exh. 3 at 137-169. Subsequently, the Qualified Independent Contractor (QIC) upheld the contractor’s denial of coverage deciding that the documentation of record failed to demonstrate treatment of an acute condition, that no significant re-injury was documented and thus, the treatment at issue became maintenance in nature and not coverable under Medicare regulations. The appellant, thereafter, requested a hearing before an ALJ. 
+
+After holding a hearing, the ALJ issued a decision denying Medicare coverage of the chiropractic services concluding that they were not medically reasonable and necessary. The ALJ based his decision on two grounds: (1) the record does not include documentation of an initial visit or an initial plan of treatment plan as required by the regulations, and (2) the medical documentation in the record demonstrates that the beneficiary was being treated for a chronic subluxation 2                             
+
+> 2 CMS defines subluxation as “a motion segment, in which alignment, movement integrity, and/or physiological function of the spine are altered although contact between joint surfaces remains intact.” MBPM Ch. 15, §240.1.2.
+
+, rather than an acute subluxation; and Medicare only provides coverage of treatment for acute subluxations. 
+
+REQUEST FOR REVIEW 
+
+In its request for review, the appellant indirectly contests that portion of the ALJ decision relating to the ALJ’s determination that the chiropractic services were not medically reasonable and necessary because the treatment notes show the beneficiary was being treated for a chronic, rather than an acute subluxation and demonstrate that the  beneficiary did not have a reasonable expectation of recovery or improvement in function . The appellant contends that the beneficiary was treated for acute subluxations, and supports this contention by 3
+
+listing the dates of apparent flare-ups or exacerbations that prompted and formed the basis for the care at issue. Exh. MAC-1. We take the appellant’s submission, which is essentially comprised of the same contentions expressed to the ALJ, as an argument that Medicare coverage should be granted in this case because the services at issue involve treatment to correct an acute injury, namely, exacerbations of a condition or disease that occurred during the dates of service. 
+
+The appellant did not contest the ALJ’s determination that the record does not include documentation of an initial visit or treatment plan, as required by Medicare regulations. See 
+
+Medicare Benefit Policy Manual (MBPM), Pub. 100-2, ch. 15, § 30.5. For that reason, the Council adopts, without further discussion, that portion of the ALJ’s decision. Thus, the remaining lone issue before the Council is whether the chiropractic services at issue provided by the appellant to the beneficiary constitute reasonable and necessary services as required by Medicare regulations. 
+
+DISCUSSION 
+
+Coverage 
+
+Medicare coverage is generally unavailable for most services provided or ordered by a chiropractor. However, the Medicare regulations do provide coverage for chiropractic manipulation of the spine to correct a spinal subluxation, of which existence of, must be demonstrated by either physical examination or x-ray. The patient must also have a “neuromusculoskeletal condition necessitating treatment, and the manipulative services rendered must have a direct therapeutic relationship to the patient’s condition and provide a reasonable expectation of recovery or improvement of function.” MBPM, Pub. 100-2, ch. 15, § 240.1.3. Medicare guidelines further clarify that chiropractic services are only covered to treat an acute condition and that chronic, maintenance therapy is not a covered benefit. Most spinal joint problems fall into the following categories: 
+
+• Acute subluxation -A patient’s condition is considered acute when the patient is being treated for a new injury, identified by x-ray or physical exam as specified above. The result of chiropractic 4
+
+manipulation is expected to be an improvement in, or arrest of progression, of the patient’s condition. 
+
+• Chronic subluxation -A patient’s condition is considered chronic when it is not expected to 
+
+significantly improve or be resolved with further treatment (as is the case with an acute condition), but where the continued therapy can be expected to result in some functional improvement. Once the clinical status has remained stable for a given condition, without expectation of additional objective clinical improvements, further manipulative treatment is considered maintenance therapy and is not covered. 
+
+MBPM, Ch. 15, § 240.1.3 
+
+Although the general issue before the Council is whether the services at issue are reasonable and necessary under Medicare regulations and guidelines, the more narrow sub-issue, upon which that determination hinges, is whether the subluxations or the nature of the beneficiary’s injuries at issue are deemed acute or chronic. After review of the entire administrative record, including the hearing testimony and over 350 pages of medical records, as well as the appellant’s contentions, the Council concludes that the ALJ correctly determined that the chiropractic services are not covered by Medicare. We further agree with the ALJ’s determination that the beneficiary’s condition was chronic and unlikely to improve as a result of chiropractic treatment. 
+
+The dates of service for which the appellant seeks coverage, as mentioned above, are from June 22, 2009 through November 18, 2009. The underlying “injury” or “subluxation” that forms the basis for the treatment at issue occurred on May 9, 2009, according to the medical records. However, the administrative record oddly does not contain official documentation of the beginning of the doctor patient relationship between the appellant and the beneficiary, nor does it reveal the overall start of care (SOC) date for chiropractic services rendered by the appellant to the beneficiary, despite the appellant’s testimony that the beneficiary has been his long-time patient. 
+
+See Hearing Testimony. 
+
+The record indicates that during the dates of service, the beneficiary, a long-time patient of Dr. M.S., the appellant, was 5
+
+an 85 year-old woman with a degenerative cervical spine and a history of arthritis. Hearing testimony. The record further reflects that Dr. M.S., testified to the following: 
+
+• The beneficiary has had several exacerbations of neck/back pain over the years. 
+
+• Starting from June 22, 2009 until July 7, 2009, the chiropractic care provided by Dr. M.S. to the beneficiary was based upon an exacerbation of the neck pain that occurred on May 11, 2009. 3                                                    
+
+> 3 According to the hearing testimony, the actual ‘injury date’ the treatment was based upon, was May, 9, 2009. Dr. M.S.’s notes state that “patient woke up Saturday 5/9/09 with asevere neck spasm radiating into the shoulders and upper back got worse yesterday and this morning.” See Exh. 1at 70. (5/11/09 Daily treatment notes for beneficiary).
+
+• On July 12, 2009, the beneficiary presented with an exacerbation of neck pain 
+
+• On August 17, 2009, the beneficiary presented with an exacerbation of neck pain 
+
+• On August 27, 2009, the beneficiary presented with an exacerbation of lower back pain 
+
+Id .
+
+The appellant essentially contends that after the “initial” subluxation (May 11, 2009) had been managed; the beneficiary had subsequent exacerbations such that a new injury or a new need for treatment was created, and that a reasonable expectation of recovery or improvement in function was expected for the beneficiary. Exh. MAC-1; S ee also Hearing Testimony. We reject that argument. In contrast, the record supports the conclusion that the subluxations at issue were chronic in nature, not acute, and thus do not qualify for Medicare coverage. 
+
+As the ALJ pointed out, the progress notes show that the beneficiary was seen continuously throughout the dates of service at issue for the same symptoms of intermittent headaches, neck pain and stiffness and mid back muscle spasms. On each visit, the appellant performed spinal adjustments on the beneficiary as part of the normal routine to support the beneficiary’s health and healing. The notes reflect that the fluctuations in pain levels were minor (up or down a point or two only a few times) throughout a treatment course that last several months. Specifically, the record reveals that the beneficiary’s pain severity level generally fluctuated from 5 to 6
+
+7 out of 10. Apart from notes recording the beneficiary’s subjective report of some improvement, the record is void of any documented significant changes in the beneficiary’s overall condition, and there appeared to be no reasonable expectation of further clinical improvement. 
+
+Additionally, the contemporaneous treatment notes repeatedly contain the following statements from Dr. M.S that “she is feeling somewhat better” (Record at 229-247) 4        
+
+> 4 The pages of the administrative record are numbered 1-393.
+
+or “in my clinical opinion she is feeling about the same”. Record at 223-250. The documentation does not indicate that the beneficiary was progressing as predicted nor does it contain an explanation of the beneficiary’s failure to progress. The preceding discussion supports the conclusion that the injury or subluxations at issue were chronic in nature. 
+
+Appearing as a non-party on behalf of the QIC, Dr. R.S., a geriatrician, participated in the ALJ hearing. Dr. R.S. testified that based upon his review of the clinical records, charts and other evidence in the record, he failed to find any signs that the beneficiary suffered any acute re-injury, such that it caused the symptoms she expressed in the medical file, which form the basis for the chiropractic treatment at issue. Hearing Testimony. Dr. R.S. further stated that his review of the therapy notes led him to conclude that the beneficiary appeared to be at the same level of discomfort continuously throughout the course of the treatment at issue. Id . In addition, he opined that the therapy notes generally indicate that the beneficiary was at a pain level of 6 out 10, throughout the therapy, with an occasional fluctuation up or down a level or two, but that there was virtually no change over the course of the therapy. Id .
+
+The Medicare regulations state that a chiropractor should be afforded the opportunity to effect improvement, arrest or retard deterioration of the condition within a reasonable and generally predictable amount of time. However, when treatments, as in the case at hand, become supportive rather than corrective, the treatment is considered maintenance therapy, 5 which is not                                                 
+
+> 5 Under the Medicare program, chiropractic maintenance therapy is not
+> considered to be medically reasonable or necessary, and is therefore not payable. Maintenance therapy is defined as atreatment plan that seeks to prevent disease, promote health, and prolong and enhance the quality of life; or therapy that is performed to maintain or prevent
+
+7                                     
+
+> deterioration of achronic condition. When further clinical improvement cannot reasonably be expected from continuous ongoing care, and the chiropractic treatment becomes supportive rather than corrective in nature, the treatment is then considered maintenance therapy. MBPM, Ch. 15, §30.5 (emphasis added).
+
+covered by Medicare. MBPM, Ch. 15, § 30.5. Based upon a review of the clinical records, the appellant’s treatment can only be characterized as maintenance therapy, which was designed to maintain or prevent deterioration of a chronic condition. The services provided here were not performed with a reasonable expectation of recovery or improvement of function, and did not result in recovery or improvement of function. Therefore, the therapy provided to the beneficiary is considered maintenance therapy. 
+
+In sum, the record reveals an absence of documentation of an initial visit or plan of treatment, as required by the regulations and supports that the subluxations at issue were chronic in nature and that there was no reasonable expectation of functional improvement in the beneficiary’s condition. For these reasons, the Council concludes that chronic the treatment at issue was supportive rather than corrective; that in this respect the treatment constituted maintenance therapy, and therefore was not considered to be medically reasonable or necessary for purposes of Medicare coverage. 
+
+DECISION 
+
+It is the decision of the Medicare Appeals Council that the documentation does not establish that the services provided by appellant to the beneficiary from June 22, 2009 through November 18, 2009, were reasonable and necessary under section 1862(a) (1) of the Act. Therefore the services are not covered by Medicare. Additionally, the appellant remains liable for the non-covered charges in accordance with section 1879 of the Act. We accordingly adopt the ALJ’s decision. 
+
+MEDICARE APPEALS COUNCIL 
+
+/s/ Stanley I. Osborne, Jr. 
+
+Administrative Appeals Judge 
+
+Date: June 21, 2012

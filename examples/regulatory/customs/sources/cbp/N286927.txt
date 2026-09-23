@@ -1,0 +1,46 @@
+CBP ruling NY N286927 (2018-03-21): The tariff classification of  Artificial Snowflakes with Glitter
+https://rulings.cbp.gov/ruling/N286927 — text as served by https://rulings.cbp.gov/api/ruling/N286927
+
+N286927
+
+March 21, 2018
+
+CLA-2-39:OT:RR:NC:N1:137
+
+CATEGORY:	Classification
+
+TARIFF NO.: 3901.20.1000, 3901.20.5000
+
+Mr. David Prata
+CVS Health
+Mail Code 5055
+1 CVS Drive
+Woonsocket, RI 02895
+
+RE:	The tariff classification of  Artificial Snowflakes with Glitter 
+
+Dear Mr. Prata:
+
+In your letter dated April 27, 2017 you requested a tariff classification ruling for 2-quart Artificial Snowflakes with Glitter.  
+
+This product consists of raw flakes of high-density polyethylene (HDPE), resembling snowflakes, mixed with colored glitter of polyethylene terephthalate (PET).  The blend is 80 percent HDPE and 20 percent PET.   
+
+Based on the information provided, this item is predominantly composed of high density polyethylene.  High-density polyethylene is characterized by a specific gravity within the range of 0.94 and 0.965 grams per cubic meters.   
+
+The applicable subheading for the Snowflakes with Glitter will be 3901.20, Harmonized Tariff Schedule of the United States (HTSUS), which provides for polyethylene having a specific gravity of 0.94 more, in primary forms, other.   Information regarding the relative viscosity was not identified, therefore, a specific subheading could not be provided.  If the product has a relative viscosity greater than or equal to 1.44 the applicable subheading will be 3901.20.1000, HTSUS.  The rate of duty will be 6.5 percent, ad valorem.  If the product has a relative viscosity less than 1.44 the applicable subheading will be 3901.20.5000 HTSUS.  The rate of duty will be 6.5 percent, ad valorem.
+
+Duty rates are provided for your convenience and are subject to change.  The text of the most recent HTSUS and the accompanying duty rates are provided on World Wide Web at https://hts.usitc.gov/current.
+
+This ruling is being issued under the provisions of Part 177 of the Customs Regulations (19 C.F.R. 177).
+
+A copy of the ruling or the control number indicated above should be provided with the entry documents filed at the time this merchandise is imported.  If you have any questions regarding the ruling, contact National Import Specialist Christina Allen at julie.c.allen@cbp.dhs.gov.
+
+Sincerely,
+
+
+
+
+Steven A. Mack
+Director
+National Commodity Specialist Division
+

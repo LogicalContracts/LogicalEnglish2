@@ -1,0 +1,112 @@
+Title: 2012.12.20 M-11-1002 In the Case of E.K.
+
+URL Source: https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/m-11-1002.pdf
+
+Published Time: Mon, 29 Aug 2016 04:19:54 GMT
+
+Number of Pages: 4
+
+Markdown Content:
+DEPARTMENT OF HEALTH AND HUMAN SERVICES 
+
+DEPARTMENTAL APPEALS BOARD 
+
+DECISION OF MEDICARE APPEALS COUNCIL 
+
+Docket Number: M-11-1002 
+
+In the case of 
+
+E.K. 
+
+(Appellant) 
+
+**** 
+
+(Beneficiary) 
+
+Highmark Medicare Services 
+
+(Contractor) 
+
+Claim for 
+
+Supplementary Medical Insurance Benefits (Part B) 
+
+**** 
+
+(HIC Number) 
+
+**** 
+
+(ALJ Appeal Number) 
+
+The Administrative Law Judge (ALJ) issued a decision dated February 23, 2011, which concerned Medicare coverage for laboratory tests performed by **** on November 30, 2009; December 30, 2009; and January 18, 2010. These laboratory tests included a blood glucose test (82947), a urine culture (87088), 
+
+and a colony count of bacteria in the urine (87086). 1 The ALJ determined that the laboratory testing was not covered by Medicare and that the appellant beneficiary is liable for the non-covered costs. The appellant has asked the Medicare Appeals Council (Council) to review this action. 
+
+The Council reviews the ALJ’s decision de novo . 42 C.F.R. § 405.1108(a). The Council will limit its review of the ALJ’s action to the exceptions raised by the party in the request for review, unless the appellant is an unrepresented beneficiary. 42 C.F.R. § 405.1112(c). The Council enters the appellant’s request for review into the record as Exhibit (Exh.) MAC-1.                                     
+
+> 1CMS created the Healthcare Common Procedure Coding System (HCPCS) to develop uniform national definitions of medical services, codes for those services and payment modifiers, to process, screen, identify, and pay Medicare claims. See 42 C.F.R. §§ 414.2 and 414.40.
+
+2
+
+For the reasons explained below, the Council reverses the ALJ’s decision. 
+
+BACKGROUND 
+
+The beneficiary underwent a kidney transplant at **** in Livingston, New Jersey, on October 20, 2009. See Exh. 3 at 86, 94; Exh. 5 at 109; see also CD Recording of ALJ Hearing, February 8, 2011 (ALJ Hearing) at 9:11 to 9:12 a.m. The beneficiary has also been diagnosed with systemic lupus erythematosus. Exh. MAC-1; ALJ Hearing at 9:12 a.m. 
+
+Following the surgery, Drs. **** and **** (affiliated with the transplant center at ****) wrote orders so that the appellant could have blood tests and laboratory analysis performed closer to home, at **** in Freehold, New Jersey. Exh. 2 at 25, 26; see also Exh. 5 at 109. The orders contained diagnostic codes of v42.0 (kidney replaced by transplant) and v58.61 (long term use of anti-coagulants). These orders for laboratory tests were fulfilled at ****, on November 30, 2009; December 30, 2009; and January 18, 2010. Exh. 2 at 31-46. 
+
+**** submitted the claims for Medicare coverage, and the contractor denied them on the ground that the information supporting them was insufficient. Exh. 2 at 49, 55-56, 57-78. At that point, both the appellant and Dr. **** filled out forms, requesting a redetermination on the beneficiary’s behalf. Exh. 3 at 94, 95. In the space on the form for “Additional Information Medicare Should Consider,” Dr. **** wrote: 
+
+Pt [patient] is kidney transplant recipient and this test is necessary to determine any urinary tract infection. DX: 599.0 [urinary tract infection]; 599.7 [hematuria, presence of blood in the urine]. 
+
+Id . On redetermination, the contractor again denied coverage on the ground that it had not received the medical information it requested. Exh. 3 at 63-67, 70-74, 77-81. 
+
+On reconsideration, the Qualified Independent Contractor (QIC) also denied coverage because the appellant and provider had not submitted sufficient documentation, including a patient history and physical “as well as covered diagnoses to support the medical necessity of the laboratory services” at issue. Exh. 4 at 99-103. The QIC found that neither the diagnosis of kidney replaced by transplant (ICD-9 v.42.0) or long term (current) use 3
+
+of anticoagulants (ICD-9 v.58.61) is listed in the NCDs for urine cultures or blood glucose testing. Id. The QIC did not consider whether the additional diagnostic codes (599.0 and 599.7) and information supplied by Dr. **** in the request for redetermination are listed in the NCDs for this laboratory testing. 
+
+The ALJ held a hearing on February 8, 2011, and then issued a decision denying coverage for the laboratory tests at issue on the same ground as the QIC, specifically that the kidney transplant diagnosis and the long term use of anti-coagulants diagnosis did not provide a basis for the blood glucose testing or the urine culture and count. Dec. at 4. The ALJ also determined that the beneficiary is liable for the costs of the laboratory testing, because she signed Advance Beneficiary Notices (ABNs) at **** at the time of the testing. Id. ; see 
+
+Exh. 2 at 27-30. 
+
+DISCUSSION 
+
+The ALJ erred, as did the contractor and the QIC, in omitting to consider the additional diagnostic information that Dr. **** supplied when she filled out two requests for reconsideration. 
+
+See Exh. 3 at 94, 95. As noted above, Dr. **** specifically stated in writing that not only was the beneficiary a kidney transplant recipient, but she needed the urinary count and culture to determine if she had a urinary tract infection. Id. 
+
+Moreover, Dr. **** listed the additional diagnostic codes for urinary tract infection (599.0) and hematuria (599.7). Id. 
+
+Both of these diagnostic codes are listed as supporting urine culture testing. See NCD Coding Policy Manuals (2009 and 2010) 
+
+for NCD 190.12 (Urine Culture, Bacterial). 2 For urine cultures, 
+
+the NCD itself states that a urine culture may be indicated to detect occult infection in renal transplantation recipients on immunosuppressive therapy. See Pub. 100-03, Medicare National Coverage Determinations (NCD) Manual, Chapter 1, Part 3, § 190.12. Moreover, the diagnostic code 599.0 (for urinary tract infections) is also listed as supporting blood glucose testing. See NCD Coding Policy Manual (2009) for NCD 190.20 (Blood Glucose Testing).       
+
+> 2These manuals are accessible at:
+> http://www.cms.gov/Medicare/Coverage/CoverageGenInfo/downloads/manual200907.
+> pdf and
+> http://www.cms.gov/Medicare/Coverage/CoverageGenInfo/downloads/manual201007.
+> pdf.
+
+4
+
+Therefore, under CMS policy both types of laboratory testing were reasonable and necessary for the beneficiary on the dates of service at issue here (one, two, and three months after her kidney transplant). Also, although the medical documentation submitted could have been more detailed, it was sufficient to support the need for the laboratory testing, and to conform that the testing had been performed on the dates of service. 
+
+Based on the appellant beneficiary’s diagnoses of urinary tract infection and hematuria, as well as kidney transplant, the Council finds that the blood glucose testing and urine culture and urine colony count testing on the dates of service at issue here were necessary and reasonable. 
+
+DECISION 
+
+The Medicare Appeals Council has concluded that Medicare covers the blood glucose testing (82947) provided to the beneficiary on November 30, 2009, and the urine culture (87088) and urine colony count (87086) testing provided to the beneficiary on December 30, 2009 and January 18, 2010. The ALJ’s decision dated February 23, 2011 is reversed. 
+
+MEDICARE APPEALS COUNCIL 
+
+/s/ Clausen J. Krzywicki Administrative Appeals Judge 
+
+/s/ Constance B. Tobias, Chair Departmental Appeals Board 
+
+Date: December 20, 2012

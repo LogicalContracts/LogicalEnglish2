@@ -111,12 +111,49 @@ scenario_name(Id, Name) :-
 %!  migration_text(+Migration, -Text, -Issues) is det.
 %
 %   The LE document of a migration: its IR with the source tests appended as
-%   scenarios (before the queries, where scenarios go).
+%   scenarios (before the queries, where scenarios go), and the disclaimer
+%   every translated program carries closing its opening comment.
 migration_text(Migration0, Text, Issues) :-
-    migration_pending(Migration0, migration(_Meta, program(Header, Items0), _Ledger, Tests)),
+    migration_pending(Migration0, migration(_Meta, program(Header0, Items0), _Ledger, Tests)),
     source_tests_scenarios(Tests, Scenarios),
     append(Items0, Scenarios, Items),
+    with_disclaimer(Header0, Header),
     le_write(program(Header, Items), Text, Issues).
+
+%!  with_disclaimer(+Header0, -Header) is det.
+%
+%   Header0 with the disclaimer (i18n/writer_words.csv, `twin_disclaimer`)
+%   as its last comment, wrapped at 78 columns, after an empty comment line
+%   when other comments come before it. A header that has it already is left
+%   as it is.
+with_disclaimer(Header0, Header) :-
+    le_writer:writer_word(twin_disclaimer, D),
+    wrap_words(D, 78, Wrapped),
+    (   memberchk(comment(Wrapped), Header0)
+    ->  Header = Header0
+    ;   memberchk(comment(_), Header0)
+    ->  atomic_list_concat(['\n', Wrapped], C),
+        append(Header0, [comment(C)], Header)
+    ;   append(Header0, [comment(Wrapped)], Header)
+    ).
+
+wrap_words(Text, Width, Wrapped) :-
+    split_string(Text, " ", " ", Words0),
+    exclude(==(""), Words0, Words),
+    wrap_lines(Words, Width, Lines),
+    atomic_list_concat(Lines, '\n', Wrapped).
+
+wrap_lines([], _, []).
+wrap_lines([W|Ws], Width, [Line|Lines]) :-
+    fill_line(Ws, Width, W, Line, Rest),
+    wrap_lines(Rest, Width, Lines).
+
+fill_line([W|Ws], Width, Acc, Line, Rest) :-
+    string_length(Acc, LA), string_length(W, LW),
+    LA + 1 + LW =< Width, !,
+    atomic_list_concat([Acc, ' ', W], Acc1),
+    fill_line(Ws, Width, Acc1, Line, Rest).
+fill_line(Ws, _, Line, Line, Ws).
 
 		 /*******************************
 		 *   EXPECTATIONS NOT YET DUE   *

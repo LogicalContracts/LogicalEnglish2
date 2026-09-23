@@ -1,0 +1,232 @@
+% The Logical English twin of the OIPA transaction Withdrawal of the plan annuity, written by the OIPA translator
+% from its XML configuration (kept in sources/).
+% Each rule cites the MathVariable it states; the expected values in the scenarios are
+% computed by an independent interpreter of OIPA math (oipa_eval.py), not by this program.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the knowledge base annuity_withdrawal includes these resources:
+    temporal.
+
+the functions are:
+    the gross amount of *an activity* is *an amount*.
+    the effective date of *an activity* is *a date*.
+    the account value of the policy before *an activity* is *an amount*.
+    the issue date of the policy before *an activity* is *a date*.
+    the duration of *an activity* is *a number*.
+    the policy year of *an activity* is *a number*.
+    the free amount of *an activity* is *an amount*.
+    the excess of *an activity* is *an amount*.
+    the chargeable amount of *an activity* is *an amount*.
+    the surrender charge rate of *an activity* is *a number*.
+    the surrender charge of *an activity* is *an amount*.
+    the net amount of *an activity* is *an amount*.
+    the remaining value of *an activity* is *an amount*.
+    the free withdrawal percent of the plan is *a number*.
+    the minimum balance of the plan is *an amount*.
+    the account value of the policy after *an activity* is *a value*.
+
+the templates are:
+    *an activity* is a withdrawal.
+    *an activity* fails the check *a code*.
+    *an activity* spawns *a transaction*.
+    the surrender charge rate for duration *a duration* is *a rate* under table surrender_charge.
+
+the table surrender_charge is loaded from surrender_charge.csv, with unique match:
+    duration | rate
+
+the knowledge base annuity_withdrawal includes:
+
+the text of "Withdrawal/Transaction.xml" is at "sources/Withdrawal/Transaction.xml".
+
+the free withdrawal percent of the plan is 10, as stated in "PlanFields.csv" at FreeWithdrawalPercent.
+
+the minimum balance of the plan is 2000, as stated in "PlanFields.csv" at MinimumBalance.
+
+% An activity of this program is a withdrawal: the Withdrawal transaction it processes.
+an activity is a withdrawal if
+    the effective date of the activity is a date.
+
+rule duration with provenance "Withdrawal/Transaction.xml" at MathVariable DurationMV:
+the duration of an activity is a number if
+    the age on the effective date of the activity of someone born on the issue date of the policy before the activity is the number.
+
+rule policy_year with provenance "Withdrawal/Transaction.xml" at MathVariable PolicyYearMV:
+the policy year of an activity is a number N if
+    the duration of the activity is a number M
+    and N = M + 1.
+
+rule free_amount with provenance "Withdrawal/Transaction.xml" at MathVariable FreeAmountMV:
+the free amount of an activity is an amount N if
+    the account value of the policy before the activity is an amount M
+    and the free withdrawal percent of the plan is a number K
+    and N = round(M * K / 100 * 100) / 100.
+
+rule excess with provenance "Withdrawal/Transaction.xml" at MathVariable ExcessMV:
+the excess of an activity is an amount N if
+    the gross amount of the activity is an amount M
+    and the free amount of the activity is an amount K
+    and N = M - K.
+
+rule chargeable_amount with provenance "Withdrawal/Transaction.xml" at MathVariable ChargeableAmountMV:
+the chargeable amount of an activity is an amount N if
+    the gross amount of the activity is an amount M
+    and the free amount of the activity is an amount K
+    and M > K
+    and the excess of the activity is N
+    otherwise the activity is a withdrawal
+    and N = 0.
+
+rule surrender_charge_rate with provenance "Withdrawal/Transaction.xml" at MathVariable SurrenderChargeRateMV:
+the surrender charge rate of an activity is a number N if
+    the policy year of the activity is a second number
+    and the surrender charge rate for duration the second number is N under table surrender_charge
+    otherwise the activity is a withdrawal
+    and N = 0.
+
+rule surrender_charge with provenance "Withdrawal/Transaction.xml" at MathVariable SurrenderChargeMV:
+the surrender charge of an activity is an amount N if
+    the policy year of the activity is a number M
+    and M > 7
+    and N = 0
+    otherwise the chargeable amount of the activity is an amount K
+    and the surrender charge rate of the activity is a number P
+    and N = round(K * P * 100) / 100.
+
+rule net_amount with provenance "Withdrawal/Transaction.xml" at MathVariable NetAmountMV:
+the net amount of an activity is an amount N if
+    the gross amount of the activity is an amount M
+    and the surrender charge of the activity is an amount K
+    and N = round((M - K) * 100) / 100.
+
+rule remaining_value with provenance "Withdrawal/Transaction.xml" at MathVariable RemainingValueMV:
+the remaining value of an activity is an amount N if
+    the account value of the policy before the activity is an amount M
+    and the gross amount of the activity is an amount K
+    and N = round((M - K) * 100) / 100.
+
+% The withdrawal must be a positive amount.
+rule w001 with provenance "Withdrawal/ValidateExpressions.xml" at Expression W001:
+an activity fails the check "W001" if
+    the gross amount of the activity <= 0.
+
+% A withdrawal of [the gross amount] exceeds the account value of [the account value].
+rule w002 with provenance "Withdrawal/ValidateExpressions.xml" at Expression W002:
+an activity fails the check "W002" if
+    the gross amount of the activity > the account value of the policy before the activity.
+
+rule spawn_1 with provenance "Withdrawal/SpawnActivities.xml" at Spawn 1:
+an activity spawns FullSurrender if
+    the remaining value of the activity is an amount N
+    and the minimum balance of the plan is an amount M
+    and N < M
+        and N > 0
+    and it is not the case that the activity fails the check a code.
+
+rule copy_account_value with provenance "Withdrawal/CopyToPolicyFields.xml" at Field AccountValue:
+the account value of the policy after an activity is a value if
+    the remaining value of the activity is the value
+    and it is not the case that the activity fails the check a code.
+
+scenario steady_saver_w1 is:
+    the gross amount of w1 is 10000.
+    the effective date of w1 is 2022-06-01.
+    the account value of the policy before w1 is 168836.850000000005821.
+    the issue date of the policy before w1 is 2020-03-15.
+    net_amount expects answers ["the net amount of w1 is 10000"].
+    remaining_value expects answers ["the remaining value of w1 is 158836.85"].
+    checks expects answers [].
+    spawns expects answers [].
+    policy_after_account_value expects answers ["the account value of the policy after w1 is 158836.85"].
+
+scenario steady_saver_w2 is:
+    the gross amount of w2 is 40000.
+    the effective date of w2 is 2023-02-01.
+    the account value of the policy before w2 is 158836.850000000005821.
+    the issue date of the policy before w2 is 2020-03-15.
+    net_amount expects answers ["the net amount of w2 is 38794.18"].
+    remaining_value expects answers ["the remaining value of w2 is 118836.85"].
+    checks expects answers [].
+    spawns expects answers [].
+    policy_after_account_value expects answers ["the account value of the policy after w2 is 118836.85"].
+
+scenario steady_saver_w3 is:
+    the gross amount of w3 is 500000.
+    the effective date of w3 is 2024-01-10.
+    the account value of the policy before w3 is 118836.850000000005821.
+    the issue date of the policy before w3 is 2020-03-15.
+    net_amount expects answers ["the net amount of w3 is 480475.35"].
+    remaining_value expects answers ["the remaining value of w3 is -381163.15"].
+    checks expects answers ["w3 fails the check W002"].
+    spawns expects answers [].
+    policy_after_account_value expects answers [].
+
+scenario late_withdrawal_w1 is:
+    the gross amount of w1 is 30000.
+    the effective date of w1 is 2019-04-30.
+    the account value of the policy before w1 is 80000.
+    the issue date of the policy before w1 is 2012-05-01.
+    net_amount expects answers ["the net amount of w1 is 29780"].
+    remaining_value expects answers ["the remaining value of w1 is 50000"].
+    checks expects answers [].
+    spawns expects answers [].
+    policy_after_account_value expects answers ["the account value of the policy after w1 is 50000"].
+
+scenario late_withdrawal_w2 is:
+    the gross amount of w2 is 20000.
+    the effective date of w2 is 2019-05-01.
+    the account value of the policy before w2 is 50000.
+    the issue date of the policy before w2 is 2012-05-01.
+    net_amount expects answers ["the net amount of w2 is 20000"].
+    remaining_value expects answers ["the remaining value of w2 is 30000"].
+    checks expects answers [].
+    spawns expects answers [].
+    policy_after_account_value expects answers ["the account value of the policy after w2 is 30000"].
+
+scenario drained_w1 is:
+    the gross amount of w1 is 8500.
+    the effective date of w1 is 2022-07-01.
+    the account value of the policy before w1 is 10000.
+    the issue date of the policy before w1 is 2021-01-01.
+    net_amount expects answers ["the net amount of w1 is 8050"].
+    remaining_value expects answers ["the remaining value of w1 is 1500"].
+    checks expects answers [].
+    spawns expects answers ["w1 spawns FullSurrender"].
+    policy_after_account_value expects answers ["the account value of the policy after w1 is 1500"].
+
+query net_amount is:
+    the net amount of which activity is which amount.
+
+query remaining_value is:
+    the remaining value of which activity is which amount.
+
+query checks is:
+    which activity fails the check which code.
+
+query spawns is:
+    which activity spawns which transaction.
+
+query policy_after_account_value is:
+    the account value of the policy after which activity is which value.
+
+the view withdrawal is:
+    the title is "Withdrawal (annuity)".
+    the case is a scenario.
+    the facts about "the activity" are
+        the gross amount of an activity is an amount,
+        the effective date of an activity is a date.
+    the facts about "the policy it finds" are
+        the account value of the policy before an activity is an amount,
+        the issue date of the policy before an activity is a date.
+    the result is the answer to query net_amount.
+    the answers to "which activity fails the check which code" are listed as "Checks".
+    the result shows its citations.
+

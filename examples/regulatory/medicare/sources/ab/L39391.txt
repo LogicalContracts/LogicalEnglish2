@@ -1,0 +1,50 @@
+LCD L39391: Vitamin D Assay Testing
+Contractors: Palmetto GBA
+Effective: 2026-01-01 00:00:00
+
+=== indication ===
+This Local Coverage Determination (LCD) identifies the indications and limitations of Medicare coverage and reimbursement for Vitamin D laboratory assays in the medical management of patients. 
+ For Medicare beneficiaries, screening tests are governed by statute. Reimbursement is not allowed for routine screening for vitamin D deficiency in asymptomatic individuals and/or during general encounters. 
+ Although it is not the active form of the hormone, 25-OH vitamin D is much more commonly measured because it better reflects the sum total of vitamin D produced endogenously and absorbed from the diet than does the level of the active hormone 1,25-dihydroxy vitamin. 25-hydroxyvitamin D [25(OH)D] testing will be considered medically reasonable and necessary for individuals at risk for deficiency with the following conditions: 
+ 
+ Chronic kidney disease (CKD) stage III or greater 
+ Cystic Fibrosis (CF) 
+ Cirrhosis 
+ Crohn’s disease 
+ Gastric bypass/bariatric surgery 
+ Granuloma forming diseases 
+ Hyperalimentation 
+ Hypocalcemia 
+ Hypercalcemia 
+ Hypercalciuria 
+ Hypervitaminosis D 
+ Hypovitaminosis D 
+ Inflammatory bowel disease 
+ Long term use of medications known to lower vitamin d levels: anticonvulsants, antiretroviral therapy, glucocorticoids, antifungals, and cholestyramine 
+ Parathyroid disorders 
+ Paget’s disease of bone 
+ Obesity, if Body Mass Index (BMI) ≥ 30 kg/m2 
+ Obstructive jaundice 
+ Osteomalacia 
+ Osteopenia 
+ Osteoporosis 
+ Osteosclerosis/petrosis 
+ Pregnant and lactating women 
+ Radiation enteritis 
+ Rickets 
+ Vitamin D deficiency on replacement therapy related to a condition listed above, to monitor the efficacy of treatment 
+ 
+ Deficiency of 1,25-dihydroxy vitamin D, which is present at much lower concentrations, does not necessarily reflect deficiency of 25-OH vitamin D and its measurement should be limited to specific clinical situations. It will be considered reasonable and necessary for patients with the following conditions: 
+ 
+ Unexplained hypercalcemia 
+ Unexplained hypercalciuria 
+ Suspected genetic childhood rickets 
+ Suspected tumor induced osteomalacia 
+ Nephrolithiasis 
+ Renal osteodystrophy 
+ Sarcoidosis 
+ 
+ Once a beneficiary has been shown to be vitamin D deficient with a serum level of 
+ 
+ If, after a 12-week period of supplementation and documentation of compliance with the prescribed supplementation, the serum level is still 
+ Thereafter, annual testing may be appropriate depending upon the indication and other mitigating factors. The documentation must support the need for annual testing. Annual testing should be rare.

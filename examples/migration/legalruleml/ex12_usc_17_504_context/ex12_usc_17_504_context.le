@@ -2,6 +2,14 @@
 % from ex12-USC_17_504_context-normal.lrml (kept in sources/).
 % Obligations, permissions and prohibitions are the deontic library's (deontic.le).
 % Every expected answer in the scenarios is SPINdle's (defeasible deontic logic) on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
 
 the target language is: prolog.
 

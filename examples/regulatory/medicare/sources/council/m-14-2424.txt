@@ -1,0 +1,213 @@
+Title: 2014.05.09 M-14-2424 In the Case of Liberator Medical Supply
+
+URL Source: https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/m-14-2424.pdf
+
+Published Time: Mon, 29 Aug 2016 04:19:54 GMT
+
+Number of Pages: 15
+
+Markdown Content:
+DEPARTMENT OF HEALTH AND HUMAN SERVICES DEPARTMENTAL APPEALS BOARD 
+
+DECISION OF MEDICARE APPEALS COUNCIL 
+
+Docket Number: M-14-2424 
+
+In the case of 
+
+Liberator Medical Supply 
+
+(Appellant) 
+
+**** 
+
+(Beneficiaries) 
+
+Noridian, CIGNA, and National Government Services 
+
+(Contractors) 
+
+Claim for 
+
+Supplementary Medical Insurance Benefits (Part B) 
+
+**** 
+
+(HIC Numbers) 
+
+**** 
+
+(ALJ Appeal Numbers) 
+
+The Medicare Appeals Council has decided, on its own motion, to review three Administrative Law Judge (ALJ) decisions dated April 15, 2014, because there is an error of law in each decision material to the outcome of the claims. The ALJ decisions addressed issues of Medicare coverage and liability for medical supplies (including ostomy supplies and urine catheters) that the appellant furnished to the beneficiaries on three separate dates of service, May 31, 2011 (beneficiary C.S.), April 31, 2011 (beneficiary B.P.), and November 30, 2010 (beneficiary M.W.). (The HCPCS codes for these supplies are listed on the attached List of Beneficiaries.) 
+
+On June 12, 2014, the Administrative Qualified Independent Contractor (AdQIC), acting on behalf of the Centers for Medicare and Medicaid Services (CMS) submitted a request to the Council for own motion review of these three ALJ decisions. See 42 C.F.R. 405.1110. This request, and its accompanying memorandum, will be made a part of the record as Exhibit MAC-1. The Council has not received a response to the memorandum from the appellant. In the referral memorandum, CMS contends that the ALJ erred as a matter of law in allowing “partial payment” for the claims at issue, contrary to Medicare claims processing and 2
+
+payment guidelines. Exh. MAC-1 at 8-9. CMS also contends that in the appeal involving beneficiary C.S., the ALJ’s factual determinations are not supported by a preponderance of the evidence. Id. at 10-11. 
+
+The Council has reviewed the CMS referral memorandum, the ALJ’s decisions, the records in these three cases, and the applicable Medicare law and policy. On this basis, the Council has concluded that the ALJ did make an error of law in allowing “partial payment” for the claims at issue. Because this ALJ error requires the reversal of all three decisions, the Council does not need to address the issue of whether the factual findings were supported by the preponderance of the evidence in the C.S. case. 
+
+Therefore, the Council reverses these three ALJ decisions. The reasons for the Council’s action are set forth below. 
+
+Additional Documentation Admitted Into Evidence 
+
+The ALJ also erred in excluding four pages of evidence in the C.S. case, two pages of evidence in the M.W. case, and two pages of evidence in the B.P. case. In all three instances, the evidence includes an “Order Form/Refill Request for Urological Supplies” (completed by one or more of the appellant’s employees) and a “Delivery Ticket.” The ALJ had filed these documents at the back of each case file as “Non-Probative Correspondence – Duplicates.” In fact, they are probative and not duplicates. These documents show that the appellant’s employees asked each of the three beneficiaries (or their representatives) whether a visiting nurse or home health care provider was currently seeing the beneficiary, and recorded an answer of “Yes” in two of the cases (C.S. and M.W.) and “No” in one of the cases (B.P.). In the C.S. case, the Council enters these two pages (currently numbered only with the imprint 127-28) into the record as Exh. MAC-2-C.S. In the M.W. case, the Council enters the two relevant pages (currently numbered only with the imprint 127-28) into the record as Exh. MAC-2-M.W. In the B.P. case, the Council enters the two relevant pages (currently numbered only with the imprint 83-84) into the record as Exh. MAC-2-B.P. In the C.S. case, there are two additional pages of evidence that the ALJ erred in excluding, numbered 157 and 158 (by imprint numbers), and contained at the back of the “Non-Probative Correspondence – Duplicates” section of the C.S. case file. In fact, these two pages are a print-out from a third-party report of the beneficiary’s Medicare services. This 3
+
+is the report that the appellant and the ALJ purportedly relied on in determining how many days the beneficiary was in home health care. The Council enters these two pages into the record as Exh. MAC-3-C.S. 
+
+BACKGROUND 
+
+As noted above, the appellant Part B supplier (appellant) furnished medical supplies to these three beneficiaries on three separate dates of service, May 31, 2011, April 21, 2011, and November 30, 2010, respectively. The appellant billed Medicare in each case for ninety days’ worth of the supplies. See, e.g., 
+
+C.S. Case File, Exh. MAC-2-C.S., and Exh. 2 at 23. In two of the cases, the Medicare contractor (DME MAC) paid the claims initially but later sought to recoup the payment because the beneficiary was receiving covered home health (HH) services on the dates of service. See C.S. Case File, Exh. 2 at 21-23; M.W. Case File, Exh. 1 at 12-15. In the third case, the DME MAC denied payment initially because the beneficiary was a hospital inpatient on the date of service. See, e.g., B.P. Case File, Exh. 1 at 16. 
+
+On redetermination, the DME MACs issued decisions denying coverage because the beneficiaries were in Part A stays or episodes on the dates of service. See C.S. Case File, Exh. 2 at 14-16; B.P. Case File, Exh. 1 at 12-14; M.W. Case File, Exh. 1 at 12-14. In two of the cases (C.S. and M.W.), the DME MACs also determined that the appellant was liable for the overpayment pursuant to section 1870 of the Social Security Act (Act), because the appellant was not without fault for the overpayment. Id. 
+
+On reconsideration, the Qualified Independent Contractor (QIC) denied Medicare coverage in all three cases for the same reason, because the beneficiaries were in Part A stays or episodes on the dates of service. See, e.g., C.S. Case File, Exh. 1 at 1-6. In two of the cases, the QIC also held the appellant liable for the overpayments pursuant to section 1870 of the Act. Id. 
+
+Before the ALJ, the appellant did not dispute that the beneficiaries were in covered Part A stays on the dates of service. See, e.g., B.P. Case File, Exh. 1 at 9 (letter accompanying request for ALJ hearing). Instead, the appellant requested partial payment, that is, payment for the supplies that might have been used during the remaining part of the ninety days following the date of service when the beneficiary 4
+
+was no longer in a Part A stay or episode. Id.; see also, C.S. Case File, Exh. 2 at 3. 
+
+The ALJ conducted a telephone hearing. The Council’s review of the recorded hearing discloses numerous inaccuracies in the appellant’s record keeping and testimony, and misperceptions by the appellant, the ALJ, and a representative of the DME MAC (Noridian Administrative Services) about how the Common Working File and Medicare billing function. CD Recording of ALJ Hearing, March 5, 2014 (ALJ Hearing). For example, although the records in the case files document that the appellant asked each beneficiary and thus knew that both beneficiaries C.S. and M.W. were in home health episodes, the appellant’s representative (G.W.) testified that she did not know whether these two beneficiaries were in home health episodes, and testified that in C.S.’s case the record had been lost. Compare Exh. MAC-2-C.S. and Exh. MAC-2-M.W. with G.W. Testimony, ALJ Hearing at 9:58 a.m. and 10:06 to 10:08 a.m. For further example, some of G.W.’s testimony about the period in which beneficiary C.S. was no longer in a Part A episode was inaccurate. Compare G.W. Testimony, ALJ Hearing at 10:06 to 10:09 a.m. with Exh. MAC-3-C.S. 
+
+Following the hearing, the ALJ issued three decisions. In all three cases, the ALJ decided that the supplies could be “partially paid,” despite the fact that each beneficiary was in a Part A episode on the date of service. See, e.g., C.S. Dec. at 4-5. The ALJ ordered Medicare payment for the part of the supplies proportional to the number of days during the ninety-day period after the supplies were ordered when the beneficiary was no longer in a Part A episode. Id. at 4. The ALJ made factual findings as to how many days in each case the beneficiary was no longer in a Part A episode during the ninety days following the date of service. E.g., id. at 2, 4. Some of these factual findings are erroneous. The ALJ also made the following factual finding in each of the three cases: “There is no evidence that the Appellant attempted to determine if the beneficiary was receiving Home Health Services prior to providing the items at issue.” E.g., id. at 4. This factual finding is erroneous in all three cases. See Exh. MAC-2-C.S.; Exh. MAC-2-M.W.; and Exh. MAC-2-B.P. Each of these documents show that the appellant did attempt to learn if the beneficiary was receiving home health services prior to providing the supplies. The documents also show that in two of the three cases the appellant learned the beneficiary was already receiving home health services. In the third case the 5
+
+beneficiary was not receiving home health services, but entered the hospital for surgery shortly thereafter. Finally, in all three cases the ALJ determined that the appellant is fully liable for the portion of the charges that the ALJ found non-covered, “as § 1879 of the Act applies to this claim.” Dec. at 2. This determination is also in error in the two overpayment cases (C.S. and M.W.), for the reasons explained below. 
+
+In the memorandum accompanying its request for own motion review, CMS contends that the ALJ erred as a matter of law in allowing partial payment for the claims at issue, because this decision is contrary to Medicare claims processing and payment guidelines that specify how, and under what limited circumstances, Medicare pays DMEPOS claims with dates of service overlapping a Part A stay. CMS also asserts that even if the ALJ were correct in apportioning payment of these claims, he erred in: (a) relying on third-party eligibility reports or unsupported testimony in determining the days the beneficiary was eligible for Part B coverage of supplies; (b) relying on reports that only contain information about home health episodes (and not other types of Part A episodes, such as hospitalizations); and (c) finding that beneficiary C.S. was only in a home health episode for thirty-eight days. Exh. MAC-1 at 3-12. 
+
+APPLICABLE LAW AND MEDICARE POLICY 
+
+Consolidated Billing Provisions in the Medicare Statute 
+
+Section 1862 of the Act specifies items or services excluded from Medicare coverage. Relevant here, subsection (a)(14) prohibits payment for items or services (other than physicians’ services) which are furnished to an individual who is a patient of a hospital or critical access hospital unless the items or services they are furnished under arrangements with the hospital. Subsection (a)(21) prohibits payment for items or services which are furnished to an individual who is under a home health plan of care unless the claim for payment for such services is submitted by the HHA. 
+
+In both situations, any items or services furnished are subject to consolidated billing under a prospective payment system (PPS) for Part A services. Thus, in general, a Part B supplier furnishing items to a beneficiary receiving Part A services at an HHA or SNF is not entitled to separate payment, unless an 6
+
+exception applies. Urological supplies (such as catheters) and ostomy supplies are, by definition, included in hospital and home health benefits. Medical supplies of this type (which are not durable medical equipment), are generally not exempted from consolidated billing and thus are not separately reimbursable. 
+
+See Act, §§ 1861(b) and 1861(m)(5), defining services and supplies within the scope of hospital consolidated billing and home health consolidated billing. 
+
+Medicare Claims Processing Manual (MCPM): Responsibilities of Suppliers Subject to Consolidated Billing 
+
+Suppliers subject to Part A consolidated billing, such as the appellant, are responsible, along with the Part A provider, for ensuring services subject to consolidated billing are billed correctly. See MCPM, Ch. 6, § 10.4.2; Ch. 10, § 20.1.2. According to the MCPM, 
+
+[P]rior to furnishing services to a Medicare beneficiary, the supplier should routinely ascertain whether the beneficiary is currently receiving any comprehensive Medicare benefits (such as SNF or home health benefits) for which Medicare makes a bundled payment that could potentially include the supplier’s services. If the supplier ascertains that a particular beneficiary is, in fact, a resident of a SNF with which the supplier does not have a valid arrangement in place, then the supplier should contact the SNF before actually furnishing any services to that beneficiary that are subject to the consolidated billing provision. 
+
+MCPM, Ch. 6, § 10.4.2. 
+
+Further, the MCPM provides instructions for suppliers subject to HHA consolidated billing, and states that to determine if a beneficiary is under a home health plan of care, the supplier should: (1) ask the beneficiary; (2) contact the Medicare contractor; and (3) “as a last resort,” the supplier may “request home health eligibility information available on the Common Working File.” See MCPM, Ch. 10, § 20.1.2. 
+
+As the MCPM explains: 
+
+The first avenue . . . a supplier may pursue is to ask the beneficiary (or his/her authorized representative) 7
+
+if he/she is presently receiving home health services under a home health plan of care. Beneficiaries and their representatives should have the most complete information as to whether or not they are receiving home health care. 
+
+MCPM, Ch. 10, § 20.1.2. 
+
+The MCPM goes on to explain that information about current home health episodes (and SNF stays) may also be available from Medicare contractors, via the Common Working File (CWF) or the HIPAA Eligibility Transaction System (HETS). See MCPM, Ch. 10, § 20.1.2. However, as the MCPM states, the information in these databases is based only on claims Medicare has received from home health agencies and other Part A providers as of the day of the contact. Id. 
+
+Therefore, even if a supplier checks the CWF or HETS, the MCPM strongly cautions suppliers that the information on the CWF and HETS is supplementary to the previously existing sources of information about home health episodes, and “is only as complete and timely as billing by providers allows it to be.” See MCPM, Ch. 10, § 20.1.2. There will always be a lag time between the date a beneficiary is first admitted to a hospital, home health, or other Part A provider, and the date the Part A provider submits a claim, so that the CWF can be updated to reflect billing for such care. As a result, the manual reminds suppliers that a beneficiary remains “the first and best source of information about a beneficiary’s home health status.” Id. 
+
+Medicare guidelines also state that a supplier’s remedy if a duplicate payment is made for an item, and recouped, is to obtain payment from the SNF or HHA. See MCPM, Ch. 6, § 10.4. 
+
+Section 1870 of the Act: Waiver of Recoupment of Overpayments 
+
+Section 1870(b) of the Act is applicable to cases in which overpayment assessments were made, and it provides that: 
+
+(b) where – 
+
+(1) more than the correct amount is paid under this title to a provider of services or other person for items or services furnished an individual and the Secretary determines (A) that, within such period as he may specify, the excess 8
+
+over the correct amount cannot be recouped from such provider of services or other person, or (B) that such provider of services or other person was without fault with respect to the payment of such excess over the correct amount . . . 
+
+proper adjustments shall be made, under regulations prescribed . . . by the Secretary. 
+
+Section 1870(b) provides for a waiver of recoupment for an overpayment in certain circumstances where a provider or supplier is “without fault.” The Medicare Financial Management Manual (MFMM) instructs that a provider or supplier is without fault when the provider or supplier exercised reasonable care in billing for, and accepting the payment, because: 
+
+• It made full disclosure of all material facts; and 
+
+• On the basis of the information available to it, including but not limited to, the Medicare instructions and regulations, it had a reasonable basis for assuming that the payment was correct, or, if it had reason to question the payment; it promptly brought the question to the [contractor’s] attention. 
+
+MFMM (CMS Pub. No. 100-06), Ch. 3, § 90. 
+
+DISCUSSION 
+
+Medicare’s Consolidated Billing and Prospective Payment Law and the Medicare Benefit Policy Manual Do Not Allow a Part B Supplier to Seek Coverage for Supplies Provided on a Date of Service When the Beneficiary Is in a Part A Episode 
+
+It is undisputed that the beneficiary in each of these three cases was in a Part A episode on the date of service. This means in two cases the appellant shipped the supplies on dates of service when the beneficiary was in home health care, and in the third case the appellant shipped the supplies on a date of service when the bene was in an inpatient hospital stay. In fact, in the first two cases, the appellant knew that the beneficiary was in home health care because the appellant had asked and the beneficiary (or his or her representative) had responded in the affirmative. See Exh. MAC-2-C.S., and Exh. MAC-2-M.W. In the third case, on or about April 12, 2011, beneficiary B.P. (or his representative) responded that he was 9
+
+not in home health care. See Exh. MAC-2-B.P. There are no records in the B.P. case file to document that the appellant sought information from any other sources, or information about potential hospitalization. However, by April 21, 2011, when the supplies were shipped, the beneficiary had been hospitalized, and underwent colorectal surgery necessitated by Crohn’s disease. B.P. Case File, Exh. 2 at 2-4. 
+
+Because the beneficiary was in a Part A episode on the date of service in each case, the appellant’s claims were denied pursuant to section 1862(a)(14) and (21) of the Act, which do not allow payment to entities other than a hospital or home health agency for services and supplies that are subject to consolidated billing. 
+
+Beginning in 1983, Congress took a series of steps to mandate consolidated billing, using a prospective payment system, for hospital services to Medicare beneficiaries, as well as for hospice, skilled nursing facility, and home health services. 
+
+See, e.g., Sections 1886(d) and (g) of the Act (hospitals); and Section 1842(b)(6)(F) of the Act (home health services). The primary purpose of consolidated billing and prospective payment systems is to curtail and contain medical care costs and provide incentives for efficiency. See Transitional Hospitals Corporation of Louisiana, Inc. v. Shalala, 222 F.3d 1019, 1021 (D.C. Cir. 2000) (citing Congressional concern that hospitals had lacked incentives to operative efficiently); Final Rule: Medicare Program; Prospective Payment System for Home Health Entities, 65 Fed. Reg. 41128 (July 3, 2000)(implementing the consolidated billing, prospective payment system for home health agencies as mandated by section 4603 of the Budget Act of 1997, as amended). 
+
+Under the consolidated billing and prospective payment rules, a Part B supplier is not allowed to furnish (and bill for) routine medical supplies (such as ostomy or urological supplies) that would be provided by the Part A entity if the beneficiary were in a Part A episode (such as a hospital inpatient stay or home health episode). See sections 1862(a)(14( and (a)(21) of the Act; Pub. 100-4, Medicare Claims Processing Manual (MCPM), Chapter 10, §§ 20, 20.1.1. Instead, it is the Part B supplier’s responsibility (here, the appellant’s responsibility) to ascertain whether the beneficiary is in a Part A episode, before furnishing the supplies. See MCPM, Chapter 10, § 20.1.2; see also section 1833(e) of the Act (responsibility of provider or 10 
+
+supplier to furnish information necessary to document Medicare coverage). 
+
+The Medicare Claims Processing Manual provides instructions for obtaining information about whether a beneficiary is in a hospital stay, home health episode, or other Part A stay. See 
+
+MCPM, Chapter 10, § 20.1.2. According to the MCPM, the first (and often the best) source is to ask the beneficiary (or his or her representative), if he or she is currently receiving hospital, home health, or other Part A services. Id. The MCPM also states that institutional providers may access information about a beneficiary’s use of Part A services via the Common Working File (CWF), and for independent therapists and suppliers, via the HIPAA standard eligibility transaction (the 270/271 transaction). Id. 
+
+However, as CMS h as explained repeatedly (in the Manuals and other publications) the information aggregated in Medicare’s Common Working File is only as current as each submitting Part Aprovider is current in filing claims. MCPM, Chapter 10, § 20.1.2. If a beneficiary enters a home health episode, or a hospital, and the Part A provider does not file a claim with a Medicare contractor until days, weeks, or even months later (which is permitted), then that beneficiary’s Part A service(s) will not be listed in the Common Working File in “real time” (that is, while the beneficiary is still in home health or the hospital). Id. Instead, that beneficiary’s Part A service(s) 
+
+will not be listed until months later. Id. 1
+
+In this case, the appellant initially followed the guidance in the MCPM, and contacted the beneficiaries to ask if they were in a home health episode, as prompted by the appellant’s own Order Form. See, e.g., M.W. Case File, Exh. MAC-2-M.W.; C.S. Case File, Exh. MAC-2-C.S. However, in two of the cases, after receiving and recording an answer of “Yes [a home health                                                                                                                                      
+
+> 1In the present case, neither the appellant, nor the contractor’s representative (from Noridian Administrative Services), nor the ALJ understood that the reason the Common Working File is not “fully up to date” is that providers and suppliers do not submit claims until days, weeks, or months after they start providing services. Instead, the appellant, the Noridian representative, and the ALJ complained that the CMS staff members administering the Common Working File just aren’t working hard enough to keep it up to date. [Sic.] CD Recording of ALJ Hearing, March 5, 2014 (ALJ Hearing), at 10:10 to 10:13 a.m. The ALJ assumed (erroneously) that the staff members administering the CWF are not updating it on adaily basis.
+> Id. at 10:13 a.m. However, according to the MCPM, the CWF Master Record is updated daily with data from adjusted and approved claims. MCPM, Chapter 27, §10. 11
+
+provider is currently seeing the beneficiary],” the appellant ignored that information and shipped the Part B routine medical supplies that same day nevertheless. Id. The appellant also contacted the third beneficiary to ask if he was in a home health episode. B.P. Case File, Exh. 2 (“Medical Records”), imprint page numbers 83, 84. There is no evidence that the appellant asked the third beneficiary if he was in any other type of Part A episode, such as a hospital or hospice stay. Id. 
+
+The beneficiary answered “No” to the question about home health care on April 12, 2011, but then entered the hospital for surgery on April 20, 2011, and the supplies were delivered to his home on April 21, 2011. B.P. Case File, Exh. MAC-2-B.P., and Exh. 2 at 2-4. 
+
+Pursuant to the authorities identified above, Medicare cannot cover the routine medical supplies the supplier furnished to the beneficiaries while they were in a Part A episode, governed by consolidated billing and the prospective payment system. Once the appellant realized that this was the case, it made an alternate request. It asked that Medicare cover, or provide reimbursement for, the supplies that each beneficiary would have used on any of the ninety days following the date of service when he or she was not in a Part A episode. See Requests for Reconsideration - C.S. Case, Exh. 2 at 6; B.P. Case, Exh. 1 at 11; and M.W. Case, Exh. 1 at 16. 
+
+There are three problems with this request for “partial payment.” First, the appellant (and later the ALJ also) erred in determining the number of days the beneficiaries were not in Part A episodes, and therefore arguably eligible for “partial payment.” For example, the appellant asserted that beneficiary C.S. was only in a home health episode for thirty-eight days, and requested reimbursement for fifty-two days’ worth of supplies. C.S. Case, Exh. 2 at 3. The ALJ apparently confused that hearing request (dated October 30 and filed November 9, 2012) with another hearing request (filed October 22, 2012), where the appellant asserted that the beneficiary was only in a home health episode for twelve days. Dec. at 2, 4. Both the appellant and the ALJ were wrong; the appellant’s own report shows that the beneficiary had eight conterminous and uninterrupted episodes of home health care, from July 6, 2010 through November 5, 2011. C.S. Case, Exh. MAC-3-C.S. There were no days in the ninety day period following the date of service for the routine medical supplies in which beneficiary C.S. was not in a home health episode. Id. 12 
+
+Second, and more importantly, the Medicare laws, regulations, and payment provisions in the Medicare manuals do not allow for “partial payments” when Part B suppliers err in furnishing routine medical supplies to beneficiaries who are in Part A stays or episodes on the date of service. Sections 1862(a)(14) and (21) of the Act state clearly and unequivocally that no payment may be made under Part A or Part B for any expenses incurred for items or services furnished to an individual who is a hospital patient or who is under a home health agency plan of care. The date of service for the Part B routine supplies is the key in determining when the Part B supplies were furnished .In fact, the date of service, i.e., when the item was furnished, is the only date that matters for Part B billing purposes here. 
+
+For example, the MCPM provides: 
+
+Home health consolidated billing editing is applied when the episode claim has been received and processed in the CWF. Edits are applied if the [Part B] claim subject to consolidated billing contains dates of service between and including the [Part A] episode start date and the last billable service date for the [Part A] episode if the patient is discharged or transferred, the [Part A] episode end date is used for editing purposes. . . . CWF sends information to contractors that enable[s] them to reject or deny line items on claims subject to consolidated billing. 
+
+MCPM, Chapter 10, § 20.2. (emphasis added). The MCPM further explains that the CWF will reject a DMERC claim that contains DMEPOS HCPCS codes when the DMERC has a date of service that falls within the inpatient stay. 
+
+The Appellant Part B Supplier Here Is Seeking to Bill in Advance; This Is Not Allowed_ 
+
+The urological and ostomy supplies at issue in these three cases were ordered and shipped in regular quantities for three months or ninety days. See, e.g., C.S. Case File, Exh. MAC-2-C.S. As noted above, the appellant originally filed claims for these regular quantities, and only sought to request payment for lesser quantities after it learned about its errors in providing supplies to beneficiaries already in Part A episodes. In a situation where a supplier has billed Medicare for supplies, and then learns that the beneficiary has been in one or more Part A 13 
+
+episodes but the episodes have concluded, that supplier cannot ask that the bill (already submitted) be used to cover the “balance” of supplies. The reason is simple. A Part B supplier cannot bill in advance, hoping (but not knowing) that supplies will be needed and covered at a later date. As explained above, coverage and payment are determined by the date of service. 
+
+Under limited circumstances, Medicare allows a DMEPOS supplier to deliver durable medical equipment, prosthetics, and orthotics, but not supplies , to a beneficiary who is in an inpatient facility. See MCPM, Chapter 20, §§ 110.3 to 110.3.3. Pre-discharge delivery of durable medical equipment is appropriate when the item is medically necessary for the beneficiary’s use in his or her home, is necessary on the date of discharge, and is delivered to the facility for purposes of fitting and training. Id. at 110.3.1. However, the MCPM is very clear that medical supplies, including routine medical supplies, cannot be furnished while the beneficiary is in a Part A episode. Id. at 110.3 and 110.3.1. 
+
+There is no good reason to alter the current system to provide for billing in advance, or “partial payments” of the kind the appellant requests. The appellant in this case filed a claim for payment for ninety days’ worth of supplies for each beneficiary, and only altered its request at the ALJ level, after it understood that it had erred in furnishing supplies to beneficiaries in Part A episodes. Since the purpose of consolidated billing and prospective payment systems is to curtail inefficiencies and unnecessary costs, it would be inconsistent with that purpose to provide partial payment in these circumstances. First, it would reduce or eliminate the incentive for Part B suppliers to use care in ascertaining whether a beneficiary is already receiving the necessary routine supplies in a Part A episode. Second, it would reward the Part B supplier with partial payment for furnishing supplies to a beneficiary who is in a Part A episode and thus already has a single, approved source for those supplies --- a source covered by consolidated billing. Third, allowing partial payment would introduce inefficiencies and mistakes into the Medicare claims process based on the date of service, because claimants would be altering their requests and calculating changing amounts of “partial payment” long after the contractor’s initial determination. 14 
+
+There is, nevertheless, a way for a beneficiary to secure routine medical supplies, such as the ostomy and urological supplies at issue in this case, after a beneficiary’s Part A episode ends. Immediately following his or her discharge from the Part A episode, the beneficiary can order the supplies, and inform the Part B supplier that the Part A episode has ended. Any items delivered after discharge would not have a date of service within a consolidated billing period. 
+
+LIABILITY 
+
+In all three cases, the ALJ ordered partial payment (for supplies that might have been used during the part of the ninety day period when the beneficiary was no longer in a Part A episode. In all three cases, the ALJ also found that, “The appellant was fully liable for the remaining charges as § 1879 of the Act applies to this claim.” C.S. Dec. at 2-3; B.P. Dec. at 2-4; and M.W. Dec. at 2-4. 
+
+In all three decisions, the appellant erred in analyzing the liability issue under section 1879 of the Act. Section 1879 does not apply where coverage for services or supplies is denied pursuant to § 1862(a)(14), because the beneficiary is in a hospital inpatient stay, or denied pursuant to § 1862(a)(21), because the beneficiary is in a home health episode. In the B.P. case, involving a denial of the appellant’s claim for Medicare coverage, the appellant will bear its own responsibility for the costs of the ninety days’ worth of supplies. In the C.S. and M.W. cases, where overpayments were assessed, section 1870 can be applied to determine whether the overpayment can be waived. However, as the ALJ found in all three cases, the appellant was not without fault in causing the overpayment, and therefore cannot obtain a waiver. C.S. Dec. at 2, 4; M.W. Dec. at 2, 5. 
+
+(Continued on next page.) 15 
+
+DECISION 
+
+The Medicare Appeals Council reverses the decisions of the ALJ in these three cases (as listed on the attached Beneficiary List). The Council has concluded that none of the supplies ordered for the three beneficiaries who were in Part A stays or episodes on each date of service is covered by Medicare pursuant to sections 1862(a)(14) and (21) of the Act. The appellant is responsible for the non-covered charges in all three cases. 
+
+MEDICARE APPEALS COUNCIL 
+
+/s/ Clausen J. Krzywicki Administrative Appeals Judge 
+
+/s/ Leslie A. Sussan, Member Departmental Appeals Board 
+
+Date: September 5, 2014

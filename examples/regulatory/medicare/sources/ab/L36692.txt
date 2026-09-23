@@ -1,0 +1,106 @@
+LCD L36692: Vitamin D Assay Testing
+Contractors: Noridian Healthcare Solutions, LLC
+Effective: 2025-08-14 00:00:00
+
+=== indication ===
+Vitamin D is called a "vitamin" because of its exogenous source, predominately from oily fish in the form of vitamin D 2 and vitamin D 3 . It is more accurate to consider fat-soluble Vitamin D as a steroid hormone, synthesized by the skin and metabolized by the kidney to an active hormone, calcitriol. Clinical disorders related to vitamin D may arise because of altered availability of the parent vitamin D, altered conversion of vitamin D to its predominant metabolites, altered organ responsiveness to dihydroxylated metabolites and disturbances in the interactions of the vitamin D metabolites with PTH and calcitonin. Normal levels of Vitamin D range from 20 – 50 ng/ml. This LCD identifies the indications and limitations of Medicare coverage and reimbursement for the lab assay. Indications: Measurement of 25-OH Vitamin D level is indicated for patients with: 
+ 
+ 
+ chronic kidney disease stage III or greater 
+ 
+ 
+ 
+ 
+ cirrhosis 
+ 
+ 
+ 
+ 
+ hypocalcemia 
+ 
+ 
+ 
+ 
+ hypercalcemia 
+ 
+ 
+ 
+ 
+ hypercalciuria 
+ 
+ 
+ 
+ 
+ hypervitaminosis D 
+ 
+ 
+ 
+ 
+ parathyroid disorders 
+ 
+ 
+ 
+ 
+ malabsorption states 
+ 
+ 
+ 
+ 
+ obstructive jaundice 
+ 
+ 
+ 
+ 
+ osteomalacia 
+ 
+ 
+ 
+ 
+ 
+ osteoporosis if 
+ 
+ i. T score on DEXA scan 
+ ii. History of fragility fractures or 
+ iii. FRAX > 3% 10-year probability of hip fracture or 20% 10-year probability of other major osteoporotic fracture or  
+ 
+ iv. FRAX > 3% (any fracture) with T-score 
+ v. Initiating bisphosphanate therapy (Vitamin D level should be determined and managed as necessary 
+ 
+ 
+ 
+ 
+ 
+ before bisphosphonate is initiated) 
+ 
+ osteosclerosis/petrosis 
+ rickets 
+ vitamin D deficiency on replacement therapy related to a condition listed above; to monitor the efficacy of treatment. 
+ 
+ Measurement of 1, 25-OH Vitamin D level is indicated for patients with: 
+ 
+ 
+ unexplained hypercalcemia (suspected granulomatous disease or lymphoma) 
+ 
+ 
+ 
+ 
+ unexplained hypercalciuria (suspected granulomatous disease or lymphoma) 
+ 
+ 
+ 
+ 
+ suspected genetic childhood rickets 
+ 
+ 
+ 
+ 
+ suspected tumor-induced osteomalacia 
+ 
+ 
+ 
+ nephrolithiasis or hypercalciuria 
+ 
+ Limitations: Testing may not be used for routine or other screening. Both assays of vitamin D need not be performed for each of the above conditions. Often, one type is more appropriate for a certain disease state than another. The most common type of vitamin D deficiency is 25-OH vitamin D. A much smaller percentage of 1, 25-dihydroxy vitamin D deficiency exists; mostly, in those with renal disease. Although it is not the active form of the hormone, 25-OH vitamin D is much more commonly measured because it better reflects the sum total of vitamin D produced endogenously and absorbed from the diet than does the level of the active hormone 1, 25-dihydroxy vitamin D. Deficiency of 1, 25-dihydroxy vitamin D, which is present at much lower concentrations, does not necessarily reflect deficiency of 25-OH vitamin D and its measurement should be limited to the indications listed. Documentation must justify the test(s) chosen for a particular disease entity. Various component sources of 25-OH vitamin D, such as stored D or diet-derived D, should not be billed separately. Once a beneficiary has been shown to be vitamin D deficient, further testing may be medically necessary only to ensure adequate replacement has been accomplished. If Vitamin D level is between 20 and 50 ng/ml and patient is clinically stable, repeat testing is often unnecessary; if performed, documentation most clearly indicate the necessity of the test. If level 60 ng/ml, a subsequent level(s) may be reimbursed until the level is within the normal range.
+
+=== associated_info ===
+Documentation must clearly indicate the necessity for the test(s), any and all repeat testing and frequency of testing. The medical record must be made available to Medicare upon request.

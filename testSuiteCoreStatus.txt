@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      core (this repository alone; extension-dependent trees excluded)
 Command:    testing/run_tests.sh le   (or: runTests)
 Sibling:    testSuiteStatus.txt — all (core + trees requiring the proprietary le_extensions.pl)
-Generated:  2026-09-23 06:00:59 UTC
+Generated:  2026-09-23 09:40:37 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 199
-Total tests:     1057
-Passed:          1057
+Files processed: 351
+Total tests:     2599
+Passed:          2599
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -113,6 +113,146 @@ Detailed File Summary:
   [PASS] examples/regulatory/sections_benefit.le: 8 Pass, 0 Fail, 0 Error
   [NONE] examples/regulatory/semantic_llm.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/regulatory/semantic_match.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/customs/apparel_cbp.le: 32 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/customs/apparel_ebti.le: 13 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/customs/by_hand.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/customs/cbp_39.le: 45 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/customs/cbp_61.le: 50 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/customs/cbp_62.le: 30 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/customs/chapter_39.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/customs/chapter_61.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/customs/chapter_62.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/customs/gri.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/customs/heldout_apparel_cbp.le: 11 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/customs/heldout_cbp_2.le: 25 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/customs/heldout_plastics_cbp.le: 5 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/customs/plastics_cbp.le: 22 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/customs/plastics_ebti.le: 4 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/customs/section_xi.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/customs/tariff.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/aeds.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/aeds_cases.le: 24 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/afo_kafo.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/afo_kafo_cases.le: 25 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/all_cases.le: 7 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/blind_extraction.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/bowel_management.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/bowel_management_cases.le: 22 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/breast_prostheses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/breast_prostheses_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/canes_crutches.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/canes_crutches_cases.le: 15 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/cervical_traction.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/cervical_traction_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/cold_therapy.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/cold_therapy_cases.le: 13 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/commodes.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/commodes_cases.le: 18 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/council_more.le: 29 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/council_other.le: 27 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/council_pmd.le: 26 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/council_supplies.le: 18 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/dmepos.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/dmepos_all.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/enteral_nutrition.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/enteral_nutrition_cases.le: 21 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/external_infusion_pumps.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/external_infusion_pumps_cases.le: 19 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/eye_prostheses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/eye_prostheses_cases.le: 17 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/facial_prostheses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/facial_prostheses_cases.le: 17 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/glucose_monitors.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/glucose_monitors_cases.le: 30 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/glucose_versions_cases.le: 3 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/heating_pads.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/heating_pads_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/hfcwo.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/hfcwo_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/hospital_beds.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/hospital_beds_cases.le: 32 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/immunosuppressive_drugs.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/immunosuppressive_drugs_cases.le: 19 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/infrared_heating.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/infrared_heating_cases.le: 13 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/ipv.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/ipv_cases.le: 14 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/ivig.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/ivig_cases.le: 18 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/knee_orthoses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/knee_orthoses_cases.le: 15 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/lower_limb_prostheses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/lower_limb_prostheses_cases.le: 14 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/manual_wheelchairs.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/manual_wheelchairs_cases.le: 27 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/mechanical_insufflation.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/mechanical_insufflation_cases.le: 14 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/nebulizers.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/nebulizers_cases.le: 31 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/npwt.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/npwt_cases.le: 26 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/oral_anticancer.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/oral_anticancer_cases.le: 19 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/oral_antiemetic.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/oral_antiemetic_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/oral_appliances.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/oral_appliances_cases.le: 14 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/orthopedic_footwear.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/orthopedic_footwear_cases.le: 15 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/osteogenesis_stimulators.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/osteogenesis_stimulators_cases.le: 14 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/ostomy_supplies.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/ostomy_supplies_cases.le: 19 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/oxygen.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/oxygen_cases.le: 20 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/pap.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/pap_cases.le: 20 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/parenteral_nutrition.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/parenteral_nutrition_cases.le: 17 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/patient_lifts.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/patient_lifts_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/pmd.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/pmd_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/rad.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/rad_cases.le: 24 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/refractive_lenses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/refractive_lenses_cases.le: 13 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/seat_lifts.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/seat_lifts_cases.le: 22 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/speech_generating_devices.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/speech_generating_devices_cases.le: 13 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/spinal_orthoses.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/spinal_orthoses_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/suction_pumps.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/suction_pumps_cases.le: 17 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/support_surfaces.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/support_surfaces_cases.le: 29 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/surgical_dressings.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/surgical_dressings_cases.le: 18 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/tejsd.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/tejsd_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/tens.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/tens_cases.le: 15 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/therapeutic_shoes.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/therapeutic_shoes_cases.le: 27 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/tracheostomy_supplies.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/tracheostomy_supplies_cases.le: 17 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/tremor_stimulator.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/tremor_stimulator_cases.le: 15 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/tumor_treatment_field.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/tumor_treatment_field_cases.le: 14 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/urological_supplies.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/urological_supplies_cases.le: 18 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/vacuum_erection.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/vacuum_erection_cases.le: 16 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/vitamin_d.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/vitamin_d_cases.le: 32 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/walkers.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/walkers_cases.le: 22 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/wheelchair_options.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/wheelchair_options_cases.le: 24 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/medicare/wheelchair_seating.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/medicare/wheelchair_seating_cases.le: 30 Pass, 0 Fail, 0 Error
   [NONE] examples/migration/legalruleml/ex8_defeasible/deontic.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/legalruleml/ex8_defeasible/ex8_defeasible.le: 4 Pass, 0 Fail, 0 Error
   [NONE] examples/migration/legalruleml/ex5_section29new/deontic.le: 0 Pass, 0 Fail, 0 Error
@@ -152,6 +292,18 @@ Detailed File Summary:
   [PASS] examples/migration/blawx/oasa/oasa.le: 20 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/blawx/siblings/siblings.le: 10 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/blawx/numerical_constraints/numerical_constraints.le: 11 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/oipa/annuity_deposit/annuity_deposit.le: 12 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/oipa/annuity_deposit/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/oipa/termlife_grace_check/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/oipa/termlife_grace_check/termlife_grace_check.le: 6 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/oipa/termlife_premium_payment/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/oipa/termlife_premium_payment/termlife_premium_payment.le: 12 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/oipa/annuity_full_surrender/annuity_full_surrender.le: 3 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/oipa/annuity_full_surrender/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/oipa/annuity_withdrawal/annuity_withdrawal.le: 30 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/oipa/annuity_withdrawal/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/oipa/termlife_issue/temporal.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/oipa/termlife_issue/termlife_issue.le: 40 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/miniscript/bolt3_received_htlc/bolt3_received_htlc.le: 25 Pass, 0 Fail, 0 Error
   [NONE] examples/migration/miniscript/bolt3_received_htlc/temporal.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/miniscript/liana_inheritance/liana_inheritance.le: 39 Pass, 0 Fail, 0 Error

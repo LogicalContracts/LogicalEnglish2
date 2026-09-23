@@ -1,0 +1,99 @@
+{
+  "counts": {"approximated":0,"encoded":9,"residue":0},
+  "entries": [
+    {
+      "element":"GraceCheck/Transaction.xml MathVariable EffectiveDateMV",
+      "in_program":"EffectiveDateMV",
+      "kind":"mathvariable",
+      "mapping":"FIELD -> the activity field EffectiveDate, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"GraceCheck/Transaction.xml MathVariable PaidToDateMV",
+      "in_program":"PaidToDateMV",
+      "kind":"mathvariable",
+      "mapping":"POLICYFIELD -> the policy field PaidToDate the activity finds, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"GraceCheck/Transaction.xml MathVariable PolicyStatusMV",
+      "in_program":"PolicyStatusMV",
+      "kind":"mathvariable",
+      "mapping":"POLICYFIELD -> the policy field PolicyStatus the activity finds, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"GraceCheck/Transaction.xml MathVariable GracePeriodDaysMV",
+      "in_program":"GracePeriodDaysMV",
+      "kind":"mathvariable",
+      "mapping":"PLANFIELD -> the plan field GracePeriodDays, a fact of the program (PlanFields.csv)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"GraceCheck/Transaction.xml MathVariable DaysPastDueMV",
+      "in_program":"DaysPastDueMV",
+      "kind":"mathvariable",
+      "mapping":"FUNCTION -> LE's date and number built-ins",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"GraceCheck/Transaction.xml MathVariable YesMV",
+      "in_program":"YesMV",
+      "kind":"mathvariable",
+      "mapping":"VALUE -> the constant Yes",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"GraceCheck/Transaction.xml MathVariable NoMV",
+      "in_program":"NoMV",
+      "kind":"mathvariable",
+      "mapping":"VALUE -> the constant No",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"GraceCheck/Transaction.xml MathVariable InGraceMV",
+      "in_program":"InGraceMV",
+      "kind":"mathvariable",
+      "mapping":"IIF -> an otherwise cascade",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"GraceCheck/SpawnActivities.xml Spawn Lapse",
+      "in_program":"Lapse",
+      "kind":"spawn",
+      "mapping":"Spawn -> `the activity spawns the transaction` (only an activity that fails no check)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":6,
+    "tests": [
+      {"detail":"","query":"days_past_due","result":"pass","scenario":"monthly_payer_g1"},
+      {"detail":"","query":"in_grace","result":"pass","scenario":"monthly_payer_g1"},
+      {"detail":"","query":"spawns","result":"pass","scenario":"monthly_payer_g1"},
+      {"detail":"","query":"days_past_due","result":"pass","scenario":"monthly_payer_g2"},
+      {"detail":"","query":"in_grace","result":"pass","scenario":"monthly_payer_g2"},
+      {"detail":"","query":"spawns","result":"pass","scenario":"monthly_payer_g2"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["GraceCheck/Transaction.xml" ],
+    "date":"2026-09-23",
+    "program":"termlife_grace_check",
+    "source":"an OIPA transaction (Rules Palette XML)",
+    "translator":"lpsPlus/migration/oipa (oipa_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":2
+}

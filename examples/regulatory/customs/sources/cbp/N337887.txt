@@ -1,0 +1,52 @@
+CBP ruling NY N337887 (2024-02-26): The tariff classification of polyvinyl chloride film and poly(ethylene terephthalate) film from China
+https://rulings.cbp.gov/ruling/N337887 — text as served by https://rulings.cbp.gov/api/ruling/N337887
+
+N337887 
+
+February 26, 2024 
+
+CLA-2-39:OT:RR:NC:N:5:137
+
+CATEGORY: Classification
+
+TARIFF NO.: 3920.49.0000; 3920.62.0090, 9903.88.02
+
+Daniel Nolan
+NTG Air & Ocean LLC
+2734 Chancellor Drive, Suite 109Crestview Hills, KY 41017
+
+RE:  The tariff classification of polyvinyl chloride film and poly(ethylene terephthalate) film from China
+
+Dear Mr. Nolan:
+
+In your letter dated January 16, 2024, you requested a tariff classification ruling on behalf of your client, DB Print Supply. Samples of each of the films were provided and will be retained by this office.
+
+Item 1 is referred to as UV Blue Film. The sample is a thin transparent film noted to be composed of polyvinyl chloride (PVC) with a thickness of 0.08 mm. It will be imported in rolls.
+
+Item 2 is referred to as UV Sticky Film. The sample is a two-layer film noted to be composed of a 0.075 mm polyethylene terephthalate (PET) film with a 0.013 mm polyurethane acrylate coating attached to a clear acrylic release film. It will be imported in rolls. After importation the product will be combined with the UV Blue film to manufacture UV transfer stickers for printing on hard surfaces.
+
+Item 3 is referred to as DTF Transfer Film. The sample is noted to be a 0.058 mm PET film with a 0.017 mm coating of acrylic resin and silica. The product will be used on a wide format DTF printer to manufacture DTF transfers for printing shirts. It will be imported on rolls.
+
+The applicable subheading for Item 1, UV Blue film, will be 3920.49.0000, Harmonized Tariff Schedule of the United States (HTSUS), which provides for other plates, sheets, film, foil and strip, of plastics, noncellular and not reinforced, laminated, supported or similarly combined with other materials: of polymers of vinyl chloride: other. The general rate of duty will be 5.8 percent ad valorem.
+
+The applicable subheading for Item 2, UV Sticky film, and Item 3, DTF Transfer film will be 3920.62.0090, HTSUS, which provides for other plates, sheets, film, foil and strip, of plastics, noncellular and not reinforced, laminated, supported or similarly combined with other materials: of poly (ethylene terephthalate): other. The general rate of duty will be 4.2 percent ad valorem.
+
+Pursuant to U.S. Note 20 to Subchapter III, Chapter 99, HTSUS, products of China classified under subheading 3920.49.0000 and 3920.62.0090, HTSUS, unless specifically excluded, are subject to an additional 25 percent ad valorem rate of duty. At the time of importation, you must report the Chapter 99 subheading, i.e., 9903.88.02, in addition to subheading 3920.49.0000 or 3920.62.0090, HTSUS, listed above.
+
+The HTSUS is subject to periodic amendment, so you should exercise reasonable care in monitoring the status of goods covered by the Note cited above and the applicable Chapter 99 subheading. For background information regarding the trade remedy initiated pursuant to Section 301 of the Trade Act of 1974, including information on exclusions and their effective dates, you may refer to the relevant parts of the USTR and CBP websites, which are available at https://ustr.gov/issue-areas/enforcement/section-301-investigations/tariff-actions and https://www.cbp.gov/trade/remedies/301-certain-products-china, respectively.
+
+Duty rates are provided for your convenience and are subject to change. The text of the most recent HTSUS and the accompanying duty rates are provided at https://hts.usitc.gov/current.
+
+The merchandise in question may be subject to antidumping duties and countervailing duties (AD/CVD). Written decisions regarding the scope of AD/CVD orders are issued by the Enforcement and Compliance office in the International Trade Administration of the Department of Commerce (ITA) and are separate from tariff classification and origin rulings issued by Customs and Border Protection (CBP).  General information regarding the ITA and AD/CVD can be found at https://www.trade.gov/us-antidumping-and-countervailing-duties.  The ITA’s “Guide on How to File for an Antidumping/Countervailing Duty Scope Ruling Request” is available at https://enforcement.trade.gov/scope/Request-Scope-Ruling.pdf
+
+The holding set forth above applies only to the specific factual situation and merchandise description as identified in the ruling request. This position is clearly set forth in Title 19, Code of Federal Regulations (CFR), Section 177.9(b)(1). This section states that a ruling letter is issued on the assumption that all of the information furnished in the ruling letter, whether directly, by reference, or by implication, is accurate and complete in every material respect. In the event that the facts are modified in any way, or if the goods do not conform to these facts at time of importation, you should bring this to the attention of U.S. Customs and Border Protection (CBP) and submit a request for a new ruling in accordance with 19 CFR 177.2. Additionally, we note that the material facts described in the foregoing ruling may be subject to periodic verification by CBP.
+
+This ruling is being issued under the provisions of Part 177 of the Customs and Border Protection Regulations (19 C.F.R. 177).
+
+A copy of the ruling or the control number indicated above should be provided with the entry documents filed at the time this merchandise is imported. If you have any questions regarding the ruling, please contact National Import Specialist Christina Allen at julie.c.allen@cbp.dhs.gov.
+
+Sincerely, 
+
+Steven A. Mack 
+Director 
+National Commodity Specialist Division 

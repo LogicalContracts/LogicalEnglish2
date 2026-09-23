@@ -1,0 +1,1614 @@
+Title: Greenwald v. Price – CourtListener.com
+
+URL Source: https://www.courtlistener.com/opinion/6475588/greenwald-v-price/
+
+Markdown Content:
+UNITED STATES DISTRICT COURT
+
+                        FOR THE DISTRICT OF COLUMBIA
+MICHAEL GREENWALD
+
+Plaintiff,
+
+ Civ. Action No. 17-797(EGS/RMM)
+
+ v.
+
+XAVIER BECERRA, Secretary of
+
+ the United States Department
+
+ of Health and Human Services
+
+ et al.,
+
+ Defendants. 1
+
+MEMORANDUM OPINION AND ORDER
+
+Plaintiff Michael Greenwald (“Mr. Greenwald”), a Medicare
+
+beneficiary, brings this suit to challenge the validity of a
+
+Local Coverage Determination (“LCD”) cited when he was denied
+
+Medicare coverage for a pneumatic compression device prescribed
+
+by his physician. See generally First Am. Compl. (“Compl.”), ECF
+
+No. 26. He names as defendants the Secretary of the United
+
+States Department of Health and Human Services (“HHS”)1 and the
+
+Administrator of the Centers for Medicare and Medicaid Services
+
+(“CMS”), both in their official capacities (collectively
+
+“Defendants”). Defendants move to dismiss Mr. Greenwald’s claims
+
+for lack of subject matter jurisdiction and failure to state a
+
+1 Pursuant to Federal Rule of Civil Procedure 25(d), the Court
+
+substitutes as defendant Mr. Xavier Becerra, in place of former
+
+Secretary Alex Azar.
+
+1
+
+ claim. See Defs.’ Mem. of P. & A. Supp. Mot. Dismiss (“Mot. to
+
+Dismiss”), ECF No. 27-1. On March 30, 2018, the Court referred
+
+the case to a Magistrate Judge for full case management,
+
+including a Report and Recommendation (“R. & R.”) on the pending
+
+Motion to Dismiss, and the case was randomly referred to
+
+Magistrate Judge Robin M. Meriweather. See generally, Docket for
+
+Civ. Act. No. 17-797. Pending before the Court is Defendants’
+
+Motion to Dismiss, see ECF No. 17. Magistrate Judge Meriweather
+
+issued a R. & R. recommending that this Court grant Defendants’
+
+motion since this Court lacks subject matter jurisdiction over
+
+Mr. Greenwald’s claims. See R. & R., ECF No. 47 at 1-2.
+
+Plaintiff objects to Magistrate Judge Meriweather’s R. & R. See
+
+generally Plaintiff Michael Greenwald’s Objections to the
+
+November 8, 2021 Report and Recommendations Regarding
+
+Defendants’ Motion to Dismiss the Complaint (“Pl.’s Objs.”), ECF
+
+No. 49.
+
+Upon careful consideration of the R. & R., the objections
+
+of both parties and opposition thereto, the applicable law, and
+
+the entire record herein, the Court hereby ADOPTS IN PART and
+
+REJECTS IN PART the R. & R., see ECF No. 49; and GRANTS IN PART
+
+and DENIES IN PART Defendants’ Motion to Dismiss, see ECF No.
+
+27.
+
+2
+
+ I. Background 2
+
+A. Factual Background
+
+Accepting the factual allegations in the complaint as true,
+
+as is required at this stage of proceedings, see Jerome Stevens
+
+Pharms., Inc. v. Food & Drug Admin.,
+
+[402 F.3d 1249](https://www.courtlistener.com/opinion/186422/jerome-stevens-pharmaceuticals-inc-v-food-drug-administration/)
+
+, 1253–54
+(D.C. Cir. 2005); this case stems from Mr. Greenwald’s
+
+lymphedema—a chronic medical condition that results in the
+
+accumulation of fluid in the subcutaneous tissues of his legs.
+
+See Compl., ECF No. 26 ¶¶ 1, 13, 48. Mr. Greenwald was first
+
+diagnosed with lymphedema in 2014. See
+
+[id.](https://www.courtlistener.com/opinion/186422/jerome-stevens-pharmaceuticals-inc-v-food-drug-administration/)
+
+ ¶¶ 13–14, 48. His
+physician attempted to treat the condition with compression
+
+stockings, exercise, and limb elevation. See id. ¶¶ 14, 48–49.
+
+In 2016, the physician determined these treatments had been
+
+ineffective in alleviating Mr. Greenwald’s symptoms and
+
+prescribed him a pneumatic compression device (“PCD”). See id.
+
+¶¶ 14, 52. PCDs are items of durable medical equipment designed
+
+to treat patients suffering from a range of circulatory
+
+conditions, including lymphedema. See id. at ¶ 30. They do so by
+
+intermittently inflating a garment with compressed air to
+
+2 In the interest of judicial efficiency, the Background section
+
+is adopted from Magistrate Judge Meriweather’s R. & R. See ECF
+
+No. 49.
+
+3
+
+ stimulate fluid circulation in affected parts of the body. See
+
+id. ¶ 31.
+
+Mr. Greenwald is eligible for Medicare benefits and
+
+expected his PCD prescription to be covered under Medicare Part
+
+B. See id. ¶¶ 13, 18, 24, 54. Mr. Greenwald’s coverage claim was
+
+denied, however. See id. ¶ 55. His appeal for a redetermination
+
+was also unsuccessful. See id. ¶ 56. As a result, Mr. Greenwald
+
+has paid the full cost of his prescribed PCD out-of-pocket. See
+
+id. ¶¶ 47, 63. The following description of the Medicare system
+
+provides necessary context for understanding why Mr. Greenwald’s
+
+coverage claim was denied and the nature of his suit against the
+
+Defendants.
+
+B. The Medicare Program
+
+Congress established the Medicare program in 1965 to
+
+provide health benefits to persons aged sixty-five and older who
+
+are eligible for Social Security benefits or retirement benefits
+
+under the railroad retirement system. Cal. Clinical Lab’y Ass’n
+
+v. Sec’y Health & Hum. Servs.,
+
+[104 F. Supp. 3d 66, 70](https://www.courtlistener.com/opinion/2802192/california-clinical-laboratory-association-v-secretary-of-department-of/#70)
+
+ (D.D.C.
+2015) (citing
+
+Pub. L. No. 89-97, 79
+
+ Stat. 291 (July 30, 1965)
+(codified at
+
+42 U.S.C. §§ 1395
+
+ et seq.)). Part A of the program
+covers institutional healthcare services. See 42 U.S.C. § 1395d.
+
+Part B of the program is voluntary, providing enrollees with
+
+coverage for medical professional services, outpatient and
+
+4
+
+ homecare services, and durable medical equipment that is not
+
+furnished in an inpatient setting or otherwise covered by Part
+
+A. See id. § 1395k. Part C of the program, also enrollment
+
+based, provides benefits to individuals who elect to receive
+
+coverage through private health insurance companies. See id. §§
+
+1395w-21 to 1395w-28. Both Parts B and C of the Medicare program
+
+cover durable medical equipment, including PCDs, in appropriate
+
+circumstances. See Compl., ECF No. 26 ¶ 46; see also
+
+42 C.F.R.
+§§ 410.38
+
+, 414.202.
+Those appropriate circumstances are defined in part by the
+
+Medicare Act. Relevant here, Medicare does not cover “expenses
+
+incurred for items or services which . . . are not reasonable
+
+and necessary for the diagnosis or treatment of illness or
+
+injury or to improve the functioning of a malformed body
+
+member[.]” 42 U.S.C. § 1395y(a)(1)(A). The HHS Secretary
+
+implements this rule through CMS—the agency that administers
+
+Medicare more generally. See id. § 1395b-9. CMS in turn
+
+delegates some of its responsibilities to private Medicare
+
+Administrative Contractors (“MACs”). See id. §§ 1395(u), 1395kk-
+
+1. Under this scheme, a healthcare provider who seeks payment
+
+for an item or service provided to a Medicare beneficiary
+
+submits a claim for reimbursement to the MAC authorized in the
+
+provider’s region. See id. § 1395kk-1(a). The MAC then assesses
+
+5
+
+ whether the item or service is covered by Medicare, including
+
+whether the item or service is “reasonable and necessary” under
+
+§ 1395y.
+
+The Secretary has significant control over these MAC
+
+coverage determinations. He may promulgate binding regulations
+
+regarding which items or services are covered by Medicare. See
+
+id. §§ 1395hh, 1395ff(a)(1). He may also issue binding national
+
+coverage determinations, or “NCDs,” that reflect his
+
+determination that an item or service is covered under
+
+designated medical circumstances on a nationwide basis. See id.
+
+§ 1395ff(f)(1)(B);
+
+42 C.F.R. § 405.1060
+
+(a)(4). Additionally, if
+coverage is initially denied by a MAC, a Medicare beneficiary
+
+may appeal the MAC determination to an administrative law judge
+
+(“ALJ”) housed within the Secretary’s Office of Medicare
+
+Hearings and Appeals. See
+
+id.
+
+ § 1395ff(b)(1)(E), (d)(1)(A); see
+also Am. Hosp. Ass’n v. Burwell,
+
+[76 F. Supp. 3d 43, 46](https://www.courtlistener.com/opinion/2762649/american-hospital-association-v-sebelius/#46)
+
+ (D.D.C.
+2014), rev’d on other grounds,
+
+[812 F.3d 183](https://www.courtlistener.com/opinion/3175749/american-hospital-association-v-sylvia-burwell/)
+
+ (D.C. Cir. 2016)
+(describing this process).
+
+The MACs may also develop their own guidelines for coverage
+
+determinations, known as local coverage determinations (“LCDs”).
+
+See 42 U.S.C. § 1395ff(f)(2)(B). LCDs are limited in scope,
+
+applying only on an “intermediary- or carrier-wide basis.” Id.
+
+They are meant to guide MAC administrators in determining
+
+6
+
+ whether an item or service is “covered . . . in accordance with
+
+§ 1395y(a)(1)(A)”—in other words, that an item or service is
+
+“reasonable and necessary” as required for Medicare coverage—
+
+within the MAC’s designated service area. Id.
+
+§§ 1395y(a)(1)(A); 1395ff(f)(2)(B). Individuals who believe
+
+their claim was wrongly denied pursuant to an LCD can appeal
+
+their individual coverage determination to an ALJ, and if that
+
+appeal is unsuccessful, to the HHS Departmental Appeals Board
+
+(“DAB”). Id. at § 1395ff(b)– (e);
+
+42 C.F.R. §§ 405.900
+
+ et seq.
+Neither the ALJ nor the DAB is bound by the LCD, but they cannot
+
+invalidate or set aside the LCD in its entirety. See
+
+42 C.F.R.
+§§ 405.1062
+
+(a), (c); see also Cal. Clinical Lab’y, 
+[104 F. Supp. 3d at 72](https://www.courtlistener.com/opinion/2802192/california-clinical-laboratory-association-v-secretary-of-department-of/#72)
+
+. To challenge the validity of the LCD itself, a
+Medicare beneficiary must utilize a different complaint process,
+
+appealing to an ALJ and the DAB via 42 U.S.C. § 1395ff(f)(2). If
+
+there are “no material issues of fact in dispute” and the “only
+
+issue of law” is the validity of the LCD, the Medicare recipient
+
+may also side-step the usual administrative review process and
+
+file a complaint directly with “a court of competent
+
+jurisdiction.” Id. § 1395ff(f)(3).
+
+7
+
+ C. Local and National Coverage Determinations for
+
+ Pneumatic Compression Devices, and Their Application to
+
+ Mr. Greenwald’s Claim
+
+The PCD prescribed by Mr. Greenwald’s physician is subject
+
+to both a NCD and a LCD. The relevant NCD is published in CMS’s
+
+Medicare Coverage Database. See Compl., ECF No. 26 ¶ 31; see
+
+also CMS, Nat’l Coverage Determination for Pneumatic Compression
+
+Devices, Pub. No. 100-3 § 280.6 (eff. Jan. 14, 2002) (“NCD
+
+280.6”). The relevant LCD is also available on CMS’ website, and
+
+is used by MACs serving most of the United States and its
+
+territories. See Compl. ECF No. 26 ¶¶ 33–34, 40–45; Ex. A, ECF
+
+No. 26-1 at 1 (“LCD L33829”) (listing the names and
+
+jurisdictions of MACs using the LCD); see also Compl., ECF No.
+
+26 ¶ 46 (asserting that the LCD is also used by private health
+
+insurers under Medicare Part C, “even though these LCDs are not
+
+binding on Medicare Advantage plans”). Both NCD 280.6 and LCD
+
+L33829 purport to interpret the “reasonable and necessary”
+
+requirement for Medicare coverage for PCDs. See 42 U.S.C. §§
+
+1395ff(f)(1)(B), (f)(2)(B); LCD L33829 at 1 (“The purpose of
+
+[this LCD] is to provide information regarding ‘reasonable and
+
+necessary’ criteria[.]”). The problem, according to Mr.
+
+Greenwald, is that NCD 280.6 and LCD L33829 conflict. See
+
+Compl., ECF No. 26 ¶¶ 5, 6; Mem. of P. & A. in Supp. of Mot. for
+
+Summ. J. and in Opp’n to Defs.’ Mot. to Dismiss (“Pl.’s Opp’n”),
+
+8
+
+ ECF No. 29 at 29. Mr. Greenwald alleges the LCD “introduced new
+
+legal standards for determining Medicare coverage that were not
+
+included or mentioned in [the] NCD.” Id. at 24. These standards
+
+are substantive, he says, because they add additional
+
+requirements for coverage for a PCD instead of merely
+
+interpreting the guidance in the NCD. See id. at 36; Surreply,
+
+ECF No. 48 at 6. For this reason, when a MAC applied LCD L33829
+
+to Mr. Greenwald’s claim for coverage for his PCD, the claim was
+
+denied even though Mr. Greenwald insists it might have been
+
+approved under the less restrictive NCD 280.6. See Compl., ECF
+
+No. 26 ¶¶ 54–55, 57; Pl.’s Opp’n, ECF No. 29 at 26. That initial
+
+determination was upheld at the redetermination stage, also
+
+based on LCD L33829. See Compl., ECF No. 26 ¶ 56; see also
+
+Compl. Ex. C, ECF No. 26-3 at 3.
+
+D. Procedural Background
+
+Mr. Greenwald did not request reconsideration of his
+
+coverage redetermination. See Compl., ECF No. 26 ¶¶ 55–57; Mot.
+
+to Dismiss, ECF No. 27-1 at 8–9. He instead brought this civil
+
+action to challenge the overarching validity of LCD L33829. See
+
+generally Compl., ECF No. 26. The suit is not an appeal of Mr.
+
+Greenwald’s individual coverage determination, but a claim that
+
+LCD L33829 is invalid as a general matter, whether applied to
+
+Mr. Greenwald or to another. See id. at Prayer for Relief. Mr.
+
+9
+
+ Greenwald’s theory is that, because LCD L33829 imposed new
+
+substantive requirements for Medicare coverage for PCDs, the
+
+Defendants were required to follow rulemaking procedures in the
+
+Administrative Procedure Act and Social Security statutes. See
+
+Pl.’s Opp’n, ECF No. 29 at 29; Surreply, ECF No. 48 at 6. Mr.
+
+Greenwald asks this Court to conclude that LCD L33829 is invalid
+
+as a matter of law because these procedures were not followed.
+
+See id. Mr. Greenwald’s complaint was filed in April 2017. See
+
+Compl., ECF No. 1. After several extensions of their time to
+
+respond, Defendants filed a Rule 12 motion to dismiss Mr.
+
+Greenwald’s complaint. See Mot. to Dismiss, ECF No. 20. Mr.
+
+Greenwald amended his complaint soon thereafter. 3 See Compl., ECF
+
+No. 26. This Court then dismissed the Defendants’ motion to
+
+dismiss as moot, see Min. Order (Mar. 12, 2018); and Defendants
+
+filed a renewed motion to dismiss Mr. Greenwald’s amended
+
+complaint for lack of subject matter jurisdiction and failure to
+
+state a claim. See Mot. to Dismiss, ECF No. 27-1. Mr. Greenwald
+
+responded to the Defendants’ motion and moved for entry of
+
+summary judgment. See Pl.’s Opp’n, ECF No. 29. The Court stayed
+
+Mr. Greenwald’s summary judgment motion pending resolution of
+
+3 Additional defendants named in Mr. Greenwald’s first complaint
+
+were dismissed by stipulation in August 2017. See ECF No. 16.
+
+10
+
+ the Defendants’ renewed motion to dismiss and directed
+
+Defendants to file their reply specifically for the motion to
+
+dismiss. See Min. Order (Feb. 12, 2018). After Defendants filed
+
+their reply, see Defs.’ Reply, ECF No.33; Mr. Greenwald
+
+requested leave to file a sur-reply in further opposition to
+
+Defendants’ motion to dismiss, see Mot. for Leave to File a Sur-
+
+reply, ECF No. 34; which Defendants opposed, see Defs.’ Response
+
+to Pl.’s Mot. for Leave to File Sur-Reply, ECF No. 35. This case
+
+was referred to a Magistrate Judge for full case management, up
+
+to but excluding trial, pursuant to Local Civil Rule 72.2. See
+
+Min. Order (Mar. 30, 2018). Following the assignment of the case
+
+to Magistrate Judge Meriweather, see Min. Entry (Mar. 30, 2018),
+
+the parties filed two notices of supplemental authority and a
+
+response thereto. See ECF Nos. 37, 38, 40. After reviewing these
+
+initial briefs, Magistrate Judge Meriweather requested
+
+supplemental briefing on an issue raised by the parties’
+
+memoranda. See ECF No. 42. The parties’ responsive briefs were
+
+filed in December 2020. See ECF Nos. 43, 44. On November 8,
+
+2021, Magistrate Judge Meriweather entered an order granting Mr.
+
+Greenwald’s motion for leave to fire a sur-reply. See Min. Order
+
+(Nov. 8, 2021). Magistrate Judge Meriweather also issued a R. &
+
+R. recommending that this Court grant Defendants’ motion to
+
+dismiss for lack of subject matter jurisdiction. See ECF No. 49.
+
+11
+
+ Mr. Greenwald objected to this conclusion, see Pl.’s Objs. ECF
+
+No. 49; and Defendants filed a response thereto, see Defs.’
+
+Resp. to Pl.’s Objs. to the Nov. 8, 2021 R. & R. (“Defs.’
+
+Resp.”), ECF No. 51. The motion is ripe and ready for
+
+adjudication.
+
+II. Legal Standard
+
+A. Objections to a Magistrate Judge's Report and
+
+ Recommendation
+
+Pursuant to Federal Rule of Civil Procedure 72(b), a party
+
+may file specific written objections once a magistrate judge has
+
+entered a recommended disposition. Fed. R. Civ. P. 72(b)(1)-(2).
+
+A district court “may accept, reject or modify the recommended
+
+disposition.” Fed. R. Civ. P. 72(b)(3); see also
+
+28 U.S.C. §
+636
+
+(b)(1) (“A judge of the court may accept, reject, or modify,
+in whole or in part, the findings or recommendations made by the
+
+magistrate judge.”). A district court “must determine de novo
+
+any part of the magistrate judge's disposition that has been
+
+properly objected to.” Fed. R. Civ. P. 72(b)(3). “If, however,
+
+the party makes only conclusory or general objections, or simply
+
+reiterates his original arguments, the Court reviews the [R. &
+
+R.] only for clear error.” Houlahan v. Brown,
+
+[979 F. Supp. 2d 86, 88](https://www.courtlistener.com/opinion/2659929/houlahan-v-brown/#88)
+
+ (D.D.C. 2013) (citation omitted). “Under the clearly
+erroneous standard, the magistrate judge's decision is entitled
+
+to great deference” and “is clearly erroneous only if on the
+
+12
+
+ entire evidence the court is left with the definite and firm
+
+conviction that a mistake has been committed.” Buie v. D.C., No.
+
+CV 16-1920 (CKK),
+
+2019 WL 4345712
+
+, at *3 (D.D.C. Sept. 12, 2019)
+(citing Graham v. Mukasey,
+
+[608 F. Supp. 2d 50, 52](https://www.courtlistener.com/opinion/2467242/graham-v-mukasey/#52)
+
+ (D.D.C. 2009))
+(internal quotation marks omitted).
+
+Objections must “specifically identify the portions of the
+
+proposed findings and recommendations to which objection is made
+
+and the basis for objection.” LCvR 72.3(b). “[O]bjections which
+
+merely rehash an argument presented to and considered by the
+
+magistrate judge are not ‘properly objected to’ and are
+
+therefore not entitled to de novo review.” Shurtleff v. EPA,
+
+[991 F. Supp. 2d 1, 8](https://www.courtlistener.com/opinion/2659963/shurtleff-v-united-states-environmental-protection-agency/#8)
+
+ (D.D.C. 2013) (quoting Morgan v. Astrue, No.
+08-2133,
+
+2009 WL 3541001
+
+, at *3 (E.D. Pa. Oct. 30, 2009)).
+B. Subject Matter Jurisdiction
+
+Federal district courts are courts of limited jurisdiction
+
+and “possess only that power conferred by [Article III of the]
+
+Constitution and [by] statute.” Logan v. Dep’t of Veterans
+
+Affairs,
+
+[357 F. Supp. 2d 149, 152](https://www.courtlistener.com/opinion/2330303/logan-v-department-of-veterans-affairs/#152)
+
+ (D.D.C. 2004)
+(quoting Kokkonen v. Guardian Life Ins. Co. of Am.,
+
+[511 U.S. 375, 377](https://www.courtlistener.com/opinion/117845/kokkonen-v-guardian-life-insurance-co-of-america/#377)
+
+, 
+[114 S. Ct. 1673](https://www.courtlistener.com/opinion/117845/kokkonen-v-guardian-life-insurance-co-of-america/)
+
+, 
+[128 L. Ed. 2d 391](https://www.courtlistener.com/opinion/117845/kokkonen-v-guardian-life-insurance-co-of-america/)
+
+ (1994)). “There is
+a presumption against federal court jurisdiction and the burden
+
+is on the party asserting the jurisdiction, the plaintiff in
+
+this case, to establish that the Court has subject matter
+
+13
+
+ jurisdiction over the action.”
+
+[Id.](https://www.courtlistener.com/opinion/117845/kokkonen-v-guardian-life-insurance-co-of-america/)
+
+ at 153 (citing McNutt v. Gen.
+Motors Acceptance Corp. of Ind.,
+
+[298 U.S. 178](https://www.courtlistener.com/opinion/102656/mcnutt-v-general-motors-acceptance-corp/)
+
+, 182–83, 
+[56 S. Ct. 780](https://www.courtlistener.com/opinion/102656/mcnutt-v-general-motors-acceptance-corp/)
+
+, 
+[80 L. Ed. 1135](https://www.courtlistener.com/opinion/102656/mcnutt-v-general-motors-acceptance-corp/)
+
+ (1936)).
+The requirement of “standing is an essential and unchanging
+
+part of the case-or-controversy requirement of Article III.”
+
+Lujan v. Defs. of Wildlife,
+
+[504 U.S. 555, 560](https://www.courtlistener.com/opinion/112747/lujan-v-defenders-of-wildlife/#560)
+
+, 
+[112 S. Ct. 2130](https://www.courtlistener.com/opinion/112747/lujan-v-defenders-of-wildlife/)
+
+(1992). “[T]he defect of standing is a defect in subject matter
+
+jurisdiction.” Haase v. Sessions,
+
+[835 F.2d 902, 906](https://www.courtlistener.com/opinion/499041/edward-haase-v-william-s-sessions-director-fbi/#906)
+
+ (D.C. Cir.
+1987). There are three requirements for standing:
+
+First, the plaintiff must have suffered an
+
+ “injury in fact”—an invasion of a legally
+
+ protected interest which is (a) concrete and
+
+ particularized, and (b) “actual or imminent,
+
+ not ‘conjectural’ or ‘hypothetical.’” Second,
+
+ there must be a causal connection between the
+
+ injury and the conduct complained of—the
+
+ injury has to be “fairly . . . trace[able] to
+
+ the challenged action of the defendant, and
+
+ not . . . th[e] result [of] the independent
+
+ action of some third party not before the
+
+ court.” Third, it must be “likely,” as opposed
+
+ to merely “speculative,” that the injury will
+
+ be “redressed by a favorable decision.”
+
+Lujan, 504 U.S. at 560–61 (citation omitted).
+
+In assessing whether a complaint sufficiently alleges
+
+subject matter jurisdiction, the Court accepts as true the
+
+allegations of the complaint, see Ashcroft v. Iqbal,
+
+[556 U.S. 662, 678](https://www.courtlistener.com/opinion/145875/ashcroft-v-iqbal/#678)
+
+, 
+[129 S. Ct. 1937](https://www.courtlistener.com/opinion/145875/ashcroft-v-iqbal/)
+
+ (2009); and liberally construes the
+pleadings such that the plaintiff benefits from all inferences
+
+14
+
+ derived from the facts alleged, Barr. v. Clinton,
+
+[370 F. 3d 1196, 1199](https://www.courtlistener.com/opinion/786479/the-honorable-bob-barr-v-william-jefferson-clinton/#1199)
+
+ (D.C. Cir. 2004).
+However, “[a] pleading that offers labels and conclusions
+
+or a formulaic recitation of the elements of a cause of action
+
+will not do. Nor does a complaint suffice if it tenders naked
+
+assertions devoid of further factual enhancement.” Iqbal,
+
+[556 U.S. at 678](https://www.courtlistener.com/opinion/145875/ashcroft-v-iqbal/#678)
+
+ (citations, quotation marks and brackets omitted).
+Consequently, “[a] claim invoking federal-question jurisdiction
+
+under
+
+28 U.S.C. § 1331
+
+ ... may be dismissed for want of subject
+matter jurisdiction if it is not colorable, i.e., if it
+
+is immaterial and made solely for the purpose of obtaining
+
+jurisdiction or it is wholly insubstantial and
+
+frivolous.” Arbaugh,
+
+[546 U.S. 500](https://www.courtlistener.com/opinion/145677/arbaugh-v-y-h-corp/)
+
+, 513 n.10, 
+[126 S. Ct. 1235](https://www.courtlistener.com/opinion/145677/arbaugh-v-y-h-corp/)
+
+(2006) (citation omitted); accord Tooley v. Napolitano,
+
+[586 F.3d 1006, 1009](https://www.courtlistener.com/opinion/187472/tooley-v-napolitano/#1009)
+
+ (D.C. Cir. 2009) (citation omitted).
+C. Rule 12(b)(6) Motion to Dismiss
+
+A motion to dismiss pursuant to Federal Rule of Civil
+
+Procedure 12(b)(6) tests the legal sufficiency of a complaint.
+
+Browning v. Clinton,
+
+[292 F.3d 235, 242](https://www.courtlistener.com/opinion/777869/dolly-kyle-browning-and-direct-outstanding-creations-corporation-v-william/#242)
+
+ (D.C. Cir. 2002). A
+complaint must contain “a short and plain statement of the claim
+
+showing that the pleader is entitled to relief, in order to give
+
+the defendant fair notice of what the ... claim is and the
+
+grounds upon which it rests.” Bell At. Corp. v. Twombly, 550
+
+15
+
+ U.S. 544
+
+, 555, 
+[127 S. Ct. 1955](https://www.courtlistener.com/opinion/145730/bell-atlantic-corp-v-twombly/)
+
+ (2007). While detailed factual
+allegations are not required, a complaint must contain
+
+“sufficient factual matter ... to state a claim to relief that
+
+is plausible on its face.” Iqbal,
+
+[556 U.S. at 678](https://www.courtlistener.com/opinion/145875/ashcroft-v-iqbal/)
+
+ (quoting
+Twombly,
+
+[550 U.S. at 570](https://www.courtlistener.com/opinion/145730/bell-atlantic-corp-v-twombly/#570)
+
+). When ruling on a Rule 12(b)(6)
+motion, the Court “may consider only the facts alleged in the
+
+complaint, any documents either attached to or incorporated in
+
+the complaint and matters of which we may take judicial notice.”
+
+EEOC v. St. Francis Xavier Parochial Sch.,
+
+[117 F. 3d 621, 624](https://www.courtlistener.com/opinion/743063/equal-employment-opportunity-commission-v-st-francis-xavier-parochial/#624)
+
+(D.C. Cir. 1997). In so doing, the court must give the plaintiff
+
+the “benefit of all inferences that can be derived from the
+
+facts alleged.” Kowal v. MCI Commc’ns Corp.,
+
+[16 F.3d 1271, 1276](https://www.courtlistener.com/opinion/663691/charles-kowal-v-mci-communications-corporation/#1276)
+
+(D.C. Cir. 1994). “Threadbare recitals of the elements of a
+
+cause of action, supported by mere conclusory statements” are
+
+not sufficient to state a claim. Iqbal,
+
+[556 U.S. at 678](https://www.courtlistener.com/opinion/145875/ashcroft-v-iqbal/#678)
+
+. The
+plaintiff must “give the defendant fair notice of what the . . .
+
+claim is and the grounds upon which it rests.” Erickson v.
+
+Pardus,
+
+[551 U.S. 89, 93](https://www.courtlistener.com/opinion/145722/erickson-v-pardus/#93)
+
+ (2007) (quoting Twombly, 
+[550 U.S. at 555](https://www.courtlistener.com/opinion/145730/bell-atlantic-corp-v-twombly/#555)
+
+).
+III. Analysis
+
+Mr. Greenwald argues that this Court has subject matter
+
+jurisdiction over this matter under
+
+28 U.S.C. § 1331
+
+ (federal
+question jurisdiction) and
+
+28 U.S.C. § 1346
+
+ (United States as
+16
+
+ defendant), because it involves an agency of the United States
+
+as a defendant, and because it involves the interpretation and
+
+application of the laws of the United States, including the
+
+Administrative Procedure Act and Title XVIII of the Social
+
+Security Act,
+
+42 U.S.C. §§ 1395
+
+ et seq. See Compl., ECF No. 26
+¶ 10. He also asserts jurisdiction pursuant to 42 U.S.C.
+
+§ 1395ff(f)(3), which authorizes judicial review of an LCD
+
+without prior exhaustion of administrative remedies where there
+
+are no material issues of fact in dispute. Id. ¶ 11. Defendants
+
+respond that Mr. Greenwald is no longer seeking the relief that
+
+his denied claim be reversed and covered under Medicare Part B,
+
+and therefore has no stake in the outcome of this matter,
+
+rendering federal question jurisdiction absent. See Defs.’ MTD,
+
+ECF No. 27-1 at 13. Defendants also assert that this Court lacks
+
+jurisdiction because Mr. Greenwald has not exhausted his
+
+administrative remedies. Id. at 15.
+
+Magistrate Judge Meriweather finds that Mr. Greenwald
+
+cannot rely on
+
+28 U.S.C. §§ 1331
+
+ and 1346, because Section
+405(h) of the Social Security Act (as incorporated into the
+
+Medicare Act through 42 U.S.C. § 1395ii) channels “most, if not
+
+all, Medicare claims through agency review provisions,” unless
+
+doing so would result in “complete preclusion of judicial
+
+review,” which is not the case here, where the Medicare statutes
+
+17
+
+ provide explicitly for judicial review of the agency’s final
+
+determinations on both the issue of Mr. Greenwald’s individual
+
+claim determination and the overarching validity of LCD L33829.
+
+R. & R., ECF No. 47 at 10 (citation and quotation marks
+
+omitted). As to jurisdiction under 42 U.S.C. § 1395ff(f)(3),
+
+Magistrate Judge Meriweather finds that Mr. Greenwald has not
+
+carried his burden of demonstrating that this case falls within
+
+the limited jurisdictional grant of the statute, because the
+
+“undisputed facts are insufficient to demonstrate whether NCD
+
+280.6 and LCD L33829 conflict as a matter of law,” a conflict
+
+which would render LCD L33829 invalid. Id. at 11. Mr. Greenwald
+
+raises objections only as to Magistrate Judge Meriweather’s
+
+findings on jurisdiction under 42 U.S.C. § 1395ff(f)(3).
+
+A. Magistrate Judge Meriweather Erred In Concluding That
+
+ This Court Lacks Jurisdiction Under 42 U.S.C.
+
+ § 1395ff(f)(3)
+
+Section 1395ff(f) provides for facial review of NCDs and
+
+LCDs. See id. § 1395ff(f)(1), (2). Challenges brought under
+
+§ 1395ff(f) are ordinarily reviewed by an ALJ, whose decision is
+
+appealable to the DAB. Id. § 1395ff(2)(A)(i)–(ii). The DAB’s
+
+decision constitutes final agency action subject to judicial
+
+review. Id. § 1395ff(2)(A)(iv). But an aggrieved individual may
+
+avoid the ordinary administrative review process and proceed
+
+directly to a “court of competent jurisdiction” if “the moving
+
+18
+
+ party alleges that (A) there are no material issues of fact in
+
+dispute, and (B) the only issue of law is . . . that a
+
+regulation, determination, or ruling by the Secretary is
+
+invalid.” Id. § 1395ff(f)(3); see also Bailey v. Mut. of Omaha
+
+Ins. Co.,
+
+[534 F. Supp. 2d 43, 51](https://www.courtlistener.com/opinion/1443646/bailey-v-mutual-of-omaha-insurance/#51)
+
+ (D.D.C. 2008).
+Here, the parties agree that the LCD at issue would be
+
+invalid if it conflicts with the Medicare NCD for pneumatic
+
+compression devices. R. & R., ECF No. 47 at 11. The relevant NCD
+
+excludes coverage for a pneumatic compression device if
+
+conservative treatment is shown to be effective, and states in
+
+relevant part:
+
+Pneumatic compression devices are covered in
+
+ the home setting for the treatment of
+
+ lymphedema if the patient has undergone a
+
+ four-week trial of conservative therapy and
+
+ the treating physician determines that there
+
+ has been no significant improvement or if
+
+ significant symptoms remain after the trial.
+
+ The trial of conservative therapy must include
+
+ use of an appropriate compression bandage
+
+ system or compression garment, exercise, and
+
+ elevation of the limb.
+
+NCD 280.6, ECF No. 27-4. As Defendants acknowledge, “if a trial
+
+of a compression bandage or garment leads to significant
+
+improvement and relief of significant symptoms, there is no
+
+Medicare coverage for pneumatic compression devices.” Defs.’
+
+Resp., ECF No. 51 at 4.
+
+19
+
+ The relevant LCD states as follows:
+
+At the end of the four-week trial, if there
+
+ has been improvement, then reimbursement for
+
+ a [pneumatic compression device] is not
+
+ justified. Where improvement has occurred, the
+
+ trial of conservative therapy must be
+
+ continued with subsequent reassessment at
+
+ intervals at least a week apart. Only when no
+
+ significant improvement has occurred in the
+
+ most recent four weeks and the coverage
+
+ criteria above are still met, may the
+
+ lymphedema be considered unresponsive to
+
+ conservative therapy, and coverage for a
+
+ [pneumatic compression device] considered.
+
+ CMS’ NCD for [pneumatic compression device]
+
+ (280.6) instructs: “The determination by the
+
+ physician of the medical necessity of a
+
+ pneumatic compression device must
+
+ include...symptoms and objective findings,
+
+ including measurements which establish the
+
+ severity of the condition.”
+
+At a minimum, re-assessments conducted for a
+
+ trial must include detailed measurements,
+
+ obtained in the same manner and with reference
+
+ to the same anatomic landmarks, prior to and
+
+ at the conclusion of the various trials and
+
+ therapy, with bilateral comparisons where
+
+ appropriate.
+
+LCD L33829, ECF No. 27-5. Explaining the LCD, Defendants state
+
+that “if there has been improvement, but a patient is still
+
+symptomatic, then the patient must continue the trial of
+
+conservative therapy.” Defs.’ Resp., ECF No. 51 at 5. Magistrate
+
+Judge Meriweather observes that “[t]he parties appear to agree
+
+that LCD L33829 would be invalid if it is inconsistent with or
+
+narrows NCD 280.6.” R. & R., ECF No. 47 at 11. However, “[t]hey
+
+disagree on whether this Court can determine if the LCD and NCD
+
+20
+
+ conflict without considering additional facts or expert
+
+opinions.” Id. at 12. Magistrate Judge Meriweather concludes
+
+that the Court requires additional facts to determine whether
+
+NCD 280.6 and LCD L33829 conflict. Id. Specifically, Magistrate
+
+Judge Meriweather states that:
+
+[T]he Court is not equipped to assess the
+
+ merits of [Plaintiff’s] theory without
+
+ additional facts or expert opinions. The
+
+ record in this case is too sparse to determine
+
+ whether the coverage pathway required by the
+
+ LCD conflicts with, or merely restates and
+
+ interprets, the pre-coverage treatment
+
+ requirements of the NCD. The parties have not
+
+ provided the Court with adequate information
+
+ about which symptoms associated with
+
+ lymphedema and similar circulatory conditions
+
+ are ‘significant,’ how their significance is
+
+ measured, how improvement is documented and
+
+ weighted, or whether any individuals would
+
+ meet the conservative trial requirements of
+
+ NCD 280.6 but not LCD L33829. Without that
+
+ information, the undersigned cannot determine
+
+ whether LCD conflicts with or is a substantive
+
+ interpretation of NCD 280.6, and so recommends
+
+ this Court dismiss Mr. Greenwald’s case, as it
+
+ cannot exercise subject-matter jurisdiction
+
+ under § 1395ff(f)(3).
+
+R. & R., ECF No. 47 at 15-16. In response, Mr. Greenwald objects
+
+that the question of whether the MACs lacked the legal authority
+
+to impose new legal obligations or conditions for Medicare
+
+coverage and payment through the LCD is purely a question of law
+
+within the authority of this Court. Pl.’s Objs., ECF No. 49 at
+
+3. The Court reviews the R. & R. only for clear error since Mr.
+
+21
+
+ Greenwald’s argument is repeated from his filing in opposition
+
+to the Motion to Dismiss. See Pl.’s Opp’n, ECF No. 29 at 28; see
+
+also Houlahan,
+
+[979 F. Supp. 2d at 88](https://www.courtlistener.com/opinion/2659929/houlahan-v-brown/#88)
+
+ (“If, however, the party
+makes only conclusory or general objections, or simply
+
+reiterates his original arguments, the Court reviews the [R. &
+
+R.] only for clear error.”) (Internal citation omitted). The
+
+Court finds clear error here.
+
+The critical question for the Court for the purposes of
+
+subject matter jurisdiction is whether additional facts are
+
+needed to determine if the LCD and NCD at issue conflict. The
+
+potential conflict arises when a conservative therapy trial
+
+leads to improvement, but significant symptoms remain. See Pl.’s
+
+Objs., ECF No. 49 at 5; Defs.’ Resp., ECF No. 51 at 4. The
+
+Medicare NCD clearly states two pathways to coverage: pneumatic
+
+compression devices are covered if the treating physician
+
+determines there has been no significant improvement or if
+
+significant symptoms remain after the trial. NCD 280.6, ECF No.
+
+27-4. As Mr. Greenwald points out, the LCD however, eliminates
+
+the second phrase, by instead requiring that “[o]nly when no
+
+significant improvement has occurred in the most recent four
+
+weeks and the coverage criteria above are still met, may the
+
+lymphedema be considered unresponsive to conservative therapy,
+
+and coverage for a [pneumatic compression device] considered.”
+
+22
+
+ LCD L33829. Thus, while the NCD ensures coverage for people who
+
+continue to have significant symptoms after the trial,
+
+regardless of improvement, the LCD restricts that coverage only
+
+to people who have seen no significant improvement in the most
+
+recent four weeks. This conflict is evident in the plain
+
+language of the text, and additional facts or expert opinions
+
+would not eliminate the conflict. As the R. & R. acknowledges,
+
+“[t]he national rule requires on its face only one four-week
+
+trial; the local rule might require several, potentially
+
+prolonging a patient’s discomfort and health complications
+
+considerably before the patient can obtain a PCD covered by
+
+Medicare.” R. & R., ECF No. 47 at 15. The Court disagrees with
+
+Magistrate Judge Meriweather that it needs to know “which
+
+symptoms associated with lymphedema and similar circulatory
+
+conditions are ‘significant,’ how their significance is
+
+measured, how improvement is documented and weighted.” Id. at
+
+15-16. The text makes amply clear that individuals who would
+
+meet the conservative trial requirements of NCD 280.6 may not
+
+satisfy LCD L33829 if they have had improvements in their
+
+condition within the past four weeks. Any other conclusion would
+
+make the plain language of NCD 280.6 surplusage and fail to give
+
+it meaning, violating the fundamental tools of interpretation.
+
+See, e.g., Bailey v. United States,
+
+[516 U.S. 137, 146](https://www.courtlistener.com/opinion/117985/bailey-v-united-states/#146)
+
+ (1995)
+23
+
+ (“We assume that Congress used two terms because it intended
+
+each term to have a particular, nonsuperfluous meaning.”); see
+
+also Colautti v. Franklin,
+
+[439 U.S. 379, 392](https://www.courtlistener.com/opinion/109966/colautti-v-franklin/#392)
+
+ (1979)
+(“Appellants’ argument . . . would make either the first or the
+
+second condition redundant or largely superfluous, in violation
+
+of the elementary canon of construction that a statute should be
+
+interpreted so as not to render one part inoperative.”); Yates
+
+v. United States,
+
+[135 S. Ct. 1074, 1085](https://www.courtlistener.com/opinion/2781925/yates-v-united-states/#1085)
+
+ (2015) (declining to
+read statute so as to “significantly overlap” with a distinct
+
+statute, resisting a reading that would “render superfluous an
+
+entire provision passed in proximity as part of the same Act”).
+
+The Court concludes that the LCD and NCD impermissibly conflict,
+
+rendering LCD L33829 invalid and providing this Court with
+
+jurisdiction under § 1395ff(f). The Court need not reach any
+
+additional argument as to jurisdiction.
+
+B. Mr. Greenwald Has Standing to Bring This Case
+
+Because Magistrate Judge Meriweather determines that this
+
+Court does not have subject matter jurisdiction, she does not
+
+reach the issue of standing raised by Defendants in their Motion
+
+to Dismiss. The Court therefore addresses it de novo. Defendants
+
+argue that Mr. Greenwald lacks standing to bring this case
+
+because he has failed to satisfy the redressability requirement
+
+of standing. Defs.’ Reply, ECF No. 33 at 2. Specifically,
+
+24
+
+ Defendants assert that even if the LCD were invalidated as Mr.
+
+Greenwald requests, his sole injury, paying out of pocket for
+
+the PCD, would not be redressed. Id. at 3. Defendants argue that
+
+Mr. Greenwald’s ability to file future claims based on the NCD
+
+rather than the LCD is too conjectural to be the basis of
+
+redressability and add that even if the LCD and NCD conflict,
+
+Mr. Greenwald “does not qualify for the pneumatic compression
+
+device under the terms of the NCD,” and therefore has no
+
+concrete stake in this lawsuit. Id. at 4-5. Mr. Greenwald
+
+responds that he meets the statutory standing requirements in 42
+
+U.S.C. § 1395ff(f)(5), which are only that he (1) be a Medicare
+
+beneficiary who is (2) in need of the items or services that are
+
+the subject of the coverage determination. Surreply, ECF No. 48
+
+at 2. He further argues that he meets the Lujan standing
+
+requirements since he suffered a concrete injury – the denial of
+
+coverage for a pneumatic compression device through a LCD that
+
+created new rules without the requisite process – and his injury
+
+was caused solely and directly by the Secretary, who authorized
+
+the publication of the LCD. Id. at 3. Mr. Greenwald adds that he
+
+has a procedural right to challenge the LCD which comes with a
+
+relaxed redressability standard. Id. Defendants reply that Mr.
+
+Greenwald’s procedural right to file under section 1395ff(f)(5)
+
+does not suffice for Article III standing, which requires a
+
+25
+
+ concrete injury even in the context of a statutory violation.
+
+Defs.’ Suppl. Brief, ECF No. 44 at 6-7. The Court concludes that
+
+Mr. Greenwald has standing.
+
+To demonstrate standing, a litigant must show that they
+
+have suffered a concrete and particularized injury that is
+
+either actual or imminent, that the injury is fairly traceable
+
+to the defendant, and that it is likely that a favorable
+
+decision will redress that injury. Massachusetts v. E.P.A.,
+
+[549 U.S. 497](https://www.courtlistener.com/opinion/145749/massachusetts-v-environmental-protection-agency/)
+
+, 
+[127 S. Ct. 1438](https://www.courtlistener.com/opinion/145749/massachusetts-v-environmental-protection-agency/)
+
+ (2007). However, when a litigant is
+vested with a procedural right – here the right of Medicare
+
+beneficiaries to directly challenge LCDs in a District Court
+
+under 42 U.S.C. § 1395ff(f)(3) – that litigant has standing if
+
+there is some possibility that the requested relief will prompt
+
+the injury-causing party to reconsider the decision that
+
+allegedly harmed the litigant. Id. Article III standing requires
+
+a concrete injury even in the context of a statutory violation.
+
+Thole v. U. S. Bank N.A,
+
+[140 S. Ct. 1615, 1619-20](https://www.courtlistener.com/opinion/4757654/thole-v-u-s-bank-n-a/#1619)
+
+ (2020).
+Defendants do not dispute that Mr. Greenwald has a
+
+procedural right to challenge the LCD; they argue instead that
+
+“Plaintiff’s procedural right to file under section 1395ff(f)(5)
+
+does not suffice for Article III standing.” Defs.’ Suppl. Brief,
+
+ECF No. 44 at 7. Defendants suggest that the reason Plaintiff’s
+
+procedural right is insufficient is the lack of a concrete
+
+26
+
+ injury, see id.; but it is indisputable that Plaintiff was
+
+injured by having to pay for the PCD out of pocket. This case is
+
+therefore distinct from Spokeo v. Robins,
+
+[136 S. Ct. 1540, 1549](https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/#1549)
+
+(2016), where the Supreme Court held that plaintiff “could not,
+
+for example, allege a bare procedural violation, divorced from
+
+any concrete harm, and satisfy the injury-in-fact requirement of
+
+Article III.”
+
+It is also not the case, contrary to Defendants’
+
+suggestions, that Mr. Greenwald lacks a concrete interest in the
+
+case because he will not be compensated for his PCD if he
+
+prevails. First, a favorable decision by the Court will redress
+
+Mr. Greenwald’s past injury of having to pay out of pocket by
+
+ensuring he is not in the future denied a PCD for his ongoing
+
+chronic lymphedema because of an invalid LCD. Second, “[a
+
+litigant] who alleges a deprivation of a procedural protection
+
+to which he is entitled never has to prove that if he had
+
+received the procedure the substantive result would have been
+
+altered. All that is necessary is to show that the procedural
+
+step was connected to the substantive result.” Sugar Cane
+
+Growers Cooperative of Fla. v. Veneman,
+
+[289 F.3d 89, 94-95](https://www.courtlistener.com/opinion/185684/sugar-cane-growers-cooperative-of-florida-v-veneman/#94)
+
+ (D.C.
+Cir. 2002). Accordingly, Mr. Greenwald does not have to show
+
+that he would receive Medicare coverage without an invalid LCD,
+
+and “the Secretary’s contention that under the Medicare National
+
+27
+
+ Coverage Determination for pneumatic compression devices Mr.
+
+Greenwald would not qualify for Medicare coverage is pure
+
+speculation and irrelevant to this case.” Surreply, ECF No. 48
+
+at 5. This is especially true given that the record does not
+
+reflect that any MAC relied on the NCD for any determination
+
+affecting Mr. Greenwald. Additionally, the Court is cognizant
+
+Defendants cannot “defeat standing merely by asserting that []
+
+[they] will come to the same conclusion once the procedures are
+
+satisfied on remand.” ADX Communications of Pensacola v. FCC,
+
+[794 F.3d 74, 82](https://www.courtlistener.com/opinion/2818126/adx-communications-v-federal-communications-commission/#82)
+
+ (D.C. Cir. 2015) (citations omitted). Finally,
+standing is supported by the fact that Mr. Greenwald continues
+
+to suffer from lymphedema, such that the LCD represents an
+
+ongoing harm. See, e.g., Friends of the Earth, Inc. v. Laidlaw
+
+Envtl. Servs. (TOC), Inc.,
+
+[528 U.S. 167, 184-86](https://www.courtlistener.com/opinion/118329/friends-of-the-earth-inc-v-laidlaw-environmental-services-toc-inc/#184)
+
+ (2000).   The
+Court concludes that Mr. Greenwald has standing to bring this
+
+case.
+
+Mr. Greenwald does not, however, have standing to bring
+
+Count IV of his complaint, which alleges that the Secretary
+
+violated the non-discretionary duty imposed by
+
+42 U.S.C. § 1395ff(1). See Compl., ECF No. 26 at 21. Defendants
+
+raise several arguments as to why Mr. Greenwald lacks standing
+
+for this Count, none of which are addressed by Mr. Greenwald.
+
+See generally Pl.’s Opp’n, ECF No. 29. The Court therefore
+
+28
+
+ treats these arguments as conceded. See Bancoult v. McNamara,
+
+[227 F. Supp. 2d 144, 149](https://www.courtlistener.com/opinion/2529820/bancoult-v-mcnamara/#149)
+
+ (D.D.C. 2002) (“[I]f the opposing party
+files a responsive memorandum, but fails to address certain
+
+arguments made by the moving party, the court may treat those
+
+arguments as conceded, even when the result is dismissal of the
+
+entire case.”).
+
+IV. Conclusion and Order
+
+For the foregoing reasons, the Court
+
+ADOPTS IN PART and REJECTS IN PART Magistrate Judge
+
+Meriweather’s R. & R., see ECF No. 49. The portion of the
+
+R. &. R that is rejected is Magistrate Judge Meriweather’s
+
+finding that there is no jurisdiction under 42 U.S.C. §
+
+1395ff(f)(3); and further
+
+GRANTS IN PART and DENIES IN PART Defendants’ Motion to
+
+Dismiss, see ECF No. 27. The Motion is granted only as to Count
+
+IV of the Complaint.
+
+SO ORDERED.
+
+Signed: Emmet G. Sullivan
+
+ United States District Judge
+
+ June 7, 2021
+
+29

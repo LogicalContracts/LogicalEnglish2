@@ -1,0 +1,32 @@
+LCD L33785: High Frequency Chest Wall Oscillation Devices — revision history (Medicare Coverage Database export, 12 September 2026, lcd_x_revision_history)
+
+=== version 5, revision history date 2015-10-01 ===
+Revision Effective Date: 10/31/2014 COVERAGE INDICATIONS, LIMITATIONS AND/OR MEDICAL NECESSITY: Revised: Standard Documentation Language to add covered prior to a beneficiary’s Medicare eligibility Removed: Refill Requirements DOCUMENTATION REQUIREMENTS: Revised: Standard Documentation Language to add who can enter date of delivery date on the POD Removed: Request for refill documentation requirements Added: Instructions for Equipment Retained from a Prior Payer Added: Instruction for Repair Replacement
+
+=== version 7, revision history date 2016-07-01 ===
+Effective July 1, 2016 oversight for DME MAC LCDs is the responsibility of CGS Administrators, LLC 18003 and 17013 and Noridian Healthcare Solutions, LLC 19003 and 16013. No other changes have been made to the LCDs.
+
+=== version 9, revision history date 2016-07-01 ===
+Revision Effective Date 07/01/2016 COVERAGE INDICATIONS, LIMITATIONS AND/OR MEDICAL NECESSITY: Revised: Standard Documentation language - ACA order requirements – Effective 04/28/16 DOCUMENTATION REQUIREMENTS: Revised: Standard documentation language for orders, ACA order requirements, added New order requirements, and Correct coding instructions; revised Proof of delivery instructions – Effective 04/28/16
+
+=== version 12, revision history date 2017-01-01 ===
+Revision Effective Date: 01/01/2017 COVERAGE INDICATIONS, INDICATIONS, LIMITATIONS AND/OR MEDICAL NECESSITY: Removed: Standard Documentation Language Added: New reference language and directions to Standard Documentation Requirements Added: General Requirements DOCUMENTATION REQUIREMENTS: Removed: Standard Documentation Language Added: General Documentation Requirements Added: New reference language and directions to Standard Documentation Requirements POLICY SPECIFIC DOCUMENTATION REQUIREMENTS: Removed: Standard Documentation Language Added: Direction to Standard Documentation Requirements Removed: Supplier Manual reference under Miscellaneous Removed: PIM reference under Appendices RELATED LOCAL COVERAGE DOCUMENTS: Added: LCD-related Standard Documentation Requirements article
+
+=== version 15, revision history date 2017-10-01 ===
+Revision Effective Date: 10/01/2017 ICD-10 CODES THAT SUPPORT MEDICAL NECESSITY: Added: New ICD-10 codes Revised: ICD-10 code descriptions 11/30/2017: At this time 21st Century Cures Act will apply to new and revised LCDs that restrict coverage which requires comment and notice. This revision is not a restriction to the coverage determination; and, therefore not all the fields included on the LCD are applicable as noted in this policy.
+
+=== version 21, revision history date 2018-10-01 ===
+Revision Effective Date: 10/01/2018 ICD-10 CODES THAT SUPPORT MEDICAL NECESSITY: Removed: ICD-10 Code G71.0 due to annual ICD-10 Code updates Added: New expanded ICD-10 codes for those removed 09/27/2018: At this time 21st Century Cures Act will apply to new and revised LCDs that restrict coverage which requires comment and notice. This revision is not a restriction to the coverage determination; and, therefore not all the fields included on the LCD are applicable as noted in this policy.
+
+=== version 29, revision history date 2019-01-01 ===
+Revision Effective Date: 01/01/2019 COVERAGE INDICATIONS, LIMITATIONS, AND/OR MEDICAL NECESSITY: Removed: Statement to refer to diagnosis code section below Added: Refer to Covered ICD-10 Codes in the LCD-related Policy Article HCPCS CODES: Revised: Code descriptor for E0483 ICD-10 CODES THAT SUPPORT MEDICAL NECESSITY: Moved: All diagnosis codes to the LCD-related Policy Article diagnosis code section per CMS instruction ICD-10 CODES THAT DO NOT SUPPORT MEDICAL NECESSITY: Moved: Statement about noncovered diagnosis codes moved to LCD-related Policy Article noncovered diagnosis code section per CMS instruction
+
+=== version 32, revision history date 2020-01-01 ===
+Revision Effective Date: 01/01/2020 COVERAGE INDICATIONS, LIMITATIONS, AND/OR MEDICAL NECESSITY: Removed: Statement to refer to ICD-10 Codes that are Covered section in the LCD-related PA Added: Statement to refer to ICD-10 code list in the LCD-related Policy Article Revised: Order information as a result of Final Rule 1713 GENERAL DOCUMENTATION REQUIREMENTS: Revised: Prescriptions (orders) to SWO 02/06/2020: Pursuant to the 21st Century Cures Act, these revisions do not require notice and comment because they are due to non-discretionary coverage updates reflective of CMS FR-1713.
+
+=== version 34, revision history date 2020-01-01 ===
+Revision Effective Date: 01/01/2020 CODING INFORMATION: Removed: Field titled “Bill Type” Removed: Field titled “Revenue Codes” Removed: Field titled “ICD-10 Codes that Support Medical Necessity” Removed: Field titled “ICD-10 Codes that DO NOT Support Medical Necessity” Removed: Field titled “Additional ICD-10 Information” As required by CR 10901, the ICD-10 information has been moved to all Policy Articles. There is no change in coverage.
+
+=== version 40, revision history date 2022-10-01 ===
+Revision Effective Date: 10/01/2022 HCPCS CODES: Revised: E0483 HCPCS long descriptor 11/17/2022: Pursuant to the 21st Century Cures Act, these revisions do not require notice and comment because the revisions are non-discretionary updates due to CMS HCPCS coding determinations.
+

@@ -1,0 +1,52 @@
+HTSUS Chapter 51 — Harmonized Tariff Schedule of the United States, Revision 18 (2026).
+Text extracted from the PDF at https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2051
+(pages 1 only; "=== page N ===" marks the PDF page, addressable as #page=N).
+
+=== page 1 ===
+CHAPTER 51
+WOOL, FINE OR COARSE ANIMAL HAIR;
+HORSEHAIR YARN AND WOVEN FABRIC
+XI
+51-1
+Note
+1. Throughout the tariff schedule:
+(a) "Wool" means the natural fiber grown by sheep or lambs;
+(b) "Fine animal hair" means the hair of alpaca, llama, vicuna, camel (including dromedary), yak, Angora, Tibetan, Kashmir or
+similar goats (but not common goats), rabbit (including Angora rabbit), hare, beaver, nutria or muskrat; and
+(c) "Coarse animal hair" means the hair of animals not mentioned above, excluding brush-making hair and bristles (heading
+0502) and horsehair (heading 0511).
+Additional U.S. Notes
+1. For the purposes of headings 5101, 5102, 5103 and 5104, regarding any package containing wool or fine animal hair subject to
+different rates of duty, notwithstanding the rates of duty shown, the column 1 rate of duty is the highest column 1 rate applicable
+to any part of the contents of the package comprising not less than 10 percent thereof by weight and the column 2 rate of duty
+is the highest column 2 rate applicable to any part of the contents of the package comprising not less than 10 percent thereof
+by weight.
+2. For the purposes of this chapter:
+(a) The term "clean kg" in the rate columns means kilogram of clean yield;
+(b) The term "clean yield," except for purposes of carbonized fibers, means the absolute clean content (i.e., all that portion of
+the merchandise which consists exclusively of wool or hair free of all vegetable and other foreign material, containing by
+weight 12 percent of moisture and 1.5 percent of material removable from the wool or hair by extraction with alcohol, and
+having an ash content of not over 0.5 percent by weight), less an allowance, equal by weight to 0.5 percent of the absolute
+clean content plus 60 percent of the vegetable matter present, but not exceeding 15 percent by weight of the absolute clean
+content, for wool or hair that would ordinarily be lost during commercial cleaning operations;
+(c) For purposes of carbonized fibers, the term "clean yield" means in the condition as entered;
+(d) (i) The term "wool for special uses" means unimproved wool and other wool of whatever blood or origin not finer than 46s
+entered by a dealer, manufacturer or processor, and certified for use only in the manufacture of felt or knit boots, floor
+coverings, heavy fulled lumbermen's socks, press cloth, papermakers' felts or pressed felt for polishing plate and mirror
+glass;
+(ii) Wool for special uses shall not be released from customs custody unless the dealer, manufacturer or processor files a
+bond to insure that any wool entered as wool for special uses shall be used only (except as provided below) in the
+manufacture of the articles enumerated in subparagraph (i) above;
+(iii) A dealer, manufacturer or processor may be relieved of liability under his or her bond with respect to any wool entered
+as wool for special uses which is transferred in its imported or any other form to another dealer, manufacturer or processor
+who has filed a bond to insure that the merchandise so transferred shall be used only (except as provided below) in the
+manufacture of the articles enumerated in subparagraph (i) above;
+(iv) When wool entered as wool for special uses is used, or transferred for use, otherwise than in the manufacture of the
+articles enumerated in subparagraph (i) above:
+(A) the regular duties which would have been applicable to such wool in the condition as entered shall be paid by the
+dealer, manufacturer or processor whose bond is charged with the wool at the time of such use or transfer for such
+use, but such duties shall not be levied or collected on any waste or byproducts resulting from the usual course of
+manufacture of the articles enumerated in subparagraph (i) above or on any merchandise which is destroyed or
+exported;
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes

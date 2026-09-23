@@ -1,0 +1,97 @@
+% The Logical English twin of the OIPA transaction GraceCheck of the plan termlife, written by the OIPA translator
+% from its XML configuration (kept in sources/).
+% Each rule cites the MathVariable it states; the expected values in the scenarios are
+% computed by an independent interpreter of OIPA math (oipa_eval.py), not by this program.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the knowledge base termlife_grace_check includes these resources:
+    temporal.
+
+the functions are:
+    the effective date of *an activity* is *a date*.
+    the paid to date of the policy before *an activity* is *a date*.
+    the policy status of the policy before *an activity* is *a value*.
+    the days past due of *an activity* is *a number*.
+    the in grace of *an activity* is *a value*.
+    the grace period days of the plan is *a number*.
+
+the templates are:
+    *an activity* is a grace check.
+    *an activity* spawns *a transaction*.
+
+the knowledge base termlife_grace_check includes:
+
+the text of "GraceCheck/Transaction.xml" is at "sources/GraceCheck/Transaction.xml".
+
+the grace period days of the plan is 31, as stated in "PlanFields.csv" at GracePeriodDays.
+
+% An activity of this program is a grace check: the GraceCheck transaction it processes.
+an activity is a grace check if
+    the effective date of the activity is a date.
+
+rule days_past_due with provenance "GraceCheck/Transaction.xml" at MathVariable DaysPastDueMV:
+the days past due of an activity is a number if
+    the effective date of the activity is a date
+    and the date is the number days after the paid to date of the policy before the activity.
+
+rule in_grace with provenance "GraceCheck/Transaction.xml" at MathVariable InGraceMV:
+the in grace of an activity is a value if
+    the days past due of the activity is a number N
+    and the grace period days of the plan is a number M
+    and N > 0
+        and N <= M
+    and the value is equal to "Yes"
+    otherwise the activity is a grace check
+    and the value is equal to "No".
+
+rule spawn_1 with provenance "GraceCheck/SpawnActivities.xml" at Spawn 1:
+an activity spawns Lapse if
+    the policy status of the policy before the activity is a value
+    and the days past due of the activity > the grace period days of the plan
+        and the value is equal to Active.
+
+scenario monthly_payer_g1 is:
+    the effective date of g1 is 2024-05-20.
+    the paid to date of the policy before g1 is 2024-06-01.
+    the policy status of the policy before g1 is Active.
+    days_past_due expects answers ["the days past due of g1 is -12"].
+    in_grace expects answers ["the in grace of g1 is No"].
+    spawns expects answers [].
+
+scenario monthly_payer_g2 is:
+    the effective date of g2 is 2024-07-15.
+    the paid to date of the policy before g2 is 2024-06-01.
+    the policy status of the policy before g2 is Active.
+    days_past_due expects answers ["the days past due of g2 is 44"].
+    in_grace expects answers ["the in grace of g2 is No"].
+    spawns expects answers ["g2 spawns Lapse"].
+
+query days_past_due is:
+    the days past due of which activity is which number.
+
+query in_grace is:
+    the in grace of which activity is which value.
+
+query spawns is:
+    which activity spawns which transaction.
+
+the view grace_check is:
+    the title is "GraceCheck (termlife)".
+    the case is a scenario.
+    the facts about "the activity" are
+        the effective date of an activity is a date.
+    the facts about "the policy it finds" are
+        the paid to date of the policy before an activity is a date,
+        the policy status of the policy before an activity is a value.
+    the result is the answer to query days_past_due.
+    the result shows its citations.
+
