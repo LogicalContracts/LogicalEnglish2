@@ -1,7 +1,9 @@
 // The /multilingual entry point: a language picker (or ?lang=<code>) leading
 // to a landing page circumscribed to that language — only the examples of
 // examples/<lang>/, chrome strings in that language — with a link back to the
-// standard (English) landing page. Driven by i18n/languages.csv, i18n/ui.csv
+// standard (English) landing page. The pages leave the reader's menu
+// language alone: that is the editor's preference (Misc > MENU LANGUAGE), not
+// the language of the programs listed. Driven by i18n/languages.csv, i18n/ui.csv
 // and the per-language example trees.
 import { test, expect } from '@playwright/test';
 
@@ -26,14 +28,14 @@ test.describe('/multilingual entry point', () => {
             as => as.map(a => a.getAttribute('href')))) {
             expect(href).toContain('/editor/index.html?example=pt/');
         }
-        // Visiting the page makes pt the UI-language preference.
-        expect(await page.evaluate(() => localStorage.getItem('le-ui-lang'))).toBe('pt');
+        // Visiting the page does not change the reader's menu language.
+        expect(await page.evaluate(() => localStorage.getItem('le-ui-lang'))).toBeNull();
         // Back link to the standard English page, and links to the other languages.
         await expect(page.locator('#le-back-english')).toHaveText('Logical English (em inglês)');
         await expect(page.locator('a[href="/multilingual?lang=es"]')).toBeAttached();
     });
 
-    test('opens a Portuguese example in the editor, in Portuguese', async ({ page }) => {
+    test('opens a Portuguese example in the editor, with the reader\'s menus', async ({ page }) => {
         await page.goto('/multilingual?lang=pt');
         await page.click('a[href="/editor/index.html?example=pt/cidadania"]');
         // The pt/<name> example resolves to examples/pt/<name>.le ...
@@ -41,9 +43,10 @@ test.describe('/multilingual entry point', () => {
         await expect.poll(async () =>
             await page.evaluate(() => (window as any).monaco?.editor?.getModels?.()[0]?.getValue() || '')
         ).toContain('a linguagem alvo é');
-        // ... and the editor chrome follows the preference set by the landing page,
-        // with the Home link returning to that same landing page.
-        await expect(page.locator('#menu-save-as')).toHaveText('Guardar como...');
+        // ... the menus stay in the reader's language (English here: the
+        // program's language does not change them), and the Home link returns
+        // to the landing page of the program's language.
+        await expect(page.locator('#menu-save-as')).toHaveText('Save As...');
         await expect(page.locator('a.home-link')).toHaveAttribute('href', '/multilingual?lang=pt');
     });
 
@@ -70,10 +73,11 @@ test.describe('/multilingual entry point', () => {
         await expect(v.locator('.fact-row .word', { hasText: 'pertenece a' }).first()).toBeVisible();
     });
 
-    test('back link resets the preference to English', async ({ page }) => {
+    test('back link returns to the English page, preference untouched', async ({ page }) => {
+        await page.addInitScript(() => { if (!localStorage.getItem('le-ui-lang')) localStorage.setItem('le-ui-lang', 'es'); });
         await page.goto('/multilingual?lang=pt');
         await page.click('#le-back-english');
         await expect(page.locator('h2').first()).toHaveText('Documentation');
-        expect(await page.evaluate(() => localStorage.getItem('le-ui-lang'))).toBe('en');
+        expect(await page.evaluate(() => localStorage.getItem('le-ui-lang'))).toBe('es');
     });
 });

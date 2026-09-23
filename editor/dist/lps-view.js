@@ -982,6 +982,20 @@ var keywords = {
         "provenance"
       ]
     ],
+    "memorable": [
+      [
+        "memorable"
+      ],
+      [
+        "memoised"
+      ],
+      [
+        "memoized"
+      ],
+      [
+        "cached"
+      ]
+    ],
     "judged": [
       [
         "open",
@@ -2719,6 +2733,20 @@ var keywords = {
         "cen\xE1rio",
         "exigem",
         "proveni\xEAncia"
+      ]
+    ],
+    "memorable": [
+      [
+        "memoriz\xE1vel"
+      ],
+      [
+        "memorizado"
+      ],
+      [
+        "memorizada"
+      ],
+      [
+        "memor\xE1vel"
       ]
     ],
     "judged": [
@@ -4532,6 +4560,20 @@ var keywords = {
         "procedencia"
       ]
     ],
+    "memorable": [
+      [
+        "memorizable"
+      ],
+      [
+        "memorizado"
+      ],
+      [
+        "memorizada"
+      ],
+      [
+        "memorable"
+      ]
+    ],
     "judged": [
       [
         "evaluativo"
@@ -6245,6 +6287,17 @@ var keywords = {
         "exigent",
         "une",
         "provenance"
+      ]
+    ],
+    "memorable": [
+      [
+        "m\xE9morisable"
+      ],
+      [
+        "m\xE9moris\xE9e"
+      ],
+      [
+        "m\xE9moris\xE9"
       ]
     ],
     "judged": [
@@ -8044,6 +8097,20 @@ var keywords = {
         "provenienza"
       ]
     ],
+    "memorable": [
+      [
+        "memorizzabile"
+      ],
+      [
+        "memorizzato"
+      ],
+      [
+        "memorizzata"
+      ],
+      [
+        "memorabile"
+      ]
+    ],
     "judged": [
       [
         "valutativo"
@@ -8740,7 +8807,7 @@ function buildLeMonarchTokens(lang) {
   const qualifiers = words(T, ["qualifier"]);
   const copulas = words(T, ["copula", "ignorable", "meta_marker", "that"]);
   const preps = words(T, ["connective_heuristic", "of"]);
-  const additions = alt(T, ["opposite", "synonym", "prepositional", "unknown", "undefined", "known_as", "judged", "via_service", "by_default"]);
+  const additions = alt(T, ["opposite", "synonym", "prepositional", "unknown", "undefined", "known_as", "judged", "memorable", "via_service", "by_default"]);
   return {
     tokenizer: {
       root: [

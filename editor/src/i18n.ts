@@ -6,24 +6,74 @@
  * ENGLISH text: t('Save As...') returns the active language's translation or
  * the key itself, so untranslated strings degrade gracefully.
  *
- * The UI language is a user preference (localStorage + cookie, so the
- * server-rendered /login page can honor it too). It is set ONLY by the
- * /multilingual pages — ?lang=X sets X, their back-to-English link resets
- * to English; there is no in-editor selector, to avoid confusion with the
- * language of the program being edited. Per decision O-6 it governs chrome,
- * the default language of NEW programs and the Assistant; a loaded
- * program's own language always governs parsing.
+ * The UI language (the language of the menus, buttons and messages) is a
+ * user preference, kept in localStorage and in the le_ui_lang cookie, so the
+ * server-rendered /login page can honor it too. It is set in the editor's
+ * Misc menu (MENU LANGUAGE). Until the user chooses, the first of the
+ * browser's preferred languages that the dictionaries cover is adopted, and
+ * remembered. The language of the program being edited never changes it:
+ * a program in Español Lógico is edited with the menus in the reader's
+ * language. Per decision O-6 the UI language governs chrome, the default
+ * language of NEW programs and the Assistant; a loaded program's own
+ * language always governs parsing.
  */
 import { uiCatalog, languages, keywords, keywordPhrases, LanguageInfo } from './generated/i18nData';
 
 const STORAGE_KEY = 'le-ui-lang';
+const COOKIE = 'le_ui_lang';
+
+function isLanguage(code: string | null | undefined): code is string {
+    return !!code && languages.some(x => x.code === code);
+}
+
+/**
+ * The first of the browser's preferred languages that the dictionaries
+ * cover ('pt-BR' counts as 'pt'), or English.
+ */
+export function browserUiLang(): string {
+    let prefs: readonly string[] = [];
+    try { prefs = navigator.languages?.length ? navigator.languages : [navigator.language]; } catch (e) { /* no navigator */ }
+    for (const p of prefs) {
+        const code = (p || '').toLowerCase().split('-')[0];
+        if (isLanguage(code)) return code;
+    }
+    return 'en';
+}
+
+/** Remember the UI language (localStorage, and the cookie the server reads). */
+export function setUiLang(code: string): void {
+    if (!isLanguage(code)) return;
+    try { localStorage.setItem(STORAGE_KEY, code); } catch (e) { /* no storage */ }
+    try { document.cookie = `${COOKIE}=${code};path=/;max-age=31536000;SameSite=Lax`; } catch (e) { /* no document */ }
+}
+
+let cachedLang: string | null = null;
 
 export function uiLang(): string {
+    if (cachedLang) return cachedLang;
+    let stored: string | null = null;
+    try { stored = localStorage.getItem(STORAGE_KEY); } catch (e) { /* no storage (tests) */ }
+    if (isLanguage(stored)) {
+        cachedLang = stored;
+    } else {
+        // first use: adopt the browser's language, and keep it
+        cachedLang = browserUiLang();
+        setUiLang(cachedLang);
+    }
+    return cachedLang;
+}
+
+/**
+ * The name of a UI language in that language ("Español", "Português"), from
+ * the browser's own list of language names; the registry's English name
+ * where the browser has none.
+ */
+export function uiLanguageName(code: string): string {
     try {
-        const l = localStorage.getItem(STORAGE_KEY);
-        if (l && languages.some(x => x.code === l)) return l;
-    } catch (e) { /* no storage (tests) */ }
-    return 'en';
+        const n = new Intl.DisplayNames([code], { type: 'language' }).of(code);
+        if (n && n !== code) return n.charAt(0).toLocaleUpperCase(code) + n.slice(1);
+    } catch (e) { /* no Intl.DisplayNames */ }
+    return code;
 }
 
 export function languageList(): LanguageInfo[] {

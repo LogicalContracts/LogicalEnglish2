@@ -49,6 +49,18 @@ web address), which is handy when you want to share a link:
     `/?dir=insureLE2/testing`), with a "[show all]" link back to the full list.
 *   `?expand=all` opens all the folders.
 
+Each folder has a small link symbol (🔗) after its name. A click on the symbol
+copies the web address of that folder, ready to paste into a message; the
+symbol shows "Copied" for a moment. The address is the page with
+`?dir=<the folder>`. Opening the address shows that folder, open and in view.
+The browser's own right-click command **Copy link** on the symbol copies the
+same address.
+
+The line **Other languages** of the landing page leads to the programs written
+in Português Lógico, Español Lógico, Français Logique and Italiano Logico. The
+guide [Logical English in other languages](languages.md) explains how a
+program chooses its language.
+
 1.  **Open the editor:** go to the editor's address (for example, `http://localhost:3050/editor/`).
 2.  **What is on the screen:**
     *   **Top:** a header naming the file you are editing and the program the server has loaded.
@@ -374,6 +386,7 @@ The [executive view](executive-view.md#when-there-is-no-answer-why-not), and any
 
 ## Advanced Features
 
+*   **Menu language:** **Misc → MENU LANGUAGE** chooses the language of the menus, the buttons and the messages: English, Português, Español, Français or Italiano. The page reloads in the chosen language, and the browser remembers the choice. Until you choose, the editor uses your browser's preferred language when Logical English has that language, and English otherwise. The language of the menus is separate from the language of the program: a program in Español Lógico can be edited with English menus. See [Logical English in other languages](languages.md#the-language-of-the-menus).
 *   **Executive view:** ([guide](executive-view.md)) **Misc → Open Executive View** opens the executive view of the program in a new tab, on the scenario and query you picked in the editor, with the program's views listed at the top. The executive view shows the program as it stands in the editor, changes you have not saved included. The editor passes the text to the new tab through the browser's own store, so if you copy a link out of that tab and open it in another browser, the other browser shows the saved program instead.
 *   **LPS programs:** a document that declares `the target language is: lps.` plays out over time rather than answering queries, so the query bar shows two buttons instead of the usual ones.
     **Run in LPS** (also at **Misc → Run in LPS**) opens the Logical English → LPS page with the document as it stands in the editor, and runs it with the LPS engine: the timeline, the changes of state, the explanations. The LPS engine is the LPS2 program, and it has to be running already — start it with `LPS_LE2_LIB=<this checkout> ./lps ide` in your copy of LPS2, where `<this checkout>` is the folder holding this copy of Logical English 2.

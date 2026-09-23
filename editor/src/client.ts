@@ -1,5 +1,5 @@
 import { leLanguageConfiguration, leMonarchTokens, buildLeMonarchTokens } from './le-language';
-import { t, applyI18nDom, installLeApiLang, detectProgramLanguage, detectTargetLanguage, targetLanguageStatement, uiLang } from './i18n';
+import { t, applyI18nDom, installLeApiLang, detectProgramLanguage, detectTargetLanguage, targetLanguageStatement, uiLang, setUiLang, uiLanguageName, languageList } from './i18n';
 
 /**
  * Where a diagnostic is explained, as a Monaco marker `code` (a link in its
@@ -47,6 +47,35 @@ interface DocNav { sections: { title: string; items: DocNavItem[] }[] }
  * Help ▸ Documentation: the documents nav.json gives a `menu` label, in the
  * UI language, each opening its translation when the active language has one.
  */
+// Misc > MENU LANGUAGE: one item per language of the dictionaries, named
+// in its own language, the current one ticked. Choosing another reloads the
+// page, which is how the chrome is translated (applyI18nDom works from the
+// English page); the browser asks first if a document has unsaved changes.
+function fillUiLanguageMenu() {
+    const host = document.getElementById('menu-ui-languages');
+    if (!host) return;
+    const current = uiLang();
+    host.innerHTML = '';
+    for (const info of languageList()) {
+        const item = document.createElement('div');
+        item.className = 'dropdown-item';
+        item.id = `menu-ui-lang-${info.code}`;
+        item.setAttribute('lang', info.code);
+        item.title = t('Show the menus, buttons and messages in this language (the page reloads)');
+        const check = document.createElement('span');
+        check.textContent = '✓';
+        check.style.marginRight = '5px';
+        check.style.visibility = info.code === current ? 'visible' : 'hidden';
+        item.append(check, uiLanguageName(info.code));
+        item.addEventListener('click', () => {
+            if (info.code === uiLang()) return;
+            setUiLang(info.code);
+            window.location.reload();
+        });
+        host.appendChild(item);
+    }
+}
+
 async function fillHelpMenu(): Promise<void> {
     const box = document.getElementById('help-docs');
     if (!box) return;
@@ -115,17 +144,12 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             }
         };
         // UI chrome language: API language parameter and DOM pass. The
-        // preference itself is set only by the /multilingual pages (?lang=X
-        // sets X, their back-to-English link resets it) — there is no
-        // in-editor selector, to avoid confusion with the language of the
-        // program being edited. The Home link accordingly returns to the
-        // landing page that matches the active UI language.
+        // preference is the reader's (Misc > MENU LANGUAGE, else the
+        // browser's language on first use), never the language of the
+        // program being edited.
         installLeApiLang();
         applyI18nDom();
-        const homeLink = document.querySelector('a.home-link');
-        if (homeLink && uiLang() !== 'en') {
-            homeLink.setAttribute('href', `/multilingual?lang=${encodeURIComponent(uiLang())}`);
-        }
+        fillUiLanguageMenu();
         void fillHelpMenu();
 
         const issueFixes = new Map<string, string>();
@@ -378,6 +402,14 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         });
         let activeDoc = firstDoc;
         let panelDoc = firstDoc;
+        // The Home link returns to the landing page of the program's
+        // language: the multilingual page of its examples, or the standard
+        // page for an English program.
+        const homeLink = document.querySelector('a.home-link');
+        const programLang = detectProgramLanguage(initialValue);
+        if (homeLink && programLang !== 'en') {
+            homeLink.setAttribute('href', `/multilingual?lang=${encodeURIComponent(programLang)}`);
+        }
         // the language server's view of the documents (set up with the server)
         let lspOpen = (_doc: EditorDoc) => {};
         let lspChange = (_doc: EditorDoc) => {};

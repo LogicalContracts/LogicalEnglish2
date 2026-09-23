@@ -9428,6 +9428,20 @@ var keywords = {
         "provenance"
       ]
     ],
+    "memorable": [
+      [
+        "memorable"
+      ],
+      [
+        "memoised"
+      ],
+      [
+        "memoized"
+      ],
+      [
+        "cached"
+      ]
+    ],
     "judged": [
       [
         "open",
@@ -11165,6 +11179,20 @@ var keywords = {
         "cen\xE1rio",
         "exigem",
         "proveni\xEAncia"
+      ]
+    ],
+    "memorable": [
+      [
+        "memoriz\xE1vel"
+      ],
+      [
+        "memorizado"
+      ],
+      [
+        "memorizada"
+      ],
+      [
+        "memor\xE1vel"
       ]
     ],
     "judged": [
@@ -12978,6 +13006,20 @@ var keywords = {
         "procedencia"
       ]
     ],
+    "memorable": [
+      [
+        "memorizable"
+      ],
+      [
+        "memorizado"
+      ],
+      [
+        "memorizada"
+      ],
+      [
+        "memorable"
+      ]
+    ],
     "judged": [
       [
         "evaluativo"
@@ -14691,6 +14733,17 @@ var keywords = {
         "exigent",
         "une",
         "provenance"
+      ]
+    ],
+    "memorable": [
+      [
+        "m\xE9morisable"
+      ],
+      [
+        "m\xE9moris\xE9e"
+      ],
+      [
+        "m\xE9moris\xE9"
       ]
     ],
     "judged": [
@@ -16488,6 +16541,20 @@ var keywords = {
         "richiedono",
         "una",
         "provenienza"
+      ]
+    ],
+    "memorable": [
+      [
+        "memorizzabile"
+      ],
+      [
+        "memorizzato"
+      ],
+      [
+        "memorizzata"
+      ],
+      [
+        "memorabile"
       ]
     ],
     "judged": [

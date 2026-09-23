@@ -5,13 +5,26 @@ const TOKEN = 'myToken123';
 const $ = (id) => document.getElementById(id);
 
 // ---- minimal UI i18n (shared catalog; see i18n/ui.csv) ---------------------
-const UI_LANG = (document.cookie.match(/(?:^|; )le_ui_lang=([a-z]{2})/) || [])[1] || 'en';
+// The reader's menu language, as the editor keeps it (the le_ui_lang cookie);
+// before any choice, the first of the browser's languages the catalog has.
+const UI_LANG_CHOSEN = (document.cookie.match(/(?:^|; )le_ui_lang=([a-z]{2})/) || [])[1] || '';
+let UI_LANG = UI_LANG_CHOSEN || 'en';
 let UI_CATALOG = {};
 const t = (s) => (UI_LANG !== 'en' && UI_CATALOG[s]) || s;
+function browserLangs() {
+    const prefs = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || 'en'];
+    return prefs.map(p => String(p).toLowerCase().split('-')[0]);
+}
 async function initI18n() {
-    if (UI_LANG === 'en') return;
+    if (UI_LANG_CHOSEN === 'en') return;
+    if (!UI_LANG_CHOSEN && browserLangs()[0] === 'en') return;
     try {
         const data = await (await fetch('/web_extras/executive/i18n-ui.json')).json();
+        if (!UI_LANG_CHOSEN) {
+            const found = browserLangs().find(l => l === 'en' || (data.ui && data.ui[l]));
+            UI_LANG = found || 'en';
+            if (UI_LANG === 'en') return;
+        }
         UI_CATALOG = (data.ui && data.ui[UI_LANG]) || {};
         // static chrome
         document.querySelectorAll('button, label span, .lead, .hint, h1, [title], [placeholder], [aria-label]')
