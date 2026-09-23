@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SpawnActivities>
+  <Spawn>
+    <Tests>
+      <Test>DaysPastDueMV &gt; GracePeriodDaysMV And PolicyStatusMV = 'Active'</Test>
+    </Tests>
+    <Transaction SPAWNCODE="01">Lapse</Transaction>
+  </Spawn>
+</SpawnActivities>

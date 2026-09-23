@@ -165,29 +165,30 @@ therefore opens the file at that MathVariable.
 
 ### Examples to try
 
-Six translated transactions are among the lpsPlus examples, visible only on
-installations that have those examples, and only to users with access. Open
+Six translated transactions are among the examples, open to everyone. Open
 them with **File ▸ Open example from server…**. The six come from two plans:
 a deferred annuity and a level term life policy:
 
-- `lpsPlus/migration/oipa/annuity_deposit`: premium tax, a bonus by size
+- `migration/oipa/annuity_deposit`: premium tax, a bonus by size
   (an IIF), the new account value; two checks;
-- `lpsPlus/migration/oipa/annuity_withdrawal`: policy year, free amount, a
+- `migration/oipa/annuity_withdrawal`: policy year, free amount, a
   surrender charge rate by policy year (a RATE), a MathIF, the net amount;
   two checks; spawns FullSurrender; copies the account value;
-- `lpsPlus/migration/oipa/annuity_full_surrender`: the surrender value of
+- `migration/oipa/annuity_full_surrender`: the surrender value of
   the spawned transaction; copies the value and the status;
-- `lpsPlus/migration/oipa/termlife_issue`: issue age at the nearest
+- `migration/oipa/termlife_issue`: issue age at the nearest
   birthday, a premium rate by age, gender and tobacco (192 rows), annual and
   modal premiums; two checks; six copies;
-- `lpsPlus/migration/oipa/termlife_premium_payment`: whole modes paid and
+- `migration/oipa/termlife_premium_payment`: whole modes paid and
   the new paid-to date; one check;
-- `lpsPlus/migration/oipa/termlife_grace_check`: days past due, in grace;
+- `migration/oipa/termlife_grace_check`: days past due, in grace;
   spawns Lapse.
 
 No public OIPA configuration exists, so the two plans were written for this
 purpose, following the forms in Oracle's public OIPA XML Configuration Guide.
-The two plans are not Oracle's. Their scenarios are the activities of several
+The two plans are not Oracle's. Like every translated program, each of the six
+is provided "as is", without warranty of any kind, and is not insurance or
+financial advice; its opening comment says so in full. Their scenarios are the activities of several
 policy lives: a deposit refused for being zero, a withdrawal that spawns the
 full surrender, a lapse spawned 44 days past due, an issue refused for age and
 face amount, and more. The expected values were computed by a separate program

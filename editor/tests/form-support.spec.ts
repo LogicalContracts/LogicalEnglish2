@@ -2,8 +2,7 @@ import { test, expect } from '@playwright/test';
 
 // The forms and views for people who state facts rather than write rules,
 // on a program whose templates all come from the resources it includes
-// (examples/moreExamples/lpsPlus/customs/by_hand.le, from the InsurLE
-// repository checked out beside this one, includes the tariff):
+// (examples/regulatory/customs/by_hand.le, which includes the tariff):
 // - the Scenario Editor, opened before the program has loaded, still offers
 //   the included templates; each blank suggests the values the rules read
 //   there; a fact takes the passage that states it ("confer …");
@@ -14,7 +13,7 @@ test.describe('Forms and views for stating facts', () => {
     test('Scenario Editor: included templates, value suggestions, a citation', async ({ page, context }) => {
         test.setTimeout(120000);
         await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-        await page.goto('index.html?example=lpsPlus/customs/by_hand');
+        await page.goto('index.html?example=regulatory/customs/by_hand');
         await page.waitForSelector('.monaco-editor', { timeout: 30000 });
         // no load yet: the menu entry loads the program before opening the window
         const [se] = await Promise.all([
@@ -50,7 +49,7 @@ test.describe('Forms and views for stating facts', () => {
 
     test('Scenario Variations: the facts of included templates are editable rows', async ({ page, context }) => {
         test.setTimeout(120000);
-        await page.goto('/executive?program=lpsPlus/customs/plastics_cbp&scenario=ny_n363253&query=subheading');
+        await page.goto('/executive?program=regulatory/customs/plastics_cbp&scenario=ny_n363253&query=subheading');
         await expect(page.locator('#answers .answer').first()).toBeVisible({ timeout: 90000 });
         const [sv] = await Promise.all([context.waitForEvent('page'), page.click('#tool-variations')]);
         await sv.waitForLoadState();
@@ -61,7 +60,7 @@ test.describe('Forms and views for stating facts', () => {
 
     test('Executive view: the cited steps first, each opening its passage', async ({ page }) => {
         test.setTimeout(120000);
-        await page.goto('/executive?program=lpsPlus/customs/cbp_62&scenario=ny_n346508&query=subheading');
+        await page.goto('/executive?program=regulatory/customs/cbp_62&scenario=ny_n346508&query=subheading');
         const answer = page.locator('#answers .answer').first();
         await expect(answer).toBeVisible({ timeout: 90000 });
         await answer.locator('.answer-head').click();

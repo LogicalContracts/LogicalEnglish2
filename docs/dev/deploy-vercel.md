@@ -179,15 +179,20 @@ by this build.
 On top of that: no symbolic links (`le_extensions.pl`, `le_importers.pl` and
 the `insureLE2`/`lpsPlus` example trees are links into private repositories,
 and a link resolves perfectly well on the machine that builds — which is
-exactly what makes it dangerous), and no `le_users.db`. The second rule is
-the one that keeps `restricted_paths:open_to_everyone/1` out of the payload:
-the files it names (the Medicare power mobility policy) pass the first rule,
-but they sit in a linked tree and need `le_extensions.pl`, so the static site
-neither ships nor could run them — the pages that link to them name the
-server.
+exactly what makes it dangerous), and no `le_users.db`.
 
 `--private` turns both off, for a deployment that is not public. The build
 says so, loudly, when it does.
+
+**The browser build is "LE light".** Some public examples are left out
+because of their size, not their access: the customs and Medicare models
+(`examples/regulatory/customs/`, `examples/regulatory/medicare/`) and the OIPA
+twins (`examples/migration/oipa/`). With them the payload every visitor
+unpacks before the first request grows from about 6 MB to 18 MB, mostly the
+Medicare cited texts. They are the rows of `light_excluded/1` in
+`wasm/pack.pl`, left out of a `--private` build too, and
+`testing/test_wasm_pack.pl` checks that none of their files is packed. Links to
+them name the server. Add a row there to keep another large tree out.
 
 The example sources served at `/source/` are the same files: an example that
 is in the payload is one anybody can already open in the editor, so writing it
@@ -209,6 +214,7 @@ Check what a build contains at any time:
 | The **debugger** (*Trace*) | it is a second thread talking a websocket to the editor, and there is one thread | tracing is not offered |
 | **Interrupting** a running query | the interrupt arrives on another thread, and there is one | a query runs to its limit |
 | **Accounts**, restricted examples | no server, nothing private shipped | no login link (the page is built without one) |
+| The **large models** (customs, Medicare) and the OIPA twins | public, but too large for every visitor to unpack (`light_excluded/1` in `wasm/pack.pl`) | not in the examples list; open them on the server |
 | **s(CASP)** | an optional pack, not in the payload | "the s(CASP) engine is not installed on this server" |
 | Running the **test suite** from the landing page | it is a server's job | the button is not there |
 | A landing page **focused on one folder** (`/?dir=…`) | the page is rendered once, at build time, and a static host cannot render a different one per query | the full list; the folders still collapse and expand, which is client-side |

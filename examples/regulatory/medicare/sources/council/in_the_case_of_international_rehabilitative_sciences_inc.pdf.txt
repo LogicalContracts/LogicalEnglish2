@@ -1,0 +1,408 @@
+Title: In the Case of International Rehab. Sciences d/b/a RS Medical
+
+URL Source: https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/in_the_case_of_international_rehabilitative_sciences_inc.pdf.pdf
+
+Published Time: Mon, 29 Aug 2016 04:19:58 GMT
+
+Number of Pages: 25
+
+Markdown Content:
+DEPARTMENT OF HEALTH AND HUMAN SERVICES 
+
+DEPARTMENTAL APPEALS BOARD 
+
+DECISION OF MEDICARE APPEALS COUNCIL 
+
+Docket Number: M-10-979 
+
+In the case of 
+
+International Rehabilitative Sciences, Inc. d/b/a RS Medical (Appellant) 
+
+**** 
+
+(Beneficiary) 
+
+Claim for 
+
+Supplementary Medical Insurance Benefits (Part B) 
+
+Noridian, National Government Services, NHIC, CIGNA, and Palmetto GBA (Contractor) 
+
+**** 
+
+(HIC Number) **** (ALJ Appeal Number) 
+
+The Administrative Law Judge (ALJ) issued a decision dated February 23, 2010, concerning Medicare coverage for a BioniCare® Stimulator Model BIO-1000 (BIO-1000), which the appellant supplied to 28 beneficiaries on various dates in 2005, 2006, and 2007. 1 The ALJ determined that Medicare would not cover the items at issue and that the appellant was liable for the non-covered items. The appellant has asked the Medicare Appeals Council to review this action. 
+
+The Council reviews the ALJ’s decision de novo . 42 C.F.R. § 405.1108(a). The Council will limit its review of the ALJ’s action to the exceptions raised by the party in the request for review, unless the appellant is an unrepresented beneficiary. 42 C.F.R. § 405.1112(c). 
+
+For the reasons articulated below, the Council modifies the ALJ’s decision. More specifically, the Council adopts the ALJ’s ultimate conclusion that the BIO-1000 is not covered by Medicare  
+
+> 1 To maintain privacy, the Council will refer to the beneficiaries using the numbers previously assigned to them by the ALJ. Their full names and HICNs, as well as the specific items and dates of service at issue are listed on the attached “Beneficiary List” to this decision. 2
+
+for the reasons set forth in this decision, but provides additional rationale supporting the conclusion. However, the Council reverses in part the ALJ’s finding that none of the twenty-eight beneficiaries at issue in this decision received valid advance beneficiary notices (ABNs). We find that ten beneficiaries did receive valid ABNs and are liable for the 
+
+non-covered items they received. For the remaining eighteen beneficiaries, the Council agrees with the ALJ and concludes that those beneficiaries are not liable for the cost of the 
+
+non-covered items either because they received no ABNs, or because they received invalid ABNs. The appellant is liable for the non-covered items provided to those beneficiaries. 
+
+BACKGROUND 
+
+The present case arises from the appellant’s claims for Medicare Part B coverage and payment for BIO-1000 devices and/or supply kits it furnished to 28 Medicare beneficiaries in 2005, 2006, and 2007. The BIO-1000 is a device that delivers pulsed electrical stimulation to the knee and is used in the treatment of osteoarthritis of the knee. The appellant billed Medicare for the BIO-1000s under HCPCS code E0762 and for the supply kits under A4595. 2
+
+In the majority of cases, the appropriate Durable Medical Equipment Medicare Administrative Contractor (DME MAC) initially denied the appellant’s claims and upon redetermination, concluded that the initial denials were appropriate because Medicare did not cover the BIO-1000. On reconsideration, the Qualified Independent Contractor (QIC) generally denied coverage for the beneficiaries based upon a finding that Medicare did not cover the BIO-1000. 
+
+By letter dated November 13, 2007, the appellant requested an ALJ hearing on multiple claims. ALJ Master File (Master), Exh. 3. Regarding claims where payment had been made, the appellant asserted that “no fee schedule existed in 2006 and thus payment should have been made at 80% of the amount billed.” Id. at 1. 
+
+Regarding claims where the contractors denied coverage, the appellant averred that sufficient documentation had been submitted to support the medical necessity of the items. Id.  
+
+> 2 The Centers for Medicare & Medicaid Services (CMS) developed the Healthcare Common Procedure Coding System (HCPCS) to establish “uniform national definitions of services, codes to represent services, and payment modifiers to the codes.” 42 C.F.R. § 414.40(a). 3
+
+The appellant also submitted a pre-hearing brief, asserting that no fee schedule was in place during the period at issue and that the record supported that the BIO-1000 was safe and effective and therefore covered by Medicare. Master Exh. 9. 
+
+In response to the appellant’s request, the ALJ issued a Notice of Hearing on February 2, 2008, setting a hearing for March 27, 2008. Master Exh. 5. The Notice of Hearing, in pertinent part, stated that the ALJ would consider the following issues at a March 27, 2008, hearing: 
+
+The hearing will address the application of Medicare laws and regulations to your appeal. The more specific issue(s) addressed will include whether payment may be made under Part B of Title XVIII of 42 United States Code. 
+
+Id . at 2. The appellant did not object to this statement of the issue in its “Response to Notice of Hearing.” Master Exh. 7 at 1-2. On April 29, 2008, the ALJ held a telephone hearing where the appellant’s representative presented argument and witnesses who provided testimony. Dec. at 2, Hearing CD. 
+
+On December 18, 2008, the ALJ issued a decision unfavorable to the appellant. The ALJ stated that “[t]he general issue is whether payment is due” under the Medicare Part B program. Dec. at 1. He described the different types of claims involved in the case and stated that “[t]he QIC denied coverage of the disputed claims on one or more of three bases.” Id. at 2. 
+
+The ALJ noted that, in some instances, the QIC concluded that the appellant “was not entitled to reimbursement at the rates it claimed” and that the appellant had argued that CMS had not adopted a fee schedule specifically covering the BIO-1000 until July 1, 2007. Id. 
+
+The ALJ then analyzed coverage for all claims. Id. at 6-11. Ultimately, the ALJ denied Medicare coverage for the BIO-1000 devices at issue because there was insufficient evidence to establish that the devices were reasonable and necessary for the beneficiaries. Id. The ALJ also found that the appellant “has not met its burden of proving that the device was medically reasonable and necessary, and since such would have to be proven in order to reach the other issues, the [claims that were paid initially and those involving supplies only] are also denied.” 
+
+Id. at 2 (emphasis added). The ALJ found that the beneficiaries 4
+
+received insufficient notice to establish liability and held the appellant liable for the non-covered costs. Id. at 12-13. 
+
+On June 11, 2009, the Council vacated the hearing decision and remanded the case to the ALJ for further proceedings, including a new decision. Exh. 16 at 3. The Council found that the ALJ erred by not considering the appellant’s contentions regarding the fee schedule’s inapplicability and by not providing adequate notice to the appellant that he would consider the issue of coverage when adjudicating the previously covered claims in the present case. Id . at 7. Therefore, the Council remanded the case to the ALJ for supplementary proceedings, including offering the parties the opportunity for another hearing and issuing a new decision. Id .
+
+The ALJ held supplemental hearings at which the appellant’s representative presented argument and witness testimony. Specifically, present and providing argument and/or testimony at the October 6, 2009, hearing were the appellant’s counsel and Dr. Zizic. Dec. at 4. Appellant’s counsel appeared at the February 3, 2010, hearing. Id . at 4-5. 
+
+In the decision that followed, the ALJ denied the claims for all twenty-eight beneficiaries on the ground that the appellant had not established a basis for Medicare coverage of the BIO-1000 device. Dec. at 8-15. The ALJ ruled that the device is investigational and experimental, and therefore does not meet Medicare coverage requirements. Id. 
+
+In its request for Council review dated April 1, 2010, the appellant summarizes its exceptions by posing a series of questions: 
+
+1.  Can an ALJ deem a device to be experimental or investigational when none of the CMS contractors has deemed the device to be experimental or investigational, the FDA cleared the device and Medicare contractors have been paying for the device since before the dates of service? 
+
+2.  Is a medical device manufacturer entitled to a presumption of coverage based on the award of a HCPCS code that is not experimental? 
+
+3.  Can an ALJ deny coverage of a device which the treating physician certified was reasonable and medically 5
+
+necessary, which the Medicare carrier and QIC found that coverage existed, and for which no medical evidence was introduced to refute those determinations? 4. Was the BIO-1000 reasonable and medically necessary and entitled to coverage for the claims at issue? 5. Is an ABN that uses the CMS ABN form, specifies the devices being provided, and which states the actual basis of anticipated denial invalid? Who is liable? 6. What is the appropriate reimbursement for the BIO-1000? Exh. MAC-1 at 1-2. Questions 1 through 4 relate to the issue of whether the record as a whole supports a finding that the BIO-1000 and, if applicable, any related supplies, were reasonable and necessary for the beneficiaries. Question 5 relates to the validity of specific ABNs, if provided, to shift liability for the cost of the non-covered items from the appellant to the beneficiaries. Question 6 addresses the amount of Medicare payment due the appellant. 
+
+APPLICABLE LEGAL AUTHORITIES 
+
+Issues before the ALJ 
+
+Medicare claims appeals regulations define the issues that the ALJ may consider in a case as follows: 
+
+The issues before the ALJ include all the issues brought out in the initial determination, redetermination, or reconsideration that were not decided entirely in a party’s favor. . . . However, if evidence presented before the hearing causes the ALJ to question a favorable portion of the determination, he or she notifies the parties before the hearing and may consider it an issue at the hearing. 
+
+42 C.F.R. § 405.1032(a). 
+
+Durable Medical Equipment (DME) 
+
+Section 1832(a) of the Social Security Act (Act) provides that benefits under Medicare Part B include “medical and other health services.” Section 1861(s)(6) of the Act defines “medical and 6
+
+other health services” as including DME. Section 1861(n) of the Act lists certain items that are classified as DME. Neither a transcutaneous electrical nerve stimulator (TENS) unit, nor the device at issue, is listed in section 1861(n). By its own terms, however, section 1861(n) is not an exhaustive list of those items that qualify as DME. 
+
+Medicare covers DME if it (1) meets the definition of DME; (2) is medically “reasonable and necessary;” and (3) the equipment is used in the beneficiary’s home. Medicare Benefit Policy Manual (MBPM)(Pub. 100-02), Ch. 15, § 110. DME is defined as equipment that can withstand repeated use; is primarily and customarily used to serve a medical purpose; generally is not useful to an individual in the absence of an illness or injury; and is appropriate for use in the home. 42 C.F.R. § 414.202. 
+
+Medically Reasonable and Necessary 
+
+Section 1862 of the Act provides that: 
+
+(a) Notwithstanding any other provision of this title, no payment may be made under part A or part B for any expenses incurred for items and services -
+
+(1)(A) which . . . are not reasonable and necessary for the diagnosis and treatment of illness or injury or to improve the functioning of a malformed body member. 
+
+Historically, in making coverage determinations, CMS has interpreted the terms reasonable and necessary to mean that the item or service in question is safe and effective and not experimental. CMS has further determined that the relevant tests for applying these terms are whether the item or service has been proven safe and effective based on authoritative evidence, or alternatively, whether the item or service is generally accepted in the medical community as safe and effective for the condition for which it is used. 54 Fed. Reg. 4304 (Jan. 30, 1989); 60 Fed Reg. 48417 (Sept. 19, 1995). 
+
+See also 52 Fed. Reg. 15560 (Apr. 29, 1987). Although an FDA-regulated product must receive FDA approval or clearance (unless exempt from the FDA premarket approval review process) for at least one indication to be eligible for Medicare coverage, except for certain Category B devices, FDA approval/clearance alone does not generally entitle a device to Medicare coverage. 68 Fed. Reg. 55634, 55636 (Sept. 26, 2003). 7
+
+The Act vests in the Secretary the authority to make coverage decisions. Under that authority, CMS issues National Coverage Determinations (NCDs) that state whether specific medical items, services, treatment procedures, or technologies may be paid for by Medicare. In the absence of a specific NCD, the Medicare contractor is responsible for determining whether an item or service is reasonable and necessary. (See preface to Coverage Issues Manual (reprinted at 54 Fed. Reg. 34555 (Aug. 21, 1989)). The Medicare contractor has not issued any Local Coverage Determinations (LCDs) concerning the device. 3 However, in determining whether the BIO-1000 is medically reasonable and necessary to treat osteoarthritis of the knee, individual adjudicators, including ALJs and the Council, take into account the same issues that CMS and its contractors consider when they make coverage determinations, including, when appropriate, factors that contractors use when they develop LCDs. 
+
+CMS has provided guidance in the Medicare Program Integrity Manual (CMS Pub. 100-08) (MPIM) to assist contractors in developing LCDs. The MPIM instructs contractors that, “[i]n order to be covered under Medicare, a service shall be reasonable and necessary.” MPIM Ch. 13, § 13.5.1. The MPIM contemplates that, in making a determination as to whether an item or service is reasonable and necessary, contractors will analyze whether the item or service is safe and effective, and not experimental or investigational: 
+
+Contractors shall consider a service to be reasonable and necessary if the contractor determines that the service is: 
+
+ Safe and effective; 
+
+ Not experimental or investigational . . .; and 
+
+ Appropriate, including the duration and frequency that is considered appropriate for the service . . . . 
+
+Id.    
+
+> 3The appellant states that draft LCDs were issued in late 2008. See April 1, 2010, Request for Review, admitted into the record as Exh. MAC-1, at 4. To date, there are no final LCDs in effect for the device at issue. 8
+
+The MPIM further instructs contractors to base LCDs on the strongest evidence available at the time the determination is issued. In order of preference, this includes: 
+
+ Published authoritative evidence derived from definitive randomized clinical trials or other definitive studies, and 
+
+ General acceptance by the medical community (standards of practice), supported by sound medical evidence based on: 
+
+ Scientific data or research studies published in peer-reviewed medical journals; 
+
+ Consensus of expert medical opinion (i.e., recognized authorities in the field); or 
+
+ Medical opinion derived from consultations with medical associations or other health care experts. 
+
+Id. at § 13.7.1. The manual further explains: 
+
+Acceptance by individual health care providers, or even a limited group of health care providers, normally does not indicate general acceptance by the medical community. Testimonials indicating such limited acceptance, and limited case studies distributed by sponsors with financial interest in the outcome, are not sufficient evidence of general acceptance by the medical community. The broad range of available evidence must be considered and its quality shall be evaluated before a conclusion is reached. 
+
+Id. 
+
+DISCUSSION 
+
+We address each of the appellant's contentions below. For the reasons articulated below, the Council finds that the appellant has not met its burden to demonstrate medical reasonableness and necessity of the devices at issue. 9
+
+1.  FDA Clearance and HCPCS Coding 
+
+In its request for review, the appellant asserts that FDA clearance establishes conclusively that the BIO-1000 is safe and effective and not experimental or investigational: 
+
+Under Medicare regulations, pursuant to the FDA’s determination that the BIO-1000 is a class II device, CMS deems it to be a “Category B” device which means that it is “non-experimental/investigational.” 
+
+Exh. MAC-1 at 2 (citing 42 C.F.R. § 405.201(b)). The appellant appears to argue that, because under the quoted provision the BIO-1000 may be deemed “non-experimental/investigational,” CMS would be precluded from excluding the device from Medicare coverage on the ground that its use is not yet proven effective for Medicare beneficiaries or generally accepted in the medical community. The appellant misreads the relevant authority. 
+
+The regulations state that “CMS may consider for Medicare coverage” FDA approved devices “that have been categorized as non-experimental/investigational.” 42 C.F.R. § 405.201(a)(2) (emphasis added). The regulations further clarify that CMS uses FDA categorization “ as a factor in making Medicare coverage decisions.” 42 C.F.R. § 405.201(a)(1) (emphasis added). Thus, under Medicare regulations, the fact that a device may be deemed non-experimental/investigational by virtue of its FDA classification means, as a threshold matter, only that it is eligible to be considered for Medicare coverage. 
+
+This conclusion is reinforced by statements published by CMS in the Federal Register. On September 26, 2003, the Department of Health and Human Services (HHS), under the joint signature of the Secretary of HHS and the CMS Administrator, issued a notice describing the revised decision-making process that CMS uses to make a NCD. 68 Fed. Reg. 55634 (Sept. 26, 2003). In addition to describing the new process, the notice discussed the difference between CMS review of a medical device as compared to reviews conducted by the FDA. Id . at 55636. In pertinent part, the notice explains that: 
+
+Both CMS and the FDA review scientific evidence, and may review the same evidence, to make purchasing and regulatory decisions, respectively. However, CMS and its contractors make coverage determinations and the FDA conducts premarket review of products under 10
+
+different statutory standards and different delegated authority (67 FR 66755, Nov. 1, 2002). Whereas the FDA must determine that a product is safe and effective as a condition of approval, CMS must determine that the product is reasonable and necessary as a condition of coverage under section 1862(a)(1)(A) of the Act. CMS adopts FDA determinations of safety and effectiveness, and CMS evaluates whether the product is reasonable and necessary for the Medicare population. Although an FDA-regulated product must receive FDA approval or clearance (unless exempt from the FDA premarket review process) for at least one indication to be eligible for coverage [discussion of Category B devices omitted] FDA approval/clearance alone does not generally entitle that device to coverage. 
+
+Id. 
+
+Moreover, FDA clearance does not preclude CMS or its contractors, in analyzing whether a particular item or service is medically reasonable and necessary, from making an independent inquiry into whether the item or service is safe and effective and not experimental or investigational. MPIM, Ch. 13, § 5.1. Nor does it preclude CMS or its contractors from inquiring whether the item or service is supported by “[p]ublished authoritative evidence derived from definitive randomized clinical trials or other definitive studies.” Id. at § 7.1. If FDA clearance were dispositive of these issues, there would be no need for the MPIM provisions cited above. 
+
+Accordingly, the FDA clearance that the BIO-1000 obtained does not, by itself, establish that the device meets Medicare coverage requirements; i.e., that it has been shown to be a medically reasonable and necessary treatment for osteoarthritis of the knee. The Council finds that the evidence, as summarized below, does not establish that, at the time the devices were furnished, the BIO-1000 met medical necessity standards for Medicare coverage. 
+
+Similarly, the appellant contends that CMS has recognized the effectiveness of the BIO-1000 because it has issued a HCPCS code for the device. Exh. MAC-1 at 3-4. The appellant appears to equate the issuance of a HCPCS code with a favorable Medicare coverage determination. CMS has made clear in several policy statements, however, that there is no link between the issuance 11
+
+of a HCPCS code and a determination that an item or service is covered by Medicare. For example, in the Innovators’ Guide to Navigating CMS (Aug. 25, 2008), CMS stated unequivocally: “Coding is distinct from coverage of a new technology; assignment of a new code does not automatically imply coverage by any payer.” Id. at 18. 4 Therefore, the fact that CMS issued a HCPCS code for the BIO-1000 does not provide any further support to the appellant’s claims for coverage. 
+
+2.  Medical Reasonableness and Necessity 
+
+The burden is on the appellant to establish that the device in this case was medically reasonable and necessary when furnished to the beneficiaries. Accordingly, the Council has considered whether the evidence the appellant submitted is sufficient to establish that the BIO-1000 was a medically reasonable and necessary device when it was provided to the beneficiaries. 
+
+We note at the outset that throughout the record, the purpose of the BIO-1000 device has been described in a number of ways. The first generic description is that the BIO-1000 alleviates the pain and other symptoms that beneficiaries experience with osteoarthritis of the knee. The second description suggests that the medical benefit of the device is that its use may ultimately result in regeneration of the knee cartilage. 
+
+The Council finds that there is little objective evidence in the record that using the BIO-1000 results in regeneration of cartilage in humans. Therefore, if we were to determine that the appellant’s argument that the BIO-1000 is a medically reasonable treatment for osteoarthritis rests solely on the claim that it regenerated cartilage, i.e., it cured the defect causing the knee pain, the appellant’s contention that the device is medically reasonable and necessary for the “treatment” of osteoarthritis would clearly fail for lack of substantial evidence. However, since it appears that the appellant’s primary argument for coverage is more general; i.e., that the BIO-1000 is effective in alleviating the pain and symptoms associated with osteoarthritis, we evaluate the case primarily in those terms.   
+
+> 4The guide is available at: http://www.cms.hhs.gov/CouncilonTechInnov/ Downloads/InnovatorsGuide8_25_08.pdf. 12
+
+a.  Appellant’s Evidentiary Submissions 
+
+i. Affidavits 
+
+The appellant submitted testimony, affidavits, and curriculum vitae from Thomas M. Zizic, M.D.; Michael Rodeman, Vice-President of Operations for RS Medical; and Karen Boston-Wright, HealthCare Solutions, Inc. Master Exhs. 6, 8, 9, 11. Dr. Zizic has served as the President and CEO of BioniCare since 2003. 
+
+Id . As relevant here, Dr. Zizic, Mr. Rodeman, and Ms. Boston-Wright assert generally that the BIO-1000 is not a TENS unit and has been found not to be experimental or investigational in many cases. Id . The Council concurs with the assertion that the BIO-1000 is not a TENS unit, but disagrees with the assertion that the device is not experimental or investigational for the reasons stated below. 
+
+ii. Studies on Humans 
+
+The appellant submitted articles regarding studies that it asserts demonstrate the efficacy of the BIO-1000 in treating osteoarthritis of the knee. Master Exh. 2. The Council notes, at the outset, that much of the literature was authored, at least in part, by individuals connected with BioniCare, including Dr. Zizic. For example, two of the authors of an 8-week study to evaluate the safety and efficacy of the device in patients with osteoarthritis of the knee, published in 1995, were employees of BioniCare (Drs. Zizic and Caldwell). Id . The record also contains an article titled “Pulsed Electrical Stimulation in Patients with Osteoarthritis of the Knee: Follow Up in 288 Patients Who Had Failed Non-Operative Therapy.” Id .The article, reprinted from a conference presentation, describes a trial conducted from September 26, 2003, to July 20, 2005. The article is coauthored by Dr. Caldwell (BioniCare Medical Consultant), Dr. Zizic, and three other physicians. The Council accords these studies, at most, minimal weight based upon guidance in the MPIM. 
+
+According to the MPIM, 
+
+[L]imited case studies distributed by sponsors with financial interest in the outcome, are not sufficient evidence of general acceptance by the medical community. The broad range of available evidence must 13
+
+be considered and its quality shall be evaluated before a conclusion is reached. 
+
+MPIM, Ch. 13, § 7.1. Therefore, in the Council’s view, whether the authors of a study have a potential financial interest in the outcome is a legitimate inquiry in determining the appropriate weight to be given a study. 
+
+iii. Studies on Animals 
+
+The appellant has also relied on studies that used the technology at issue on animals. For example, the record contains the results of a study entitled “Pulsing Direct Current-Induced Repair of Articular Cartilage in Rabbit Osteochondral Defects,” published in the Journal of Orthopaedic 
+
+Research in 1990. Master Exh. 3. The article does not purport to correlate the results of the rabbit studies to the repair of human cartilage, and the Council finds no basis in Medicare coverage standards for relying on the study in this appeal. Similarly, a study entitled “Up-regulation of Chondrocyte Matrix Genes and Products by Electric Fields”, published in Clinical Orthopaedics & Related Research in October 2004, studied the effect of “capacitively coupled” electrical signals on chondrocytes isolated from the articular surface of fetal bovine 
+
+metacarpophalangeal joints. Master Exh. 3. While the study concluded that the procedure had some effect in vitro , it only suggested that it may be used in vivo as a noninvasive modality to promote cartilage healing or ameliorate the effects of osteoarthritis, or both. In summary, the Council finds that the above and similar animal studies have no probative value in determining whether the BIO-1000 is medically reasonable and necessary for the treatment of osteoarthritis in humans. 
+
+b. Acceptance in the Medical Community 
+
+The appellant argues that the BIO-1000 is generally accepted in the medical community and is, therefore, medically reasonable and necessary. Exh. MAC-1 at 5. The Council does not find that the evidence establishes that the device has general acceptance in the medical community. 14
+
+According to the request for review, more than 3000 physicians have prescribed the BIO-1000. Id . An affidavit of Michael Rodeman, dated August 24, 2007, avers that, as of June 1, 2007, over 3900 physicians had prescribed the device and as many as 1500 commercial payers had reimbursed for it. Master Exh. Binder. Even accepting these statements at face value, there is not sufficient evidence of record explaining the reasons the physicians decided to prescribe BIO-1000. 5 For this reason, the fact that physicians prescribed the device does not demonstrate that the general medical community accepts that the BIO-1000 is reasonable and necessary for the treatment of osteoarthritis. 
+
+Moreover, to the extent that the appellant produced affidavits from prescribing physicians asserting that BIO-1000 is effective for their patients, or that one or more independent medical experts may have opined in proceedings before other ALJs that the device was safe and effective and not experimental or investigational, such individual opinions do not establish acceptance by the general medical community. Id . The MPIM provides: 
+
+Acceptance by individual health care providers, or even a limited group of health care providers, normally does not indicate general acceptance by the medical community. Testimonials indicating such limited acceptance . . . are not sufficient evidence of general acceptance by the medical community. 
+
+MPIM Ch. 13, § 13.7.1. 
+
+For these reasons, the Council concludes that the appellant has not proven that the BIO-1000 device has gained general acceptance within the medical community for Medicare coverage. 
+
+c. Effect of Contractor Decisions 
+
+The appellant similarly asserts that the BIO-1000 devices at 
+
+issue must be regarded as medically reasonable and necessary because some Medicare contractors have paid similar claims. Exh. MAC-1 at 3-4. This argument is unpersuasive because the Council conducts a de novo review of ALJ decisions, which includes a review of the contractors’ determinations. Prior      
+
+> 5 If, hypothetically, a physician prescribed the device because a patient had failed all other treatments, and the physician regarded the BIO-1000 as a last resort, the fact that the physician prescribed the device would not necessarily prove that the physician believed the device was effective. 15
+> 6Appellant’s counsel asserts that Dr. Pilley testified at the ALJ hearing in this case as well as providing an affidavit. Exh. MAC-1 at 4. However, there is no evidence that he testified at this, or any other, hearing. See
+> Dec. at 4-5. Therefore, the ALJ did not have an opportunity to question Dr. Pilley about his affidavit.
+
+decisions of ALJs and contractors are not precedential, nor are they binding on the Council. 
+
+In further support of its contention that the BIO-1000 has been viewed as medically reasonable and necessary by some Medicare contractors, the appellant submitted two affidavits that purport to describe discussions in 2007, with several medical directors as to possible coverage for the BIO-1000 device. See Master Exh. CD. 6 The contents of these two affidavits are almost entirely hearsay, and in part double hearsay (i.e., “I think that he said that. . .”). They purport to describe what other persons (specifically contractor medical directors) said or thought. See, e.g., Id . at paras. 7, 11, 12, 13, 30-32. 
+
+To the extent that Dr. Pilley’s affidavit offers his own opinions and conclusions about possible Medicare coverage of the BIO-1000 device, whether the device is efficacious and safe, whether it is experimental and investigational, and what coverage criteria should govern its use, Dr. Pilley makes clear that he never reviewed an actual case involving the BIO-1000 in his capacity as the Medical Director for one DME Payment Safeguard Contractor. Id. , para. 33. Further, only the DME MACs, not the DME PSCs, may adopt local coverage policies. See 
+
+MPIM, Ch. 13, §§ 13.1.3, 13.2.4. 
+
+Dr. Pilley, who became the appellant’s medical director in July 2008, never explained the foundation for his affidavit to the extent that it purports to describe the coverage policy of the DME MACs responsible for processing claims and establishing coverage policy. Rather, Dr. Pilley’s affidavit contains numerous largely unsupported statements of personal opinion. 
+
+E.g ., “I . . . did not consider it experimental” (para. 7), “In my opinion” (para. 8), “I favored coverage” (para. 9), “I personally believe” (para. 15), “I believe that” (para. 16), “I did not and do not believe” (paras. 17, 18), and “It was my opinion” (para. 34). 
+
+The affidavit of Randy Murphy, who served as CEO of BioniCare until July 2007, and is currently CEO of Arthowave, a company that recently purchased the license to the BIO-1000 device, purports to explain what the DME MAC directors for Regions A and 16
+
+C said about coverage of the BIO-1000 device during one or two meetings on March 2, 2007, approximately one year before the affidavit was prepared. See Master Exh. CD. 
+
+With respect to the dates of these meetings, Mr. Murphy’s affidavit is confusing and internally inconsistent. In paragraphs 4 through 12 (under the heading “March 2007 Carrier Medical Director Meeting”) Mr. Murphy describes a meeting that he states occurred on March 2, 2007, with the DME MAC director for Region C. In paragraphs 13 through 19 (under the heading “January 7, 2008”) he describes a meeting that he states occurred on March 2, 2007, with the DME MAC director for Region A. Mr. Murphy does not indicate whether this was the same meeting, or a different meeting on the same day. Nor does he make any further reference to, or attempt to explain, what occurred on January 7, 2008. 
+
+The Council finds that the statements Mr. Murphy attributes to the DME MAC Medical Directors are implausible. For example, the Council does not find it credible that a DME MAC Medical Director would purposely create inconsistent coverage policies between regions in an effort to prompt the development of a national coverage policy. See para. 15. The affidavit is based on limited information, hearsay, and conjecture about what those DME MAC directors thought and said. Whether or not Mr. Murphy’s account of these meetings and statements is accurate, it does not have probative value with respect to the key issues of whether the device is experimental and investigational, has been demonstrated to be reasonable and necessary for the treatment of osteoarthritis of the knee, is supported by authoritative evidence derived from definitive randomized clinical trials or other definitive studies, and/or is generally accepted in the medical community based on sound medical evidence. 
+
+Moreover, section 1842(c)(2) of the Act provides that the DME MACs shall pay no less than ninety-five percent of “clean claims” within less than twenty-eight days. In view of the huge volume of Medicare claims processed each year, the vast majority of all claims are allowed without any individual review. Typically, individual review is given only to claims that are selected for review based on a processing edit. See generally 
+
+MPIM at Ch. 1 (Overview of Medical Review (MR) and Benefit Integrity (BI) Programs). Thus, the fact that some claims were allowed in the past does not demonstrate a conscious coverage policy. Nor has appellant introduced evidence that some claims were allowed after individual consideration and review of a 17
+
+beneficiary’s medical condition by a DME MAC. The denial of the claims at issue itself belies any assertion that CMS or its contractors had an affirmative uniform policy of coverage. 
+
+For these reasons, the affidavits do not provide credible evidence of a policy on the part of CMS or its contractors with respect to Medicare coverage, or noncoverage, for this device. 
+
+d. Appellant’s Reasonableness Argument 
+
+The appellant further asserts that the use of the BIO-1000 is less costly, less invasive, and presents far less risks to the beneficiary than a total knee replacement. Exh. MAC-1 at 5. Further, the appellant contends that “[u]nder Medicare’s reasonableness analysis, the BIO-1000 should be tried before a knee replacement is done.” Id . However, as explained above, the BIO-1000 is considered experimental or investigational and thus is not medically reasonable and necessary. 
+
+For these reasons, the Council concludes that Medicare does not cover the devices at issue because they were not medically reasonable and necessary under section 1862(a)(1) of the Act. 
+
+3.  Liability 
+
+Section 1879 of the Act provides that a beneficiary or supplier may be liable for the cost of an item or service that is not “reasonable and necessary” based upon prior knowledge of noncoverage. Act at § 1879(a); 42 C.F.R. §§ 411.400, 411.404, 411.406; Medicare Claims Processing Manual (MCPM), Pub. 100-04, Ch. 30, § 40. A beneficiary is deemed to have knowledge of noncoverage if the supplier provides written notice to the beneficiary explaining why it believes that Medicare will not cover the item or service. 42 C.F.R. § 411.404(b). A supplier is deemed to have knowledge of noncoverage, in part, when it informs the beneficiary before furnishing the item or service that it is not covered. 42 C.F.R. § 411.406(d)(1). A supplier also has actual or constructive knowledge of noncoverage based upon “[i]ts receipt of CMS notices, including manual issuances, bulletins, or other written guides or directives from [Medicare contractors]” and “[i]ts knowledge of what are considered acceptable standards of practice by the local medical community.” 42 C.F.R. §§ 411.406(e)(1),(3). 
+
+The Council finds that the supplier in this case knew or had reason to know that Medicare would not cover the device during 18
+
+the period at issue. Therefore, the supplier will be liable for the non-covered items unless it notified the beneficiaries in writing that the items likely would not be covered by Medicare. 
+
+The Council agrees with the ALJ that there is no evidence of record that the appellant provided written notice of 
+
+non-coverage to beneficiaries 1, 2, 8, 10, 14, 16, 17, 25, and 26. Dec. at 16. Accordingly, these beneficiaries did not know, nor could they reasonably be expected to know, that the BIO-1000 would not likely be covered by Medicare. Therefore, the Council concurs with the ALJ that the supplier remains liable for the non-covered devices and supplies furnished to these beneficiaries. 
+
+As for beneficiaries 3, 6, 7, 11, 18, 20, 21, 23, 24, and 27, each of these beneficiaries’ claims files contains a signed ABN, which states: 
+
+[The] BIO-1000 System is a newly released product which has not yet received certification from Medicare as a covered benefit/product for treatment, and therefore, may be considered experimental. 
+
+See, e.g., Beneficiary 3 Claim File. The ALJ found that these ABNs did not provide the beneficiaries with adequate notice of Medicare non-coverage. Id . at 16-17. The Council disagrees and finds that the ABN language quoted above constitutes adequate prior written notice that Medicare would not cover the device or supplies. Therefore, the Council finds that beneficiaries 3, 6, 7, 11, 18, 20, 21, 23, 24, and 27 are liable for the cost of the non-covered devices and supplies pursuant to section 1879 of the Act. 
+
+As for beneficiaries 4, 5, 9, 12, 13, 15, 19, 22, and 28, these beneficiaries signed ABNs that state: 
+
+Medicare has not established coverage criteria for this item or does not cover this item. 
+
+See, e.g. , Beneficiary 4 Claim File. The ALJ found that these ABNs did not provide the beneficiaries with adequate notice of Medicare non-coverage. Id . at 16. The Council agrees with the ALJ that these ABNs did not provide the beneficiaries with a meaningful explanation of the reasons why Medicare was likely to deny their claims. In the Council’s view, above-quoted language is equivocal in its assessment of coverage for the device. 19
+
+Therefore, as to beneficiaries 4, 5, 9, 12, 13, 15, 19, 22, and 28, the Council concurs with the ALJ that the beneficiaries’ liability is waived. The appellant remains liable for the non-covered devices and supplies provided to these beneficiaries. 
+
+4.  Reimbursement 
+
+The appellant also asserts that “[c]laims with dates of service before the implementation of the fee schedule, July 1, 2007, should be reimbursement [sic] at 80% of the actual charge.” Exh. MAC-1 at 6. As the Council denied Medicare coverage for the items at issue, no payment will occur. Therefore, we need not address this contention further. 
+
+5.  Recent District Court Cases Involving the BIO-1000 
+
+In issuing this decision, the Council has considered the two recent federal district court cases, both addressing Medicare coverage for the BIO-1000 device: International Rehabilitative Sciences, Inc. v. Sebelius , 2010 WL 3119439 (W.D.Wash. July 29, 2010), issued by the Western District of Washington at Tacoma, and Almy v. Sebelius , Civil Action No. RDB-08-1245 (D.Md. Sept. 3, 2010), issued by the District of Maryland. The plaintiffs 7 in these cases argued that inconsistent decisions on coverage of the BIO-1000, issued by various ALJs of the Office of Medicare Hearings and Appeals (OMHA) as well as by lower-level Medicare Administrative Contractors, should cause the court to refuse to defer to the unfavorable coverage decisions of the Medicare Appeals Council, because the lower level decisions were arbitrary and capricious in their inconsistency. The plaintiffs also argued that the substantive findings of the Medicare Appeals Council that the BIO-1000 was not reasonable and medically necessary were substantively incorrect and not based on substantial evidence. 
+
+As explained in more detail below, the Council finds the Maryland decision (which did not allow Medicare coverage for the BIO-1000 devices) persuasive in this case. The Council further finds that the Washington decision (which did allow Medicare coverage for the BIO-1000 devices) is limited to the facts of those particular cases considered by the court.    
+
+> 7 The plaintiff in Almy is the Chapter 7 Trustee for the Bankruptcy Estate of Bionicare Medical Technologies, Inc. Bionicare Medical Technologies, Inc., like International Rehabilitative Sciences, Inc., supplies BIO-1000 devices and supplies to beneficiaries. 20
+
+The Maryland District Court's Decision in Almy 
+
+Agency Consistency 
+
+In Almy , the court found that the plaintiff's argument that "[lower-level] decision-makers in a massive and hierarchical administrative appeals system may bind the Secretary" has been "squarely rejected in related settings." Almy , Civil Action No. RDB-08-1245, at 13. The court pointed to numerous examples where inconsistency among lower-level decision-makers does not make an agency's final determination arbitrary and capricious. 
+
+Id . at 13-15 (citing Community Care Found. v. Thompson , 318 F.3d 219, 227 (D.C. Cir. 2003); Homemakers North Shore, Inc. v. Bowen , 832 F.2d 408, 413 (7th Cir. 1987); St. Luke's Hospital v. Sebelius , 2010 U.S. App. LEXIS 13701, at *21, n. 10 (D.C. Cir. July 6, 2010); St. Francis Hospital Center v. Heckler , 714 F.2d 872, 874 (7th Cir. 1983); Homan & Crimen, Inc. v. Harris , 626 F.2d 1201, 1205 (5th Cir. 1980)). 
+
+The Almy court explained that the court in International Rehabilitative Sciences "inverts the carefully crafted Medicare appeals process and invites unintended results." Almy , Civil Action No. RDB-08-1245, at 15. As the Almy court concluded: 
+
+Payment determinations by lower-level components could assume precedential status and effectively bind the [Council], a superior decisional body with delegated authority from the Secretary. Such a scenario is not prescribed by the statutory text and regulations and would subvert the proper functioning and design of the system. [If the Council] did not defer to administrative subordinates [it] would become especially vulnerable to challenge in federal court, leading in turn to increased litigation and uncertainty and threatening finality in the Medicare appeals process. Moreover, Plaintiff’s position portends to undermine the Secretary’s position as the ultimate arbiter of the Medicare program, which is protected and ensured by the [Administrative Procedure Act (APA)]. 
+
+Id . at 15 (citing Thomas Jefferson Univ. v. Shalala , 512 U.S. 504, 512 (1994); Dist. Mem'l Hosp. of Southwestern N.C. v. Thompson , 364 F.3d 513, 518 (4th Cir. 2004)). The court in Almy 
+
+also rejected the proposition raised in International 21
+
+Rehabilitative Sciences that the Secretary had the "'tools available to shore up inconsistency throughout the coverage system' and that she could have issued a national coverage determination ('NCD')." Id . (quoting International Rehabilitative Sciences, 2010 WL 3119439 at *7). The Almy court reasoned that this position would impose a requirement “not envisioned in the statute or regulations” upon the Secretary to issue an NCD, which was "antithetical to the design of the Medicare program, which affords the Secretary substantial leeway in deciding whether to administrate the system through generally applicable coverage rules and policies or through adjudication." 
+
+Id . (citing Shalala v. Guernsey Mem'l Hosp. , 514 U.S. 87, 96-97 (1995); SEC v. Chenery Corp ., 332 U.S. 194, 203 (1947)). The 
+
+Almy court recognized that the Secretary has the discretion to make a choice between ad hoc litigation and proceeding by a generally applicable rule, i.e. , by the issuance of an NCD. 
+
+Finally, the court recognized that there have been various coverage decisions on the BIO-1000 at lower levels of the appeals system, but that it was “difficult to see how these decisions could be viewed as promoting a cohesive interpretation, let alone an authoritative one [as] it is well-established that lower-level contractors and ALJs cannot speak on behalf of the Secretary." Id . at 17. Therefore, the court in Almy concluded that the policies articulated in the findings and conclusions of the Council’s decisions need not have been subjected to the notice and comment process of the regulatory process upon which the Plaintiff claims it would have relied, because the decisions "did not conflict with any pre-existing 'well-established, definitive, and authoritative interpretation' of the Secretary." Id . at 18 (quoting Warshauer v. Solis , 577 F.3d 1330, 1338 (11th Cir. 2009)). 
+
+As the court in Almy found that the Plaintiff had failed to establish any material inconsistency on the part of the Secretary as set forth in the Council’s decisions, the court proceeded to assess the validity of the Secretary's final decisions under the normal deference standard of review. Id . at 19. 
+
+Substantive Validity of the Council's Decisions 
+
+The Almy court also rejected the plaintiff’s assertion that the Council's decisions failed to appreciate that the BIO-1000 had been accepted by the general medical community, as evidenced in peer-reviewed publications, statements of treating physicians 22
+
+and independent medical experts, letters of medical necessity, animal and electromagnetic studies, and the assignment of a unique HCPCS code and two fee schedule payment amounts. Id . at 21-25. 
+
+The court determined that the Council’s decisions “properly recognized that the BIO-1000 had obtained FDA clearance under § 510(k)” and that “[d]iscerning attention was paid to applicable regulations, the difference between FDA approval and Medicare coverage, and the significance of market clearance versus premarket approval.” Id . at 21. As to evidence relating to medical efficacy, the court noted that the Council’s decisions paid “sufficient attention to medical factors” and had “properly minimized the persuasive weight of [Bionicare’s submissions] in compliance with MPIM § 13.7.1.” Id . at 22. Although the plaintiff submitted affidavits of independent treating physicians claiming that the BIO-1000 was reasonable and necessary for patients with osteoarthritis of the knee, the court found these affidavits to be of “questionable significance” because of a standardized format and the inclusion of boilerplate language. Id . Further, the court noted that there is “no support for [the] notion that twenty standard form affidavits necessarily represent a general consensus in the medical community.” Id . at 23 (citing MacKenzie Med. Supply, Inc. v. Leavitt, 506 F.3d 341, 348 (4th Cir. 2007)). 
+
+Similarly, the court found that the physician letters of medical necessity consisted of “brief sections on Bionicare-captioned prescription forms and contain[ed] basic patient information in ‘check-the-box’ format” and therefore, these letters did not “substantially contribute to a finding of medical necessity.” 
+
+Id . at 23. As to the animal studies, the court concluded that it was “reasonable for the Secretary to disavow any reliance on the animal studies submitted by Bionicare” because these studies did not provide conclusive evidence that the device alleviates osteoarthritis symptoms of the human knee. Id .
+
+The court also rejected the plaintiff’s assertion that the establishment of a HCPCS code and the fee schedule payment amount assigned to the BIO-1000 necessitate a favorable coverage determination. Id . at 24. As the court explained, the billing code “has no bearing on the question of whether a device is found to be reasonable and necessary” and the fee schedule payment amount is “of little consequence” because the CMS’ online fee schedule includes a disclaimer that the inclusion/exclusion of a fee schedule for an item or service 23
+
+does not imply coverage. Id . Likewise, the court rejected the plaintiff’s argument that the QICs failed to incorporate the medical review required under Medicare regulations, finding that there was no evidence that the QICs “failed to utilize medical review” in the reconsideration decisions. Id .
+
+Therefore, the court concluded that the “Secretary properly assessed the evidence in the record when it determined that Bionicare failed to establish the BIO-1000 as medically reasonable and necessary.” 8 Id . at 25. 
+
+As to liability for the non-covered services, the court agreed with the Council that ABNs containing the following language were insufficient to hold the beneficiaries liable for any non-covered items: 
+
+The [BIO-1000] is not the subject of either an affirmative coverage or non-coverage Medicare policy. Accordingly, it is unclear what criteria Medicare will use when evaluating whether the device was reasonable and medically necessary for you. Medicare will not pay for a device it does not deem reasonable and medically necessary. 
+
+Id . at 27. The court agreed with the Council that these ABNs were properly considered generic notices because they “merely suggested that a payment denial is possible [and not] expected” and that these notices do not “provide sufficient details concerning the ‘genuine reason that denial by Medicare is expected.’” Id . at 28 (quoting Medicare Claims Processing Manual (MCPM), Ch. 30, § 40.3.6.1). 
+
+The Almy Decision is Persuasive 
+
+The Council finds the Maryland district court’s decision in Almy 
+
+persuasive in this case and that the Washington district court’s decision in International Rehabilitative Sciences is limited to the facts of those particular cases considered by the court.  
+
+> 8 Because one of the Council’s decisions dealt with payment issues, the court addressed this issue as it related to that particular case, finding that the contractor “properly complied with generally applicable manual instructions requiring contractors to develop local fee schedule amounts as a gap-filling methodology.” Almy v. Sebelius , Civil Action No. RDB-08-1245 at 25-26 (D.Md. Sept. 3, 2010). 24
+
+As explained by the court in Almy , the court in International Rehabilitative Sciences “determined that it was reviewing an exceptional case, involving ‘egregious and unexplained’ agency inconsistency, in which no deference was warranted.” Id . at 19 (quoting International Rehabilitative Sciences , 2010 WL 3119439 at *7-8). The Council is not refusing to apply the principles articulated in International Rehabilitative Sciences . It is instead following the Maryland district court’s opinion in Almy 
+
+that it “respectfully disagrees . . . with the notion that the non-binding, non-precedential rulings of lower-level contractors may together constitute an authoritative agency interpretation directly attributable to the Secretary.” Id . at 12. This notion served as the basis for a finding of agency inconsistency and thus, led the court in International Rehabilitative Sciences 
+
+to afford the Council’s decisions in that case “little or no deference.” International Rehabilitative Sciences, Inc. v. Sebelius, 2010 WL 3119439 at *8. Therefore, the Council has determined that the International Rehabilitative Sciences 
+
+decision was limited to the facts of those particular cases. 
+
+The Council emphasizes that, nonetheless, both courts are in agreement as to the consistency in the Council’s position on coverage and recognize that the Council’s determination on that issue is final and binding on the Secretary. 
+
+DECISION 
+
+It is the decision of the Medicare Appeals Council that Medicare does not cover the BIO-1000 devices and supplies at issue pursuant to section 1862(a)(1)(A) of the Act. The appellant remains liable for the non-covered items provided to beneficiaries 1, 2, 8, 10, 14, 16, 17, 25, and 26 because there was not evidence that these beneficiaries received ABNs. The appellant also remains liable for the non-covered items provided to beneficiaries 4, 5, 9, 12, 13, 15, 19, 22, and 28 because the ABNs did not provide the beneficiaries with a meaningful explanation of the reasons why Medicare was likely to deny their claims. As for beneficiaries 3, 6, 7, 11, 18, 20, 21, 23, 24, and 27, each of these beneficiaries’ claims files contains a 25
+
+valid, signed ABN. Therefore, these beneficiaries are liable for the cost of the non-covered items. 
+
+MEDICARE APPEALS COUNCIL 
+
+/s/ Susan S. Yim 
+
+Administrative Appeals Judge 
+
+/s/Constance B. Tobias, Chair 
+
+Departmental Appeals Board 
+
+Date: September 22, 2010

@@ -1,0 +1,35 @@
+LCD L33831: Surgical Dressings — revision history (Medicare Coverage Database export, 12 September 2026, lcd_x_revision_history)
+
+=== version 6, revision history date 2016-07-01 ===
+Effective July 1, 2016 oversight for DME MAC LCDs is the responsibility of CGS Administrators, LLC 18003 and 17013 and Noridian Healthcare Solutions, LLC 19003 and 16013. No other changes have been made to the LCDs.
+
+=== version 14, revision history date 2017-07-24 ===
+Revision Effective Date: 07/24/2017 COVERAGE INDICATIONS, INDICATIONS, LIMITATIONS AND/OR MEDICAL NECESSITY: Removed: Standard Documentation Language Added: New reference language and directions to Standard Documentation Requirements Added: General Requirements Revised: Refill Requirements DOCUMENTATION REQUIREMENTS: Removed: Standard Documentation Language Added: General Documentation Requirements Added: New reference language and directions to Standard Documentation Requirements POLICY SPECIFIC DOCUMENTATION REQUIREMENTS: Removed: Standard Documentation Language Added: Direction to Standard Documentation Requirements Removed: Supplier Manual reference from Miscellaneous section Removed: PIM reference under Appendices Revised: Pressure ulcer staging criteria per NPUAP 2016 Staging Consensus Conference SOURCES OF INFORMATION AND BASIS FOR DECISION: Revised: Updated bibliography RELATED LOCAL COVERAGE DOCUMENTS: Added: LCD-related Standard Documentation Requirements article
+
+=== version 21, revision history date 2019-01-01 ===
+Revision Effective Date: 01/01/2019: BIBLIOGRAPHY: Removed: Bibliography from LCD ASSOCIATED DOCUMENTS: Added: Bibliography attachment
+
+=== version 28, revision history date 2020-01-01 ===
+Effective Date: 01/01/2020 COVERAGE INDICATIONS, INDICATIONS, LIMITATIONS AND/OR MEDICAL NECESSITY: Removed: References to Detailed Written Order (DWO) Revised: “ordering physician” updated to “treating practitioner” GENERAL: Added: References to Standardized Written Order (SWO) GENERAL DOCUMENTATION REQUIREMENTS: Revised: “Prescriptions (orders)” to “SWO”
+
+=== version 30, revision history date 2020-01-01 ===
+Revision Effective Date: 01/01/2020 CODING INFORMATION: Removed: Field titled “Bill Type” Removed: Field titled “Revenue Codes” Removed: Field titled “ICD-10 Codes that Support Medical Necessity” Removed: Field titled “ICD-10 Codes that DO NOT Support Medical Necessity” Removed: Field titled “Additional ICD-10 Information” As required by CR 10901, the ICD-10 information has been moved to all Policy Articles. There is no change in coverage.
+
+=== version 32, revision history date 2020-01-01 ===
+Revision Effective Date: 01/01/2020 CPT/HCPCS CODES: Corrected: Descriptor for the A9 modifier to include “or more” in Group 1 Paragraph 06/25/2020: Pursuant to the 21st Century Cures Act, these revisions do not require notice and comment because the revisions are non-substantive corrections.
+
+=== version 35, revision history date 2021-05-01 ===
+Revision Effective Date: 05/01/2021 COVERAGE INDICATIONS, LIMITATIONS AND/OR MEDICAL NECESSITY: Revised: Roman to Arabic numerals in staging scheme DOCUMENTATION REQUIREMENTS: Revised: Statement to add in “treating practitioner’s” APPENDICES: Revised: National Pressure Ulcer Advisory Panel to National Pressure Injury Advisory Panel and 2019 guidelines (unchanged from 2016 guidelines) 03/18/2021: Pursuant to the 21st Century Cures Act, these revisions do not require notice and comment because they are due grammatical or non-substantive changes.
+
+=== version 40, revision history date 2021-05-01 ===
+Revision Effective Date: 05/01/2021 COVERAGE INDICATIONS, LIMITATIONS, AND/OR MEDICAL NECESSITY: Added: Comma at Collagen Dressing or Wound Filler section in the first sentence after parentheses 09/08/2022: Pursuant to the 21st Century Cures Act, these revisions do not require notice and comment because they are due grammatical or non-substantive corrections.
+
+=== version 42, revision history date 2024-01-01 ===
+Revision Effective Date: 01/01/2024 COVERAGE INDICATIONS, LIMITATIONS, AND/OR MEDICAL NECESSITY: Added: “and document an affirmative response” to language that pertains to contact with the beneficiary or caregiver/designee for DMEPOS products supplied as refills Revised: “approaching exhaustion” to “expected to end” in regard to existing supplies Revised: “Contact with the beneficiary or designee regarding refills must take place no sooner than 14 calendar days prior to the delivery/shipping date.” to “Contact with the beneficiary or designee regarding refills must take place no sooner than 30 calendar days prior to the expected end of the current supply.” Revised: “For delivery of refills, the supplier must deliver the DMEPOS product no sooner than 10 calendar days prior to the end of usage for the current product.” to “For delivery of refills, the supplier must deliver the DMEPOS product no sooner than 10 calendar days prior to the expected end of the current supply.” 12/14/2023: Pursuant to the 21st Century Cures Act, these revisions do not require notice and comment because the revisions are non-discretionary updates to refill requirement information per CMS Final Rule CMS-1780-F.
+
+=== version 46, revision history date 2024-01-01 ===
+Revision Effective Date: 01/01/2024 HCPCS CODES: Revised: Long descriptor of HCPCS codes A6531, A6532 and A6545 in Group 1 Codes 01/25/2024: Pursuant to the 21st Century Cures Act, these revisions do not require notice and comment because the revisions are non-discretionary updates due to CMS HCPCS coding determinations.
+
+=== version 48, revision history date 2024-01-01 ===
+Revision Effective Date: 01/01/2024 HCPCS CODES: Removed: A6530, A6533, A6534, A6535, A6536, A6537, A6538, A6539, A6540, A6541, A6544, A6549 02/15/2024: Pursuant to the 21st Century Cures Act, these revisions do not require notice and comment because the revisions are non-discretionary updates to remove HCPCS codes that now covered under the lymphedema compression treatment items per CMS Final Rule CMS-1780-F.
+

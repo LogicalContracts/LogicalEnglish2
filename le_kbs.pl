@@ -152,10 +152,16 @@ example_dir_alias('RulesRus', regulatory).
 example_dir_alias(testing, fixtures).
 %  The domain models and the private twins left the InsurLE tree for the
 %  lpsPlus repository (lpsPlus/README.md); `le_extensions.pl` and the
-%  programs of its constructs stayed behind, so only these three move.
-example_dir_alias('insureLE2/customs', 'lpsPlus/customs').
-example_dir_alias('insureLE2/medicare', 'lpsPlus/medicare').
+%  programs of its constructs stayed behind. On 23 September 2026 the two
+%  models and the OIPA twins were published here; the twins whose sources
+%  carry no licence that allows publication stayed in lpsPlus.
+example_dir_alias('insureLE2/customs', 'regulatory/customs').
+example_dir_alias('insureLE2/medicare', 'regulatory/medicare').
 example_dir_alias('insureLE2/migration', 'lpsPlus/migration').
+example_dir_alias('insureLE2/migration/oipa', 'migration/oipa').
+example_dir_alias('lpsPlus/customs', 'regulatory/customs').
+example_dir_alias('lpsPlus/medicare', 'regulatory/medicare').
+example_dir_alias('lpsPlus/migration/oipa', 'migration/oipa').
 
 %!  example_current_name(+Name:atom, -Current:atom) is det.
 %
@@ -3201,8 +3207,9 @@ le_suite(all).
 %   nothing else needs to change.
 extension_dependent_path_fragment('/insurele2/').
 extension_dependent_path_fragment('/insurle2/').
-%  The private lpsPlus tree: the domain models (customs, Medicare) and the
-%  twins of other systems whose sources may not be published. Its programs
+%  The private lpsPlus tree: the twins of other systems whose sources may
+%  not be published (the domain models and the OIPA twins are public now,
+%  in examples/regulatory/ and examples/migration/). Its programs
 %  are core LE (the writer writes core LE by default, le_writer.pl), but a
 %  clean checkout of this repository does not have the tree, so the core
 %  suite — what such a checkout can make green — leaves it out.

@@ -1,0 +1,20 @@
+LCD L37535: Vitamin D Assay Testing — revision history (Medicare Coverage Database export, 12 September 2026, lcd_x_revision_history)
+
+=== version 9, revision history date 2018-10-01 ===
+LCD revised for annual ICD-10-CM code updates. The descriptor for ICD-10-CM code Z68.43 was changed in Group 1. DATE (10/01/2018): At this time 21st Century Cures Act will apply to new and revised LCDs that restrict coverage which requires comment and notice. This revision is not a restriction to the coverage determination; and, therefore not all the fields included on the LCD are applicable as noted in this policy.
+
+=== version 11, revision history date 2019-10-01 ===
+LCD revised for annual ICD-10-CM code updates. The descriptor for ICD-10-CM code Z68.43 was changed in Group 1.
+
+=== version 14, revision history date 2019-11-14 ===
+Consistent with Change Request 10901, all coding information, National coverage provisions, and Associated Information (Documentation Requirements, Utilization Guidelines) have been removed from the LCD and placed in the related Billing and Coding Article, A57736. There has been no change in coverage with this LCD revision.
+
+=== version 16, revision history date 2019-11-14 ===
+CPT codes have been removed from the "Keywords" section of the LCD.
+
+=== version 18, revision history date 2021-10-01 ===
+Language in the LCD has been corrected to indicate 20 and 50 ng/ml and 60 ng/ml in the “Limitations” section of the LCD.
+
+=== version 19, revision history date 2026-04-01 ===
+Effective 4/1/2026, the Contractor Information field has changed from National Government Services to Wellpoint Federal. There are no changes to coverage on Local Coverage Determinations and Billing and Coding Articles.
+

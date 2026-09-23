@@ -1,0 +1,144 @@
+{
+  "counts": {"approximated":0,"encoded":12,"residue":0},
+  "entries": [
+    {
+      "element":"PremiumPayment/Transaction.xml MathVariable AmountMV",
+      "in_program":"AmountMV",
+      "kind":"mathvariable",
+      "mapping":"FIELD -> the activity field Amount, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"PremiumPayment/Transaction.xml MathVariable ModalPremiumMV",
+      "in_program":"ModalPremiumMV",
+      "kind":"mathvariable",
+      "mapping":"POLICYFIELD -> the policy field ModalPremium the activity finds, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"PremiumPayment/Transaction.xml MathVariable PaidToDateMV",
+      "in_program":"PaidToDateMV",
+      "kind":"mathvariable",
+      "mapping":"POLICYFIELD -> the policy field PaidToDate the activity finds, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"PremiumPayment/Transaction.xml MathVariable BillingModeMV",
+      "in_program":"BillingModeMV",
+      "kind":"mathvariable",
+      "mapping":"POLICYFIELD -> the policy field BillingMode the activity finds, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"PremiumPayment/Transaction.xml MathVariable RatioMV",
+      "in_program":"RatioMV",
+      "kind":"mathvariable",
+      "mapping":"EXPRESSION -> a rule, the MathVariables it reads as conditions",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"PremiumPayment/Transaction.xml MathVariable ModesPaidMV",
+      "in_program":"ModesPaidMV",
+      "kind":"mathvariable",
+      "mapping":"FUNCTION -> LE's date and number built-ins",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"PremiumPayment/Transaction.xml MathVariable MonthsPerModeMV",
+      "in_program":"MonthsPerModeMV",
+      "kind":"mathvariable",
+      "mapping":"reassigned (MathIF) -> an otherwise cascade, the latest assignment first",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"PremiumPayment/Transaction.xml MathVariable MonthsAdvancedMV",
+      "in_program":"MonthsAdvancedMV",
+      "kind":"mathvariable",
+      "mapping":"EXPRESSION -> a rule, the MathVariables it reads as conditions",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"PremiumPayment/Transaction.xml MathVariable NewPaidToDateMV",
+      "in_program":"NewPaidToDateMV",
+      "kind":"mathvariable",
+      "mapping":"FUNCTION -> LE's date and number built-ins",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"PremiumPayment/Transaction.xml MathVariable UnappliedAmountMV",
+      "in_program":"UnappliedAmountMV",
+      "kind":"mathvariable",
+      "mapping":"EXPRESSION -> a rule, the MathVariables it reads as conditions",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"PremiumPayment/ValidateExpressions.xml P001",
+      "in_program":"P001",
+      "kind":"validation",
+      "mapping":"ValidateExpressions Expression -> `the activity fails the check`",
+      "note":"A payment of $$$AmountMV$$$ is less than one modal premium ($$$ModalPremiumMV$$$).",
+      "verdict":"encoded"
+    },
+    {
+      "element":"PremiumPayment/CopyToPolicyFields.xml NewPaidToDateMV -> PaidToDate",
+      "in_program":"PaidToDate",
+      "kind":"copy",
+      "mapping":"CopyToPolicyFields -> the policy field after the activity (only an activity that fails no check)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":12,
+    "tests": [
+      {"detail":"","query":"new_paid_to_date","result":"pass","scenario":"monthly_payer_p1"},
+      {"detail":"","query":"unapplied_amount","result":"pass","scenario":"monthly_payer_p1"},
+      {"detail":"","query":"checks","result":"pass","scenario":"monthly_payer_p1"},
+      {
+	"detail":"",
+	"query":"policy_after_paid_to_date",
+	"result":"pass",
+	"scenario":"monthly_payer_p1"
+      },
+      {"detail":"","query":"new_paid_to_date","result":"pass","scenario":"monthly_payer_p2"},
+      {"detail":"","query":"unapplied_amount","result":"pass","scenario":"monthly_payer_p2"},
+      {"detail":"","query":"checks","result":"pass","scenario":"monthly_payer_p2"},
+      {
+	"detail":"",
+	"query":"policy_after_paid_to_date",
+	"result":"pass",
+	"scenario":"monthly_payer_p2"
+      },
+      {"detail":"","query":"new_paid_to_date","result":"pass","scenario":"annual_smoker_p1"},
+      {"detail":"","query":"unapplied_amount","result":"pass","scenario":"annual_smoker_p1"},
+      {"detail":"","query":"checks","result":"pass","scenario":"annual_smoker_p1"},
+      {
+	"detail":"",
+	"query":"policy_after_paid_to_date",
+	"result":"pass",
+	"scenario":"annual_smoker_p1"
+      }
+    ]
+  },
+  "meta": {
+    "artifacts": ["PremiumPayment/Transaction.xml" ],
+    "date":"2026-09-23",
+    "program":"termlife_premium_payment",
+    "source":"an OIPA transaction (Rules Palette XML)",
+    "translator":"lpsPlus/migration/oipa (oipa_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":3
+}

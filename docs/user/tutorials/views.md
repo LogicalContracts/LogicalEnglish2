@@ -508,10 +508,9 @@ Two more views among the project's files show the rest:
 
   ![The claim file: a result that waits for a judgment](views/07-claim-file.png)
 
-- **`customs/cbp_62.le`, "worksheet"** (kept in lpsPlus, a separate store of
-  files, under `examples/customs/`) is the classification worksheet a US
-  customs specialist asked for, in a review of the customs programs
-  (CustomsOfficerReport.md, also in lpsPlus):
+- **`regulatory/customs/cbp_62.le`, "worksheet"** is the classification
+  worksheet a US customs specialist asked for, in a review of the customs
+  programs:
   - the good's facts as the CBP ruling states them, grouped as article, fabric,
     composition and measurements, each with the ruling's passage;
   - the subheading, headed by the code, with 41 cited steps reaching the tariff's

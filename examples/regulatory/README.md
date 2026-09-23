@@ -12,3 +12,16 @@ and of LE Views (docs/user/tutorials/views.md):
 - `flip_housing.le` — flip queries (§17.7).
 - `precedent.le`, `precedent_pattern.le` — factors and precedent (§17.8).
 - `eu261_integration.le` — everything together: air passenger compensation.
+
+Two large models apply those constructs to whole bodies of regulation, each
+with its own README, its cited texts under `sources/`, and a disclaimer: they
+are examples, provided "as is", and not advice.
+
+- `customs/` — customs classification: the General Rules of Interpretation
+  and Chapters 39 (plastics), 61 and 62 (clothing) of the US tariff in full,
+  run on 225 published rulings of US Customs and Border Protection (CBP) and
+  15 European Binding Tariff Information (EBTI) decisions.
+- `medicare/` — Medicare coverage of durable medical equipment: the coverage
+  criteria of all 58 Local Coverage Determinations (LCDs) of the four
+  regional Medicare contractors for that equipment, with their claims, and 48
+  decisions of the Medicare Appeals Council compared with the model.

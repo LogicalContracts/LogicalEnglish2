@@ -1,0 +1,42 @@
+CBP ruling NY N344420 (2024-12-20): The tariff classification of cellulose in suspension from The Netherlands
+https://rulings.cbp.gov/ruling/N344420 — text as served by https://rulings.cbp.gov/api/ruling/N344420
+
+N344420 
+
+December 20, 2024 
+
+CLA-2-39:OT:RR:NC:N:5 137
+
+CATEGORY: Classification
+
+TARIFF NO.: 3912.90.0090
+
+Aaron Marx
+Crowell & Moring, LLP
+1001 Pennsylvania Ave. NWWashington, DC 20004
+
+RE:  The tariff classification of cellulose in suspension from The Netherlands
+
+Dear Mr. Marx:
+
+In your letter, dated December 4, 2024, you requested a binding tariff classification ruling on behalf of your client, Sappi North America, Inc.  The request addressed cellulose in aqueous suspension.  Product information was provided for our review. 
+
+The products under consideration are identified by the name Valida, specifically, “Valida S191A+,” “Valida S231C,” and “Valida L.”  Each is an aqueous solution consisting of 2.5 percent to 10 percent cellulose and 90 percent to 97.5 percent water.  The cellulose is obtained from coniferous wood that has undergone multiple refining processes, ultimately yielding a fibrillated cellulose suspension in water.  The CAS number for this product is 9004-34-6.
+
+In your letter, you argue that the Valida products are chemically and mechanically processed wood pulp classifiable under subheading 4705.00.0000, Harmonized Tariff Schedule of the United States (HTSUS).  We disagree.  Chapter 47 provides for pulp, including wood pulp.  The Explanatory Notes to Chapter 47 explain that the pulp of that chapter “is generally presented in baled sheets (whether or not perforated), wet or dry, but may sometimes be in slabs, in rolls, or in the form of powder or flakes.”  We note that all of the named forms of pulp are solids that must consist wholly or predominantly of pulp or fiber.  The Valida products do not exist in these forms.  Instead, they contain small quantities of cellulose in an aqueous suspension.  Such a product does not function in the same manner as solid form pulps, which, for example, form the structure of papers.  You note that the Valida products are used as stabilizers, thickening agents, binders, and other similar components, functioning specifically as cellulose in those roles.  Cellulose is a polymer provided for in heading 3912, HTSUS.
+
+The applicable subheading for the Valida cellulose products will be 3912.90.0090, HTSUS, which provides for Cellulose and its chemical derivatives, not elsewhere specified or included, in primary forms: Other: Other.  The rate of duty will be 5.2 percent ad valorem.
+
+Duty rates are provided for your convenience and are subject to change. The text of the most recent HTSUS and the accompanying duty rates are provided at https://hts.usitc.gov/.
+
+The holding set forth above applies only to the specific factual situation and merchandise description as identified in the ruling request. This position is clearly set forth in Title 19, Code of Federal Regulations (CFR), Section 177.9(b)(1). This section states that a ruling letter is issued on the assumption that all of the information furnished in the ruling letter, whether directly, by reference, or by implication, is accurate and complete in every material respect. In the event that the facts are modified in any way, or if the goods do not conform to these facts at time of importation, you should bring this to the attention of U.S. Customs and Border Protection (CBP) and submit a request for a new ruling in accordance with 19 CFR 177.2. Additionally, we note that the material facts described in the foregoing ruling may be subject to periodic verification by CBP.
+
+This ruling is being issued under the provisions of Part 177 of the Customs and Border Protection Regulations (19 C.F.R. 177).
+
+A copy of the ruling or the control number indicated above should be provided with the entry documents filed at the time this merchandise is imported. If you have any questions regarding the ruling, please contact National Import Specialist Christina Allen at julie.c.allen@cbp.dhs.gov.
+
+Sincerely, 
+
+Steven A. Mack 
+Director 
+National Commodity Specialist Division 

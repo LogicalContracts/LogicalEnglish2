@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CopyToPolicyFields>
+  <Fields>
+    <Field>
+      <From>ClosedValueMV</From>
+      <To>AccountValue</To>
+    </Field>
+    <Field>
+      <From>SurrenderedStatusMV</From>
+      <To>PolicyStatus</To>
+    </Field>
+  </Fields>
+</CopyToPolicyFields>

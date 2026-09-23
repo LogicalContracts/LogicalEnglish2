@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic OIPA configuration (InsurLE2 Phase 2b): the monthly check of
+     the grace period: days past the paid-to date (DaysDiffOf) against the
+     plan's grace period; the lapse is spawned. -->
+<Transaction>
+  <Math>
+    <MathVariables>
+      <MathVariable VARIABLENAME="EffectiveDateMV" TYPE="FIELD" DATATYPE="DATE">Activity:EffectiveDate</MathVariable>
+      <MathVariable VARIABLENAME="PaidToDateMV" TYPE="POLICYFIELD" DATATYPE="DATE">PaidToDate</MathVariable>
+      <MathVariable VARIABLENAME="PolicyStatusMV" TYPE="POLICYFIELD" DATATYPE="TEXT">PolicyStatus</MathVariable>
+      <MathVariable VARIABLENAME="GracePeriodDaysMV" TYPE="PLANFIELD" DATATYPE="INTEGER" DEFAULT="31">GracePeriodDays</MathVariable>
+      <MathVariable VARIABLENAME="DaysPastDueMV" TYPE="FUNCTION" DATATYPE="INTEGER" LOG="Yes">DaysDiffOf(PaidToDateMV,EffectiveDateMV)</MathVariable>
+      <MathVariable VARIABLENAME="YesMV" TYPE="VALUE" DATATYPE="TEXT">Yes</MathVariable>
+      <MathVariable VARIABLENAME="NoMV" TYPE="VALUE" DATATYPE="TEXT">No</MathVariable>
+      <MathVariable VARIABLENAME="InGraceMV" TYPE="IIF" EXPRESSION="DaysPastDueMV &gt; 0 And DaysPastDueMV &lt;= GracePeriodDaysMV" DATATYPE="TEXT" LOG="Yes">YesMV,NoMV</MathVariable>
+    </MathVariables>
+  </Math>
+</Transaction>

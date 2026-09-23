@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic OIPA configuration (InsurLE2 Phase 2b): a premium payment
+     advancing the paid-to date by whole modes (TruncateNumber, MonthsAdd). -->
+<Transaction>
+  <Fields>
+    <Field>
+      <Name>Amount</Name>
+      <Display>Amount Paid</Display>
+      <DataType>Money</DataType>
+    </Field>
+  </Fields>
+  <Math>
+    <MathVariables>
+      <MathVariable VARIABLENAME="AmountMV" TYPE="FIELD" DATATYPE="DECIMAL">Activity:Amount</MathVariable>
+      <MathVariable VARIABLENAME="ModalPremiumMV" TYPE="POLICYFIELD" DATATYPE="DECIMAL">ModalPremium</MathVariable>
+      <MathVariable VARIABLENAME="PaidToDateMV" TYPE="POLICYFIELD" DATATYPE="DATE">PaidToDate</MathVariable>
+      <MathVariable VARIABLENAME="BillingModeMV" TYPE="POLICYFIELD" DATATYPE="TEXT">BillingMode</MathVariable>
+      <MathVariable VARIABLENAME="RatioMV" TYPE="EXPRESSION" DATATYPE="DECIMAL">AmountMV / ModalPremiumMV</MathVariable>
+      <MathVariable VARIABLENAME="ModesPaidMV" TYPE="FUNCTION" DATATYPE="DECIMAL">TruncateNumber(RatioMV,0)</MathVariable>
+      <MathVariable VARIABLENAME="MonthsPerModeMV" TYPE="VALUE" DATATYPE="INTEGER">12</MathVariable>
+      <MathIF IF="BillingModeMV = '02'">
+        <MathVariable VARIABLENAME="MonthsPerModeMV" TYPE="VALUE" DATATYPE="INTEGER">6</MathVariable>
+      </MathIF>
+      <MathIF IF="BillingModeMV = '04'">
+        <MathVariable VARIABLENAME="MonthsPerModeMV" TYPE="VALUE" DATATYPE="INTEGER">3</MathVariable>
+      </MathIF>
+      <MathIF IF="BillingModeMV = '12'">
+        <MathVariable VARIABLENAME="MonthsPerModeMV" TYPE="VALUE" DATATYPE="INTEGER">1</MathVariable>
+      </MathIF>
+      <MathVariable VARIABLENAME="MonthsAdvancedMV" TYPE="EXPRESSION" DATATYPE="INTEGER">ModesPaidMV * MonthsPerModeMV</MathVariable>
+      <MathVariable VARIABLENAME="NewPaidToDateMV" TYPE="FUNCTION" DATATYPE="DATE" LOG="Yes">MonthsAdd(PaidToDateMV,MonthsAdvancedMV)</MathVariable>
+      <MathVariable VARIABLENAME="UnappliedAmountMV" TYPE="EXPRESSION" DATATYPE="DECIMAL" ROUND="2" LOG="Yes">AmountMV - ModesPaidMV * ModalPremiumMV</MathVariable>
+    </MathVariables>
+  </Math>
+</Transaction>

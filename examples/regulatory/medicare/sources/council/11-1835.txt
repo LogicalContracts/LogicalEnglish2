@@ -1,0 +1,84 @@
+Title: 2011.09.13 M-11-1835 In the Case of Advanced Medical Concepts, Inc.
+
+URL Source: https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/11-1835.pdf
+
+Published Time: Mon, 29 Aug 2016 04:19:58 GMT
+
+Number of Pages: 4
+
+Markdown Content:
+DEPARTMENT OF HEALTH AND HUMAN SERVICES 
+
+DEPARTMENTAL APPEALS BOARD 
+
+DECISION OF MEDICARE APPEALS COUNCIL 
+
+Docket Number: M-11-1835 
+
+In the case of 
+
+Advanced Medical Concepts, Inc. (Appellant) 
+
+**** 
+
+(Beneficiary) Noridian Administrative Services, LLC (Contractor) 
+
+Claim for 
+
+Supplementary Medical Insurance Benefits (Part B) 
+
+**** 
+
+(HIC Number) **** (ALJ Appeal Number) 
+
+The Administrative Law Judge (ALJ) issued a decision dated 
+
+April 28, 2011, which concerned Medicare coverage for a power wheelchair (HCPCS 1 code K0825) and accessories the appellant supplier furnished to the beneficiary on January 22, 2010. The ALJ found that the power wheelchair was not medically necessary because the appellant had not provided sufficient documentation. Additionally, the ALJ found the appellant responsible for the non-covered costs. The appellant has asked the Medicare Appeals Council (Council) to review this action. The Council reviews the ALJ’s decision de novo . 42 C.F.R. § 405.1108(a). The Council will limit its review of the ALJ’s action to the exceptions raised by the party in the request for review, unless the appellant is an unrepresented beneficiary. 42 C.F.R. § 405.1112(c). The Council enters the appellant’s request for review into the record as Exhibit (Exh.) MAC-1.   
+
+> 1The Centers for Medicare & Medicaid Services (CMS) developed the Healthcare Common Procedure Coding System (HCPCS) to establish “uniform national definitions of services, codes to represent services, and payment modifiers to the codes.” 42 C.F.R. § 414.40(a).
+
+2
+
+The Council has considered the record and exceptions and finds no basis for changing the ALJ’s decision. 
+
+DISCUSSION 
+
+Evidence Submitted with the Appellant’s Request for Review 
+
+Generally, a Medicare provider or supplier must submit all evidence in a case at the Qualified Independent Contractor (QIC) level of review. 42 C.F.R. §§ 405.966(a)(2), 405.1018, 405.1122(c). If an appellant submits evidence to the Council that relates to an issue in the case that the QIC or the ALJ already considered, the Council must determine if it is new evidence. If it is new, the Council must then decide if there is good cause for submitting it for the first time at this level. 
+
+The appellant has submitted 5 pages of documentary evidence with its request for review. The Council has determined that some of the pages appended to the request for review duplicate the ALJ’s exhibits and some do not. The pages that duplicate the ALJ’s exhibits require no evaluation of good cause. Rather, they are excluded from the record as duplicative. 
+
+The appellant has not made any good cause arguments for admittance into the record of the pages appended to the request for review that do not duplicate the ALJ’s exhibits. The Council does not find good cause for the submission of new evidence at this stage in the case. 42 C.F.R. § 405.1122(c)(2). The Council therefore excludes those pages of evidence submitted with the request for review and will not consider them. 
+
+Medicare Coverage for the Power Wheelchair and Accessories 
+
+The appellant furnished the beneficiary a power wheelchair on January 22, 2010. 2  
+
+> 2This K0825 power wheelchair has a weight capacity of 301-450 pounds. HCPCS 2010.
+
+Exh. 7, at 1. The record contains a prescription dated January 22, 2010, for a “power wheel chair for heavy weight + 302 lbs.” Exh. 9, at 1. The record also contains a document stating that the beneficiary needed a larger power wheelchair. Id . at 2. The record indicates that the beneficiary weighed 285 pounds on February 15, 2007. Exh. 10, at 1. Within its reconsideration, the QIC noted “that payment has been allowed for the same or similar equipment for date of service October 28, 2007.” Exh. 3, at 2. During the ALJ 3
+
+hearing, the appellant stated that the beneficiary received a K0823 power wheelchair in 2007. 3 Hearing CD. 
+
+The ALJ determined that the documentation was inadequate. Dec. at 10. The ALJ stated that the record did not contain documentation to determine when, between 2007 and 2010, the beneficiary gained weight. Id . And, the ALJ noted that the Face-to-Face examination in the record did not show that the beneficiary had weight related difficulties with the 2007 power wheelchair. Id . The ALJ concluded that “without this information and documentation on when the Beneficiary gained the weight, the ALJ is unable to determine if the added weight is causing any difficulties with [the] 2007 chair to support a replacement POV in 2010.” Id .
+
+The appellant’s request for review states, in pertinent part: “Physician’s orders stated the reason for the larger power wheelchair was due to weight gain. Medical records for that time frame do show an increase in weight.” Exh. MAC-1. 
+
+Having fully considered the record and the appellant’s contentions, the Council concurs with the ALJ that the documentation is insufficient to demonstrate that the power wheelchair was medically necessary. The Council agrees with ALJ that further information as to when the beneficiary gained weight is necessary. The document dated February 15, 2007, indicated that the beneficiary weighed 285 pounds. Exh. 10, at 1. However, the QIC noted that the beneficiary received “the same or similar equipment” on October 28, 2007. Exh. 3, at 2. The record does not indicate the beneficiary’s weight at the time of the 2007 date of service. The Council is unable to determine if the beneficiary’s weight was over 300 pounds at the time the beneficiary received the power wheelchair in 2007. The Council finds the documentation in the record insufficient because the record does not clearly establish that the beneficiary’s 2007 power wheelchair was inappropriate. 
+
+The ALJ held the appellant liable for the non-covered costs. Dec. at 10. The appellant has not raised any exceptions regarding its liability before the Council. See Exh. MAC-1. Accordingly, the Council affirms the ALJ’s findings and conclusions regarding liability without further discussion.   
+
+> 3This K0823 power wheelchair had a “weight capacity up to and including 300 pounds.” HCPCS 2007.
+
+4
+
+Based on the preceding analysis, the Council finds no basis for changing the ALJ’s decision. The Council therefore adopts the ALJ’s decision. 
+
+MEDICARE APPEALS COUNCIL 
+
+/s/ Clausen J. Krzywicki 
+
+Administrative Appeals Judge 
+
+Date: September 13, 2011

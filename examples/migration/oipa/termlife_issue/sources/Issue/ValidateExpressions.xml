@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidateExpressions>
+  <Expression TYPE="ErrorOnTrue" MESSAGE="The insured's issue age of $$$IssueAgeMV$$$ is outside 18 to 65." ERRORNUMBER="I001">IssueAgeMV &lt; 18 Or IssueAgeMV &gt; 65</Expression>
+  <Expression TYPE="ErrorOnTrue" MESSAGE="The face amount must be at least $50,000." ERRORNUMBER="I002">FaceAmountMV &lt; 50000</Expression>
+</ValidateExpressions>

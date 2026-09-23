@@ -1,0 +1,326 @@
+Title: 2012.12.20 M-11-2300 In the Case of Cashflow Solutions
+
+URL Source: https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/m-11-2300.pdf
+
+Published Time: Mon, 29 Aug 2016 04:20:02 GMT
+
+Number of Pages: 20
+
+Markdown Content:
+DEPARTMENT OF HEALTH AND HUMAN SERVICES DEPARTMENTAL APPEALS BOARD 
+
+DECISION OF MEDICARE APPEALS COUNCIL 
+
+Docket Number: M-11-2300 
+
+In the case of 
+
+Cashflow Solutions, Inc. 
+
+(Appellant) 
+
+**** 
+
+(Beneficiaries) 
+
+CIGNA Government Services (DME MAC Jurisdiction C) 
+
+(Contractor) 
+
+Claim for 
+
+Supplementary Medical 
+
+Insurance Benefits (Part B) 
+
+**** 
+
+(HIC Numbers) 
+
+**** 
+
+(ALJ Appeal Numbers) 
+
+The Administrative Law Judge (ALJ) issued six individual but similar decisions, unfavorable to the appellant, each dated July 1, 2011, concerning Medicare coverage of pneumatic compression devices (PCD) provided to the beneficiaries between the dates of July 28, 2010, and October 15, 2010. The ALJ determined that the devices were not covered by Medicare because “documentation purporting to show [the clinical response to initial treatment with the devices] were apparently prepared by an individual enjoying a financial relationship with the supplier”. See e.g., beneficiary **** case file, Decision (Dec.) at 6. The ALJ further found the appellant liable for the non-covered costs in accordance with 42 U.S.C. §1395pp [also section 1869 of the Social Security Act (the Act)]. Id . The appellant has asked the Medicare Appeals Council (Council) to review this action. The appellant’s requests for review have been entered into the record as exhibits (Exhs.) MAC-1 through MAC-6 respectively. 2
+
+The Council reviews the ALJ’s decision de novo . 42 C.F.R. § 405.1108(a). The Council will limit its review of the ALJ’s action to the exceptions raised by the party in the request for review, unless the appellant is an unrepresented beneficiary. 42 C.F.R. § 405.1112(c). As set forth below, the Council modifies in part and reverses in part the ALJ’s decisions. 
+
+APPLICABLE LEGAL AUTHORITIES 
+
+Medicare Coverage of Pneumatic Compression Devices 
+
+The Centers for Medicare & Medicaid Services (CMS) has issued a National Coverage Determination (NCD) governing Medicare coverage of pneumatic compression devices. Medicare National Coverage Determination Manual (NCDM), (CMS Pub. 100-03), Ch. 1, Pt. 4, § 280.6. The NCD describes the coverage criteria and required documentation for such devices as follows: 
+
+Pneumatic compression devices are covered in the home setting for the treatment of lymphedema if the patient has undergone a four-week trial of conservative therapy and the treating physician determines that there has been no significant improvement or if significant symptoms remain after the trial. The trial of conservative therapy must include use of an appropriate compression bandage system or compression garment, exercise, and elevation of the limb. The garment may be prefabricated or custom-fabricated but must provide adequate graduated compression. 
+
+* * * * * *
+
+Pneumatic compression devices are covered in the home setting for the treatment of CVI [chronic venous insufficiency] of the lower extremities only if the patient has one or more venous stasis ulcer(s) which have failed to heal after a 6 month trial of conservative therapy directed by the treating physician. The trial of conservative therapy must include a compression bandage system or compression garment, appropriate dressings for the wound, exercise, and elevation of the limb. 
+
+* * * * * *3
+
+Pneumatic compression devices are covered only when prescribed by a physician and when they are used with appropriate physician oversight, i.e., physician evaluation of the patient’s condition to determine medical necessity of the device, assuring suitable instruction in the operation of the machine, a treatment plan defining the pressure to be used and the frequency and duration of use, and ongoing monitoring of use and response to treatment. 
+
+The determination by the physician of the medical necessity of a pneumatic compression device must include: 
+
+1. The patient’s diagnosis and prognosis; 
+
+2. Symptoms and objective findings, including measurements which establish the severity of the condition; 
+
+3. The reason the device is required, including the treatments which have been tried and failed; and 
+
+4. The clinical response to an initial treatment with the device. The clinical response includes the change in pre-treatment measurements, ability to tolerate the treatment session and parameters, and ability of the patient (or caregiver) to apply the device for continued use in the home. 
+
+The only time that a segmented, calibrated gradient pneumatic compression device (HCPCS code E0652) would be covered is when the individual has unique characteristics that prevent them from receiving satisfactory pneumatic compression treatment using a nonsegmented device in conjunction with a segmented appliance or a segmented compression devices without manual control of pressure in each chamber. 
+
+NCDM § 280.6; see also LCD L5017. 
+
+By regulation, NCDs are binding on the ALJ and the Council. 42 C.F.R. § 405.1060(a)(4). Neither the Council nor an ALJ may disregard, set aside, or otherwise review an NCD for purposes of a claim appeal pursuant to section 1869 of the Social Security Act (Act). 42 C.F.R. § 405.1060(c)(1). 4
+
+A local coverage determination (LCD) is program guidance developed by a Medicare contractor and is applicable only in that contractor’s service area. In this case, CIGNA Government Services (CIGNA), the Durable Medical Equipment Medicare Administrative Contractor (DME MAC) for jurisdiction C, published LCD L5017, Pneumatic Compression Devices , which mirrors the requirements above found in the NCD. The Council has admitted the LCD into the record as Exhibit MAC-7. 
+
+In addition to restating the conditions for coverage found in the NCD above, the Documentation Requirements of LCD L5017 specifies: 
+
+If question #1 on the CMN (“Does the patient have chronic venous insufficiency with venous stasis ulcers?) is answered “Yes,” documentation reflecting all of the following must be in the patient’s medical record and made available upon request: 
+
+1. the location of venous stasis ulcer(s), 
+
+2. how long each ulcer has been continuously present, 
+
+3. previous treatment with a compression bandage system or compression garment, appropriate dressings for the ulcer(s), exercise and limb elevation for at least the past 6 months, 
+
+4. evidence of regular physician visits for treatment of venous stasis ulcer(s) during the past 6 months. 
+
+Neither the Council nor an ALJ are bound by LCDs, "but will give substantial deference to these policies if they are applicable to a particular case." 42 C.F.R. § 405.1062(a). If an ALJ or Council declines to follow an LCD, their decisions must explain the basis for not doing so. 42 C.F.R. § 405.1062(b). The Council notes that LCD L5017 substantially mirrors the guidance set forth in NCD 280.6 and finds no reason to depart from the language of the applicable LCD in this case. 
+
+Pursuant to section 1833(e) of the Act, an appellant bears the responsibility for documenting the medical necessity of its claim for coverage. See also 42 C.F.R. § 424.5(a)(6). 5
+
+PRELIMINARY MATTERS 
+
+The “ Documentation Requirements” section of LCD L5017 provides the following: 
+
+Questions pertaining to medical necessity on any form used to gather the above information may not be completed by the supplier or anyone in a financial relationship with the supplier. The information on the form must be supported by documentation in the patient’s medical record and made available upon request. 
+
+Exh. MAC-7. 
+
+In each decision issued, the ALJ found that the applicable LCD prohibits the completion of a supplier-generated form by someone with a financial interest to the supplier. See e.g., 
+
+beneficiary **** case file, Dec. at 6. Specifically the ALJ found that because the appellant’s representative documented the beneficiary’s initial clinical response to treatment, no Medicare payment could be made for the device and accessories, as applicable, pursuant to the applicable LCD. Id .
+
+Before the Council the appellant argues that the language is only present in the LCD, not the binding NCD, and also that 
+
+[the appellant] believes this statement applies to the information of the LCD that is included under the heading General Information, Documentation Requirements. Applying only to the specific 8 questions listed directly above the prohibition, which does not pertain to clinical response.... The ALJ seemed to link the prohibition outlined in the Documentation Requirements of the LCD to the clinical response form. 
+
+Exhs. MAC-1 through MAC-6. 
+
+The Council finds the appellant’s contention to have some merit. Provisions of the Act allow distribution of certificates of medical necessity (CMNs), by suppliers to physician or individuals entitled to benefits, which contains only the following: 6
+
+• Identification of the supplier and the beneficiary to whom such medical equipment and supplies are furnished. 
+
+• A description of such medical equipment and suppliers. 
+
+• Any product code identifying such medical equipment and supplies. 
+
+• Any other administrative information (other than information relating to the beneficiary’s medical condition) identified by the Secretary. 
+
+See section 1834(j)(2)(A) of the Act. 
+
+Additionally, the Medicare Program Integrity Manual (MPIM) prohibits a supplier’s completion of sections B (medical necessity) and D (physician’s signature) of the CMN. See MPIM (Pub. 100-08), Ch. 5, § 5.3. 
+
+When the referenced provisions are considered in context with the disputed LCD language, the appellant’s assertion is well-taken. In the LCD at issue, the subject paragraph pertaining to the prohibition on supplier completed forms appears at the end of the “Documentation Requirements” section. Immediately preceding the prohibition are documentation requirements with regard to CMNs, specifically, the responses in section B (medical necessity), as well as additional requirements when billing for pneumatic compression devices. The appellant’s interpretation of the LCD on this point is in line with provisions in the Act and CMS policy guidance. 
+
+Based on the discussion above, the Council finds that the ALJ erred in concluding that the prohibition language of the LCD applied to documentation other than CMNs. Instead, the Council finds that the coverage determination should be based on the medical necessity factors and the coverage requirements set forth in the applicable NCD and LCD stated above. 
+
+DISCUSSION 
+
+The appellant submitted separate requests for review in response to the individual decisions issued by the ALJ. The appellant seeks Medicare Part B coverage for segmented home model pneumatic compression devices without calibrated gradient pressure (HCPCS E0651), or for beneficiary ****, with calibrated 7
+
+gradient pressure (HCPCS E0652). 1 For all beneficiaries, the appellant also billed for associated accessories billed using HCPCS E0667 (full leg appliances) on various dates in 2010. The Council will address each beneficiary separately. 
+
+Medicare coverage for pneumatic compression devices (E0651) :
+
+In the cases for beneficiaries ****, CIGNA issued redeterminations in which it upheld its initial denial for Medicare coverage of the device and accessories, determining that the medical records do not support that the beneficiaries had one of the conditions for which the device is covered. See e.g., beneficiary **** case file, Exh. 3 at 13. On reconsideration, the Qualified Independent Contractor (QIC), RiverTrust Solutions, Inc., concurred with CIGNA finding that while the beneficiaries were being treated for CVI, there was no indication in the medical records of a disruption in the lymphatic channels and/or ulcer as required by the applicable legal authorities. See e.g., id., Exh. 1 at 3-4. The QIC further found that the records lack evidence of a documented trial period showing the results of previous treatments. Id .Both the QIC and CIGNA found the appellant liable for the costs associated with the non-covered device and accessories for beneficiaries ****. See e.g., id., see also, id., Exh. 3 at 14. For beneficiary ****, CIGNA and the QIC determined that the beneficiary was liable for the costs associated with the non-covered device due to the presence of a valid Advance Beneficiary Notice (ABN). See beneficiary **** case file, Exh. 1 at 4, see also Exh. 3 at 14, 29. 
+
+The ALJ conducted a hearing for the cases at issue on June 7, 2011, with the appellant’s president appearing on its behalf. Decs. At 1, Reference also Hearing CDs. After consideration of all evidence in the record, the ALJ issued six separate decisions on July 1, 2011, finding that the applicable LCD prohibits the completion of a supplier-generated form by someone with a financial interest to the supplier; and thus, Medicare could not cover the device and supplies at issue. Decs. at 6. In each case, the ALJ found the appellant liable for the costs associated with the non-covered devices and accessories. Id . at 6-7. As stated above, the Council finds this to be an error of law, and thus, now engages in de novo review of the medical documentation                                    
+
+> 1The Centers for Medicare &Medicaid Services (CMS) has developed the Healthcare Common Procedure Coding System (HCPCS) to establish “uniform national definitions of services, codes to represent services, and payment modifiers to the codes.” 42 C.F.R. §414.40(a).
+
+8
+
+in each individual case to determine if the device and accessories at issue are medically reasonable and necessary. 
+
+Beneficiary **** 
+
+The record indicates that beneficiary **** had diagnoses of secondary lymphedema (ICD9 457.1) due to chronic venous insufficiency (ICD9 459.81). Exh. 3 at 22. Further, the beneficiary’s treating physician indicated that he was treating the beneficiary “for Secondary Lymphedema involving both lower extremities due to [CVI]”. Id . at 23. 
+
+In its requests for redetermination and reconsideration, which it references in its request for hearing, the appellant argues that the office notes from June, July and August, 2010, support that the beneficiary engaged in a trial of conservative treatments consisting of compression therapy, limb elevation and 
+
+therapeutic exercise. Exh. 1; see also Exh. 3 at 48, 52. 2 The appellant specifically states that it believes the records support Medicare coverage for a diagnosis of secondary lymphedema. Exh. 3 at 48. 
+
+Based on review of the evidence, the Council concludes that the record does not demonstrate that the coverage and/or documentation criteria of the NCD and LCD for either lymphedema or CVI has been satisfied. 
+
+Both NCD 280.6 and the applicable LCD, LCD L5017, indicate that the pneumonic compression devices are covered only if the medical record supports the presence of “one or more venous stasis ulcer(s) which have failed to heal after a 6 month trial of conservative therapy directed by the treating physician” for Medicare coverage. See NCD 280.6; see also LCD L5017. The medical documentation in the record for beneficiary **** does not disclose the presence of venous stasis ulcers. While the prescription for the PCD states the beneficiary had CVI “with ahistory of venous stasis ulcers” in the “venous disease diagnosis options” section, there is no indication of location, size, or dates of ulceration to support this indication. Exh. 3at 24. Further, Question 1 of section B of the CMN indicates “no” in response to the following questions:                               
+
+> 2For this beneficiary and all others, citations to documents in the sections of individual beneficiary review reference the documents located in the case files for the beneficiary identified in the section header.
+
+9
+
+1. Does the patient have chronic venous insufficiency with venous stasis ulcers; and 2. If the patient does have venous stasis ulcers, have you [the physician] seen the patient over the past six months, and treated the ulcers with a compression bandage system or compression garment? 
+
+Id . at 22. 
+
+The record also does not indicate a six-month trial of conservative therapy. Nor does the record contain medical records in support of regular physician visits during a six-month interval for treatment of ulcers. The office notes referenced in the appellant’s requests for redetermination and reconsideration span a two-month period of time. 
+
+The record also fails to support a conclusion that a four-week trial of conservative therapy for the treatment of lymphedema had been tried. As previously noted, the NCD and LCD L5017 require documentation to show that a four-week trial of varying types of conservative therapy, which includes the appropriate bandage compression system, exercise, and elevation of the limbs, has been tried and unsuccessful. The office notes referenced by the appellant indicate the physician prescribed compression stockings, an Unna boot and exercise. Id. at 58-71. Further, the notes indicate unresolved edema in the lower extremities calf with moderate velocity and flow changes to the great saphenous vein (GSV). See e.g., id., at 31. However, the medical records lack supporting documents with intervals, edema measurements or beneficiary compliance with the interventions. Specifically, there is no evidence to indicate precisely when or for how long leg elevation was implemented, nor is there any documentation to demonstrate that the beneficiary ever participated in an exercise regimen, as specified in the NCD and LCD. Therefore, the appellant has failed to document a four-week trial of conservative therapy, or that the four-week trial failed. 
+
+Based on the above discussion, the Council finds that the coverage criteria of NCD 280.6 and applicable LCD L5017 were not satisfied. Accordingly, the Council finds that the device provided to beneficiary **** on October 15, 2010, is not covered by Medicare. 10 
+
+Beneficiary **** 
+
+The record indicates that beneficiary **** had diagnoses of secondary lymphedema (ICD9 457.1) due to chronic venous insufficiency (ICD9 459.81). Exh. 3 at 22. Further, the beneficiary’s treating physician indicated that he was treating the beneficiary “for Secondary Lymphedema involving both lower extremities status post right knee replacement and hip replacement surgery. The lymphedema has been ongoing and its getting progressively worse due to [CVI]”. Id . at 23. 
+
+In its requests for redetermination and reconsideration, which it references in its request for hearing, the appellant argues that the office notes dated February 13, 2009, June 5, 2010, and September 15, 2010, support that the beneficiary engaged in a trial of conservative treatments consisting of compression therapy, limb elevation and therapeutic exercise. Exh. 1; see also Exh. 3 at 12, 46. The appellant specifically states that it believes the records support Medicare coverage for a diagnosis of secondary lymphedema. Exh. 3 at 47. 
+
+Based on review of the evidence, the Council concludes that the record does not demonstrate that the coverage and/or documentation criteria of the NCD and LCD for either lymphedema or CVI has been satisfied. 
+
+Both NCD 280.6 and the applicable LCD, LCD L5017, indicate that the pneumonic compression devices are covered only if the medical record supports the presence of “one or more venous stasis ulcer(s) which have failed to heal after a 6 month trial of conservative therapy directed by the treating physician” for Medicare coverage. See NCD 280.6; see also LCD L5017. The medical documentation does not disclose the presence of venous stasis ulcers. While the prescription for the PCD states the beneficiary had CVI “with a history of venous stasis ulcers” in the “venous disease diagnosis options” section, there is no indication of location, size, or dates of ulceration to support this indication. Exh. 3 at 24. More importantly, there is no support for the existence of ulcers in the medical record. Further, Question 1 of section B of the CMN indicates “no” in response to the following questions: 
+
+1. Does the patient have chronic venous insufficiency with venous stasis ulcers; and 11 
+
+2. If the patient does have venous stasis ulcers, have you [the physician] seen the patient over the past six months, and treated the ulcers with a compression bandage system or compression garment? 
+
+Id . at 22. 
+
+The record also does not indicate a six-month trial of conservative therapy. Nor does the record contain medical records in support of regular physician visits during a six-month interval for treatment of ulcers. The record also fails to support a conclusion that a four-week trial of conservative therapy for the treatment of lymphedema had been tried. As previously noted, the NCD and LCD L5017 require documentation to show that a four-week trial of varying types of conservative therapy, which includes the appropriate bandage compression system, exercise, and elevation of the limbs, has been tried and unsuccessful. The three office notes referenced in the appellant’s requests for redetermination and reconsideration indicate that the beneficiary had diabetic neuropathy and difficulty with gait and endurance. Id . The referenced office notes from February 2009, and June and September, 2010, indicate the beneficiary was prescribed leg elevation, exercise and compression stockings. Id. at 50-60. The medical records lack supporting documents with intervals, edema measurements or beneficiary compliance with the interventions. 
+
+Based on the above discussion, the Council finds that the coverage criteria of NCD 280.6 and applicable LCD L5017 were not satisfied. Accordingly, the Council finds that the device provided to beneficiary **** on October 8, 2010, is not covered by Medicare. 
+
+Beneficiary **** 
+
+The record indicates that beneficiary **** had diagnoses of secondary lymphedema (ICD9 457.1) due to chronic venous insufficiency (ICD9 459.81). Exh. 3 at 20. Further, the beneficiary’s treating physician indicated that he was treating the beneficiary “for Secondary Lymphedema involving both lower extremities due to [CVI]”. Id . at 21. 
+
+In its requests for redetermination and reconsideration, which it references in its request for hearing, the appellant argues that the letter of medical necessity, dated September 13, 2010, supports that the beneficiary was treated with “compression 12 
+
+stockings, limb elevation, therapeutic exercise and patient education in regards to lymphedema management/skincare”. Exh. 1; see also Exh. 3 at 11, 21, 43. The appellant specifically states that it believes the records support Medicare coverage for a diagnosis of secondary lymphedema. Exh. 3 at 47. 
+
+Based on review of the evidence, the Council concludes that the record does not demonstrate that the coverage and/or documentation criteria of the NCD and LCD for either lymphedema or CVI has been satisfied. 
+
+Both NCD 280.6 and the applicable LCD, LCD L5017, indicate that the pneumonic compression devices are covered only if the medical record supports the presence of “one or more venous stasis ulcer(s) which have failed to heal after a 6 month trial of conservative therapy directed by the treating physician” for Medicare coverage. See NCD 280.6; see also LCD L5017. The medical documentation does not disclose the presence of venous stasis ulcers as delineated in the applicable NCD and LCD. While the prescription for the PCD states the beneficiary had CVI “with a history of venous stasis ulcers” in the “venous disease diagnosis options” section, there is no indication of location, size, or dates of ulceration to support this indication. Exh. 3 at 22. More importantly, there is no support for the existence of ulcers in the medical record. Further, Question 1 of section B of the CMN indicates “no” in response to the following questions: 
+
+1. Does the patient have chronic venous insufficiency with venous stasis ulcers; and 2. If the patient does have venous stasis ulcers, have you [the physician] seen the patient over the past six months, and treated the ulcers with a compression bandage system or compression garment? 
+
+Id . at 50. 
+
+The record also does not indicate a six-month trial of conservative therapy. Nor does the record contain medical records in support of regular physician visits during a six-month interval for treatment of ulcers. In the office note referenced in the appellant’s requests for redetermination and reconsideration, the physician mentions that the beneficiary had been exercising and using compression stockings for years; 13 
+
+however, the record lacks specific documentation to indicate a six-month trial of conservative therapy. 
+
+As previously noted, the NCD and LCD L5017 require documentation to show that a four-week trial of varying types of conservative therapy, which includes the appropriate bandage compression system, exercise, and elevation of the limbs, has been tried and unsuccessful. The physician letter referenced in the appellant’s requests for redetermination and reconsideration indicates that “in spite of conservative treatments the patient now continues to present with 2+ edema,” however there is no description of the conservative treatment, any measurements of change or the duration of the measurements taken. Id. at 21. The supporting medical documentation is dated well over a year before the prescription of the device at issue and likewise does not contain details of conservative treatments. See e.g., id .at 23. 
+
+Based on the above discussion, the Council finds that the coverage criteria of NCD 280.6 and applicable LCD L5017 were not satisfied. Accordingly, the Council finds that the device provided to beneficiary **** on September 15, 2010, is not covered by Medicare. 
+
+Beneficiary **** 
+
+The record indicates that beneficiary **** had diagnoses of secondary lymphedema (ICD9 457.1) due to chronic venous insufficiency (ICD9 459.81) and varicose vein with inflammation (ICD9 454.1). Exh. 3 at 21, 24. Further, the beneficiary’s treating physician indicated that he was treating the beneficiary 
+
+for Secondary Lymphedema involving both lower extremities and trunk area status post multiple surgeries including lumbar spacers x4, right knee repair, abdominal hernia repair, cholecystectomy and appendectomy. The lymphedema has been ongoing and is getting progressively worse due to [CVI]”. 
+
+Id . at 22. 
+
+In its requests for redetermination and reconsideration, which it references in its request for hearing, the appellant argues that the office notes dated June 9, August 30, and September 27, 2010, support that the beneficiary engaged in a trial of 14 
+
+conservative treatments consisting of compression therapy, limb elevation and therapeutic exercise. Exh. 1; see also Exh. 3 at 40, 44. The appellant specifically states that it believes the records support Medicare coverage for a diagnosis of secondary lymphedema. Exh. 3 at 19. 
+
+Based on review of the evidence, the Council concludes that the record does not demonstrate that the coverage and/or documentation criteria of the NCD and LCD for either lymphedema or CVI has been satisfied. 
+
+Both NCD 280.6 and the applicable LCD, LCD L5017, indicate that the pneumonic compression devices are covered only if the medical record supports the presence of “one or more venous stasis ulcer(s) which have failed to heal after a 6 month trial of conservative therapy directed by the treating physician” for Medicare coverage. See NCD 280.6; see also LCD L5017. The medical documentation does not disclose the presence of either venous stasis ulcers. The prescription for the device does not indicate that the beneficiary had CVI “with a history of venous stasis ulcers” in the “venous disease diagnosis options” section, nor is there an indication of location, size, or dates of ulceration to support this indication. Exh. 3 at 23. More importantly, there is no support for the existence of ulcers in the medical record. Further, Question 1 of section B of the CMN indicates “no” in response to the following questions: 
+
+1. Does the patient have chronic venous insufficiency with venous stasis ulcers; and 2. If the patient does have venous stasis ulcers, have you [the physician] seen the patient over the past six months, and treated the ulcers with a compression bandage system or compression garment? 
+
+Id . at 21. 
+
+The record also does not indicate a six-month trial of conservative therapy. Nor does the record contain medical records in support of regular physician visits during a six-month interval for treatment of ulcers. Specifically, there are no descriptions of the conservative treatment, any measurements of change to the beneficiary’s lymphedema over the two years of compression stocking use or the duration of the treatments. 15 
+
+As previously noted, the NCD and LCD L5017 require documentation to show that a four-week trial of varying types of conservative therapy, which includes the appropriate bandage compression system, exercise, and elevation of the limbs, has been tried and unsuccessful. The physician notes referenced in the appellant’s redetermination and reconsideration requests indicate the beneficiary had been using compression stocking for two years prior to her initial visit with the physician in June 2010. Exh. 3 at 24. Two months later, in August 2010, the treating physician ordered physical therapy and supervised compression. 
+
+Id . at 25. 
+
+Based on the above discussion, the Council finds that the coverage criteria of NCD 280.6 and applicable LCD L5017 were not satisfied. Accordingly, the Council finds that the device provided to beneficiary **** on October 5, 2010, is not covered by Medicare. 
+
+Beneficiary **** 
+
+The record indicates that beneficiary **** had diagnoses of secondary lymphedema (ICD9 457.1) due to chronic venous insufficiency (ICD9 459.81). Exh. 3 at 21. Further, the beneficiary’s treating physician indicated that he was treating the beneficiary “for Secondary Lymphedema involving both lower extremities due to [CVI] with recurring ulcers and blisters”. 
+
+Id . at 22. 
+
+In its requests for redetermination and reconsideration, which it references in its request for hearing, the appellant argues that the office notes dated January 7, January 18, April 17, April 23, and August 31, 2010, support that the beneficiary engaged in a trial of conservative treatments consisting of compression therapy and bandaging, limb elevation and therapeutic exercise. Exh. 1; see also Exh. 3 at 19, 43. Exh. 3 at 26. 
+
+Based on review of the evidence, the Council concludes that the record does not demonstrate that the coverage and/or documentation criteria of the NCD and LCD for either lymphedema or CVI has been satisfied. 
+
+Both NCD 280.6 and the applicable LCD, LCD L5017, indicate that the pneumonic compression devices are covered only if the medical record supports the presence of “one or more venous stasis ulcer(s) which have failed to heal after a 6 month trial 16 
+
+of conservative therapy directed by the treating physician” for Medicare coverage. See NCD 280.6; see also LCD L5017. The letter of medical necessity the appellant references indicates that the beneficiary had significant (3+) edema, recurring ulcers and pain. Exh. 3 at 51. However, the medical documentation does not identify the location, size or duration of venous stasis ulcers. More importantly, there is no support for the existence of ulcers elsewhere in the medical record. Further, Question 1 of section B of the CMN indicates “no” in response to the following questions: 
+
+1. Does the patient have chronic venous insufficiency with venous stasis ulcers; and 2. If the patient does have venous stasis ulcers, have you [the physician] seen the patient over the past six months, and treated the ulcers with a compression bandage system or compression garment? 
+
+Id . at 21. 
+
+The record also does not indicate a six-month trial of conservative therapy. Nor does the record contain medical records in support of regular physician visits during a six-month interval for treatment of ulcers. As previously noted, the NCD and LCD L5017 require documentation to show that a four-week trial of varying types of conservative therapy, which includes the appropriate bandage compression system, exercise, and elevation of the limbs, has been tried and unsuccessful. The documentation in the record includes entries with “3+ sitting edema” ( id . at 24) and “severe edema” ( id . at 27) without adequate measurement to indicate either improvement or failure of the conservative treatment. The record further indicates that the beneficiary had “inadequate care and supervision at home” and sat for “hours, day and night, with legs down”. Id . at 26. Thus, the Council finds there is insufficient evidence to show that the beneficiary was able to comply with a four-week trial of conservative therapy, or that the four-week trial failed, in the manner detailed by the applicable legal authorities. 
+
+Based on the above discussion, the Council finds that the coverage criteria of NCD 280.6 and applicable LCD L5017 were not satisfied. Accordingly, the Council finds that the device provided to beneficiary **** on October 8, 2010, is not covered by Medicare. 17 
+
+Beneficiaries **** 
+
+As described above, the Council finds that the medical documentation is insufficient to support Medicare coverage for the devices provided to beneficiaries ****. Accessories for a pneumatic compression device are covered if the beneficiary has a pneumatic compression device that meets Medicare coverage criteria and the accessory itself is medically necessary. Having found that the pneumatic compression devices at issue were not medically reasonable and necessary for each beneficiary, the Council further finds that the associated accessories are likewise not covered by Medicare. 
+
+Medicare coverage of an upgraded pneumatic compression device: 
+
+In the case for beneficiary ****, CIGNA initially covered the pneumatic compression device with calibrated gradient pressure (HCPCS E0652). Exh. 3 at 22. Upon further review, CIGNA demanded an overpayment from which the appellant requested a redetermination. At redetermination, CIGNA upheld its determination that an overpayment occurred, finding that the record lacked documentation of unique characteristics to support Medicare coverage for the calibrated gradient pressure device. 
+
+Id . at 54. CIGNA allowed payment for the least costly alternative, the non-calibrated device billed under HCPCS E0651. 
+
+Id . On reconsideration, the Qualified Independent Contractor (QIC), RiverTrust Solutions, Inc., concurred with CIGNA. Exh. 2at 2. Both the QIC and CIGNA found the appellant liable for the costs associated with the difference between the non-covered device and the least costly alternative. Id. at 2-3; see also, id., Exh. 3 at 14. For beneficiary ****, CIGNA and the QIC determined that the beneficiary was liable for the costs associated with the non-covered device due to the presence of a valid Advance Beneficiary Notice (ABN). See beneficiary **** case file, Exh. 1 at 4, see also Exh. 3 at 55. 
+
+The ALJ conducted a hearing for the cases at issue on June 7, 2011, with the appellant’s president appearing on its behalf. Decisions (Decs.) at 1, reference also Hearing CDs. After consideration of all evidence in the record, the ALJ issued a decision for beneficiary **** on July 1, 2011, finding that the applicable LCD prohibits the completion of a supplier-generated form by someone with a financial interest to the supplier; and thus, Medicare could not cover the device and supplies at issue. Dec. at 6-7. In each case, the ALJ found the appellant liable for 18 
+
+the costs associated with the non-covered devices and accessories pursuant to sections 1870 and 1879 of the Act. Id. at 7. As stated above, the Council finds this to be an error of law, and thus, now engages in de novo review of the medical documentation to determine if the device and accessories at issue are medically reasonable and necessary. 
+
+In addition to the requirements for Medicare coverage stated above, LCD L5017 details that if the appellant seeks coverage for the calibrated device, billed using HCPCS E0652, additional documentation to support medical necessity must be present in the record: 
+
+• The treatment plan including the pressure in each chamber, and the frequency and duration of each treatment episode, 
+
+• Whether a segmented compressor without calibrated gradient pressure or non-segmented compressor with segmented appliances had been tried and the results, 
+
+• Why the features of the device that was provided are needed for this patient, and 
+
+• The name, model number, and manufacturer of the device. 
+
+In its requests for redetermination and reconsideration, which it references in its request for hearing, the appellant argues that the office notes from May, June, and July, 2010, support that the beneficiary had unique characteristics that support the medical necessity for the updated device. Exh. 1; see also Exh. 3 at 30-31. 
+
+The appellant referenced the letter of medical necessity which states 
+
+Due to the unique characteristics of this patient’s condition and severity of the symptoms and treatment with a non-gradient, single pressure, 4 chambered sequential pump (E0651) had been unsatisfactory and will not be adequate enough to properly treat this patient in achieving our goal to minimize the swelling and discomfort. 
+
+Exh. 3 at 34. 19 
+
+On April 12, 2010, beneficiary **** presented to her primary physician with severe 4+ bilateral edema, weeping serous fluid wounds, compromised ambulation due to leg “heaviness” and an inability to wear shoes due to her severe lymphedema. Id . at 35-38. On May 10, 2010, the beneficiary began compression treatment with multilayer compression bandaging, manual lymphatic drainage, caregiver and beneficiary education and lymphatic exercise. Id . The beneficiary continued therapy and her weeping wounds healed with the extraction of excess fluid. 
+
+Id . at 39-42. The beneficiary experienced significant reduction in her edema, yet the beneficiary’s legs remained “grossly edemous and very heavy”. Id . at 40. The beneficiary exhibited difficulties with using a 4-chamber pneumonic compression device due to the beneficiary’s history of “severe pulmonary insufficiency” and critical oxygen saturation drops “into the low 80s with minimal exertion” that required “high levels of oxygen saturation” and multiple breaks to complete treatment. 
+
+Id . Further, the medical documentation indicates that the 4-chamber pump was unable to sufficiently reduce the beneficiary’s significant edema beyond her current level of success due to the aforementioned complications and her severe obesity. Id . at 35-42. The record also contains a letter of medical necessity with the treatment plan including the pressure in each chamber, and the frequency and duration of each treatment episode, the trials of the non-calibrated and calibrated devices and information about the device at issue as required by LCD L5017. Id . at 34. 
+
+After a review of the record, the Council finds that beneficiary **** exhibited unique characteristics that support Medicare coverage for the pneumatic compression devices with calibrated gradient pressure (HCPCS E0652). 20 
+
+CONCLUSION 
+
+As described above, the Council finds that the medical documentation is insufficient to support Medicare coverage for the devices or accessories provided to beneficiaries ****. Accordingly, the Council concurs with the ALJ’s conclusions that Medicare does not cover the devices and accessories at issue but modifies the ALJ’s decision to clarify the legal basis for non-coverage. For these cases, the appellant makes no contentions regarding liability for the non-covered items in these cases. Therefore, the Council adopts the ALJ’s decisions on the issue of liability, e.g. that the appellant remains liable for beneficiaries **** without further discussion. 
+
+The Council finds that the medical documentation for beneficiary **** support Medicare coverage of the pneumatic compression devices with calibrated gradient pressure billed under HCPCS E0652. Accordingly, the Council reverses the ALJ’s decision for beneficiary ****. 
+
+MEDICARE APPEALS COUNCIL 
+
+/s/ Stanley I. Osborne, Jr. Administrative Appeals Judge 
+
+/s/ Constance B. Tobias, Chair Departmental Appeals Board 
+
+Date: December 20, 2012

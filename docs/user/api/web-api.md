@@ -171,10 +171,7 @@ Some folders of examples are open only to callers who hold a given role, as
 `restricted_paths.pl` records. The server learns a caller's roles from the
 cookie that logging in at `/login` leaves behind, a cookie being the small note
 a browser keeps and sends back with each request. A request that carries no
-such cookie has no roles at all. A few programs inside a restricted folder may
-be opened by name by anyone — the ones a public page links to, such as
-`"lpsPlus/medicare/pmd_cases"` — while the folder around them stays out of
-`listExamples`.
+such cookie has no roles at all.
 
 ---
 

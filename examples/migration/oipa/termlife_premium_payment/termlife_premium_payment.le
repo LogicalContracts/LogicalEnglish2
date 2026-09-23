@@ -1,0 +1,155 @@
+% The Logical English twin of the OIPA transaction PremiumPayment of the plan termlife, written by the OIPA translator
+% from its XML configuration (kept in sources/).
+% Each rule cites the MathVariable it states; the expected values in the scenarios are
+% computed by an independent interpreter of OIPA math (oipa_eval.py), not by this program.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the knowledge base termlife_premium_payment includes these resources:
+    temporal.
+
+the functions are:
+    the effective date of *an activity* is *a date*.
+    the amount of *an activity* is *an amount*.
+    the modal premium of the policy before *an activity* is *an amount*.
+    the paid to date of the policy before *an activity* is *a date*.
+    the billing mode of the policy before *an activity* is *a value*.
+    the ratio of *an activity* is *a number*.
+    the modes paid of *an activity* is *an amount*.
+    the months per mode of *an activity* is *a number*.
+    the months advanced of *an activity* is *a number*.
+    the new paid to date of *an activity* is *a date*.
+    the unapplied amount of *an activity* is *an amount*.
+    the paid to date of the policy after *an activity* is *a value*.
+
+the templates are:
+    *an activity* is a premium payment.
+    *an activity* fails the check *a code*.
+
+the knowledge base termlife_premium_payment includes:
+
+the text of "PremiumPayment/Transaction.xml" is at "sources/PremiumPayment/Transaction.xml".
+
+% An activity of this program is a premium payment: the PremiumPayment transaction it processes.
+an activity is a premium payment if
+    the effective date of the activity is a date.
+
+rule ratio with provenance "PremiumPayment/Transaction.xml" at MathVariable RatioMV:
+the ratio of an activity is a number N if
+    the amount of the activity is an amount M
+    and the modal premium of the policy before the activity is an amount K
+    and N = M / K.
+
+rule modes_paid with provenance "PremiumPayment/Transaction.xml" at MathVariable ModesPaidMV:
+the modes paid of an activity is an amount N if
+    the ratio of the activity is a number M
+    and N = truncate(M).
+
+rule months_per_mode with provenance "PremiumPayment/Transaction.xml" at MathVariable MonthsPerModeMV:
+the months per mode of an activity is a number N if
+    the billing mode of the policy before the activity is a value
+    and the value is equal to "12"
+    and N = 1
+    otherwise the billing mode of the policy before the activity is a second value
+    and the second value is equal to "04"
+    and N = 3
+    otherwise the billing mode of the policy before the activity is a third value
+    and the third value is equal to "02"
+    and N = 6
+    otherwise the activity is a premium payment
+    and N = 12.
+
+rule months_advanced with provenance "PremiumPayment/Transaction.xml" at MathVariable MonthsAdvancedMV:
+the months advanced of an activity is a number N if
+    the modes paid of the activity is an amount M
+    and the months per mode of the activity is a number K
+    and N = M * K.
+
+rule new_paid_to_date with provenance "PremiumPayment/Transaction.xml" at MathVariable NewPaidToDateMV:
+the new paid to date of an activity is a date if
+    the date is the months advanced of the activity months after the paid to date of the policy before the activity.
+
+rule unapplied_amount with provenance "PremiumPayment/Transaction.xml" at MathVariable UnappliedAmountMV:
+the unapplied amount of an activity is an amount N if
+    the amount of the activity is an amount M
+    and the modes paid of the activity is an amount K
+    and the modal premium of the policy before the activity is an amount P
+    and N = round((M - K * P) * 100) / 100.
+
+% A payment of [the amount] is less than one modal premium ([the modal premium]).
+rule p001 with provenance "PremiumPayment/ValidateExpressions.xml" at Expression P001:
+an activity fails the check "P001" if
+    the amount of the activity < the modal premium of the policy before the activity.
+
+rule copy_paid_to_date with provenance "PremiumPayment/CopyToPolicyFields.xml" at Field PaidToDate:
+the paid to date of the policy after an activity is a value if
+    the new paid to date of the activity is the value
+    and it is not the case that the activity fails the check a code.
+
+scenario monthly_payer_p1 is:
+    the effective date of p1 is 2024-04-01.
+    the amount of p1 is 100.
+    the modal premium of the policy before p1 is 44.189999999999998.
+    the paid to date of the policy before p1 is 2024-04-01.
+    the billing mode of the policy before p1 is "12".
+    new_paid_to_date expects answers ["the new paid to date of p1 is 2024-06-01"].
+    unapplied_amount expects answers ["the unapplied amount of p1 is 11.62"].
+    checks expects answers [].
+    policy_after_paid_to_date expects answers ["the paid to date of the policy after p1 is 2024-06-01"].
+
+scenario monthly_payer_p2 is:
+    the effective date of p2 is 2024-05-21.
+    the amount of p2 is 20.
+    the modal premium of the policy before p2 is 44.189999999999998.
+    the paid to date of the policy before p2 is 2024-06-01.
+    the billing mode of the policy before p2 is "12".
+    new_paid_to_date expects answers ["the new paid to date of p2 is 2024-06-01"].
+    unapplied_amount expects answers ["the unapplied amount of p2 is 20"].
+    checks expects answers ["p2 fails the check P001"].
+    policy_after_paid_to_date expects answers [].
+
+scenario annual_smoker_p1 is:
+    the effective date of p1 is 2024-08-01.
+    the amount of p1 is 10000.
+    the modal premium of the policy before p1 is 5205.
+    the paid to date of the policy before p1 is 2024-08-01.
+    the billing mode of the policy before p1 is "01".
+    new_paid_to_date expects answers ["the new paid to date of p1 is 2025-08-01"].
+    unapplied_amount expects answers ["the unapplied amount of p1 is 4795"].
+    checks expects answers [].
+    policy_after_paid_to_date expects answers ["the paid to date of the policy after p1 is 2025-08-01"].
+
+query new_paid_to_date is:
+    the new paid to date of which activity is which date.
+
+query unapplied_amount is:
+    the unapplied amount of which activity is which amount.
+
+query checks is:
+    which activity fails the check which code.
+
+query policy_after_paid_to_date is:
+    the paid to date of the policy after which activity is which value.
+
+the view premium_payment is:
+    the title is "PremiumPayment (termlife)".
+    the case is a scenario.
+    the facts about "the activity" are
+        the effective date of an activity is a date,
+        the amount of an activity is an amount.
+    the facts about "the policy it finds" are
+        the modal premium of the policy before an activity is an amount,
+        the paid to date of the policy before an activity is a date,
+        the billing mode of the policy before an activity is a value.
+    the result is the answer to query new_paid_to_date.
+    the answers to "which activity fails the check which code" are listed as "Checks".
+    the result shows its citations.
+

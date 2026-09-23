@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidateExpressions>
+  <Expression TYPE="ErrorOnTrue" MESSAGE="The deposit must be a positive amount." ERRORNUMBER="D001">GrossAmountMV &lt;= 0</Expression>
+  <Expression TYPE="ErrorOnTrue" MESSAGE="Deposits above $1,000,000 need home office approval." ERRORNUMBER="D002">GrossAmountMV &gt; 1000000</Expression>
+</ValidateExpressions>

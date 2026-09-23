@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic OIPA configuration (InsurLE2 Phase 2b): issuing a level term
+     life policy — the issue age (ANBAgeOf), the premium rate by issue age,
+     gender and tobacco use (TYPE RATE), the annual and modal premiums (a
+     MathIF per billing mode). Written from the OIPA XML Configuration
+     Guide 9.7's forms; not Oracle's configuration. -->
+<Transaction>
+  <Fields>
+    <Field>
+      <Name>FaceAmount</Name>
+      <Display>Face Amount</Display>
+      <DataType>Money</DataType>
+    </Field>
+    <Field>
+      <Name>BillingMode</Name>
+      <Display>Billing Mode</Display>
+      <DataType>Combo</DataType>
+      <Query TYPE="FIXED">
+        <Options>
+          <Option><OptionValue>01</OptionValue><OptionText>Annual</OptionText></Option>
+          <Option><OptionValue>02</OptionValue><OptionText>Semi-annual</OptionText></Option>
+          <Option><OptionValue>04</OptionValue><OptionText>Quarterly</OptionText></Option>
+          <Option><OptionValue>12</OptionValue><OptionText>Monthly</OptionText></Option>
+        </Options>
+      </Query>
+    </Field>
+  </Fields>
+  <Math>
+    <MathVariables>
+      <MathVariable VARIABLENAME="FaceAmountMV" TYPE="FIELD" DATATYPE="DECIMAL">Activity:FaceAmount</MathVariable>
+      <MathVariable VARIABLENAME="BillingModeMV" TYPE="FIELD" DATATYPE="TEXT">Activity:BillingMode</MathVariable>
+      <MathVariable VARIABLENAME="IssueDateMV" TYPE="FIELD" DATATYPE="DATE">Activity:EffectiveDate</MathVariable>
+      <MathVariable VARIABLENAME="DateOfBirthMV" TYPE="POLICYFIELD" DATATYPE="DATE">InsuredDateOfBirth</MathVariable>
+      <MathVariable VARIABLENAME="GenderMV" TYPE="POLICYFIELD" DATATYPE="TEXT">InsuredGender</MathVariable>
+      <MathVariable VARIABLENAME="TobaccoMV" TYPE="POLICYFIELD" DATATYPE="TEXT">InsuredTobacco</MathVariable>
+      <MathVariable VARIABLENAME="IssueAgeMV" TYPE="FUNCTION" DATATYPE="INTEGER" LOG="Yes">ANBAgeOf(DateOfBirthMV,IssueDateMV)</MathVariable>
+      <MathVariable VARIABLENAME="PremiumRateMV" TYPE="RATE" DATATYPE="DECIMAL" DEFAULT="0">
+        <Parameters>
+          <RateDescription>TermPremium</RateDescription>
+          <EffectiveDate>Activity:EffectiveDate</EffectiveDate>
+          <RateCriteria NAME="IssueAge">IssueAgeMV</RateCriteria>
+          <RateCriteria NAME="Gender">GenderMV</RateCriteria>
+          <RateCriteria NAME="Tobacco">TobaccoMV</RateCriteria>
+        </Parameters>
+      </MathVariable>
+      <MathVariable VARIABLENAME="PolicyFeeMV" TYPE="PLANFIELD" DATATYPE="DECIMAL" DEFAULT="0">PolicyFee</MathVariable>
+      <MathVariable VARIABLENAME="AnnualPremiumMV" TYPE="EXPRESSION" DATATYPE="DECIMAL" ROUND="2" LOG="Yes">FaceAmountMV / 1000 * PremiumRateMV + PolicyFeeMV</MathVariable>
+      <MathVariable VARIABLENAME="ModalFactorMV" TYPE="VALUE" DATATYPE="DECIMAL">1</MathVariable>
+      <MathIF IF="BillingModeMV = '02'">
+        <MathVariable VARIABLENAME="ModalFactorMV" TYPE="VALUE" DATATYPE="DECIMAL">0.51</MathVariable>
+      </MathIF>
+      <MathIF IF="BillingModeMV = '04'">
+        <MathVariable VARIABLENAME="ModalFactorMV" TYPE="VALUE" DATATYPE="DECIMAL">0.26</MathVariable>
+      </MathIF>
+      <MathIF IF="BillingModeMV = '12'">
+        <MathVariable VARIABLENAME="ModalFactorMV" TYPE="VALUE" DATATYPE="DECIMAL">0.0875</MathVariable>
+      </MathIF>
+      <MathVariable VARIABLENAME="ModalPremiumMV" TYPE="EXPRESSION" DATATYPE="DECIMAL" ROUND="2" LOG="Yes">AnnualPremiumMV * ModalFactorMV</MathVariable>
+      <MathVariable VARIABLENAME="ActiveStatusMV" TYPE="VALUE" DATATYPE="TEXT">Active</MathVariable>
+    </MathVariables>
+  </Math>
+</Transaction>

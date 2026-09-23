@@ -85,7 +85,7 @@ each failing here exactly as a user of this deployment would find it:
 | `e2e/auth.spec.ts` (3), and the `/login` half of `i18n-ui.spec.ts` (2) — whose assertions about the *editor's* own Portuguese pass first | accounts |
 | `e2e/landing-dir.spec.ts` (4) | the landing page rendered per request (`/?dir=…`) |
 | `import-foreign.spec.ts` (3 of its 6) | the translators of other systems, which live in a private repository and are not shipped by a public build (§2.1 of the marketing plan: they run where we run them). The three cases that need no translator pass |
-| `document-facts.spec.ts`, `flip-button.spec.ts` (3), `form-support.spec.ts` (3), `include-navigation.spec.ts`, `source-viewer.spec.ts` (3) | an example from the private `lpsPlus` tree, which a public build does not carry. All of them pass against a server started with `NO_RESTRICTIONS=true`, and against a `--private` build |
+| `document-facts.spec.ts`, `flip-button.spec.ts` (3), `form-support.spec.ts` (3), `include-navigation.spec.ts`, `source-viewer.spec.ts` (3) | an example from the customs model, public on the server but left out of the browser build for its size (`light_excluded/1` in `wasm/pack.pl`; until 23 September 2026 it was in the private `lpsPlus` tree). All of them pass against the server |
 
 ### 4. The test interacts faster than the engine starts
 
@@ -159,7 +159,7 @@ The 84 here, by the kinds above:
 |---|---|---|
 | 1 — speaks HTTP to the API | 20 | `api/mcp.spec.ts` 19, `example-alias.spec.ts` 1 |
 | 2 — watches or mocks the network | 11 | `explanation-drill.spec.ts` 5, `editor.spec.ts` 3, `proof-game.spec.ts` 1, `document-facts.spec.ts` 1, `views.spec.ts` 1 |
-| 3 — needs a server, or something a public build does not carry | 37 | a model 8 (`contract-assistant` 3, `scenario-editor` 4, `query-editor` 1); a private example 10 (`flip-button` 3, `form-support` 3, `source-viewer` 3, `include-navigation` 1); accounts 5 (`e2e/auth` 3, `i18n-ui` 2); `/?dir=` 4; s(CASP) 4; the foreign importers 3; a second thread 3 (`editor.spec.ts`, the debugger twice and the interrupt) |
+| 3 — needs a server, or something a public build does not carry | 37 | a model 8 (`contract-assistant` 3, `scenario-editor` 4, `query-editor` 1); an example the light build leaves out 10 (`flip-button` 3, `form-support` 3, `source-viewer` 3, `include-navigation` 1); accounts 5 (`e2e/auth` 3, `i18n-ui` 2); `/?dir=` 4; s(CASP) 4; the foreign importers 3; a second thread 3 (`editor.spec.ts`, the debugger twice and the interrupt) |
 | 4 — interacts before the engine is ready, or before a popup's is | 8 | `source-graph` 2, `proof-game` 3, `multilingual` 1, `scenario-variations` 1, `mermaid-export` 1 |
 | 5 — actually wrong, and fixed | 2 | `view-original-text` 2: the `sources/` originals of a migrated twin were not in the payload, so *View ▸ The original this was converted from* found nothing. `wasm/pack.pl` now ships them (`.lrml`, `.policy`, `.yaml`, …), and all three cases of that spec pass |
 | 6 — this container, not the deployment | 6 | `executive.spec.ts`: `browserType.launch` fails for want of `libGLESv2`, as it does against the server here |

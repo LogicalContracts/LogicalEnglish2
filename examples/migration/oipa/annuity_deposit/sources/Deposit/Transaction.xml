@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic OIPA configuration (InsurLE2 Phase 2b): a deposit to a deferred
+     annuity, written from the forms of the OIPA XML Configuration Guide 9.7
+     (Transaction, Fields, Math, MathVariable TYPE FIELD / PLANFIELD /
+     POLICYFIELD / VALUE / EXPRESSION / IIF). Not Oracle's configuration. -->
+<Transaction>
+  <Fields>
+    <Field>
+      <Name>GrossAmount</Name>
+      <Display>Gross Amount</Display>
+      <DataType>Money</DataType>
+    </Field>
+  </Fields>
+  <Math>
+    <MathVariables>
+      <MathVariable VARIABLENAME="GrossAmountMV" TYPE="FIELD" DATATYPE="DECIMAL">Activity:GrossAmount</MathVariable>
+      <MathVariable VARIABLENAME="AccountValueMV" TYPE="POLICYFIELD" DATATYPE="DECIMAL">AccountValue</MathVariable>
+      <MathVariable VARIABLENAME="PremiumTaxRateMV" TYPE="PLANFIELD" DATATYPE="DECIMAL" DEFAULT="0">PremiumTaxRate</MathVariable>
+      <MathVariable VARIABLENAME="PremiumTaxMV" TYPE="EXPRESSION" DATATYPE="DECIMAL" ROUND="2">GrossAmountMV * PremiumTaxRateMV</MathVariable>
+      <!-- a first-year bonus: 2% on large deposits, 1% otherwise -->
+      <MathVariable VARIABLENAME="HighBonusRateMV" TYPE="VALUE" DATATYPE="DECIMAL">0.02</MathVariable>
+      <MathVariable VARIABLENAME="StandardBonusRateMV" TYPE="VALUE" DATATYPE="DECIMAL">0.01</MathVariable>
+      <MathVariable VARIABLENAME="BonusRateMV" TYPE="IIF" EXPRESSION="GrossAmountMV &gt;= 100000" DATATYPE="DECIMAL">HighBonusRateMV,StandardBonusRateMV</MathVariable>
+      <MathVariable VARIABLENAME="BonusMV" TYPE="EXPRESSION" DATATYPE="DECIMAL" ROUND="2">(GrossAmountMV - PremiumTaxMV) * BonusRateMV</MathVariable>
+      <MathVariable VARIABLENAME="NetDepositMV" TYPE="EXPRESSION" DATATYPE="DECIMAL" ROUND="2" LOG="Yes">GrossAmountMV - PremiumTaxMV + BonusMV</MathVariable>
+      <MathVariable VARIABLENAME="NewAccountValueMV" TYPE="EXPRESSION" DATATYPE="DECIMAL" ROUND="2" LOG="Yes">AccountValueMV + NetDepositMV</MathVariable>
+    </MathVariables>
+  </Math>
+</Transaction>

@@ -1,0 +1,241 @@
+{
+  "counts": {"approximated":0,"encoded":20,"residue":0},
+  "entries": [
+    {
+      "element":"Withdrawal/Transaction.xml MathVariable GrossAmountMV",
+      "in_program":"GrossAmountMV",
+      "kind":"mathvariable",
+      "mapping":"FIELD -> the activity field GrossAmount, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Withdrawal/Transaction.xml MathVariable EffectiveDateMV",
+      "in_program":"EffectiveDateMV",
+      "kind":"mathvariable",
+      "mapping":"FIELD -> the activity field EffectiveDate, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Withdrawal/Transaction.xml MathVariable AccountValueMV",
+      "in_program":"AccountValueMV",
+      "kind":"mathvariable",
+      "mapping":"POLICYFIELD -> the policy field AccountValue the activity finds, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Withdrawal/Transaction.xml MathVariable IssueDateMV",
+      "in_program":"IssueDateMV",
+      "kind":"mathvariable",
+      "mapping":"POLICYFIELD -> the policy field IssueDate the activity finds, a fact of the case",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Withdrawal/Transaction.xml MathVariable DurationMV",
+      "in_program":"DurationMV",
+      "kind":"mathvariable",
+      "mapping":"FUNCTION -> LE's date and number built-ins",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Withdrawal/Transaction.xml MathVariable PolicyYearMV",
+      "in_program":"PolicyYearMV",
+      "kind":"mathvariable",
+      "mapping":"EXPRESSION -> a rule, the MathVariables it reads as conditions",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Withdrawal/Transaction.xml MathVariable FreePercentMV",
+      "in_program":"FreePercentMV",
+      "kind":"mathvariable",
+      "mapping":"PLANFIELD -> the plan field FreeWithdrawalPercent, a fact of the program (PlanFields.csv)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Withdrawal/Transaction.xml MathVariable FreeAmountMV",
+      "in_program":"FreeAmountMV",
+      "kind":"mathvariable",
+      "mapping":"EXPRESSION -> a rule, the MathVariables it reads as conditions",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Withdrawal/Transaction.xml MathVariable ExcessMV",
+      "in_program":"ExcessMV",
+      "kind":"mathvariable",
+      "mapping":"EXPRESSION -> a rule, the MathVariables it reads as conditions",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Withdrawal/Transaction.xml MathVariable ZeroMV",
+      "in_program":"ZeroMV",
+      "kind":"mathvariable",
+      "mapping":"VALUE -> the constant 0",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Withdrawal/Transaction.xml MathVariable ChargeableAmountMV",
+      "in_program":"ChargeableAmountMV",
+      "kind":"mathvariable",
+      "mapping":"IIF -> an otherwise cascade",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Withdrawal/Transaction.xml MathVariable SurrenderChargeRateMV",
+      "in_program":"SurrenderChargeRateMV",
+      "kind":"mathvariable",
+      "mapping":"RATE -> a decision table loaded from the plan's rates, DEFAULT as the last line",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Withdrawal/Transaction.xml MathVariable SurrenderChargeMV",
+      "in_program":"SurrenderChargeMV",
+      "kind":"mathvariable",
+      "mapping":"reassigned (MathIF) -> an otherwise cascade, the latest assignment first",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Withdrawal/Transaction.xml MathVariable NetAmountMV",
+      "in_program":"NetAmountMV",
+      "kind":"mathvariable",
+      "mapping":"EXPRESSION -> a rule, the MathVariables it reads as conditions",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Withdrawal/Transaction.xml MathVariable RemainingValueMV",
+      "in_program":"RemainingValueMV",
+      "kind":"mathvariable",
+      "mapping":"EXPRESSION -> a rule, the MathVariables it reads as conditions",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Withdrawal/Transaction.xml MathVariable MinimumBalanceMV",
+      "in_program":"MinimumBalanceMV",
+      "kind":"mathvariable",
+      "mapping":"PLANFIELD -> the plan field MinimumBalance, a fact of the program (PlanFields.csv)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Withdrawal/ValidateExpressions.xml W001",
+      "in_program":"W001",
+      "kind":"validation",
+      "mapping":"ValidateExpressions Expression -> `the activity fails the check`",
+      "note":"The withdrawal must be a positive amount.",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Withdrawal/ValidateExpressions.xml W002",
+      "in_program":"W002",
+      "kind":"validation",
+      "mapping":"ValidateExpressions Expression -> `the activity fails the check`",
+      "note":"A withdrawal of $$$GrossAmountMV$$$ exceeds the account value of $$$AccountValueMV$$$.",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Withdrawal/SpawnActivities.xml Spawn FullSurrender",
+      "in_program":"FullSurrender",
+      "kind":"spawn",
+      "mapping":"Spawn -> `the activity spawns the transaction` (only an activity that fails no check)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Withdrawal/CopyToPolicyFields.xml RemainingValueMV -> AccountValue",
+      "in_program":"AccountValue",
+      "kind":"copy",
+      "mapping":"CopyToPolicyFields -> the policy field after the activity (only an activity that fails no check)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":30,
+    "tests": [
+      {"detail":"","query":"net_amount","result":"pass","scenario":"steady_saver_w1"},
+      {"detail":"","query":"remaining_value","result":"pass","scenario":"steady_saver_w1"},
+      {"detail":"","query":"checks","result":"pass","scenario":"steady_saver_w1"},
+      {"detail":"","query":"spawns","result":"pass","scenario":"steady_saver_w1"},
+      {
+	"detail":"",
+	"query":"policy_after_account_value",
+	"result":"pass",
+	"scenario":"steady_saver_w1"
+      },
+      {"detail":"","query":"net_amount","result":"pass","scenario":"steady_saver_w2"},
+      {"detail":"","query":"remaining_value","result":"pass","scenario":"steady_saver_w2"},
+      {"detail":"","query":"checks","result":"pass","scenario":"steady_saver_w2"},
+      {"detail":"","query":"spawns","result":"pass","scenario":"steady_saver_w2"},
+      {
+	"detail":"",
+	"query":"policy_after_account_value",
+	"result":"pass",
+	"scenario":"steady_saver_w2"
+      },
+      {"detail":"","query":"net_amount","result":"pass","scenario":"steady_saver_w3"},
+      {"detail":"","query":"remaining_value","result":"pass","scenario":"steady_saver_w3"},
+      {"detail":"","query":"checks","result":"pass","scenario":"steady_saver_w3"},
+      {"detail":"","query":"spawns","result":"pass","scenario":"steady_saver_w3"},
+      {
+	"detail":"",
+	"query":"policy_after_account_value",
+	"result":"pass",
+	"scenario":"steady_saver_w3"
+      },
+      {"detail":"","query":"net_amount","result":"pass","scenario":"late_withdrawal_w1"},
+      {"detail":"","query":"remaining_value","result":"pass","scenario":"late_withdrawal_w1"},
+      {"detail":"","query":"checks","result":"pass","scenario":"late_withdrawal_w1"},
+      {"detail":"","query":"spawns","result":"pass","scenario":"late_withdrawal_w1"},
+      {
+	"detail":"",
+	"query":"policy_after_account_value",
+	"result":"pass",
+	"scenario":"late_withdrawal_w1"
+      },
+      {"detail":"","query":"net_amount","result":"pass","scenario":"late_withdrawal_w2"},
+      {"detail":"","query":"remaining_value","result":"pass","scenario":"late_withdrawal_w2"},
+      {"detail":"","query":"checks","result":"pass","scenario":"late_withdrawal_w2"},
+      {"detail":"","query":"spawns","result":"pass","scenario":"late_withdrawal_w2"},
+      {
+	"detail":"",
+	"query":"policy_after_account_value",
+	"result":"pass",
+	"scenario":"late_withdrawal_w2"
+      },
+      {"detail":"","query":"net_amount","result":"pass","scenario":"drained_w1"},
+      {"detail":"","query":"remaining_value","result":"pass","scenario":"drained_w1"},
+      {"detail":"","query":"checks","result":"pass","scenario":"drained_w1"},
+      {"detail":"","query":"spawns","result":"pass","scenario":"drained_w1"},
+      {
+	"detail":"",
+	"query":"policy_after_account_value",
+	"result":"pass",
+	"scenario":"drained_w1"
+      }
+    ]
+  },
+  "meta": {
+    "artifacts": ["Withdrawal/Transaction.xml" ],
+    "date":"2026-09-23",
+    "program":"annuity_withdrawal",
+    "source":"an OIPA transaction (Rules Palette XML)",
+    "translator":"lpsPlus/migration/oipa (oipa_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":6
+}

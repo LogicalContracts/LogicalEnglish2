@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CopyToPolicyFields>
+  <Fields>
+    <Field><From>NewPaidToDateMV</From><To>PaidToDate</To></Field>
+  </Fields>
+</CopyToPolicyFields>
