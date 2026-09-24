@@ -684,9 +684,6 @@ le_scasp_query(KBModule, ScenarioName, Goal, Options, Answers, Issues) :-
     ),
     append([PIssues, QIssues, SIssues, RIssues], Issues).
 
-scenario_rule((_ :- _)).
-
-scenario_rule_record((Head :- Body), rule(scenario, 0, 0, Head, Body)).
 le_scasp_query(KBModule, _, Goal, _, [], Issues) :-
     le_scasp_available, !,
     le_scasp_program_text(KBModule, _, PIssues),
@@ -697,6 +694,11 @@ le_scasp_query(KBModule, _, Goal, _, [], Issues) :-
     ;   Issues = PIssues
     ).
 le_scasp_query(_, _, _, _, [], [I]) :- scasp_issue(no_pack, unknown, scasp_engine_not_installed, [], I).
+
+% scenario_rule(+Item): a scenario item that is a rule, not a fact.
+scenario_rule((_ :- _)).
+
+scenario_rule_record((Head :- Body), rule(scenario, 0, 0, Head, Body)).
 
 %!  le_scasp_query_goal(+KB, +Goal, -Query, -Shown, -Lines, -Issues) is det.
 %
@@ -1258,6 +1260,11 @@ lit_pi(G, F/A) :- functor(G, F, A).
 :- discontiguous le_scasp_stratification/2.
 le_scasp_program_text(_, "", [I]) :- scasp_issue(no_pack, unknown, scasp_engine_not_installed, [], I).
 le_scasp_query(_, _, _, _, [], [I]) :- scasp_issue(no_pack, unknown, scasp_engine_not_installed, [], I).
+
+% scenario_rule(+Item): a scenario item that is a rule, not a fact.
+scenario_rule((_ :- _)).
+
+scenario_rule_record((Head :- Body), rule(scenario, 0, 0, Head, Body)).
 le_scasp_tree_json(_, _, _, _{type:"unknown", literal:"s(CASP) not installed", children:[]}).
 le_scasp_stratification(_, []).
 :- endif.
