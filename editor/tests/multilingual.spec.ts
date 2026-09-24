@@ -2,7 +2,7 @@
 // to a landing page circumscribed to that language — only the examples of
 // examples/<lang>/, chrome strings in that language — with a link back to the
 // standard (English) landing page. The pages leave the reader's menu
-// language alone: that is the editor's preference (Misc > MENU LANGUAGE), not
+// language alone: that is the editor's preference (Misc > Language), not
 // the language of the programs listed. Driven by i18n/languages.csv, i18n/ui.csv
 // and the per-language example trees.
 import { test, expect } from '@playwright/test';

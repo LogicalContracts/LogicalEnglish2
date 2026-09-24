@@ -47,7 +47,7 @@ interface DocNav { sections: { title: string; items: DocNavItem[] }[] }
  * Help ▸ Documentation: the documents nav.json gives a `menu` label, in the
  * UI language, each opening its translation when the active language has one.
  */
-// Misc > MENU LANGUAGE: one item per language of the dictionaries, named
+// Misc > Language: one item per language of the dictionaries, named
 // in its own language, the current one ticked. Choosing another reloads the
 // page, which is how the chrome is translated (applyI18nDom works from the
 // English page); the browser asks first if a document has unsaved changes.
@@ -144,7 +144,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             }
         };
         // UI chrome language: API language parameter and DOM pass. The
-        // preference is the reader's (Misc > MENU LANGUAGE, else the
+        // preference is the reader's (Misc > Language, else the
         // browser's language on first use), never the language of the
         // program being edited.
         installLeApiLang();

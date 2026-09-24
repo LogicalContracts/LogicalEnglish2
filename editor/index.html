@@ -193,6 +193,32 @@
             background-color: var(--answer-selected-bg);
             color: black;
         }
+        /* A menu item that opens a second-level menu to its right on hover
+           (Misc > Language). */
+        .dropdown-item.has-submenu {
+            position: relative;
+            padding-right: 30px;
+        }
+        .dropdown-item.has-submenu::after {
+            content: '▸';
+            position: absolute;
+            right: 12px;
+        }
+        .submenu {
+            display: none;
+            position: absolute;
+            top: -1px;
+            left: 100%;
+            background-color: var(--dropdown-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            z-index: 1001;
+            min-width: 120px;
+        }
+        .has-submenu:hover > .submenu {
+            display: block;
+        }
         .dropdown-divider {
             height: 1px;
             background-color: var(--border-color);
@@ -782,9 +808,10 @@
                 <div class="dropdown-item" id="theme-light" title="Dark text on a light background">Light</div>
                 <div class="dropdown-item" id="theme-hc" title="Maximum contrast, for low vision or bright rooms">High Contrast</div>
                 <div class="dropdown-divider"></div>
-                <div style="padding: 8px 15px; font-weight: bold; font-size: 11px; color: #888;" data-i18n title="The language of the menus, buttons and messages. The language of a program is set by the program's own first sentence, not here.">MENU LANGUAGE</div>
-                <!-- one item per language of i18n/languages.csv, filled by client.ts -->
-                <div id="menu-ui-languages"></div>
+                <div class="dropdown-item has-submenu" id="menu-ui-language" title="The language of the menus, buttons and messages. The language of a program is set by the program's own first sentence, not here.">Language
+                    <!-- one item per language of i18n/languages.csv, filled by client.ts -->
+                    <div class="submenu" id="menu-ui-languages"></div>
+                </div>
                 <div class="dropdown-divider"></div>
                 <div style="padding: 8px 15px; font-weight: bold; font-size: 11px; color: #888;">FONT SIZE</div>
                 <div class="dropdown-item" id="font-small" title="Smaller editor text">Small</div>
