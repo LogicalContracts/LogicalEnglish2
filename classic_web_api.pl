@@ -292,7 +292,7 @@ le_api:le_api_user(Email, Roles) :-
 handle_landing_page(Request) :-
     % The standard landing page IS the English page: it always renders in
     % English. It does NOT touch the reader's menu language, which the
-    % editor keeps (Misc > MENU LANGUAGE).
+    % editor keeps (Misc > Language).
     le_i18n:set_le_language(default),
     http_parameters(Request, [run_tests(RunTests, [boolean, optional(true), default(false)]),
                               dir(DirParam0, [optional(true), default('')])]),
@@ -804,7 +804,7 @@ handle_multilingual(Request) :-
 %   examples/<lang>/ tree, each shown by its autonym, and a link to the guide
 %   to writing Logical English in other languages. Rendered neutrally in
 %   English. Like every landing page it leaves the reader's menu language
-%   alone: that is chosen in the editor (Misc > MENU LANGUAGE).
+%   alone: that is chosen in the editor (Misc > Language).
 multilingual_picker_page :-
     le_i18n:set_le_language(default),
     findall(li(a(href(Url), Autonym)), (
@@ -831,7 +831,7 @@ multilingual_picker_page :-
 %   examples/<Lang>/ tree, all chrome strings in Lang. The page does NOT
 %   touch the reader's menu language (it once did, and a reader who opened a
 %   program in Español Lógico found the whole editor in Spanish): the editor
-%   keeps its own preference, Misc > MENU LANGUAGE, the browser's language
+%   keeps its own preference, Misc > Language, the browser's language
 %   until one is chosen.
 multilingual_landing_page(Lang, LangDir) :-
     le_i18n:set_le_language(Lang),

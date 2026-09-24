@@ -1,7 +1,7 @@
 // UI-language (chrome i18n) regression tests: the editor renders its menus
 // and assistant greeting in the reader's menu language (Portuguese here),
 // driven by the shared i18n/ui.csv catalog. The reader chooses it in the
-// editor (Misc > MENU LANGUAGE); until then the browser's language is
+// editor (Misc > Language); until then the browser's language is
 // adopted, and remembered. The language of the program being edited never
 // changes it, and neither do the landing pages. The Home link returns to the
 // landing page of the program's language. /login honors the cookie the
@@ -53,6 +53,13 @@ test.describe('UI language', () => {
         await expect(page.locator('#menu-ui-lang-es')).toContainText('Español');
         await expect(page.locator('#menu-ui-lang-en span')).toHaveCSS('visibility', 'visible');
         await expect(page.locator('#menu-ui-lang-es span')).toHaveCSS('visibility', 'hidden');
+        // The languages are a second-level menu: hidden in the Misc menu until
+        // the pointer rests on its Language item.
+        await page.locator('.menu-item', { hasText: 'Misc' }).first().hover();
+        await expect(page.locator('#menu-ui-language')).toBeVisible();
+        await expect(page.locator('#menu-ui-lang-en')).toBeHidden();
+        await page.locator('#menu-ui-language').hover();
+        await expect(page.locator('#menu-ui-lang-en')).toBeVisible();
         // Choosing Español reloads the editor in Spanish, and remembers it.
         await page.evaluate(() => (document.getElementById('menu-ui-lang-es') as HTMLElement).click());
         await expect(page.locator('#btn-query')).toHaveText('Consulta');

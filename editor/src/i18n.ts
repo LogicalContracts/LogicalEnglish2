@@ -9,7 +9,7 @@
  * The UI language (the language of the menus, buttons and messages) is a
  * user preference, kept in localStorage and in the le_ui_lang cookie, so the
  * server-rendered /login page can honor it too. It is set in the editor's
- * Misc menu (MENU LANGUAGE). Until the user chooses, the first of the
+ * Misc menu (Misc > Language). Until the user chooses, the first of the
  * browser's preferred languages that the dictionaries cover is adopted, and
  * remembered. The language of the program being edited never changes it:
  * a program in Español Lógico is edited with the menus in the reader's

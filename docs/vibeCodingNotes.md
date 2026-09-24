@@ -2409,6 +2409,9 @@ Users have expressed concerns about the authorship of examples in LE and LPS, sp
 
 So for examples/es, note that the original versions were translated by yourself from the examples in English; for miggration twins, refer the Prolog file with the converter that produce them; etc.
 
+# Language menu
+In the editor, make the language picking menu a second level menu under item "Langauge"; as it stands it taks too much scree space
+
 
 # Shorter test suite
 

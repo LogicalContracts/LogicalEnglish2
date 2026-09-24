@@ -102,8 +102,9 @@ A reader in Lisbon can edit an English program with the menus in Portuguese.
 
 The first time the editor opens in a browser, the editor uses the browser's
 preferred language when Logical English has that language, and English
-otherwise. To change the language of the menus, open the **Misc** menu and
-choose a language under **MENU LANGUAGE**. The editor reloads the page in the
+otherwise. To change the language of the menus, open the **Misc** menu, point
+at **Language**, and choose a language from the list that opens beside it. The
+editor reloads the page in the
 chosen language. The browser remembers the choice for the next visit. Opening
 a program in another language never changes the language of the menus, and
 neither do the landing pages of the other languages.
