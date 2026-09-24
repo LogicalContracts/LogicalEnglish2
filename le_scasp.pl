@@ -537,12 +537,30 @@ lower_body(KB, ID, forall(C, G), not(Aux), Is) :- !,
     ignore(ID = _),
     format(atom(AF), 'le_forall_~w', [K]),
     Aux =.. [AF|Shared],
+    record_forall_helper(KB, Aux, forall(C, G)),
     b_setval(le_scasp_aux, [(Aux :- (SC, NG))|Aux0]).
 lower_body(_KB, _ID, le_scoped(_, _), true, _) :- !,
     throw(le_scasp_untranslatable(scasp_scoped_proof)).
 lower_body(_KB, _ID, Leaf, SLeaf, Is) :- lower_leaf(Leaf, SLeaf, Is).
 
 var_in(Vs, V) :- member(X, Vs), X == V, !.
+
+%   forall_helper(KB, Helper, Universal): the helper le_forall_<n>(Shared)
+%   stands for the universal of the Logical English program, forall(C, G),
+%   their variables shared. An explanation shows the universal, not the
+%   helper (node_json/3). The helpers are numbered afresh each time the
+%   program is written (le_scasp_program_text/3), so a helper's entry is
+%   replaced, never added to.
+:- dynamic forall_helper/3.
+
+record_forall_helper(KB, Aux, Universal) :-
+    (   atom(KB)
+    ->  functor(Aux, AF, _),
+        strip_positions(Universal, U),
+        retractall(forall_helper(KB, AF, _)),
+        assertz(forall_helper(KB, AF, Aux-U))
+    ;   true
+    ).
 
 replace_subterm(T, Old, New, New) :- T == Old, !.
 replace_subterm(T, Old, New, R) :- compound(T), !,
@@ -584,7 +602,9 @@ lower_leaf(le_assign(X,Y), (X #= Y), []) :- ( arithmetic_term(Y) ; arithmetic_te
 lower_leaf(le_assign(X,Y), (X = Y), []) :- !.
 lower_leaf(le_known(X), scasp_known(X), [I]) :- scasp_issue(unsupported_known, unknown, scasp_unsupported_known, [], I), !.
 lower_leaf(prolog_call(_), true, [I]) :- scasp_issue(prolog_goal, unknown, scasp_prolog_goal, [], I), !.
-lower_leaf(le_is_in(_,_), true, [I]) :- scasp_issue(list_membership, unknown, scasp_list_membership, [], I), !.
+%   List membership is s(CASP)'s member/2, which it runs constructively
+%   (under a negation, and with the element unknown, as in a universal).
+lower_leaf(le_is_in(X,Y), member(X,Y), []) :- !.
 lower_leaf(le_is_days_after(_,_,_), true, [I]) :- scasp_issue(date_arithmetic, unknown, scasp_date_arithmetic, [], I), !.
 lower_leaf(le_is_months_after(_,_,_), true, [I]) :- scasp_issue(date_arithmetic, unknown, scasp_date_arithmetic, [], I), !.
 lower_leaf(le_minimum(_,_,_), true, [I]) :- scasp_issue(min_max, unknown, scasp_min_max, [], I), !.
@@ -641,17 +661,32 @@ le_scasp_query(KBModule, ScenarioName, Goal, Options, Answers, Issues) :-
     !,
     option(time_limit(TL), Options, 10),
     option(max_models(Max), Options, 25),
-    scenario_facts(KBModule, ScenarioName, Options, Facts0),
-    %  an opposite form is -p in the unit (its variables shared, so the
-    %  answers bind the caller's goal)
-    maplist(classical_deep, Facts0, Facts),
-    atomic_list_concat(QueryLines, '\n', QT),
-    format(string(ProgText), "~w~n% the query~n~w~n", [ProgText0, QT]),
-    setup_call_cleanup(
-        load_scasp_unit(ProgText, Facts, Unit, File),
-        run_models(Unit, SQuery, Shown, TL, Max, Answers, RIssues),
-        cleanup_scasp_unit(Unit, File)),
-    append([PIssues, QIssues, RIssues], Issues).
+    scenario_facts(KBModule, ScenarioName, Options, Items),
+    %  a scenario may hold rules too ("a thing belongs to a set if the thing
+    %  is in the set"): they are lowered like the program's own, since
+    %  written as they are their conditions (le_at/3, le_is_in/2, ...) name
+    %  no predicate of the unit and the rule would never hold
+    partition(scenario_rule, Items, ScenRules0, Facts0),
+    maplist(scenario_rule_record, ScenRules0, ScenRules),
+    emit_rules(KBModule, ScenRules, ScenLines, SIssues),
+    (   member(SI, SIssues), le_scasp_blocking_issue(SI)
+    ->  Answers = [], RIssues = []
+    ;   %  an opposite form is -p in the unit (its variables shared, so the
+        %  answers bind the caller's goal)
+        maplist(classical_deep, Facts0, Facts),
+        atomic_list_concat(QueryLines, '\n', QT),
+        atomic_list_concat(ScenLines, '\n', ST),
+        format(string(ProgText), "~w~n% the scenario's rules~n~w~n% the query~n~w~n", [ProgText0, ST, QT]),
+        setup_call_cleanup(
+            load_scasp_unit(ProgText, Facts, Unit, File),
+            run_models(Unit, SQuery, Shown, TL, Max, Answers, RIssues),
+            cleanup_scasp_unit(Unit, File))
+    ),
+    append([PIssues, QIssues, SIssues, RIssues], Issues).
+
+scenario_rule((_ :- _)).
+
+scenario_rule_record((Head :- Body), rule(scenario, 0, 0, Head, Body)).
 le_scasp_query(KBModule, _, Goal, _, [], Issues) :-
     le_scasp_available, !,
     le_scasp_program_text(KBModule, _, PIssues),
@@ -850,9 +885,12 @@ unwrap_origin(A, A).
 
 % node_json(+KB, +NodeChildren, -JSON)
 node_json(KB, NodeChildren, JSON) :-
-    ( NodeChildren = N-Children -> true ; N = NodeChildren, Children = [] ),
+    ( NodeChildren = N-Children0 -> true ; N = NodeChildren, Children0 = [] ),
     ( nmr_atom(N) -> JSON = skip
-    ; node_atom_status(N, Atom, Status, Flags),
+    ; membership_node(N, open) -> JSON = skip
+    ; ( membership_node(N, _) -> Children = [] ; Children = Children0 ),
+      node_atom_status(N, Atom0, Status0, Flags0),
+      universal_node(KB, Atom0, Status0, Flags0, Atom, Status, Flags),
       literal_of(KB, Atom, Literal),
       exclude(nmr_node, Children, RealCh),
       maplist(node_json(KB), RealCh, ChJSON0),
@@ -873,6 +911,35 @@ node_atom_status(not(A),     A, "failure", [naf]) :- !.
 node_atom_status(-(A),       A, "failure", [classical]) :- !.
 node_atom_status(A,          A, "success", []).
 
+% membership_node(+Node, -Element): Node is s(CASP)'s member/2, the
+% lowering of "is in" (lower_leaf/3). It is one step, "Alice is in [Alice
+% Bob]": the library's own steps below it (lists:member_/3) are not the
+% program's. Element is `open` when the element is not known; that step says
+% nothing its parent does not, and is left out.
+membership_node(N, Element) :-
+    node_atom_status(N, A0, _, _),
+    ( A0 = _:A -> true ; A = A0 ),
+    compound(A), A = member(X, _),
+    ( var(X) -> Element = open ; Element = X ).
+
+% universal_node(+KB, +Atom0, +Status0, +Flags0, -Atom, -Status, -Flags): a
+% helper of a universal (lower_body/5) is shown as the universal it stands
+% for. "not le_forall_1(alice)" (no counter-example) is the universal
+% holding; le_forall_1(alice) proved is the universal failing. Its children,
+% the search for a counter-example, stay as they are.
+universal_node(KB, Atom0, Status0, Flags0, Atom, Status, Flags) :-
+    (   compound(Atom0), functor(Atom0, AF, _),
+        forall_helper(KB, AF, Helper-Universal0)
+    ->  copy_term(Helper-Universal0, Atom0-Atom),
+        (   Status0 == "failure", memberchk(naf, Flags0)
+        ->  Status = "success", subtract(Flags0, [naf], Flags)
+        ;   Status = "failure", Flags = Flags0
+        )
+    ;   ( Atom0 = _:member(X, L) ; Atom0 = member(X, L) )
+    ->  Atom = le_is_in(X, L), Status = Status0, Flags = Flags0
+    ;   Atom = Atom0, Status = Status0, Flags = Flags0
+    ).
+
 base_node(Status, Literal, Children, _{type: Status, literal: Literal, children: Children}).
 
 apply_flags([], J, J).
@@ -882,12 +949,60 @@ apply_flags([classical|T], J0, J) :- !, apply_flags(T, J0.put(classicalNegation,
 apply_flags([_|T], J0, J) :- apply_flags(T, J0, J).
 
 % literal_of(+KB, +Atom, -String): render a goal in LE; tolerate non-ground.
+%   A universal names each of its own variables by its type in the condition
+%   ("alice is a parent of a dragon") and refers back to it in the
+%   conclusion ("the dragon is healthy"), as the program writes it; rendered
+%   as one sentence, the conclusion named it afresh ("a creature is healthy").
+literal_of(KB, forall(C, G), Literal) :-
+    copy_term(C-G, C1-G1),
+    catch(( le_kbs:item_to_instance(KB, C1, CondLE),
+            term_variables(C1, Vs),
+            universal_var_types(KB, C1, Typed),
+            maplist(name_universal_var(Typed), Vs),
+            le_kbs:item_to_instance(KB, G1, ConsLE),
+            le_kbs:forall_render_words(ForallW),
+            le_kbs:it_the_case_render_words(ItW),
+            append([ForallW, CondLE, ItW, ConsLE], Tokens),
+            le_kbs:canonical_string(Tokens, Literal) ), _, fail),
+    !.
 literal_of(KB, Atom, Literal) :-
     ( catch((le_kbs:item_to_instance(KB, Atom, Tokens),
              le_kbs:canonical_string(Tokens, S)), _, fail)
     -> Literal = S
     ; term_string(Atom, Literal)
     ).
+
+% name_universal_var(+Typed, ?V): V, if still open and typed, becomes the
+% definite reference to its type ("the dragon"). (Not forall/2, which this
+% module has from library(scasp), with s(CASP)'s meaning.)
+name_universal_var(Typed, V) :-
+    (   var(V), member(V0-T, Typed), V0 == V
+    ->  le_kbs:variable_reference(T, Ref), V = '$le_var_name'(Ref)
+    ;   true
+    ).
+
+% universal_var_types(+KB, +Cond, -Pairs): Var-Type for the variables of the
+% condition's sentences, typed by their templates (goal_arg_types/4). The
+% pairs hold the condition's own variables (so no findall/3, which copies).
+universal_var_types(KB, Cond, Pairs) :-
+    conj_leaves(Cond, Leaves),
+    foldl(leaf_var_types(KB), Leaves, [], Pairs).
+
+leaf_var_types(KB, L, Ps0, Ps) :-
+    (   compound(L), L =.. [F|Args],
+        goal_arg_types(KB, F, Args, Types)
+    ->  foldl(typed_var, Args, Types, Ps0, Ps)
+    ;   Ps = Ps0
+    ).
+
+typed_var(A, T, Ps0, Ps) :-
+    ( var(A), T \== value -> Ps = [A-T|Ps0] ; Ps = Ps0 ).
+
+conj_leaves(G, []) :- var(G), !.
+conj_leaves(le_at(G, _, _), Ls) :- !, conj_leaves(G, Ls).
+conj_leaves(and(A, B), Ls) :- !, conj_leaves(A, LA), conj_leaves(B, LB), append(LA, LB, Ls).
+conj_leaves((A, B), Ls) :- !, conj_leaves(A, LA), conj_leaves(B, LB), append(LA, LB, Ls).
+conj_leaves(G, [G]).
 
 % apply_source(+KB, +Atom, +J0, -J): attach start/end from the template/rule that
 % defines Atom's functor (head-granularity click-to-source).
@@ -935,7 +1050,7 @@ le_scasp_symbolic_goal(KB, Goal, Display, Constraints) :-
 le_scasp_symbolic_goal(KB, Goal, Display, Constraints) :-
     Goal =.. [F|Args],
     goal_arg_types(KB, F, Args, Types),
-    symbolic_args(Args, Types, DisplayArgs, Constraints),
+    symbolic_args(KB, Args, Types, DisplayArgs, Constraints),
     Display =.. [F|DisplayArgs].
 
 symbolic_part(KB, G, D, Cs0, Cs) :-
@@ -956,19 +1071,30 @@ default_value_type(_, value).
 darg_type(NTs, DArg, Type) :-
     ( member(V-T, NTs), V == DArg -> Type = T ; Type = value ).
 
-symbolic_args([], [], [], []).
-symbolic_args([A|As], [T|Ts], [D|Ds], Cs) :-
+%   Only the open values become `any <type>`: an argument that is itself a
+%   sentence or a compound with an open value inside (a requirement "the
+%   borrower pays 525 to the lender on a date") keeps what is known of it,
+%   as the explanation does. Replacing it whole ("any requirement") made the
+%   answer say less than its own explanation.
+symbolic_args(_, [], [], [], []).
+symbolic_args(KB, [A|As], [T|Ts], [D|Ds], Cs) :-
     ( ground(A) ->
         D = A, Cs = Rest
+    ; compound(A) ->
+        le_scasp_symbolic_goal(KB, A, D, Cs0),
+        append(Cs0, Rest, Cs)
     ;   copy_term(A, _, Attrs),
         ( attrs_constraint_phrase(Attrs, Phrase, CText) ->
-            format(atom(D), 'any ~w ~w', [T, Phrase]),
+            format(atom(Name), 'any ~w ~w', [T, Phrase]),
             Cs = [CText|Rest]
-        ;   format(atom(D), 'any ~w', [T]),
+        ;   format(atom(Name), 'any ~w', [T]),
             Cs = Rest
-        )
+        ),
+        %  as a variable's name, which the sentence renders as it is and
+        %  which a typed place (a date, a number) accepts
+        D = '$le_var_name'(Name)
     ),
-    symbolic_args(As, Ts, Ds, Rest).
+    symbolic_args(KB, As, Ts, Ds, Rest).
 
 % attrs_constraint_phrase(+Attrs, -Phrase, -Text): a readable phrase for the
 % CLP(ℚ) constraints attached to a variable (from copy_term/3), e.g.

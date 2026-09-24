@@ -126,6 +126,29 @@ test(symbolic_constraint_answer, [condition(le_scasp_available)]) :-
     assertion(sub_string(S, _, _, _, "any amount greater than 25000")),
     assertion(memberchk('greater than 25000', Constraints)).
 
+%   Only the open values of an answer become "any ...": a requirement that is
+%   itself a sentence keeps what is known of it, as the explanation does.
+test(symbolic_answer_keeps_known_parts, [condition(le_scasp_available)]) :-
+    load('examples/migration/scasp/obligation/obligation.le', M, [skip_tests]),
+    M:query_info(query_1, Goal, _),
+    le_scasp_query(M, test, Goal, [time_limit(30)], [answer(_, GoalInstance, _, _)|_], _),
+    le_scasp_symbolic_goal(M, GoalInstance, Display, _),
+    le_kbs:item_to_instance(M, Display, Toks),
+    le_kbs:canonical_string(Toks, S),
+    assertion(S == "the borrower cures the failure of any obligation on 2016-06-02 that the borrower pays 525 to the lender on any date").
+
+%   The explanation shows a universal as the program wrote it, never the
+%   helper le_forall_<n> that stands for it in the s(CASP) program.
+test(explanation_shows_universal, [condition(le_scasp_available)]) :-
+    load('examples/moreExamples/happy_dragon.le', M, [skip_tests]),
+    M:query_info(happy, Goal, _),
+    le_scasp_query(M, smoky, Goal, [time_limit(30)], Answers, _),
+    member(answer(_, is_happy(alice), _, Tree), Answers), !,
+    le_scasp_tree_json(M, Tree, [], JSON),
+    atom_json_dict(Text, JSON, []),
+    assertion(\+ sub_atom(Text, _, _, _, le_forall)),
+    assertion(sub_atom(Text, _, _, _, 'for all cases in which alice is a parent of a dragon it is the case that the dragon is healthy')).
+
 % --- §5c: abduction set ---
 test(abduction_assumption_set, [condition(le_scasp_available)]) :-
     load('examples/moreExamples/language/abduction/sunglasses.le', M),
@@ -315,15 +338,27 @@ test(query_disjunction_is_lowered) :-
     assertion(length(Lines, 2)),          % one clause per disjunct
     query_lines_ok(Lines).
 
-%   What has no s(CASP) statement in a query is an issue that refuses it.
-test(query_list_membership_is_refused) :-
+%   List membership ("is in") is s(CASP)'s member/2.
+test(query_list_membership_is_member) :-
     query_program(T), load_text(T, M),
     M:query_info(listed, G, _),
     le_scasp:strip_positions(G, G1),
-    le_scasp:le_scasp_query_goal(M, G1, _, _, _, Issues),
-    assertion(( member(I, Issues), le_scasp_blocking_issue(I) )),
-    le_scasp_check(M, Issues, Problems),
-    assertion(Problems \== []).
+    le_scasp:le_scasp_query_goal(M, G1, _, _, Lines, Issues),
+    assertion(Issues == []),
+    query_lines_ok(Lines),
+    assertion(( member(L, Lines), sub_string(L, _, _, _, "member(") )).
+
+%   A scenario's own rule is lowered like the program's: written as it was,
+%   its conditions (le_at/3, le_is_in/2) name nothing of the unit, the rule
+%   never holds, and every set was a subset of every other.
+test(scenario_rule_is_lowered, [condition(le_scasp_available)]) :-
+    load('examples/migration/scasp/subset/subset.le', M, [skip_tests]),
+    M:query_info(query_1, G, _),
+    le_scasp_query(M, two, G, [], Answers, Issues),
+    assertion(Issues == []),
+    findall(A-B, member(answer(_, is_a_subset_of(A, B), _, _), Answers), Pairs0),
+    sort(Pairs0, Pairs),
+    assertion(Pairs == [['Alice']-['Alice'], ['Alice']-['Alice','Bob'], ['Alice','Bob']-['Alice','Bob']]).
 
 %   A construct left as it was by the lowering is caught, not emitted.
 test(leftover_connective_is_caught) :-

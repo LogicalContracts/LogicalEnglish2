@@ -9450,7 +9450,9 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Copy the web address of this folder": "Copiar o endereço web desta pasta",
     "(guide)": "(guia)",
     "Logical English in other languages": "Logical English noutras línguas",
-    "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Escrever programas em português, espanhol, francês ou italiano, e escolher o idioma dos menus."
+    "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Escrever programas em português, espanhol, francês ou italiano, e escolher o idioma dos menus.",
+    "About this folder": "Sobre esta pasta",
+    "Copy the web address of this README": "Copiar o endereço web deste README"
   },
   "es": {
     "+ Add": "+ Añadir",
@@ -10062,7 +10064,9 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Copy the web address of this folder": "Copiar la dirección web de esta carpeta",
     "(guide)": "(guía)",
     "Logical English in other languages": "Logical English en otros idiomas",
-    "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Escribir programas en portugués, español, francés o italiano, y elegir el idioma de los menús."
+    "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Escribir programas en portugués, español, francés o italiano, y elegir el idioma de los menús.",
+    "About this folder": "Acerca de esta carpeta",
+    "Copy the web address of this README": "Copiar la dirección web de este README"
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -10674,7 +10678,9 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Copy the web address of this folder": "Copier l'adresse web de ce dossier",
     "(guide)": "(guide)",
     "Logical English in other languages": "Logical English dans d'autres langues",
-    "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Écrire des programmes en portugais, espagnol, français ou italien, et choisir la langue des menus."
+    "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Écrire des programmes en portugais, espagnol, français ou italien, et choisir la langue des menus.",
+    "About this folder": "À propos de ce dossier",
+    "Copy the web address of this README": "Copier l'adresse web de ce README"
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -11286,7 +11292,9 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Copy the web address of this folder": "Copia l'indirizzo web di questa cartella",
     "(guide)": "(guida)",
     "Logical English in other languages": "Logical English in altre lingue",
-    "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Scrivere programmi in portoghese, spagnolo, francese o italiano, e scegliere la lingua dei menu."
+    "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Scrivere programmi in portoghese, spagnolo, francese o italiano, e scegliere la lingua dei menu.",
+    "About this folder": "Informazioni su questa cartella",
+    "Copy the web address of this README": "Copia l'indirizzo web di questo README"
   }
 } as const;
 

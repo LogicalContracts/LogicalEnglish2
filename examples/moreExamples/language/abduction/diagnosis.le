@@ -9,11 +9,16 @@
 % four abductive explanations — including the single-cause one, {measles},
 % which explains BOTH symptoms.
 %
-% Logical English has no integrity constraints, but the effect of slide 28's
-% passive constraint ("it is not the case that the sprinkler was on if the
-% sprinkler is broken") is obtained here with negation as failure over closed
-% (scenario) facts: the rules that blame measles are guarded by "it is not
-% the case that the person is immune to measles". In the checkup scenario
+% Slide 28's passive constraint ("it is not the case that the sprinkler was on
+% if the sprinkler is broken") can be written as a Logical English integrity
+% constraint (language.md §3.3). Here it would be
+%     it must not be true that
+%         a person has measles
+%         and the person is immune to measles.
+% which gives the same answers. This program obtains the effect without a
+% constraint, with negation as failure over closed (scenario) facts: the
+% rules that blame measles are guarded by "it is not the case that the
+% person is immune to measles". In the checkup scenario
 % nothing establishes immunity, so the guard succeeds and measles stays a
 % candidate; in the vaccinated scenario the fact "bob is vaccinated against
 % measles" derives immunity, the guard fails, and every explanation that
