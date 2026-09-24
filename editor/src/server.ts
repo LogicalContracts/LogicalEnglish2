@@ -88,6 +88,26 @@ connection.onRequest('textDocument/semanticTokens/full', (params) => {
     const comments = commentRanges(text);
     const inComment = (start: number, end: number) => comments.some(c => start < c.end && end > c.start);
     const tokens: { start: number, length: number, typeIndex: number }[] = [];
+    const claimedSpans: { start: number, end: number }[] = [];
+
+    // 0. The clause keywords that read like a sentence ("it is not the case
+    // that", "it is the case that", "for all cases in which") are claimed
+    // first, with no token of their own, so the Monaco grammar colours them
+    // as keywords. Otherwise a template such as the system "*a thing* is *a
+    // value*" matches "it is not the case" and paints "it" and "not the case"
+    // as its arguments, leaving only "that" coloured as a keyword.
+    const K = kwTable(detectProgramLanguage(text));
+    for (const key of ['not_the_case', 'it_the_case', 'forall']) {
+        for (const syn of K[key] ?? []) {
+            const phrase = syn.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('\\s+');
+            const regex = new RegExp('(?<![A-Za-zÀ-ÖØ-öø-ÿ0-9_])' + phrase + '(?![A-Za-zÀ-ÖØ-öø-ÿ0-9_])', 'gi');
+            let match;
+            while ((match = regex.exec(text)) !== null) {
+                const end = match.index + match[0].length;
+                if (!inComment(match.index, end)) claimedSpans.push({ start: match.index, end });
+            }
+        }
+    }
 
     // 1. Find all template instances, most specific (longest) template first. A
     // template claims the whole span of each instance it matches; a looser template
@@ -96,7 +116,6 @@ connection.onRequest('textDocument/semanticTokens/full', (params) => {
     // for you ..." owns its instance, so neither "*an amount* for *a claim*" nor the
     // system "*V1* is *V2*" paints "working" as a variable inside it).
     const sortedTemplates = [...templates].sort((a, b) => b.label.length - a.label.length);
-    const claimedSpans: { start: number, end: number }[] = [];
     const overlapsClaimed = (s: number, e: number) =>
         claimedSpans.some(c => s < c.end && e > c.start);
 

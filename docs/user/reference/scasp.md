@@ -195,7 +195,9 @@ each step, so a step reads as the program's own English.
 | Comparisons `>`, `>=`, `<`, `=<` | **CLP(ℚ) constraints** `#>`, `#>=`, `#<`, `#=<`, which hold as standing requirements on a number rather than as tests of a known one |
 | Equality / assignment (`is`, `=`) on numbers | `#=`, again a standing requirement; between things that are not numbers, plain `=` |
 | Arithmetic `+ - * /` etc. | left unworked-out inside `#=` as a requirement on the numbers, never `is/2` |
+| `is in` (list membership) | `member/2`, which s(CASP) runs constructively, so it also works under a negation and in a universal whose element is not yet known |
 | Scenario facts | stated in the unit as clauses with every value filled in |
+| Scenario rules (`a thing belongs to a set if the thing is in the set`, inside a scenario) | translated exactly like the program's own rules and added to the unit for that scenario only. Before September 2026 they were copied in untranslated, so their conditions named nothing s(CASP) knew and the rule never held |
 | A query (`which person is happy and the person is rich`, a custom query) | translated like a rule body (`le_scasp_query_goal/6`) into the clauses of a helper, `le_query(Vars)`, whose arguments are the query's variables; s(CASP) is then asked the helper, and the explanation shows the query's own conditions rather than the helper. Before the helper existed, a query of several conditions reached s(CASP) as Logical English's own `and/2`, which the unit does not define (`existence_error: scasp_predicate …:and/2`). Asking the helper also keeps a query about a predicate with no clause in the unit — no rule and no fact in this scenario — from raising an error: the query simply has no answer, as in Prolog |
 | Where a document is published, where its text is (`… is published at …`, `the text of … is at …`) | not written out: these are records that the explanation's citations read, not clauses of the program |
 
@@ -384,7 +386,6 @@ language of the program.
 | `prolog <goal>` / `.pl` resources | `scasp_prolog_goal` | refused (Prolog-only) |
 | `for all cases …` (universal) | `scasp_universal` | refused (the ordinary universal statement is translated, by the Lloyd-Topor transformation) |
 | Date arithmetic (`… days after …`) | `scasp_date_arithmetic` | refused |
-| `is in` (list membership) | `scasp_list_membership` | refused |
 | `is known` | `scasp_unsupported_known` | refused |
 | double negation | `scasp_double_negation` | refused: s(CASP) has no way to say it (§7) |
 | `the minimum/maximum of` | `scasp_min_max` | refused |

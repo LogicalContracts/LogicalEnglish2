@@ -17368,8 +17368,20 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
   const comments = commentRanges(text);
   const inComment = (start, end) => comments.some((c) => start < c.end && end > c.start);
   const tokens = [];
-  const sortedTemplates = [...templates].sort((a, b) => b.label.length - a.label.length);
   const claimedSpans = [];
+  const K = kwTable(detectProgramLanguage(text));
+  for (const key of ["not_the_case", "it_the_case", "forall"]) {
+    for (const syn of K[key] ?? []) {
+      const phrase = syn.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("\\s+");
+      const regex = new RegExp("(?<![A-Za-z\xC0-\xD6\xD8-\xF6\xF8-\xFF0-9_])" + phrase + "(?![A-Za-z\xC0-\xD6\xD8-\xF6\xF8-\xFF0-9_])", "gi");
+      let match;
+      while ((match = regex.exec(text)) !== null) {
+        const end = match.index + match[0].length;
+        if (!inComment(match.index, end)) claimedSpans.push({ start: match.index, end });
+      }
+    }
+  }
+  const sortedTemplates = [...templates].sort((a, b) => b.label.length - a.label.length);
   const overlapsClaimed = (s, e) => claimedSpans.some((c) => s < c.end && e > c.start);
   for (const template of sortedTemplates) {
     const parts = template.label.split(/\*[^*]+\*/);

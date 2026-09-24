@@ -268,6 +268,57 @@ test.describe('Logical English Editor', () => {
     expect(new Set(comment!).size).toBe(1);
   });
 
+  test('"it is not the case that" is coloured as one keyword', async ({ page }) => {
+    // Regression (examples/moreExamples/domains/other/enclosure.le): the
+    // semantic-token provider (src/server.ts) matched the system template
+    // "*a thing* is *a value*" on "it is not the case", painting "it" and
+    // "not the case" as its arguments; only "that" kept the keyword colour.
+    test.setTimeout(60000);
+    const src = [
+      'the target language is: prolog.',
+      '',
+      'the templates are:',
+      '*a load* is minimal.',
+      '*a load* may be *a value*.',
+      '*a value* is less than *a second value*.',
+      '',
+      'the knowledge base t includes:',
+      '',
+      'a load is minimal if',
+      '    the load may be a value V',
+      '    and it is not the case that',
+      '        the load may be a value W',
+      '        and W is less than V.',
+      '',
+    ].join('\n');
+    await page.goto('index.html?text=' + encodeURIComponent(src));
+    await page.waitForFunction(() =>
+      typeof (window as any).monaco !== 'undefined' &&
+      (window as any).monaco.languages.getLanguages().some((l: any) => l.id === 'le')
+    );
+    // The class of each character of the rendered line that starts with `text`.
+    const charClasses = (text: string) => page.evaluate((t: string) => {
+      const textOf = (l: Element) => (l.textContent || '').replace(/ /g, ' ').trim();
+      const line = [...document.querySelectorAll('.view-line')].find((l) => textOf(l).startsWith(t));
+      if (!line) return null;
+      const out: { ch: string, cls: string }[] = [];
+      for (const s of line.querySelectorAll('span > span')) {
+        for (const ch of (s.textContent || '').replace(/ /g, ' ')) out.push({ ch, cls: (s as HTMLElement).className });
+      }
+      return out;
+    }, text);
+    // Wait for the semantic tokens: the line above is painted in several colours once they arrive.
+    await expect.poll(async () => {
+      const cs = await charClasses('the load may be a value V');
+      return cs ? new Set(cs.map((c) => c.cls)).size : 0;
+    }, { timeout: 30000 }).toBeGreaterThan(1);
+    const cs = (await charClasses('and it is not the case that'))!;
+    const text = cs.map((c) => c.ch).join('');
+    const start = text.indexOf('it is not the case that');
+    const words = cs.slice(start, start + 'it is not the case that'.length).filter((c) => c.ch !== ' ');
+    expect(new Set(words.map((c) => c.cls)).size).toBe(1);
+  });
+
   test('tolerates extra spaces in section headers when highlighting', async ({ page }) => {
     // Regression: a header with extra spaces (e.g. "the  templates are:") must
     // still be recognised, so the template definition lines below are
