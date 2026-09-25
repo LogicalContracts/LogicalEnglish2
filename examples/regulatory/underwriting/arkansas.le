@@ -1,0 +1,517 @@
+% Homeowners underwriting guidelines of Auto Club Family Insurance Company
+% (ACFIC, an AAA insurer) for Arkansas: Section 05, Rule 05.2, "Underwriting
+% Guidelines", version of 15 July 2021. The rule lists 40 numbered kinds of
+% risk that "may not be submitted"; each rule below encodes one item and
+% quotes it. A guideline program of the homeowners model: it includes
+% homeowners.le (the words of a proposal, the outcomes and the decision).
+%
+% What is encoded, item by item (see DETAILS.md for the count):
+% - read from the proposal's facts: items 1-6, 8-15, 17-24, 27, 29, 31-40;
+% - a finding someone records (the judged template of homeowners.le),
+%   triggered by what the inspection report notes or the household keeps:
+%   item 7 (serious exterior exposure), 16 (rundown premises), 21 (a dog of
+%   a dangerous nature), 40 B (undue fire hazard next door);
+% - referrals the text itself makes: item 9 (a professional craftsman's own
+%   construction), item 32 (incidental farming), item 40 A (a business next
+%   door that the text neither accepts nor forbids);
+% - not encoded: item 25 (it restricts earthquake coverage, not the policy),
+%   item 26 A 3 and 28 (Premier Renters only), item 30 (it needs the list of
+%   business activities "identified in the manual", which is not in the
+%   rule).
+% Item 3's "chargeable claims" are read as the non-weather, non-liability
+% claims the item allows; the rule does not define the word.
+%
+% The text is in sources/acfic_rule_05_2.txt (extracted from the PDF beside
+% it). The version encoded was retrieved from the insurer's own reference
+% manual site, not from SERFF: see DETAILS.md, "Sources".
+%
+% DISCLAIMER. This program is an example of Logical English. It is provided
+% "as is", without warranty of any kind, express or implied, including any
+% warranty that it is accurate, complete, up to date or fit for a particular
+% purpose. It is not an official reading of the underwriting guidelines it
+% cites, it is not an underwriting decision of any insurer, and it is not
+% legal or insurance advice. Its answers may be wrong: do not rely on them
+% for a real application; consult the insurer and a licensed agent. Its
+% authors accept no liability for any loss or damage arising from its use.
+
+the target language is: prolog.
+
+the knowledge base arkansas includes these resources:
+    homeowners.
+
+the templates are:
+    the applicant of *a proposal* has a valid AAA membership; undefined.
+    the applicant of *a proposal* has an automobile policy with an Auto Club affiliate; undefined.
+    the applicant of *a proposal* owns no automobile; undefined.
+    the only automobile of the applicant of *a proposal* is a company car; undefined.
+    the applicant of *a proposal* is a professional craftsman; undefined.
+    the applicant of *a proposal* declined a loss control recommendation; undefined.
+    the applicant of *a proposal* engages in an illegal business; undefined.
+    the farming of the applicant of *a proposal* is *a kind*; undefined.
+    the primary residence of the applicant of *a proposal* is insured with an Auto Club affiliate; undefined.
+    *a dwelling* has *a number* student roomers; undefined.
+    *a dwelling* was built by its owner; undefined.
+    the wiring and heating of *a dwelling* were installed by licensed professionals; undefined.
+    the foundation of *a dwelling* is enclosed; undefined.
+    the piers of *a dwelling* are *a number* feet high; undefined.
+    the condition of *an outbuilding* of *a dwelling* is *a grade*; undefined.
+    *a dwelling* is a basement dwelling; undefined.
+    the rental term of *a dwelling* is *a period*; undefined.
+    the setting of *a dwelling* is *a setting*; undefined.
+    alcoholic beverages are sold at *a dwelling*; undefined.
+    the heater of *a dwelling* is located in *a place*; undefined.
+    the supplemental heater of *a dwelling* is improperly installed; undefined.
+    *a dwelling* has unrepaired damage from *a cause*; undefined.
+    *a dwelling* has been converted to apartment units; undefined.
+    *a dwelling* is undergoing extensive remodeling; undefined.
+    both units of *a dwelling* are insured; undefined.
+    *a dwelling* is in a commercially zoned neighborhood; undefined.
+    *a dwelling* is adjacent to *a business*; undefined.
+    *a business* is an acceptable neighbour.
+    *a business* is always an unacceptable neighbour.
+    *a proposal* has a premier form.
+    *a claim* counts against *a proposal*.
+    *a cause* is a weather cause.
+
+the knowledge base arkansas includes:
+
+the ACFIC Arkansas underwriting guidelines is published at "https://services.autoclubmo.aaa.com/InsuranceAux/RefManual/AR/HomeOwners/Rule_05_2vers071521.pdf".
+the text of the ACFIC Arkansas underwriting guidelines is at "sources/acfic_rule_05_2.txt".
+
+% Items 2, 6, 36-39 do not apply to the Premier Renters and Premier
+% Condominium Owners policies.
+a proposal has a premier form
+    if the policy form of the proposal is a form
+    and the form is in [premier renters, premier condominium owners].
+
+% Weather-related losses, as item 3 lists them ("wind, hail,
+% lightning, weight of ice and snow, weather related water losses and flood").
+wind is a weather cause.
+hail is a weather cause.
+lightning is a weather cause.
+weight of ice is a weather cause.
+weight of snow is a weather cause.
+weather related water is a weather cause.
+flood is a weather cause.
+
+% ---------------------------------------------------------------------------
+% The applicant
+% ---------------------------------------------------------------------------
+
+rule acfic_1 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Does not have a valid AAA membership (also required for policy renewal).":
+a proposal is ineligible under item 1
+    if the proposal is for a dwelling
+    and it is not the case that
+        the applicant of the proposal has a valid AAA membership.
+
+rule acfic_2 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Does not have a valid automobile insurance policy through an Auto Club Enterprises affiliate":
+a proposal is ineligible under item 2
+    if the proposal is for a dwelling
+    and it is not the case that
+        the applicant of the proposal has an automobile policy with an Auto Club affiliate
+    and it is not the case that
+        the proposal has a premier form
+    and it is not the case that
+        the applicant of the proposal owns no automobile
+    and it is not the case that
+        the only automobile of the applicant of the proposal is a company car.
+
+rule acfic_3_liability with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Applicants or risks with any liability claims in the past 3 years are unacceptable.":
+a proposal is ineligible under item 3
+    if the proposal is dated a date
+    and the applicant of the proposal had a claim on a claim date
+    and the cause of the claim is liability
+    and a limit is 36 months after the claim date
+    and the date is before or equal to the limit.
+
+rule acfic_3_second_claim with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "One (1) claim within the last 3 years, caused by fire, theft, water, or any non-liability loss may be submitted if all damage has been repaired.":
+a proposal is ineligible under item 3
+    if the applicant of the proposal had a claim on a claim date
+    and the claim counts against the proposal
+    and the applicant of the proposal had an other claim on an other date
+    and the other claim counts against the proposal
+    and the claim is different from the other claim.
+
+rule acfic_3_unrepaired with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "may be submitted if all damage has been repaired":
+a proposal is ineligible under item 3
+    if the proposal is dated a date
+    and the applicant of the proposal had a claim on a claim date
+    and a limit is 36 months after the claim date
+    and the date is before or equal to the limit
+    and it is not the case that
+        the damage of the claim has been repaired.
+
+rule acfic_3_deductible with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Chargeable claims require a $2,500 deductible.":
+a proposal requires a deductible of 2500 under item 3
+    if the applicant of the proposal had a claim on a claim date
+    and the claim counts against the proposal.
+
+% The model's own helper: a claim of the last three years that is neither a
+% liability claim nor weather-related (item 3's "fire, theft, water, or any
+% non-liability loss"; weather losses are acceptable once repaired).
+a claim counts against a proposal
+    if the proposal is dated a date
+    and the applicant of the proposal had the claim on a claim date
+    and a limit is 36 months after the claim date
+    and the date is before or equal to the limit
+    and the cause of the claim is a cause
+    and the cause is different from liability
+    and it is not the case that
+        the cause is a weather cause.
+
+rule acfic_17 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Applicants who are unable or unwilling to follow reasonable safety or loss control":
+a proposal is ineligible under item 17
+    if the applicant of the proposal declined a loss control recommendation.
+
+rule acfic_19 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Persons engaged in any illegal business.":
+a proposal is ineligible under item 19
+    if the applicant of the proposal engages in an illegal business.
+
+rule acfic_32 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Farming as a primary occupation.":
+a proposal is ineligible under item 32
+    if the farming of the applicant of the proposal is primary occupation.
+
+rule acfic_32_incidental with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Incidental farming will be considered with prior underwriting approval.":
+a proposal must be referred to underwriting under item 32
+    if the farming of the applicant of the proposal is incidental.
+
+% ---------------------------------------------------------------------------
+% Occupancy and use
+% ---------------------------------------------------------------------------
+
+rule acfic_4 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Rooming or boarding houses, on and off campus student housing, including but not limited to dormitory, fraternity and sorority housing.":
+a proposal is ineligible under item 4
+    if the proposal is for a dwelling
+    and the use of the dwelling is a use
+    and the use is in [rooming house, boarding house, student housing, dormitory, fraternity house, sorority house].
+
+rule acfic_5 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Applicants with more than 2 student roomers.":
+a proposal is ineligible under item 5
+    if the proposal is for a dwelling
+    and the dwelling has a number student roomers
+    and the number > 2.
+
+rule acfic_13 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "A primary residence which is vacant or unoccupied.":
+a proposal is ineligible under item 13
+    if the proposal is for a dwelling
+    and the occupancy of the dwelling is an occupancy
+    and the occupancy is in [vacant, unoccupied].
+
+rule acfic_14 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Dwellings rented by the day, weekend, week or month.":
+a proposal is ineligible under item 14
+    if the proposal is for a dwelling
+    and the rental term of the dwelling is a period
+    and the period is in [day, weekend, week, month].
+
+rule acfic_15 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Seasonal risks as follows:":
+a proposal is ineligible under item 15
+    if the proposal is for a dwelling
+    and the occupancy of the dwelling is seasonal
+    and the setting of the dwelling is a setting
+    and the setting is in [beach, congested resort].
+
+rule acfic_20 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Property where alcoholic beverages are sold.":
+a proposal is ineligible under item 20
+    if the proposal is for a dwelling
+    and alcoholic beverages are sold at the dwelling.
+
+rule acfic_27 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Secondary residences where the primary residence is not insured through an ACE affiliate":
+a proposal is ineligible under item 27
+    if the proposal is for a dwelling
+    and the occupancy of the dwelling is secondary
+    and it is not the case that
+        the primary residence of the applicant of the proposal is insured with an Auto Club affiliate.
+
+rule acfic_29 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Single family dwellings that have been converted to apartment units.":
+a proposal is ineligible under item 29
+    if the proposal is for a dwelling
+    and the dwelling has been converted to apartment units.
+
+rule acfic_35 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Two family dwellings where insurance is not inforce for both living units.":
+a proposal is ineligible under item 35
+    if the proposal is for a dwelling
+    and the number of families in the dwelling is 2
+    and it is not the case that
+        both units of the dwelling are insured.
+
+% ---------------------------------------------------------------------------
+% Construction, foundation, condition
+% ---------------------------------------------------------------------------
+
+rule acfic_6 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Mobile homes/Manufactured homes.":
+a proposal is ineligible under item 6
+    if the proposal is for a dwelling
+    and the construction of the dwelling is a construction
+    and the construction is in [mobile home, manufactured home]
+    and it is not the case that
+        the policy form of the proposal is premier renters.
+
+rule acfic_8 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Dwellings constructed with nonconventional building materials such as asbestos, foam, plastics, eifs (synthetic, fake stucco) or with unusual features, including underground structures, dome houses, log houses and historic homes.":
+a proposal is ineligible under item 8
+    if the proposal is for a dwelling
+    and the construction of the dwelling is a construction
+    and the construction is in [asbestos, foam, plastics, synthetic stucco, underground, dome, log].
+
+rule acfic_8_historic with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "historic homes":
+a proposal is ineligible under item 8
+    if the proposal is for a dwelling
+    and the dwelling is listed on a historic register.
+
+rule acfic_9 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "construction unless the applicant is a professional craftsman":
+a proposal is ineligible under item 9
+    if the proposal is for a dwelling
+    and the dwelling was built by its owner
+    and it is not the case that
+        the applicant of the proposal is a professional craftsman
+            and the wiring and heating of the dwelling were installed by licensed professionals.
+
+rule acfic_9_craftsman with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "In instances involving professional craftsmen, refer to the Underwriting Department prior to binding":
+a proposal must be referred to underwriting under item 9
+    if the proposal is for a dwelling
+    and the dwelling was built by its owner
+    and the applicant of the proposal is a professional craftsman
+    and the wiring and heating of the dwelling were installed by licensed professionals.
+
+rule acfic_10 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Dwellings with non-continuous foundations, unless enclosed to prevent the accumulation of debris":
+a proposal is ineligible under item 10
+    if the proposal is for a dwelling
+    and the foundation of the dwelling is a foundation
+    and the foundation is in [piers, pilings, posts, open]
+    and it is not the case that
+        the foundation of the dwelling is enclosed.
+
+rule acfic_10_piers with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Piered homes must be less than 3 feet from the ground.":
+a proposal is ineligible under item 10
+    if the proposal is for a dwelling
+    and the piers of the dwelling are a number feet high
+    and the number >= 3.
+
+rule acfic_11 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Property with outbuildings that are not in average or better condition.":
+a proposal is ineligible under item 11
+    if the proposal is for a dwelling
+    and the condition of an outbuilding of the dwelling is a grade
+    and the grade is in [below average, poor].
+
+rule acfic_12 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Basement dwellings.":
+a proposal is ineligible under item 12
+    if the proposal is for a dwelling
+    and the dwelling is a basement dwelling.
+
+rule acfic_24 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Dwellings with unrepaired earthquake damage or mine subsidence damage.":
+a proposal is ineligible under item 24
+    if the proposal is for a dwelling
+    and the dwelling has unrepaired damage from a cause
+    and the cause is in [earthquake, mine subsidence].
+
+rule acfic_31 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Dwellings which are undergoing extensive remodeling.":
+a proposal is ineligible under item 31
+    if the proposal is for a dwelling
+    and the dwelling is undergoing extensive remodeling.
+
+% ---------------------------------------------------------------------------
+% Heating and electrical
+% ---------------------------------------------------------------------------
+
+rule acfic_22 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Dwellings where primary source of heat is a woodstove or space heater. Dwellings must have central heating.":
+a proposal is ineligible under item 22
+    if the proposal is for a dwelling
+    and the primary heat source of the dwelling is a source
+    and the source is different from central heating.
+
+rule acfic_22_detached with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "the woodstove cannot be located in a detached structure or garage":
+a proposal is ineligible under item 22
+    if the proposal is for a dwelling
+    and the dwelling has woodstove as a secondary heat source
+    and the heater of the dwelling is located in a place
+    and the place is in [detached structure, garage].
+
+rule acfic_23 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Improperly installed supplemental heating units":
+a proposal is ineligible under item 23
+    if the proposal is for a dwelling
+    and the supplemental heater of the dwelling is improperly installed.
+
+rule acfic_33 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Dwellings with less than 100 amp electrical service.":
+a proposal is ineligible under item 33
+    if the proposal is for a dwelling
+    and the electrical service of the dwelling is a number amps
+    and the number < 100.
+
+rule acfic_34 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Dwellings with knob and tube wiring or Federal Pacific Stab-Lok panels with circuit breakers are unacceptable.":
+a proposal is ineligible under item 34
+    if the proposal is for a dwelling
+    and the dwelling has knob and tube wiring.
+
+rule acfic_34_panel with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Federal Pacific Stab-Lok panels with circuit breakers are unacceptable.":
+a proposal is ineligible under item 34
+    if the proposal is for a dwelling
+    and the electrical panel of the dwelling is Federal Pacific Stab Lok.
+
+% ---------------------------------------------------------------------------
+% The roof
+% ---------------------------------------------------------------------------
+
+rule acfic_36 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Dwellings with a slate, or tile roof.":
+a proposal is ineligible under item 36
+    if the proposal is for a dwelling
+    and the roof of the dwelling is made of a material
+    and the material is in [slate, tile]
+    and it is not the case that
+        the proposal has a premier form.
+
+rule acfic_37 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Dwellings with a flat roof over the main dwelling structure.":
+a proposal is ineligible under item 37
+    if the proposal is for a dwelling
+    and the roof over the main structure of the dwelling is flat
+    and it is not the case that
+        the proposal has a premier form.
+
+rule acfic_38 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Dwellings when the second layer of roofing material is composition shingle over a wood roof.":
+a proposal is ineligible under item 38
+    if the proposal is for a dwelling
+    and the top layer of the roof of the dwelling is composition shingle laid over wood
+    and it is not the case that
+        the proposal has a premier form.
+
+rule acfic_39 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Dwellings when the second layer of roofing material is wood over a wood roof.":
+a proposal is ineligible under item 39
+    if the proposal is for a dwelling
+    and the top layer of the roof of the dwelling is wood laid over wood
+    and it is not the case that
+        the proposal has a premier form.
+
+% ---------------------------------------------------------------------------
+% The premises, animals, the neighbourhood
+% ---------------------------------------------------------------------------
+
+rule acfic_18 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Premises with unusual or hazardous attractions for children including, but not limited to, unguarded excavations, open wells, unprotected swimming pools, trampolines.":
+a proposal is ineligible under item 18
+    if the proposal is for a dwelling
+    and the premises of the dwelling include a hazard
+    and the hazard is in [unguarded excavation, open well, unprotected swimming pool, trampoline].
+
+rule acfic_21 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Pets or animals owned or maintained that are of an inherently vicious, aggressive or dangerous":
+a proposal is ineligible under item 21
+    if the household of the proposal keeps an animal
+    and the species of the animal is a species
+    and the species is in [wolf, lion, bear, alligator].
+
+% A dog is named among the examples, but a dog is not dangerous by being a
+% dog: whether this one is, is the underwriter's finding.
+rule acfic_21_dog with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "(i.e., dogs, wolves, lions, bears, alligators, etc.)":
+a proposal is ineligible under item 21
+    if the household of the proposal keeps an animal
+    and the species of the animal is dog
+    and the finding dangerous nature about the animal is established.
+
+rule acfic_7 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Risks with serious exterior exposures, such as substandard adjacent property.":
+a proposal is ineligible under item 7
+    if the proposal is for a dwelling
+    and the inspection report on the dwelling notes substandard adjacent property
+    and the finding serious exterior exposure about the dwelling is established.
+
+rule acfic_16 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Applicants whose premises are in a rundown condition and lack a good repair and maintenance":
+a proposal is ineligible under item 16
+    if the proposal is for a dwelling
+    and the inspection report on the dwelling notes deferred maintenance
+    and the finding rundown premises about the dwelling is established.
+
+rule acfic_26 with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Risks that have any of the following characteristics:":
+a proposal is ineligible under item 26
+    if the proposal is for a dwelling
+    and the inspection report on the dwelling notes a concern
+    and the concern is in [inadequate locks, unsafe steps, poorly maintained sidewalks, unrailed deck, door opening without stairs].
+
+rule acfic_40_zoning with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "One or two family dwellings located in commercially zoned neighborhoods or adjacent to commercial property.":
+a proposal is ineligible under item 40
+    if the proposal is for a dwelling
+    and the dwelling is in a commercially zoned neighborhood.
+
+rule acfic_40_always with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "The following are always unacceptable adjacent businesses:":
+a proposal is ineligible under item 40
+    if the proposal is for a dwelling
+    and the dwelling is adjacent to a business
+    and the business is always an unacceptable neighbour.
+
+rule acfic_40_other with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "For any other business, prior Underwriting approval is required.":
+a proposal must be referred to underwriting under item 40
+    if the proposal is for a dwelling
+    and the dwelling is adjacent to a business
+    and it is not the case that
+        the business is an acceptable neighbour
+    and it is not the case that
+        the business is always an unacceptable neighbour.
+
+rule acfic_40_fire with provenance the ACFIC Arkansas underwriting guidelines,
+        confer "Residences that are adjacent to property/buildings that present undue fire or explosion":
+a proposal is ineligible under item 40
+    if the proposal is for a dwelling
+    and the inspection report on the dwelling notes hazardous neighbouring property
+    and the finding undue fire hazard about the dwelling is established.
+
+% The businesses the rule names, either way.
+school is an acceptable neighbour, as stated in the ACFIC Arkansas underwriting guidelines, confer "Residences adjacent to a school, church, hospital, nursing home".
+church is an acceptable neighbour, as stated in the ACFIC Arkansas underwriting guidelines, confer "Residences adjacent to a school, church, hospital, nursing home".
+hospital is an acceptable neighbour, as stated in the ACFIC Arkansas underwriting guidelines, confer "Residences adjacent to a school, church, hospital, nursing home".
+nursing home is an acceptable neighbour, as stated in the ACFIC Arkansas underwriting guidelines, confer "Residences adjacent to a school, church, hospital, nursing home".
+office building is an acceptable neighbour, as stated in the ACFIC Arkansas underwriting guidelines, confer "office building including medical or dental office".
+post office is an acceptable neighbour, as stated in the ACFIC Arkansas underwriting guidelines, confer "Post Office or FedEx location".
+grocery store is an acceptable neighbour, as stated in the ACFIC Arkansas underwriting guidelines, confer "grocery store, coffee shop, fast-food restaurant, hair salon".
+coffee shop is an acceptable neighbour, as stated in the ACFIC Arkansas underwriting guidelines, confer "grocery store, coffee shop, fast-food restaurant, hair salon".
+hair salon is an acceptable neighbour, as stated in the ACFIC Arkansas underwriting guidelines, confer "grocery store, coffee shop, fast-food restaurant, hair salon".
+gas station is always an unacceptable neighbour, as stated in the ACFIC Arkansas underwriting guidelines, confer "gas station, marijuana dispensary, manufacturing plant, storage facility, motel, auto repair shop, salvage lot".
+manufacturing plant is always an unacceptable neighbour, as stated in the ACFIC Arkansas underwriting guidelines, confer "gas station, marijuana dispensary, manufacturing plant, storage facility, motel, auto repair shop, salvage lot".
+storage facility is always an unacceptable neighbour, as stated in the ACFIC Arkansas underwriting guidelines, confer "gas station, marijuana dispensary, manufacturing plant, storage facility, motel, auto repair shop, salvage lot".
+motel is always an unacceptable neighbour, as stated in the ACFIC Arkansas underwriting guidelines, confer "gas station, marijuana dispensary, manufacturing plant, storage facility, motel, auto repair shop, salvage lot".
+auto repair shop is always an unacceptable neighbour, as stated in the ACFIC Arkansas underwriting guidelines, confer "gas station, marijuana dispensary, manufacturing plant, storage facility, motel, auto repair shop, salvage lot".
+salvage lot is always an unacceptable neighbour, as stated in the ACFIC Arkansas underwriting guidelines, confer "gas station, marijuana dispensary, manufacturing plant, storage facility, motel, auto repair shop, salvage lot".
+liquor store is always an unacceptable neighbour, as stated in the ACFIC Arkansas underwriting guidelines, confer "businesses that sell alcohol and are open during night hours (such as a liquor or convenience store, bar or pub)".
+bar is always an unacceptable neighbour, as stated in the ACFIC Arkansas underwriting guidelines, confer "businesses that sell alcohol and are open during night hours (such as a liquor or convenience store, bar or pub)".

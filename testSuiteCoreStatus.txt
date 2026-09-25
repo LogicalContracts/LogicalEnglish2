@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      core (this repository alone; extension-dependent trees excluded)
 Command:    testing/run_tests.sh le   (or: runTests)
 Sibling:    testSuiteStatus.txt — all (core + trees requiring the proprietary le_extensions.pl)
-Generated:  2026-09-24 06:06:28 UTC
+Generated:  2026-09-25 04:26:10 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 351
-Total tests:     2599
-Passed:          2599
+Files processed: 358
+Total tests:     2720
+Passed:          2720
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -253,6 +253,13 @@ Detailed File Summary:
   [PASS] examples/regulatory/medicare/wheelchair_options_cases.le: 24 Pass, 0 Fail, 0 Error
   [NONE] examples/regulatory/medicare/wheelchair_seating.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/regulatory/medicare/wheelchair_seating_cases.le: 30 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/underwriting/arkansas.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/underwriting/arkansas_cases.le: 45 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/underwriting/california.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/underwriting/california_cases.le: 59 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/underwriting/contributionship.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/underwriting/contributionship_surveys.le: 17 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/underwriting/homeowners.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/migration/legalruleml/ex8_defeasible/deontic.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/legalruleml/ex8_defeasible/ex8_defeasible.le: 4 Pass, 0 Fail, 0 Error
   [NONE] examples/migration/legalruleml/ex5_section29new/deontic.le: 0 Pass, 0 Fail, 0 Error

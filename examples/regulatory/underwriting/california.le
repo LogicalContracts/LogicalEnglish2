@@ -1,0 +1,512 @@
+% Homeowners underwriting guidelines of National General (Integon National
+% Insurance Company) for California: the "Eligibility" pages (2-8) of the
+% "California Premier and OneChoice Homeowners Underwriting & Product Guide",
+% revised 14 January 2020. The guide is a grid of topics (the applicant,
+% occupancy, protection class, roof, electrical, heating, plumbing, pets,
+% pools, construction, coast, brush), each saying what is ineligible and what
+% must be referred to underwriting. A guideline program of the homeowners
+% model: it includes homeowners.le. A guideline is named after the guide's
+% own heading ("roof", "brush rules").
+%
+% What is encoded (see DETAILS.md for the count):
+% - read from the proposal's facts: every topic of pages 3-8 below;
+% - the brush rules as a decision table (FireLine score and WillisRe score
+%   give Accept, "Accept per UW review" or Decline); "Accept per UW review"
+%   is read as a referral;
+% - a finding someone records: a dog "showing aggressive tendencies";
+% - not encoded: the property limits and coverage levels of page 2 (they
+%   choose a product and a price, not whether a risk is written) other than
+%   the two referrals on the dwelling limit and the personal property limit;
+%   scheduled personal property, excess liability, watercraft and
+%   recreational vehicles (other coverages); the brush factors the guide
+%   lists after the table without saying how they count (elevation, brush
+%   density, Santa Ana winds, debris).
+% The guide leaves one cell of the brush table empty: a FireLine score of 3
+% with a WillisRe score of exactly 1.00 is neither "< 1.00" nor "> 1.00".
+% No row answers, and the model's own rule "brush score outside the table"
+% refers such a proposal (scenario brush_gap in california_cases.le).
+%
+% The text is in sources/natgen_ca_homeowners.txt (the first ten pages of
+% the PDF beside it). The guide was retrieved from an agency's website, not
+% from SERFF: see DETAILS.md, "Sources".
+%
+% DISCLAIMER. This program is an example of Logical English. It is provided
+% "as is", without warranty of any kind, express or implied, including any
+% warranty that it is accurate, complete, up to date or fit for a particular
+% purpose. It is not an official reading of the underwriting guidelines it
+% cites, it is not an underwriting decision of any insurer, and it is not
+% legal or insurance advice. Its answers may be wrong: do not rely on them
+% for a real application; consult the insurer and a licensed agent. Its
+% authors accept no liability for any loss or damage arising from its use.
+
+the target language is: prolog.
+
+the knowledge base california includes these resources:
+    homeowners.
+
+the templates are:
+    the applicant of *a proposal* has a history of *an offence*; undefined.
+    the occupation of the applicant of *a proposal* is *an occupation*; undefined.
+    the prior coverage of *a proposal* lapsed in the past year; undefined.
+    *a dwelling* was previously insured; undefined.
+    *a proposal* is in the name of a trust; undefined.
+    the dwelling limit of *a proposal* is *an amount*; undefined.
+    the personal property limit of *a proposal* is *an amount*; undefined.
+    the protection class of *a dwelling* is *a number*; undefined.
+    *a dwelling* is *a number* miles from a fire department; undefined.
+    *a dwelling* is built on a slope of *a number* degrees; undefined.
+    *a dwelling* was built in *a year*; undefined.
+    *a dwelling* has an underground oil storage tank; undefined.
+    the plumbing of *a dwelling* is *a number* years old; undefined.
+    the plumbing of *a dwelling* has been completely updated; undefined.
+    the breed of *an animal* is *a breed*; undefined.
+    *an animal* has a bite history; undefined.
+    the trampoline at *a dwelling* is surrounded by safety netting; undefined.
+    the trampoline at *a dwelling* stands on flat ground; undefined.
+    the swimming pool at *a dwelling* is fenced with a self-locking gate; undefined.
+    the diving board at *a dwelling* is *a number* inches above the water; undefined.
+    the number of farm animals at *a dwelling* is *a number*; undefined.
+    *a dwelling* is *a number* feet from the coast; undefined.
+    *a dwelling* is *a number* feet above the high water line; undefined.
+    the fireline score of *a dwelling* is *a number*; undefined.
+    the wildfire score of *a dwelling* is *a number*; undefined.
+    the brush decision for fireline score *a number* with wildfire score *a second number* is *an action* under table brush.
+    the brush decision for *a dwelling* is *an action*.
+    *an animal* is of a listed breed.
+
+the knowledge base california includes:
+
+the National General California guide is published at "https://www.ironpointagent.com/wp-content/uploads/2020/03/uwg_ca_inic_ho-NatGen.pdf".
+the text of the National General California guide is at "sources/natgen_ca_homeowners.txt".
+
+% ---------------------------------------------------------------------------
+% Property limits (page 2): only the two referrals.
+% ---------------------------------------------------------------------------
+
+rule natgen_limit with provenance the National General California guide,
+        confer "Refer any premier homes over $1,500,000":
+a proposal must be referred to underwriting under property limits
+    if the dwelling limit of the proposal is an amount
+    and the amount > 1500000.
+
+rule natgen_contents_refer with provenance the National General California guide,
+        confer "Refer to underwriting if Coverage C > Coverage A (HO3 only)":
+a proposal must be referred to underwriting under contents limit
+    if the dwelling limit of the proposal is an amount
+    and the personal property limit of the proposal is an other amount
+    and the other amount > the amount.
+
+rule natgen_contents_ineligible with provenance the National General California guide,
+        confer "Ineligible if Coverage C >200":
+a proposal is ineligible under contents limit
+    if the dwelling limit of the proposal is an amount
+    and the personal property limit of the proposal is an other amount
+    and a limit is the amount * 2
+    and the other amount > the limit.
+
+% ---------------------------------------------------------------------------
+% Applicant information (page 3)
+% ---------------------------------------------------------------------------
+
+rule natgen_arson with provenance the National General California guide,
+        confer "Arson or Fraud Ineligible.":
+a proposal is ineligible under applicant history
+    if the applicant of the proposal has a history of an offence
+    and the offence is in [arson, fraud].
+
+rule natgen_occupation with provenance the National General California guide,
+        confer "Refer to underwriting if professional athlete, entertainer, journalist, politician, or other high profile profession.":
+a proposal must be referred to underwriting under occupation
+    if the occupation of the applicant of the proposal is an occupation
+    and the occupation is in [professional athlete, entertainer, journalist, politician].
+
+rule natgen_lapse with provenance the National General California guide,
+        confer "Refer to underwriting if coverage lapsed in the past year.":
+a proposal must be referred to underwriting under previous cancellations
+    if the prior coverage of the proposal lapsed in the past year.
+
+rule natgen_prior with provenance the National General California guide,
+        confer "Ineligible if property was not previously insured. (Not applicable to HO4)":
+a proposal is ineligible under prior insurance
+    if the proposal is for a dwelling
+    and it is not the case that
+        the dwelling was previously insured
+    and it is not the case that
+        the policy form of the proposal is renters.
+
+rule natgen_losses with provenance the National General California guide,
+        confer "More than 0 claims in last 5 years.":
+a proposal is ineligible under loss history
+    if the proposal is dated a date
+    and the applicant of the proposal had a claim on a claim date
+    and a limit is 60 months after the claim date
+    and the date is before or equal to the limit.
+
+rule natgen_trusts with provenance the National General California guide,
+        confer "Trusts Refer to underwriting.":
+a proposal must be referred to underwriting under trusts
+    if the proposal is in the name of a trust.
+
+% ---------------------------------------------------------------------------
+% Occupancy (page 3)
+% ---------------------------------------------------------------------------
+
+rule natgen_families with provenance the National General California guide,
+        confer "Three and four family units are ineligible.":
+a proposal is ineligible under number of families
+    if the proposal is for a dwelling
+    and the number of families in the dwelling is a number
+    and the number > 2.
+
+rule natgen_vacant with provenance the National General California guide,
+        confer "Vacant/Foreclosed/For Sale Not eligible.":
+a proposal is ineligible under occupancy
+    if the proposal is for a dwelling
+    and the occupancy of the dwelling is an occupancy
+    and the occupancy is in [vacant, foreclosed, for sale].
+
+rule natgen_rented_primary with provenance the National General California guide,
+        confer "Ineligible if primary home is rented.":
+a proposal is ineligible under rentals
+    if the proposal is for a dwelling
+    and the occupancy of the dwelling is rented.
+
+rule natgen_rentals with provenance the National General California guide,
+        confer "All home/condominium rentals must be referred to underwriting.":
+a proposal must be referred to underwriting under rentals
+    if the proposal is for a dwelling
+    and the occupancy of the dwelling is an occupancy
+    and the occupancy is in [rented, seasonal rental].
+
+rule natgen_day_care with provenance the National General California guide,
+        confer "Home Day Care Ineligible.":
+a proposal is ineligible under home day care
+    if the proposal is for a dwelling
+    and the use of the dwelling is home day care.
+
+rule natgen_timeshare with provenance the National General California guide,
+        confer "Timeshares Ineligible.":
+a proposal is ineligible under timeshares
+    if the proposal is for a dwelling
+    and the use of the dwelling is timeshare.
+
+% ---------------------------------------------------------------------------
+% Protection class and location (page 4, page 7)
+% ---------------------------------------------------------------------------
+
+rule natgen_pc9 with provenance the National General California guide,
+        confer "Protection Class 9 is an underwriting referral.":
+a proposal must be referred to underwriting under protection class
+    if the proposal is for a dwelling
+    and the protection class of the dwelling is 9.
+
+rule natgen_pc10 with provenance the National General California guide,
+        confer "Ineligible risks in Protection Class 10.":
+a proposal is ineligible under protection class
+    if the proposal is for a dwelling
+    and the protection class of the dwelling is 10.
+
+rule natgen_fire_department with provenance the National General California guide,
+        confer "Properties be within 5 miles of fire department.":
+a proposal is ineligible under protection class
+    if the proposal is for a dwelling
+    and the dwelling is a number miles from a fire department
+    and the number > 5.
+
+rule natgen_slope with provenance the National General California guide,
+        confer "Ineligible approval required if residence built on a slope of more than 30":
+a proposal is ineligible under slope
+    if the proposal is for a dwelling
+    and the dwelling is built on a slope of a number degrees
+    and the number > 30.
+
+rule natgen_coast with provenance the National General California guide,
+        confer "Refer if less than 1,000 feet from the coast and less than 25 feet above high":
+a proposal must be referred to underwriting under coastal guidelines
+    if the proposal is for a dwelling
+    and the dwelling is a number feet from the coast
+    and the number < 1000
+    and the dwelling is an other number feet above the high water line
+    and the other number < 25.
+
+% ---------------------------------------------------------------------------
+% The dwelling (pages 4-6)
+% ---------------------------------------------------------------------------
+
+rule natgen_historic with provenance the National General California guide,
+        confer "Homes listed on any historic registries are ineligible.":
+a proposal is ineligible under historic home
+    if the proposal is for a dwelling
+    and the dwelling is listed on a historic register.
+
+rule natgen_age with provenance the National General California guide,
+        confer "Home is ineligible if age of home is greater than 75 years.":
+a proposal is ineligible under age of home
+    if the proposal is for a dwelling
+    and the age of the dwelling is a number years
+    and the number > 75.
+
+rule natgen_construction with provenance the National General California guide,
+        confer "The following risks are ineligible: mobile homes, manufactured homes, underground or earth homes, fiberglass, yurts, balloon constructions":
+a proposal is ineligible under types of construction
+    if the proposal is for a dwelling
+    and the construction of the dwelling is a construction
+    and the construction is in [mobile home, manufactured home, underground, earth home, fiberglass, yurt, balloon frame].
+
+rule natgen_eifs with provenance the National General California guide,
+        confer "EIFS if built prior to 2000":
+a proposal is ineligible under types of construction
+    if the proposal is for a dwelling
+    and the construction of the dwelling is synthetic stucco
+    and the dwelling was built in a year
+    and the year < 2000.
+
+rule natgen_log with provenance the National General California guide,
+        confer "Log homes in Protection Class 9 are unacceptable.":
+a proposal is ineligible under types of construction
+    if the proposal is for a dwelling
+    and the construction of the dwelling is log
+    and the protection class of the dwelling is 9.
+
+rule natgen_foundation with provenance the National General California guide,
+        confer "The following types of foundations are ineligible: pilings, piers, wharves, jetties, on stilts or posts, or open foundations.":
+a proposal is ineligible under types of foundation
+    if the proposal is for a dwelling
+    and the foundation of the dwelling is a foundation
+    and the foundation is in [pilings, piers, wharves, jetties, stilts, posts, open].
+
+rule natgen_under_construction with provenance the National General California guide,
+        confer "Ineligible for new business.":
+a proposal is ineligible under dwelling under construction
+    if the proposal is for a dwelling
+    and the dwelling is under construction.
+
+rule natgen_renovation with provenance the National General California guide,
+        confer "Homes undergoing renovation must be referred to underwriting.":
+a proposal must be referred to underwriting under dwelling under construction
+    if the proposal is for a dwelling
+    and the dwelling is undergoing renovation.
+
+% The roof.
+rule natgen_roof_material with provenance the National General California guide,
+        confer "Wood, tar paper, rolled, plywood boards, stapled roofs, and asbestos":
+a proposal is ineligible under roof
+    if the proposal is for a dwelling
+    and the roof of the dwelling is made of a material
+    and the material is in [wood shake, wood shingle, tar paper, rolled roofing, plywood boards, stapled roofing, asbestos].
+
+rule natgen_roof_age with provenance the National General California guide,
+        confer "Roof is older than 20 years, unless slate or tile":
+a proposal is ineligible under roof
+    if the proposal is for a dwelling
+    and the roof of the dwelling is a number years old
+    and the number > 20
+    and the roof of the dwelling is made of a material
+    and it is not the case that
+        the material is in [slate, tile].
+
+rule natgen_roof_layers with provenance the National General California guide,
+        confer "Refer to underwriting if roof has more than one layer of material.":
+a proposal must be referred to underwriting under roof
+    if the proposal is for a dwelling
+    and the roof of the dwelling has a number layers
+    and the number > 1.
+
+% Electrical.
+rule natgen_amps with provenance the National General California guide,
+        confer "Dwelling does not have minimum of 100 amps and 220 volt service":
+a proposal is ineligible under electrical
+    if the proposal is for a dwelling
+    and the electrical service of the dwelling is a number amps
+    and the number < 100.
+
+rule natgen_knob_and_tube with provenance the National General California guide,
+        confer "Knob & tube or aluminum wiring present":
+a proposal is ineligible under electrical
+    if the proposal is for a dwelling
+    and the dwelling has knob and tube wiring.
+
+rule natgen_aluminum with provenance the National General California guide,
+        confer "Knob & tube or aluminum wiring present":
+a proposal is ineligible under electrical
+    if the proposal is for a dwelling
+    and the dwelling has aluminum wiring.
+
+rule natgen_panel with provenance the National General California guide,
+        confer "Presence of Federal Pacific Stab Lok or Zinsco electrical panels.":
+a proposal is ineligible under electrical
+    if the proposal is for a dwelling
+    and the electrical panel of the dwelling is a panel
+    and the panel is in [Federal Pacific Stab Lok, Zinsco].
+
+% Heating.
+rule natgen_central_heat with provenance the National General California guide,
+        confer "Must have central heat, properly installed":
+a proposal is ineligible under heating
+    if the proposal is for a dwelling
+    and the primary heat source of the dwelling is a source
+    and it is not the case that
+        the source is in [central heating, solar heating].
+
+rule natgen_solar with provenance the National General California guide,
+        confer "All risks with Solar Heat sources must be referred":
+a proposal must be referred to underwriting under heating
+    if the proposal is for a dwelling
+    and the primary heat source of the dwelling is solar heating.
+
+rule natgen_stoves with provenance the National General California guide,
+        confer "Solid fuel burning stoves are ineligible":
+a proposal is ineligible under heating
+    if the proposal is for a dwelling
+    and the dwelling has a heater as a secondary heat source
+    and the heater is in [woodstove, pellet stove, coal stove, kerosene stove].
+
+rule natgen_oil_tank with provenance the National General California guide,
+        confer "Underground oil storage tanks are ineligible.":
+a proposal is ineligible under heating
+    if the proposal is for a dwelling
+    and the dwelling has an underground oil storage tank.
+
+% Plumbing.
+rule natgen_plumbing_material with provenance the National General California guide,
+        confer "Polybutylene, galvanized steel, or lead plumbing":
+a proposal is ineligible under plumbing
+    if the proposal is for a dwelling
+    and the plumbing of the dwelling is a material
+    and the material is in [polybutylene, galvanized steel, lead].
+
+rule natgen_plumbing_age with provenance the National General California guide,
+        confer "Plumbing that is more than 40 years old and has not been completely updated.":
+a proposal is ineligible under plumbing
+    if the proposal is for a dwelling
+    and the plumbing of the dwelling is a number years old
+    and the number > 40
+    and it is not the case that
+        the plumbing of the dwelling has been completely updated.
+
+% ---------------------------------------------------------------------------
+% Additional exposures (pages 5-6)
+% ---------------------------------------------------------------------------
+
+rule natgen_breeds with provenance the National General California guide,
+        confer "Dogs: Akita, American Bulldog, Chow, Doberman, Mastiff (All), Pit Bull (All), Presa Canario, Rottweiler, Wolf, or any mix of the above breeds":
+a proposal is ineligible under pets
+    if the household of the proposal keeps an animal
+    and the animal is of a listed breed.
+
+an animal is of a listed breed
+    if the breed of the animal is a breed
+    and the breed is in [Akita, American Bulldog, Chow, Doberman, Mastiff, Pit Bull, Presa Canario, Rottweiler, Wolf].
+
+rule natgen_bites with provenance the National General California guide,
+        confer "Dogs that have caused prior liability losses or that have bite history":
+a proposal is ineligible under pets
+    if the household of the proposal keeps an animal
+    and the animal has a bite history.
+
+rule natgen_aggressive with provenance the National General California guide,
+        confer "Dogs showing aggressive tendencies.":
+a proposal is ineligible under pets
+    if the household of the proposal keeps an animal
+    and the species of the animal is dog
+    and it is not the case that
+        the animal is of a listed breed
+    and the finding aggressive tendencies about the animal is established.
+
+rule natgen_wild with provenance the National General California guide,
+        confer "Any wild animals.":
+a proposal is ineligible under pets
+    if the household of the proposal keeps an animal
+    and the species of the animal is a species
+    and it is not the case that
+        the species is in [dog, cat, horse, bird, fish, rabbit].
+
+rule natgen_trampoline with provenance the National General California guide,
+        confer "Trampolines are acceptable subject to the following conditions:":
+a proposal is ineligible under trampolines
+    if the proposal is for a dwelling
+    and the premises of the dwelling include trampoline
+    and it is not the case that
+        the trampoline at the dwelling is surrounded by safety netting
+            and the trampoline at the dwelling stands on flat ground.
+
+rule natgen_pool_fence with provenance the National General California guide,
+        confer "Pool is fenced in with a self-locking gate":
+a proposal is ineligible under swimming pools
+    if the proposal is for a dwelling
+    and the premises of the dwelling include swimming pool
+    and it is not the case that
+        the swimming pool at the dwelling is fenced with a self-locking gate.
+
+rule natgen_diving_board with provenance the National General California guide,
+        confer "There are no diving boards greater than 18 inches above the water":
+a proposal is ineligible under swimming pools
+    if the proposal is for a dwelling
+    and the diving board at the dwelling is a number inches above the water
+    and the number > 18.
+
+rule natgen_ramps with provenance the National General California guide,
+        confer "Presence of skateboard or bicycle ramps on premises":
+a proposal is ineligible under attractive nuisances
+    if the proposal is for a dwelling
+    and the premises of the dwelling include a hazard
+    and the hazard is in [skateboard ramp, bicycle ramp].
+
+rule natgen_treehouse with provenance the National General California guide,
+        confer "Refer to underwriting when home has a treehouse on the premises.":
+a proposal must be referred to underwriting under attractive nuisances
+    if the proposal is for a dwelling
+    and the premises of the dwelling include treehouse.
+
+rule natgen_farming with provenance the National General California guide,
+        confer "Refer to underwriting if more than 2 farm animals.":
+a proposal must be referred to underwriting under farming
+    if the proposal is for a dwelling
+    and the number of farm animals at the dwelling is a number
+    and the number > 2.
+
+% ---------------------------------------------------------------------------
+% Brush rules (page 8): a decision table.
+% ---------------------------------------------------------------------------
+
+the table brush is, with first match, with provenance the National General California guide,
+        confer "A risk may be classified as being ineligible due to Wildfire exposure area":
+    row | fireline | wildfire                | action   | confer
+    b01 | 0        | < 2.5                   | accept   | "0 <2.50 Accept"
+    b02 | 0        | >= 2.5 and <= 4         | refer    | "0 2.50 to 4.00 Accept per UW review"
+    b03 | 0        | > 4                     | decline  | "0 > 4.00 Decline"
+    b11 | 1        | < 1                     | accept   | "1 < 1.00 Accept"
+    b12 | 1        | >= 1 and <= 2           | refer    | "1 1.00 to 2.00 Accept per UW review"
+    b13 | 1        | > 2                     | decline  | "1 > 2.00 Decline"
+    b21 | 2        | < 0.75                  | accept   | "2 < .75 Accept"
+    b22 | 2        | >= 0.75 and <= 1.5      | refer    | "2 .75 to 1.50 Accept per UW review"
+    b23 | 2        | > 1.5                   | decline  | "2 > 1.50 Decline"
+    b31 | 3        | < 1                     | refer    | "3 < 1.00 Accept per UW review"
+    b32 | 3        | > 1                     | decline  | "3 > 1.00 Decline"
+    b40 | >= 4     | any                     | decline  | "Note: FireLine Scores 4 and above are always unacceptable."
+
+the brush decision for a dwelling is an action
+    if the fireline score of the dwelling is a number
+    and the wildfire score of the dwelling is a second number
+    and the brush decision for fireline score the number with wildfire score the second number is the action under table brush.
+
+rule natgen_brush_decline with provenance the National General California guide,
+        confer "Brush Rules":
+a proposal is ineligible under brush rules
+    if the proposal is for a dwelling
+    and the brush decision for the dwelling is decline.
+
+rule natgen_brush_review with provenance the National General California guide,
+        confer "Accept per UW review":
+a proposal must be referred to underwriting under brush rules
+    if the proposal is for a dwelling
+    and the brush decision for the dwelling is refer.
+
+% The model's own rule, not the guide's: scores the table has no row for go
+% to an underwriter.
+a proposal must be referred to underwriting under brush score outside the table
+    if the proposal is for a dwelling
+    and the fireline score of the dwelling is a number
+    and the wildfire score of the dwelling is a second number
+    and it is not the case that
+        the brush decision for the dwelling is an action.
