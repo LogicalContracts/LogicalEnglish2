@@ -1,0 +1,630 @@
+% Synthetic proposals for the Arkansas homeowners guidelines
+% (arkansas.le): at least one that passes, one that fails for each kind
+% of ineligibility the program reads, one per referral, and borderline cases
+% (a fact left out, two facts that disagree, a judgment nobody has made yet).
+% Each scenario's comment says what it tests. The proposals are invented:
+% they test that the guidelines were captured faithfully, not how the
+% insurer decides.
+%
+% DISCLAIMER. This program is an example of Logical English. It is provided
+% "as is", without warranty of any kind, express or implied, including any
+% warranty that it is accurate, complete, up to date or fit for a particular
+% purpose. It is not an official reading of the underwriting guidelines it
+% cites, it is not an underwriting decision of any insurer, and it is not
+% legal or insurance advice. Its answers may be wrong: do not rely on them
+% for a real application; consult the insurer and a licensed agent. Its
+% authors accept no liability for any loss or damage arising from its use.
+
+the target language is: prolog.
+
+the knowledge base arkansas cases includes these resources:
+    arkansas.
+
+the knowledge base arkansas cases includes:
+
+query decision is:
+    the decision on which proposal is which action.
+
+query ineligible is:
+    which proposal is ineligible under which guideline.
+
+query referred is:
+    which proposal must be referred to underwriting under which guideline.
+
+query conditions is:
+    which proposal requires a deductible of which amount under which guideline.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        application 101 is eligible.
+
+% A brick-veneer house with a composition roof, central heating and 200 amps;
+% the applicant is an AAA member with an Auto Club car policy. Nothing in the
+% rule stops it.
+scenario clean is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    decision expects answers ["the decision on application 101 is accept"].
+    ineligible expects answers [].
+    referred expects answers [].
+
+% Item 34: knob and tube wiring, found by the inspector.
+scenario knob_and_tube is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the Oak Street house has knob and tube wiring, according to the inspector.
+    decision expects answers ["the decision on application 101 is decline"].
+    ineligible expects answers ["application 101 is ineligible under item 34"].
+
+% Items 18 and 34 at once: the answer lists both reasons.
+scenario two_reasons is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the Oak Street house has knob and tube wiring, according to the inspector.
+    the premises of the Oak Street house include trampoline, according to the inspector.
+    decision expects answers ["the decision on application 101 is decline"].
+    ineligible expects answers ["application 101 is ineligible under item 18", "application 101 is ineligible under item 34"].
+
+% Item 36: a tile roof, on a homeowners policy.
+scenario tile_roof is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the roof of the Oak Street house is made of tile, according to the applicant.
+    ineligible expects answers ["application 101 is ineligible under item 36"].
+
+% Item 36 does not apply to a Premier Condominium Owners policy.
+scenario tile_roof_condominium is:
+    application 102 is for the Pine Court unit.
+    application 102 is dated 2026-09-01.
+    the applicant of application 102 has a valid AAA membership, according to the applicant.
+    the applicant of application 102 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Pine Court unit is brick veneer, according to the applicant.
+    the primary heat source of the Pine Court unit is central heating, according to the applicant.
+    the electrical service of the Pine Court unit is 200 amps, according to the applicant.
+    the occupancy of the Pine Court unit is owner occupied, according to the applicant.
+    the policy form of application 102 is premier condominium owners.
+    the roof of the Pine Court unit is made of tile, according to the applicant.
+    decision expects answers ["the decision on application 102 is accept"].
+
+% Item 37: a flat roof over the main structure.
+scenario flat_roof is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the roof over the main structure of the Oak Street house is flat, according to the inspector.
+    ineligible expects answers ["application 101 is ineligible under item 37"].
+
+% Item 38: composition shingle laid over a wood roof.
+scenario reroofed_over_wood is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the top layer of the roof of the Oak Street house is composition shingle laid over wood, according to the inspector.
+    ineligible expects answers ["application 101 is ineligible under item 38"].
+
+% Item 1: the applicant is not an AAA member (the application does not say
+% so).
+scenario no_membership is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    ineligible expects answers ["application 101 is ineligible under item 1"].
+
+% Item 2: the applicant insures a car elsewhere.
+scenario no_auto_policy is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    ineligible expects answers ["application 101 is ineligible under item 2"].
+
+% Item 2 has an exception: an applicant who owns no automobile.
+scenario owns_no_car is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the applicant of application 101 owns no automobile, according to the applicant.
+    decision expects answers ["the decision on application 101 is accept"].
+
+% Item 3: a liability claim 18 months before the application.
+scenario liability_claim is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the applicant of application 101 had the dog bite claim on 2025-03-15, as stated in the claims history report.
+    the cause of the dog bite claim is liability, as stated in the claims history report.
+    the damage of the dog bite claim has been repaired, as stated in the claims history report.
+    ineligible expects answers ["application 101 is ineligible under item 3"].
+
+% Item 3 looks back three years: a liability claim four years old does not
+% count.
+scenario old_liability_claim is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the applicant of application 101 had the slip claim on 2022-06-01, as stated in the claims history report.
+    the cause of the slip claim is liability, as stated in the claims history report.
+    decision expects answers ["the decision on application 101 is accept"].
+
+% Item 3: one repaired fire claim may be submitted, with a 2,500 dollar
+% deductible.
+scenario one_fire_claim is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the applicant of application 101 had the kitchen fire claim on 2025-01-10, as stated in the claims history report.
+    the cause of the kitchen fire claim is fire, as stated in the claims history report.
+    the damage of the kitchen fire claim has been repaired, according to the inspector.
+    decision expects answers ["the decision on application 101 is accept"].
+    conditions expects answers ["application 101 requires a deductible of 2500 under item 3"].
+
+% Item 3: the same fire claim, not yet repaired.
+scenario fire_claim_unrepaired is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the applicant of application 101 had the kitchen fire claim on 2025-01-10, as stated in the claims history report.
+    the cause of the kitchen fire claim is fire, as stated in the claims history report.
+    ineligible expects answers ["application 101 is ineligible under item 3"].
+
+% Item 3: a repaired hail claim does not count against the applicant, so one
+% fire claim is still allowed.
+scenario fire_and_hail is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the applicant of application 101 had the kitchen fire claim on 2025-01-10, as stated in the claims history report.
+    the cause of the kitchen fire claim is fire, as stated in the claims history report.
+    the damage of the kitchen fire claim has been repaired, according to the inspector.
+    the applicant of application 101 had the roof claim on 2024-05-02, as stated in the claims history report.
+    the cause of the roof claim is hail, as stated in the claims history report.
+    the damage of the roof claim has been repaired, according to the inspector.
+    decision expects answers ["the decision on application 101 is accept"].
+    conditions expects answers ["application 101 requires a deductible of 2500 under item 3"].
+
+% Item 3: two non-weather claims in three years.
+scenario two_water_claims is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the applicant of application 101 had the pipe claim on 2024-02-01, as stated in the claims history report.
+    the cause of the pipe claim is water, as stated in the claims history report.
+    the damage of the pipe claim has been repaired, according to the inspector.
+    the applicant of application 101 had the theft claim on 2025-11-20, as stated in the claims history report.
+    the cause of the theft claim is theft, as stated in the claims history report.
+    the damage of the theft claim has been repaired, according to the inspector.
+    ineligible expects answers ["application 101 is ineligible under item 3"].
+
+% Item 22: a woodstove as the primary heat source.
+scenario woodstove is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the primary heat source of the Oak Street house is woodstove, according to the applicant.
+    ineligible expects answers ["application 101 is ineligible under item 22"].
+
+% Item 33: 60 amp service.
+scenario low_amperage is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the electrical service of the Oak Street house is 60 amps, according to the inspector.
+    ineligible expects answers ["application 101 is ineligible under item 33"].
+
+% Item 6: a manufactured home on a homeowners policy.
+scenario mobile_home is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the construction of the Oak Street house is manufactured home, according to the applicant.
+    ineligible expects answers ["application 101 is ineligible under item 6"].
+
+% Item 10: an enclosed foundation on piers four feet high (piers must be under
+% three feet).
+scenario high_piers is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the foundation of the Oak Street house is piers, according to the inspector.
+    the foundation of the Oak Street house is enclosed, according to the inspector.
+    the piers of the Oak Street house are 4 feet high, according to the inspector.
+    ineligible expects answers ["application 101 is ineligible under item 10"].
+
+% Item 15: a seasonal house on the beach.
+scenario beach_house is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the setting of the Oak Street house is beach, according to the applicant.
+    the occupancy of the Oak Street house is seasonal, according to the applicant.
+    ineligible expects answers ["application 101 is ineligible under item 15"].
+
+% Item 5: three student roomers.
+scenario student_roomers is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the Oak Street house has 3 student roomers, according to the applicant.
+    ineligible expects answers ["application 101 is ineligible under item 5"].
+
+% Item 21: the household keeps a dog, and nobody has yet judged whether it is
+% of a dangerous nature. The proposal is ineligible IF the finding is
+% established; it is not eligible yet.
+scenario dog_open is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the household of application 101 keeps Rex, according to the applicant.
+    the species of Rex is dog, according to the applicant.
+    decision expects answers ["the decision on application 101 is decline"] and unknowns ["the finding dangerous nature about Rex is established"].
+    ineligible expects answers ["application 101 is ineligible under item 21"] and unknowns ["the finding dangerous nature about Rex is established"].
+
+% Item 21: the underwriter finds that the dog is not of a dangerous nature.
+scenario dog_judged_safe is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the household of application 101 keeps Rex, according to the applicant.
+    the species of Rex is dog, according to the applicant.
+    the finding dangerous nature about Rex is unsupported, according to the underwriter, because "no bite history and the inspector saw a calm dog".
+    decision expects answers ["the decision on application 101 is accept"].
+
+% Item 21: a wolf needs no judgment.
+scenario wolf is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the household of application 101 keeps Shadow, according to the applicant.
+    the species of Shadow is wolf, according to the applicant.
+    ineligible expects answers ["application 101 is ineligible under item 21"].
+
+% Item 40 A: next to a gas station, always unacceptable.
+scenario gas_station_next_door is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the Oak Street house is adjacent to gas station, according to the inspector.
+    ineligible expects answers ["application 101 is ineligible under item 40"].
+
+% Item 40 A: next to a grocery store, one of the exceptions.
+scenario grocery_next_door is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the Oak Street house is adjacent to grocery store, according to the inspector.
+    decision expects answers ["the decision on application 101 is accept"].
+
+% Item 40 A: a business the rule neither accepts nor forbids needs prior
+% underwriting approval.
+scenario veterinary_clinic_next_door is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the Oak Street house is adjacent to veterinary clinic, according to the inspector.
+    decision expects answers ["the decision on application 101 is refer to underwriting"].
+    referred expects answers ["application 101 must be referred to underwriting under item 40"].
+
+% Item 32: incidental farming is considered with prior approval.
+scenario incidental_farming is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the farming of the applicant of application 101 is incidental, according to the applicant.
+    referred expects answers ["application 101 must be referred to underwriting under item 32"].
+
+% Item 9: a house the owner built, who is not a professional craftsman.
+scenario self_built is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the Oak Street house was built by its owner, according to the applicant.
+    ineligible expects answers ["application 101 is ineligible under item 9"].
+
+% Item 9: built by a professional craftsman, wiring and heating installed by
+% professionals: referred, not refused.
+scenario self_built_by_craftsman is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the Oak Street house was built by its owner, according to the applicant.
+    the applicant of application 101 is a professional craftsman, according to the applicant.
+    the wiring and heating of the Oak Street house were installed by licensed professionals, according to the inspector.
+    decision expects answers ["the decision on application 101 is refer to underwriting"].
+    referred expects answers ["application 101 must be referred to underwriting under item 9"].
+
+% Item 16: the inspector notes deferred maintenance; whether the premises are
+% rundown is the underwriter's finding, not yet made.
+scenario rundown_open is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the inspection report on the Oak Street house notes deferred maintenance, according to the inspector.
+    ineligible expects answers ["application 101 is ineligible under item 16"] and unknowns ["the finding rundown premises about the Oak Street house is established"].
+
+% Borderline: the application leaves out the roof. Silence must not read as a
+% clean risk (the model's own rule "missing information").
+scenario missing_roof is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    decision expects answers ["the decision on application 101 is refer to underwriting"].
+    referred expects answers ["application 101 must be referred to underwriting under missing information"].
+
+% Borderline: the application says composition shingle, the inspector says
+% metal (the model's own rule "conflicting information").
+scenario conflicting_roof is:
+    application 101 is for the Oak Street house.
+    application 101 is dated 2026-09-01.
+    the policy form of application 101 is homeowners.
+    the applicant of application 101 has a valid AAA membership, according to the applicant.
+    the applicant of application 101 has an automobile policy with an Auto Club affiliate, according to the applicant.
+    the construction of the Oak Street house is brick veneer, according to the applicant.
+    the roof of the Oak Street house is made of composition shingle, according to the applicant.
+    the primary heat source of the Oak Street house is central heating, according to the applicant.
+    the electrical service of the Oak Street house is 200 amps, according to the applicant.
+    the occupancy of the Oak Street house is owner occupied, according to the applicant.
+    the roof of the Oak Street house is made of metal, according to the inspector.
+    decision expects answers ["the decision on application 101 is refer to underwriting"].
+    referred expects answers ["application 101 must be referred to underwriting under conflicting information"].
+
+% A view (docs/user/reference/language.md §17.10): the underwriter's screen
+% for a proposal - the application's facts by group, who states each, the
+% judgments apart, the decision and the guidelines behind it, what is
+% missing, the smallest change that would make the proposal eligible, the
+% list of proposals with their decisions, and a draft of the letter.
+% (/executive?program=regulatory/underwriting/arkansas_cases&view=underwriting desk)
+the view underwriting desk is:
+    the title is "Homeowners underwriting desk - Arkansas Rule 05.2".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the application" are
+        a proposal is for a dwelling,
+        the policy form of a proposal is a form,
+        a proposal is dated a date,
+        the applicant of a proposal has a valid AAA membership,
+        the applicant of a proposal has an automobile policy with an Auto Club affiliate,
+        the applicant of a proposal owns no automobile,
+        the applicant of a proposal had a claim on a date,
+        the cause of a claim is a cause,
+        the damage of a claim has been repaired.
+    the facts about "the dwelling" are
+        the construction of a dwelling is a construction,
+        the roof of a dwelling is made of a material,
+        the primary heat source of a dwelling is a source,
+        the electrical service of a dwelling is a number amps,
+        the occupancy of a dwelling is an occupancy,
+        a dwelling has knob and tube wiring,
+        the premises of a dwelling include a hazard,
+        a dwelling is adjacent to a business,
+        the inspection report on a dwelling notes a concern.
+    the facts about "the household" are
+        the household of a proposal keeps an animal,
+        the species of an animal is a species.
+    the judgments are
+        the finding a finding about a thing is an outcome.
+    every fact shows who states it.
+    the result is the answer to query decision, headed by the action.
+    the result shows its reasons.
+    the result shows its citations.
+    the documents of the case are shown beside the facts.
+    the result asks what is missing.
+    the result can be flipped.
+    the cases are listed with their results.
+    the draft reads "Application: {the case}.\nDecision: {the result}.\n\nThe guidelines applied:\n{the citations}\n\nThe facts relied on:\n{the facts}".

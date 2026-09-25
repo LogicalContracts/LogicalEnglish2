@@ -1,0 +1,1024 @@
+% Synthetic proposals for the California homeowners guide (california.le):
+% one that passes, one that fails or is referred for each topic of the
+% guide's eligibility pages, the brush table row by row where it matters,
+% and borderline cases (a fact left out, the empty cell of the brush table,
+% a judgment nobody has made yet). Each scenario's comment says what it
+% tests. The proposals are invented: they test that the guidelines were
+% captured faithfully, not how the insurer decides.
+%
+% DISCLAIMER. This program is an example of Logical English. It is provided
+% "as is", without warranty of any kind, express or implied, including any
+% warranty that it is accurate, complete, up to date or fit for a particular
+% purpose. It is not an official reading of the underwriting guidelines it
+% cites, it is not an underwriting decision of any insurer, and it is not
+% legal or insurance advice. Its answers may be wrong: do not rely on them
+% for a real application; consult the insurer and a licensed agent. Its
+% authors accept no liability for any loss or damage arising from its use.
+
+the target language is: prolog.
+
+the knowledge base california cases includes these resources:
+    california.
+
+the knowledge base california cases includes:
+
+query decision is:
+    the decision on which proposal is which action.
+
+query ineligible is:
+    which proposal is ineligible under which guideline.
+
+query referred is:
+    which proposal must be referred to underwriting under which guideline.
+
+query brush is:
+    the brush decision for which dwelling is which action.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        application 201 is eligible.
+
+% A thirty-year-old wood-frame house, composition roof eight years old,
+% central heating, 200 amps, copper plumbing, protection class 3, low wildfire
+% scores. Nothing in the guide stops it.
+scenario clean is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    decision expects answers ["the decision on application 201 is accept"].
+    ineligible expects answers [].
+    referred expects answers [].
+    brush expects answers ["the brush decision for the Elm Drive house is accept"].
+
+% Roof: a wood shake roof is ineligible.
+scenario wood_shake_roof is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the roof of the Elm Drive house is made of wood shake, according to the inspector.
+    decision expects answers ["the decision on application 201 is decline"].
+    ineligible expects answers ["application 201 is ineligible under roof"].
+
+% Roof: composition shingle 24 years old.
+scenario old_roof is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the roof of the Elm Drive house is 24 years old, according to the inspector.
+    ineligible expects answers ["application 201 is ineligible under roof"].
+
+% Roof: a tile roof may be older than 20 years.
+scenario old_tile_roof is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the roof of the Elm Drive house is made of tile, according to the applicant.
+    the roof of the Elm Drive house is 30 years old, according to the applicant.
+    decision expects answers ["the decision on application 201 is accept"].
+
+% Roof: more than one layer of material is referred.
+scenario two_roof_layers is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the roof of the Elm Drive house has 2 layers, according to the inspector.
+    decision expects answers ["the decision on application 201 is refer to underwriting"].
+    referred expects answers ["application 201 must be referred to underwriting under roof"].
+
+% Electrical: aluminum wiring.
+scenario aluminum_wiring is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the Elm Drive house has aluminum wiring, according to the inspector.
+    ineligible expects answers ["application 201 is ineligible under electrical"].
+
+% Electrical: a Zinsco panel.
+scenario zinsco_panel is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the electrical panel of the Elm Drive house is Zinsco, according to the inspector.
+    ineligible expects answers ["application 201 is ineligible under electrical"].
+
+% Plumbing: galvanized steel pipes.
+scenario galvanized_plumbing is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the plumbing of the Elm Drive house is galvanized steel, according to the inspector.
+    ineligible expects answers ["application 201 is ineligible under plumbing"].
+
+% Plumbing: 50 years old but completely updated.
+scenario old_plumbing_updated is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the plumbing of the Elm Drive house is 50 years old, according to the applicant.
+    the plumbing of the Elm Drive house has been completely updated, according to the inspector.
+    decision expects answers ["the decision on application 201 is accept"].
+
+% Plumbing: 50 years old, not updated.
+scenario old_plumbing is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the plumbing of the Elm Drive house is 50 years old, according to the applicant.
+    ineligible expects answers ["application 201 is ineligible under plumbing"].
+
+% Heating: a space heater as the primary source.
+scenario space_heater is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the primary heat source of the Elm Drive house is space heater, according to the applicant.
+    ineligible expects answers ["application 201 is ineligible under heating"].
+
+% Heating: solar heat is referred.
+scenario solar_heat is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the primary heat source of the Elm Drive house is solar heating, according to the applicant.
+    decision expects answers ["the decision on application 201 is refer to underwriting"].
+    referred expects answers ["application 201 must be referred to underwriting under heating"].
+
+% Age of home: 80 years.
+scenario old_home is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the age of the Elm Drive house is 80 years, according to the applicant.
+    ineligible expects answers ["application 201 is ineligible under age of home"].
+
+% Historic home: listed on a historic register.
+scenario historic_home is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the Elm Drive house is listed on a historic register, according to the applicant.
+    ineligible expects answers ["application 201 is ineligible under historic home"].
+
+% Prior insurance: the house was not insured before.
+scenario never_insured is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    ineligible expects answers ["application 201 is ineligible under prior insurance"].
+
+% Loss history: any claim in the last five years.
+scenario recent_claim is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the applicant of application 201 had the water claim on 2023-04-01, as stated in the claims history report.
+    decision expects answers ["the decision on application 201 is decline"].
+    ineligible expects answers ["application 201 is ineligible under loss history"].
+
+% Loss history: a claim six years ago does not count.
+scenario old_claim is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the applicant of application 201 had the water claim on 2020-04-01, as stated in the claims history report.
+    decision expects answers ["the decision on application 201 is accept"].
+
+% Occupation: a politician is referred.
+scenario politician is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the occupation of the applicant of application 201 is politician, according to the applicant.
+    referred expects answers ["application 201 must be referred to underwriting under occupation"].
+
+% Occupancy: three families.
+scenario three_families is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the number of families in the Elm Drive house is 3, according to the applicant.
+    ineligible expects answers ["application 201 is ineligible under number of families"].
+
+% Occupancy: the house is for sale.
+scenario for_sale is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the occupancy of the Elm Drive house is for sale, according to the applicant.
+    ineligible expects answers ["application 201 is ineligible under occupancy"].
+
+% Protection class 9 is referred.
+scenario protection_class_9 is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the protection class of the Elm Drive house is 9, as stated in the protection class report.
+    decision expects answers ["the decision on application 201 is refer to underwriting"].
+    referred expects answers ["application 201 must be referred to underwriting under protection class"].
+
+% Protection class: more than five miles from a fire department.
+scenario far_from_fire_station is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the Elm Drive house is 7 miles from a fire department, as stated in the protection class report.
+    ineligible expects answers ["application 201 is ineligible under protection class"].
+
+% Pets: a listed breed.
+scenario pit_bull is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the household of application 201 keeps Bruno, according to the applicant.
+    the species of Bruno is dog, according to the applicant.
+    the breed of Bruno is Pit Bull, according to the applicant.
+    ineligible expects answers ["application 201 is ineligible under pets"].
+
+% Pets: a Labrador, not a listed breed; whether it shows aggressive tendencies
+% is the underwriter's finding, not yet made.
+scenario labrador_open is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the household of application 201 keeps Daisy, according to the applicant.
+    the species of Daisy is dog, according to the applicant.
+    the breed of Daisy is Labrador, according to the applicant.
+    ineligible expects answers ["application 201 is ineligible under pets"] and unknowns ["the finding aggressive tendencies about Daisy is established"].
+
+% Pets: the underwriter finds no aggressive tendencies.
+scenario labrador_judged is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the household of application 201 keeps Daisy, according to the applicant.
+    the species of Daisy is dog, according to the applicant.
+    the breed of Daisy is Labrador, according to the applicant.
+    the finding aggressive tendencies about Daisy is unsupported, according to the underwriter.
+    decision expects answers ["the decision on application 201 is accept"].
+
+% Swimming pools: a pool without a self-locking gate.
+scenario pool_unfenced is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the premises of the Elm Drive house include swimming pool, according to the applicant.
+    ineligible expects answers ["application 201 is ineligible under swimming pools"].
+
+% Swimming pools: fenced, with a self-locking gate.
+scenario pool_fenced is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the premises of the Elm Drive house include swimming pool, according to the applicant.
+    the swimming pool at the Elm Drive house is fenced with a self-locking gate, according to the inspector.
+    decision expects answers ["the decision on application 201 is accept"].
+
+% Trampolines: netted, on flat ground.
+scenario trampoline_netted is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the premises of the Elm Drive house include trampoline, according to the applicant.
+    the trampoline at the Elm Drive house is surrounded by safety netting, according to the inspector.
+    the trampoline at the Elm Drive house stands on flat ground, according to the inspector.
+    decision expects answers ["the decision on application 201 is accept"].
+
+% Trampolines: no netting.
+scenario trampoline_bare is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the premises of the Elm Drive house include trampoline, according to the applicant.
+    the trampoline at the Elm Drive house stands on flat ground, according to the inspector.
+    ineligible expects answers ["application 201 is ineligible under trampolines"].
+
+% Attractive nuisances: a treehouse is referred.
+scenario treehouse is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the premises of the Elm Drive house include treehouse, according to the applicant.
+    referred expects answers ["application 201 must be referred to underwriting under attractive nuisances"].
+
+% Types of foundation: on piers.
+scenario pier_foundation is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the foundation of the Elm Drive house is piers, according to the inspector.
+    ineligible expects answers ["application 201 is ineligible under types of foundation"].
+
+% Types of construction: EIFS (synthetic stucco) built before 2000.
+scenario old_synthetic_stucco is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the construction of the Elm Drive house is synthetic stucco, according to the applicant.
+    the Elm Drive house was built in 1996, according to the applicant.
+    ineligible expects answers ["application 201 is ineligible under types of construction"].
+
+% Coastal guidelines: 600 feet from the coast, 12 feet above the high water
+% line.
+scenario coastal is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the Elm Drive house is 600 feet from the coast, as stated in the coastal report.
+    the Elm Drive house is 12 feet above the high water line, as stated in the coastal report.
+    referred expects answers ["application 201 must be referred to underwriting under coastal guidelines"].
+
+% Dwelling under construction: a renovation is referred.
+scenario renovation is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the Elm Drive house is undergoing renovation, according to the applicant.
+    referred expects answers ["application 201 must be referred to underwriting under dwelling under construction"].
+
+% Contents limit: personal property of 700,000 on a 650,000 dwelling is
+% referred.
+scenario contents_high is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the personal property limit of application 201 is 700000, according to the applicant.
+    referred expects answers ["application 201 must be referred to underwriting under contents limit"].
+    decision expects answers ["the decision on application 201 is refer to underwriting"].
+
+% Contents limit: more than twice the dwelling limit.
+scenario contents_too_high is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the personal property limit of application 201 is 1400000, according to the applicant.
+    ineligible expects answers ["application 201 is ineligible under contents limit"].
+
+% Brush rules: FireLine 2 with WillisRe 1.1 is "Accept per UW review".
+scenario brush_review is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 2, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.1, as stated in the wildfire report.
+    decision expects answers ["the decision on application 201 is refer to underwriting"].
+    referred expects answers ["application 201 must be referred to underwriting under brush rules"].
+    brush expects answers ["the brush decision for the Elm Drive house is refer"].
+
+% Brush rules: FireLine 3 with WillisRe 1.4 is declined.
+scenario brush_decline is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 3, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.4, as stated in the wildfire report.
+    decision expects answers ["the decision on application 201 is decline"].
+    ineligible expects answers ["application 201 is ineligible under brush rules"].
+
+% Brush rules: FireLine scores 4 and above are always unacceptable.
+scenario brush_fireline_5 is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 5, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 0.2, as stated in the wildfire report.
+    ineligible expects answers ["application 201 is ineligible under brush rules"].
+
+% Brush rules: FireLine 3 with WillisRe exactly 1.00. The guide says "< 1.00"
+% and "> 1.00", nothing for 1.00 itself: no row of the table answers, and the
+% model's own rule refers the proposal.
+scenario brush_gap is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 3, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1, as stated in the wildfire report.
+    decision expects answers ["the decision on application 201 is refer to underwriting"].
+    referred expects answers ["application 201 must be referred to underwriting under brush score outside the table"].
+    brush expects answers [].
+
+% Borderline: the application leaves out the heating (the model's own rule
+% "missing information").
+scenario missing_heating is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the roof of the Elm Drive house is 8 years old, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    decision expects answers ["the decision on application 201 is refer to underwriting"].
+    referred expects answers ["application 201 must be referred to underwriting under missing information"].
+
+% Several guidelines at once: the answer lists each.
+scenario many_problems is:
+    application 201 is for the Elm Drive house.
+    application 201 is dated 2026-09-01.
+    the policy form of application 201 is homeowners.
+    the Elm Drive house was previously insured, according to the applicant.
+    the dwelling limit of application 201 is 650000, according to the applicant.
+    the personal property limit of application 201 is 325000, according to the applicant.
+    the construction of the Elm Drive house is wood frame, according to the applicant.
+    the age of the Elm Drive house is 30 years, according to the applicant.
+    the roof of the Elm Drive house is made of composition shingle, according to the applicant.
+    the primary heat source of the Elm Drive house is central heating, according to the applicant.
+    the electrical service of the Elm Drive house is 200 amps, according to the applicant.
+    the plumbing of the Elm Drive house is copper, according to the applicant.
+    the occupancy of the Elm Drive house is owner occupied, according to the applicant.
+    the protection class of the Elm Drive house is 3, as stated in the protection class report.
+    the Elm Drive house is 2 miles from a fire department, as stated in the protection class report.
+    the fireline score of the Elm Drive house is 0, as stated in the wildfire report.
+    the wildfire score of the Elm Drive house is 1.2, as stated in the wildfire report.
+    the Elm Drive house has knob and tube wiring, according to the inspector.
+    the premises of the Elm Drive house include skateboard ramp, according to the applicant.
+    the roof of the Elm Drive house is 26 years old, according to the inspector.
+    the premises of the Elm Drive house include treehouse, according to the applicant.
+    decision expects answers ["the decision on application 201 is decline"].
+    ineligible expects answers ["application 201 is ineligible under attractive nuisances", "application 201 is ineligible under electrical", "application 201 is ineligible under roof"].
+    referred expects answers ["application 201 must be referred to underwriting under attractive nuisances"].

@@ -1,0 +1,148 @@
+% Homeowners underwriting: the library every guideline program of this folder
+% includes. It holds the words of a proposal for homeowners insurance (what
+% an application form and an inspection report state about the applicant and
+% the dwelling), the three outcomes of underwriting (eligible, ineligible,
+% must be referred to underwriting), the decision that follows from them,
+% and two rules of the model's own for incomplete or contradictory proposals.
+% A guideline program states only its own guidelines, each citing its
+% passage: arkansas.le (Auto Club Family Insurance Company, Arkansas
+% Rule 05.2) and natgen_california.le (National General, California).
+%
+% How a proposal is read. A proposal is what the application and, where
+% there is one, the inspection report state. What they do not state is not
+% the case: a proposal that does not say the dwelling has knob and tube
+% wiring is taken not to have it. That is why the rule "missing information"
+% below sends a proposal to an underwriter when it leaves out the facts
+% every guideline program needs (the construction, the roof, the heating,
+% the electrical service): without them, silence would read as a clean risk.
+%
+% Judgment. Some guidelines need an underwriter's judgment ("serious
+% exterior exposures", "an inherently vicious, aggressive or dangerous
+% nature"). The programs write such a question as a finding someone records,
+% the judged template below, triggered by a fact the proposal states (an
+% animal kept, a concern the inspection report notes). While nobody has
+% recorded the finding, the answer is conditional: the proposal is
+% ineligible IF the finding is established, and it is not yet eligible.
+%
+% DISCLAIMER. This program is an example of Logical English. It is provided
+% "as is", without warranty of any kind, express or implied, including any
+% warranty that it is accurate, complete, up to date or fit for a particular
+% purpose. It is not an official reading of the underwriting guidelines it
+% cites, it is not an underwriting decision of any insurer, and it is not
+% legal or insurance advice. Its answers may be wrong: do not rely on them
+% for a real application; consult the insurer and a licensed agent. Its
+% authors accept no liability for any loss or damage arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    % the outcomes
+    *a proposal* is ineligible under *a guideline*.
+    *a proposal* must be referred to underwriting under *a guideline*.
+    *a proposal* is eligible.
+    the decision on *a proposal* is *an action*.
+    *a proposal* requires a deductible of *an amount* under *a guideline*.
+    % the proposal
+    *a proposal* is for *a dwelling*; undefined.
+    the policy form of *a proposal* is *a form*; undefined.
+    *a proposal* is dated *a date*; undefined.
+    % the applicant's history
+    the applicant of *a proposal* had *a claim* on *a date*; undefined.
+    the cause of *a claim* is *a cause*; undefined.
+    the damage of *a claim* has been repaired; undefined.
+    % the dwelling
+    the construction of *a dwelling* is *a construction*; undefined.
+    the age of *a dwelling* is *a number* years; undefined.
+    the occupancy of *a dwelling* is *an occupancy*; undefined.
+    the use of *a dwelling* is *a use*; undefined.
+    the number of families in *a dwelling* is *a number*; undefined.
+    the foundation of *a dwelling* is *a foundation*; undefined.
+    *a dwelling* is listed on a historic register; undefined.
+    *a dwelling* is under construction; undefined.
+    *a dwelling* is undergoing renovation; undefined.
+    % the roof
+    the roof of *a dwelling* is made of *a material*; undefined.
+    the roof of *a dwelling* is *a number* years old; undefined.
+    the roof of *a dwelling* has *a number* layers; undefined.
+    the roof over the main structure of *a dwelling* is flat; undefined.
+    the top layer of the roof of *a dwelling* is *a material* laid over *a second material*; undefined.
+    % the electrical system, the heating, the plumbing
+    *a dwelling* has knob and tube wiring; undefined.
+    *a dwelling* has aluminum wiring; undefined.
+    the electrical panel of *a dwelling* is *a panel*; undefined.
+    the electrical service of *a dwelling* is *a number* amps; undefined.
+    the primary heat source of *a dwelling* is *a source*; undefined.
+    *a dwelling* has *a heater* as a secondary heat source; undefined.
+    the plumbing of *a dwelling* is *a material*; undefined.
+    % the premises and the household
+    the premises of *a dwelling* include *a hazard*; undefined.
+    the household of *a proposal* keeps *an animal*; undefined.
+    the species of *an animal* is *a species*; undefined.
+    the inspection report on *a dwelling* notes *a concern*; undefined.
+    % judgment
+    the finding *a finding* about *a thing* is *an outcome*; judged.
+    % the model's own
+    *a proposal* states *an item*.
+    *a dwelling* has two stated roof materials.
+
+the knowledge base homeowners includes:
+
+% The decision follows from the outcomes: an ineligible proposal is declined,
+% whatever else it is; a proposal with a referral and no ineligibility goes
+% to an underwriter; the rest is accepted.
+the decision on a proposal is decline
+    if the proposal is for a dwelling
+    and the proposal is ineligible under a guideline.
+
+the decision on a proposal is refer to underwriting
+    if the proposal is for a dwelling
+    and it is not the case that
+        the proposal is ineligible under a guideline
+    and the proposal must be referred to underwriting under an other guideline.
+
+the decision on a proposal is accept
+    if the proposal is eligible.
+
+a proposal is eligible
+    if the proposal is for a dwelling
+    and it is not the case that
+        the proposal is ineligible under a guideline
+    and it is not the case that
+        the proposal must be referred to underwriting under an other guideline.
+
+% The model's own rule, not a guideline: a proposal that leaves out a fact
+% every guideline program reads goes to an underwriter rather than being
+% accepted by default.
+a proposal must be referred to underwriting under missing information
+    if the proposal is for a dwelling
+    and an item is in [construction, roof material, primary heat source, electrical service]
+    and it is not the case that
+        the proposal states the item.
+
+a proposal states construction
+    if the proposal is for a dwelling
+    and the construction of the dwelling is a construction.
+
+a proposal states roof material
+    if the proposal is for a dwelling
+    and the roof of the dwelling is made of a material.
+
+a proposal states primary heat source
+    if the proposal is for a dwelling
+    and the primary heat source of the dwelling is a source.
+
+a proposal states electrical service
+    if the proposal is for a dwelling
+    and the electrical service of the dwelling is a number amps.
+
+% The model's own rule, not a guideline: when the application and the
+% inspection report state different roof materials, an underwriter decides
+% which is right.
+a proposal must be referred to underwriting under conflicting information
+    if the proposal is for a dwelling
+    and the dwelling has two stated roof materials.
+
+a dwelling has two stated roof materials
+    if the roof of the dwelling is made of a material
+    and the roof of the dwelling is made of a second material
+    and the material is different from the second material.

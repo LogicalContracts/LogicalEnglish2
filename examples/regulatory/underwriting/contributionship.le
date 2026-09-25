@@ -1,0 +1,282 @@
+% The underwriting rules of the Philadelphia Contributionship for the
+% Insurance of Houses from Loss by Fire, the first American fire insurer
+% (1752), as far as typed sources state them, each dated, so that a survey is
+% judged by the rules in force in the year it was made. The surveys
+% themselves are in contributionship_surveys.le.
+%
+% The sources (text in sources/contributionship/):
+% - the Deed of Settlement of 25 March 1752 (Papers of Benjamin Franklin,
+%   vol. 4, Founders Online): the ten-mile limit (Article 3), the 500 pound
+%   limit on one house (Article 6), wooden houses and hazardous trades only by
+%   special agreement (Article 7), the table of deposits by kind of building
+%   (Article 8 and the Table), the Directors' power to raise the deposit or
+%   refuse (Article 32). PRIMARY;
+% - the Board's minute of 12 April 1768 (rails and a trap door before a
+%   house out of the city is surveyed), as quoted word for word by the
+%   Contributionship's archive essay;
+% - the ban on wooden buildings of April 1769, from Horace Binney's address
+%   at the company's centennial meeting (1852), a company publication;
+% - the ban on houses with a tree before them in the street (14 April 1781),
+%   its end with an additional deposit (9 April 1810) and the end of the
+%   additional deposit (14 April 1823), as the Supreme Court of Pennsylvania
+%   summarised the minutes in McKean v. Biddle, 181 Pa. 361. The company's own
+%   timeline dates the tree vote 1784; the program follows the court.
+% The Board minutes themselves (1752-1842) survive only as scanned
+% handwriting: no rule below is read from them directly.
+%
+% What is not a rule here: the Board set each rate after reading the survey
+% ("a decision would be made as to the extent and rate of insurance"), and
+% Article 32 let it raise any deposit or refuse any house. Those decisions
+% are recorded facts of the surveys, compared with the table below, not
+% derived. The 1752 table is the only rate schedule the sources give.
+%
+% DISCLAIMER. This program is an example of Logical English. It is provided
+% "as is", without warranty of any kind, express or implied, including any
+% warranty that it is accurate, complete, up to date or fit for a particular
+% purpose. It is not an official reading of the historical records it cites,
+% and it is not legal or insurance advice. Its authors accept no liability
+% for any loss or damage arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    % the survey
+    *a survey* was made in *a year*; undefined.
+    the building of *a survey* is built of *a material*; undefined.
+    the party walls of *a survey* are *a number* inches thick; undefined.
+    the party walls of *a survey* are carried above the roof; undefined.
+    *a survey* records a way out onto the roof; undefined.
+    *a survey* records iron rails on the roof; undefined.
+    *a survey* records a tree before the house in the street; undefined.
+    the house of *a survey* is out of the city; undefined.
+    the house of *a survey* stands *a number* miles from Philadelphia; undefined.
+    *a survey* is for a building used for *a use*; undefined.
+    *a survey* is of an outbuilding; undefined.
+    the sum insured under *a survey* is *an amount* pounds; undefined.
+    % the Board's decision, as recorded
+    the Board insured *a survey*; undefined.
+    the Board charged *a survey* a deposit of *a number* shillings per hundred pounds; undefined.
+    % the rules
+    *a survey* is refused under *a rule*.
+    *a survey* needs a special agreement under *a rule*.
+    *a survey* needs an additional deposit under *a rule*.
+    *a use* is a hazardous trade.
+    the table deposit for *a survey* is *a number* shillings.
+    *a survey* is of the first class of the table.
+    % comparing with the record
+    *a survey* departs from the rules under *a rule*.
+    the deposit of *a survey* exceeds the table by *a number* shillings.
+    % factors and precedent (the result model of precedent.le, one folder up)
+    *a situation* has factor *a factor*.
+    *a factor* favours *an issue*.
+    *a factor* disfavours *an issue*.
+    *a case* decided for *an issue*.
+    *a case* decided against *an issue*.
+    *a situation* is forced for *an issue* by *a case*.
+    *a situation* is forced against *an issue* by *a case*.
+    the decision on *a case* about *an issue* conflicts with *a second case*.
+
+the knowledge base contributionship includes:
+
+the Deed of Settlement is published at "https://founders.archives.gov/documents/Franklin/01-04-02-0100".
+the text of the Deed of Settlement is at "sources/contributionship/deed_of_settlement_1752.txt".
+the archive essay is published at "https://www.philadelphiabuildings.org/contributionship/essay-past.cfm".
+the text of the archive essay is at "sources/contributionship/essay-past.txt".
+Binney 1852 is published at "https://archive.org/details/centennialmeetin00phil".
+the text of Binney 1852 is at "sources/contributionship/binney_1852.txt".
+McKean v Biddle is published at "https://www.courtlistener.com/opinion/6375347/mckean-v-biddle/".
+the text of McKean v Biddle is at "sources/contributionship/mckean_v_biddle.txt".
+
+% ---------------------------------------------------------------------------
+% The rules, each with the years it was in force
+% ---------------------------------------------------------------------------
+
+rule deed_article_3 with provenance the Deed of Settlement,
+        confer "That The Limits of Insurance shall extend Ten Miles round Philadelphia within Pensilvania":
+a survey is refused under the ten mile limit
+    if the survey was made in a year
+    and the year < 1836
+    and the house of the survey stands a number miles from Philadelphia
+    and the number > 10.
+
+rule deed_article_6 with provenance the Deed of Settlement,
+        confer "That no one House shall be insured in this Society for more than Five hundred Pounds, or such other Sum as by the General Meetings of this Society shall be settled and appointed.":
+a survey is refused under the limit of five hundred pounds
+    if the sum insured under the survey is an amount pounds
+    and the amount > 500.
+
+rule deed_article_7_wood with provenance the Deed of Settlement,
+        confer "But no wooden Houses built after this present Year":
+a survey needs a special agreement under the wooden houses article
+    if the survey was made in a year
+    and the year < 1769
+    and the building of the survey is built of wood.
+
+rule deed_article_7_trades with provenance the Deed of Settlement,
+        confer "on such Terms only as shall be concluded on by special Agreement with the Directors":
+a survey needs a special agreement under the hazardous trades article
+    if the survey is for a building used for a use
+    and the use is a hazardous trade.
+
+rule minute_1768 with provenance the archive essay,
+        confer "not to issue any Order for a Survey on any House out of the City, until iron Rails are put up on the top thereof, and a trap door made":
+a survey is refused under the order of 1768
+    if the survey was made in a year
+    and the year >= 1768
+    and the house of the survey is out of the city
+    and it is not the case that
+        the survey records iron rails on the roof
+            and the survey records a way out onto the roof.
+
+rule ban_1769 with provenance Binney 1852,
+        confer "altered in April, 1769, as to prohibit":
+a survey is refused under the ban on wooden buildings
+    if the survey was made in a year
+    and the year >= 1769
+    and the building of the survey is built of wood.
+
+rule trees_1781 with provenance McKean v Biddle,
+        confer "it. was resolved that houses which have a tree planted before them in the street should not be insured":
+a survey is refused under the ban on trees
+    if the survey was made in a year
+    and the year >= 1781
+    and the year < 1810
+    and the survey records a tree before the house in the street.
+
+rule trees_1810 with provenance McKean v Biddle,
+        confer "an addition to the usual deposit should be required in proportion to the risk such trees may occasion":
+a survey needs an additional deposit under the revision of 1810
+    if the survey was made in a year
+    and the year >= 1810
+    and the year < 1823
+    and the survey records a tree before the house in the street.
+
+% The trades Article 7 names (the ones the surveys of the sample show).
+apothecary is a hazardous trade, as stated in the Deed of Settlement, confer "Apothecaries, Chemists, Ship-Chandlers, Tallow Chandlers, Stable Keepers, Inn-holders".
+stable keeping is a hazardous trade, as stated in the Deed of Settlement, confer "Apothecaries, Chemists, Ship-Chandlers, Tallow Chandlers, Stable Keepers, Inn-holders".
+inn keeping is a hazardous trade, as stated in the Deed of Settlement, confer "Apothecaries, Chemists, Ship-Chandlers, Tallow Chandlers, Stable Keepers, Inn-holders".
+bakehouse is a hazardous trade, as stated in the Deed of Settlement, confer "nor any Sugar-house, Brew-house, Bake-house, Still-house, Coopers or Joyners Shop".
+brewhouse is a hazardous trade, as stated in the Deed of Settlement, confer "nor any Sugar-house, Brew-house, Bake-house, Still-house, Coopers or Joyners Shop".
+joiners shop is a hazardous trade, as stated in the Deed of Settlement, confer "nor any Sugar-house, Brew-house, Bake-house, Still-house, Coopers or Joyners Shop".
+
+% ---------------------------------------------------------------------------
+% The table of deposits of 1752 (shillings per hundred pounds insured)
+% ---------------------------------------------------------------------------
+
+% The best class first, the rest in order, as the table lists them. A
+% party wall nine inches thick is read as a brick wall (the width of one
+% brick), since most surveys give the walls and not the word "brick".
+rule deed_table with provenance the Deed of Settlement,
+        confer "according to the greater or less Hazard of the Building on which the same is insured agreable to the Table hereto annexed":
+the table deposit for a survey is a number shillings
+    if the survey was made in a year
+    and the survey is of the first class of the table
+    and the number is 15
+    otherwise the party walls of the survey are an other number inches thick
+    and the other number >= 9
+    and the number is 20
+    otherwise the party walls of the survey are an other number inches thick
+    and the other number < 9
+    and the number is 30
+    otherwise the building of the survey is built of wood
+    and the number is 40.
+
+rule deed_table_first with provenance the Deed of Settlement,
+        confer "Brick Houses with nine Inch Party-Walls, carried sixteen Inches above the Roof":
+a survey is of the first class of the table
+    if the party walls of the survey are a number inches thick
+    and the number >= 9
+    and the party walls of the survey are carried above the roof
+    and the survey records a way out onto the roof
+    and the survey records iron rails on the roof.
+
+% ---------------------------------------------------------------------------
+% The record against the rules
+% ---------------------------------------------------------------------------
+
+% A survey the Board insured that a rule in force refused.
+a survey departs from the rules under a rule
+    if the Board insured the survey
+    and the survey is refused under the rule.
+
+rule deed_article_32 with provenance the Deed of Settlement,
+        confer "either to enlarge the Deposite Money to be paid for insuring the same, beyond what is herein mentioned":
+the deposit of a survey exceeds the table by a number shillings
+    if the Board charged the survey a deposit of a first number shillings per hundred pounds
+    and the table deposit for the survey is a second number shillings
+    and the first number > the second number
+    and the number is the first number - the second number.
+
+% ---------------------------------------------------------------------------
+% Coherence: the Board's rates as precedents (precedent.le, one folder up)
+% ---------------------------------------------------------------------------
+
+% The issue is a low deposit: thirty shillings or less, the ceiling Binney
+% gives for "good risks" ("For good risks they rarely exceeded twenty-five
+% and thirty shillings"). A survey of a house with a recorded rate is a
+% case decided for it or against it; outbuildings (stables, coach houses)
+% are left out of the comparison.
+rule binney_good_risks with provenance Binney 1852,
+        confer "twenty-five and thirty shillings":
+a survey decided for low deposit
+    if the Board charged the survey a deposit of a number shillings per hundred pounds
+    and the number <= 30
+    and it is not the case that
+        the survey is of an outbuilding.
+
+a survey decided against low deposit
+    if the Board charged the survey a deposit of a number shillings per hundred pounds
+    and the number > 30
+    and it is not the case that
+        the survey is of an outbuilding.
+
+% The factors the surveys record, and which way the deed makes them count.
+a survey has factor nine inch party walls
+    if the party walls of the survey are a number inches thick
+    and the number >= 9.
+a survey has factor way out onto the roof
+    if the survey records a way out onto the roof.
+a survey has factor iron rails
+    if the survey records iron rails on the roof.
+a survey has factor hazardous trade
+    if the survey is for a building used for a use
+    and the use is a hazardous trade.
+
+nine inch party walls favours low deposit, as stated in the Deed of Settlement, confer "Brick Houses with nine Inch Party Walls".
+way out onto the roof favours low deposit, as stated in the Deed of Settlement, confer "with a Door to go out on the Roof".
+iron rails favours low deposit, as stated in the Deed of Settlement, confer "strong Iron Rails to prevent Falling".
+hazardous trade disfavours low deposit, as stated in the Deed of Settlement, confer "or other House or Shop wherein any of the Hazardous Trades".
+
+% Horty's result model, as in precedent.le.
+a situation is forced for an issue by a case
+    if the case decided for the issue
+    and for all cases in which
+            a factor favours the issue
+            and the case has factor the factor
+        it is the case that
+            the situation has factor the factor
+    and for all cases in which
+            a second factor disfavours the issue
+            and the situation has factor the second factor
+        it is the case that
+            the case has factor the second factor.
+
+a situation is forced against an issue by a case
+    if the case decided against the issue
+    and for all cases in which
+            a factor disfavours the issue
+            and the case has factor the factor
+        it is the case that
+            the situation has factor the factor
+    and for all cases in which
+            a second factor favours the issue
+            and the situation has factor the second factor
+        it is the case that
+            the case has factor the second factor.
+
+% Two decisions that cannot both follow from the recorded factors: the
+% first went one way, and the second, on no better factors, forces the
+% other way.
+the decision on a case about an issue conflicts with a second case
+    if the case decided for the issue
+    and the case is forced against the issue by the second case.

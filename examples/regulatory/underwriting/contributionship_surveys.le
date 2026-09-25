@@ -1,0 +1,670 @@
+% Surveys of the Philadelphia Contributionship, 1752-1810, judged by the
+% rules of contributionship.le in force in the year each was made, and
+% compared with what the Board did.
+%
+% The sample (scenario "sample") is every survey of the Contributionship
+% for which a typed source gives a year, collected on 24 September 2026: a
+% transcription of the survey itself, a National Park Service historic
+% structure report that summarises it, a journal article, or the
+% catalogue record of the Contributionship's digital archive (policy
+% number, year, amount). The comment above each survey's facts gives its
+% number, date, owner and building, and the kind of evidence. A survey
+% states only what its source states: most give the building and its
+% stories, few give the walls, the roof or the rate.
+%
+% The sample is not random: it leans to brick houses around Independence
+% Mall and to famous buildings, and every survey in it was insured. No
+% refusal is recorded in any typed source; the Board minutes, where
+% refusals were written, survive only as scanned handwriting. The other
+% scenarios are invented houses that the rules would refuse, one per rule.
+%
+% DISCLAIMER. This program is an example of Logical English. It is provided
+% "as is", without warranty of any kind, express or implied, including any
+% warranty that it is accurate, complete, up to date or fit for a particular
+% purpose. It is not an official reading of the historical records it cites,
+% and it is not legal or insurance advice. Its authors accept no liability
+% for any loss or damage arising from its use.
+
+the target language is: prolog.
+
+the knowledge base contributionship surveys includes these resources:
+    contributionship.
+
+the knowledge base contributionship surveys includes:
+
+
+the Papers of Benjamin Franklin is published at "https://founders.archives.gov/documents/Franklin/01-13-02-0126".
+the NPS Independence Mall study block one is published at "https://npshistory.com/publications/inde/hrs-mall-block-one.pdf".
+the NPS Independence Mall study block two is published at "https://npshistory.com/publications/inde/hrs-mall-block-two.pdf".
+the NPS Independence Mall study block three is published at "https://npshistory.com/publications/inde/hrs-mall-block-three.pdf".
+the NPS City Tavern report is published at "https://npshistory.com/publications/inde/hsr-ads-city-tavern.pdf".
+the NPS Franklin House report is published at "https://npshistory.com/publications/inde/hsr-franklins-house.pdf".
+the NPS Todd House grounds report is published at "https://pubs.nps.gov/eTIC/HOSP-INDU/INDE_391_134872_0001_of_0088.pdf".
+the NPS report INDE 134861 is published at "https://pubs.nps.gov/eTIC/HOSP-INDU/INDE_391_134861_0001_of_0036.pdf".
+the NPS Bishop White House report is published at "https://npshistory.com/publications/inde/fp-bishop-white-house-v1.pdf".
+the Contributionship archive catalogue is published at "https://www.philadelphiabuildings.org/contributionship/search.cfm".
+Lawler 2002 is published at "https://journals.psu.edu/pmhb/article/view/45510".
+
+query refused is:
+    which survey is refused under which rule.
+
+query special is:
+    which survey needs a special agreement under which rule.
+
+query departures is:
+    which survey departs from the rules under which rule.
+
+query above table is:
+    the deposit of which survey exceeds the table by which number shillings.
+
+query insured is:
+    the Board insured which survey.
+
+query table is:
+    the table deposit for which survey is which number shillings.
+
+query additional is:
+    which survey needs an additional deposit under which rule.
+
+query conflicts is:
+    the decision on which case about which issue conflicts with which second case.
+
+scenario sample is:
+    % policy 45: 45, 1752, Dillwyn, Susannah; . [archive metadata only]
+    policy 45 was made in 1752, as stated in the Contributionship archive catalogue.
+    the Board insured policy 45, as stated in the Contributionship archive catalogue.
+    % policy 20: 20, 1752, Franklin, Benjamin; . [archive metadata only]
+    policy 20 was made in 1752, as stated in the Contributionship archive catalogue.
+    the Board insured policy 20, as stated in the Contributionship archive catalogue.
+    % policy 264: 264, 1753, Griffitts, William; . [archive metadata only]
+    policy 264 was made in 1753, as stated in the Contributionship archive catalogue.
+    the Board insured policy 264, as stated in the Contributionship archive catalogue.
+    % policy 131: 131, 1753, McCall, George; . [archive metadata only]
+    policy 131 was made in 1753, as stated in the Contributionship archive catalogue.
+    the Board insured policy 131, as stated in the Contributionship archive catalogue.
+    % policy 207: 207, 1753, Blackwood, John (tenant); house, kitchen & piazza. [archive metadata only]
+    policy 207 was made in 1753, as stated in the Contributionship archive catalogue.
+    the Board insured policy 207, as stated in the Contributionship archive catalogue.
+    % record 38: no number, 1754-03-10, owner not named; Stable and Coach house. [verbatim survey transcription]
+    record 38 was made in 1754, as stated in the NPS Todd House grounds report.
+    the Board insured record 38, as stated in the NPS Todd House grounds report.
+    the Board charged record 38 a deposit of 50 shillings per hundred pounds, as stated in the NPS Todd House grounds report.
+    record 38 is of an outbuilding, as stated in the NPS Todd House grounds report.
+    % policy 271: 271, 1754, Syng, Philip; . [archive metadata only]
+    policy 271 was made in 1754, as stated in the Contributionship archive catalogue.
+    the Board insured policy 271, as stated in the Contributionship archive catalogue.
+    % policy 354: 354, 1754, Weyman, Mary; . [archive metadata only]
+    policy 354 was made in 1754, as stated in the Contributionship archive catalogue.
+    the Board insured policy 354, as stated in the Contributionship archive catalogue.
+    % policy 215: 215, 1754, Turner, Peter; . [archive metadata only]
+    policy 215 was made in 1754, as stated in the Contributionship archive catalogue.
+    the Board insured policy 215, as stated in the Contributionship archive catalogue.
+    the sum insured under policy 215 is 250 pounds, as stated in the Contributionship archive catalogue.
+    % policy 461: 461, 1759-12-07, Samuel Powel; House (apothecary shop) with kitchen & necessary back building. [verbatim survey transcription]
+    policy 461 was made in 1759, as stated in the NPS City Tavern report.
+    the Board insured policy 461, as stated in the NPS City Tavern report.
+    the party walls of policy 461 are 9 inches thick, as stated in the NPS City Tavern report.
+    the Board charged policy 461 a deposit of 30 shillings per hundred pounds, as stated in the NPS City Tavern report.
+    policy 461 is for a building used for apothecary, as stated in the NPS City Tavern report.
+    % policy 440: 440, 1759, House, Jr. Esther; . [archive metadata only]
+    policy 440 was made in 1759, as stated in the Contributionship archive catalogue.
+    the Board insured policy 440, as stated in the Contributionship archive catalogue.
+    the sum insured under policy 440 is 200 pounds, as stated in the Contributionship archive catalogue.
+    % record 71: no number, 1760, Cadwalader; Cadwalader house (before remodeling). [verbatim survey transcription]
+    record 71 was made in 1760, as stated in the NPS Franklin House report.
+    % policy 575: 575, 1761, Rawle, Francis; . [archive metadata only]
+    policy 575 was made in 1761, as stated in the Contributionship archive catalogue.
+    the Board insured policy 575, as stated in the Contributionship archive catalogue.
+    the sum insured under policy 575 is 100 pounds, as stated in the Contributionship archive catalogue.
+    % policy 669: 669, 1761, Bonner, Conrad; . [archive metadata only]
+    policy 669 was made in 1761, as stated in the Contributionship archive catalogue.
+    the Board insured policy 669, as stated in the Contributionship archive catalogue.
+    % policy 637: 637, 1761, Kearsley, Dr. John; . [archive metadata only]
+    policy 637 was made in 1761, as stated in the Contributionship archive catalogue.
+    the Board insured policy 637, as stated in the Contributionship archive catalogue.
+    % policy 679: 679, 1761, Contributors to the PA Hospital; . [archive metadata only]
+    policy 679 was made in 1761, as stated in the Contributionship archive catalogue.
+    the Board insured policy 679, as stated in the Contributionship archive catalogue.
+    % record 14: CLS 756 [?], 1762, Samuel Wetherill, Jr.; two-story brick house 18 by 32 ft, two-story kitchen 17 by 14 ft, piaz. [paraphrase]
+    record 14 was made in 1762, as stated in the NPS Independence Mall study block two.
+    the Board insured record 14, as stated in the NPS Independence Mall study block two.
+    the building of record 14 is built of brick, as stated in the NPS Independence Mall study block two.
+    % record 27: CLS 764, 1762-12-06, Jane Hudson; new three-story brick house 17 by 36 ft; 2-story kitchen 10 by 12 ft. [paraphrase]
+    record 27 was made in 1762, as stated in the NPS Independence Mall study block two.
+    the Board insured record 27, as stated in the NPS Independence Mall study block two.
+    the building of record 27 is built of brick, as stated in the NPS Independence Mall study block two.
+    % policy 707: 707, 1762-04-19, Thomas Bartholomew; 3-story house (occupied by David Kinsey). [paraphrase]
+    policy 707 was made in 1762, as stated in the NPS Independence Mall study block three.
+    the Board insured policy 707, as stated in the NPS Independence Mall study block three.
+    % record 44: CLS 741 and 742, 1762-07-06, Andrew Edge; houses in a row (two two-story and two three-story per p.86). [paraphrase]
+    record 44 was made in 1762, as stated in the NPS Independence Mall study block three.
+    the Board insured record 44, as stated in the NPS Independence Mall study block three.
+    % record 46: CLS 701, 1762-07-06, Andrew Edge; rental house. [paraphrase]
+    record 46 was made in 1762, as stated in the NPS Independence Mall study block three.
+    the Board insured record 46, as stated in the NPS Independence Mall study block three.
+    % policy 759: 759-760, 1762-05-03, Thomas Willing; Home of Thomas Willing. [paraphrase]
+    policy 759 was made in 1762, as stated in the NPS Franklin House report.
+    policy 759 records iron rails on the roof, as stated in the NPS Franklin House report.
+    % policy 764: 764, 1762, Hudson, Jane; . [archive metadata only]
+    policy 764 was made in 1762, as stated in the Contributionship archive catalogue.
+    the Board insured policy 764, as stated in the Contributionship archive catalogue.
+    % policy 772: 772, 1762, Merritt, John; . [archive metadata only]
+    policy 772 was made in 1762, as stated in the Contributionship archive catalogue.
+    the Board insured policy 772, as stated in the Contributionship archive catalogue.
+    % policy 885: 885-6, 1763-10-25, Thomas Bartholomew; 3-story dwelling with kitchen and piazza. [paraphrase]
+    policy 885 was made in 1763, as stated in the NPS Independence Mall study block three.
+    the Board insured policy 885, as stated in the NPS Independence Mall study block three.
+    % resurvey of policy 885: 885-6, 1763-10-25, Thomas Bartholomew; 6-year old tavern. [paraphrase]
+    resurvey of policy 885 was made in 1763, as stated in the NPS Independence Mall study block three.
+    the Board insured resurvey of policy 885, as stated in the NPS Independence Mall study block three.
+    resurvey of policy 885 is for a building used for inn keeping, as stated in the NPS Independence Mall study block three.
+    % policy 923: 923, 1763-12-20, Thomas Bartholomew; two-story house about two years old. [paraphrase]
+    policy 923 was made in 1763, as stated in the NPS Independence Mall study block three.
+    the Board insured policy 923, as stated in the NPS Independence Mall study block three.
+    % record 47: CLS 860, 1763-09-05, Hananiah (Plananigh) Pugh; 3-story house with painthouse in front (Pugh dwelling). [paraphrase]
+    record 47 was made in 1763, as stated in the NPS Independence Mall study block three.
+    the Board insured record 47, as stated in the NPS Independence Mall study block three.
+    % record 48: no number, 1763-10, Lazarus Pine; two-story house with a paint house in front. [paraphrase]
+    record 48 was made in 1763, as stated in the NPS Independence Mall study block three.
+    the Board insured record 48, as stated in the NPS Independence Mall study block three.
+    % policy 867: 867, 1763, Cline, Mathias; . [archive metadata only]
+    policy 867 was made in 1763, as stated in the Contributionship archive catalogue.
+    the Board insured policy 867, as stated in the Contributionship archive catalogue.
+    % policy 970: 970, 1764, Bedford, Gunning; . [archive metadata only]
+    policy 970 was made in 1764, as stated in the Contributionship archive catalogue.
+    the Board insured policy 970, as stated in the Contributionship archive catalogue.
+    % record 13: CLS 1056, 1765-12-03, Abraham Peters; two-story brick house, one room and two small shops on first story. [paraphrase]
+    record 13 was made in 1765, as stated in the NPS Independence Mall study block two.
+    the Board insured record 13, as stated in the NPS Independence Mall study block two.
+    the building of record 13 is built of brick, as stated in the NPS Independence Mall study block two.
+    % policy 1039: 1039, 1765, Cresson, John; . [archive metadata only]
+    policy 1039 was made in 1765, as stated in the Contributionship archive catalogue.
+    the Board insured policy 1039, as stated in the Contributionship archive catalogue.
+    % policy 1053: 1053, 1765, Pennsylvania College; . [archive metadata only]
+    policy 1053 was made in 1765, as stated in the Contributionship archive catalogue.
+    the Board insured policy 1053, as stated in the Contributionship archive catalogue.
+    % policy 1133: 1133-1135, 1766-11, Alexander Stedman; 3-story house; two back buildings (3-story structure with pantry and s. [paraphrase]
+    policy 1133 was made in 1766, as stated in the NPS Independence Mall study block one.
+    the Board insured policy 1133, as stated in the NPS Independence Mall study block one.
+    % record 23: CLS 1121-2, 1766-04, John Garrigues; three-story brick house and kitchen (18 by 26 ft, 14 by 15 ft); adjoin. [paraphrase]
+    record 23 was made in 1766, as stated in the NPS Independence Mall study block two.
+    the Board insured record 23, as stated in the NPS Independence Mall study block two.
+    the building of record 23 is built of brick, as stated in the NPS Independence Mall study block two.
+    % record 49: CLS 1138, 1766-02-03, Benjamin Randolph; 2-story house. [paraphrase]
+    record 49 was made in 1766, as stated in the NPS Independence Mall study block three.
+    the Board insured record 49, as stated in the NPS Independence Mall study block three.
+    % policy 1148: 1148, 1766-08-05, Benjamin Franklin; House (Franklin Court). [verbatim survey transcription]
+    policy 1148 was made in 1766, as stated in the Papers of Benjamin Franklin.
+    the Board insured policy 1148, as stated in the Papers of Benjamin Franklin.
+    the party walls of policy 1148 are 9 inches thick, as stated in the Papers of Benjamin Franklin.
+    policy 1148 records a way out onto the roof, as stated in the Papers of Benjamin Franklin.
+    the Board charged policy 1148 a deposit of 30 shillings per hundred pounds, as stated in the Papers of Benjamin Franklin.
+    % resurvey of policy 1133: 1133, 1766-11-04, Alexander Stedman; Galloway house (with 3 story back building 14 x 46 ft and kitchen 14 x. [verbatim survey transcription]
+    resurvey of policy 1133 was made in 1766, as stated in the NPS Bishop White House report.
+    % record 11: CLS 1181, 1767, Reuban Haines; two-story wooden house (occupied by Titus Matlack). [paraphrase]
+    record 11 was made in 1767, as stated in the NPS Independence Mall study block two.
+    the Board insured record 11, as stated in the NPS Independence Mall study block two.
+    the building of record 11 is built of wood, as stated in the NPS Independence Mall study block two.
+    % record 20: CLS 1150; CBk 2, 111, 1767-03-03, Samuel Clark; three-story brick house, 20 ft incl. 3-ft alley by 27 ft; two-story ki. [paraphrase]
+    record 20 was made in 1767, as stated in the NPS Independence Mall study block two.
+    the Board insured record 20, as stated in the NPS Independence Mall study block two.
+    the building of record 20 is built of brick, as stated in the NPS Independence Mall study block two.
+    % record 43: CLS 1143, 1767-02-03, Joshua Cresson; two-story house and kitchen (tenant John Lawrence). [paraphrase]
+    record 43 was made in 1767, as stated in the NPS Independence Mall study block three.
+    the Board insured record 43, as stated in the NPS Independence Mall study block three.
+    % record 51: CBk 2, 1, 1768-05-02, Ebenezer Robinson; dwelling, one-story with broken pitch roof. [paraphrase]
+    record 51 was made in 1768, as stated in the NPS Independence Mall study block three.
+    the Board insured record 51, as stated in the NPS Independence Mall study block three.
+    % record 74: no number, 1768-09-05, John Morris; House (piazza & kitchen). [verbatim survey transcription]
+    record 74 was made in 1768, as stated in the NPS City Tavern report.
+    % record 75: no number, 1768-12-06, Robert Alison; House (piazza/stair case). [verbatim survey transcription]
+    record 75 was made in 1768, as stated in the NPS City Tavern report.
+    % record 28: CBk 2, 6, 1769-01, John Pemberton; "Quite new" three-story brick dwelling 28.5 by 42 ft; one-story piazza. [paraphrase]
+    record 28 was made in 1769, as stated in the NPS Independence Mall study block two.
+    the Board insured record 28, as stated in the NPS Independence Mall study block two.
+    the building of record 28 is built of brick, as stated in the NPS Independence Mall study block two.
+    % record 45: CBk 2, 15, 1769-07-04, Andrew Edge; house (one of Edge's Fifth Street houses). [paraphrase]
+    record 45 was made in 1769, as stated in the NPS Independence Mall study block three.
+    the Board insured record 45, as stated in the NPS Independence Mall study block three.
+    % record 70: no number, 1769, Samuel Powel; Powel House. [verbatim survey transcription]
+    record 70 was made in 1769, as stated in the NPS Franklin House report.
+    % policy 1345: 1345, 1769, Wilday, John; . [archive metadata only]
+    policy 1345 was made in 1769, as stated in the Contributionship archive catalogue.
+    the Board insured policy 1345, as stated in the Contributionship archive catalogue.
+    % policy 1349: 1349, 1769, Dowell, Grace (widow); . [archive metadata only]
+    policy 1349 was made in 1769, as stated in the Contributionship archive catalogue.
+    the Board insured policy 1349, as stated in the Contributionship archive catalogue.
+    % policy 1394: 1394 (CBk 2), 1770-05-01, William Davis; two-story brick dwelling house and kitchen. [paraphrase]
+    policy 1394 was made in 1770, as stated in the NPS Independence Mall study block two.
+    the Board insured policy 1394, as stated in the NPS Independence Mall study block two.
+    the building of policy 1394 is built of brick, as stated in the NPS Independence Mall study block two.
+    % record 29: CBk 2, 39, 1770-09-03, Sarah Emlen; two new adjoining three-story brick houses, each 21 by 41 ft, two-stor. [paraphrase]
+    record 29 was made in 1770, as stated in the NPS Independence Mall study block two.
+    the Board insured record 29, as stated in the NPS Independence Mall study block two.
+    the building of record 29 is built of brick, as stated in the NPS Independence Mall study block two.
+    % record 72: no number, 1770-01-31, Samuel Rhoads; Country house (one-story). [paraphrase]
+    record 72 was made in 1770, as stated in the NPS Franklin House report.
+    % policy 1439: 1439, 1770, Stiles, Edward; . [archive metadata only]
+    policy 1439 was made in 1770, as stated in the Contributionship archive catalogue.
+    the Board insured policy 1439, as stated in the Contributionship archive catalogue.
+    % policy 1428: 1428, 1770, Penn, Esq, John; . [archive metadata only]
+    policy 1428 was made in 1770, as stated in the Contributionship archive catalogue.
+    the Board insured policy 1428, as stated in the Contributionship archive catalogue.
+    % record 2: Bk. I, 27, 1771-02-27, Adam Kimel; house with wet goods store in lower story; two back buildings (3-story. [paraphrase]
+    record 2 was made in 1771, as stated in the NPS Independence Mall study block one.
+    the Board insured record 2, as stated in the NPS Independence Mall study block one.
+    % record 12: CBk 2, 54, 1771-06-04, Philip Etter; plain two-story brick house for two tenements, 14 by 28 ft. [paraphrase]
+    record 12 was made in 1771, as stated in the NPS Independence Mall study block two.
+    the Board insured record 12, as stated in the NPS Independence Mall study block two.
+    the building of record 12 is built of brick, as stated in the NPS Independence Mall study block two.
+    % policy 1530: 1530, 1771, Duncan, John; . [archive metadata only]
+    policy 1530 was made in 1771, as stated in the Contributionship archive catalogue.
+    the Board insured policy 1530, as stated in the Contributionship archive catalogue.
+    % record 19: CBk 2, 72, 1772-04-21, Jacob Rabsom (Robinson in INDE index); plain three-story brick house, 22 ft incl. 3-ft alley by 20 ft; two-st. [paraphrase]
+    record 19 was made in 1772, as stated in the NPS Independence Mall study block two.
+    the Board insured record 19, as stated in the NPS Independence Mall study block two.
+    the building of record 19 is built of brick, as stated in the NPS Independence Mall study block two.
+    % policy 1620: 1620, 1772, Corry, John (estate - represented by James Read); . [archive metadata only]
+    policy 1620 was made in 1772, as stated in the Contributionship archive catalogue.
+    the Board insured policy 1620, as stated in the Contributionship archive catalogue.
+    the sum insured under policy 1620 is 200 pounds, as stated in the Contributionship archive catalogue.
+    % policy 1772: 1772 and 1773, 1773-12-22, Carpenters' Company; Carpenters' Hall. [verbatim survey transcription]
+    policy 1772 was made in 1773, as stated in the NPS report INDE 134861.
+    the Board insured policy 1772, as stated in the NPS report INDE 134861.
+    the party walls of policy 1772 are 14 inches thick, as stated in the NPS report INDE 134861.
+    % policy 1767: 1767 to 1769, 1773-11-02, James Allen (for the subscriber-proprietors of the New Taver; City Tavern ("The Large New house"; "A Tavern"). [verbatim survey transcription]
+    policy 1767 was made in 1773, as stated in the NPS City Tavern report.
+    the Board insured policy 1767, as stated in the NPS City Tavern report.
+    the party walls of policy 1767 are 9 inches thick, as stated in the NPS City Tavern report.
+    the Board charged policy 1767 a deposit of 30 shillings per hundred pounds, as stated in the NPS City Tavern report.
+    policy 1767 is for a building used for inn keeping, as stated in the NPS City Tavern report.
+    % policy 1707: 1707, 1773, Morgan, Dr. John; . [archive metadata only]
+    policy 1707 was made in 1773, as stated in the Contributionship archive catalogue.
+    the Board insured policy 1707, as stated in the Contributionship archive catalogue.
+    % the Penn house survey: 167 71 [as printed in PMHB OCR; digits unclear], 1773-03-01, Richard Penn (Governor Penn); dwelling house (later the President's House). [verbatim survey transcription]
+    the Penn house survey was made in 1773, as stated in Lawler 2002.
+    the Board insured the Penn house survey, as stated in Lawler 2002.
+    the building of the Penn house survey is built of brick, as stated in Lawler 2002.
+    the party walls of the Penn house survey are 9 inches thick, as stated in Lawler 2002.
+    the Board charged the Penn house survey a deposit of 50 shillings per hundred pounds, as stated in Lawler 2002.
+    % record 3: Book I, 62, 1774-03-16, James Glenn; new 3-story brick house, 12 by 18 ft. [paraphrase]
+    record 3 was made in 1774, as stated in the NPS Independence Mall study block one.
+    the Board insured record 3, as stated in the NPS Independence Mall study block one.
+    the building of record 3 is built of brick, as stated in the NPS Independence Mall study block one.
+    % record 16: CBk 2, 112, 1774-05-03, William Ritter; two-story brick house 16 ft 8 in by 16 ft. [paraphrase]
+    record 16 was made in 1774, as stated in the NPS Independence Mall study block two.
+    the Board insured record 16, as stated in the NPS Independence Mall study block two.
+    the building of record 16 is built of brick, as stated in the NPS Independence Mall study block two.
+    % record 17: CBk 2, 113, 1774-05-03, Casper Yager; two-story brick house 16 ft 8 in by 16 ft. [paraphrase]
+    record 17 was made in 1774, as stated in the NPS Independence Mall study block two.
+    the Board insured record 17, as stated in the NPS Independence Mall study block two.
+    the building of record 17 is built of brick, as stated in the NPS Independence Mall study block two.
+    % record 52: CBk 2, 110, 1774-03-24, Nicholas Rash; new two-story dwelling (tenement) with cockloft. [paraphrase]
+    record 52 was made in 1774, as stated in the NPS Independence Mall study block three.
+    the Board insured record 52, as stated in the NPS Independence Mall study block three.
+    % record 53: CBk 2, 107, 1774-03-01, John Harrison; new two-story house. [paraphrase]
+    record 53 was made in 1774, as stated in the NPS Independence Mall study block three.
+    the Board insured record 53, as stated in the NPS Independence Mall study block three.
+    % record 54: CBk 2, 108, 1774-03-01, Jesse Roe (Rowe); new two-story house. [paraphrase]
+    record 54 was made in 1774, as stated in the NPS Independence Mall study block three.
+    the Board insured record 54, as stated in the NPS Independence Mall study block three.
+    % record 55: CBk 2, 117, 1774-09-05, Caleb Cresson; five adjoining two-story tenements. [paraphrase]
+    record 55 was made in 1774, as stated in the NPS Independence Mall study block three.
+    the Board insured record 55, as stated in the NPS Independence Mall study block three.
+    % record 59: CBk 2, 126, 1774-12-06, Arnold Mitchenor (Michenor); new plain two-story house, partially unfinished. [paraphrase]
+    record 59 was made in 1774, as stated in the NPS Independence Mall study block three.
+    the Board insured record 59, as stated in the NPS Independence Mall study block three.
+    % record 77: no number, 1774, David Deshler; Deshler-Morris House. [verbatim survey transcription]
+    record 77 was made in 1774, as stated in the NPS City Tavern report.
+    % policy 1795: 1795, 1774, Glenn, James; . [archive metadata only]
+    policy 1795 was made in 1774, as stated in the Contributionship archive catalogue.
+    the Board insured policy 1795, as stated in the Contributionship archive catalogue.
+    % policy 1745: 1745, 1774, Deshler, David; . [archive metadata only]
+    policy 1745 was made in 1774, as stated in the Contributionship archive catalogue.
+    the Board insured policy 1745, as stated in the Contributionship archive catalogue.
+    % record 18: CBk 2, 139, 1775, Adam Zantzinger; two three-story houses, each 33 by 19 ft (investment property). [paraphrase]
+    record 18 was made in 1775, as stated in the NPS Independence Mall study block two.
+    the building of record 18 is built of brick, as stated in the NPS Independence Mall study block two.
+    % record 50: CBk 2, 141, 1775-12-05, Ludwick Karigar (Karacher); two new two-story houses with kitchens. [paraphrase]
+    record 50 was made in 1775, as stated in the NPS Independence Mall study block three.
+    the Board insured record 50, as stated in the NPS Independence Mall study block three.
+    % record 60: CBk 2, 134, 1775-03-25, John Bell; two-story back building. [paraphrase]
+    record 60 was made in 1775, as stated in the NPS Independence Mall study block three.
+    the Board insured record 60, as stated in the NPS Independence Mall study block three.
+    % record 76: no number, 1775-09-03, owner not named; "Port Royal" (great country house). [verbatim survey transcription]
+    record 76 was made in 1775, as stated in the NPS City Tavern report.
+    % policy 1884: 1884, 1775, Hough, Thomas; . [archive metadata only]
+    policy 1884 was made in 1775, as stated in the Contributionship archive catalogue.
+    the Board insured policy 1884, as stated in the Contributionship archive catalogue.
+    % policy 1886: 1886, 1775, Horsman, Stokeley; . [archive metadata only]
+    policy 1886 was made in 1775, as stated in the Contributionship archive catalogue.
+    the Board insured policy 1886, as stated in the Contributionship archive catalogue.
+    % record 30: CBk 2, 145, 147, 1776-02-06, Adam Ekart; two three-story brick houses: corner house 17 by 33 ft with 11 by 18 f. [paraphrase]
+    record 30 was made in 1776, as stated in the NPS Independence Mall study block two.
+    the Board insured record 30, as stated in the NPS Independence Mall study block two.
+    the building of record 30 is built of brick, as stated in the NPS Independence Mall study block two.
+    % record 31: CBk 2 (145/147), 1776-02-06, Adam Ekart; three-story house 17 by 33 ft (occupied by Uriah Woolman). [paraphrase]
+    record 31 was made in 1776, as stated in the NPS Independence Mall study block two.
+    the Board insured record 31, as stated in the NPS Independence Mall study block two.
+    % record 61: CBk 2, 145, 1776-02-06, Uriah Former (?); modest two-story house. [paraphrase]
+    record 61 was made in 1776, as stated in the NPS Independence Mall study block three.
+    the Board insured record 61, as stated in the NPS Independence Mall study block three.
+    % record 62: CBk 1, 80, 1776-11-30, William Thomas; house (Widow Jane Peters tenant). [paraphrase]
+    record 62 was made in 1776, as stated in the NPS Independence Mall study block three.
+    the Board insured record 62, as stated in the NPS Independence Mall study block three.
+    % policy 1969: 1969, 1776, Sparks, James; . [archive metadata only]
+    policy 1969 was made in 1776, as stated in the Contributionship archive catalogue.
+    the Board insured policy 1969, as stated in the Contributionship archive catalogue.
+    % record 1: Bk. I, 49, 1779-03-01, Richard Penn (Mary Masters property; "Governor Penns dwellin; freestanding 3-story brick mansion; two one-story back buildings 14 by. [paraphrase]
+    record 1 was made in 1779, as stated in the NPS Independence Mall study block one.
+    the Board insured record 1, as stated in the NPS Independence Mall study block one.
+    the building of record 1 is built of brick, as stated in the NPS Independence Mall study block one.
+    % policy 2063: 2063, 1783, Smith, William; . [archive metadata only]
+    policy 2063 was made in 1783, as stated in the Contributionship archive catalogue.
+    the Board insured policy 2063, as stated in the Contributionship archive catalogue.
+    % policy 2069: 2069, 1783, Dickinson, (Dickeson), Esq. John; . [archive metadata only]
+    policy 2069 was made in 1783, as stated in the Contributionship archive catalogue.
+    the Board insured policy 2069, as stated in the Contributionship archive catalogue.
+    % policy 2164: 2164, 1784, Fromberger, John; . [archive metadata only]
+    policy 2164 was made in 1784, as stated in the Contributionship archive catalogue.
+    the Board insured policy 2164, as stated in the Contributionship archive catalogue.
+    % policy 2157: 2157, 1784, Morris, Thomas; malt house. [archive metadata only]
+    policy 2157 was made in 1784, as stated in the Contributionship archive catalogue.
+    the Board insured policy 2157, as stated in the Contributionship archive catalogue.
+    % record 24: CLS 2213, 1785-11-01, William Moore; two-story brick stable 19 by 36 ft. [paraphrase]
+    record 24 was made in 1785, as stated in the NPS Independence Mall study block two.
+    the Board insured record 24, as stated in the NPS Independence Mall study block two.
+    the building of record 24 is built of brick, as stated in the NPS Independence Mall study block two.
+    record 24 is of an outbuilding, as stated in the NPS Independence Mall study block two.
+    % resurvey of policy 1767: 1767, 1768, 1769, 1785-05-02, Samuel Powel; City Tavern (resurvey). [verbatim survey transcription]
+    resurvey of policy 1767 was made in 1785, as stated in the NPS City Tavern report.
+    the Board insured resurvey of policy 1767, as stated in the NPS City Tavern report.
+    the party walls of resurvey of policy 1767 are 9 inches thick, as stated in the NPS City Tavern report.
+    the Board charged resurvey of policy 1767 a deposit of 47.5 shillings per hundred pounds, as stated in the NPS City Tavern report.
+    resurvey of policy 1767 is for a building used for inn keeping, as stated in the NPS City Tavern report.
+    % record 56: CBk 2, 218, 1786-11-07, Caleb Cresson; own residence, 3-story brick house. [paraphrase]
+    record 56 was made in 1786, as stated in the NPS Independence Mall study block three.
+    the Board insured record 56, as stated in the NPS Independence Mall study block three.
+    the building of record 56 is built of brick, as stated in the NPS Independence Mall study block three.
+    record 56 records iron rails on the roof, as stated in the NPS Independence Mall study block three.
+    % record 57: CBk 2, 218, 1786-11-07, Caleb Cresson; three three-story brick houses adjoining his residence. [paraphrase]
+    record 57 was made in 1786, as stated in the NPS Independence Mall study block three.
+    the Board insured record 57, as stated in the NPS Independence Mall study block three.
+    the building of record 57 is built of brick, as stated in the NPS Independence Mall study block three.
+    % record 58: CBk 2, 218, 1786-11-07, Caleb Cresson; 3-story brick house, 16 ft on Cherry, extending over alley in wood. [paraphrase]
+    record 58 was made in 1786, as stated in the NPS Independence Mall study block three.
+    the Board insured record 58, as stated in the NPS Independence Mall study block three.
+    the building of record 58 is built of brick, as stated in the NPS Independence Mall study block three.
+    % record 4: CB 1, 129, 1787-11-05, Israel Jones; new 3-story house with wet goods store. [paraphrase]
+    record 4 was made in 1787, as stated in the NPS Independence Mall study block one.
+    the Board insured record 4, as stated in the NPS Independence Mall study block one.
+    % record 78: no number, 1787-08-13, Andrew Doz; Andrew Doz House. [verbatim survey transcription]
+    record 78 was made in 1787, as stated in the NPS City Tavern report.
+    % policy 2266: 2266, 1787, Coates, Samuel; . [archive metadata only]
+    policy 2266 was made in 1787, as stated in the Contributionship archive catalogue.
+    the Board insured policy 2266, as stated in the Contributionship archive catalogue.
+    % policy 2426: 2426, 1788, Corporation of St. Michaels's & Zion Churches in Phila.; . [archive metadata only]
+    policy 2426 was made in 1788, as stated in the Contributionship archive catalogue.
+    the Board insured policy 2426, as stated in the Contributionship archive catalogue.
+    the sum insured under policy 2426 is 2000 pounds, as stated in the Contributionship archive catalogue.
+    % record 22: CBk 2, 233, 1789-11-03, Elezer Field; new three-story brick house finished plainly, 19 ft 3 in by 30 ft; two. [paraphrase]
+    record 22 was made in 1789, as stated in the NPS Independence Mall study block two.
+    the Board insured record 22, as stated in the NPS Independence Mall study block two.
+    the building of record 22 is built of brick, as stated in the NPS Independence Mall study block two.
+    % record 25: CBk 2, 237, 1789-04-07, William Moore; new three-story brick house and kitchen, 14 ft 9 in by 28 ft. [paraphrase]
+    record 25 was made in 1789, as stated in the NPS Independence Mall study block two.
+    the Board insured record 25, as stated in the NPS Independence Mall study block two.
+    the building of record 25 is built of brick, as stated in the NPS Independence Mall study block two.
+    % record 10: CBS #I, 140, 1790-12-07, Isaac Morris; old two-story house and kitchen, 16 by 31 ft, "very plain". [paraphrase]
+    record 10 was made in 1790, as stated in the NPS Independence Mall study block one.
+    the Board insured record 10, as stated in the NPS Independence Mall study block one.
+    % policy 2421: 2421-2422 (CBk 2, 245-6), 1790-11-02, William Sheaff; large new well-appointed three-story brick house 24 by 46 ft; store an. [paraphrase]
+    policy 2421 was made in 1790, as stated in the NPS Independence Mall study block two.
+    the Board insured policy 2421, as stated in the NPS Independence Mall study block two.
+    the building of policy 2421 is built of brick, as stated in the NPS Independence Mall study block two.
+    the party walls of policy 2421 are 9 inches thick, as stated in the NPS Independence Mall study block two.
+    policy 2421 is of an outbuilding, as stated in the NPS Independence Mall study block two.
+    % record 42: no number, 1790s, owner not named; New Stable and Chaise house. [verbatim survey transcription]
+    record 42 was made in 1790, as stated in the NPS Todd House grounds report.
+    the Board insured record 42, as stated in the NPS Todd House grounds report.
+    the party walls of record 42 are 9 inches thick, as stated in the NPS Todd House grounds report.
+    the Board charged record 42 a deposit of 35 shillings per hundred pounds, as stated in the NPS Todd House grounds report.
+    record 42 is of an outbuilding, as stated in the NPS Todd House grounds report.
+    % policy 2405: 2405, 1790, Bierly, Christopher; house. [archive metadata only]
+    policy 2405 was made in 1790, as stated in the Contributionship archive catalogue.
+    the Board insured policy 2405, as stated in the Contributionship archive catalogue.
+    the sum insured under policy 2405 is 100 pounds, as stated in the Contributionship archive catalogue.
+    % record 21: CBk 2, 254-5, 1791-11-11, Samuel Clark; new finely appointed 3-story house and kitchen. [paraphrase]
+    record 21 was made in 1791, as stated in the NPS Independence Mall study block two.
+    the Board insured record 21, as stated in the NPS Independence Mall study block two.
+    % policy 2478: 2478 (CBk 2, 257), 1791-12-06, Thomas Moore; stable and coach house. [paraphrase]
+    policy 2478 was made in 1791, as stated in the NPS Independence Mall study block two.
+    the Board insured policy 2478, as stated in the NPS Independence Mall study block two.
+    policy 2478 is of an outbuilding, as stated in the NPS Independence Mall study block two.
+    % record 41: no number, 1791-10-31, Jesse Wain; Stable and Coach house. [verbatim survey transcription]
+    record 41 was made in 1791, as stated in the NPS Todd House grounds report.
+    the Board insured record 41, as stated in the NPS Todd House grounds report.
+    the party walls of record 41 are 9 inches thick, as stated in the NPS Todd House grounds report.
+    the Board charged record 41 a deposit of 50 shillings per hundred pounds, as stated in the NPS Todd House grounds report.
+    record 41 is of an outbuilding, as stated in the NPS Todd House grounds report.
+    % record 63: CBk 2, 253, 1791-11-01, Ebenezer Robinson; "very plain" two-story house with one-story kitchen (later 84 N. Fifth. [paraphrase]
+    record 63 was made in 1791, as stated in the NPS Independence Mall study block three.
+    the Board insured record 63, as stated in the NPS Independence Mall study block three.
+    the building of record 63 is built of brick, as stated in the NPS Independence Mall study block three.
+    % record 69: CBk 2, 248, 1791-02-01, Godfrey Minnick (Minig, Meeny); "nearly new" three-story house with small shop. [paraphrase]
+    record 69 was made in 1791, as stated in the NPS Independence Mall study block three.
+    the Board insured record 69, as stated in the NPS Independence Mall study block three.
+    % policy 2481: 2481, 1791-12-06, Carpenters Company; "Building F" (Second Meeting Hall). [verbatim survey transcription]
+    policy 2481 was made in 1791, as stated in the NPS report INDE 134861.
+    the Board insured policy 2481, as stated in the NPS report INDE 134861.
+    the party walls of policy 2481 are 9 inches thick, as stated in the NPS report INDE 134861.
+    % record 64: CBk 2, 261-62, 1792-07-07, Ebenezer Robinson; two 3-story brick tenements with kitchens (41 Cherry). [paraphrase]
+    record 64 was made in 1792, as stated in the NPS Independence Mall study block three.
+    the Board insured record 64, as stated in the NPS Independence Mall study block three.
+    the building of record 64 is built of brick, as stated in the NPS Independence Mall study block three.
+    % record 68: CBk 2, 248, 1792-01-07, Peter De Haven; two new two-story brick tenement houses. [paraphrase]
+    record 68 was made in 1792, as stated in the NPS Independence Mall study block three.
+    the Board insured record 68, as stated in the NPS Independence Mall study block three.
+    the building of record 68 is built of brick, as stated in the NPS Independence Mall study block three.
+    % policy 2487: 2487, 1792, Dehaven, Peter; . [archive metadata only]
+    policy 2487 was made in 1792, as stated in the Contributionship archive catalogue.
+    the Board insured policy 2487, as stated in the Contributionship archive catalogue.
+    the sum insured under policy 2487 is 100 pounds, as stated in the Contributionship archive catalogue.
+    % policy 2489: 2489, 1792, Britton, John; . [archive metadata only]
+    policy 2489 was made in 1792, as stated in the Contributionship archive catalogue.
+    the Board insured policy 2489, as stated in the Contributionship archive catalogue.
+    the sum insured under policy 2489 is 400 pounds, as stated in the Contributionship archive catalogue.
+    % record 40: no number, 1793-01, owner not named; Coach Stable and hay Loft. [verbatim survey transcription]
+    record 40 was made in 1793, as stated in the NPS Todd House grounds report.
+    the Board insured record 40, as stated in the NPS Todd House grounds report.
+    the party walls of record 40 are 9 inches thick, as stated in the NPS Todd House grounds report.
+    the Board charged record 40 a deposit of 50 shillings per hundred pounds, as stated in the NPS Todd House grounds report.
+    record 40 is of an outbuilding, as stated in the NPS Todd House grounds report.
+    % policy 2580: 2580, 1793, Wharton, Isaac; . [archive metadata only]
+    policy 2580 was made in 1793, as stated in the Contributionship archive catalogue.
+    the Board insured policy 2580, as stated in the Contributionship archive catalogue.
+    % record 5: C Bk, S#1, 155, 1794-01-02, Christian Febiger; large double house; two stables and coach houses to rear. [paraphrase]
+    record 5 was made in 1794, as stated in the NPS Independence Mall study block one.
+    the Board insured record 5, as stated in the NPS Independence Mall study block one.
+    record 5 is of an outbuilding, as stated in the NPS Independence Mall study block one.
+    % record 26: CBk 3, 8, 1794-08-01, Daniel Richards; three new houses. [paraphrase]
+    record 26 was made in 1794, as stated in the NPS Independence Mall study block two.
+    the Board insured record 26, as stated in the NPS Independence Mall study block two.
+    % record 34: S#2634-2636 (CBk 3, p.1), 1794, Thomas Moore; three-story house 30 by 42 ft, frontispiece, four dormers. [paraphrase]
+    record 34 was made in 1794, as stated in the NPS Independence Mall study block two.
+    the Board insured record 34, as stated in the NPS Independence Mall study block two.
+    % record 35: CBk 3, 13, 1794-11-25, William Garrigues; two new houses. [paraphrase]
+    record 35 was made in 1794, as stated in the NPS Independence Mall study block two.
+    the Board insured record 35, as stated in the NPS Independence Mall study block two.
+    % record 39: no number, 1794, owner not named; Coach house and Stable. [verbatim survey transcription]
+    record 39 was made in 1794, as stated in the NPS Todd House grounds report.
+    the Board insured record 39, as stated in the NPS Todd House grounds report.
+    the Board charged record 39 a deposit of 55 shillings per hundred pounds, as stated in the NPS Todd House grounds report.
+    record 39 is of an outbuilding, as stated in the NPS Todd House grounds report.
+    % record 65: CBk 2, 286, 1794-01-06, Reading Howell; 3-story house (third story added). [paraphrase]
+    record 65 was made in 1794, as stated in the NPS Independence Mall study block three.
+    the Board insured record 65, as stated in the NPS Independence Mall study block three.
+    % record 66: CBk 2, 286, 1794-01-06, Reading Howell; substantial new building with two back buildings. [paraphrase]
+    record 66 was made in 1794, as stated in the NPS Independence Mall study block three.
+    the Board insured record 66, as stated in the NPS Independence Mall study block three.
+    % policy 2679: 2679, 1794, Armatt, Thomas; . [archive metadata only]
+    policy 2679 was made in 1794, as stated in the Contributionship archive catalogue.
+    the Board insured policy 2679, as stated in the Contributionship archive catalogue.
+    the sum insured under policy 2679 is 400 pounds, as stated in the Contributionship archive catalogue.
+    % record 33: CBk 3, 21 3/4, 1795-06-06, Frederick Heiss (Heifz); three-story house 18 ft (incl. half a 3-ft alley) by 28 ft; two-story . [paraphrase]
+    record 33 was made in 1795, as stated in the NPS Independence Mall study block two.
+    the Board insured record 33, as stated in the NPS Independence Mall study block two.
+    % record 36: CBk2, 284 [as printed], 1795-12-03, Gideon Wells (Wills); new three-story house and kitchen. [paraphrase]
+    record 36 was made in 1795, as stated in the NPS Independence Mall study block two.
+    the Board insured record 36, as stated in the NPS Independence Mall study block two.
+    % record 37: CBk3, 25, 1795-08-19, Martin Thomas (house carpenter); westernmost of his three new houses. [paraphrase]
+    record 37 was made in 1795, as stated in the NPS Independence Mall study block two.
+    the Board insured record 37, as stated in the NPS Independence Mall study block two.
+    % policy 2727: 2727 and 2728 (CBk 3, 30), 1795-11-28, Peter De Haven; two new houses. [paraphrase]
+    policy 2727 was made in 1795, as stated in the NPS Independence Mall study block three.
+    the Board insured policy 2727, as stated in the NPS Independence Mall study block three.
+    % policy 2766: 2766, 1796, Wells, Gideon Hill; . [archive metadata only]
+    policy 2766 was made in 1796, as stated in the Contributionship archive catalogue.
+    the Board insured policy 2766, as stated in the Contributionship archive catalogue.
+    the sum insured under policy 2766 is 200 pounds, as stated in the Contributionship archive catalogue.
+    % policy 2790: 2790, 1796, Elfreth, Rachel; . [archive metadata only]
+    policy 2790 was made in 1796, as stated in the Contributionship archive catalogue.
+    the Board insured policy 2790, as stated in the Contributionship archive catalogue.
+    the sum insured under policy 2790 is 250 pounds, as stated in the Contributionship archive catalogue.
+    % record 32: CBk 3, 56, 1797-02-03, George Cooper; store building (first story wet goods store, second wine store; only f. [paraphrase]
+    record 32 was made in 1797, as stated in the NPS Independence Mall study block two.
+    the Board insured record 32, as stated in the NPS Independence Mall study block two.
+    % policy 2969: 2969, 1798-12-31, owner not named; Country freestanding house. [verbatim survey transcription]
+    policy 2969 was made in 1798, as stated in the NPS City Tavern report.
+    % policy 2879: 2879, 1798, Shoemaker, Benjamin; . [archive metadata only]
+    policy 2879 was made in 1798, as stated in the Contributionship archive catalogue.
+    the Board insured policy 2879, as stated in the Contributionship archive catalogue.
+    the sum insured under policy 2879 is 900 pounds, as stated in the Contributionship archive catalogue.
+    % record 67: CBk 3, 78 and 79, 1799-01-16, John Long; three-story house. [paraphrase]
+    record 67 was made in 1799, as stated in the NPS Independence Mall study block three.
+    the Board insured record 67, as stated in the NPS Independence Mall study block three.
+    % record 73: no number, 1799-08-17, Elizabeth Powel; City Tavern. [paraphrase]
+    record 73 was made in 1799, as stated in the NPS City Tavern report.
+    the Board insured record 73, as stated in the NPS City Tavern report.
+    record 73 is for a building used for inn keeping, as stated in the NPS City Tavern report.
+    % policy 2904: 2904, 1799-12-23, Elizabeth Powel; House (gun smith & umbrella maker shops) with back building 28 1/2 x 1. [verbatim survey transcription]
+    policy 2904 was made in 1799, as stated in the NPS City Tavern report.
+    the party walls of policy 2904 are 9 inches thick, as stated in the NPS City Tavern report.
+    the Board charged policy 2904 a deposit of 60 shillings per hundred pounds, as stated in the NPS City Tavern report.
+    % policy 524: 524 and 525, 1800-10-03, Logan; Logan's house (resurvey). [verbatim survey transcription]
+    policy 524 was made in 1800, as stated in the NPS Franklin House report.
+    % record 7: CBk 3, 123, 1801-07-30, Henry Pepper; 2-story brew house 25 by 70 ft; L-shaped malt house (c.1787) 22 by 51 . [paraphrase]
+    record 7 was made in 1801, as stated in the NPS Independence Mall study block one.
+    the Board insured record 7, as stated in the NPS Independence Mall study block one.
+    record 7 is for a building used for brewhouse, as stated in the NPS Independence Mall study block one.
+    % record 15: CBk 3, 113, 1801-01-02, Christopher Kughler; "very plain" three-story brick tavern. [paraphrase]
+    record 15 was made in 1801, as stated in the NPS Independence Mall study block two.
+    the Board insured record 15, as stated in the NPS Independence Mall study block two.
+    the building of record 15 is built of brick, as stated in the NPS Independence Mall study block two.
+    record 15 is for a building used for inn keeping, as stated in the NPS Independence Mall study block two.
+    % policy 2982: 2982, 1801, Standley, William; . [archive metadata only]
+    policy 2982 was made in 1801, as stated in the Contributionship archive catalogue.
+    the Board insured policy 2982, as stated in the Contributionship archive catalogue.
+    % policy 3072: 3072, 1803, Dawson, William; . [archive metadata only]
+    policy 3072 was made in 1803, as stated in the Contributionship archive catalogue.
+    the Board insured policy 3072, as stated in the Contributionship archive catalogue.
+    % record 6: CBK 3, 233, 1804-10-18, Robert E. Jones; house built as a dry goods store, 24 by 47 ft, 2-story backbuildings, . [paraphrase]
+    record 6 was made in 1804, as stated in the NPS Independence Mall study block one.
+    the Board insured record 6, as stated in the NPS Independence Mall study block one.
+    % record 8: CBk 3, 220, 1804-02-25, Henry Pepper; two new 3-story houses (24 by 47 ft; 24 by 50 ft) with backbuildings, . [paraphrase]
+    record 8 was made in 1804, as stated in the NPS Independence Mall study block one.
+    the Board insured record 8, as stated in the NPS Independence Mall study block one.
+    record 8 is of an outbuilding, as stated in the NPS Independence Mall study block one.
+    % record 9: CBk 3, 253, 1804-12-31, Henry Pepper; new 3-story house 24 by 59 ft with backbuildings, stable and coach hou. [paraphrase]
+    record 9 was made in 1804, as stated in the NPS Independence Mall study block one.
+    the Board insured record 9, as stated in the NPS Independence Mall study block one.
+    record 9 is of an outbuilding, as stated in the NPS Independence Mall study block one.
+    % policy 3172: 3172, 1805, Pepper, Henry; 4 adj. houses, 4 stables. [archive metadata only]
+    policy 3172 was made in 1805, as stated in the Contributionship archive catalogue.
+    the Board insured policy 3172, as stated in the Contributionship archive catalogue.
+    policy 3172 is of an outbuilding, as stated in the Contributionship archive catalogue.
+    % policy 3195: 3195, 1806, Jones, Absalom; . [archive metadata only]
+    policy 3195 was made in 1806, as stated in the Contributionship archive catalogue.
+    the Board insured policy 3195, as stated in the Contributionship archive catalogue.
+    % policy 3261: 3261, 1807, Burd, Edward Shippen; . [archive metadata only]
+    policy 3261 was made in 1807, as stated in the Contributionship archive catalogue.
+    the Board insured policy 3261, as stated in the Contributionship archive catalogue.
+    % policy 3363: 3363, 1810, Sims, John; . [archive metadata only]
+    policy 3363 was made in 1810, as stated in the Contributionship archive catalogue.
+    the Board insured policy 3363, as stated in the Contributionship archive catalogue.
+    refused expects answers ["policy 2426 is refused under the limit of five hundred pounds", "policy 2879 is refused under the limit of five hundred pounds"].
+    special expects answers ["record 11 needs a special agreement under the wooden houses article", "policy 461 needs a special agreement under the hazardous trades article", "resurvey of policy 885 needs a special agreement under the hazardous trades article", "policy 1767 needs a special agreement under the hazardous trades article", "resurvey of policy 1767 needs a special agreement under the hazardous trades article", "record 73 needs a special agreement under the hazardous trades article", "record 7 needs a special agreement under the hazardous trades article", "record 15 needs a special agreement under the hazardous trades article"].
+    departures expects answers ["policy 2426 departs from the rules under the limit of five hundred pounds", "policy 2879 departs from the rules under the limit of five hundred pounds"].
+    above table expects answers ["the deposit of policy 461 exceeds the table by 10 shillings", "the deposit of policy 1148 exceeds the table by 10 shillings", "the deposit of policy 1767 exceeds the table by 10 shillings", "the deposit of the Penn house survey exceeds the table by 30 shillings", "the deposit of resurvey of policy 1767 exceeds the table by 27.5 shillings", "the deposit of record 42 exceeds the table by 15 shillings", "the deposit of record 41 exceeds the table by 30 shillings", "the deposit of record 40 exceeds the table by 30 shillings", "the deposit of policy 2904 exceeds the table by 40 shillings"].
+    conflicts expects answers ["the decision on policy 461 about low deposit conflicts with the Penn house survey", "the decision on policy 461 about low deposit conflicts with resurvey of policy 1767", "the decision on policy 461 about low deposit conflicts with policy 2904", "the decision on policy 1767 about low deposit conflicts with the Penn house survey", "the decision on policy 1767 about low deposit conflicts with resurvey of policy 1767", "the decision on policy 1767 about low deposit conflicts with policy 2904"].
+
+% Invented: a wooden house surveyed in 1772, after the ban of April 1769.
+scenario wooden_house_1772 is:
+    the Vine Street house was made in 1772.
+    the building of the Vine Street house is built of wood.
+    refused expects answers ["the Vine Street house is refused under the ban on wooden buildings"].
+
+% Invented: a wooden house surveyed in 1760, before the ban: insurable only by
+% special agreement with the Directors (Article 7).
+scenario wooden_house_1760 is:
+    the Vine Street house was made in 1760.
+    the building of the Vine Street house is built of wood.
+    refused expects answers [].
+    special expects answers ["the Vine Street house needs a special agreement under the wooden houses article"].
+
+% Invented: a brick house with a tree before it in the street, 1790.
+scenario street_tree_1790 is:
+    the Arch Street house was made in 1790.
+    the party walls of the Arch Street house are 9 inches thick.
+    the Arch Street house records a tree before the house in the street.
+    refused expects answers ["the Arch Street house is refused under the ban on trees"].
+
+% Invented: the same house in 1815: insurable, with an additional deposit
+% (revision of 1810).
+scenario street_tree_1815 is:
+    the Arch Street house was made in 1815.
+    the party walls of the Arch Street house are 9 inches thick.
+    the Arch Street house records a tree before the house in the street.
+    refused expects answers [].
+    additional expects answers ["the Arch Street house needs an additional deposit under the revision of 1810"].
+
+% Invented: the same house in 1825: no additional deposit since 1823.
+scenario street_tree_1825 is:
+    the Arch Street house was made in 1825.
+    the party walls of the Arch Street house are 9 inches thick.
+    the Arch Street house records a tree before the house in the street.
+    refused expects answers [].
+    additional expects answers [].
+
+% Invented: a house twelve miles from Philadelphia, 1760 (Article 3).
+scenario twelve_miles_1760 is:
+    the Chester road house was made in 1760.
+    the house of the Chester road house stands 12 miles from Philadelphia.
+    refused expects answers ["the Chester road house is refused under the ten mile limit"].
+
+% Invented: a house out of the city, 1770, with no iron rails and no trap door
+% (the order of 12 April 1768).
+scenario out_of_city_1770 is:
+    the Germantown house was made in 1770.
+    the house of the Germantown house is out of the city.
+    the party walls of the Germantown house are 9 inches thick.
+    refused expects answers ["the Germantown house is refused under the order of 1768"].
+
+% Invented: the same house with iron rails and a way out onto the roof.
+scenario out_of_city_1770_railed is:
+    the Germantown house was made in 1770.
+    the house of the Germantown house is out of the city.
+    the Germantown house records iron rails on the roof.
+    the Germantown house records a way out onto the roof.
+    the party walls of the Germantown house are 9 inches thick.
+    refused expects answers [].
+
+% Invented: a house of the best class of the 1752 table: nine inch party walls
+% carried above the roof, a door onto the roof, iron rails.
+scenario first_class is:
+    the Walnut Street house was made in 1755.
+    the party walls of the Walnut Street house are 9 inches thick.
+    the party walls of the Walnut Street house are carried above the roof.
+    the Walnut Street house records a way out onto the roof.
+    the Walnut Street house records iron rails on the roof.
+    table expects answers ["the table deposit for the Walnut Street house is 15 shillings"].
