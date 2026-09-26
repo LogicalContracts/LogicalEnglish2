@@ -26,6 +26,7 @@ section,reserved_word,knowledge|contract|ontology|predicates|templates|functions
 expect,expects,expects,espera,espera,attend,attende
 expect,answers,answers,respostas,respuestas,réponses,risposte
 expect,and_unknowns,and unknowns,e desconhecidos,y desconocidos,et inconnues|et inconnus,e sconosciuti|e sconosciute
+expect,and_any_unknowns,and any unknowns,e quaisquer desconhecidos,y cualesquiera desconocidos,et toutes inconnues|et tous inconnus,e qualsiasi sconosciuto|e qualunque sconosciuto
 rule,rule,rule,regra,regla,règle,regola
 rule,if,if,se,si,si,se
 rule,only_if,only if,apenas se|somente se,solo si|sólo si,seulement si|uniquement si,solo se|soltanto se

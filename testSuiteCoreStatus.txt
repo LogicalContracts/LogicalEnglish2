@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      core (this repository alone; extension-dependent trees excluded)
 Command:    testing/run_tests.sh le   (or: runTests)
 Sibling:    testSuiteStatus.txt — all (core + trees requiring the proprietary le_extensions.pl)
-Generated:  2026-09-26 00:55:56 UTC
+Generated:  2026-09-26 08:59:53 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
 Files processed: 358
-Total tests:     2720
-Passed:          2720
+Total tests:     2721
+Passed:          2721
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -54,7 +54,7 @@ Detailed File Summary:
   [NONE] examples/moreExamples/language/aggregates/ecommerce.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/aggregates/sums.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/unknowns/assumption_constraints.le: 5 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/language/unknowns/unknowns.le: 5 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/unknowns/unknowns.le: 6 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/unknowns/unknowns_in_aggregates.le: 9 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/unknowns/unknowns_in_forall.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/includes/citizenship_including.le: 1 Pass, 0 Fail, 0 Error
