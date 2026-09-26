@@ -429,9 +429,16 @@ closest; a rule inside a residue block is that residue's translation. Every
 other residue the same rows call, whose sentence then has no answer at all in
 that scenario, goes back too, since the skeleton always answered it by
 assuming it. The block keeps its placeholder with a comment (`% kept unknown:
-its translation broke a test of the program (scenario ...)`), the ledger
-lists it as reverted, and the job repeats until no test regresses (three
-rounds at most). A translation that negates an unknown (`negated_unknown`, an
+its translation was put back (scenario ...)`), the ledger lists it as
+reverted, and the job repeats until no test regresses (three rounds at most).
+Errors come first: a residue block holding an error goes back to its
+placeholder (`(error <type>)`), and a line of the RESIDUE TEMPLATES region
+holding one is dropped — the editor runs no query on a program with an
+error. A test that no longer finishes has no route for why-not to name:
+then the rows the skeleton answered with, in that scenario, are read from its
+explanation, and their translated residues with alternatives (two rules, or
+`either`/`or`) go back first — each doubles the answers — and the rest of
+those rows' translations if that is not enough. A translation that negates an unknown (`negated_unknown`, an
 error inside a residue block) is the usual cause. Tests:
 `testing/test_residue_mode.pl`.
 

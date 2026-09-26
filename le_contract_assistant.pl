@@ -1609,15 +1609,41 @@ residue_guard(JobID, Config, Text0, Text) :-
 
 residue_guard(JobID, Config, Text0, Round, Text) :-
     verify_le_text(Text0, V),
+    residue_errors(Text0, V, ErrIds, BadTemplateLines),
     residue_broken(Config, V, Broken),
-    (   Broken == []
+    (   Round =< 5, ( ErrIds \== [] ; BadTemplateLines \== [] )
+    ->  %  An error in a translation or in a template it declared: the editor
+        %  will not run a query on a program with an error. Drop the template
+        %  lines, and put back the residues' placeholders; a residue that used
+        %  a dropped template shows its own error in the next round.
+        findall(E, ( member(Id-Ty, ErrIds), format(atom(E), "~w (~w)", [Id, Ty]) ), Es),
+        atomic_list_concat(Es, ', ', EA), length(BadTemplateLines, NT),
+        ca_emit(JobID, "Reverting residue(s) with an error: ~w; dropping ~w template line(s) with an error"-[EA, NT]),
+        split_string(Text0, "\n", "", Ls0),
+        findall(L, ( nth1(I, Ls0, L), \+ memberchk(I, BadTemplateLines) ), Ls1),
+        atomic_list_concat(Ls1, "\n", T1), atom_string(T1, Text1),
+        findall(Id-Fill, ( member(Id-Type, ErrIds),
+                           memberchk(res(Id, _, _, Body), Config.residues),
+                           format(string(Why), "error ~w", [Type]),
+                           reverted_fill(Why, Body, Fill) ), Fills),
+        residue_splice(Text1, Fills, Text2),
+        Round1 is Round + 1,
+        residue_guard(JobID, Config, Text2, Round1, Text)
+    ;   Broken == []
     ->  Text = Text0
     ;   Round > 3
     ->  length(Broken, NB),
         ca_emit(JobID, "~w test(s) of the skeleton still fail after reverting; delivered as it is"-[NB]),
         Text = Text0
     ;   findall(S, member(_-S, Broken), Ss0), sort(Ss0, Ss),
-        residue_culprits(Text0, Broken, Culprits),
+        residue_culprits(Text0, Broken, Culprits0),
+        (   Culprits0 == []
+        ->  %  no route to name: the test ran out of time (a row whose
+            %  translated conditions are alternatives over unknowns answers
+            %  once per combination of them)
+            residue_slow_culprits(Config, Text0, Broken, Culprits)
+        ;   Culprits = Culprits0
+        ),
         (   Culprits == []
         ->  ca_emit(JobID, "~w test(s) of the skeleton fail, and no residue answers for less than before: delivered as it is"-[Ss]),
             Text = Text0
@@ -1627,7 +1653,8 @@ residue_guard(JobID, Config, Text0, Round, Text) :-
             ca_emit(JobID, "Reverting ~w residue(s) whose translation broke a test of the skeleton: ~w"-[NC, IdsA]),
             findall(Id-Fill, ( member(Id-Sc, Culprits),
                                memberchk(res(Id, _, _, Body), Config.residues),
-                               reverted_fill(Sc, Body, Fill) ), Fills),
+                               format(string(Why), "scenario ~w", [Sc]),
+                               reverted_fill(Why, Body, Fill) ), Fills),
             residue_splice(Text0, Fills, Text1),
             Round1 is Round + 1,
             residue_guard(JobID, Config, Text1, Round1, Text)
@@ -1644,9 +1671,36 @@ residue_broken(Config, V, Broken) :-
                    ( get_dict(status, D, "pass") ; get_dict(answers_match, D, true) ) ) ),
             Broken).
 
-reverted_fill(Scenario, Body, Fill) :-
-    ( le_writer:writer_word(residue_reverted, W) -> true ; W = 'kept unknown: its translation broke a test of the program' ),
-    format(string(C), "% ~w (scenario ~w)", [W, Scenario]),
+%!  residue_errors(+Text, +V, -ErrIds, -TemplateLines) is det.
+%
+%   Id-Type for each residue block holding an error, and the lines of the
+%   RESIDUE TEMPLATES region holding one.
+residue_errors(Text, V, ErrIds, TemplateLines) :-
+    split_string(Text, "\n", "", Lines),
+    residue_line_ranges(Lines, 1, Ranges),
+    templates_region(Lines, TFrom, TTo),
+    findall(Id-Type, ( member(I, V.issues), get_dict(severity, I, Sev), atom_string(Sev, "error"),
+                       get_dict(line, I, Ln), integer(Ln),
+                       member(Id-F-T, Ranges), Ln >= F, Ln =< T,
+                       get_dict(type, I, Type) ), E0),
+    findall(Id-Type, ( member(Id-Type, E0), \+ ( member(Id-T2, E0), T2 @< Type ) ), E1),
+    sort(E1, ErrIds),
+    findall(Ln, ( member(I, V.issues), get_dict(severity, I, Sev), atom_string(Sev, "error"),
+                  get_dict(line, I, Ln), integer(Ln), Ln > TFrom, Ln < TTo ), TL0),
+    sort(TL0, TemplateLines).
+
+%   The lines of the `% RESIDUE TEMPLATES BEGIN` and `END` markers (0-0 when
+%   there is no such region).
+templates_region(Lines, From, To) :-
+    (   nth1(From, Lines, B), normalize_space(string("% RESIDUE TEMPLATES BEGIN"), B),
+        nth1(To, Lines, E), To > From, normalize_space(string("% RESIDUE TEMPLATES END"), E)
+    ->  true
+    ;   From = 0, To = 0
+    ).
+
+reverted_fill(Why, Body, Fill) :-
+    ( le_writer:writer_word(residue_reverted, W) -> true ; W = 'kept unknown: its translation was put back' ),
+    format(string(C), "% ~w (~w)", [W, Why]),
     exclude(blank_line, Body, B),
     atomic_list_concat([C|B], "\n", F), atom_string(F, Fill).
 
@@ -1693,12 +1747,79 @@ residue_culprits(Text, Broken, Culprits) :-
               residue_block_translated(Text, Id2, Src2),
               residue_target(Src2, Target2),
               residue_question(Target2, Question2),
-              residue_answers(KB, SA, Question2, []) ),
+              %  asked and answered with nothing — an error or a time-out
+              %  is no evidence
+              residue_answers_checked(KB, SA, Question2, []) ),
             Culprits2),
     append(Culprits0, Culprits2, Culprits01),
     findall(Id-S, ( member(Id-S, Culprits01), \+ ( member(Id-S2, Culprits01), S2 @< S ) ), Culprits1),
     sort(Culprits1, Culprits).
 residue_culprits(_, _, []).
+
+%!  residue_slow_culprits(+Config, +Text, +Broken, -Culprits) is det.
+%
+%   For tests that no longer finish: the rows the skeleton answered with in
+%   that scenario (their source ranges in its explanations), and among the
+%   residues those rows call, the translated ones that have alternatives —
+%   each doubles the answers — or, when none has, all the translated ones.
+residue_slow_culprits(Config, Text, Broken, Culprits) :-
+    catch(le_kbs:load_text(Config.program, residue_guard_skeleton, KB0), _, fail),
+    !,
+    split_string(Config.program, "\n", "", SkLines),
+    line_offsets(SkLines, 0, Offs),
+    findall(K-B, ( member(res(B, _, S2, _), Config.residues), residue_target(S2, T2),
+                   le_residue_fold:target_key(T2, K) ), Keys),
+    catch(le_kbs:load_text(Text, residue_guard_translated, KB1), _, fail),
+    findall(Id-SA,
+            ( member(Q-S, Broken), atom_string(QA, Q), atom_string(SA, S),
+              %  only a test that no longer finishes
+              \+ residue_answers_checked(KB1, SA, QA, _),
+              skeleton_row_starts(KB0, SA, QA, Starts),
+              findall(R, ( member(St, Starts), char_line(Offs, St, Ln),
+                           le_residue_fold:statement_range(SkLines, Ln, From, To),
+                           between(From, To, J), nth1(J, SkLines, LJ),
+                           le_residue_fold:caller_line(LJ, KJ, _), memberchk(KJ-R, Keys) ), Rs0),
+              sort(Rs0, Rs),
+              include(residue_block_translated_id(Text), Rs, Translated),
+              include(residue_has_alternatives(Text), Translated, Alt),
+              ( Alt \== [] -> member(Id, Alt) ; member(Id, Translated) ) ),
+            Culprits0),
+    findall(Id-S, ( member(Id-S, Culprits0), \+ ( member(Id-S2, Culprits0), S2 @< S ) ), Culprits1),
+    sort(Culprits1, Culprits).
+residue_slow_culprits(_, _, _, []).
+
+skeleton_row_starts(KB, Scenario, Query, Starts) :-
+    catch(( le_kbs:createSession(KB, SM), le_kbs:setScenarion(SM, Scenario),
+            call_with_time_limit(30,
+                findall(St, ( le_kbs:query(SM, Query, _, _, Why),
+                              member(Node, Why),
+                              Node =.. [success, _, range(St, _)|_] ), Starts0)) ),
+          _, Starts0 = []),
+    sort(Starts0, Starts).
+
+%   The line (1-based) a character offset falls on.
+char_line(Offs, Char, Line) :-
+    findall(I, ( nth1(I, Offs, O), O =< Char ), Is),
+    last(Is, Line).
+
+residue_block_translated_id(Text, Id) :- residue_block_translated(Text, Id, _).
+
+%   A translation with alternatives: two rules or more, or a condition line
+%   that begins with `or` or `either`.
+residue_has_alternatives(Text, Id) :-
+    residue_blocks(Text, Blocks),
+    memberchk(res(Id, _, _, Body0), Blocks),
+    exclude(le_residue_fold:label_line, Body0, Body),     % `rule c3 with provenance ...:`
+    fill_statements(Body, Stmts),
+    include([X]>>(X = stmt(_)), Stmts, Rules),
+    length(Rules, N), N > 1, !.
+residue_has_alternatives(Text, Id) :-
+    residue_blocks(Text, Blocks),
+    memberchk(res(Id, _, _, Body), Blocks),
+    member(L, Body), sentence_words(L, Ws0),
+    ( Ws0 = [A|Ws], kw_synonym_words(and, [A]) -> true ; Ws = Ws0 ),
+    Ws = [W|_],
+    ( kw_synonym_words(or, [W]) ; kw_synonym_words(either, [W]) ), !.
 
 %   The residues named by the rows that call residue Id.
 row_residues(Text, Id, RowIds) :-
@@ -1784,12 +1905,27 @@ why_not_rule_start(KB, Scenario, Query, Start) :-
             le_kbs:setScenarion(SM, Scenario),
             dynamic(SM:detailed_failures/0), assertz(SM:detailed_failures),
             call_with_time_limit(30, le_kbs:query_explain(SM, Query, _, _, Why)),
-            le_why_not:unmet_json(SM, KB, Why, Unmet) ), _, fail),
-    member(U, Unmet), get_dict(ruleStart, U, Start).
+            le_why_not:unmet_json(SM, KB, Why, Unmet),
+            le_why_not:unmet_conditions(SM, KB, Why, Items) ), _, fail),
+    (   member(U, Unmet), get_dict(ruleStart, U, Start)
+    ;   %  a condition that matches no template has no rule; its words say
+        %  where it is written
+        member(unmet(_, unknown_tokens([T|_]), _, _, _), Items),
+        arg(_, T, loc(Start, _))
+    ).
 
 reverted_body(Lines) :-
-    ( le_writer:writer_word(residue_reverted, W) -> true ; W = 'kept unknown: its translation broke a test of the program' ),
+    ( le_writer:writer_word(residue_reverted, W) -> true ; W = 'kept unknown: its translation was put back' ),
     member(L, Lines), sub_string(L, _, _, _, W), !.
+
+residue_answers_checked(KB, Scenario, Question, Answers) :-
+    catch(( le_kbs:createSession(KB, SM),
+            le_kbs:setScenarion(SM, Scenario),
+            call_with_time_limit(10,
+                findall(A, ( le_kbs:query(SM, Question, I, _, _),
+                             le_kbs:canonical_string(I, A) ), As)) ),
+          _, fail),
+    sort(As, Answers).
 
 residue_answers(KB, Scenario, Question, Answers) :-
     catch(( le_kbs:createSession(KB, SM),
@@ -2446,7 +2582,7 @@ residue_report(Config, Program, Report) :-
               exclude(blank_line, OrigBody, OrigStmts),
               maplist([L0, L1]>>normalize_space(string(L1), L0), Stmts, StmtsN),
               maplist([L0, L1]>>normalize_space(string(L1), L0), OrigStmts, OrigN),
-              (   reverted_body(Src) -> St = "reverted (its translation broke a test)"
+              (   reverted_body(Src) -> St = "reverted (its translation was put back)"
               ;   N > 0, StmtsN == OrigN -> St = "open"      % the skeleton's placeholder, untouched
               ;   N > 0 -> St = "translated"
               ;   NSrc > NOrig -> St = "declined (explained in a comment)"

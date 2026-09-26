@@ -313,6 +313,23 @@ a counterparty meets condition c2 if
 ```") :- ( P = residue_draft(_) ; P = residue_repair(_, _) ), !.
 hook_negating(P, _, _) :- throw(unexpected_llm_purpose(P)).
 
+%   A model whose translation of c2 declares a template with a reserved word:
+%   an error, so the editor would run no query. The line goes, and c2 goes
+%   back to its placeholder.
+hook_reserved(P, _, "```le residue templates
+*a counterparty* has its head office in england; unknown.
+*a counterparty* does not fall within any of the excluded types; unknown.
+```
+```le residue c1
+a counterparty meets condition c1 if
+    the counterparty has its head office in england.
+```
+```le residue c2
+a counterparty meets condition c2 if
+    the counterparty does not fall within any of the excluded types.
+```") :- ( P = residue_draft(_) ; P = residue_repair(_, _) ), !.
+hook_reserved(P, _, _) :- throw(unexpected_llm_purpose(P)).
+
 :- begin_tests(residue_mode).
 
 test(blocks_found) :-
@@ -497,10 +514,22 @@ test(a_translation_that_breaks_a_test_goes_back_to_its_placeholder,
     start_contract_job(Config, [sync(true)], JobID),
     le_contract_assistant:ca_result(JobID, Result),
     %  c1 is back to its placeholder, and says why; c2 stays translated (and folded)
-    assertion(sub_string(Result.le, _, _, _, "% kept unknown: its translation broke a test of the program (scenario acme)\nit is unknown whether a counterparty meets condition c1.")),
+    assertion(sub_string(Result.le, _, _, _, "% kept unknown: its translation was put back (scenario acme)\nit is unknown whether a counterparty meets condition c1.")),
     assertion(sub_string(Result.le, _, _, _, "and the counterparty has its head office in england")),
     assertion(Result.final_score.tests_failed =:= 0),
     member(R1, Result.residue), R1.id == "c1",
     assertion(sub_string(R1.status, 0, _, _, "reverted")).
+
+test(no_error_is_delivered,
+     [setup(hook_setup(test_residue_mode:hook_reserved)), cleanup(hook_cleanup)]) :-
+    guarded_skeleton(P),
+    Config = _{mode: "residue", program: P, model: "stub-model",
+               budget: _{preset: "draft", minutes: 5}},
+    start_contract_job(Config, [sync(true)], JobID),
+    le_contract_assistant:ca_result(JobID, Result),
+    assertion(Result.final_score.errors =:= 0),
+    assertion(\+ sub_string(Result.le, _, _, _, "any of the excluded types; unknown")),
+    assertion(sub_string(Result.le, _, _, _, "it is unknown whether a counterparty meets condition c2.")),
+    assertion(sub_string(Result.le, _, _, _, "and the counterparty has its head office in england")).
 
 :- end_tests(residue_mode).
