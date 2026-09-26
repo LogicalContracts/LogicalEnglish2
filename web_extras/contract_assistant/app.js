@@ -159,7 +159,10 @@ function wireModes() {
         const p = fragmentProgram();
         const lines = p ? p.split('\n').filter(l => l.trim() && !l.trim().startsWith('%')).length : 0;
         note.textContent = p
-            ? `${lines} significant line(s), ${p.length} characters — sent with every call, and never modified.`
+            ? `${lines} significant line(s), ${p.length} characters — ` +
+              (currentMode() === 'residue'
+                ? 'each call is shown the parts that concern its residue blocks; nothing outside them is ever changed.'
+                : 'sent with every call, and never modified.')
             : '';
         refreshStartButton();
         scheduleEstimate();

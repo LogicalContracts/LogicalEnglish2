@@ -330,6 +330,31 @@ a counterparty meets condition c2 if
 ```") :- ( P = residue_draft(_) ; P = residue_repair(_, _) ), !.
 hook_reserved(P, _, _) :- throw(unexpected_llm_purpose(P)).
 
+%   The draft translates c1 with an error and c2 well; the repair declines
+%   both. The decline of c1 (blamed) is taken, that of c2 (not) refused.
+hook_declining(residue_draft(_), _, "```le residue templates
+*a counterparty* is in administration; unknown.
+*a counterparty* has its head office in england; unknown.
+```
+```le residue c1
+a counterparty meets condition c1 if
+    it is not the case that
+        the counterparty is in administration.
+```
+```le residue c2
+a counterparty meets condition c2 if
+    the counterparty has its head office in england.
+```") :- !.
+hook_declining(residue_repair(_, _), _, "```le residue c1
+% kept unknown: cannot be stated positively
+it is unknown whether a counterparty meets condition c1.
+```
+```le residue c2
+% kept unknown: giving up
+it is unknown whether a counterparty meets condition c2.
+```") :- !.
+hook_declining(P, _, _) :- throw(unexpected_llm_purpose(P)).
+
 :- begin_tests(residue_mode).
 
 test(blocks_found) :-
@@ -536,5 +561,16 @@ test(a_declined_residue_keeps_its_placeholder) :-
     guarded_skeleton(P),
     le_contract_assistant:residue_splice(P, [c1-"% kept unknown: an assumption about the transaction"], Out),
     assertion(sub_string(Out, _, _, _, "% kept unknown: an assumption about the transaction\nit is unknown whether a counterparty meets condition c1.\n% RESIDUE c1 END")).
+
+test(a_repair_may_not_decline_a_translation_it_was_not_asked_about,
+     [setup(hook_setup(test_residue_mode:hook_declining)), cleanup(hook_cleanup)]) :-
+    guarded_skeleton(P),
+    Config = _{mode: "residue", program: P, model: "stub-model", fold: false,
+               budget: _{preset: "draft", minutes: 5}},
+    start_contract_job(Config, [sync(true)], JobID),
+    le_contract_assistant:ca_result(JobID, Result),
+    assertion(sub_string(Result.le, _, _, _, "% kept unknown: cannot be stated positively")),
+    assertion(\+ sub_string(Result.le, _, _, _, "% kept unknown: giving up")),
+    assertion(sub_string(Result.le, _, _, _, "the counterparty has its head office in england")).
 
 :- end_tests(residue_mode).
