@@ -283,6 +283,10 @@ See `examples/moreExamples/language/memoization/` (`lattice_paths.le`,
   - `*a person* is eligible if *a person* is a citizen.`
 - **Unknown Fact:** A statement saying that one particular sentence of a template is unknown. Such a statement may stand in the knowledge base, where it applies to every scenario, or inside one `scenario` section.
   - `it is unknown whether *a payment* is in respect of claim 01.` (the statement fixes the second argument as 'claim 01' and leaves the first one open). The synonyms `it is assumed whether ...` and `it is assumable whether ...` are also accepted.
+- **Negated Fact:** inside a `scenario` section, a statement that one sentence of a template is *not* so: `it is not the case that` followed by the sentence.
+  - `it is not the case that portsmouth water limited is outside the water undertaker class.`
+
+  While the scenario is loaded, the sentence is neither proved nor assumed, even where its template is declared `; unknown`. This is how a scenario says that a finding went the other way. Outside a scenario, such a statement is an error (`negated_fact_outside_scenario`); in a rule, `it is not the case that` stays a condition (§4).
 
 ### 3.1 Rule Sections
 The rules of a knowledge base may be grouped into named **sections**, though they need not be. A section marker is a line of this form:

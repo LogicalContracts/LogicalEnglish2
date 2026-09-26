@@ -459,6 +459,7 @@ solve_literal(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
           member(G, Assumed), Us = [], WhysBody = [], Ref = unknown
         ; get_clause(le_unknown(G), SM, KM, UnkBody, _UnkRef),
           \+ SM:le_neg(le_unknown(G)),
+          \+ SM:le_neg(G),                 % the scenario says it is not so
           \+ member(le_unknown(G), Anc),
           \+ judged_question_decided(G, SM, KM),
           D1 is D + 1,

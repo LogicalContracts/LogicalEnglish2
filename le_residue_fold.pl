@@ -53,8 +53,14 @@
 %   Report: one dict per residue block, `_{id, folded: true, into: [Head...]}`
 %   or `_{id, folded: false, reason}`.
 residue_fold(Program, Folded, Report) :-
-    split_string(Program, "\n", "", Lines),
+    split_string(Program, "\n", "", Lines0),
+    %  a scenario's statements about a residue's sentence become the facts it
+    %  rests on, so that the scenario no longer names the residue
+    index_blocks(Lines0, 1, Blocks0),
+    scenario_rewrite(Lines0, Blocks0, Lines),
     index_blocks(Lines, 1, Blocks),
+    one_slot_templates(Lines, OneSlot),
+    b_setval(le_fold_one_slot, OneSlot),
     findall(I-L, ( nth1(I, Lines, L), \+ inside_block(I, Blocks) ), Outside),
     maplist(fold_decision(Lines, Outside), Blocks, Decisions),
     %  every caller line, with the block folded into it
@@ -227,6 +233,12 @@ indefinite(W) :- class_member(article, W), \+ class_member(definite_article, W).
 %   `the bank` of the caller, and their `the bank` — their own variable or
 %   a constant such as `the Bank of England` — would be captured by a `bank`
 %   the caller already has.
+captures(_, _, Conds, HeadNoun, _) :-
+    %  conditions that are instances of templates whose one slot is the
+    %  head's noun introduce no variable, and read none
+    b_getval(le_fold_one_slot, OneSlot),
+    maplist(simple_condition(OneSlot, HeadNoun), Conds, _),
+    !, fail.
 captures(Lines, I, Conds, HeadNoun, Noun) :-
     atomic_list_concat(Conds, ' ', CT),
     le_contract_assistant:sentence_words(CT, Ws),
@@ -381,3 +393,175 @@ end_with_period(Lines, Out) :-
         append(Before, [Last1], Out)
     ;   Out = Lines
     ).
+
+		 /*******************************
+		 *      SCENARIOS, UNFOLDED      *
+		 *******************************/
+
+%!  scenario_rewrite(+Lines, +Blocks, -Lines1) is det.
+%
+%   A scenario that states a residue's sentence of an entity — `d2 meets
+%   condition c33`, a reviewer's reading carried over by the translator —
+%   keeps the residue from being folded, and reads as a name rather than a
+%   fact. Where the residue is translated as one rule of simple conditions,
+%   the statement becomes those conditions, said of the entity:
+%
+%       d2 meets condition c33.   =>   d2 has a covered legal form stated in the appendix.
+%
+%   The program's constraints say which sentence denies which (`it must not
+%   be true that a counterparty meets a condition and the counterparty fails
+%   the condition`): a denial becomes `it is not the case that <condition>`,
+%   of the entity — when the rule has a single condition; a denied
+%   conjunction is not a list of facts, and stays as it is. The line the
+%   statement came from is kept above it as a comment.
+scenario_rewrite(Lines, Blocks, Out) :-
+    opposite_pairs(Lines, Pairs),
+    one_slot_templates(Lines, OneSlot),
+    findall(Target-Conds-Noun,
+            ( member(blk(_, _, _, Src, Body), Blocks),
+              le_contract_assistant:residue_target(Src, Target),
+              simple_single_rule(OneSlot, Body, Target, Conds, Noun) ),
+            Rules),
+    (   Rules == []
+    ->  Out = Lines
+    ;   scenario_flags(Lines, false, Flags),
+        maplist(rewrite_in(Blocks, Rules, Pairs), Flags, Lines, Outs, Done),
+        append(Outs, Out0),
+        (   memberchk(true, Done)
+        ->  drop_repeated_facts(Out0, [], Out)     % residues often share a condition
+        ;   Out = Out0
+        )
+    ).
+
+%   For each line, whether it is in a scenario: from a header that opens one
+%   (`scenario ... is:`) to the next unindented line that ends with a colon
+%   or the next section's header.
+scenario_flags([], _, []).
+scenario_flags([L|Ls], In0, [In|Ins]) :-
+    (   \+ le_contract_assistant:comment_line(L), indent_of(L, 0),
+        le_contract_assistant:sentence_words(L, [W|_]),
+        normalize_space(string(T), L), string_concat(_, ":", T)
+    ->  ( class_member(scenario, W) -> In = false, In1 = true ; In = false, In1 = false )
+    ;   In = In0, In1 = In0
+    ),
+    scenario_flags(Ls, In1, Ins).
+
+rewrite_in(Blocks, Rules, Pairs, true, Line, Out, Done) :- !,
+    rewrite_line(Blocks, Rules, Pairs, Line, Out, Done).
+rewrite_in(_, _, _, false, Line, [Line], false).
+
+%   A statement repeated within one paragraph (a scenario), dropped; a blank
+%   line starts the next paragraph.
+drop_repeated_facts([], _, []).
+drop_repeated_facts([L|Ls], Seen, Out) :-
+    (   le_contract_assistant:blank_line(L)
+    ->  Out = [L|More], drop_repeated_facts(Ls, [], More)
+    ;   \+ le_contract_assistant:comment_line(L), indent_of(L, In), In > 0,
+        normalize_space(string(K), L), string_concat(_, ".", K)
+    ->  (   memberchk(K, Seen)
+        ->  drop_repeated_facts(Ls, Seen, Out)
+        ;   Out = [L|More], drop_repeated_facts(Ls, [K|Seen], More)
+        )
+    ;   Out = [L|More], drop_repeated_facts(Ls, Seen, More)
+    ).
+
+%   A block holding one rule concluding Target, whose conditions are single
+%   lines about the head's noun only (no negation, no alternatives, no other
+%   variable): their texts, without connectives.
+simple_single_rule(OneSlot, Body, Target, Conds, Noun) :-
+    exclude(le_contract_assistant:blank_line, Body, B1),
+    exclude(label_line, B1, B2),
+    le_contract_assistant:fill_statements(B2, Stmts),
+    include([X]>>(X = stmt(_)), Stmts, [stmt([Head|CondLines])]),
+    CondLines \== [],
+    target_key(Target, TKey),
+    rule_head(Head, TKey),
+    head_noun(Head, Noun), Noun \== none,
+    maplist(indent_of, CondLines, Is), min_list(Is, Base), max_list(Is, Base),
+    maplist(simple_condition(OneSlot, Noun), CondLines, Conds).
+
+simple_condition(OneSlot, Noun, Line, Text) :-
+    normalize_space(string(T0), Line),
+    ( string_concat(T1, ".", T0) -> true ; T1 = T0 ),
+    le_contract_assistant:sentence_words(T1, [W0|_]),
+    (   kw_synonym_words(and, [W0])
+    ->  split_string(T1, " ", "", [_|Rest]), atomic_list_concat(Rest, ' ', TA)
+    ;   \+ kw_synonym_words(or, [W0]), atom_string(TA, T1)
+    ),
+    atom_string(TA, Text),
+    %  an instance of a template whose one slot is the head's noun: no
+    %  other variable, whatever indefinite phrases its words hold
+    le_contract_assistant:sentence_words(Text, Ws),
+    memberchk(Ws-Noun, OneSlot).
+
+%   The templates with a single slot, each as the words of its instance about
+%   `the <noun>`, paired with that noun.
+one_slot_templates(Lines, OneSlot) :-
+    ( class_words(definite_article, [The|_]) -> true ; The = the ),
+    findall(Ws-Noun,
+            ( member(L, Lines), \+ le_contract_assistant:comment_line(L),
+              split_string(L, "*", "", [Pre, Slot, Post]),
+              normalize_space(string(SlotN), Slot),
+              le_contract_assistant:sentence_words(SlotN, [A, Noun|_]), indefinite(A),
+              ( sub_string(Post, B, _, _, ";") -> sub_string(Post, 0, B, _, Post1) ; Post1 = Post ),
+              format(string(Inst), "~w~w ~w~w", [Pre, The, Noun, Post1]),
+              le_contract_assistant:sentence_words(Inst, Ws) ),
+            OneSlot0),
+    sort(OneSlot0, OneSlot).
+
+%   P-N: the words that state and deny a relation, from each constraint
+%   `it must not be true that / a X <P> a Y / and the X <N> the Y`.
+opposite_pairs(Lines, Pairs) :-
+    ( kw_main_words(lps_must_not, CW) -> true ; CW = [it, must, not, be, true, that] ),
+    findall(P-N,
+            ( append(_, [L0, L1, L2|_], Lines),
+              le_contract_assistant:sentence_words(L0, W0), W0 == CW,
+              le_contract_assistant:sentence_words(L1, [A1, X|R1]), indefinite(A1),
+              le_contract_assistant:sentence_words(L2, [_And, D2, X|R2]), class_member(definite_article, D2),
+              append(P, [A3|_], R1), indefinite(A3), P \== [],
+              append(N, [D4|_], R2), class_member(definite_article, D4), N \== [] ),
+            Pairs).
+
+%   One line: unchanged, or the facts a residue's statement stands for.
+rewrite_line(Blocks, Rules, Pairs, Line, Out, Done) :-
+    (   \+ le_contract_assistant:comment_line(Line),
+        indent_of(Line, In), In > 0,
+        normalize_space(string(T0), Line), string_concat(T1, ".", T0),
+        le_contract_assistant:sentence_words(T1, LW),
+        member(Target-Conds-Noun, Rules),
+        le_contract_assistant:sentence_words(Target, [TA, Noun|Rest]), indefinite(TA),
+        (   append(EntityWs, Rest, LW), Sign = pos
+        ;   member(P-N, Pairs), append(P, Tail, Rest), append(N, Tail, NRest),
+            append(EntityWs, NRest, LW), Sign = neg
+        ),
+        EntityWs \== [],
+        entity_text(T1, EntityWs, Entity),
+        ( Sign == neg -> Conds = [_] ; true )
+    ->  length(Sp, In), maplist(=(' '), Sp), atomic_list_concat(Sp, Pad),
+        format(string(Note), "~w% ~w", [Pad, T0]),
+        (   Sign == pos
+        ->  findall(F, ( member(C, Conds), of_entity(C, Noun, Entity, CE),
+                         format(string(F), "~w~w.", [Pad, CE]) ), Facts)
+        ;   Conds = [C], of_entity(C, Noun, Entity, CE),
+            ( kw_main_words(not_the_case, NW) -> atomic_list_concat(NW, ' ', NotA) ; NotA = 'it is not the case that' ),
+            format(string(F), "~w~w ~w.", [Pad, NotA, CE]), Facts = [F]
+        ),
+        Out = [Note|Facts], Done = true
+    ;   Out = [Line], Done = false
+    ),
+    Blocks = Blocks.
+
+%   The entity as the line writes it: its first words, in their own case.
+entity_text(Text, EntityWs, Entity) :-
+    length(EntityWs, K),
+    split_string(Text, " ", " ", Ws0), exclude(==(""), Ws0, Ws),
+    length(Pre, K), append(Pre, _, Ws),
+    atomic_list_concat(Pre, ' ', EA), atom_string(EA, Entity).
+
+%   A condition about `the <noun>`, said of the entity.
+of_entity(Cond, Noun, Entity, Out) :-
+    ( class_words(definite_article, [The|_]) -> true ; The = the ),
+    format(string(Phrase), "~w ~w", [The, Noun]),
+    atomic_list_concat(Parts, Phrase, Cond),
+    atomic_list_concat(Parts, Entity, OutA), atom_string(OutA, Out).
+
