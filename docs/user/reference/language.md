@@ -53,7 +53,7 @@ A program is written in sections, and each section says how to read the sentence
 - **Included Resources:** `the knowledge base <name> includes these resources:` or `the contract <name> includes these resources:` (brings in other LE files, or documents at a web address — a URL. Write such a section before the main knowledge base header).
 - **Knowledge Base:** `the knowledge base <name> includes:` or `the contract <name> states that:`
 - **Scenario:** `scenario <name> is:` (states the facts of one case, usually a case the program is tested on)
-  - Can include expectations: `<QueryName> expects answers [<List of Strings>] and unknowns [<List of Strings>].` (the word `answers` may be omitted)
+  - Can include expectations: `<QueryName> expects answers [<List of Strings>] and unknowns [<List of Strings>].` (the word `answers` may be omitted; `and any unknowns` checks the answers only, §12)
 - **Query:** `query <name> is:` (says what the program should try to prove). The
   body of a query may be a **whole condition — just like the body of a rule** — and
   not only one sentence: the body may combine conditions with `and`, `or`,
@@ -592,6 +592,13 @@ A template may take a whole sentence as one of its arguments.
 ## 12. Testing and Expectations
 A scenario can state the answers a query is expected to give. The test runner then checks them.
 - **Syntax:** `<QueryName> expects answers ["Answer 1", "Answer 2"] and unknowns ["Unknown 1"].` (The `and unknowns [...]` part is optional, and so is the word `answers`).
+- **The answers, whatever they rest on:** `<QueryName> expects answers ["Answer 1"] and any unknowns.`
+  Without an `and unknowns [...]` part, an expectation also says that the
+  answers rest on no unknowns at all. With `and any unknowns`, the test checks
+  the answers only: an answer that rests on unknowns passes, whichever they
+  are. Use it where what an answer rests on is expected to change while the
+  answer does not, for instance a program whose conditions are still being
+  translated into rules.
 - The expectation names the query directly — it must **not** be prefixed with
   `query` (a leading section keyword is reported as a misplaced expectation).
 - **Flip queries** (§17.7) state their expected minimal change sets: `<QueryName> expects changes [["add: <fact>"], ["remove: <fact>", "add: <fact>"]].`
@@ -607,6 +614,7 @@ A scenario can state the answers a query is expected to give. The test runner th
       John is born in the UK on 2021-10-09.
       one expects answers ["John acquires British citizenship on 2021-10-09"] and unknowns ["John is a good person"].
       two expects ["John is a British citizen"].
+      three expects ["John acquires British citizenship on 2021-10-09"] and any unknowns.
   ```
 
 ## 13. System Predicates

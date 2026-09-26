@@ -21,6 +21,8 @@ type_number,number,número,número,nombre,numero
 type_date,date,data,fecha,date,data
 todo_residue,"translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically","traduzir o fragmento abaixo à mão, ou com o Contract Assistant (modo residue); não foi traduzido automaticamente","traducir a mano el fragmento de abajo, o con el Contract Assistant (modo residue); no se tradujo automáticamente","traduire à la main le fragment ci-dessous, ou avec le Contract Assistant (mode residue) ; il n'a pas été traduit automatiquement","tradurre a mano il frammento qui sotto, o con il Contract Assistant (modalità residue); non è stato tradotto automaticamente"
 residue_concludes,concludes,conclui,concluye,conclut,conclude
+residue_provenance,provenance,proveniência,procedencia,provenance,provenienza
+residue_folded,folded in from residue,incorporado a partir do resíduo,incorporado desde el residuo,intégré depuis le résidu,incorporato dal residuo
 legal_kb_suffix,legal view,visão jurídica,vista jurídica,vue juridique,vista giuridica
 legal_permissions_section,permissions,permissoes,permisos,permissions,permessi
 legal_effects_section,effects,efeitos,efectos,effets,effetti

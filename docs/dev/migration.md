@@ -177,7 +177,7 @@ program(Header, Items)
 | `constraint(Body, Options)` | an integrity constraint, `it must not be true that` and the conditions (le_summary.md §3.3); Options `comment(Text)` |
 | `table(Name, Options, Columns, Rows)` | a decision table (§17.3). Options: `policy(first\|unique\|all)`, `loaded_from(File)`, `provenance(P)`. Cells: a constant, `any`, `or_list([...])`, `cond(E)` with `E` built from `Op-Value` (`(>=)-1`) and `and/2`, `or/2`, `quote(Text)` (a citation column), `raw(Text)` |
 | `section(Name)` | `section Name is:` |
-| `residue(Id, Options)` | a residue block (§4): Options `title(T)`, `locator(L)`, `source(Language, Code)`, `note(Text)`, `placeholder(LE)`, `conclusion(Sentence)` (the LE sentence the block must conclude, constants included: written as `%   concludes: ...`), `concludes([F, ...])` (what the block must conclude — the expectations that depend on it are pending, §3) |
+| `residue(Id, Options)` | a residue block (§4): Options `title(T)`, `locator(L)`, `source(Language, Code)`, `note(Text)`, `placeholder(LE)`, `conclusion(Sentence)` (the LE sentence the block must conclude, constants included: written as `%   concludes: ...`), `provenance(Trailers)` (what follows `with provenance` in a rule label — `"the act", at "s. 4", confer "..."`: written as `%   provenance: ...`, and given to each rule the translation writes), `concludes([F, ...])` (what the block must conclude — the expectations that depend on it are pending, §3) |
 | `document(Name, Options)` | `Name is published at "..."` / `the text of Name is at "..."`: Options `url(U)`, `text(Path)` |
 | `scenario(Name, Lines, Options)` | a scenario. Lines: `fact(L)`, `fact(L, Provenance)`, `unknown(L)`, `rule(H, B)`, `expects(Query, Answers)`, `expects(Query, Answers, Unknowns)`, `expects_changes(Query, Sets)`, `pending(Why, Line)` (a line written as a comment, with its reason), `comment(T)`. Answers are strings or ground IR literals (written through their templates). Options: `as_stated_in(Doc)`, `at(Locator)` — the scenario's default provenance |
 | `query(Name, Body)` / `query(Name, flip(Goal))` | a query; its variables are written `which <type>` |
@@ -385,7 +385,41 @@ count as not done, and rank an attempt below one that translates:
   makes it declined);
 - `residue_restates` — a translation whose conditions are all conditions the
   rule calling the residue already checks (the counterparty's kind, legal
-  form, jurisdiction), or that has none: it adds nothing the text required. Tests:
+  form, jurisdiction), or that has none: it adds nothing the text required.
+
+**Provenance.** A residue whose header has a `%   provenance: <trailers>` line
+(the word is `residue_provenance` in `i18n/writer_words.csv`) gives it to each
+rule of its translation, when the job splices it in: `rule c22 with provenance
+<trailers>:`, then `c22_2`, and so on. A rule translated from a residue then
+cites the source as the rule that calls it does. Ambit's export writes the
+line for every condition and exclusion.
+
+**Folding** (`le_residue_fold.pl`, on by default; request field `fold: false`
+turns it off). Once the winner is chosen, a residue translated as a single
+rule concluding exactly its sentence is folded into the rules that call it:
+each condition line naming it (`and the counterparty meets condition c22`)
+is replaced by the rule's conditions, a condition folded in twice is kept
+once, the block is removed, and its text and source stay as a comment above
+the caller (`% folded in from residue c22 (...)`). The rows then read as the
+source did, and every condition sits under the caller's label. A residue
+stays a rule of its own when folding could change an answer: several rules,
+a fact or the placeholder, conditions that are alternatives (a top-level
+`or`), a name used anywhere but a condition line (a scenario stating `acme
+fails condition c1`, which the skeleton's constraint reads through the name),
+no caller, or conditions that would capture one of the caller's variables.
+The folded program is delivered only if it verifies with no more errors and
+no worse tests than before; the program before folding is kept as
+`unfolded.le`, and the ledger's Folded column says, per residue, where it
+went or why it stayed. For a file: `swipl -g "use_module(le_residue_fold),
+fold_residue_file('in.le', 'out.le'), halt."`.
+
+**Regressions are about answers.** A skeleton test whose answers still hold
+after the splice is not a regression, whatever its unknowns: translating a
+residue replaces the unknown it was (`acme meets condition c1`) with the
+unknowns its rules rest on. The rounds stop when no test fails on its answers. A translator that writes expectations
+for a skeleton with residue can say so in the program itself: `q expects
+answers [...] and any unknowns.` checks the answers only (language.md §12).
+Ambit's export writes each signed determination that way. Tests:
 `testing/test_residue_mode.pl`.
 
 ## 5. The defects fixed before the readers (Appendix A of the report)

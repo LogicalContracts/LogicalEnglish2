@@ -31,6 +31,11 @@ scenario one is:
     ] and unknowns [
         "alice knows that 42 will win the lottery"
     ].
+    % the same answers, whatever they rest on
+    one expects answers [
+        "alice becomes rich",
+        "bob becomes rich"
+    ] and any unknowns.
 
 scenario two is:
     two expects answers [

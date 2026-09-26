@@ -106,6 +106,7 @@
 :- use_module(le_kbs).
 :- use_module(le_verifier).
 :- use_module(le_writer, []).   % writer_word/2: the words of a residue header
+:- use_module(le_residue_fold, []).
 :- use_module(le_issue_feedback).
 :- use_module(llm/llm_client).
 :- use_module(llm/llm_prices).
@@ -274,12 +275,29 @@ contract_cost_estimate(Dict, Est) :-
     ( get_dict(budget, Dict, B), is_dict(B) -> true ; B = _{} ),
     budget_params(B, Preset, K, W, Repairs, _Minutes),
     features_params(Dict, Preset, Features),
-    ( get_dict(input_chars, Dict, IC), number(IC) -> Chars = IC ; Chars = 0 ),
+    ( get_dict(input_chars, Dict, IC), number(IC) -> Chars0 = IC ; Chars0 = 0 ),
     job_mode(Dict, Mode),
+    residue_estimate_shape(Mode, Dict, Chars0, Chars, Batches, BatchSize),
     cost_estimate(_{mode: Mode, model: Model, judge_model: Judge, k: K, w: W,
                     repairs: Repairs, probes: Features.probes,
-                    input_chars: Chars},
+                    input_chars: Chars, batches: Batches, batch_size: BatchSize},
                   Est).
+
+%   In residue mode with the program at hand, the job's own shape: how many
+%   batches, and how much one batch's call carries (not the whole program,
+%   which no call is shown).
+residue_estimate_shape(residue, Dict, _, Chars, Batches, BatchSize) :-
+    free_text(program, Dict, P), P \== none,
+    residue_blocks(P, Blocks), Blocks \== [], !,
+    ( get_dict(residue_batch, Dict, RB), integer(RB), RB > 0 -> BatchSize = RB ; BatchSize = 20 ),
+    findall(Id, member(res(Id, _, _, _), Blocks), Ids),
+    C = _{program: P, residues: Blocks, residue_batch: BatchSize},
+    residue_batches(C, Ids, BatchList),
+    length(BatchList, Batches),
+    BatchList = [First|_],
+    residue_materials(C, P, First, M),
+    string_length(M, Chars).
+residue_estimate_shape(_, _, Chars, Chars, 1, 1).
 
 % What the user chose, echoed with every status poll so the Run screen can
 % show it even after a page reload, plus the elapsed wall-clock seconds.
@@ -398,9 +416,10 @@ normalise_config(Mode, Dict, WordingFile, ScheduleFiles, CaseFiles, TextFile, Co
     fragment_source_text(Mode, Dict, TextFile, SourceText),
     free_text(name, Dict, FragmentName),
     ( get_dict(residue_batch, Dict, RB), integer(RB), RB > 0 -> ResidueBatch = RB ; ResidueBatch = 20 ),
+    ( get_dict(fold, Dict, false) -> Fold = false ; Fold = true ),
     get_time(Now), Deadline is Now + Minutes * 60,
     Config = _{mode: Mode, program: Program, source_text: SourceText,
-               residue_batch: ResidueBatch,
+               residue_batch: ResidueBatch, fold: Fold,
                fragment_name: FragmentName,
                model: Model, judge_model: JudgeModel, api_keys: Keys,
                target: Target, k: K, w: W, repairs: Repairs,
@@ -1395,7 +1414,8 @@ residue_splice_lines([L|Ls], Fills, Out) :-
         (   memberchk(Id-Fill, Fills)
         ->  include(comment_line, Inside, Src),
             split_string(Fill, "\n", "", FillLines0),
-            exclude(blank_line, FillLines0, FillLines),
+            exclude(blank_line, FillLines0, FillLines1),
+            residue_label_rules(Src, Id, FillLines1, FillLines),
             append([[L], Src, FillLines], Block)
         ;   Block = [L|Inside]
         ),
@@ -1407,6 +1427,66 @@ residue_splice_lines([L|Ls], Fills, Out) :-
     ).
 
 blank_line(L) :- normalize_space(string(""), L).
+
+%!  residue_label_rules(+SrcLines, +Id, +FillLines, -Labelled) is det.
+%
+%   A residue that says where its text comes from — a `%   provenance: ...`
+%   line holding what follows `with provenance` in a rule's label (the word is
+%   `residue_provenance` in i18n/writer_words.csv) — gives that provenance to
+%   each rule of its translation: `rule c22 with provenance ...:`, then
+%   `c22_2`, ... A rule the translation labelled itself keeps its label.
+%   Without the line, the fill is left as it is.
+residue_label_rules(Src, Id, Lines, Labelled) :-
+    le_writer:writer_word(residue_provenance, PW),
+    format(string(Prefix), "~w:", [PW]),
+    member(S, Src), normalize_space(string(T), S),
+    string_concat("%", T1, T), normalize_space(string(T2), T1),
+    string_concat(Prefix, P0, T2), normalize_space(string(Prov), P0), Prov \== "",
+    !,
+    ( kw_main_words(rule, RW) -> atomic_list_concat(RW, ' ', RuleKw) ; RuleKw = rule ),
+    ( kw_main_words(with_provenance, WP) -> atomic_list_concat(WP, ' ', ProvKw) ; ProvKw = 'with provenance' ),
+    fill_statements(Lines, Stmts),
+    label_statements(Stmts, RuleKw, ProvKw, Prov, Id, 1, Labelled).
+residue_label_rules(_, _, Lines, Lines).
+
+%   Lines grouped into statements: comment lines alone, and each statement
+%   from its unindented first line to the line that ends with a period.
+fill_statements([], []).
+fill_statements([L|Ls], [S|Ss]) :-
+    (   comment_line(L) -> S = comment([L]), Rest = Ls
+    ;   statement_run([L|Ls], Run, Rest), S = stmt(Run)
+    ),
+    fill_statements(Rest, Ss).
+
+statement_run([L|Ls], [L], Ls) :-
+    normalize_space(string(T), L), string_concat(_, ".", T), !.
+statement_run([L|Ls], [L|Run], Rest) :-
+    Ls = [N|_], \+ unindented_statement_start(N), !,
+    statement_run(Ls, Run, Rest).
+statement_run([L|Ls], [L], Ls).
+
+unindented_statement_start(L) :-
+    \+ comment_line(L),
+    \+ sub_string(L, 0, 1, _, " "), \+ sub_string(L, 0, 1, _, "\t").
+
+label_statements([], _, _, _, _, _, []).
+label_statements([comment(Ls)|Ss], R, P, Prov, Id, N, Out) :- !,
+    append(Ls, More, Out),
+    label_statements(Ss, R, P, Prov, Id, N, More).
+label_statements([stmt(Ls)|Ss], R, P, Prov, Id, N, Out) :-
+    Ls = [First|_],
+    atomic_list_concat(Ls, ' ', Flat), sentence_words(Flat, Ws),
+    ( kw_main_words(if, [If|_]) -> true ; If = if ),
+    sentence_words(First, [W1|_]),
+    (   memberchk(If, Ws), W1 \== R
+    ->  ( N =:= 1 -> Name = Id ; format(atom(Name), "~w_~w", [Id, N]) ),
+        format(string(Label), "~w ~w ~w ~w:", [R, Name, P, Prov]),
+        N1 is N + 1,
+        append([Label|Ls], More, Out)
+    ;   N1 = N,
+        append(Ls, More, Out)
+    ),
+    label_statements(Ss, R, P, Prov, Id, N1, More).
 
 %!  residue_fills(+Reply, +Ids, -Fills) is det.
 %
@@ -1495,22 +1575,56 @@ residue_stages(JobID) :-
     residue_report(Config2, WText, Report),
     forall(member(R, Report),
            ca_emit(JobID, "Residue ~w: ~w"-[R.id, R.status])),
-    save_text_artifact(JobID, 'winner.le', WText),
-    verify_le_text(WText, VFinal),
+    residue_fold_winner(JobID, Config2, WText, WText1, FoldReport),
+    save_text_artifact(JobID, 'winner.le', WText1),
+    verify_le_text(WText1, VFinal),
     score_summary(VFinal, SummaryFinal),
     branch_score(VFinal, SummaryFinal, FinalScore),
-    residue_ledger(Config2, Report, SummaryFinal, Ledger),
+    residue_ledger(Config2, Report, FoldReport, SummaryFinal, Ledger),
     save_text_artifact(JobID, 'ledger.md', Ledger),
     findall(SD, (member(branch(I, _, S), Branches), SD = S.put(branch, I)), AllScores),
-    Result = _{le: WText, filename: "program.le", mode: residue, winner: WIdx,
+    Result = _{le: WText1, filename: "program.le", mode: residue, winner: WIdx,
                scores: AllScores, final_score: FinalScore, ledger: Ledger,
-               residue: Report,
+               residue: Report, fold: FoldReport,
                interrogation: _{enabled: false}, paraphrase: _{enabled: false},
                existing_code: _{enabled: false}},
     save_json_artifact(JobID, 'scores.json',
                        _{winner: WIdx, scores: AllScores, mode: residue, residue: Report}),
     retractall(ca_result(JobID, _)),
     assertz(ca_result(JobID, Result)).
+
+%!  residue_fold_winner(+JobID, +Config, +Text, -Delivered, -FoldReport) is det.
+%
+%   The translated residue folded into the rules that call it
+%   (le_residue_fold.pl), unless the request says `fold: false`. The folded
+%   program is delivered only if it verifies with no more errors and no
+%   worse test results than the program before folding, which is kept as
+%   `unfolded.le`.
+residue_fold_winner(JobID, Config, Text, Delivered, FoldReport) :-
+    (   Config.get(fold, true) == false
+    ->  Delivered = Text, FoldReport = _{enabled: false}
+    ;   catch(le_residue_fold:residue_fold(Text, Folded, Rep), E,
+              ( print_message(warning, E), fail ))
+    ->  include([R]>>get_dict(folded, R, true), Rep, Done), length(Done, ND),
+        verify_le_text(Text, V0), verify_le_text(Folded, V1),
+        (   ND > 0,
+            V1.errors =< V0.errors,
+            V1.tests_failed =< V0.tests_failed,
+            V1.tests_passed >= V0.tests_passed
+        ->  save_text_artifact(JobID, 'unfolded.le', Text),
+            ca_emit(JobID, "Folded ~w residue block(s) into the rules that call them"-[ND]),
+            Delivered = Folded,
+            FoldReport = _{enabled: true, applied: true, folded: ND, residues: Rep}
+        ;   ND > 0
+        ->  ca_emit(JobID, "Folding changed the verification (~w errors, ~w tests failing, against ~w and ~w): delivered unfolded"-
+                           [V1.errors, V1.tests_failed, V0.errors, V0.tests_failed]),
+            Delivered = Text,
+            FoldReport = _{enabled: true, applied: false, folded: 0, residues: Rep}
+        ;   Delivered = Text,
+            FoldReport = _{enabled: true, applied: false, folded: 0, residues: Rep}
+        )
+    ;   Delivered = Text, FoldReport = _{enabled: true, applied: false, folded: 0, residues: []}
+    ).
 
 %   The skeleton — shortened to what concerns the residues Ids
 %   (residue_focus_program/3) — the residues to translate (each with its
@@ -1763,11 +1877,14 @@ indent_template_line(L, I) :-
 residue_verify(Config, Fills, Program, V) :-
     residue_program(Config, Fills, Program),
     verify_le_text(Program, V0),
-    %  a skeleton test that passed and no longer does
+    %  a skeleton test that passed and no longer gives its answers — whatever
+    %  their unknowns, which a translation changes by design: a condition that
+    %  was an unknown of its own becomes the unknowns its rules rest on
     findall(Q-S,
             ( member(Q-S, Config.baseline.passing),
-              \+ ( member(D, V0.test_details), D.status == "pass",
-                   get_dict(query, D, Q), get_dict(scenario, D, S) ) ),
+              \+ ( member(D, V0.test_details),
+                   get_dict(query, D, Q), get_dict(scenario, D, S),
+                   ( D.status == "pass" ; get_dict(answers_match, D, true) ) ) ),
             Broken),
     maplist(residue_regression_issue, Broken, RIs),
     findall(I, ( member(Res, Config.residues), Res = res(Id, _, _, _), residue_is_open(Res, Fills),
@@ -1788,7 +1905,15 @@ residue_verify(Config, Fills, Program, V) :-
     append([RIs, Open, Wrong, Restates, Issues0], Issues),
     partition_severity(Issues, NE, NW),
     length(Open, NO), length(Restates, NR), NOpen is NO + NR,
-    V = V0.put(_{issues: Issues, errors: NE, warnings: NW, open: NOpen, residue_mode: true}).
+    hard_failures(V0, Hard),
+    V = V0.put(_{issues: Issues, errors: NE, warnings: NW, open: NOpen, residue_mode: true,
+                 hard_failed: Hard}).
+
+%   Failed tests whose answers differ, not only their unknowns.
+hard_failures(V, N) :-
+    Details = V.test_details,
+    aggregate_all(count, ( member(D, Details), \+ get_dict(status, D, "pass"),
+                           \+ get_dict(answers_match, D, true) ), N).
 
 %   The verifier's issues whose line falls in a residue block, marked with
 %   that residue.
@@ -2007,7 +2132,12 @@ residue_repair_loop(JobID, Config, Idx, Fills, Iter, Best0, Streak0, Final, Scor
     Patience = Config.repairs,
     %  a repair round attends to one batch of residues: allow one per batch
     HardCap is max(2 * Patience, 6) + Config.get(residue_batch_count, 1) - 1,
-    (   V.errors =:= 0, V.tests_failed =:= 0, V.open =:= 0
+    %  done: no errors, nothing left open, and every test giving its answers
+    %  (a test that differs only in its unknowns is not a failure here: a
+    %  translation changes the unknowns by design). A test that cannot pass —
+    %  a source's expectation the program disagrees with — ends the rounds by
+    %  patience, below.
+    (   V.errors =:= 0, V.open =:= 0, V.hard_failed =:= 0
     ->  Final = Program, branch_score(V, Summary, Score)
     ;   Streak >= Patience
     ->  ca_emit(JobID, "Attempt ~w: no improvement in ~w round(s), keeping the best"-[Idx, Streak]),
@@ -2111,15 +2241,33 @@ residue_report(Config, Program, Report) :-
               atom_string(Id, IdS) ),
             Report).
 
-residue_ledger(Config, Report, Summary, Ledger) :-
+residue_ledger(Config, Report, Fold, Summary, Ledger) :-
     findall(L, ( member(R, Report),
-                 format(string(L), "| ~w | ~w | ~w | ~w |", [R.id, R.title, R.status, R.lines]) ),
+                 fold_cell(Fold, R.id, FC),
+                 format(string(L), "| ~w | ~w | ~w | ~w | ~w |", [R.id, R.title, R.status, R.lines, FC]) ),
             Rows),
     atomic_list_concat(Rows, "\n", RowsT),
     length(Config.residues, N),
+    (   Fold.get(applied, false) == true
+    ->  format(string(FoldNote), " Then ~w translated block(s) were folded into the rules that call them: each condition line naming the residue was replaced by the translation's conditions, and the block removed (the program before folding is `unfolded.le`).", [Fold.folded])
+    ;   FoldNote = ""
+    ),
     format(string(Ledger),
-           "# Residue translation\n\n~w residue block(s); the delivered program: ~w.\n\n| Residue | Source | Status | LE lines |\n|---|---|---|---|\n~w\n\nThe skeleton (every line outside the residue blocks) was not changed: the replies were spliced between the markers by the job itself.\n",
-           [N, Summary, RowsT]).
+           "# Residue translation\n\n~w residue block(s); the delivered program: ~w.\n\n| Residue | Source | Status | LE lines | Folded |\n|---|---|---|---|---|\n~w\n\nThe skeleton (every line outside the residue blocks) was not changed by the model: the replies were spliced between the markers by the job itself.~w\n",
+           [N, Summary, RowsT, FoldNote]).
+
+fold_cell(Fold, IdS, Cell) :-
+    atom_string(Id, IdS),
+    (   Fold.get(applied, false) == true,
+        member(R, Fold.residues), R.id == Id
+    ->  (   R.folded == true
+        ->  atomic_list_concat(R.into, '; ', Into0),
+            ( sub_atom(Into0, 0, 60, _, Into1) -> atom_concat(Into1, '…', Into) ; Into = Into0 ),
+            format(string(Cell), "into ~w", [Into])
+        ;   Cell = R.reason
+        )
+    ;   Cell = ""
+    ).
 
 % ------------------------- Exercising the fragment ---------------------------
 
@@ -4403,8 +4551,19 @@ test_detail(pass(Q, S), _{status: "pass", query: QS, scenario: SS}) :- !,
 test_detail(fail(Q, S, E, A), _{status: "fail", query: QS, scenario: SS, expected: ES, actual: AS}) :- !,
     term_string(Q, QS), term_string(S, SS), term_string(E, ES), term_string(A, AS).
 test_detail(fail(Q, S, E, A, EU, AU), D) :- !,
-    test_detail(fail(Q, S, E-EU, A-AU), D).
+    test_detail(fail(Q, S, E-EU, A-AU), D0),
+    ( same_answer_strings(E, A) -> M = true ; M = false ),
+    D = D0.put(answers_match, M).
 test_detail(Other, _{status: "error", message: OS}) :- term_string(Other, OS).
+
+%   The same answers, whatever their unknowns.
+same_answer_strings(E, A) :-
+    maplist(answer_norm, E, E1), sort(E1, E2),
+    maplist(answer_norm, A, A1), sort(A1, A2),
+    E2 == A2.
+
+answer_norm(X, N) :-
+    format(string(S), "~w", [X]), string_lower(S, L), normalize_space(string(N), L).
 
 score_summary(V, Summary) :-
     Total is V.tests_passed + V.tests_failed,

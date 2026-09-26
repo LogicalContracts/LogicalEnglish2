@@ -455,7 +455,8 @@ section(misplaced_expectation(Start, End)) -->
     section_name_tokens(NameTokens),
     kw(expects), ( kw(answers) -> [] ; [] ),
     t(punctuation('[')), list_elements(_), t(punctuation(']')),
-    (   kw(and_unknowns), t(punctuation('[')), list_elements(_), t(punctuation(']')) -> [] ; [] ),
+    (   kw(and_any_unknowns) -> []
+    ;   kw(and_unknowns), t(punctuation('[')), list_elements(_), t(punctuation(']')) -> [] ; [] ),
     (   any_indent, t(punctuation('.', loc(_, End))) -> [] ; { get_token_pos(End) } ),
     {   reconstruct_name(NameTokens, Name),
         le_i18n:le_msg(misplaced_expectation_desc, [kw-Kw, name-Name], Desc),
@@ -1026,6 +1027,7 @@ kb_item(expected_changes(QueryName, Sets, Start, End)) -->
     any_indent, t(punctuation('.', loc(_, End))).
 
 % kb_item(expected(QueryName, Answers, Unknowns, Start, End)) parses "QueryName expects answers [Answers] and unknowns [Unknowns]."
+% "... and any unknowns." gives Unknowns = any: the answers are checked, not what they rest on.
 % The 'answers' word is optional: "QueryName expects [Answers]" means the same
 % thing, and reads better for a numbered query. Without this, such a line
 % matched no kb_item at all and the whole tail of the scenario was swallowed by
@@ -1035,7 +1037,9 @@ kb_item(expected(QueryName, Answers, Unknowns, Start, End)) -->
     { Tokens = [First|_], get_token_start(First, Start) },
     kw(expects), ( kw(answers) -> [] ; [] ),
     t(punctuation('[')), list_elements(Answers), t(punctuation(']')),
-    (   kw(and_unknowns), t(punctuation('[')), list_elements(Unknowns), t(punctuation(']'))
+    (   kw(and_any_unknowns)
+    ->  { Unknowns = any }       % the answers alone are the test (§12)
+    ;   kw(and_unknowns), t(punctuation('[')), list_elements(Unknowns), t(punctuation(']'))
     ->  []
     ;   { Unknowns = [] }
     ),
@@ -3438,7 +3442,9 @@ second_pass_scenario_item(Templates, unknown_fact(Head, Start, End), clause(NewH
 
 second_pass_scenario_item(_Templates, expected_changes(Q, Sets, Start, End), expected_changes(Q, Sets, Start, End), _M).
 second_pass_scenario_item(_Templates, expected(QueryName, Answers, Unknowns, Start, End), expected(QueryName, AnswerStrings, UnknownStrings, Start, End), _M) :-
-    maplist(extract_answer_string, Unknowns, UnknownStrings),
+    (   Unknowns == any -> UnknownStrings = any
+    ;   maplist(extract_answer_string, Unknowns, UnknownStrings)
+    ),
     maplist(extract_answer_string, Answers, AnswerStrings).
 
 % A flip query (docs/user/reference/language.md §17.7): "which minimal change to the

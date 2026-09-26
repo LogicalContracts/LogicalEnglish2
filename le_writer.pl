@@ -668,6 +668,10 @@ write_residue(Id, Opts) :-
     ->  writer_word(residue_concludes, Kw), format("%   ~w: ~w~n", [Kw, S])
     ;   true
     ),
+    (   option(provenance(P), Opts)
+    ->  writer_word(residue_provenance, PKw), format("%   ~w: ~w~n", [PKw, P])
+    ;   true
+    ),
     (   option(locator(Loc), Opts) -> format("%   source: ~w~n", [Loc]) ; true ),
     (   option(note(Note), Opts) -> write_comment_block(0, Note) ; true ),
     (   option(source(Lang, Code), Opts)
@@ -2219,6 +2223,9 @@ scenario_line(Ctx, expects(Q, Answers, Unknowns)) :- !,
     atomic_list_concat(ATs, ', ', AList),
     (   Unknowns == []
     ->  format("    ~w ~w ~w [~w].~n", [Q, E, A, AList])
+    ;   Unknowns == any                 % the answers, whatever they rest on
+    ->  kw(and_any_unknowns, AAU),
+        format("    ~w ~w ~w [~w] ~w.~n", [Q, E, A, AList, AAU])
     ;   maplist(answer_text(Ctx), Unknowns, UTs), atomic_list_concat(UTs, ', ', UList),
         kw(and_unknowns, AU),
         format("    ~w ~w ~w [~w] ~w [~w].~n", [Q, E, A, AList, AU, UList])
@@ -2634,7 +2641,8 @@ scenario_lines(KB, Name, Terms, Lines) :-
                      kb_table_item(KB, Key, Table) ), Tables),
     append(Facts0, Tables, Facts),
     findall(expects(Q, As, Us), ( current_predicate(KB:le_expected/4), KB:le_expected(Q, Name, As0, Us0),
-                                  maplist(expect_string, As0, As), maplist(expect_string, Us0, Us) ), E1),
+                                  maplist(expect_string, As0, As),
+                                  ( Us0 == any -> Us = any ; maplist(expect_string, Us0, Us) ) ), E1),
     findall(expects_changes(Q, Sets), ( current_predicate(KB:le_expected_changes/3),
                                         KB:le_expected_changes(Q, Name, Sets0),
                                         maplist(maplist(expect_string), Sets0, Sets) ), E2),

@@ -230,7 +230,9 @@ async function runEstimate() {
             judge_model: $('judge-model').value,
             budget: collectBudget(),
             features: collectFeatures(),
-            input_chars: chars
+            input_chars: chars,
+            // residue mode: the server counts the batches the job will make
+            ...(currentMode() === 'residue' ? { program: fragmentProgram() } : {})
         });
     } catch (e) {
         if (seq !== estimateSeq) return;

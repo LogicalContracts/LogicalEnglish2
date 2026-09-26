@@ -172,9 +172,21 @@ so a cheaper model usually serves. **Additional instructions** and the
 - **Migration residue**: paste a program translated from another system that
   still has `RESIDUE` blocks ([importing and exporting](../integrations/index.md#what-could-not-be-translated)).
   The assistant translates those blocks and nothing else, then runs the
-  program's tests. A test that passed before and fails afterwards counts as
-  damage the assistant must repair. You may add background text, such as the
-  other system's own documentation, but you need not.
+  program's tests. A test that passed before and gives different answers
+  afterwards counts as damage the assistant must repair. A test whose answers
+  still hold, but now rest on different unknowns, does not count: translating
+  a block changes what an answer rests on. You may add background text, such
+  as the other system's own documentation, but you need not.
+  A program with many blocks is translated about twenty blocks at a time, so
+  that each request stays small. A block left as it was, or translated into
+  rules that only repeat what the rule using it already checks, counts as not
+  done. Where a block names its source (a `% provenance:` line), each rule
+  written for it cites that source, as the other rules of the program cite
+  theirs. Where a block is translated into a single rule, that rule's
+  conditions are then moved into the rules that use the block, and the block
+  is removed; this is called folding. The block's text stays as a comment
+  above each of those rules, and the program before folding is kept too.
+  A block that a scenario mentions by name is not folded.
 
 In the scenario, query and residue modes, the assistant only reads the program
 you paste; it never changes it. The assistant does not invent templates.

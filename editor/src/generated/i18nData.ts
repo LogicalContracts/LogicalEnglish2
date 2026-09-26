@@ -269,6 +269,13 @@ export const keywords: Record<string, KeywordTable> = {
         "unknowns"
       ]
     ],
+    "and_any_unknowns": [
+      [
+        "and",
+        "any",
+        "unknowns"
+      ]
+    ],
     "rule": [
       [
         "rule"
@@ -1788,6 +1795,13 @@ export const keywords: Record<string, KeywordTable> = {
     "and_unknowns": [
       [
         "e",
+        "desconhecidos"
+      ]
+    ],
+    "and_any_unknowns": [
+      [
+        "e",
+        "quaisquer",
         "desconhecidos"
       ]
     ],
@@ -3629,6 +3643,13 @@ export const keywords: Record<string, KeywordTable> = {
         "desconocidos"
       ]
     ],
+    "and_any_unknowns": [
+      [
+        "y",
+        "cualesquiera",
+        "desconocidos"
+      ]
+    ],
     "rule": [
       [
         "regla"
@@ -5402,6 +5423,18 @@ export const keywords: Record<string, KeywordTable> = {
         "inconnus"
       ]
     ],
+    "and_any_unknowns": [
+      [
+        "et",
+        "toutes",
+        "inconnues"
+      ],
+      [
+        "et",
+        "tous",
+        "inconnus"
+      ]
+    ],
     "rule": [
       [
         "règle"
@@ -7125,6 +7158,18 @@ export const keywords: Record<string, KeywordTable> = {
         "sconosciute"
       ]
     ],
+    "and_any_unknowns": [
+      [
+        "e",
+        "qualsiasi",
+        "sconosciuto"
+      ],
+      [
+        "e",
+        "qualunque",
+        "sconosciuto"
+      ]
+    ],
     "rule": [
       [
         "regola"
@@ -8686,6 +8731,7 @@ export const keywordCategories: Record<string, string> = {
   "expects": "expect",
   "answers": "expect",
   "and_unknowns": "expect",
+  "and_any_unknowns": "expect",
   "rule": "rule",
   "if": "rule",
   "only_if": "rule",

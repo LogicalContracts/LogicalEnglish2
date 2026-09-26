@@ -3538,17 +3538,22 @@ run_one_test_body(KBmodule, QueryName, ScenarioName, ExpectedStrings, ExpectedUn
                         maplist(normalize_string, ActualStrings, NormActual),
                         sort(NormExpected, SortedExpected),
                         sort(NormActual, SortedActual),
-                        maplist(normalize_string, ExpectedUnknowns, NormExpectedUnknowns),
+                        %  `and any unknowns`: the answers alone are the test
+                        ( ExpectedUnknowns == any -> EUList = [] ; EUList = ExpectedUnknowns ),
+                        maplist(normalize_string, EUList, NormExpectedUnknowns),
                         maplist(normalize_string, SortedActualUnknowns, NormActualUnknowns),
                         sort(NormExpectedUnknowns, SortedExpectedUnknowns),
                         sort(NormActualUnknowns, SortedActualUnknownsFinal),
-                        (   SortedExpected == SortedActual, SortedExpectedUnknowns == SortedActualUnknownsFinal -> 
+                        (   SortedExpected == SortedActual, ( ExpectedUnknowns == any -> true ; SortedExpectedUnknowns == SortedActualUnknownsFinal ) -> 
                                 Result = pass(QueryName, ScenarioName)
                             ; 
                             maplist(strip_string_wrapper, ExpectedStrings, CleanExpected),
-                            maplist(strip_string_wrapper, ExpectedUnknowns, CleanExpectedUnknowns),
+                            maplist(strip_string_wrapper, EUList, CleanExpectedUnknowns),
                             %  as the program writes them (2021-10-09), not normalised for comparison
-                            Result = fail(QueryName, ScenarioName, CleanExpected, ActualStrings, CleanExpectedUnknowns, SortedActualUnknowns)
+                            (   ExpectedUnknowns == any
+                            ->  Result = fail(QueryName, ScenarioName, CleanExpected, ActualStrings)
+                            ;   Result = fail(QueryName, ScenarioName, CleanExpected, ActualStrings, CleanExpectedUnknowns, SortedActualUnknowns)
+                            )
                         )
                     )
                 ; Result = error(QueryName, ScenarioName, 'Test execution failed')
@@ -3580,15 +3585,20 @@ run_one_test_body(KBmodule, QueryName, ScenarioName, ExpectedStrings, ExpectedUn
                         maplist(normalize_string, ActualStrings, NormActual),
                         sort(NormExpected, SortedExpected),
                         sort(NormActual, SortedActual),
-                        maplist(normalize_string, ExpectedUnknowns, NormExpectedUnknowns),
+                        %  `and any unknowns`: the answers alone are the test
+                        ( ExpectedUnknowns == any -> EUList = [] ; EUList = ExpectedUnknowns ),
+                        maplist(normalize_string, EUList, NormExpectedUnknowns),
                         maplist(normalize_string, SortedActualUnknowns, NormActualUnknowns),
                         sort(NormExpectedUnknowns, SortedExpectedUnknowns),
                         sort(NormActualUnknowns, SortedActualUnknownsFinal),
-                        (   SortedExpected == SortedActual, SortedExpectedUnknowns == SortedActualUnknownsFinal -> Result = pass(QueryName, ScenarioName)
+                        (   SortedExpected == SortedActual, ( ExpectedUnknowns == any -> true ; SortedExpectedUnknowns == SortedActualUnknownsFinal ) -> Result = pass(QueryName, ScenarioName)
                         ;   maplist(strip_string_wrapper, ExpectedStrings, CleanExpected),
-                            maplist(strip_string_wrapper, ExpectedUnknowns, CleanExpectedUnknowns),
+                            maplist(strip_string_wrapper, EUList, CleanExpectedUnknowns),
                             %  as the program writes them (2021-10-09), not normalised for comparison
-                            Result = fail(QueryName, ScenarioName, CleanExpected, ActualStrings, CleanExpectedUnknowns, SortedActualUnknowns)
+                            (   ExpectedUnknowns == any
+                            ->  Result = fail(QueryName, ScenarioName, CleanExpected, ActualStrings)
+                            ;   Result = fail(QueryName, ScenarioName, CleanExpected, ActualStrings, CleanExpectedUnknowns, SortedActualUnknowns)
+                            )
                         )
                     )
                 ;   Result = error(QueryName, ScenarioName, 'Test execution failed')

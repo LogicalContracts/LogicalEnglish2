@@ -237,6 +237,26 @@ hook_batched(residue_draft(_), Messages, Reply) :- !,
     atomic_list_concat(Blocks, "\n", Reply).
 hook_batched(P, _, _) :- throw(unexpected_llm_purpose(P)).
 
+%   Translations that add what the text requires: c1 and c2 are single rules
+%   (folded into the calling rule), c3 stays unknown with its reason.
+hook_translating(residue_draft(_), _, "```le residue templates
+*a counterparty* has its head office in england; unknown.
+*a counterparty* holds a deposit-taking permission; unknown.
+```
+```le residue c1
+a counterparty meets condition c1 if
+    the counterparty has its head office in england.
+```
+```le residue c2
+a counterparty meets condition c2 if
+    the counterparty holds a deposit-taking permission.
+```
+```le residue c3
+% kept unknown: an assumption about the transaction
+it is unknown whether a counterparty meets condition c3.
+```") :- !.
+hook_translating(P, _, _) :- throw(unexpected_llm_purpose(P)).
+
 :- begin_tests(residue_mode).
 
 test(blocks_found) :-
@@ -388,5 +408,29 @@ test(the_prompt_skeleton_leaves_out_other_residues) :-
     assertion(sub_string(F, _, _, _, "% RESIDUE c2 BEGIN")),
     assertion(\+ sub_string(F, _, _, _, "% RESIDUE c1 BEGIN")),
     assertion(sub_string(F, _, _, _, "and the counterparty meets condition c2")).
+
+test(the_delivered_program_is_folded,
+     [setup(hook_setup(test_residue_mode:hook_translating)), cleanup(hook_cleanup)]) :-
+    called_skeleton(P),
+    Config = _{mode: "residue", program: P, model: "stub-model",
+               budget: _{preset: "draft", minutes: 5}},
+    start_contract_job(Config, [sync(true)], JobID),
+    le_contract_assistant:ca_result(JobID, Result),
+    Fold = Result.fold,
+    assertion(Fold.applied == true),
+    assertion(Fold.folded =:= 2),
+    assertion(sub_string(Result.le, _, _, _, "    and the counterparty has its head office in england\n    and the counterparty holds a deposit-taking permission\n    and the counterparty meets condition c3.")),
+    assertion(\+ sub_string(Result.le, _, _, _, "% RESIDUE c1 BEGIN")),
+    assertion(sub_string(Result.le, _, _, _, "% RESIDUE c3 BEGIN")),
+    assertion(sub_string(Result.ledger, _, _, _, "into a counterparty is covered")).
+
+test(folding_can_be_turned_off,
+     [setup(hook_setup(test_residue_mode:hook_translating)), cleanup(hook_cleanup)]) :-
+    called_skeleton(P),
+    Config = _{mode: "residue", program: P, model: "stub-model", fold: false,
+               budget: _{preset: "draft", minutes: 5}},
+    start_contract_job(Config, [sync(true)], JobID),
+    le_contract_assistant:ca_result(JobID, Result),
+    assertion(sub_string(Result.le, _, _, _, "% RESIDUE c1 BEGIN")).
 
 :- end_tests(residue_mode).
