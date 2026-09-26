@@ -364,9 +364,11 @@ constants (`a counterparty meets a condition.` for `a counterparty meets
 condition c1`, a fact about every counterparty and every condition) or never
 reach them is a `residue_conclusion` error, repaired like a failing test. This
 matters most when the skeleton has no scenarios, where nothing else would
-notice. The job's ledger lists each residue as translated, declined (only a
-comment saying why) or open (its placeholder, such as `it is unknown whether
-...`, kept as it was).
+notice. The job's ledger lists each residue as translated, declined (a comment
+saying why) or open (its placeholder, such as `it is unknown whether ...`,
+kept as it was). A declined block keeps the skeleton's own lines after the
+comment, whatever the reply held: a block left with only a comment would
+turn its unknown into a failure of every rule that asks for it.
 
 A skeleton may hold hundreds of residues (an opinion's coverage matrix: 359).
 Asked for all of them in one reply, a model takes the cheapest way out — the

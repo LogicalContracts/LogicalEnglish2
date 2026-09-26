@@ -379,8 +379,30 @@ solve_real_actual(le_at(Goal, Start, End), SM, KM, Anc, D, MyID, Us, Whys) :- !,
 solve_real_actual(G, SM, KM, Anc, D, MyID, Us, Whys) :-
     memorable_goal(G, SM, KM), !,
     memo_solve(G, SM, KM, Anc, D, MyID, Us, Whys).
+%   A ground literal the case states as a fact is not proved again by the
+%   rules that would assume something for it: every such proof gives the same
+%   answer with more unknowns, which i/4 drops anyway ("a definite proof
+%   wins"), but only after the search has tried every combination — a
+%   scenario stating ten conditions that rules could also derive made 2^10
+%   answers to filter. Only a stated fact, outside scoped proofs (which judge
+%   the admissibility of their evidence themselves), and nothing else: no
+%   search, no cache.
 solve_real_actual(G, SM, KM, Anc, D, MyID, Us, Whys) :-
-    solve_literal(G, SM, KM, Anc, D, MyID, Us, Whys).
+    (   ground(G), G \= is_a(_, _), \+ is_built_in(G),
+        \+ checking_assumptions(_),
+        stated_fact(G, SM, KM, MyID, Ref)
+    ->  Us = [], Whys = [success(G, Ref, [])]
+    ;   solve_literal(G, SM, KM, Anc, D, MyID, Us, Whys)
+    ).
+
+stated_fact(G, SM, KM, MyID, Ref) :-
+    current_scope(none),              % a scoped proof judges its evidence itself
+    get_clause(G, SM, KM, Body, Ref),
+    Body == true,
+    admissible_clause(Ref, G, SM, KM, MyID),
+    \+ SM:le_neg(G),
+    !,
+    ( KM \== none -> le_kbs:set_id_from_ref(Ref, KM) ; le_kbs:set_id_from_ref(Ref, SM) ).
 
 %!  solve_literal(+G, +SM, +KM, +Anc, +D, +MyID, -Us, -Whys) is nondet.
 %
