@@ -1183,6 +1183,16 @@ kb_item(rule(Head, Body, Indent, Start, End, ID)) -->
     ),
     { Indent = N, ID = _ }.
 
+% kb_item(negated_fact(Head, Start, End)) parses "it is not the case that <template
+% instance>." — in a scenario, that the sentence is NOT so: it is neither proved
+% nor assumed while the scenario is loaded (language.md §12, scenarios). Without
+% this, the line parsed as a fact of the template with "it" and "not the case
+% that <subject>" for arguments, and silently stated nothing.
+kb_item(negated_fact(Head, Start, End)) -->
+    kw(not_the_case), template_instance(Head),
+    { Head = [First|_], get_token_start(First, Start) },
+    any_indent, t(punctuation('.', loc(_, End))).
+
 % kb_item(unknown_fact(Head, Start, End)) parses "it is unknown whether <template instance>."
 kb_item(unknown_fact(Head, Start, End)) -->
     kw(it_is), unknown_keyword, kw(whether),
@@ -3140,6 +3150,15 @@ second_pass_item(Templates, denial(BodyTokens, Indent, Start, End), clause(le_co
 % the current section for the rules that follow (see process_item/2).
 second_pass_item(_Templates, section_marker(Name, Start, End), section_marker(Name, Start, End), _M).
 
+% Outside a scenario a negated fact states nothing a query reads: an error that
+% says so (and where to write it), rather than a sentence silently ignored.
+second_pass_item(_Templates, negated_fact(_Head, Start, End), clause(le_negated_fact_outside_scenario, true, Start, End, ActualID), _M) :-
+    format(atom(ActualID), 'rule_~w', [Start]),
+    le_kbs:current_compiling_module(M),
+    le_i18n:le_msg(negated_fact_outside_scenario_desc, [], Desc),
+    le_i18n:le_msg(negated_fact_outside_scenario_fix, [], Fix),
+    ( nonvar(M) -> assertz(M:le_issue(error, negated_fact_outside_scenario, Desc, Fix, Start, End)) ; true ).
+
 second_pass_item(Templates, unknown_fact(Head, Start, End), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
     format(atom(ActualID), 'rule_~w', [Start]),
     (   parse_literal(Head, Templates, [], VMOut, Literal, _, true) ->  
@@ -3429,6 +3448,13 @@ second_pass_scenario_item(Templates, fact_prov(Head0, Trailers0, Full, Start, En
 second_pass_scenario_item(Templates, fact_image(Head, URL, UStart, UEnd, Start, End), NewItem, M) :-
     second_pass_scenario_item(Templates, fact(Head, Start, End), NewItem, M),
     record_fact_image(M, NewItem, URL, UStart, UEnd, Start, End).
+
+% "it is not the case that <fact>." in a scenario: le_neg(Fact), which the
+% reasoner reads as the fact being false — neither proved nor assumed.
+second_pass_scenario_item(Templates, negated_fact(Head, Start, End), clause(le_neg(Literal), true, Start, End, _ID), _M) :-
+    (   parse_literal(Head, Templates, [], _, Literal, _, true) -> true
+    ;   Literal = unknown_template(Head)
+    ).
 
 second_pass_scenario_item(Templates, unknown_fact(Head, Start, End), clause(NewHead, NewBody, Start, End, _ID), _M) :-
     (   parse_literal(Head, Templates, [], VMOut, Literal, _, true) ->  

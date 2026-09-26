@@ -124,6 +124,9 @@ answers(Program, Answers) :-
             Answers0),
     sort(Answers0, Answers).
 
+replace_all(S0, From, To, S) :-
+    atomic_list_concat(Parts, From, S0), atomic_list_concat(Parts, To, A), atom_string(A, S).
+
 :- begin_tests(residue_fold).
 
 test(single_rule_translations_are_folded) :-
@@ -146,12 +149,28 @@ test(the_residue_text_is_kept_above_the_rule) :-
     assertion(B1 < B2).
 
 test(what_folding_could_change_stays_a_rule) :-
-    folded(F, Report),
+    folded(_, Report),
     report_of(Report, c3, R3), assertion(R3.folded == false),    % alternatives
-    report_of(Report, c4, R4), assertion(R4.folded == false),    % the placeholder
-    report_of(Report, c5, R5), assertion(R5.folded == false),    % a scenario names it
-    assertion(sub_string(R5.reason, _, _, _, "other fails condition c5")),
-    assertion(sub_string(F, _, _, _, "    and the counterparty meets condition c5.")).
+    report_of(Report, c4, R4), assertion(R4.folded == false).    % the placeholder
+
+%   A scenario's statement about a residue's sentence becomes the facts the
+%   translation rests on — here a denial, through the program's constraint
+%   (`meets` / `fails`) — and the residue then folds like any other.
+test(a_scenario_states_the_facts_not_the_residue) :-
+    folded(F, Report),
+    report_of(Report, c5, R5), assertion(R5.folded == true),
+    assertion(sub_string(F, _, _, _, "    % other fails condition c5.\n    it is not the case that other is licensed.")),
+    %  named only in comments (the reading it came from, the folded text)
+    split_string(F, "\n", "", Ls),
+    assertion(\+ ( member(L, Ls), \+ sub_string(L, _, _, _, "%"), sub_string(L, _, _, _, "condition c5") )).
+
+test(a_statement_becomes_its_conditions_once) :-
+    program(P0),
+    %  two residues of the same condition, both stated met
+    replace_all(P0, "    other fails condition c5.", "    other meets condition c1.\n    other meets condition c2.", P),
+    residue_fold(P, F, _),
+    aggregate_all(count, sub_string(F, _, _, _, "    other is regulated."), N),
+    assertion(N =:= 1).
 
 test(folding_changes_no_answer) :-
     program(P), answers(P, A0),

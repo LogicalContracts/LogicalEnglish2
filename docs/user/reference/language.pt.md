@@ -254,6 +254,10 @@ Ver `examples/moreExamples/language/memoization/`.
   - `uma pessoa é elegível se a pessoa é cidadã.`
 - **Facto desconhecido:** declara que certa instância de um modelo é desconhecida; pode aparecer na base de conhecimento (valendo para todos os cenários) ou num cenário.
   - `é desconhecido se um pagamento é relativo ao sinistro 01.` (São aceites `é assumido se ...` e `é assumível se ...`.)
+- **Facto negado:** dentro de uma secção `cenário`, uma afirmação de que uma frase de um modelo *não* se verifica: `não é o caso que` seguido da frase.
+  - `não é o caso que a portsmouth water limited está fora da classe das empresas de águas.`
+
+  Enquanto o cenário está carregado, a frase não é provada nem assumida, mesmo que o seu modelo seja declarado `; desconhecido`. É assim que um cenário diz que uma apreciação foi no sentido contrário. Fora de um cenário, uma tal afirmação é um erro (`negated_fact_outside_scenario`); numa regra, `não é o caso que` continua a ser uma condição (§4).
 
 ### 3.1 Secções de regras
 As regras de uma base de conhecimento podem agrupar-se em **secções** nomeadas:

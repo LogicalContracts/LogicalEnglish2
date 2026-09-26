@@ -409,6 +409,17 @@ a fact or the placeholder, conditions that are alternatives (a top-level
 `or`), a name used anywhere but a condition line (a scenario stating `acme
 fails condition c1`, which the skeleton's constraint reads through the name),
 no caller, or conditions that would capture one of the caller's variables.
+Before folding, a scenario's statement of a residue's sentence about an
+entity (`d2 meets condition c33`, a reviewer's reading the translator carried
+over) becomes the facts the translation rests on, said of the entity
+(`d2 has an eligible English company registration ...`), when the
+translation is one rule whose conditions are instances of one-slot
+templates. A denial — the opposite form read from the program's own
+constraints (`it must not be true that a counterparty meets a condition and
+the counterparty fails the condition`) — becomes `it is not the case that
+<the condition>` (a negated scenario fact, language.md §3), when the rule
+has one condition. The original line stays above as a comment, repeated
+facts are kept once, and the residue then folds like any other.
 The folded program is delivered only if it verifies with no more errors and
 no worse tests than before; the program before folding is kept as
 `unfolded.le`, and the ledger's Folded column says, per residue, where it
