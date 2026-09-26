@@ -34,6 +34,11 @@ always in a residue block (or in the `templates` block).
 - `residue_restates`: the block only repeats what the rule calling it already
   checks. Write as conditions what the text adds, with new templates
   (`; unknown`) where needed.
+- `negated_unknown`: `it is not the case that` over a template declared
+  `; unknown` never holds. Phrase the requirement as its own template
+  (`*a counterparty* is not in administration; unknown.`) and use it
+  positively; for an exclusion, keep the placeholder unless the text gives a
+  positive way to be outside it.
 - `unknown_template`: a sentence of yours matches no declared template.
 - a failing expectation: compare the expected answer (the source system's) with
   what your rules computed, and correct the rules.

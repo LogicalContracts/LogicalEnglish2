@@ -107,6 +107,7 @@
 :- use_module(le_verifier).
 :- use_module(le_writer, []).   % writer_word/2: the words of a residue header
 :- use_module(le_residue_fold, []).
+:- use_module(le_why_not, []).
 :- use_module(le_issue_feedback).
 :- use_module(llm/llm_client).
 :- use_module(llm/llm_prices).
@@ -1570,8 +1571,9 @@ residue_stages(JobID) :-
     ;   true
     ),
     ca_set_stage(JobID, 6, "Selection & residue report"),
-    select_winner(JobID, Branches, branch(WIdx, WText, WScore)),
+    select_winner(JobID, Branches, branch(WIdx, WText0, WScore)),
     ca_emit(JobID, "Winner: attempt ~w (~w)"-[WIdx, WScore.summary]),
+    residue_guard(JobID, Config2, WText0, WText),
     residue_report(Config2, WText, Report),
     forall(member(R, Report),
            ca_emit(JobID, "Residue ~w: ~w"-[R.id, R.status])),
@@ -1592,6 +1594,211 @@ residue_stages(JobID) :-
                        _{winner: WIdx, scores: AllScores, mode: residue, residue: Report}),
     retractall(ca_result(JobID, _)),
     assertz(ca_result(JobID, Result)).
+
+%!  residue_guard(+JobID, +Config, +Text0, -Text) is det.
+%
+%   No skeleton test that passed may fail in the delivered program. When the
+%   repair rounds could not get there, the residues to blame go back to their
+%   placeholder: in each scenario whose test broke, a residue whose sentence
+%   the skeleton answered for some entity (by assuming it) and the
+%   translation answers for none of them has turned an unknown into a failure.
+%   Its block gets its placeholder back, with a comment saying why. Repeated
+%   until nothing regresses, three rounds at most.
+residue_guard(JobID, Config, Text0, Text) :-
+    residue_guard(JobID, Config, Text0, 1, Text).
+
+residue_guard(JobID, Config, Text0, Round, Text) :-
+    verify_le_text(Text0, V),
+    residue_broken(Config, V, Broken),
+    (   Broken == []
+    ->  Text = Text0
+    ;   Round > 3
+    ->  length(Broken, NB),
+        ca_emit(JobID, "~w test(s) of the skeleton still fail after reverting; delivered as it is"-[NB]),
+        Text = Text0
+    ;   findall(S, member(_-S, Broken), Ss0), sort(Ss0, Ss),
+        residue_culprits(Text0, Broken, Culprits),
+        (   Culprits == []
+        ->  ca_emit(JobID, "~w test(s) of the skeleton fail, and no residue answers for less than before: delivered as it is"-[Ss]),
+            Text = Text0
+        ;   length(Culprits, NC),
+            findall(Id, member(Id-_, Culprits), Ids),
+            atomic_list_concat(Ids, ', ', IdsA),
+            ca_emit(JobID, "Reverting ~w residue(s) whose translation broke a test of the skeleton: ~w"-[NC, IdsA]),
+            findall(Id-Fill, ( member(Id-Sc, Culprits),
+                               memberchk(res(Id, _, _, Body), Config.residues),
+                               reverted_fill(Sc, Body, Fill) ), Fills),
+            residue_splice(Text0, Fills, Text1),
+            Round1 is Round + 1,
+            residue_guard(JobID, Config, Text1, Round1, Text)
+        )
+    ).
+
+%   The skeleton's passing tests that no longer give their answers.
+residue_broken(Config, V, Broken) :-
+    Details = V.test_details,
+    findall(Q-S,
+            ( member(Q-S, Config.baseline.passing),
+              \+ ( member(D, Details),
+                   get_dict(query, D, Q), get_dict(scenario, D, S),
+                   ( get_dict(status, D, "pass") ; get_dict(answers_match, D, true) ) ) ),
+            Broken).
+
+reverted_fill(Scenario, Body, Fill) :-
+    ( le_writer:writer_word(residue_reverted, W) -> true ; W = 'kept unknown: its translation broke a test of the program' ),
+    format(string(C), "% ~w (scenario ~w)", [W, Scenario]),
+    exclude(blank_line, Body, B),
+    atomic_list_concat([C|B], "\n", F), atom_string(F, Fill).
+
+%!  residue_culprits(+Text, +Broken, -Culprits) is det.
+%
+%   Id-Scenario for each residue a broken test's missing answer fails in. For
+%   each expected answer the program no longer gives, the reasoner's why-not
+%   (le_why_not.pl) names the unmet conditions of the routes that came
+%   closest, each with the rule that holds it; a rule inside a residue block
+%   is that residue's translation. Only those residues are blamed — not every
+%   residue that fails for the entity, most of which belong to rows it never
+%   reaches.
+residue_culprits(Text, Broken, Culprits) :-
+    catch(le_kbs:load_text(Text, residue_guard_translated, KB), _, fail),
+    !,
+    split_string(Text, "\n", "", Lines),
+    residue_char_ranges(Lines, Ranges),
+    findall(Id-SA,
+            ( member(Q-S, Broken),
+              atom_string(QA, Q), atom_string(SA, S),
+              catch(KB:le_expected(QA, SA, Expected0, _), _, fail),
+              maplist(expected_text, Expected0, Expected),
+              residue_answers(KB, SA, QA, Actual),
+              \+ subset(Expected, Actual),
+              %  why the routes to the missing answers stopped: the answer
+              %  itself when it parses, else the named query
+              (   member(E, Expected), \+ memberchk(E, Actual),
+                  answer_goal(KB, E, G)
+              ->  Why = G
+              ;   Why = QA
+              ),
+              why_not_rule_start(KB, SA, Why, Start),
+              member(Id-From-To, Ranges), Start >= From, Start =< To ),
+            Culprits0),
+    %  The reasoner stops at a row's first failing condition, so why-not
+    %  names one residue per row and round. Every other residue the same rows
+    %  call is checked at once: one whose sentence has no answer at all in the
+    %  scenario — the skeleton always had one, by assuming it — fails the row
+    %  as well.
+    findall(Id2-SA,
+            ( member(Id-SA, Culprits0),
+              row_residues(Text, Id, RowIds),
+              member(Id2, RowIds), Id2 \== Id,
+              residue_block_translated(Text, Id2, Src2),
+              residue_target(Src2, Target2),
+              residue_question(Target2, Question2),
+              residue_answers(KB, SA, Question2, []) ),
+            Culprits2),
+    append(Culprits0, Culprits2, Culprits01),
+    findall(Id-S, ( member(Id-S, Culprits01), \+ ( member(Id-S2, Culprits01), S2 @< S ) ), Culprits1),
+    sort(Culprits1, Culprits).
+residue_culprits(_, _, []).
+
+%   The residues named by the rows that call residue Id.
+row_residues(Text, Id, RowIds) :-
+    split_string(Text, "\n", "", Lines),
+    residue_blocks(Text, Blocks),
+    memberchk(res(Id, _, Src, _), Blocks),
+    residue_target(Src, Target),
+    le_residue_fold:target_key(Target, Key),
+    findall(K-B, ( member(res(B, _, S2, _), Blocks), residue_target(S2, T2),
+                   le_residue_fold:target_key(T2, K) ), Keys),
+    findall(R, ( nth1(I, Lines, L), le_residue_fold:caller_line(L, Key, _),
+                 le_residue_fold:statement_range(Lines, I, From, To),
+                 between(From, To, J), nth1(J, Lines, LJ),
+                 le_residue_fold:caller_line(LJ, KJ, _), memberchk(KJ-R, Keys) ),
+            Rs),
+    sort(Rs, RowIds).
+
+%   A residue whose block holds a translation (not its placeholder, not
+%   already reverted).
+residue_block_translated(Text, Id, Src) :-
+    residue_blocks(Text, Blocks),
+    memberchk(res(Id, _, Src, Body), Blocks),
+    \+ reverted_body(Src),
+    le_contract_assistant:fill_statements(Body, Stmts),
+    member(stmt(Ls), Stmts), atomic_list_concat(Ls, ' ', Flat),
+    sentence_words(Flat, Ws), ( kw_main_words(if, [If|_]) -> true ; If = if ),
+    memberchk(If, Ws), !.
+
+%   The target sentence as a question: each indefinite article becomes
+%   `which` ("which counterparty meets condition c35").
+residue_question(Target, Question) :-
+    split_string(Target, " ", " ", Ws0), exclude(==(""), Ws0, Ws),
+    ( le_writer:writer_word(which_m, Which) -> true ; Which = which ),
+    maplist(question_word(Which), Ws, Qs),
+    atomic_list_concat(Qs, ' ', QA), atom_string(QA, Question).
+
+question_word(Which, W, Q) :-
+    string_lower(W, WL), atom_string(A, WL),
+    ( class_member(article, A), \+ class_member(definite_article, A) -> Q = Which ; Q = W ).
+
+expected_text(string(T, _), S) :- !, normalize_space(string(S), T).
+expected_text(T, S) :- format(string(S0), "~w", [T]), normalize_space(string(S), S0).
+
+%   Id-From-To: each residue block's span, in characters from the start.
+residue_char_ranges(Lines, Ranges) :-
+    residue_line_ranges(Lines, 1, LineRanges),
+    line_offsets(Lines, 0, Offs),
+    findall(Id-From-To,
+            ( member(Id-L1-L2, LineRanges),
+              nth1(L1, Offs, From),
+              nth1(L2, Offs, LastStart), nth1(L2, Lines, LastLine),
+              string_length(LastLine, N), To is LastStart + N ),
+            Ranges).
+
+line_offsets([], _, []).
+line_offsets([L|Ls], Off, [Off|Offs]) :-
+    string_length(L, N), Off1 is Off + N + 1,
+    line_offsets(Ls, Off1, Offs).
+
+%   An expected answer as a goal the rules can meet: parsed as a query, with
+%   each constant written as the rules write it — `under "ISDA MA"` in a rule
+%   is a string, which the answer's text `under ISDA MA` does not say.
+answer_goal(KB, Answer, Goal) :-
+    catch(( le_kbs:ensure_tokens(Answer, Tokens),
+            le_kbs:parse_query_to_goal(KB, Tokens, G0, _) ), _, fail),
+    callable(G0), functor(G0, F, N), N > 0,
+    functor(H0, F, N),
+    (   catch(clause(KB:H0, _), _, fail),
+        G0 =.. [F|As0], H0 =.. [F|Hs],
+        maplist(align_constant, As0, Hs, As)
+    ->  Goal =.. [F|As]
+    ;   Goal = G0
+    ), !.
+
+align_constant(A, H, S) :-
+    (   atom(A), string(H), atom_string(A, H) -> S = H
+    ;   S = A
+    ).
+
+%   Where the rules holding the unmet conditions of a query start.
+why_not_rule_start(KB, Scenario, Query, Start) :-
+    catch(( le_kbs:createSession(KB, SM),
+            le_kbs:setScenarion(SM, Scenario),
+            dynamic(SM:detailed_failures/0), assertz(SM:detailed_failures),
+            call_with_time_limit(30, le_kbs:query_explain(SM, Query, _, _, Why)),
+            le_why_not:unmet_json(SM, KB, Why, Unmet) ), _, fail),
+    member(U, Unmet), get_dict(ruleStart, U, Start).
+
+reverted_body(Lines) :-
+    ( le_writer:writer_word(residue_reverted, W) -> true ; W = 'kept unknown: its translation broke a test of the program' ),
+    member(L, Lines), sub_string(L, _, _, _, W), !.
+
+residue_answers(KB, Scenario, Question, Answers) :-
+    catch(( le_kbs:createSession(KB, SM),
+            le_kbs:setScenarion(SM, Scenario),
+            call_with_time_limit(30,
+                findall(A, ( le_kbs:query(SM, Question, I, _, _),
+                             le_kbs:canonical_string(I, A0), normalize_space(string(A), A0) ), As)) ),
+          _, As = []),
+    sort(As, Answers).
 
 %!  residue_fold_winner(+JobID, +Config, +Text, -Delivered, -FoldReport) is det.
 %
@@ -1925,7 +2132,13 @@ residue_attribute_issues(Program, Issues0, Issues) :-
 attribute_issue(Ranges, I0, I) :-
     (   get_dict(line, I0, Ln), integer(Ln), Ln > 0,
         member(Id-From-To, Ranges), Ln >= From, Ln =< To
-    ->  I = I0.put(residue, Id)
+    ->  I1 = I0.put(residue, Id),
+        %  A negated unknown never holds: in a translation it silently removes
+        %  the rule that asks for the residue. An error, so that it is repaired.
+        (   get_dict(type, I1, T), atom_string(T, "negated_unknown")
+        ->  I = I1.put(severity, "error")
+        ;   I = I1
+        )
     ;   I = I0
     ).
 
@@ -2233,7 +2446,8 @@ residue_report(Config, Program, Report) :-
               exclude(blank_line, OrigBody, OrigStmts),
               maplist([L0, L1]>>normalize_space(string(L1), L0), Stmts, StmtsN),
               maplist([L0, L1]>>normalize_space(string(L1), L0), OrigStmts, OrigN),
-              (   N > 0, StmtsN == OrigN -> St = "open"      % the skeleton's placeholder, untouched
+              (   reverted_body(Src) -> St = "reverted (its translation broke a test)"
+              ;   N > 0, StmtsN == OrigN -> St = "open"      % the skeleton's placeholder, untouched
               ;   N > 0 -> St = "translated"
               ;   NSrc > NOrig -> St = "declined (explained in a comment)"
               ;   St = "open"

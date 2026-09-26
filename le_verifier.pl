@@ -65,6 +65,7 @@ test_in_budget :-
 
 check_issue(KB, _, Issue) :- missing_template(KB, Issue).
 check_issue(KB, _, Issue) :- undefined_predicate(KB, Issue).
+check_issue(KB, _, Issue) :- negated_unknown(KB, Issue).
 check_issue(KB, _, Issue) :- suspicious_is_a(KB, Issue).
 check_issue(KB, _, Issue) :- suspicious_is(KB, Issue).
 check_issue(KB, _, Issue) :- defined_scenario_element(KB, Issue).
@@ -648,6 +649,37 @@ undefined_predicate(KB, issue(Type, Description, Fix, Start, End)) :-
         le_i18n:le_msg(undefined_predicate_desc, [functor-FL, arity-AL], Description),
         le_i18n:le_msg(undefined_predicate_fix, [], Fix)
     ).
+
+% --- A negated unknown ---
+%   `it is not the case that X`, where X's template is declared `; unknown`:
+%   LE never proves the negation of what it could assume (reasoner.pl,
+%   negation as failure: an assumable success still establishes X), so the
+%   condition never holds and the rule never fires. The usual cause is an
+%   exclusion translated as a negation over a template declared unknown so
+%   that a scenario may leave it unsaid.
+negated_unknown(KB, issue(negated_unknown, Description, Fix, Start, End)) :-
+    current_predicate(KB:le_unknown/1),
+    current_predicate(KB:F/A), functor(Head, F, A),
+    \+ is_system_predicate(F/A),
+    \+ predicate_property(KB:Head, imported_from(_)),
+    clause(KB:Head, Body, _),
+    negated_literal(Body, none, Lit, Start, End),
+    Lit \= unknown_template(_),
+    \+ \+ ( copy_term(Lit, L1), clause(KB:le_unknown(L1), _) ),
+    functor(Lit, FL, AL),
+    ( le_kbs:template_of(KB, FL, AL, _, Label) -> true ; Label = FL ),
+    le_i18n:le_msg(negated_unknown_desc, [template-Label], Description),
+    le_i18n:le_msg(negated_unknown_fix, [template-Label], Fix).
+
+%   A literal under a negation, with the negation's place in the source.
+negated_literal(le_at(not(G), S, E), _, L, S, E) :- !, find_in_body(G, L).
+negated_literal(le_at(G, _, _), P, L, S, E) :- !, negated_literal(G, P, L, S, E).
+negated_literal(not(G), P, L, S, E) :- !, P = pos(S, E), find_in_body(G, L).
+negated_literal(G, P, L, S, E) :-
+    compound(G), memberchk(G, [(_, _), and(_, _), (_ ; _), or(_, _)]), !,
+    arg(I, G, Sub), I =< 2,
+    negated_literal(Sub, P, L, S, E).
+negated_literal(forall(A, B), P, L, S, E) :- !, ( negated_literal(A, P, L, S, E) ; negated_literal(B, P, L, S, E) ).
 
 %   FL/AL is the opposite form declared by a template; Positive is that
 %   template's own wording, with its placeholders.
@@ -1525,7 +1557,7 @@ print_issue(issue(Type, Description, Fix, Start, End)) :-
 %   the text as a format string and fail with "too many arguments".
 verifier_issue_kind(Type) :-
     atom(Type),
-    (   memberchk(Type, [missing_template, undefined_predicate, opposite_as_condition, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, unused_constant, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, mistyped_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited, view_unknown_section, view_keeps_derived])
+    (   memberchk(Type, [missing_template, undefined_predicate, opposite_as_condition, negated_unknown, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, unused_constant, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, mistyped_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited, view_unknown_section, view_keeps_derived])
     ->  true
     ;   atom_concat(Type, '_desc', Key),
         le_i18n:msg_entry(en, Key, _)
