@@ -428,4 +428,15 @@ test(residue_dependent_expectations_are_pending) :-
     le_migration:ledger_markdown(migration([], IR, [], Tests), none, MD),
     assertion(sub_string(MD, _, _, _, "1 further expectation(s) are pending")).
 
+%   A residue that names its conclusion carries it in a `concludes:` line,
+%   the one the Contract Assistant's residue mode checks the fill against.
+test(residue_conclusion_line) :-
+    IR = program([kb(x)], [
+        template(meets, "*a counterparty* meets *a condition*", []),
+        residue(c1, [title("condition c1"), conclusion("a counterparty meets condition c1"),
+                     source(english, "The counterparty is an English company."),
+                     placeholder("it is unknown whether a counterparty meets condition c1.")])]),
+    le_write(IR, Text, _),
+    assertion(sub_string(Text, _, _, _, "%   concludes: a counterparty meets condition c1\n")).
+
 :- end_tests(le_migration_pending).

@@ -105,6 +105,7 @@
 :- use_module(library(uuid)).
 :- use_module(le_kbs).
 :- use_module(le_verifier).
+:- use_module(le_writer, []).   % writer_word/2: the words of a residue header
 :- use_module(le_issue_feedback).
 :- use_module(llm/llm_client).
 :- use_module(llm/llm_prices).
@@ -396,8 +397,10 @@ normalise_config(Mode, Dict, WordingFile, ScheduleFiles, CaseFiles, TextFile, Co
     fragment_program(Mode, Dict, Existing, Program),
     fragment_source_text(Mode, Dict, TextFile, SourceText),
     free_text(name, Dict, FragmentName),
+    ( get_dict(residue_batch, Dict, RB), integer(RB), RB > 0 -> ResidueBatch = RB ; ResidueBatch = 20 ),
     get_time(Now), Deadline is Now + Minutes * 60,
     Config = _{mode: Mode, program: Program, source_text: SourceText,
+               residue_batch: ResidueBatch,
                fragment_name: FragmentName,
                model: Model, judge_model: JudgeModel, api_keys: Keys,
                target: Target, k: K, w: W, repairs: Repairs,
@@ -1470,8 +1473,10 @@ residue_stages(JobID) :-
                    get_dict(query, T, Q), get_dict(scenario, T, S) ), Passing),
     Config1 = Config0.put(_{residues: Blocks, residue_ids: Ids,
                             baseline: _{passing: Passing}}),
-    residue_materials(Config1, Materials),
-    calibrate_and_estimate(JobID, Config1, Materials, Config2),
+    residue_batches(Config1, Ids, Batches),
+    Batches = [FirstBatch|_], length(Batches, NBatches),
+    residue_materials(Config1, Program, FirstBatch, Materials),
+    calibrate_and_estimate(JobID, Config1.put(residue_batch_count, NBatches), Materials, Config2),
     ca_set_stage(JobID, 2, "Translating the residue"),
     NBranches = Config2.w,
     numlist(1, NBranches, Idxs),
@@ -1507,11 +1512,13 @@ residue_stages(JobID) :-
     retractall(ca_result(JobID, _)),
     assertz(ca_result(JobID, Result)).
 
-%   The skeleton, the residue to translate (each with its source), and the
-%   background text when one was given.
-residue_materials(Config, Materials) :-
+%   The skeleton — shortened to what concerns the residues Ids
+%   (residue_focus_program/3) — the residues to translate (each with its
+%   source), and the background text when one was given.
+residue_materials(Config, Program, Ids, Materials) :-
+    residue_focus_program(Config, Program, Ids, Focus),
     findall(Block,
-            ( member(res(Id, Title, Src, _), Config.residues),
+            ( member(Id, Ids), memberchk(res(Id, Title, Src, _), Config.residues),
               atomic_list_concat(Src, "\n", SrcT),
               format(string(Block), "### Residue ~w: ~w\n\n```\n~w\n```", [Id, Title, SrcT]) ),
             Blocks),
@@ -1521,8 +1528,128 @@ residue_materials(Config, Materials) :-
     ;   format(string(Background), "\n\n### BACKGROUND (context only)\n\n~w", [Config.source_text])
     ),
     format(string(Materials),
-           "### THE SKELETON (fixed — every line outside the residue blocks stays as it is)\n\n```le\n~w\n```\n\n### THE RESIDUE TO TRANSLATE\n\n~w~w",
-           [Config.program, ResidueText, Background]).
+           "### THE SKELETON (fixed — every line outside the residue blocks stays as it is; parts that neither hold nor call the residues below are left out, and a comment says where)\n\n```le\n~w\n```\n\n### THE RESIDUE TO TRANSLATE\n\n~w~w",
+           [Focus, ResidueText, Background]).
+
+%!  residue_batches(+Config, +Ids, -Batches) is det.
+%
+%   Ids in consecutive batches of at most `residue_batch` residues (default
+%   20) and about residue_batch_chars/1 characters of source. One call per
+%   batch: a model asked for 359 translations in one reply takes the cheapest
+%   way out — the same general sentence for each, or every placeholder kept.
+residue_batches(Config, Ids, Batches) :-
+    (   Config.get(residue_batch) = Max0, integer(Max0), Max0 > 0 -> Max = Max0 ; Max = 20 ),
+    residue_batch_chars(MaxC),
+    findall(Id-C, ( member(Id, Ids), memberchk(res(Id, _, Src, _), Config.residues),
+                    atomic_list_concat(Src, "\n", S), string_length(S, C) ), Sized),
+    chunk_sized(Sized, Max, MaxC, Batches).
+
+residue_batch_chars(24000).
+
+chunk_sized([], _, _, []) :- !.
+chunk_sized(Sized, Max, MaxC, [B|Bs]) :-
+    take_sized(Sized, Max, MaxC, 0, B, Rest),
+    chunk_sized(Rest, Max, MaxC, Bs).
+
+take_sized([Id-C|Rest], Max, MaxC, Acc, [Id|B], Out) :-
+    Max > 0, Acc1 is Acc + C,
+    ( Acc =:= 0 ; Acc1 =< MaxC ), !,        % a batch holds at least one
+    Max1 is Max - 1,
+    take_sized(Rest, Max1, MaxC, Acc1, B, Out).
+take_sized(Rest, _, _, _, [], Rest).
+
+%!  residue_focus_program(+Config, +Program, +Ids, -Focus) is det.
+%
+%   Program without the residue blocks other than Ids and, when that is still
+%   longer than residue_focus_chars/1, without the knowledge-base paragraphs
+%   that neither hold nor call one of Ids: those that mention none of the ids
+%   and none of the constants of the sentences they conclude ("c1" in "a
+%   counterparty meets condition c1"). Each run of left-out paragraphs becomes
+%   one comment. Declarations, scenarios and queries stay whole.
+residue_focus_program(Config, Program, Ids, Focus) :-
+    split_string(Program, "\n", "", Lines),
+    drop_residue_blocks(Lines, Ids, Lines1),
+    atomic_list_concat(Lines1, "\n", P1),
+    residue_focus_chars(MaxC),
+    (   string_length(P1, L), L =< MaxC
+    ->  Focus = P1
+    ;   findall(W, ( member(Id, Ids), ( atom_string(Id, IdS), sentence_words(IdS, Ws) ; residue_id_constants(Config, Program, Id, Ws) ),
+                     member(W, Ws) ), Words0),
+        sort(Words0, Words),
+        focus_chunks(Lines1, Chunks),
+        focus_keep(Chunks, false, Words, Kept),
+        atomic_list_concat(Kept, "\n", Focus)
+    ).
+
+residue_focus_chars(40000).
+
+residue_id_constants(Config, Program, Id, Constants) :-
+    memberchk(res(Id, _, Src, _), Config.residues),
+    split_string(Program, "\n", "", Lines),
+    residue_target_constants(Lines, Src, _, _, _, Constants).
+
+drop_residue_blocks([], _, []).
+drop_residue_blocks([L|Ls], Ids, Out) :-
+    (   residue_begin(L, Id, _), \+ memberchk(Id, Ids)
+    ->  residue_take(Ls, Id, _, Rest),
+        drop_residue_blocks(Rest, Ids, Out)
+    ;   Out = [L|More],
+        drop_residue_blocks(Ls, Ids, More)
+    ).
+
+%   The lines as chunks: header(Line) for a section header, blank(Line), and
+%   para(Lines) for a run of other lines.
+focus_chunks([], []).
+focus_chunks([L|Ls], [C|Cs]) :-
+    (   blank_line(L) -> C = blank(L), Rest = Ls
+    ;   focus_header(L, _) -> C = header(L), Rest = Ls
+    ;   para_run([L|Ls], P, Rest), C = para(P)
+    ),
+    focus_chunks(Rest, Cs).
+
+para_run([L|Ls], [L|P], Rest) :-
+    \+ blank_line(L), \+ focus_header(L, _), !,
+    para_run(Ls, P, Rest).
+para_run(Rest, [], Rest).
+
+%   A section header, and whether it opens a knowledge base (kb) or another
+%   section (other). A rule's label (`rule r1 with provenance ...:`) is neither.
+focus_header(Line, Kind) :-
+    section_header_line(Line),
+    sentence_words(Line, LW),
+    (   kw_synonym_words(kb_open, KW), append(KW, _, LW) -> Kind = kb
+    ;   kw_synonym_words(guard, GW), append(GW, _, LW) -> Kind = other
+    ).
+
+focus_keep([], _, _, []).
+focus_keep([header(L)|Cs], _, Words, [L|Out]) :- !,
+    focus_header(L, Kind),
+    ( Kind == kb -> InKb = true ; InKb = false ),
+    focus_keep(Cs, InKb, Words, Out).
+focus_keep([blank(L)|Cs], InKb, Words, [L|Out]) :- !,
+    focus_keep(Cs, InKb, Words, Out).
+focus_keep([para(P)|Cs], InKb, Words, Out) :-
+    (   InKb == true, \+ para_mentions(P, Words)
+    ->  skip_unmentioned(Cs, Words, 1, N, Rest),
+        format(string(Note), "% (~w paragraph(s) of the skeleton left out here: they neither hold nor call the residues of this request)", [N]),
+        Out = [Note|More],
+        focus_keep(Rest, InKb, Words, More)
+    ;   append(P, More, Out),
+        focus_keep(Cs, InKb, Words, More)
+    ).
+
+%   Consecutive left-out paragraphs, and the blank lines between them.
+skip_unmentioned(Cs, Words, N0, N, Rest) :-
+    (   append(Blanks, [para(P)|Cs1], Cs), maplist(is_blank_chunk, Blanks),
+        \+ para_mentions(P, Words)
+    ->  N1 is N0 + 1, skip_unmentioned(Cs1, Words, N1, N, Rest)
+    ;   N = N0, Rest = Cs
+    ).
+
+is_blank_chunk(blank(_)).
+
+para_mentions(P, Words) :-
+    member(L, P), sentence_words(L, LW), member(W, LW), memberchk(W, Words), !.
 
 run_residue_branch(JobID, Config, Idx, Out) :-
     catch(
@@ -1540,16 +1667,20 @@ run_residue_branch(JobID, Config, Idx, Out) :-
 run_residue_branch_(JobID, Config, Idx, branch(Idx, Final, Score)) :-
     ca_set_branch(JobID, Idx, _{state: "drafting"}),
     ca_check_alive(JobID),
-    residue_materials(Config, Materials),
-    instructions_block(Config, Instructions),
-    residue_ids_text(Config, IdsText),
     ( Idx =:= 1 -> Temp = 0 ; Temp is 0.3 ),
-    stage_llm(JobID, Config, residue_draft(Idx), residue_style, 'residue_draft',
-              [ids-IdsText, instructions-Instructions, materials-Materials],
-              [temperature(Temp)], Reply),
-    residue_fills(Reply, Config.residue_ids, Fills),
+    residue_batches(Config, Config.residue_ids, Batches),
+    length(Batches, NB),
+    %  The first batch sets the style and the first templates; the others,
+    %  drafted side by side, see them.
+    Batches = [B1|More],
+    residue_draft_batch(JobID, Config, Idx, Temp, NB, [], 1-B1, F1),
+    length(More, NM), NM1 is NM + 1,
+    ( NM > 0 -> numlist(2, NM1, Ks) ; Ks = [] ),
+    pairs_keys_values(KBs, Ks, More),
+    concurrent_maplist(residue_draft_batch(JobID, Config, Idx, Temp, NB, F1), KBs, Fs),
+    merge_fills([F1|Fs], Fills),
     length(Fills, NF),
-    ca_emit(JobID, "Attempt ~w: ~w residue block(s) drafted"-[Idx, NF]),
+    ca_emit(JobID, "Attempt ~w: ~w residue block(s) drafted in ~w batch(es)"-[Idx, NF, NB]),
     residue_repair_loop(JobID, Config, Idx, Fills, 0, none, 0, Final, Score),
     branch_artifact_name(Idx, final, FinalName),
     save_text_artifact(JobID, FinalName, Final),
@@ -1558,8 +1689,44 @@ run_residue_branch_(JobID, Config, Idx, branch(Idx, Final, Score)) :-
                                 tests_passed: Score.tests_passed,
                                 tests_failed: Score.tests_failed}).
 
-residue_ids_text(Config, Text) :-
-    findall(L, ( member(res(Id, Title, _, _), Config.residues),
+%   One draft call for the residues Ids (batch K of NB), the skeleton showing
+%   the fills Prev (the first batch's templates). A failed call leaves the
+%   batch open for the repair rounds.
+residue_draft_batch(JobID, Config, Idx, Temp, NB, Prev, K-Ids, Fills) :-
+    (   deadline_exceeded(Config)
+    ->  ca_emit(JobID, "Attempt ~w, batch ~w/~w: wall-clock budget exhausted, left open"-[Idx, K, NB]),
+        Fills = []
+    ;   ca_check_alive(JobID),
+        residue_program(Config, Prev, Program),
+        residue_materials(Config, Program, Ids, Materials),
+        instructions_block(Config, Instructions),
+        residue_ids_text(Config, Ids, IdsText),
+        catch(( stage_llm(JobID, Config, residue_draft(Idx), residue_style, 'residue_draft',
+                          [ids-IdsText, instructions-Instructions, materials-Materials],
+                          [temperature(Temp)], Reply),
+                residue_fills(Reply, Ids, Fills) ),
+              error(contract_assistant_error(E), _),
+              ( ca_emit(JobID, "Attempt ~w, batch ~w/~w: the call failed (~w), left open"-[Idx, K, NB, E]),
+                Fills = [] )),
+        length(Ids, N), exclude([Id-_]>>(Id == templates), Fills, Fs), length(Fs, NF),
+        ca_emit(JobID, "Attempt ~w, batch ~w/~w: ~w of ~w residue block(s) drafted"-[Idx, K, NB, NF, N])
+    ).
+
+%   The batches' fills as one list; their templates blocks joined, each
+%   template once.
+merge_fills(FillLists, Fills) :-
+    append(FillLists, All),
+    findall(L, ( member(templates-T, All), split_string(T, "\n", "", Ls), member(L0, Ls),
+                 normalize_space(string(L), L0), L \== "" ), TLs0),
+    list_to_set(TLs0, TLs),
+    exclude([K-_]>>(K == templates), All, Others),
+    (   TLs == [] -> Fills = Others
+    ;   atomic_list_concat(TLs, "\n", TA), atom_string(TA, TS),
+        Fills = [templates-TS|Others]
+    ).
+
+residue_ids_text(Config, Ids, Text) :-
+    findall(L, ( member(Id, Ids), memberchk(res(Id, Title, _, _), Config.residues),
                  format(string(L), "- `~w`: ~w", [Id, Title]) ), Ls),
     atomic_list_concat(Ls, "\n", Text).
 
@@ -1603,13 +1770,224 @@ residue_verify(Config, Fills, Program, V) :-
                    get_dict(query, D, Q), get_dict(scenario, D, S) ) ),
             Broken),
     maplist(residue_regression_issue, Broken, RIs),
-    findall(I, ( member(res(Id, _, _, _), Config.residues), \+ memberchk(Id-_, Fills),
-                 format(string(M), "Residue ~w has no translation: give it a ```le residue ~w``` block (or, if it truly has no LE reading, a block holding only a comment that says why).", [Id, Id]),
-                 I = _{severity: "warning", type: "residue_open", message: M, fix: "", line: 0, source: ""} ),
+    findall(I, ( member(Res, Config.residues), Res = res(Id, _, _, _), residue_is_open(Res, Fills),
+                 (   memberchk(Id-_, Fills)
+                 ->  format(string(M), "Residue ~w still holds only the skeleton's placeholder: translate its text into rules. Keep the placeholder only if the text says nothing you can check about the thing the sentence speaks of, and then add a comment line to the block saying why.", [Id])
+                 ;   format(string(M), "Residue ~w has no translation: give it a ```le residue ~w``` block (or, if it truly has no LE reading, a block holding only a comment that says why).", [Id, Id])
+                 ),
+                 I = _{severity: "warning", type: "residue_open", message: M, fix: "", line: 0, source: "", residue: Id} ),
             Open),
-    append([RIs, Open, V0.issues], Issues),
+    findall(I, ( member(Res, Config.residues), Res = res(Id, _, _, _), memberchk(Id-Fill, Fills),
+                 residue_conclusion_issue(Config.program, Fills, Res, Fill, I) ),
+            Wrong),
+    findall(I, ( member(Res, Config.residues), Res = res(Id, _, _, _), memberchk(Id-Fill, Fills),
+                 \+ ( member(W, Wrong), get_dict(residue, W, Id) ),
+                 residue_restates_issue(Config.program, Fills, Res, Fill, I) ),
+            Restates),
+    residue_attribute_issues(Program, V0.issues, Issues0),
+    append([RIs, Open, Wrong, Restates, Issues0], Issues),
     partition_severity(Issues, NE, NW),
-    V = V0.put(_{issues: Issues, errors: NE, warnings: NW}).
+    length(Open, NO), length(Restates, NR), NOpen is NO + NR,
+    V = V0.put(_{issues: Issues, errors: NE, warnings: NW, open: NOpen, residue_mode: true}).
+
+%   The verifier's issues whose line falls in a residue block, marked with
+%   that residue.
+residue_attribute_issues(Program, Issues0, Issues) :-
+    split_string(Program, "\n", "", Lines),
+    residue_line_ranges(Lines, 1, Ranges),
+    maplist(attribute_issue(Ranges), Issues0, Issues).
+
+attribute_issue(Ranges, I0, I) :-
+    (   get_dict(line, I0, Ln), integer(Ln), Ln > 0,
+        member(Id-From-To, Ranges), Ln >= From, Ln =< To
+    ->  I = I0.put(residue, Id)
+    ;   I = I0
+    ).
+
+residue_line_ranges([], _, []).
+residue_line_ranges([L|Ls], N, Ranges) :-
+    (   residue_begin(L, Id, _)
+    ->  residue_take(Ls, Id, Inside, Rest),
+        length(Inside, K), To is N + K + 1, Next is To + 1,
+        Ranges = [Id-N-To|More],
+        residue_line_ranges(Rest, Next, More)
+    ;   N1 is N + 1,
+        residue_line_ranges(Ls, N1, Ranges)
+    ).
+
+%!  residue_conclusion_issue(+Skeleton, +Fills, +Residue, +Fill, -Issue) is semidet.
+%
+%   A residue names the sentence it must conclude, and that sentence usually
+%   carries the residue's own constant: "a counterparty meets condition c1".
+%   A fill whose conclusions drop the constant — "a counterparty meets a
+%   condition." — is not a translation of residue c1 at all: without
+%   conditions it is a fact about every counterparty and every condition, and
+%   it silently makes every rule that asks for any condition succeed. No
+%   scenario catches it when the skeleton has none, so it is checked here.
+%   Words of the target that no template declares are its constants; a fill
+%   must conclude them in at least one statement (the skeleton's own `it is
+%   unknown whether ...` line does), and no statement may conclude the same
+%   template without them. A fill holding only a comment (declined) passes.
+residue_conclusion_issue(Skeleton, Fills, res(Id, _, Src, Body), Fill, Issue) :-
+    split_string(Skeleton, "\n", "", SkLines),
+    ( memberchk(templates-TFill, Fills) -> split_string(TFill, "\n", "", TLs) ; TLs = [] ),
+    append(SkLines, TLs, AllLines),
+    residue_target_constants(AllLines, Src, Target, TemplateWords, TargetWords, Constants),
+    fill_heads(Fill, Heads),
+    Heads \== [],
+    atomic_list_concat(Constants, ' ', ConstsA),
+    exclude(blank_line, Body, Placeholder),
+    (   Placeholder == []
+    ->  Keep = ""
+    ;   atomic_list_concat(Placeholder, ' ', PA), normalize_space(string(PS), PA),
+        format(string(Keep), " If the text gives nothing checkable, keep the skeleton's own line: ~w", [PS])
+    ),
+    include(head_has_all(Constants), Heads, Good),
+    include(general_head(Constants, TemplateWords, TargetWords), Heads, General),
+    (   General = [G|_]
+    ->  format(string(M), "Residue ~w must conclude \"~w\", for ~w only. Your block concludes \"~w\" instead, which says it of every one: as a fact it holds for everything, and every rule that asks for it then succeeds. Keep the words ~w in the conclusion.~w",
+                  [Id, Target, ConstsA, G, ConstsA, Keep])
+    ;   Good == []
+    ->  format(string(M), "Residue ~w must conclude \"~w\", but no statement of your block concludes it (with ~w). Write rules concluding exactly that sentence.~w",
+                  [Id, Target, ConstsA, Keep])
+    ),
+    Issue = _{severity: "error", type: "residue_conclusion", message: M,
+              fix: "", line: 0, source: "", residue: Id}.
+
+%!  residue_target_constants(+Lines, +Src, -Target, -TemplateWords, -TargetWords, -Constants) is semidet.
+%
+%   The sentence a residue must conclude and its constants: its words that no
+%   template among Lines declares, articles aside. Fails when the residue
+%   names no sentence, or one without constants.
+residue_target_constants(Lines, Src, Target, TemplateWords, TargetWords, Constants) :-
+    residue_target(Src, Target),
+    findall(W, ( member(L, Lines), sub_string(L, _, _, _, "*"),
+                 \+ comment_line(L), sentence_words(L, Ws), member(W, Ws) ), TW0),
+    sort(TW0, TemplateWords),
+    sentence_words(Target, TargetWords),
+    exclude(template_or_article(TemplateWords), TargetWords, Constants0),
+    sort(Constants0, Constants),
+    Constants \== [].
+
+%!  residue_is_open(+Residue, +Fills) is semidet.
+%
+%   Not done: no fill, or a fill that is the skeleton's placeholder as it was,
+%   with no comment saying why it stays.
+residue_is_open(res(Id, _, _, Body), Fills) :-
+    (   memberchk(Id-Fill, Fills)
+    ->  split_string(Fill, "\n", "", FL),
+        \+ ( member(L, FL), comment_line(L) ),
+        statement_lines(FL, S1),
+        statement_lines(Body, S0),
+        S1 == S0
+    ;   true
+    ).
+
+%   A block's LE lines, normalised: no blank lines, no comments.
+statement_lines(Lines, Norm) :-
+    exclude(blank_line, Lines, Ls0),
+    exclude(comment_line, Ls0, Ls),
+    maplist([L0, L1]>>normalize_space(string(L1), L0), Ls, Norm).
+
+%!  residue_restates_issue(+Skeleton, +Fills, +Residue, +Fill, -Issue) is semidet.
+%
+%   A translation that adds nothing to the rule calling it: every condition
+%   it states is already a condition of that rule (the counterparty's type,
+%   its legal form, its jurisdiction), or it states none. The residue then
+%   holds for every counterparty the rule reaches, whatever the text required.
+residue_restates_issue(Skeleton, Fills, res(Id, _, Src, Body), Fill, Issue) :-
+    split_string(Fill, "\n", "", FL),
+    statement_lines(FL, S1), statement_lines(Body, S0),
+    S1 \== S0, S1 \== [],
+    split_string(Skeleton, "\n", "", SkLines),
+    ( memberchk(templates-TFill, Fills) -> split_string(TFill, "\n", "", TLs) ; TLs = [] ),
+    append(SkLines, TLs, AllLines),
+    residue_target_constants(AllLines, Src, Target, _, _, Constants),
+    drop_residue_blocks(SkLines, [], Outside),
+    focus_chunks(Outside, Chunks),
+    findall(C, ( member(para(P), Chunks),
+                 member(CL, P), condition_line(CL), sentence_words(CL, CW),
+                 forall(member(K, Constants), memberchk(K, CW)),
+                 member(L, P), condition_line(L), condition_key(L, C) ),
+            Callers0),
+    Callers0 \== [],
+    sort(Callers0, Callers),
+    findall(C, ( member(L, FL), condition_line(L), condition_key(L, C) ), Own),
+    forall(member(C, Own), memberchk(C, Callers)),
+    (   Own == []
+    ->  format(string(M), "Residue ~w concludes \"~w\" with no condition: it then holds for every one, whatever the text requires. Write as conditions what the text requires.", [Id, Target])
+    ;   format(string(M), "Residue ~w only repeats conditions the rule that calls it already checks, so it adds nothing: it holds for every one that rule reaches, whatever the text requires. Write as conditions what the text ADDS (declare a template for each, `; unknown` when a scenario may leave it unsaid).", [Id])
+    ),
+    Issue = _{severity: "warning", type: "residue_restates", message: M,
+              fix: "", line: 0, source: "", residue: Id}.
+
+%   An indented line of a rule: one condition.
+condition_line(L) :-
+    ( sub_string(L, 0, 1, _, " ") ; sub_string(L, 0, 1, _, "\t") ),
+    \+ comment_line(L), \+ blank_line(L).
+
+%   A condition without its connective, articles and final period.
+condition_key(L, Key) :-
+    sentence_words(L, Ws0),
+    ( Ws0 = [C|Ws1], ( kw_synonym_words(and, [C]) ; kw_synonym_words(or, [C]) ) -> true ; Ws1 = Ws0 ),
+    exclude([W]>>class_member(article, W), Ws1, Ws),
+    atomic_list_concat(Ws, ' ', Key).
+
+%   The sentence a residue must conclude: its `% concludes: <sentence>` line
+%   (the word is `residue_concludes` in i18n/writer_words.csv), or else the
+%   first quoted sentence of its TODO line.
+residue_target(Src, Target) :-
+    le_writer:writer_word(residue_concludes, Kw),
+    format(string(Prefix), "~w:", [Kw]),
+    (   member(L, Src), normalize_space(string(T), L),
+        string_concat("%", T1, T), normalize_space(string(T2), T1),
+        string_concat(Prefix, T3, T2)
+    ->  normalize_space(string(Target0), T3)
+    ;   member(L, Src), sub_string(L, _, _, _, "TODO"),
+        split_string(L, "\"", "", [_, Target0, _|_])
+    ),
+    ( string_concat(Target, ".", Target0) -> true ; Target = Target0 ),
+    Target \== "".
+
+sentence_words(S, Words) :-
+    string_lower(S, Lower),
+    split_string(Lower, " \t*.,;:()[]\"", " \t*.,;:()[]\"", Ws0),
+    exclude(==(""), Ws0, Ws1),
+    maplist([W, A]>>atom_string(A, W), Ws1, Words).
+
+%   The conclusions of a fill's statements: the text of each statement up to
+%   its first `if`.
+fill_heads(Fill, Heads) :-
+    split_string(Fill, "\n", "", Ls0),
+    exclude(comment_line, Ls0, Ls),
+    atomic_list_concat(Ls, ' ', Flat),
+    atomic_list_concat(Stmts0, '. ', Flat),
+    ( kw_main_words(if, [If|_]) -> true ; If = if ),
+    format(atom(IfSep), ' ~w ', [If]),
+    findall(H, ( member(S0, Stmts0), normalize_space(string(S), S0), S \== "",
+                 ( sub_string(S, B, _, _, IfSep) -> sub_string(S, 0, B, _, H) ; H = S ) ),
+            Heads).
+
+head_has_all(Constants, Head) :-
+    sentence_words(Head, HW),
+    forall(member(C, Constants), memberchk(C, HW)).
+
+%   A head is an instance of the target's template when its template words,
+%   articles aside, are the target's.
+same_signature(TemplateWords, TargetWords, HeadWords) :-
+    include(template_word(TemplateWords), TargetWords, S1),
+    include(template_word(TemplateWords), HeadWords, S2),
+    S1 == S2.
+
+template_word(TemplateWords, W) :- memberchk(W, TemplateWords), \+ class_member(article, W).
+
+template_or_article(TemplateWords, W) :- ( memberchk(W, TemplateWords) -> true ; class_member(article, W) ).
+
+%   A head concluding the target's template with none of its constants.
+general_head(Constants, TemplateWords, TargetWords, Head) :-
+    sentence_words(Head, HW),
+    \+ ( member(C, Constants), memberchk(C, HW) ),
+    same_signature(TemplateWords, TargetWords, HW).
 
 residue_regression_issue(Q-S, _{severity: "error", type: "regression", message: Msg,
                                 fix: "The skeleton is right by construction: change the residue, not the expectation.",
@@ -1627,9 +2005,9 @@ residue_repair_loop(JobID, Config, Idx, Fills, Iter, Best0, Streak0, Final, Scor
     best_of(Best0, Cand, Best),
     ( ( Best0 == none ; Best == Cand ) -> Streak = 0 ; Streak is Streak0 + 1 ),
     Patience = Config.repairs,
-    HardCap is max(2 * Patience, 6),
-    (   V.errors =:= 0, V.tests_failed =:= 0,
-        \+ ( member(I, V.issues), get_dict(type, I, "residue_open") )
+    %  a repair round attends to one batch of residues: allow one per batch
+    HardCap is max(2 * Patience, 6) + Config.get(residue_batch_count, 1) - 1,
+    (   V.errors =:= 0, V.tests_failed =:= 0, V.open =:= 0
     ->  Final = Program, branch_score(V, Summary, Score)
     ;   Streak >= Patience
     ->  ca_emit(JobID, "Attempt ~w: no improvement in ~w round(s), keeping the best"-[Idx, Streak]),
@@ -1641,20 +2019,18 @@ residue_repair_loop(JobID, Config, Idx, Fills, Iter, Best0, Streak0, Final, Scor
     ->  ca_emit(JobID, "Attempt ~w: wall-clock budget exhausted, keeping the best"-[Idx]),
         best_result(Best, Final, Score)
     ;   ca_check_alive(JobID),
-        format_verify_feedback(V, Feedback),
-        residue_fills_text(Fills, Current),
-        residue_materials(Config, Materials),
+        residue_repair_request(Config, Program, V, Fills, Ids, Feedback, Current, Shown, Materials),
         instructions_block(Config, Instructions),
-        residue_ids_text(Config, IdsText),
+        residue_ids_text(Config, Ids, IdsText),
         catch(( stage_llm(JobID, Config, residue_repair(Idx, Iter), residue_style, 'residue_repair',
                           [ids-IdsText, current-Current, feedback-Feedback,
-                           instructions-Instructions, program-Program, materials-Materials],
+                           instructions-Instructions, program-Shown, materials-Materials],
                           [temperature(0)], Reply),
                 Next = reply(Reply) ),
               error(contract_assistant_error(_), _),
               Next = failed),
         (   Next = reply(R)
-        ->  residue_fills(R, Config.residue_ids, New),
+        ->  residue_fills(R, Ids, New),
             %  a block the reply does not repeat keeps its current text
             findall(K-T, ( member(K-T, Fills), \+ memberchk(K-_, New) ), Kept),
             append(New, Kept, Fills1),
@@ -1667,6 +2043,44 @@ residue_repair_loop(JobID, Config, Idx, Fills, Iter, Best0, Streak0, Final, Scor
         )
     ).
 
+%!  residue_repair_request(+Config, +Program, +V, +Fills, -Ids, -Feedback, -Current, -Shown, -Materials) is det.
+%
+%   What a repair round asks about. When every problem belongs to a residue
+%   (none of the program as a whole: no failing test, no error elsewhere),
+%   the round attends to one batch of the residues that have problems — all
+%   of their issues, their current blocks and the skeleton shortened to them —
+%   instead of the first dozen issues of the whole program, which with
+%   hundreds of residues repaired three blocks a round. Otherwise the round
+%   sees everything.
+residue_repair_request(Config, Program, V, Fills, Ids, Feedback, Current, Shown, Materials) :-
+    findall(Id, ( member(I, V.issues), get_dict(residue, I, Id) ), Flagged0),
+    list_to_set(Flagged0, Flagged),
+    (   V.tests_failed =:= 0,
+        \+ ( member(I, V.issues), I.severity == "error", \+ get_dict(residue, I, _) ),
+        Flagged \== []
+    ->  %  residues with an error first
+        findall(Id, ( member(Id, Flagged), once(( member(I, V.issues), get_dict(residue, I, Id), I.severity == "error" )) ), E),
+        subtract(Flagged, E, W), append(E, W, Ordered),
+        residue_batches(Config, Ordered, [Ids|_]),
+        findall(L, ( member(Id, Ids), member(I, V.issues), get_dict(residue, I, Id),
+                     residue_issue_line(I, L) ), Ls),
+        atomic_list_concat(Ls, "\n", Feedback),
+        findall(Id-T, ( member(Id, Ids), memberchk(Id-T, Fills) ), Cur),
+        residue_fills_text(Cur, Current),
+        residue_focus_program(Config, Program, Ids, Shown),
+        residue_materials(Config, Program, Ids, Materials)
+    ;   Ids = Config.residue_ids,
+        format_verify_feedback(V, Feedback),
+        residue_fills_text(Fills, Current),
+        Shown = Program,
+        residue_materials(Config, Config.program, Ids, Materials)
+    ).
+
+residue_issue_line(I, Line) :-
+    ( I.get(fix, "") == "" -> Fix = "" ; format(string(Fix), " Fix: ~w", [I.fix]) ),
+    ( I.get(source, "") == "" -> Src = "" ; format(string(Src), " (at: `~w`)", [I.source]) ),
+    format(string(Line), "- residue ~w — ~w `~w`: ~w~w~w", [I.residue, I.severity, I.type, I.message, Src, Fix]).
+
 residue_fills_text(Fills, Text) :-
     findall(B, ( member(Id-T, Fills),
                  format(string(B), "```le residue ~w\n~w\n```", [Id, T]) ), Bs),
@@ -1674,8 +2088,9 @@ residue_fills_text(Fills, Text) :-
 
 %!  residue_report(+Config, +Program, -Report) is det.
 %
-%   Per residue: translated (LE statements in the block), declined (only a
-%   comment: the model says it has no LE reading), or open (untouched).
+%   Per residue: translated (LE statements in the block other than the
+%   skeleton's own), declined (only a comment: the model says it has no LE
+%   reading), or open (untouched, its placeholder line included).
 residue_report(Config, Program, Report) :-
     residue_blocks(Program, Blocks),
     findall(_{id: IdS, title: T, status: St, lines: N},
@@ -1684,8 +2099,12 @@ residue_report(Config, Program, Report) :-
               exclude(blank_line, Body, Stmts),
               length(Stmts, N),
               length(Src, NSrc), Src0 = Config.residues,
-              once(member(res(Id, _, OrigSrc, _), Src0)), length(OrigSrc, NOrig),
-              (   N > 0 -> St = "translated"
+              once(member(res(Id, _, OrigSrc, OrigBody), Src0)), length(OrigSrc, NOrig),
+              exclude(blank_line, OrigBody, OrigStmts),
+              maplist([L0, L1]>>normalize_space(string(L1), L0), Stmts, StmtsN),
+              maplist([L0, L1]>>normalize_space(string(L1), L0), OrigStmts, OrigN),
+              (   N > 0, StmtsN == OrigN -> St = "open"      % the skeleton's placeholder, untouched
+              ;   N > 0 -> St = "translated"
               ;   NSrc > NOrig -> St = "declined (explained in a comment)"
               ;   St = "open"
               ),
@@ -1977,7 +2396,9 @@ effort_estimate(JobID, Config, Materials, Config1) :-
     cost_estimate(_{mode: Config.get(mode, contract),
                     model: Config.model, judge_model: Config.judge_model,
                     k: Config.k, w: Config.w, repairs: Config.repairs,
-                    probes: Config.features.probes, input_chars: Chars},
+                    probes: Config.features.probes, input_chars: Chars,
+                    batches: Config.get(residue_batch_count, 1),
+                    batch_size: Config.get(residue_batch, 1)},
                   Est),
     Calls = Est.calls,
     EstMinutes is max(1, (Calls * 45) // 60),   % ~45s per call, order of magnitude
@@ -2015,7 +2436,14 @@ effort_estimate(JobID, Config, Materials, Config1) :-
 %   - when a model matches several providers in the price table, the dearest
 %     is used (see llm_prices.pl).
 cost_estimate(P, Est) :-
-    (   ( fragment_mode(P.get(mode, contract)) ; P.get(mode, contract) == residue )
+    (   P.get(mode, contract) == residue
+    ->  %  one draft call per batch, and a repair round per batch on top of
+        %  the usual cap; each reply holds a batch of blocks
+        NB = P.get(batches, 1),
+        HardCap is max(2 * P.repairs, 6) + NB - 1,
+        MainCalls is P.w * (NB + HardCap), JudgeCalls = 1,
+        OutTok is max(1500, 150 * P.get(batch_size, 1))
+    ;   fragment_mode(P.get(mode, contract))
     ->  fragment_call_plan(P.w, P.repairs, MainCalls, JudgeCalls),
         % One section out, however big the program that goes in.
         OutTok = 1500
@@ -3468,8 +3896,11 @@ best_of(cand(T0, V0, S0), cand(T1, V1, S1), Best) :-
     verify_rank(V1, T1, R1),
     ( R1 @< R0 -> Best = cand(T1, V1, S1) ; Best = cand(T0, V0, S0) ).
 
-verify_rank(V, Text, rank(NoTests, V.errors, Net, V.tests_failed, V.warnings, Len)) :-
+%   Open: residues left untranslated (residue mode; 0 otherwise). Keeping
+%   every placeholder must not beat translating them.
+verify_rank(V, Text, rank(NoTests, V.errors, Open, Net, V.tests_failed, V.warnings, Len)) :-
     ( V.tests_passed + V.tests_failed =:= 0 -> NoTests = 1 ; NoTests = 0 ),
+    Open = V.get(open, 0),
     Net is V.tests_failed - V.tests_passed,
     string_length(Text, Len).
 
@@ -3480,7 +3911,8 @@ best_result(cand(Text, V, Summary), Text, Score) :-
 % the result view (the full issue dicts stay in the artifacts).
 branch_score(V, Summary, _{errors: V.errors, warnings: V.warnings,
                            tests_passed: V.tests_passed, tests_failed: V.tests_failed,
-                           test_details: V.test_details, summary: Summary}).
+                           test_details: V.test_details, summary: Summary,
+                           open: V.get(open, 0)}).
 
 % ----------------------- Stage 6: selection & ledger -------------------------
 
@@ -3500,7 +3932,8 @@ select_winner(_JobID, Branches, Winner) :-
 % fewer scenarios, and the held-out term used to be raw: an amputated branch
 % that wrote 2 blind tests and failed 1 outranked a complete one that wrote 7
 % and failed 2, and the 8 kB program was delivered instead of the 50 kB one.
-branch_rank(branch(_, Text, S), rank(NoTests, S.errors, HNet, Net, S.tests_failed, S.warnings, NegLen)) :-
+branch_rank(branch(_, Text, S), rank(NoTests, S.errors, Open, HNet, Net, S.tests_failed, S.warnings, NegLen)) :-
+    Open = S.get(open, 0),
     HNet is S.get(holdout_failed, 0) - S.get(holdout_passed, 0),
     ( S.tests_passed + S.tests_failed =:= 0 -> NoTests = 1 ; NoTests = 0 ),
     Net is S.tests_failed - S.tests_passed,
@@ -4010,7 +4443,8 @@ format_verify_feedback(V, Feedback) :-
     select_feedback(Caps, Items, Shown, Omitted0),
     append(Omitted0, Deferred, Omitted),
     findall(L, member(item(_, _, L), Shown), Ls0),
-    (   V.tests_passed + V.tests_failed =:= 0
+    (   V.tests_passed + V.tests_failed =:= 0,
+        V.get(residue_mode, false) \== true        % a skeleton's scenarios are fixed
     ->  append(Ls0, ["- The program has NO scenario expectations at all: every case must have a scenario with `<queryname> expects answers [...]` lines, plus adversarial variants. A twin without tests demonstrates nothing."], Ls1)
     ;   Ls1 = Ls0
     ),
