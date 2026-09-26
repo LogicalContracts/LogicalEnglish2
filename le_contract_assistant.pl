@@ -2257,9 +2257,11 @@ residue_verify(Config, Fills, Program, V) :-
     append([RIs, Open, Wrong, Restates, Issues0], Issues),
     partition_severity(Issues, NE, NW),
     length(Open, NO), length(Restates, NR), NOpen is NO + NR,
+    aggregate_all(count, ( member(res(Id, _, _, Body), Config.residues),
+                           memberchk(Id-F, Fills), fill_declines(F, Body) ), NDeclined),
     hard_failures(V0, Hard),
     V = V0.put(_{issues: Issues, errors: NE, warnings: NW, open: NOpen, residue_mode: true,
-                 hard_failed: Hard}).
+                 hard_failed: Hard, declined: NDeclined}).
 
 %   Failed tests whose answers differ, not only their unknowns.
 hard_failures(V, N) :-
@@ -2518,7 +2520,15 @@ residue_repair_loop(JobID, Config, Idx, Fills, Iter, Best0, Streak0, Final, Scor
               error(contract_assistant_error(_), _),
               Next = failed),
         (   Next = reply(R)
-        ->  residue_fills(R, Ids, New),
+        ->  residue_fills(R, Ids, New0),
+            %  A repair may not throw a translation away: a reply that declines
+            %  a residue whose current block translates it, and that the
+            %  feedback did not blame, is refused. (Declining everything
+            %  passes every test the placeholders passed — the cheapest way
+            %  out of a broken round, and one a model took.)
+            partition(refused_decline(Config, V, Fills), New0, Refused, New),
+            length(Refused, NR),
+            ( NR > 0 -> ca_emit(JobID, "Attempt ~w repair ~w: ~w decline(s) of a translation not blamed, refused"-[Idx, Iter, NR]) ; true ),
             %  a block the reply does not repeat keeps its current text
             findall(K-T, ( member(K-T, Fills), \+ memberchk(K-_, New) ), Kept),
             append(New, Kept, Fills1),
@@ -2530,6 +2540,24 @@ residue_repair_loop(JobID, Config, Idx, Fills, Iter, Best0, Streak0, Final, Scor
             best_result(Best, Final, Score)
         )
     ).
+
+%   Id-Fill declines residue Id (no rule of its own), Id's current block is
+%   a translation, and no issue of V names Id.
+refused_decline(Config, V, Fills, Id-Fill) :-
+    Id \== templates,
+    memberchk(res(Id, _, _, Body), Config.residues),
+    fill_declines(Fill, Body),
+    memberchk(Id-Cur, Fills),
+    \+ fill_declines(Cur, Body),
+    \+ ( member(I, V.issues), get_dict(residue, I, Id) ).
+
+%   A fill that translates nothing: its LE lines are the placeholder's, or
+%   none.
+fill_declines(Fill, Body) :-
+    split_string(Fill, "\n", "", FL),
+    statement_lines(FL, S1),
+    statement_lines(Body, S0),
+    ( S1 == S0 ; S1 == [] ), !.
 
 %!  residue_repair_request(+Config, +Program, +V, +Fills, -Ids, -Feedback, -Current, -Shown, -Materials) is det.
 %
@@ -4406,9 +4434,13 @@ best_of(cand(T0, V0, S0), cand(T1, V1, S1), Best) :-
 
 %   Open: residues left untranslated (residue mode; 0 otherwise). Keeping
 %   every placeholder must not beat translating them.
-verify_rank(V, Text, rank(NoTests, V.errors, Open, Net, V.tests_failed, V.warnings, Len)) :-
+%   Declined: residues a translation kept as unknowns (residue mode). Among
+%   programs equal on everything above it, fewer is better: declining all
+%   passes every test the placeholders passed.
+verify_rank(V, Text, rank(NoTests, V.errors, Open, Net, V.tests_failed, Declined, V.warnings, Len)) :-
     ( V.tests_passed + V.tests_failed =:= 0 -> NoTests = 1 ; NoTests = 0 ),
     Open = V.get(open, 0),
+    Declined = V.get(declined, 0),
     Net is V.tests_failed - V.tests_passed,
     string_length(Text, Len).
 
@@ -4420,7 +4452,7 @@ best_result(cand(Text, V, Summary), Text, Score) :-
 branch_score(V, Summary, _{errors: V.errors, warnings: V.warnings,
                            tests_passed: V.tests_passed, tests_failed: V.tests_failed,
                            test_details: V.test_details, summary: Summary,
-                           open: V.get(open, 0)}).
+                           open: V.get(open, 0), declined: V.get(declined, 0)}).
 
 % ----------------------- Stage 6: selection & ledger -------------------------
 
@@ -4440,8 +4472,9 @@ select_winner(_JobID, Branches, Winner) :-
 % fewer scenarios, and the held-out term used to be raw: an amputated branch
 % that wrote 2 blind tests and failed 1 outranked a complete one that wrote 7
 % and failed 2, and the 8 kB program was delivered instead of the 50 kB one.
-branch_rank(branch(_, Text, S), rank(NoTests, S.errors, Open, HNet, Net, S.tests_failed, S.warnings, NegLen)) :-
+branch_rank(branch(_, Text, S), rank(NoTests, S.errors, Open, HNet, Net, S.tests_failed, Declined, S.warnings, NegLen)) :-
     Open = S.get(open, 0),
+    Declined = S.get(declined, 0),
     HNet is S.get(holdout_failed, 0) - S.get(holdout_passed, 0),
     ( S.tests_passed + S.tests_failed =:= 0 -> NoTests = 1 ; NoTests = 0 ),
     Net is S.tests_failed - S.tests_passed,
