@@ -2241,7 +2241,7 @@ residue_verify(Config, Fills, Program, V) :-
     maplist(residue_regression_issue, Broken, RIs),
     findall(I, ( member(Res, Config.residues), Res = res(Id, _, _, _), residue_is_open(Res, Fills),
                  (   memberchk(Id-_, Fills)
-                 ->  format(string(M), "Residue ~w still holds only the skeleton's placeholder: translate its text into rules. Keep the placeholder only if the text says nothing you can check about the thing the sentence speaks of, and then add a comment line to the block saying why.", [Id])
+                 ->  format(string(M), "Residue ~w still holds only the skeleton's placeholder: translate its text into rules. A caveat, an assumption or an exclusion becomes a named unknown in the text's own words (`*a counterparty* is not <the excluded class>; unknown.`). Keep the placeholder only for text with no legal reading at all, with a comment line saying why.", [Id])
                  ;   format(string(M), "Residue ~w has no translation: give it a ```le residue ~w``` block (or, if it truly has no LE reading, a block holding only a comment that says why).", [Id, Id])
                  ),
                  I = _{severity: "warning", type: "residue_open", message: M, fix: "", line: 0, source: "", residue: Id} ),
@@ -2325,7 +2325,7 @@ residue_conclusion_issue(Skeleton, Fills, res(Id, _, Src, Body), Fill, Issue) :-
     (   Placeholder == []
     ->  Keep = ""
     ;   atomic_list_concat(Placeholder, ' ', PA), normalize_space(string(PS), PA),
-        format(string(Keep), " If the text gives nothing checkable, keep the skeleton's own line: ~w", [PS])
+        format(string(Keep), " If the text gives nothing checkable, conclude it from a named unknown in the text's own words; the skeleton's own line (~w) is only for text with no legal reading.", [PS])
     ),
     include(head_has_all(Constants), Heads, Good),
     include(general_head(Constants, TemplateWords, TargetWords), Heads, General),
