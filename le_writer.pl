@@ -664,6 +664,10 @@ write_residue(Id, Opts) :-
     format("% RESIDUE ~w BEGIN: ~w~n", [Id, Title]),
     writer_word(todo_residue, Todo),
     format("% TODO: ~w~n", [Todo]),
+    (   option(conclusion(S), Opts)
+    ->  writer_word(residue_concludes, Kw), format("%   ~w: ~w~n", [Kw, S])
+    ;   true
+    ),
     (   option(locator(Loc), Opts) -> format("%   source: ~w~n", [Loc]) ; true ),
     (   option(note(Note), Opts) -> write_comment_block(0, Note) ; true ),
     (   option(source(Lang, Code), Opts)

@@ -32,6 +32,71 @@ you. So:
   fitness function: a residue translation is right when they pass. Never
   change what they expect — you cannot, and it would be wrong.
 
+## What a block must conclude
+
+A residue often says exactly what it must conclude — a `% concludes:` line, or
+a TODO line quoting the sentence, e.g. `conclude "a counterparty meets condition
+c1"`. That sentence, with its constants, is the conclusion of your rules:
+
+- Keep its constants word for word. `condition c1` is the name of this
+  residue's condition; writing `a condition` instead turns it into a variable.
+- A sentence with an indefinite phrase (`a counterparty`, `a condition`) and
+  no conditions is a fact about EVERY such thing. `a counterparty meets a
+  condition.` says that every counterparty meets every condition — it does not
+  translate residue c1, it silently makes every rule that asks for any
+  condition succeed. It is always wrong in a residue block.
+
+## How to translate a text into rules
+
+Some residues hold English text, not code: a condition or an exclusion of a
+legal document, for instance. The text is about the thing the conclusion's
+slot names — in `a counterparty meets condition c1`, the text describes the
+counterparty, even when it names an example of one or never says "the
+counterparty". Write rules concluding the sentence for that counterparty, with
+conditions on `the counterparty` for **what the text requires**.
+
+**Translate what the text ADDS, not what the rule calling it already checks.**
+Read the rule of the skeleton that calls the residue (`and the counterparty
+meets condition c1`): it already checks the counterparty's kind, its legal
+form, its jurisdiction. Repeating those conditions translates nothing — the
+residue would then hold for every counterparty the rule reaches, whatever the
+text requires. That is counted as not translated. The requirement is in the
+rest of the text: a place of business, a licence, a registration, a power, a
+status. Each requirement becomes a condition, and a condition the skeleton
+has no template for gets one, declared in the `templates` block with `;
+unknown`, so that a scenario which does not state it leaves the answer
+unknown rather than false. Say the requirement in the text's own words.
+
+For example, a text "a registered charity, whose trustees have approved the
+transaction in writing, and which is not in administration" called by a rule
+that already checks that the counterparty is a charity:
+
+```le residue templates
+*a counterparty* is registered with the charity commission; unknown.
+the trustees of *a counterparty* have approved the transaction in writing; unknown.
+*a counterparty* is in administration; unknown.
+```
+
+```le residue c7
+a counterparty meets condition c7 if
+    the counterparty is registered with the charity commission
+    and the trustees of the counterparty have approved the transaction in writing
+    and it is not the case that
+        the counterparty is in administration.
+```
+
+An exclusion is phrased positively in such skeletons (`a counterparty is
+outside exclusion e3`): conclude it when the counterparty is NOT one the
+exclusion describes — typically `it is not the case that` followed by the
+exclusion's own description.
+
+**Keeping the placeholder.** A block may hold a line of the skeleton such as
+`it is unknown whether a counterparty meets condition c1.` Keep it only when
+the text says nothing checkable about the counterparty — an assumption about
+the transaction, the other party, or the law — and then add a comment line to
+the block saying why (`% kept unknown: an assumption about the transaction`).
+A placeholder kept without that comment counts as not done.
+
 ## How to translate code into rules
 
 - An assignment chain becomes one rule per result, with each intermediate

@@ -177,7 +177,7 @@ program(Header, Items)
 | `constraint(Body, Options)` | an integrity constraint, `it must not be true that` and the conditions (le_summary.md §3.3); Options `comment(Text)` |
 | `table(Name, Options, Columns, Rows)` | a decision table (§17.3). Options: `policy(first\|unique\|all)`, `loaded_from(File)`, `provenance(P)`. Cells: a constant, `any`, `or_list([...])`, `cond(E)` with `E` built from `Op-Value` (`(>=)-1`) and `and/2`, `or/2`, `quote(Text)` (a citation column), `raw(Text)` |
 | `section(Name)` | `section Name is:` |
-| `residue(Id, Options)` | a residue block (§4): Options `title(T)`, `locator(L)`, `source(Language, Code)`, `note(Text)`, `placeholder(LE)`, `concludes([F, ...])` (what the block must conclude — the expectations that depend on it are pending, §3) |
+| `residue(Id, Options)` | a residue block (§4): Options `title(T)`, `locator(L)`, `source(Language, Code)`, `note(Text)`, `placeholder(LE)`, `conclusion(Sentence)` (the LE sentence the block must conclude, constants included: written as `%   concludes: ...`), `concludes([F, ...])` (what the block must conclude — the expectations that depend on it are pending, §3) |
 | `document(Name, Options)` | `Name is published at "..."` / `the text of Name is at "..."`: Options `url(U)`, `text(Path)` |
 | `scenario(Name, Lines, Options)` | a scenario. Lines: `fact(L)`, `fact(L, Provenance)`, `unknown(L)`, `rule(H, B)`, `expects(Query, Answers)`, `expects(Query, Answers, Unknowns)`, `expects_changes(Query, Sets)`, `pending(Why, Line)` (a line written as a comment, with its reason), `comment(T)`. Answers are strings or ground IR literals (written through their templates). Options: `as_stated_in(Doc)`, `at(Locator)` — the scenario's default provenance |
 | `query(Name, Body)` / `query(Name, flip(Goal))` | a query; its variables are written `which <type>` |
@@ -357,8 +357,35 @@ program and runs its scenarios (the source's tests), and repairs the residue
 until they pass: a skeleton test that passed and fails after the splice is a
 `regression` error. An optional `% RESIDUE TEMPLATES BEGIN` / `END` region in
 the templates section receives the templates a residue needs (```` ```le
-residue templates ````). The job's ledger lists each residue as translated,
-declined (only a comment saying why) or open. Tests:
+residue templates ````). A residue that names the sentence it must conclude
+— a `%   concludes: <sentence>` line, or the first quoted sentence of its
+`% TODO` line — is checked: a block whose conclusions lose the sentence's
+constants (`a counterparty meets a condition.` for `a counterparty meets
+condition c1`, a fact about every counterparty and every condition) or never
+reach them is a `residue_conclusion` error, repaired like a failing test. This
+matters most when the skeleton has no scenarios, where nothing else would
+notice. The job's ledger lists each residue as translated, declined (only a
+comment saying why) or open (its placeholder, such as `it is unknown whether
+...`, kept as it was).
+
+A skeleton may hold hundreds of residues (an opinion's coverage matrix: 359).
+Asked for all of them in one reply, a model takes the cheapest way out — the
+same general sentence for each, or every placeholder kept — so the job works
+in batches: one draft call per batch of `residue_batch` residues (request
+field, default 20), each call seeing the skeleton shortened to that batch
+(`residue_focus_program/4`: the other residue blocks left out and, when the
+program is still long, the knowledge-base paragraphs that neither hold nor
+call one of the batch's residues, each run of them replaced by a comment).
+Repair rounds work the same way, one batch of the residues that still have
+problems at a time, whenever every problem belongs to a residue. Two results
+count as not done, and rank an attempt below one that translates:
+
+- `residue_open` — a placeholder kept as it was with no comment saying why
+  (a comment such as `% kept unknown: an assumption about the transaction`
+  makes it declined);
+- `residue_restates` — a translation whose conditions are all conditions the
+  rule calling the residue already checks (the counterparty's kind, legal
+  form, jurisdiction), or that has none: it adds nothing the text required. Tests:
 `testing/test_residue_mode.pl`.
 
 ## 5. The defects fixed before the readers (Appendix A of the report)

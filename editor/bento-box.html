@@ -126,8 +126,35 @@
         if (theme) document.body.classList.add(theme);
     </script>
     <script type="module">
-        const v = Date.now();
-        import(`./dist/bento-box.js?v=${v}`).then(m => m.initBentoBox());
+        // A page's code can fail to download for a moment (a lost connection,
+        // the server restarting after a deploy): try again, each time under a
+        // fresh address, since the browser remembers a failed import. If it still
+        // fails, say so on the page instead of leaving it blank.
+        async function loadModule(path) {
+            for (let attempt = 1; ; attempt++) {
+                try {
+                    return await import(`${path}?v=${Date.now()}`);
+                } catch (e) {
+                    // A download failure is a TypeError; anything else is a bug in the code.
+                    if (!(e instanceof TypeError)) throw e;
+                    if (attempt >= 4) {
+                        window.Sentry?.captureException?.(e, { level: 'warning' });
+                        const note = document.createElement('div');
+                        note.setAttribute('role', 'alert');
+                        note.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:100000;padding:12px 16px;background:#fdecea;color:#611a15;font:14px sans-serif;text-align:center';
+                        note.textContent = 'This page could not be loaded. Check your internet connection, then reload the page. ';
+                        const reload = document.createElement('button');
+                        reload.textContent = 'Reload';
+                        reload.onclick = () => location.reload();
+                        note.appendChild(reload);
+                        document.body.appendChild(note);
+                        return new Promise(() => {});
+                    }
+                    await new Promise(r => setTimeout(r, 1000 * attempt));
+                }
+            }
+        }
+        loadModule('./dist/bento-box.js').then(m => m.initBentoBox());
     </script>
 </body>
 </html>

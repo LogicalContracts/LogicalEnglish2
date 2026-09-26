@@ -105,6 +105,138 @@ skeleton_kept(Skeleton, Result) :-
 subsequence([], _).
 subsequence([X|Xs], [Y|Ys]) :- ( X == Y -> subsequence(Xs, Ys) ; subsequence([X|Xs], Ys) ).
 
+%   A skeleton in the form a document-to-LE generator writes: each residue
+%   names the sentence it must conclude, with its own constant, and holds an
+%   `it is unknown whether` placeholder. No scenario tests it.
+named_skeleton("the target language is: prolog.
+
+the templates are:
+    *a counterparty* meets *a condition*.
+    *a counterparty* is organised under the law of *a jurisdiction*.
+% RESIDUE TEMPLATES BEGIN
+% RESIDUE TEMPLATES END
+
+the knowledge base coverage includes:
+
+% RESIDUE c1 BEGIN: condition c1
+% TODO: conclude \"a counterparty meets condition c1\" from the text below
+%   english:
+%   | The counterparty is organised under the law of England.
+it is unknown whether a counterparty meets condition c1.
+% RESIDUE c1 END
+
+% RESIDUE c2 BEGIN: condition c2
+%   concludes: a counterparty meets condition c2
+%   english:
+%   | Opinion assumes neither party is able to avail itself of immunity.
+it is unknown whether a counterparty meets condition c2.
+% RESIDUE c2 END
+").
+
+%   What a model wrote for every residue of a 359-residue opinion: the
+%   template with its constant replaced by "a condition".
+general_residue("```le residue c1
+a counterparty meets a condition.
+```
+```le residue c2
+a counterparty meets a condition.
+```").
+
+named_residue("```le residue c1
+a counterparty meets condition c1 if
+    the counterparty is organised under the law of england.
+```
+```le residue c2
+it is unknown whether a counterparty meets condition c2.
+```").
+
+hook_named(residue_draft(_), _, R) :- !, general_residue(R).
+hook_named(residue_repair(_, _), _, R) :- !, named_residue(R).
+hook_named(P, _, _) :- throw(unexpected_llm_purpose(P)).
+
+conclusion_issues(Reply, Issues) :-
+    named_skeleton(P),
+    le_contract_assistant:residue_blocks(P, Rs),
+    le_contract_assistant:residue_fills(Reply, [c1, c2], Fills),
+    findall(I, ( member(Res, Rs), Res = res(Id, _, _, _), memberchk(Id-F, Fills),
+                 le_contract_assistant:residue_conclusion_issue(P, Fills, Res, F, I) ),
+            Issues).
+
+%   A skeleton whose rule calls its residues, as a coverage matrix does: the
+%   rule already checks the counterparty's kind and jurisdiction.
+called_skeleton("the target language is: prolog.
+
+the templates are:
+    *a counterparty* is covered.
+    *a counterparty* is a bank.
+    *a counterparty* is organised under the law of *a jurisdiction*.
+    *a counterparty* meets *a condition*.
+% RESIDUE TEMPLATES BEGIN
+% RESIDUE TEMPLATES END
+
+the knowledge base coverage includes:
+
+a counterparty is covered if
+    the counterparty is a bank
+    and the counterparty is organised under the law of england
+    and the counterparty meets condition c1
+    and the counterparty meets condition c2
+    and the counterparty meets condition c3.
+
+% RESIDUE c1 BEGIN: condition c1
+% TODO: conclude \"a counterparty meets condition c1\" from the text below
+%   english:
+%   | A bank having its head office in England.
+it is unknown whether a counterparty meets condition c1.
+% RESIDUE c1 END
+
+% RESIDUE c2 BEGIN: condition c2
+% TODO: conclude \"a counterparty meets condition c2\" from the text below
+%   english:
+%   | The bank holds a deposit-taking permission.
+it is unknown whether a counterparty meets condition c2.
+% RESIDUE c2 END
+
+% RESIDUE c3 BEGIN: condition c3
+% TODO: conclude \"a counterparty meets condition c3\" from the text below
+%   english:
+%   | The opinion assumes the transaction is at arm's length.
+it is unknown whether a counterparty meets condition c3.
+% RESIDUE c3 END
+").
+
+called_config(Extra, Config) :-
+    called_skeleton(P),
+    le_contract_assistant:residue_blocks(P, Rs),
+    findall(Id, member(res(Id, _, _, _), Rs), Ids),
+    Config0 = _{program: P, residues: Rs, residue_ids: Ids, baseline: _{passing: []}},
+    Config = Config0.put(Extra).
+
+verify_fills(Reply, V) :-
+    called_config(_{}, C),
+    le_contract_assistant:residue_fills(Reply, [c1, c2, c3], Fills),
+    le_contract_assistant:residue_verify(C, Fills, _, V).
+
+%   The residue checks' issues (not the verifier's) as Type-Id.
+issue_types(V, Types) :-
+    findall(T-Id, ( member(I, V.issues), get_dict(residue, I, Id), get_dict(type, I, T),
+                    string_concat("residue_", _, T) ), Types).
+
+%   One answer per residue the prompt lists (its `- \`cN\`:` lines), and a
+%   record of which residues each call asked for.
+:- dynamic asked/1.
+hook_batched(residue_draft(_), Messages, Reply) :- !,
+    format(string(Prompt), "~w", [Messages]),
+    findall(Id, ( sub_string(Prompt, B, _, _, "- `c"), B1 is B + 3,
+                  sub_string(Prompt, B1, 2, _, IdS), atom_string(Id, IdS) ), Ids0),
+    sort(Ids0, Ids),
+    assertz(asked(Ids)),
+    findall(Block, ( member(Id, Ids),
+                     format(string(Block), "```le residue ~w~nit is unknown whether a counterparty meets condition ~w.~n% kept unknown: stub~n```", [Id, Id]) ),
+            Blocks),
+    atomic_list_concat(Blocks, "\n", Reply).
+hook_batched(P, _, _) :- throw(unexpected_llm_purpose(P)).
+
 :- begin_tests(residue_mode).
 
 test(blocks_found) :-
@@ -155,5 +287,106 @@ test(the_skeleton_cannot_be_rewritten,
     assertion(\+ sub_string(Result.le, _, _, _, "the knowledge base other")),
     skeleton(Sk),
     assertion(skeleton_kept(Sk, Result.le)).
+
+test(a_conclusion_without_its_constant_is_an_error) :-
+    general_residue(R),
+    conclusion_issues(R, Issues),
+    length(Issues, N),
+    assertion(N =:= 2),
+    Issues = [I|_],
+    assertion(I.severity == "error"),
+    assertion(sub_string(I.message, _, _, _, "it is unknown whether a counterparty meets condition c1")).
+
+test(a_named_conclusion_or_the_placeholder_passes) :-
+    named_residue(R),
+    conclusion_issues(R, Issues),
+    assertion(Issues == []).
+
+test(a_block_concluding_something_else_is_an_error) :-
+    conclusion_issues("```le residue c1\na counterparty meets condition c9.\n```", Issues),
+    assertion(Issues = [_]).
+
+test(the_general_fact_is_repaired,
+     [setup(hook_setup(test_residue_mode:hook_named)), cleanup(hook_cleanup)]) :-
+    named_skeleton(P),
+    Config = _{mode: "residue", program: P, model: "stub-model",
+               budget: _{preset: "draft", minutes: 5}},
+    start_contract_job(Config, [sync(true)], JobID),
+    le_contract_assistant:ca_result(JobID, Result),
+    assertion(\+ sub_string(Result.le, _, _, _, "a counterparty meets a condition")),
+    assertion(Result.final_score.errors =:= 0),
+    Result.residue = [R1, R2],
+    assertion(R1.status == "translated"),
+    assertion(R2.status == "open").
+
+test(repeating_the_calling_rule_adds_nothing) :-
+    verify_fills("```le residue c1
+a counterparty meets condition c1 if
+    the counterparty is a bank
+    and the counterparty is organised under the law of england.
+```", V),
+    issue_types(V, Types),
+    assertion(memberchk("residue_restates"-c1, Types)),
+    assertion(V.open >= 1).
+
+test(what_the_text_adds_is_a_translation) :-
+    verify_fills("```le residue templates
+*a counterparty* has its head office in england; unknown.
+```
+```le residue c1
+a counterparty meets condition c1 if
+    the counterparty has its head office in england.
+```", V),
+    issue_types(V, Types),
+    assertion(\+ memberchk(_-c1, Types)).
+
+test(a_bare_placeholder_is_open_a_commented_one_is_not) :-
+    verify_fills("```le residue c2
+it is unknown whether a counterparty meets condition c2.
+```
+```le residue c3
+% kept unknown: an assumption about the transaction
+it is unknown whether a counterparty meets condition c3.
+```", V),
+    issue_types(V, Types),
+    assertion(memberchk("residue_open"-c2, Types)),
+    assertion(\+ memberchk(_-c3, Types)).
+
+test(keeping_every_placeholder_ranks_below_translating) :-
+    called_config(_{}, C),
+    le_contract_assistant:residue_fills("```le residue c1
+it is unknown whether a counterparty meets condition c1.
+```", [c1, c2, c3], Lazy),
+    le_contract_assistant:residue_fills("```le residue templates
+*a counterparty* has its head office in england; unknown.
+```
+```le residue c1
+a counterparty meets condition c1 if
+    the counterparty has its head office in england.
+```", [c1, c2, c3], Done),
+    le_contract_assistant:residue_verify(C, Lazy, T0, V0),
+    le_contract_assistant:residue_verify(C, Done, T1, V1),
+    le_contract_assistant:best_of(cand(T0, V0, s0), cand(T1, V1, s1), Best),
+    assertion(Best = cand(_, _, s1)).
+
+test(residues_are_drafted_in_batches,
+     [setup(( retractall(test_residue_mode:asked(_)), hook_setup(test_residue_mode:hook_batched) )),
+      cleanup(( retractall(test_residue_mode:asked(_)), hook_cleanup ))]) :-
+    called_skeleton(P),
+    Config = _{mode: "residue", program: P, model: "stub-model", residue_batch: 2,
+               budget: _{preset: "draft", minutes: 5}},
+    start_contract_job(Config, [sync(true)], JobID),
+    le_contract_assistant:ca_result(JobID, Result),
+    findall(A, test_residue_mode:asked(A), Asked),
+    msort(Asked, Sorted),
+    assertion(Sorted == [[c1, c2], [c3]]),
+    assertion(Result.final_score.open =:= 0).
+
+test(the_prompt_skeleton_leaves_out_other_residues) :-
+    called_config(_{}, C),
+    le_contract_assistant:residue_focus_program(C, C.program, [c2], F),
+    assertion(sub_string(F, _, _, _, "% RESIDUE c2 BEGIN")),
+    assertion(\+ sub_string(F, _, _, _, "% RESIDUE c1 BEGIN")),
+    assertion(sub_string(F, _, _, _, "and the counterparty meets condition c2")).
 
 :- end_tests(residue_mode).
