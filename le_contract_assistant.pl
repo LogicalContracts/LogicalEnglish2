@@ -1416,7 +1416,16 @@ residue_splice_lines([L|Ls], Fills, Out) :-
         ->  include(comment_line, Inside, Src),
             split_string(Fill, "\n", "", FillLines0),
             exclude(blank_line, FillLines0, FillLines1),
-            residue_label_rules(Src, Id, FillLines1, FillLines),
+            residue_label_rules(Src, Id, FillLines1, FillLines2),
+            %  A fill that is only a comment declines the residue: the block
+            %  keeps the skeleton's own lines (its `it is unknown whether`
+            %  placeholder). Dropping them would turn the unknown into a
+            %  failure of every rule that asks for it.
+            (   \+ ( member(FL, FillLines2), \+ comment_line(FL) )
+            ->  exclude(comment_line, Inside, Kept0), exclude(blank_line, Kept0, Kept),
+                append(FillLines2, Kept, FillLines)
+            ;   FillLines = FillLines2
+            ),
             append([[L], Src, FillLines], Block)
         ;   Block = [L|Inside]
         ),
@@ -2583,6 +2592,7 @@ residue_report(Config, Program, Report) :-
               maplist([L0, L1]>>normalize_space(string(L1), L0), Stmts, StmtsN),
               maplist([L0, L1]>>normalize_space(string(L1), L0), OrigStmts, OrigN),
               (   reverted_body(Src) -> St = "reverted (its translation was put back)"
+              ;   N > 0, StmtsN == OrigN, NSrc > NOrig -> St = "declined (explained in a comment)"
               ;   N > 0, StmtsN == OrigN -> St = "open"      % the skeleton's placeholder, untouched
               ;   N > 0 -> St = "translated"
               ;   NSrc > NOrig -> St = "declined (explained in a comment)"

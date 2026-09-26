@@ -532,4 +532,9 @@ test(no_error_is_delivered,
     assertion(sub_string(Result.le, _, _, _, "it is unknown whether a counterparty meets condition c2.")),
     assertion(sub_string(Result.le, _, _, _, "and the counterparty has its head office in england")).
 
+test(a_declined_residue_keeps_its_placeholder) :-
+    guarded_skeleton(P),
+    le_contract_assistant:residue_splice(P, [c1-"% kept unknown: an assumption about the transaction"], Out),
+    assertion(sub_string(Out, _, _, _, "% kept unknown: an assumption about the transaction\nit is unknown whether a counterparty meets condition c1.\n% RESIDUE c1 END")).
+
 :- end_tests(residue_mode).

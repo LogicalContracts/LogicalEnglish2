@@ -79,6 +79,61 @@ query q is:
     which counterparty is covered.
 ").
 
+%   Each condition also has a rule that would assume something for it: a
+%   stated condition is proved once, from the statement.
+derivable("the target language is: prolog.
+
+the templates are:
+    *a counterparty* is covered.
+    *a counterparty* holds a banking licence.
+    *a counterparty* meets *a condition*.
+    *a counterparty* is solvent; unknown.
+
+the knowledge base k includes:
+
+a counterparty is covered if
+    the counterparty holds a banking licence
+    and the counterparty meets condition c1
+    and the counterparty meets condition c2
+    and the counterparty meets condition c3
+    and the counterparty meets condition c4
+    and the counterparty meets condition c5
+    and the counterparty meets condition c6
+    and the counterparty meets condition c7
+    and the counterparty meets condition c8
+    and the counterparty meets condition c9
+    and the counterparty meets condition c10
+    and the counterparty meets condition c11
+    and the counterparty meets condition c12.
+
+a counterparty meets a condition if
+    the counterparty is solvent.
+
+scenario stated is:
+    acme holds a banking licence.
+    acme meets condition c1.
+    acme meets condition c2.
+    acme meets condition c3.
+    acme meets condition c4.
+    acme meets condition c5.
+    acme meets condition c6.
+    acme meets condition c7.
+    acme meets condition c8.
+    acme meets condition c9.
+    acme meets condition c10.
+    acme meets condition c11.
+    acme meets condition c12.
+
+query q is:
+    which counterparty is covered.
+").
+
+answers_of(Program, Scenario, Answers) :-
+    le_kbs:load_text(Program, test_stated_unknowns, KB),
+    le_kbs:createSession(KB, SM), le_kbs:setScenarion(SM, Scenario),
+    findall(A-U, ( le_kbs:query(SM, q, I, U, _), le_kbs:canonical_string(I, A) ), Answers).
+
+
 :- begin_tests(stated_unknowns).
 
 test(sixteen_stated_conditions_answer_at_once) :-
@@ -88,5 +143,10 @@ test(sixteen_stated_conditions_answer_at_once) :-
     delete_file(File),
     %  both: all stated (no unknowns), half stated (the other half assumed)
     assertion(Results == [pass(q, stated), pass(q, half)]).
+
+test(a_stated_condition_rules_could_derive_is_proved_once) :-
+    derivable(P),
+    call_with_time_limit(10, answers_of(P, stated, As)),
+    assertion(As == ["acme is covered"-[]]).
 
 :- end_tests(stated_unknowns).
