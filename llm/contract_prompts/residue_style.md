@@ -107,24 +107,42 @@ there, which is an error. Reword it (`does not fall within the excluded types
 listed in Appendix C`).
 
 **Exclusions.** An exclusion is phrased positively in such skeletons (`a
-counterparty is outside exclusion e3`), and its placeholder already makes it
-an unknown an answer rests on. The text describes who is INSIDE the
-exclusion ("a qualifying water supply licensee"); being outside it can rarely
-be established from facts a scenario states. Translate an exclusion only when
-the text gives a positive way to be outside it — a requirement that, when
-met, puts the counterparty outside ("organised as a company limited by
-shares"). Otherwise keep its placeholder, with a comment saying why (`%
-kept unknown: the exclusion describes who is inside it`). Never conclude
-`outside` from `it is not the case that` over a description: without the
-unknown marker it would put every counterparty the scenario does not
-describe outside the exclusion, and with it the row never answers.
+counterparty is outside exclusion e3`). Its text describes who is INSIDE the
+exclusion ("private registered providers of social housing under the Housing
+and Planning Act 2016"). Translate it with a named unknown: a template, in
+the text's own words, saying that the counterparty is NOT in that class,
+declared `; unknown`, and a rule concluding the exclusion from it:
 
-**Keeping the placeholder.** A block may hold a line of the skeleton such as
-`it is unknown whether a counterparty meets condition c1.` Keep it only when
-the text says nothing checkable about the counterparty — an assumption about
-the transaction, the other party, or the law — and then add a comment line to
-the block saying why (`% kept unknown: an assumption about the transaction`).
-A placeholder kept without that comment counts as not done.
+```le residue templates
+*a counterparty* is not a private registered provider of social housing under the Housing and Planning Act 2016; unknown.
+```
+
+```le residue e102
+a counterparty is outside exclusion e102 if
+    the counterparty is not a private registered provider of social housing under the Housing and Planning Act 2016.
+```
+
+The answer still rests on it — it is still an open point — but it now reads
+as the opinion does, in the rules and in every answer's list of what it
+rests on, and a scenario can state it. Never write `it is not the case that`
+followed by the class instead: without `; unknown` it would put everyone the
+scenario does not describe outside the exclusion, and with it the row never
+answers.
+
+**The same for a condition that gives nothing checkable.** A condition whose
+text is a caveat or an assumption ("performance in another jurisdiction will
+not be illegal", "the counterparty is not subject to a special insolvency
+regime") becomes a named unknown too, in the text's own words: `*a
+counterparty* is not subject to a special regulatory or modified insolvency
+regime; unknown.` — or, when the text is about the transaction rather than
+the counterparty, a template of its own without the counterparty (`the
+performance of the transaction outside England is lawful; unknown.`). A named
+open point is worth far more to a reader than the residue's number.
+
+**Keeping the placeholder** (`it is unknown whether a counterparty meets
+condition c1.`) is for text with no legal reading at all — a stray fragment,
+a heading, a duplicate of another condition — and then with a comment line
+saying why (`% kept unknown: ...`). It is counted as not translated.
 
 ## How to translate code into rules
 

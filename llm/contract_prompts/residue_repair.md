@@ -26,19 +26,20 @@ always in a residue block (or in the `templates` block).
   with your translation — your rules conclude something they should not.
 - `residue_conclusion`: your block does not conclude the sentence the residue
   names, or concludes it for everything (its constant replaced by `a ...`).
-  Keep the constant; if the text gives nothing checkable, keep the skeleton's
-  own line.
+  Keep the constant; if the text gives nothing checkable, conclude it from a
+  named unknown in the text's own words.
 - `residue_open`: the block still holds only the skeleton's placeholder (or
-  nothing): translate the text, or keep the placeholder with a comment saying
-  why the text gives nothing checkable.
+  nothing): translate the text — a caveat or an assumption becomes a named
+  unknown in the text's own words; keep the placeholder (with a comment
+  saying why) only for text with no legal reading at all.
 - `residue_restates`: the block only repeats what the rule calling it already
   checks. Write as conditions what the text adds, with new templates
   (`; unknown`) where needed.
 - `negated_unknown`: `it is not the case that` over a template declared
   `; unknown` never holds. Phrase the requirement as its own template
   (`*a counterparty* is not in administration; unknown.`) and use it
-  positively; for an exclusion, keep the placeholder unless the text gives a
-  positive way to be outside it.
+  positively — for an exclusion, `*a counterparty* is not <the excluded
+  class, in the text's words>; unknown.`
 - `unknown_template`: a sentence of yours matches no declared template.
 - a failing expectation: compare the expected answer (the source system's) with
   what your rules computed, and correct the rules.
