@@ -440,6 +440,14 @@ solve_literal(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
           \+ member(le_unknown(G), Anc),
           \+ judged_question_decided(G, SM, KM),
           D1 is D + 1,
+          %  A goal the scenario already proves is not also assumed: i/4 would
+          %  drop that answer anyway ("a definite proof wins"), but only after
+          %  the search had tried both ways for every such goal — 2^n branches
+          %  for n stated conditions (a determination stating eleven of a
+          %  row's conditions as met ran past the test runner's 30 seconds).
+          %  (Its own assumption is marked as under way, so that the check
+          %  does not try to assume G again.)
+          \+ ( ground(G), \+ \+ solve(G, SM, KM, [le_unknown(G)|Anc], D1, none, [], _) ),
           solve(UnkBody, SM, KM, [le_unknown(G)|Anc], D1, MyID, [], _) ->  
             Us = [G], WhysBody = [], Ref = unknown
     ).
