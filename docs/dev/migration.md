@@ -419,7 +419,20 @@ residue replaces the unknown it was (`acme meets condition c1`) with the
 unknowns its rules rest on. The rounds stop when no test fails on its answers. A translator that writes expectations
 for a skeleton with residue can say so in the program itself: `q expects
 answers [...] and any unknowns.` checks the answers only (language.md §12).
-Ambit's export writes each signed determination that way. Tests:
+Ambit's export writes each signed determination that way.
+
+**No regression is delivered.** When the repair rounds end with a skeleton
+test still broken, the job puts back the placeholder of each residue to blame
+before it delivers (`residue_guard/4`). For each broken test, the reasoner's
+why-not (`le_why_not.pl`) names the unmet conditions of the routes that came
+closest; a rule inside a residue block is that residue's translation. Every
+other residue the same rows call, whose sentence then has no answer at all in
+that scenario, goes back too, since the skeleton always answered it by
+assuming it. The block keeps its placeholder with a comment (`% kept unknown:
+its translation broke a test of the program (scenario ...)`), the ledger
+lists it as reverted, and the job repeats until no test regresses (three
+rounds at most). A translation that negates an unknown (`negated_unknown`, an
+error inside a residue block) is the usual cause. Tests:
 `testing/test_residue_mode.pl`.
 
 ## 5. The defects fixed before the readers (Appendix A of the report)

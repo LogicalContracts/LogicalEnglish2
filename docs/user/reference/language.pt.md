@@ -45,7 +45,7 @@ Cada cabeçalho de secção termina com dois pontos `:`.
 - **Recursos incluídos:** `a base de conhecimento <nome> inclui estes recursos:` ou `o contrato <nome> inclui estes recursos:` — traz para o programa outros ficheiros LE, indicados pelo nome ou por um URL (*Uniform Resource Locator*, um endereço na Internet). Esta secção tem de vir antes do cabeçalho principal.
 - **Base de conhecimento:** `a base de conhecimento <nome> inclui:` ou `o contrato <nome> estabelece que:`
 - **Cenário:** `cenário <nome> é:` (factos de um caso concreto)
-  - Pode incluir expectativas: `<NomeDaConsulta> espera respostas [<lista de strings>] e desconhecidos [<lista de strings>].` (a palavra `respostas` pode omitir-se)
+  - Pode incluir expectativas: `<NomeDaConsulta> espera respostas [<lista de strings>] e desconhecidos [<lista de strings>].` (a palavra `respostas` pode omitir-se; `e quaisquer desconhecidos` verifica só as respostas, §12)
 - **Consulta:** `consulta <nome> é:` (os objetivos a provar). O corpo de uma
   consulta pode ser uma **expressão de corpo completa — como o corpo de uma
   regra** — e não apenas uma única instância de modelo. O corpo pode combinar
@@ -82,7 +82,7 @@ Uma definição de modelo pode ser seguida de adições, cada uma introduzida po
   - **Apresentação:** por omissão, o sistema usa a forma principal (a primeira). Numa explicação, cada passo aparece na forma usada no seu local de origem, e uma consulta apresenta as suas respostas na forma usada na consulta.
   - **Restrição:** um modelo com sinónimo **não pode ter outras adições** (`oposto`, `preposicional`, `desconhecido`, `indefinido`); senão o verificador assinala o erro `synonym_with_other_additions`.
 - `; preposicional` — marca um modelo **preposicional** (ver §2.1). O sinónimo `; composto` (ou `; composta`) é aceite com o mesmo significado.
-- `; desconhecido` — marca o modelo como **assumível** (abdutível). Um objetivo deste modelo que o programa não consegue provar é assumido verdadeiro e reportado como desconhecido, na medida em que as restrições de integridade o permitam (§3.3). São aceites os sinónimos `; desconhecida`, `; assumido`, `; assumida` e `; assumível`.
+- `; desconhecido` — marca o modelo como **assumível** (abdutível). Um objetivo deste modelo que o programa não consegue provar é assumido verdadeiro e reportado como desconhecido, na medida em que as restrições de integridade o permitam (§3.3). São aceites os sinónimos `; desconhecida`, `; assumido`, `; assumida` e `; assumível`. Um objetivo que o cenário já prova não é também assumido. **Um objetivo destes não se nega com proveito:** `não é o caso que` seguido dele nunca se verifica, porque o sistema nunca prova falso aquilo que poderia assumir. Para exigir que algo *não* aconteça, e deixá-lo em aberto, declare essa exigência como um modelo próprio (`*uma contraparte* não está em administração; desconhecido.`). O verificador assinala uma negação de um desconhecido (`negated_unknown`).
 - `; indefinido` — marca o modelo como **elemento de cenário**: os seus factos só devem aparecer em cenários, nunca como factos ou cabeças de regras na base de conhecimento. São aceites os sinónimos `; indefinida` e `; elemento de cenário`.
   - O aviso `undefined_predicate` é **suprimido** para este modelo.
   - É emitido o aviso `defined_scenario_element` se aparecer um facto ou cabeça de regra deste modelo na base de conhecimento.
@@ -516,6 +516,13 @@ O Português Lógico suporta meta-predicados que recebem outras frases como argu
 ## 12. Testes e expectativas
 Um cenário pode declarar os resultados que espera de uma consulta, e o executor de testes usa-os.
 - **Sintaxe:** `<NomeDaConsulta> espera respostas ["Resposta 1", "Resposta 2"] e desconhecidos ["Desconhecido 1"].` (A parte `e desconhecidos [...]` é opcional, e a palavra `respostas` também.)
+- **As respostas, seja qual for aquilo em que assentam:** `<NomeDaConsulta> espera respostas ["Resposta 1"] e quaisquer desconhecidos.`
+  Sem a parte `e desconhecidos [...]`, uma expectativa diz também que as
+  respostas não assentam em nenhum desconhecido. Com `e quaisquer
+  desconhecidos`, o teste verifica só as respostas: uma resposta que assenta
+  em desconhecidos passa, sejam eles quais forem. Use-a quando aquilo em que
+  uma resposta assenta pode mudar sem que a resposta mude — por exemplo, num
+  programa cujas condições ainda estão a ser traduzidas em regras.
 - A expectativa nomeia a consulta diretamente — **não** a prefixe com `consulta`.
 - **Consultas de inversão** (§17.7) declaram os conjuntos mínimos de alterações esperados: `<NomeDaConsulta> espera alterações [["acrescentar: <facto>"], ["retirar: <facto>", "acrescentar: <facto>"]].`
 - **Quando correm:** o executor de testes (`runTests`, `runTestsFor/2`) corre

@@ -67,6 +67,14 @@ has no template for gets one, declared in the `templates` block with `;
 unknown`, so that a scenario which does not state it leaves the answer
 unknown rather than false. Say the requirement in the text's own words.
 
+**Never write `it is not the case that` over a template declared `;
+unknown`.** LE never proves that something it could assume is false, so such
+a condition never holds, and the row that asks for the residue never answers
+— for every counterparty. The verifier reports it (`negated_unknown`) as an
+error. A requirement that something is NOT so becomes a template of its own,
+phrased as the requirement, and that template is the unknown: `*a
+counterparty* is not in administration; unknown.`
+
 For example, a text "a registered charity, whose trustees have approved the
 transaction in writing, and which is not in administration" called by a rule
 that already checks that the counterparty is a charity:
@@ -74,21 +82,28 @@ that already checks that the counterparty is a charity:
 ```le residue templates
 *a counterparty* is registered with the charity commission; unknown.
 the trustees of *a counterparty* have approved the transaction in writing; unknown.
-*a counterparty* is in administration; unknown.
+*a counterparty* is not in administration; unknown.
 ```
 
 ```le residue c7
 a counterparty meets condition c7 if
     the counterparty is registered with the charity commission
     and the trustees of the counterparty have approved the transaction in writing
-    and it is not the case that
-        the counterparty is in administration.
+    and the counterparty is not in administration.
 ```
 
-An exclusion is phrased positively in such skeletons (`a counterparty is
-outside exclusion e3`): conclude it when the counterparty is NOT one the
-exclusion describes — typically `it is not the case that` followed by the
-exclusion's own description.
+**Exclusions.** An exclusion is phrased positively in such skeletons (`a
+counterparty is outside exclusion e3`), and its placeholder already makes it
+an unknown an answer rests on. The text describes who is INSIDE the
+exclusion ("a qualifying water supply licensee"); being outside it can rarely
+be established from facts a scenario states. Translate an exclusion only when
+the text gives a positive way to be outside it — a requirement that, when
+met, puts the counterparty outside ("organised as a company limited by
+shares"). Otherwise keep its placeholder, with a comment saying why (`%
+kept unknown: the exclusion describes who is inside it`). Never conclude
+`outside` from `it is not the case that` over a description: without the
+unknown marker it would put every counterparty the scenario does not
+describe outside the exclusion, and with it the row never answers.
 
 **Keeping the placeholder.** A block may hold a line of the skeleton such as
 `it is unknown whether a counterparty meets condition c1.` Keep it only when

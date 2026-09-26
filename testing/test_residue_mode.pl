@@ -257,6 +257,62 @@ it is unknown whether a counterparty meets condition c3.
 ```") :- !.
 hook_translating(P, _, _) :- throw(unexpected_llm_purpose(P)).
 
+%   A skeleton whose one test passes on the placeholders (the answer rests on
+%   both conditions), and a model that keeps translating c1 as a negation of
+%   an unknown: the row can then never answer, and the test breaks.
+guarded_skeleton("the target language is: prolog.
+
+the templates are:
+    *a counterparty* is covered.
+    *a counterparty* holds a banking licence.
+    *a counterparty* meets *a condition*.
+% RESIDUE TEMPLATES BEGIN
+% RESIDUE TEMPLATES END
+
+the knowledge base coverage includes:
+
+a counterparty is covered if
+    the counterparty holds a banking licence
+    and the counterparty meets condition c1
+    and the counterparty meets condition c2.
+
+% RESIDUE c1 BEGIN: condition c1
+%   concludes: a counterparty meets condition c1
+%   english:
+%   | The bank is not in administration.
+it is unknown whether a counterparty meets condition c1.
+% RESIDUE c1 END
+
+% RESIDUE c2 BEGIN: condition c2
+%   concludes: a counterparty meets condition c2
+%   english:
+%   | The bank has its head office in England.
+it is unknown whether a counterparty meets condition c2.
+% RESIDUE c2 END
+
+scenario acme is:
+    acme holds a banking licence.
+    q expects answers [\"acme is covered\"] and any unknowns.
+
+query q is:
+    which counterparty is covered.
+").
+
+hook_negating(P, _, "```le residue templates
+*a counterparty* is in administration; unknown.
+*a counterparty* has its head office in england; unknown.
+```
+```le residue c1
+a counterparty meets condition c1 if
+    it is not the case that
+        the counterparty is in administration.
+```
+```le residue c2
+a counterparty meets condition c2 if
+    the counterparty has its head office in england.
+```") :- ( P = residue_draft(_) ; P = residue_repair(_, _) ), !.
+hook_negating(P, _, _) :- throw(unexpected_llm_purpose(P)).
+
 :- begin_tests(residue_mode).
 
 test(blocks_found) :-
@@ -432,5 +488,19 @@ test(folding_can_be_turned_off,
     start_contract_job(Config, [sync(true)], JobID),
     le_contract_assistant:ca_result(JobID, Result),
     assertion(sub_string(Result.le, _, _, _, "% RESIDUE c1 BEGIN")).
+
+test(a_translation_that_breaks_a_test_goes_back_to_its_placeholder,
+     [setup(hook_setup(test_residue_mode:hook_negating)), cleanup(hook_cleanup)]) :-
+    guarded_skeleton(P),
+    Config = _{mode: "residue", program: P, model: "stub-model",
+               budget: _{preset: "draft", minutes: 5}},
+    start_contract_job(Config, [sync(true)], JobID),
+    le_contract_assistant:ca_result(JobID, Result),
+    %  c1 is back to its placeholder, and says why; c2 stays translated (and folded)
+    assertion(sub_string(Result.le, _, _, _, "% kept unknown: its translation broke a test of the program (scenario acme)\nit is unknown whether a counterparty meets condition c1.")),
+    assertion(sub_string(Result.le, _, _, _, "and the counterparty has its head office in england")),
+    assertion(Result.final_score.tests_failed =:= 0),
+    member(R1, Result.residue), R1.id == "c1",
+    assertion(sub_string(R1.status, 0, _, _, "reverted")).
 
 :- end_tests(residue_mode).
