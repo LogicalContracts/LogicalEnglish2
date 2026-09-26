@@ -605,9 +605,11 @@ A scenario can state the answers a query is expected to give. The test runner th
 - **When they run:** the test runner (`runTests`, `runTestsFor/2`) runs every
   expectation. Verification, which happens each time the editor loads a
   program, runs them too, as far as a time allowance permits (the Prolog setting
-  `le_verify_tests_seconds`, 5 seconds by default). The system reports the tests
-  left over once, as a `tests_not_run` warning, so that a program with many
-  scenarios still opens quickly.
+  `le_verify_tests_seconds`, 5 seconds by default). A test still running when the
+  allowance ends is stopped. The system reports the tests left over, and the
+  one it stopped, once, as a `tests_not_run` warning, so that a program with
+  many scenarios, or one slow test, still opens quickly. The test runner runs
+  every test in full.
 - **Example:**
   ```le
   scenario alice is:

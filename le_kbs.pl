@@ -3510,9 +3510,28 @@ normalized_set(Strings, Set) :-
     msort(N, Set).
 
 run_one_test_body(KBmodule, QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns, SM, Result) :-
+    test_time_limit(TestLimit, ByBudget),
+    run_one_test_body(KBmodule, QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns, SM, TestLimit, Result0),
+    %  cut short by the allowance of the load that runs it, not by its own
+    %  length: not run, rather than failed
+    (   ByBudget == true, Result0 = error(_, _, 'Timeout exceeded')
+    ->  Result = not_run(QueryName, ScenarioName)
+    ;   Result = Result0
+    ).
+
+%   30 seconds a test; while a load runs the tests within its allowance
+%   (le_verifier: le_tests_deadline), no more than what is left of it.
+test_time_limit(Limit, ByBudget) :-
+    (   nb_current(le_tests_deadline, Deadline), number(Deadline)
+    ->  get_time(Now), Left is max(0.1, Deadline - Now),
+        ( Left < 30 -> Limit = Left, ByBudget = true ; Limit = 30, ByBudget = false )
+    ;   Limit = 30, ByBudget = false
+    ).
+
+run_one_test_body(KBmodule, QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns, SM, TestLimit, Result) :-
     (   setScenarion(SM, ScenarioName) ->
         (   ((KBmodule:query_info(QueryName, FullGoal, Items) ; (normalize_string(QueryName, NormName), KBmodule:query_info(InfoName, FullGoal, Items), normalize_string(InfoName, NormName)))) ->  
-            (   catch(call_with_time_limit(30, 
+            (   catch(call_with_time_limit(TestLimit, 
                     findall(S-ActualUnknownStrings, 
                         (
                             reasoner:i(FullGoal, SM, ActualUnknownsList, _Why), 
@@ -3561,7 +3580,7 @@ run_one_test_body(KBmodule, QueryName, ScenarioName, ExpectedStrings, ExpectedUn
             ;   
             % Try to parse QueryName as a custom query if not found in query_info
             (   catch(parse_custom_query(KBmodule, QueryName, FullGoal), _, fail) ->
-                (   catch(call_with_time_limit(30, 
+                (   catch(call_with_time_limit(TestLimit, 
                         findall(S-ActualUnknownStrings, 
                             (
                                 reasoner:i(FullGoal, SM, ActualUnknownsList, _Why), 

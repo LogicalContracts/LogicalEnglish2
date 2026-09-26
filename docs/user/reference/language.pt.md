@@ -529,7 +529,9 @@ Um cenário pode declarar os resultados que espera de uma consulta, e o executor
   todas as expectativas. A verificação — cada carregamento no editor — também
   as corre, mas dentro de um tempo limitado (a opção Prolog — uma *flag* —
   `le_verify_tests_seconds`, 5 segundos por omissão). Os testes que ficam por
-  correr são reportados uma vez, com o aviso `tests_not_run`.
+  correr são reportados uma vez, com o aviso `tests_not_run`. Um teste que
+  ainda corre quando esse tempo acaba é interrompido e contado entre eles; o
+  executor de testes corre todos os testes até ao fim.
 - **Exemplo:**
   ```le
   cenário alice é:

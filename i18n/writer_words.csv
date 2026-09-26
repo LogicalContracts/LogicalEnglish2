@@ -23,7 +23,7 @@ todo_residue,"translate the fragment below by hand, or with the Contract Assista
 residue_concludes,concludes,conclui,concluye,conclut,conclude
 residue_provenance,provenance,proveniência,procedencia,provenance,provenienza
 residue_folded,folded in from residue,incorporado a partir do resíduo,incorporado desde el residuo,intégré depuis le résidu,incorporato dal residuo
-residue_reverted,kept unknown: its translation broke a test of the program,mantido desconhecido: a sua tradução fez falhar um teste do programa,se mantiene desconocido: su traducción hizo fallar una prueba del programa,gardé inconnu : sa traduction faisait échouer un test du programme,lasciato sconosciuto: la sua traduzione faceva fallire un test del programma
+residue_reverted,kept unknown: its translation was put back,mantido desconhecido: a sua tradução foi retirada,se mantiene desconocido: su traducción se retiró,gardé inconnu : sa traduction a été retirée,lasciato sconosciuto: la sua traduzione è stata ritirata
 legal_kb_suffix,legal view,visão jurídica,vista jurídica,vue juridique,vista giuridica
 legal_permissions_section,permissions,permissoes,permisos,permissions,permessi
 legal_effects_section,effects,efeitos,efectos,effets,effetti

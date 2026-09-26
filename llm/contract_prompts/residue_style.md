@@ -92,6 +92,20 @@ a counterparty meets condition c7 if
     and the counterparty is not in administration.
 ```
 
+**Alternatives over unknowns multiply the answers.** Two rules for one
+residue, or `either`/`or` between conditions that are unknowns, make every
+row that asks for the residue answer once per combination — ten such
+residues in a row are a thousand answers, and the program's tests run out of
+time. Where the text allows either of two things that a scenario may leave
+unsaid, declare ONE template that says so (`*a counterparty* is an
+authorised or an exempted person under the Financial Services and Markets
+Act 2000; unknown.`).
+
+**A template may not contain LE's own words** (`any of`, `either`, `if`,
+`and`, `or`, `unless`, `it is not the case that`...): the template is cut off
+there, which is an error. Reword it (`does not fall within the excluded types
+listed in Appendix C`).
+
 **Exclusions.** An exclusion is phrased positively in such skeletons (`a
 counterparty is outside exclusion e3`), and its placeholder already makes it
 an unknown an answer rests on. The text describes who is INSIDE the

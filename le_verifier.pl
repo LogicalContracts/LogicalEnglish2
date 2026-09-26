@@ -35,8 +35,12 @@ verify(KB, Issues) :-
 verify(KB, Options, Issues) :-
     ensure_kb_language(KB),
     nb_setval(le_query_reachable, none),       % computed once per verification
-    tests_budget_start,
-    ( setof(Issue, check_issue(KB, Options, Issue), Issues) -> true; Issues = []).
+    %  the budget is this verification's: a test run after it (runTestsFor,
+    %  in the same thread) has none
+    setup_call_cleanup(
+        tests_budget_start,
+        ( setof(Issue, check_issue(KB, Options, Issue), Issues) -> true; Issues = [] ),
+        nb_setval(le_tests_deadline, none)).
 
 % The embedded tests a verification runs (failed_test below) share a time
 % budget, prolog flag le_verify_tests_seconds (default 5): a program with many
@@ -1300,6 +1304,12 @@ failed_test(KB, issue(failed_test, Description, Fix, Start, End)) :-
     test_in_budget,
     run_one_test(KB, test(QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns), Result),
     Result \= pass(_, _),
+    %  cut short by the load's allowance: counted with the tests not run
+    (   Result = not_run(_, _)
+    ->  nb_getval(le_tests_skipped, N0), N is N0 + 1, nb_setval(le_tests_skipped, N),
+        fail
+    ;   true
+    ),
     (   Result = fail(_, _, Expected, Actual) ->
         le_i18n:le_msg(failed_test_desc, [query-QueryName, scenario-ScenarioName, expected-Expected, actual-Actual], Description)
     ;   Result = fail(_, _, Expected, Actual, ExpectedU, ActualU) ->
