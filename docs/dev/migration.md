@@ -443,7 +443,7 @@ other residue the same rows call, whose sentence then has no answer at all in
 that scenario, goes back too, since the skeleton always answered it by
 assuming it. The block keeps its placeholder with a comment (`% kept unknown:
 its translation was put back (scenario ...)`), the ledger lists it as
-reverted, and the job repeats until no test regresses (three rounds at most).
+reverted, and the job repeats until no test regresses (ten rounds at most: each round blames what the current failure shows, and a row may fail on several residues in turn).
 Errors come first: a residue block holding an error goes back to its
 placeholder (`(error <type>)`), and a line of the RESIDUE TEMPLATES region
 holding one is dropped — the editor runs no query on a program with an

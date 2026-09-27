@@ -40,6 +40,9 @@ always in a residue block (or in the `templates` block).
   (`*a counterparty* is not in administration; unknown.`) and use it
   positively — for an exclusion, `*a counterparty* is not <the excluded
   class, in the text's words>; unknown.`
+- `suspicious_is_a` / `suspicious_is`: a sentence read as a type (`X is a
+  company registered ...`) or as a value, not as your template: reword the
+  template so that it does not continue `is a` / `is an` after its slot.
 - `unknown_template`: a sentence of yours matches no declared template.
 - a failing expectation: compare the expected answer (the source system's) with
   what your rules computed, and correct the rules.

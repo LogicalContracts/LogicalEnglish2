@@ -101,6 +101,14 @@ unsaid, declare ONE template that says so (`*a counterparty* is an
 authorised or an exempted person under the Financial Services and Markets
 Act 2000; unknown.`).
 
+**A template must not read as a type.** After its first slot, a template
+may not go on with `is a` or `is an` (`*a counterparty* is a company
+registered under ...`): LE reads `X is a Y` as "X is of type Y", the
+condition becomes a type check that fails for everyone, and the verifier
+reports it (`suspicious_is_a`, an error in a residue). Say it another way:
+`*a counterparty* is registered as a company under ...`, `*a counterparty*
+qualifies as a company registered under ...`.
+
 **A template may not contain LE's own words** (`any of`, `either`, `if`,
 `and`, `or`, `unless`, `it is not the case that`...): the template is cut off
 there, which is an error. Reword it (`does not fall within the excluded types

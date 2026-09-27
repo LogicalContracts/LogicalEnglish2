@@ -1612,7 +1612,7 @@ residue_stages(JobID) :-
 %   the skeleton answered for some entity (by assuming it) and the
 %   translation answers for none of them has turned an unknown into a failure.
 %   Its block gets its placeholder back, with a comment saying why. Repeated
-%   until nothing regresses, three rounds at most.
+%   until nothing regresses, ten rounds at most (each blames what the current failure shows, and a row can fail on several residues in turn).
 residue_guard(JobID, Config, Text0, Text) :-
     residue_guard(JobID, Config, Text0, 1, Text).
 
@@ -1640,7 +1640,7 @@ residue_guard(JobID, Config, Text0, Round, Text) :-
         residue_guard(JobID, Config, Text2, Round1, Text)
     ;   Broken == []
     ->  Text = Text0
-    ;   Round > 3
+    ;   Round > 10
     ->  length(Broken, NB),
         ca_emit(JobID, "~w test(s) of the skeleton still fail after reverting; delivered as it is"-[NB]),
         Text = Text0
@@ -1746,16 +1746,21 @@ residue_culprits(Text, Broken, Culprits) :-
             Culprits0),
     %  The reasoner stops at a row's first failing condition, so why-not
     %  names one residue per row and round. Every other residue the same rows
-    %  call is checked at once: one whose sentence has no answer at all in the
-    %  scenario — the skeleton always had one, by assuming it — fails the row
-    %  as well.
+    %  call is checked at once, about the entity the failed test is about (a
+    %  constant of the scenario its missing answer names): one whose sentence
+    %  has no answer for it — the skeleton always had one, by assuming it —
+    %  fails the row as well.
     findall(Id2-SA,
             ( member(Id-SA, Culprits0),
+              member(Q-S, Broken), atom_string(SA, S), atom_string(QA, Q),
+              catch(KB:le_expected(QA, SA, Exp0, _), _, fail),
+              maplist(expected_text, Exp0, Exp),
+              scenario_entity(KB, SA, Exp, Entity),
               row_residues(Text, Id, RowIds),
               member(Id2, RowIds), Id2 \== Id,
               residue_block_translated(Text, Id2, Src2),
               residue_target(Src2, Target2),
-              residue_question(Target2, Question2),
+              residue_about(Target2, Entity, Question2),
               %  asked and answered with nothing — an error or a time-out
               %  is no evidence
               residue_answers_checked(KB, SA, Question2, []) ),
@@ -1781,8 +1786,6 @@ residue_slow_culprits(Config, Text, Broken, Culprits) :-
     catch(le_kbs:load_text(Text, residue_guard_translated, KB1), _, fail),
     findall(Id-SA,
             ( member(Q-S, Broken), atom_string(QA, Q), atom_string(SA, S),
-              %  only a test that no longer finishes
-              \+ residue_answers_checked(KB1, SA, QA, _),
               skeleton_row_starts(KB0, SA, QA, Starts),
               findall(R, ( member(St, Starts), char_line(Offs, St, Ln),
                            le_residue_fold:statement_range(SkLines, Ln, From, To),
@@ -1790,8 +1793,23 @@ residue_slow_culprits(Config, Text, Broken, Culprits) :-
                            le_residue_fold:caller_line(LJ, KJ, _), memberchk(KJ-R, Keys) ), Rs0),
               sort(Rs0, Rs),
               include(residue_block_translated_id(Text), Rs, Translated),
-              include(residue_has_alternatives(Text), Translated, Alt),
-              ( Alt \== [] -> member(Id, Alt) ; member(Id, Translated) ) ),
+              (   \+ residue_answers_checked(KB1, SA, QA, _)
+              ->  %  a test that no longer finishes: alternatives first
+                  include(residue_has_alternatives(Text), Translated, Alt),
+                  ( Alt \== [] -> member(Id, Alt) ; member(Id, Translated) )
+              ;   %  a test that finishes without its answer, and why-not named
+                  %  no residue (the unmet condition sits outside them — a
+                  %  sentence read as a type, say): the residues of those
+                  %  rows with no answer about the entity the test is about
+                  catch(KB1:le_expected(QA, SA, Exp0, _), _, fail),
+                  maplist(expected_text, Exp0, Exp),
+                  scenario_entity(KB1, SA, Exp, Entity),
+                  member(Id, Translated),
+                  memberchk(res(Id, _, Src, _), Config.residues),
+                  residue_target(Src, Target),
+                  residue_about(Target, Entity, Question),
+                  residue_answers_checked(KB1, SA, Question, [])
+              ) ),
             Culprits0),
     findall(Id-S, ( member(Id-S, Culprits0), \+ ( member(Id-S2, Culprits0), S2 @< S ) ), Culprits1),
     sort(Culprits1, Culprits).
@@ -1829,6 +1847,27 @@ residue_has_alternatives(Text, Id) :-
     ( Ws0 = [A|Ws], kw_synonym_words(and, [A]) -> true ; Ws = Ws0 ),
     Ws = [W|_],
     ( kw_synonym_words(or, [W]) ; kw_synonym_words(either, [W]) ), !.
+
+%   A constant of the scenario's facts that an expected answer names.
+scenario_entity(KB, Scenario, Expected, Entity) :-
+    catch(KB:scenario(Scenario, Facts), _, fail),
+    findall(E, ( member(F0, Facts), ( F0 = fact_with_source(F, _, _) -> true ; F = F0 ),
+                 compound(F), F \= (_ :- _), arg(1, F, E), atomic(E) ), Es0),
+    sort(Es0, Es),
+    member(Entity, Es),
+    format(string(ES), "~w", [Entity]),
+    member(A, Expected), sub_string(A, _, _, _, ES), !.
+
+%   The target sentence about the entity: its first indefinite phrase (`a
+%   counterparty`) replaced by the entity's name.
+residue_about(Target, Entity, Question) :-
+    split_string(Target, " ", " ", Ws0), exclude(==(""), Ws0, Ws),
+    append(Pre, [A, _Noun|Post], Ws),
+    string_lower(A, AL), atom_string(AA, AL),
+    class_member(article, AA), \+ class_member(definite_article, AA), !,
+    format(string(ES), "~w", [Entity]),
+    append([Pre, [ES], Post], Qs),
+    atomic_list_concat(Qs, ' ', QA), atom_string(QA, Question).
 
 %   The residues named by the rows that call residue Id.
 row_residues(Text, Id, RowIds) :-
@@ -2280,9 +2319,14 @@ attribute_issue(Ranges, I0, I) :-
     (   get_dict(line, I0, Ln), integer(Ln), Ln > 0,
         member(Id-From-To, Ranges), Ln >= From, Ln =< To
     ->  I1 = I0.put(residue, Id),
-        %  A negated unknown never holds: in a translation it silently removes
-        %  the rule that asks for the residue. An error, so that it is repaired.
-        (   get_dict(type, I1, T), atom_string(T, "negated_unknown")
+        %  A negated unknown never holds, and a sentence read as a type (`is a
+        %  company registered ...`) or a value never matches: in a translation
+        %  either silently removes the rule that asks for the residue. An
+        %  error, so that it is repaired.
+        (   get_dict(type, I1, T), atom_string(T, TS),
+            %  a sentence read as a type or as a value where a template was
+            %  meant: the condition fails for everyone, silently
+            memberchk(TS, ["negated_unknown", "suspicious_is_a", "suspicious_is"])
         ->  I = I1.put(severity, "error")
         ;   I = I1
         )
