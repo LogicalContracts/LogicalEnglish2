@@ -1,0 +1,29 @@
+the target language is: prolog.
+
+the templates are:
+
+*a benefit* for *a criminal* for *a crime* is in order.
+*a person* was provoked by *an other person* to commit *a crime*.
+*a criminal* felt provoked into *a crime* by *an action* of *a person*. 
+*a person* did perform *an act* towards *a second person* that induces *a crime*. 
+
+the knowledge base includes:
+
+leniency for a criminal for a crime is in order if
+	the criminal was provoked by an other person to commit the crime.
+	
+a criminal was provoked by a person to commit a crime if
+	the criminal felt provoked into the crime by an action of the person
+	and the person did perform the action towards the criminal that induces the crime. 
+
+scenario standard is:
+    the criminal felt provoked into raping by some non-aggressive attitude of the victim.
+    the criminal felt provoked into killing by some non-aggressive attitude of the victim.
+    	
+scenario misogynistic is:
+    the criminal felt provoked into raping by some non-aggressive attitude of the victim.
+    the criminal felt provoked into killing by some non-aggressive attitude of the victim.
+    the victim did perform some non-aggressive attitude towards the criminal that induces raping.
+
+query one is:
+    which person was provoked by which person to commit which crime.

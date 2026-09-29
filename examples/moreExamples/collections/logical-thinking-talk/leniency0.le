@@ -1,0 +1,23 @@
+the target language is: prolog.
+
+the templates are:
+
+*a benefit* is in order towards *an actor* who felt provoked into *an action* by *a person* s non-aggressive attitude.
+
+the knowledge base includes:
+
+scenario standard is:
+    leniency is in order towards a criminal who felt provoked into raping by a victim s non-aggressive attitude.
+    leniency is in order towards a criminal who felt provoked into killing by a victim s non-aggressive attitude.
+
+    one expects ["leniency is in order towards _ who felt provoked into raping by _ s non-aggressive attitude", "leniency is in order towards _ who felt provoked into killing by _ s non-aggressive attitude"].
+
+scenario no standard is:
+    leniency is in order towards a rapist who felt provoked into raping by a victim s non-aggressive attitude if
+        the rapist is a man
+        and the victim is a woman.
+    person1 is a man.
+    person2 is a woman.  
+
+query one is:
+    which benefit is in order towards which person who felt provoked into which action by which other person s non-aggressive attitude. 
