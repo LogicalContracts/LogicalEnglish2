@@ -21,7 +21,22 @@ async function openFile(page: any, name: string, content: string) {
     await chooser.setFiles({ name, mimeType: 'text/plain', buffer: Buffer.from(content) });
 }
 
+// The translators are the licence "with extensions" (lpsPlus accounts/): the
+// tests that use them sign in first, with the account the auth tests use.
+// page.request shares the page's cookies, so the formats it asks for are the
+// ones the page will be offered.
+async function signIn(page: any) {
+    await page.request.post('/login', { form: {
+        email: 'support@logicalcontracts.com', password: 'LE2rocks', return: '/' } });
+}
+
 test.describe('Opening another system\'s file', () => {
+    test('an anonymous visitor is offered no translator', async ({ request }) => {
+        const formats = await (await request.post('/leapi', {
+            data: { token: 'myToken123', operation: 'importFormats' } })).json();
+        expect(formats.formats || []).toEqual([]);
+    });
+
     test('a file no translator reads opens as a TODO', async ({ page }) => {
         await page.goto('index.html');
         await page.waitForSelector('.monaco-editor', { timeout: 30000 });
@@ -47,11 +62,12 @@ test.describe('Opening another system\'s file', () => {
         expect(await message).toContain('No original is kept for this program');
     });
 
-    test('a file a translator reads opens translated', async ({ page, request }) => {
-        const formats = await (await request.post('/leapi', {
+    test('a file a translator reads opens translated', async ({ page }) => {
+        await signIn(page);
+        const formats = await (await page.request.post('/leapi', {
             data: { token: 'myToken123', operation: 'importFormats' } })).json();
         test.skip(!(formats.formats || []).some((f: any) => f.id === 'miniscript'),
-                  'no Miniscript translator on this server (the InsurLE extensions are not installed)');
+                  'no Miniscript translator on this server (lpsPlus is not installed)');
         await page.goto('index.html');
         await page.waitForSelector('.monaco-editor', { timeout: 30000 });
         await openFile(page, 'vault.policy', 'or(pk(A),and(pk(B),older(144)))\n');
@@ -74,12 +90,13 @@ test.describe('Opening another system\'s file', () => {
 
     // A program the exporter is offered for but cannot write faithfully is
     // refused: nothing is written, and each problem links to its line.
-    test('a program with something the target cannot say is refused, with its lines', async ({ page, request }) => {
+    test('a program with something the target cannot say is refused, with its lines', async ({ page }) => {
+        await signIn(page);
         const PROG = 'the target language is: prolog.\n\nthe templates are:\n    *a person* owes *an amount*.\n    *a person* has a debt of *an amount*.\n\nthe knowledge base t includes:\n\na person has a debt of a total if\n    the total is the sum of each amount such that\n        the person owes the amount.\n';
-        const formats = await (await request.post('/leapi', {
+        const formats = await (await page.request.post('/leapi', {
             data: { token: 'myToken123', operation: 'exportFormats', le: PROG } })).json();
         test.skip(!(formats.formats || []).some((f: any) => f.id === 'legalruleml'),
-                  'no LegalRuleML exporter on this server (the InsurLE extensions are not installed)');
+                  'no LegalRuleML exporter on this server (lpsPlus is not installed)');
         await page.goto('index.html');
         await page.waitForSelector('.monaco-editor', { timeout: 30000 });
         await page.evaluate((p: string) => (window as any).monaco.editor.getModels()[0].setValue(p), PROG);
@@ -99,11 +116,12 @@ test.describe('Opening another system\'s file', () => {
         expect(at).toBe(10);
     });
 
-    test('a translated policy exports back as a policy', async ({ page, request }) => {
-        const formats = await (await request.post('/leapi', {
+    test('a translated policy exports back as a policy', async ({ page }) => {
+        await signIn(page);
+        const formats = await (await page.request.post('/leapi', {
             data: { token: 'myToken123', operation: 'importFormats' } })).json();
         test.skip(!(formats.formats || []).some((f: any) => f.id === 'miniscript'),
-                  'no Miniscript translator on this server (the InsurLE extensions are not installed)');
+                  'no Miniscript translator on this server (lpsPlus is not installed)');
         await page.goto('index.html');
         await page.waitForSelector('.monaco-editor', { timeout: 30000 });
         await openFile(page, 'vault.policy', 'or(pk(A),and(pk(B),older(144)))\n');

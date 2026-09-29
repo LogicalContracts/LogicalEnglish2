@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      all (core + trees requiring the proprietary le_extensions.pl)
 Command:    testing/run_tests.sh le --with-extensions   (or: runAllTests)
 Sibling:    testSuiteCoreStatus.txt — core (this repository alone; extension-dependent trees excluded)
-Generated:  2026-09-23 17:44:10 UTC
+Generated:  2026-09-28 12:07:36 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 422
-Total tests:     4324
-Passed:          4324
+Files processed: 429
+Total tests:     4446
+Passed:          4446
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -92,7 +92,7 @@ Detailed File Summary:
   [NONE] examples/moreExamples/language/aggregates/ecommerce.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/aggregates/sums.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/unknowns/assumption_constraints.le: 5 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/language/unknowns/unknowns.le: 5 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/unknowns/unknowns.le: 6 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/unknowns/unknowns_in_aggregates.le: 9 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/unknowns/unknowns_in_forall.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/includes/citizenship_including.le: 1 Pass, 0 Fail, 0 Error
@@ -324,6 +324,13 @@ Detailed File Summary:
   [PASS] examples/regulatory/medicare/wheelchair_options_cases.le: 24 Pass, 0 Fail, 0 Error
   [NONE] examples/regulatory/medicare/wheelchair_seating.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/regulatory/medicare/wheelchair_seating_cases.le: 30 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/underwriting/arkansas.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/underwriting/arkansas_cases.le: 45 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/underwriting/california.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/underwriting/california_cases.le: 59 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/underwriting/contributionship.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/regulatory/underwriting/contributionship_surveys.le: 17 Pass, 0 Fail, 0 Error
+  [NONE] examples/regulatory/underwriting/homeowners.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/migration/legalruleml/ex8_defeasible/deontic.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/legalruleml/ex8_defeasible/ex8_defeasible.le: 4 Pass, 0 Fail, 0 Error
   [NONE] examples/migration/legalruleml/ex5_section29new/deontic.le: 0 Pass, 0 Fail, 0 Error

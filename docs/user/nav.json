@@ -44,6 +44,13 @@
           "landing": true
         },
         {
+          "path": "guide/accounts",
+          "title": "Signing in, and what a licence adds",
+          "blurb": "One sign-in for Logical English and LPS (Google, GitHub or an account we created); the two licences — with extensions (the translators of other systems and the private examples) and InsurLE (the language extensions) — what you see without them, and what the sites keep.",
+          "menu": "Signing in and licences",
+          "menuTip": "How to sign in, what each licence adds, and what the sites keep about you."
+        },
+        {
           "path": "guide/executive-view",
           "title": "The executive view",
           "blurb": "Running a program without its text: choosing a scenario and query, citations and the source viewer, why not, views, shareable links, login."

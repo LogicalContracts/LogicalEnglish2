@@ -1,7 +1,8 @@
 #!/bin/bash
-#WARNING this script pushes proprietary information to the Docker image, namely extended LE examples and web_extras; 
-# make sure that image is kept private, and that 
-# the LE2 authentication protects restricted examples, cf. configuration in restricted_paths.pl
+#WARNING this script pushes proprietary information to the Docker image, namely extended LE examples, web_extras,
+# and a copy of lpsPlus (vendor/lpsplus: the translators, and the licences and passwords tables);
+# make sure that image is kept private, and that
+# the sign-in (lpsPlus accounts/) protects restricted examples, cf. configuration in restricted_paths.pl
 set -e
 
 GIT_HASH=$(git rev-parse --short HEAD)
@@ -10,6 +11,19 @@ BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 BUILD_INFO="${GIT_BRANCH}@${GIT_HASH} (${BUILD_DATE})"
 
 echo "Building le2 with info: ${BUILD_INFO}"
+
+# Signing in (Google, GitHub, passwords), the licences table and the
+# translators of other systems come from the private lpsPlus repository, into
+# vendor/lpsplus/ (le_plus.pl finds them there through LPS_PLUS_DIR, set in
+# the Dockerfile). Without a checkout the image is built anyway, as a server
+# where every visitor is anonymous.
+PLUS_DIR="${LPS_PLUS_DIR:-../lpsPlus}"
+if [ -f "$PLUS_DIR/accounts/lc_accounts.pl" ]; then
+    ./vendor_lpsplus.sh "$PLUS_DIR"
+else
+    echo "no lpsPlus checkout at $PLUS_DIR: building without sign-in and without the translators."
+    rm -rf vendor/lpsplus
+fi
 
 # the following (together with .dockerignore) avoids the symlink problems with le_extensions.pl and restricted examples:
 TARFILE=$(mktemp -t docker-context.XXXXXX.tar)

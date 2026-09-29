@@ -124,7 +124,8 @@ plain screen, made to work well on a phone, at **`/executive`** (for example
   draws from the program as it opens it (`&view=*`). How to write a view:
   [Introducing LE Views](../tutorials/views.md).
 - **Login.** The top right shows **Login** (or the user and **Logout**); a
-  logged-in user with the right role also sees the restricted programs.
+  user whose account holds the right licence also sees the private programs
+  ([Signing in, and what a licence adds](accounts.md)).
 
 The web address holds everything the screen is showing, so you can share a
 result or keep it as a bookmark: `/executive?program=<name>`, and, if you want

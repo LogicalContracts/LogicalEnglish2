@@ -14,6 +14,7 @@
 
 :- multifile extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6, second_pass_item_extension/4, match_template_with_chaining/8.
 
+:- use_module(le_entitlements, []).
 :- use_module(tokenizer, [tokenize/2, tokenize_file/2, tokens_to_string/2]).
 :- use_module(le_system_templates).
 :- use_module(le_i18n).
@@ -3016,6 +3017,26 @@ second_pass_item(Templates, rule(Head, unless(BodyTokens), Indent, Start, End, I
         ( parse_body(BodyTokens, Indent, Templates, [], _VMOut, SubBody) -> NewBody = le_at(not(SubBody), Start, End); NewBody = true)
     ).
 
+%   Whether a numbered rule body can be read here: InsurLE's extensions are
+%   installed, and this request may use them.
+numbered_bodies_available :-
+    current_predicate(le_extensions:parse_numbered_body/7),
+    le_entitlements:entitled(le_extensions).
+
+second_pass_item(Templates, rule(Head, numbered(_BodyTokens), _Indent, Start, End, ID), clause(NewHead, fail, Start, End, ActualID), _M) :-
+    %  Numbered bodies are InsurLE's (le_extensions.pl): where that module is
+    %  not installed, or this request's visitor does not hold its licence
+    %  (le_entitlements.pl), say so — and read the rule as never holding,
+    %  rather than as holding with no conditions at all.
+    \+ numbered_bodies_available, !,
+    (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
+    ( parse_literal(Head, Templates, [], _, NewHead, _, true) -> true ; NewHead = unknown_template(Head) ),
+    (   le_kbs:current_compiling_module(CM), CM \== (-)
+    ->  le_i18n:le_msg(numbered_body_unlicensed_desc, [], Desc),
+        le_i18n:le_msg(numbered_body_unlicensed_fix, [], Fix),
+        assertz(CM:le_issue(error, numbered_body_unlicensed, Desc, Fix, Start, End))
+    ;   true
+    ).
 second_pass_item(Templates, rule(Head, numbered(BodyTokens), _Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), M) :-
     (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
     (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->  

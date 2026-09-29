@@ -33,9 +33,18 @@ test(insurle_tree_closed, [fail]) :-
 test(fixtures_closed, [fail]) :-
     is_path_allowed('testing/fixtures/le/nonterminating.le', []).
 
-test(role_opens_the_lpsplus_tree) :-
+%  The capabilities of the two licences (lpsPlus accounts/lc_accounts.pl).
+test(extended_examples_open_the_lpsplus_tree) :-
+    is_path_allowed('examples/moreExamples/lpsPlus/migration/oia/dctad/dctad.le', [extended_examples]).
+test(extended_examples_open_fixtures) :-
+    is_path_allowed('testing/fixtures/le/nonterminating.le', [extended_examples]).
+test(le_extensions_open_the_insurle_tree) :-
+    is_path_allowed('examples/moreExamples/insureLE2/testing/policy.le', [le_extensions]).
+test(extended_examples_do_not_open_the_insurle_tree, [fail]) :-
+    is_path_allowed('examples/moreExamples/InsurLE2/which_test.le', [extended_examples, converters]).
+test(le_extensions_do_not_open_the_lpsplus_tree, [fail]) :-
+    is_path_allowed('examples/moreExamples/lpsPlus/migration/oia/dctad/dctad.le', [le_extensions]).
+test(old_role_opens_nothing, [fail]) :-
     is_path_allowed('examples/moreExamples/lpsPlus/migration/oia/dctad/dctad.le', [insurLE2]).
-test(developer_opens_fixtures) :-
-    is_path_allowed('testing/fixtures/le/nonterminating.le', [developer]).
 
 :- end_tests(restricted_paths).

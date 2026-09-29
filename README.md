@@ -37,7 +37,9 @@ The LE 2.0 environment provides a powerful, web-based IDE for developing and tes
 
 ### Environment Variables
 You can configure the deployment using the following environment variables:
-- `NO_RESTRICTIONS`: Set to `true` to disable the role restrictions on example trees (`restricted_paths.pl`).
+- `NO_RESTRICTIONS`: Set to `true` to lift every licence restriction: the example trees (`restricted_paths.pl`), the translators of other systems and the InsurLE extensions (`le_entitlements.pl`). For a development machine.
+- `LPS_PLUS_DIR`: Where the private lpsPlus repository is — the sign-in, the licences table and the translators of other systems (`le_plus.pl`). By default `../lpsPlus`, then `/lpsPlus`, then `vendor/lpsplus` (what `vendor_lpsplus.sh` copies for the image, and what the Dockerfile names). `none` behaves as if there were no lpsPlus: every visitor is anonymous.
+- `LC_AUTH_SECRET`, `LC_AUTH_COOKIE_DOMAIN`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`: the sign-in shared with the LPS server (Google, GitHub, or a password account we created). Set as fly.io secrets; lpsPlus `accounts/README.md` says how to obtain each one. What each licence adds: [Signing in, and what a licence adds](./docs/user/guide/accounts.md).
 - `ALLOWED_LE_EXPORTS`: Comma-separated directories whose examples the `/source/` endpoint may serve (fly.toml sets `examples/moreExamples`).
 - `LE_STATIC_EXPORT`: Set to `1` when the server is being *copied* rather than used: the server-rendered pages then leave out the login link and the button that runs the test suite, which a static copy cannot honour. `wasm/build.sh` sets it while it fetches those pages for the WebAssembly build ([docs/dev/deploy-vercel.md](./docs/dev/deploy-vercel.md)).
 - `OPENAI_API_KEY`: API key for OpenAI models.
