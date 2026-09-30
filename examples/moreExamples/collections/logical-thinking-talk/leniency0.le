@@ -17,7 +17,8 @@ scenario no standard is:
         the rapist is a man
         and the victim is a woman.
     person1 is a man.
-    person2 is a woman.  
+    person2 is a woman. 
+    one expects ["leniency is in order towards person1 who felt provoked into raping by person2 s non-aggressive attitude"]. 
 
 query one is:
     which benefit is in order towards which person who felt provoked into which action by which other person s non-aggressive attitude. 
