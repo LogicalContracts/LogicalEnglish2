@@ -1,10 +1,83 @@
 {
-  "counts": {"approximated":0,"encoded":0,"residue":0},
-  "entries": [],
+  "counts": {"approximated":0,"encoded":9,"residue":0},
+  "entries": [
+    {
+      "element":"delivery with reason, obligation 1",
+      "in_program":"delivery with reason",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"delivery full form, obligation 1",
+      "in_program":"delivery full form",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"no smoking policy, obligation 1",
+      "in_program":"no smoking policy",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"rental agreement, obligation 1",
+      "in_program":"rental agreement",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"rental agreement, obligation 2",
+      "in_program":"rental agreement",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `delivery with reason` (line 109)",
+      "in_program":"trace_109",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `delivery full form` (line 114)",
+      "in_program":"trace_114",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `no smoking policy` (line 117)",
+      "in_program":"trace_117",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `rental agreement` (line 121)",
+      "in_program":"trace_121",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
   "fidelity":null,
   "meta": {
     "artifacts": ["because-example.l4" ],
-    "date":"2026-09-29",
+    "date":"2026-09-30",
     "program":"because_example_history",
     "source":"an L4 file (smucclaw/l4-ide)",
     "translator":"the L4 translator"

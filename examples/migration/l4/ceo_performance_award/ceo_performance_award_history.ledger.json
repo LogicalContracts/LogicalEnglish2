@@ -1,10 +1,91 @@
 {
-  "counts": {"approximated":0,"encoded":0,"residue":0},
-  "entries": [],
+  "counts": {"approximated":0,"encoded":0,"residue":10},
+  "entries": [
+    {
+      "element":"contract Eligible Service Requirement",
+      "in_program":"Eligible Service Requirement",
+      "kind":"contract",
+      "mapping":"outside what the translator covers: \"a function applied to fewer or more inputs than it takes\"",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"contract Milestone Achievement Requirement",
+      "in_program":"Milestone Achievement Requirement",
+      "kind":"contract",
+      "mapping":"outside what the translator covers: field_of_unknown('Six Month Avg Market Cap')",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"contract Vesting Requirement",
+      "in_program":"Vesting Requirement",
+      "kind":"contract",
+      "mapping":"outside what the translator covers: pcons(papp(head,[]),papp(tail,[]))",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#TRACE (`Eligible Service Requirement` OF `Example Award State Active`) (line 702)",
+      "in_program":"trace_702",
+      "kind":"trace",
+      "mapping":"not translated: outside what the translator covers: \"a function applied to fewer or more inputs than it takes\"",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#TRACE (`Milestone Achievement Requirement` OF 1, `Example Award State Active`) (line 705)",
+      "in_program":"trace_705",
+      "kind":"trace",
+      "mapping":"not translated: outside what the translator covers: field_of_unknown('Six Month Avg Market Cap')",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#TRACE (`Milestone Achievement Requirement` OF 1, `Example Award State Medium Performance`) (line 710)",
+      "in_program":"trace_710",
+      "kind":"trace",
+      "mapping":"not translated: outside what the translator covers: field_of_unknown('Six Month Avg Market Cap')",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#TRACE (`Milestone Achievement Requirement` OF 1, `Example Award State Low Performance`) (line 714)",
+      "in_program":"trace_714",
+      "kind":"trace",
+      "mapping":"not translated: outside what the translator covers: field_of_unknown('Six Month Avg Market Cap')",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#TRACE (`Vesting Requirement` OF 1, `Example Award State With Earned Tranche`) (line 731)",
+      "in_program":"trace_731",
+      "kind":"trace",
+      "mapping":"not translated: outside what the translator covers: pcons(papp(head,[]),papp(tail,[]))",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#TRACE (`Eligible Service Requirement` OF `Example Award State Terminated`) (line 736)",
+      "in_program":"trace_736",
+      "kind":"trace",
+      "mapping":"not translated: outside what the translator covers: \"a function applied to fewer or more inputs than it takes\"",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#TRACE (`Eligible Service Requirement` OF `Example Award State Change In Control`) (line 739)",
+      "in_program":"trace_739",
+      "kind":"trace",
+      "mapping":"not translated: outside what the translator covers: \"a function applied to fewer or more inputs than it takes\"",
+      "note":"",
+      "verdict":"residue"
+    }
+  ],
   "fidelity":null,
   "meta": {
     "artifacts": ["ceo-performance-award.l4" ],
-    "date":"2026-09-29",
+    "date":"2026-09-30",
     "program":"ceo_performance_award_history",
     "source":"an L4 file (smucclaw/l4-ide)",
     "translator":"the L4 translator"

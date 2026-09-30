@@ -1,10 +1,267 @@
 {
-  "counts": {"approximated":0,"encoded":0,"residue":0},
-  "entries": [],
+  "counts": {"approximated":0,"encoded":32,"residue":0},
+  "entries": [
+    {
+      "element":"simple delivery obligation, obligation 1",
+      "in_program":"simple delivery obligation",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"delivery within days, obligation 1",
+      "in_program":"delivery within days",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"sale contract, obligation 1",
+      "in_program":"sale contract",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"mutual obligations, obligation 1",
+      "in_program":"mutual obligations",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"mutual obligations, obligation 2",
+      "in_program":"mutual obligations",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"flexible delivery, obligation 1",
+      "in_program":"flexible delivery",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"flexible delivery, obligation 2",
+      "in_program":"flexible delivery",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"conditional delivery, obligation 1",
+      "in_program":"conditional delivery",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"conditional delivery, obligation 2",
+      "in_program":"conditional delivery",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"minimum payment contract, obligation 1",
+      "in_program":"minimum payment contract",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"exact payment required, obligation 1",
+      "in_program":"exact payment required",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"create order contract, obligation 1",
+      "in_program":"create order contract",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"create order contract, obligation 2",
+      "in_program":"create order contract",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"sale contract, obligation 2",
+      "in_program":"sale contract",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"create order contract, obligation 3",
+      "in_program":"create order contract",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"create order contract, obligation 4",
+      "in_program":"create order contract",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `simple delivery obligation` (line 170)",
+      "in_program":"trace_170",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `simple delivery obligation` (line 174)",
+      "in_program":"trace_174",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`delivery within days` OF 7) (line 178)",
+      "in_program":"trace_178",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`sale contract` OF 500) (line 182)",
+      "in_program":"trace_182",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `mutual obligations` (line 187)",
+      "in_program":"trace_187",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `flexible delivery` (line 192)",
+      "in_program":"trace_192",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `flexible delivery` (line 196)",
+      "in_program":"trace_196",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`conditional delivery` OF `TRUE`) (line 200)",
+      "in_program":"trace_200",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`conditional delivery` OF `FALSE`) (line 204)",
+      "in_program":"trace_204",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `minimum payment contract` (line 222)",
+      "in_program":"trace_222",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `minimum payment contract` (line 226)",
+      "in_program":"trace_226",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`exact payment required` OF 500) (line 245)",
+      "in_program":"trace_245",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`exact payment required` OF 500) (line 249)",
+      "in_program":"trace_249",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `simple delivery obligation` (line 259)",
+      "in_program":"trace_259",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`create order contract` OF \"express\", 200) (line 299)",
+      "in_program":"trace_299",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`create order contract` OF \"standard\", 200) (line 304)",
+      "in_program":"trace_304",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
   "fidelity":null,
   "meta": {
     "artifacts": ["deontic-example.l4" ],
-    "date":"2026-09-29",
+    "date":"2026-09-30",
     "program":"deontic_example_history",
     "source":"an L4 file (smucclaw/l4-ide)",
     "translator":"the L4 translator"

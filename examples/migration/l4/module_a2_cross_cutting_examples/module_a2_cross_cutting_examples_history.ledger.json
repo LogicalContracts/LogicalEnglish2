@@ -1,10 +1,267 @@
 {
-  "counts": {"approximated":0,"encoded":0,"residue":0},
-  "entries": [],
+  "counts": {"approximated":0,"encoded":32,"residue":0},
+  "entries": [
+    {
+      "element":"obligation within days, obligation 1",
+      "in_program":"obligation within days",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"required steps procedure, obligation 1",
+      "in_program":"required steps procedure",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"payment with grace, obligation 1",
+      "in_program":"payment with grace",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"escalation chain, obligation 1",
+      "in_program":"escalation chain",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"enforcement response, obligation 1",
+      "in_program":"enforcement response",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"enforcement response, obligation 2",
+      "in_program":"enforcement response",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"licence renewal procedure, obligation 1",
+      "in_program":"licence renewal procedure",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"required steps procedure, obligation 2",
+      "in_program":"required steps procedure",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"payment with grace, obligation 2",
+      "in_program":"payment with grace",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"escalation chain, obligation 2",
+      "in_program":"escalation chain",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"enforcement response, obligation 3",
+      "in_program":"enforcement response",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"licence renewal procedure, obligation 2",
+      "in_program":"licence renewal procedure",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"required steps procedure, obligation 3",
+      "in_program":"required steps procedure",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"required steps procedure, obligation 4",
+      "in_program":"required steps procedure",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"escalation chain, obligation 3",
+      "in_program":"escalation chain",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"licence renewal procedure, obligation 3",
+      "in_program":"licence renewal procedure",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"escalation chain, obligation 4",
+      "in_program":"escalation chain",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"escalation chain, obligation 5",
+      "in_program":"escalation chain",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"escalation chain, obligation 6",
+      "in_program":"escalation chain",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"escalation chain, obligation 7",
+      "in_program":"escalation chain",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`obligation within days` OF `CommissionerActor`, `take action`, 14) (line 444)",
+      "in_program":"trace_444",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`obligation within days` OF `CommissionerActor`, `take action`, 14) (line 448)",
+      "in_program":"trace_448",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`required steps procedure` OF `testCharity`, `testNotice`) (line 452)",
+      "in_program":"trace_452",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`required steps procedure` OF `testCharity`, `testNotice`) (line 458)",
+      "in_program":"trace_458",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`payment with grace` OF `CommissionerActor`, 1000, 30, 10, 0.1) (line 463)",
+      "in_program":"trace_463",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`payment with grace` OF `CommissionerActor`, 1000, 30, 10, 0.1) (line 467)",
+      "in_program":"trace_467",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`escalation chain` OF `CommissionerActor`) (line 471)",
+      "in_program":"trace_471",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`enforcement response` OF `minorViolation`, `CommissionerActor`) (line 476)",
+      "in_program":"trace_476",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`enforcement response` OF `criticalViolation`, `CommissionerActor`) (line 481)",
+      "in_program":"trace_481",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`licence renewal procedure` OF `testHolder`, 100) (line 486)",
+      "in_program":"trace_486",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`licence renewal procedure` OF `testHolder`, 100) (line 490)",
+      "in_program":"trace_490",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`licence renewal procedure` OF `testHolder`, 100) (line 494)",
+      "in_program":"trace_494",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
   "fidelity":null,
   "meta": {
     "artifacts": ["module-a2-cross-cutting-examples.l4" ],
-    "date":"2026-09-29",
+    "date":"2026-09-30",
     "program":"module_a2_cross_cutting_examples_history",
     "source":"an L4 file (smucclaw/l4-ide)",
     "translator":"the L4 translator"

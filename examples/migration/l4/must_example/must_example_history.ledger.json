@@ -1,10 +1,235 @@
 {
-  "counts": {"approximated":0,"encoded":0,"residue":0},
-  "entries": [],
+  "counts": {"approximated":0,"encoded":28,"residue":0},
+  "entries": [
+    {
+      "element":"monthly loan payment, obligation 1",
+      "in_program":"monthly loan payment",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"purchase and delivery agreement, obligation 1",
+      "in_program":"purchase and delivery agreement",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"payment with late fee, obligation 1",
+      "in_program":"payment with late fee",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"staged service contract, obligation 1",
+      "in_program":"staged service contract",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"construction contract workflow, obligation 1",
+      "in_program":"construction contract workflow",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"lease termination and deposit return, obligation 1",
+      "in_program":"lease termination and deposit return",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"landlord repair obligation, obligation 1",
+      "in_program":"landlord repair obligation",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"purchase and delivery agreement, obligation 2",
+      "in_program":"purchase and delivery agreement",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"payment with late fee, obligation 2",
+      "in_program":"payment with late fee",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"staged service contract, obligation 2",
+      "in_program":"staged service contract",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"construction contract workflow, obligation 2",
+      "in_program":"construction contract workflow",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"lease termination and deposit return, obligation 2",
+      "in_program":"lease termination and deposit return",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"landlord repair obligation, obligation 2",
+      "in_program":"landlord repair obligation",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"staged service contract, obligation 3",
+      "in_program":"staged service contract",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"construction contract workflow, obligation 3",
+      "in_program":"construction contract workflow",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"lease termination and deposit return, obligation 3",
+      "in_program":"lease termination and deposit return",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"construction contract workflow, obligation 4",
+      "in_program":"construction contract workflow",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"lease termination and deposit return, obligation 4",
+      "in_program":"lease termination and deposit return",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `monthly loan payment` (line 147)",
+      "in_program":"trace_147",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `monthly loan payment` (line 151)",
+      "in_program":"trace_151",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `purchase and delivery agreement` (line 154)",
+      "in_program":"trace_154",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `payment with late fee` (line 159)",
+      "in_program":"trace_159",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `payment with late fee` (line 163)",
+      "in_program":"trace_163",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `staged service contract` (line 166)",
+      "in_program":"trace_166",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `construction contract workflow` (line 172)",
+      "in_program":"trace_172",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `lease termination and deposit return` (line 179)",
+      "in_program":"trace_179",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `landlord repair obligation` (line 185)",
+      "in_program":"trace_185",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `landlord repair obligation` (line 189)",
+      "in_program":"trace_189",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
   "fidelity":null,
   "meta": {
     "artifacts": ["must-example.l4" ],
-    "date":"2026-09-29",
+    "date":"2026-09-30",
     "program":"must_example_history",
     "source":"an L4 file (smucclaw/l4-ide)",
     "translator":"the L4 translator"

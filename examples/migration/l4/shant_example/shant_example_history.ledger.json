@@ -1,10 +1,83 @@
 {
-  "counts": {"approximated":0,"encoded":0,"residue":0},
-  "entries": [],
+  "counts": {"approximated":0,"encoded":9,"residue":0},
+  "entries": [
+    {
+      "element":"confidentiality obligation, obligation 1",
+      "in_program":"confidentiality obligation",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"structural alteration prohibition, obligation 1",
+      "in_program":"structural alteration prohibition",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"debt restriction, obligation 1",
+      "in_program":"debt restriction",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `confidentiality obligation` (line 104)",
+      "in_program":"trace_104",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `confidentiality obligation` (line 107)",
+      "in_program":"trace_107",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `structural alteration prohibition` (line 111)",
+      "in_program":"trace_111",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `structural alteration prohibition` (line 115)",
+      "in_program":"trace_115",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `debt restriction` (line 119)",
+      "in_program":"trace_119",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `debt restriction` (line 123)",
+      "in_program":"trace_123",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
   "fidelity":null,
   "meta": {
     "artifacts": ["shant-example.l4" ],
-    "date":"2026-09-29",
+    "date":"2026-09-30",
     "program":"shant_example_history",
     "source":"an L4 file (smucclaw/l4-ide)",
     "translator":"the L4 translator"

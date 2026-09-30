@@ -1,10 +1,43 @@
 {
-  "counts": {"approximated":0,"encoded":0,"residue":0},
-  "entries": [],
+  "counts": {"approximated":0,"encoded":4,"residue":0},
+  "entries": [
+    {
+      "element":"the sale contract, obligation 1",
+      "in_program":"the sale contract",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the sale contract, obligation 2",
+      "in_program":"the sale contract",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the sale contract, obligation 3",
+      "in_program":"the sale contract",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `the sale contract` (line 33)",
+      "in_program":"trace_33",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
   "fidelity":null,
   "meta": {
     "artifacts": ["sale-contract.l4" ],
-    "date":"2026-09-29",
+    "date":"2026-09-30",
     "program":"sale_contract_history",
     "source":"an L4 file (smucclaw/l4-ide)",
     "translator":"the L4 translator"

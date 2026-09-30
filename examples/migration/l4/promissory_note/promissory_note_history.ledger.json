@@ -1,10 +1,51 @@
 {
-  "counts": {"approximated":0,"encoded":0,"residue":0},
-  "entries": [],
+  "counts": {"approximated":0,"encoded":5,"residue":0},
+  "entries": [
+    {
+      "element":"Payment Obligations, obligation 1",
+      "in_program":"Payment Obligations",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Payment Obligations, obligation 2",
+      "in_program":"Payment Obligations",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Payment Obligations, obligation 3",
+      "in_program":"Payment Obligations",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`Payment Obligations` OF `Total Repayment Amount`) (line 179)",
+      "in_program":"trace_179",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"no expectation: longer than the test runner's time limit (the LE for LPS twin runs it)",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE (`Payment Obligations` OF `Total Repayment Amount`) (line 195)",
+      "in_program":"trace_195",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
   "fidelity":null,
   "meta": {
     "artifacts": ["promissory-note.l4" ],
-    "date":"2026-09-29",
+    "date":"2026-09-30",
     "program":"promissory_note_history",
     "source":"an L4 file (smucclaw/l4-ide)",
     "translator":"the L4 translator"

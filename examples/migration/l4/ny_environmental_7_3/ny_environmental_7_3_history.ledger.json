@@ -1,10 +1,35 @@
 {
-  "counts": {"approximated":0,"encoded":0,"residue":0},
-  "entries": [],
+  "counts": {"approximated":0,"encoded":0,"residue":3},
+  "entries": [
+    {
+      "element":"contract Example Filing",
+      "in_program":"Example Filing",
+      "kind":"contract",
+      "mapping":"outside what the translator covers: \"a function applied to fewer or more inputs than it takes\"",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"contract Filing of draft copy of EIS and causing notice of hearing to be published",
+      "in_program":"Filing of draft copy of EIS and causing notice of hearing to be published",
+      "kind":"contract",
+      "mapping":"outside what the translator covers: field_of_unknown('General circulation area')",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#TRACE `Example Filing` (line 119)",
+      "in_program":"trace_119",
+      "kind":"trace",
+      "mapping":"not translated: outside what the translator covers: \"a function applied to fewer or more inputs than it takes\"",
+      "note":"",
+      "verdict":"residue"
+    }
+  ],
   "fidelity":null,
   "meta": {
     "artifacts": ["ny-environmental-7.3.l4" ],
-    "date":"2026-09-29",
+    "date":"2026-09-30",
     "program":"ny_environmental_7_3_history",
     "source":"an L4 file (smucclaw/l4-ide)",
     "translator":"the L4 translator"

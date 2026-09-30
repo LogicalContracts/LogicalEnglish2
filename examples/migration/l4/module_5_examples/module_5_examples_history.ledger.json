@@ -1,10 +1,131 @@
 {
-  "counts": {"approximated":0,"encoded":0,"residue":0},
-  "entries": [],
+  "counts": {"approximated":1,"encoded":14,"residue":0},
+  "entries": [
+    {
+      "element":"the delivery obligation, obligation 1",
+      "in_program":"the delivery obligation",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the complete sale contract, obligation 1",
+      "in_program":"the complete sale contract",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the payment with late fee, obligation 1",
+      "in_program":"the payment with late fee",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the wedding ceremony, obligation 1",
+      "in_program":"the wedding ceremony",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the fidelity clause, obligation 1",
+      "in_program":"the fidelity clause",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the complete sale contract, obligation 2",
+      "in_program":"the complete sale contract",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the complete sale contract, obligation 3",
+      "in_program":"the complete sale contract",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the payment with late fee, obligation 2",
+      "in_program":"the payment with late fee",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the wedding ceremony, obligation 2",
+      "in_program":"the wedding ceremony",
+      "kind":"obligation",
+      "mapping":"an obligation -> when it starts, its deadline and the events that meet it; four rules: met, missed, pending, ends",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `the delivery obligation` (line 128)",
+      "in_program":"trace_128",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `the delivery obligation` (line 132)",
+      "in_program":"trace_132",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `the complete sale contract` (line 136)",
+      "in_program":"trace_136",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `the payment with late fee` (line 141)",
+      "in_program":"trace_141",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#TRACE `the wedding ceremony` (line 145)",
+      "in_program":"trace_145",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"two events are on the same day: L4 takes them one after the other, a history read by days cannot order them; no expectation",
+      "verdict":"approximated"
+    },
+    {
+      "element":"#TRACE `the fidelity clause` (line 150)",
+      "in_program":"trace_150",
+      "kind":"trace",
+      "mapping":"a #TRACE -> a scenario (its events as facts, each on its day)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
   "fidelity":null,
   "meta": {
     "artifacts": ["module-5-examples.l4" ],
-    "date":"2026-09-29",
+    "date":"2026-09-30",
     "program":"module_5_examples_history",
     "source":"an L4 file (smucclaw/l4-ide)",
     "translator":"the L4 translator"
