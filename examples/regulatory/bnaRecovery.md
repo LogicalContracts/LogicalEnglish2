@@ -4,6 +4,26 @@ This note records what was found in `DISK IMAGE.txt`, how the program in it was
 recovered and converted to SWI-Prolog, which files were built, and what is left
 to do. It was written on 30 September 2026.
 
+## Contents
+
+- [1. What the disk image turned out to be](#1-what-the-disk-image-turned-out-to-be)
+- [2. Why the text is noisy](#2-why-the-text-is-noisy)
+- [3. How the program was recovered](#3-how-the-program-was-recovered)
+- [4. Conversion to SWI-Prolog](#4-conversion-to-swi-prolog)
+- [5. The files built](#5-the-files-built)
+- [6. What the program contains](#6-what-the-program-contains)
+- [7. It runs](#7-it-runs)
+- [8. Limitations](#8-limitations)
+- [9. What is left to do](#9-what-is-left-to-do)
+- [10. The Logical English version: `bna.le`](#10-the-logical-english-version-bnale)
+  - [10.1 What it contains](#101-what-it-contains)
+  - [10.2 How the original's features were carried over](#102-how-the-originals-features-were-carried-over)
+  - [10.3 Which clauses were chosen](#103-which-clauses-were-chosen)
+  - [10.4 What was recovered or reconstructed](#104-what-was-recovered-or-reconstructed)
+  - [10.5 What is missing](#105-what-is-missing)
+  - [10.6 Assumptions](#106-assumptions)
+  - [10.7 It works at least as well as the SWI-Prolog version](#107-it-works-at-least-as-well-as-the-swi-prolog-version)
+
 ## 1. What the disk image turned out to be
 
 `DISK IMAGE.txt` is not a text file. It is a raw copy of a whole floppy disk
