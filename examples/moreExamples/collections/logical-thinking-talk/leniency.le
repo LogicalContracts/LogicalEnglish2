@@ -25,7 +25,7 @@ scenario misogynistic is:
     the criminal felt provoked into raping by some non-aggressive attitude of the victim.
     the criminal felt provoked into killing by some non-aggressive attitude of the victim.
     the victim did perform some non-aggressive attitude towards the criminal that induces raping.
-    one expects ["the criminal felt provoked into raping by some non-aggressive attitude of the victim"].
+    one expects ["the criminal was provoked by the victim to commit raping"].
 
 query one is:
-    which person was provoked by which person to commit which crime.
+    which person was provoked by which other person to commit which crime.

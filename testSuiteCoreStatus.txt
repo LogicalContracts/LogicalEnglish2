@@ -5,7 +5,7 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      core (this repository alone; extension-dependent trees excluded)
 Command:    testing/run_tests.sh le   (or: runTests)
 Sibling:    testSuiteStatus.txt — all (core + trees requiring the proprietary le_extensions.pl)
-Generated:  2026-09-30 06:27:36 UTC
+Generated:  2026-09-30 07:15:43 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
@@ -13,8 +13,8 @@ Test Summary:
 -------------
 Files processed: 441
 Total tests:     3580
-Passed:          3579
-Failed:          1
+Passed:          3580
+Failed:          0
 Errors/Timeouts: 0
 -------------
 
@@ -79,7 +79,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/language/abduction/sunglasses.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/collections/logical-thinking-talk/heart_failure.le: 30 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/collections/logical-thinking-talk/heart_failure_what_if.le: 3 Pass, 0 Fail, 0 Error
-  [FAIL] examples/moreExamples/collections/logical-thinking-talk/leniency.le: 1 Pass, 1 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/logical-thinking-talk/leniency.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/collections/logical-thinking-talk/leniency0.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/collections/kowalski-book/above_transitivity.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/collections/kowalski-book/amazing_animals.le: 1 Pass, 0 Fail, 0 Error
