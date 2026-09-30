@@ -671,7 +671,7 @@ test(needs_a_card_otherwise) :-
 :- begin_tests(proof_game_is_a_cards).
 
 test(written_is_a_facts_are_cards) :-
-    le_kbs:load('examples/moreExamples/collections/logical-thinking-talk/standard_for_judgment.le', KB, [skip_tests]),
+    le_kbs:load('testing/fixtures/le/proof_game_is_a_cards.le', KB, [skip_tests]),
     le_kbs:createSession(KB, SM),
     le_kbs:setScenarion(SM, rape_case_alone),
     KB:query_info(acceptable, Goal, _),

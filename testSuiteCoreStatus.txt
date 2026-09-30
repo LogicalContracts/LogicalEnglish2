@@ -5,16 +5,16 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      core (this repository alone; extension-dependent trees excluded)
 Command:    testing/run_tests.sh le   (or: runTests)
 Sibling:    testSuiteStatus.txt — all (core + trees requiring the proprietary le_extensions.pl)
-Generated:  2026-09-29 22:01:51 UTC
+Generated:  2026-09-30 06:27:36 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 438
-Total tests:     3536
-Passed:          3536
-Failed:          0
+Files processed: 441
+Total tests:     3580
+Passed:          3579
+Failed:          1
 Errors/Timeouts: 0
 -------------
 
@@ -77,8 +77,10 @@ Detailed File Summary:
   [PASS] examples/moreExamples/language/abduction/grass_is_wet.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/abduction/loan_approval.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/abduction/sunglasses.le: 1 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/collections/logical-thinking-talk/leniency.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/collections/logical-thinking-talk/leniency0.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/logical-thinking-talk/heart_failure.le: 30 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/logical-thinking-talk/heart_failure_what_if.le: 3 Pass, 0 Fail, 0 Error
+  [FAIL] examples/moreExamples/collections/logical-thinking-talk/leniency.le: 1 Pass, 1 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/logical-thinking-talk/leniency0.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/collections/kowalski-book/above_transitivity.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/collections/kowalski-book/amazing_animals.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/collections/kowalski-book/behaviourist_fox.le: 3 Pass, 0 Fail, 0 Error
@@ -441,6 +443,7 @@ Detailed File Summary:
   [NONE] testing/fixtures/le/nonterminating.le: 0 Pass, 0 Fail, 0 Error
   [PASS] testing/fixtures/le/p_with_negation.le: 1 Pass, 0 Fail, 0 Error
   [NONE] testing/fixtures/le/payg_buggy.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] testing/fixtures/le/proof_game_is_a_cards.le: 8 Pass, 0 Fail, 0 Error
   [PASS] testing/fixtures/le/propositional_negation.le: 1 Pass, 0 Fail, 0 Error
   [PASS] testing/fixtures/le/scenario_element_test.le: 1 Pass, 0 Fail, 0 Error
   [PASS] testing/fixtures/le/tea_party2.le: 1 Pass, 0 Fail, 0 Error

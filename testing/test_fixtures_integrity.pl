@@ -49,6 +49,9 @@ test_suite_fixture('testing/fixtures/le/trace_sample.le',
 test_suite_fixture('testing/fixtures/le/assumed_coloring.le',
                    'testing/test_assumed_coloring.pl').
 
+test_suite_fixture('testing/fixtures/le/proof_game_is_a_cards.le',
+    'testing/test_proof_game.pl (proof_game_is_a_cards)').
+
 :- begin_tests(fixtures_integrity).
 
 % Every LE program a test suite depends on must still exist at its expected

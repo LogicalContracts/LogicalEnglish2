@@ -40,6 +40,5 @@ clinical advice.
 
 ## More
 
-- [Details](DETAILS.md) — the programs slide by slide, the slides' links, excerpts and sources.
 - [The medical paper](https://arxiv.org/pdf/1610.08115) — Chen, Marple, Salazar, Gupta and Tamil, *A Physician Advisory System for Chronic Heart Failure Management Based on Knowledge Patterns* (2016).
 - [The editor's manual](/docs/user/guide/editor) — scenarios, queries, explanations and unknowns.
