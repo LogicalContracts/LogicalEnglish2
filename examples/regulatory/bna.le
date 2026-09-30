@@ -1,0 +1,1720 @@
+the target language is: prolog.
+
+% The British Nationality Act 1981, in Logical English.
+%
+% Recovered from a 1980s micro-PROLOG program on a floppy disk ("DISK IMAGE.txt"),
+% (Paper authors, https://dl.acm.org/doi/10.1145/5689.5920: 
+%    M. J. Sergot, F. Sadri, R. A. Kowalski, F. Kriwaczek, P. Hammond, H. T. Cory )
+% ...and translated from its SWI-Prolog conversion, bna.pl. bnaRecovery.md, section 10,
+% says which clauses were chosen, what was reconstructed, and what was assumed.
+%
+% Every rule is labelled with the section of the Act it comes from ("with provenance").
+% The comment above each rule gives the byte offset, in the disk image, of the clause
+% it is translated from. "reconstructed" marks a rule pieced together from damaged
+% copies, or written by analogy where the original is lost.
+%
+% Dates are Logical English dates (1985-01-01). The original's own date arithmetic
+% (sumdate, days-in-month and so on) is replaced by the date templates of
+% Logical English.
+%
+% A condition the original "asked about" or merely advised on ("formal consent is
+% required", "on making an application ...") is an assumable template here: when the
+% facts of a case do not settle it, the answer lists it as an unknown.
+
+the templates are:
+% --- the questions of the original system
+*a person* is a british citizen on *a date*.
+*a person* is a british citizen by descent on *a date*.
+*a person* is a british citizen by annulment of renunciation on *a date*.
+*a person* is entitled to register as a british citizen on *a date*.
+*a person* is entitled to naturalise as a british citizen on *a date*.
+*a person* is entitled to renounce british citizenship on *a date*.
+the question is asked on *a date*.
+
+% --- how a person is a british citizen, and under which section
+*a person* is a british citizen by *a way* under section *a section* on *a date*.
+*a person* is a british citizen by descent for the purposes of section *a section* on *a date*.
+*a person* is entitled to register as a british citizen as *a category* under section *a section* on *a date*.
+*a person* is entitled to naturalise as a british citizen under section *a section* on *a date*.
+*a person* regains british citizenship by annulment of renunciation under section *a section* on *a date*.
+*a person* ceases to be a british citizen through renunciation under section *a section* on *a date*.
+*a person* is entitled to renounce british citizenship under section *a section* on *a date*.
+*a person* becomes a british citizen from *a date* by adoption under section *a section*.
+*a person* satisfies section *a section* on *a date*.
+*a person* satisfies section *a section* on *a date* for an application made on *a second date*.
+*a person* satisfies the residence requirement of section 1(4).
+*a person* satisfies the residence requirement of section 3(3)(c) from *a date* to *a second date*.
+*a person* satisfies the residence requirement of section 1(4) from *a date* to *a second date*.
+
+% --- dates
+*a date* is the commencement date.
+*a date* is on or after commencement.
+*a date* is prior to commencement.
+*a date* is the day before *a second date*.
+*a date* is the eve of commencement.
+*a date* is in the period from *a start* to *an end*.
+*a second date* is *a number* years after *a first date*.
+*a date* is within *a number* years after *a second date*.
+*a date* is within *a number* years of commencement.
+*a date* is the earlier of *a second date* and the death of *a person*.
+*a date* is the earlier date of *a second date* and *a third date*.
+*a second date* is six months on from *a first date*.
+
+% --- persons and families
+*a person* is born on *a date*; undefined.
+*a person* is born in *a place*; undefined.
+the birthplace of *a person* is in the UK.
+the birthplace of *a person* is outside the UK.
+*a person* is born after commencement.
+*a person* is born before commencement.
+*a person* is born outside the UK after commencement.
+*a person* is born stateless; undefined.
+*a person* is *a number* years old on *a date*.
+*a person* is a minor from *a date* to *a second date*.
+*a person* is a minor on *a date*.
+*a person* is a minor at commencement.
+*a person* attains full age on *a date*.
+*a person* is of full age on *a date*.
+*a person* is of full age for section 12(5) on *a date*.
+*a person* is of full capacity.
+*a person* is of unsound mind; undefined.
+*a person* is female; undefined.
+*a person* is dead; undefined.
+*a person* died on *a date*; undefined.
+*a person* died before *a date*; undefined.
+*a person* had died by commencement.
+*a person* is the mother of *a second person*; undefined.
+*a person* is the father of *a second person*; undefined.
+*a person* is a parent of *a second person*.
+*a person* is the paternal grandfather of *a second person*.
+both parents of *a person* are alive on *a date*; undefined.
+the mother of *a person* was dead on *a date*; undefined.
+*a person* was married on *a date*; undefined.
+*a person* had married by *a date*; undefined.
+*a person* is married on *a date*; undefined.
+*a person* was married to *a second person* on or before *a date*; undefined.
+*a person* is the wife of *a second person* on *a date*.
+*a person* is the husband of *a second person* on *a date*; undefined.
+*a person* is adopted as a minor by an order of a UK court on *a date*; undefined.
+*a person* is an adopter of *a second person*; undefined.
+
+% --- presence in the UK
+*a person* was in the UK on *a date*; undefined.
+*a person* was absent from the UK for *a number* days from *a date* to *a second date*; undefined.
+*a person* was in the UK in breach of the immigration laws from *a date* to *a second date*; undefined.
+*a person* is ordinarily resident in the UK on *a date*; undefined.
+*a person* is subject to no restriction on the period for which he may remain in the UK on *a date*; undefined.
+*a person* is subject to no residence restriction imposed by the immigration laws on *a date*; undefined.
+*a person* is entitled to an exemption under section 8(3) of the Immigration Act 1971 on *a date*; undefined.
+*a person* is settled in the UK under section 50(2) on *a date*.
+*a person* is settled in the UK for section 1(1)(b) through *a parent* on *a date*.
+
+% --- applications, consents and approvals
+*a person* made an application on *a date*; undefined.
+*a person* makes an application; unknown.
+the application of *a person* is in order on *a date*.
+the application of *a person* for section 1(4) is in order on *a date*.
+the application of *a person* for naturalisation is in order on *a date*.
+the application of *a person* made while a minor is in order from *a start* to *an end* on *a date*.
+the case of *a person* is approved by the secretary of state on *a date*; undefined.
+the secretary of state approves the case of *a person*; unknown.
+the approval of the secretary of state for *a person* is given or needed on *a date*.
+*a parent* formally consented to the registration of *a person* on *a date*; undefined.
+formal consent to the registration of *a person* is given by both parents; unknown.
+formal consent to the registration of *a person* is given by one parent; unknown.
+formal consent of both parents to the registration of *a person* is given or needed on *a date*.
+formal consent of one parent to the registration of *a person* is given or needed on *a date*.
+the secretary of state has exercised discretion under section *a section* for *a person*; undefined.
+the secretary of state exercises discretion under section *a section* for *a person*; unknown.
+discretion of the secretary of state under section *a section* is exercised or needed for *a person*.
+*a person* made a declaration of renunciation on *a date*; undefined.
+the declaration of renunciation of *a person* is in order on *a date*.
+the secretary of state has approved the renunciation of *a person* on *a date*; undefined.
+the approval of the renunciation of *a person* is given or needed on *a date*.
+*a person* fulfils the requirements of schedule 1 for naturalisation; undefined.
+
+% --- the position before commencement
+*a person* was a citizen of the UK and colonies on *a date*; undefined.
+*a person* was a citizen of the UK and colonies at some time before *a date*; undefined.
+*a person* was a citizen of the UK and colonies by registration on *a date*; undefined.
+*a person* was a citizen of the UK and colonies under section 5 of the 1948 act on *a date*; undefined.
+*a person* was a citizen of the UK and colonies through registration under the 1964 act on *a date*; undefined.
+*a person* was a citizen of the UK and colonies by registration by virtue of her marriage to *a second person* on *a date*; undefined.
+*a person* was a citizen of the UK and colonies solely by descent on *a date*; undefined.
+*a person* ceased to be a citizen of the UK and colonies through renunciation on *a date*; undefined.
+*a person* ceased to be a citizen of the UK and colonies before *a date*; undefined.
+*a person* ceased to be a citizen of the UK and colonies through renunciation before *a date*; undefined.
+*a person* had the right of abode in the UK under the Immigration Act 1971 on *a date*; undefined.
+*a person* had the right of abode in the UK under section 2(1)(b) of the Immigration Act 1971 on *a date*; undefined.
+*a person* had the right of abode in the UK under section 2(1)(c) of the Immigration Act 1971 on *a date*; undefined.
+*a person* was registered as a citizen of the UK and colonies in *a place* before *a date*; undefined.
+*a place* is mentioned in section 1(3) of the 1948 act; undefined.
+*a person* was naturalised in the UK before *a date*; undefined.
+*a person* was granted a certificate of naturalisation by the secretary of state; undefined.
+*a person* was granted a certificate of naturalisation in the islands by the lieutenant governor; undefined.
+*a person* became a british subject by residence with a parent under the Naturalisation Act 1870; undefined.
+*a person* is naturalised in the UK before commencement.
+*a person* would have been entitled to register as a citizen of the UK and colonies by virtue of her marriage to *a second person* on *a date*; undefined.
+*a person* was a british citizen at some time before *a date*; undefined.
+*a person* renounced british citizenship before *a date*; undefined.
+*a person* ceased to be a british citizen through renunciation on *a date*.
+*a person* ceased to be a british citizen by renunciation since commencement; undefined.
+*a person* did not have any citizenship or nationality other than british citizenship on *a date*; undefined.
+*a person* did not acquire any citizenship or nationality from *a date* to *a second date*; undefined.
+*a person* remained a british citizen from *a date* to *a second date*; undefined.
+*a person* is naturalised as a british citizen under section *a section* on *a date*; undefined.
+*a person* is registered as a british citizen under section *a section* on *a date*; undefined.
+*a person* is registered under section 8 by virtue of her marriage to *a second person*; undefined.
+*a person* is a british dependent territories citizen on *a date*; undefined.
+*a person* is a british overseas citizen on *a date*; undefined.
+*a person* is a british subject on *a date*; undefined.
+*a person* is a british protected person on *a date*; undefined.
+section 4 applies to *a person* on *a date*.
+
+% --- commencement
+*a person* became a british citizen at commencement.
+*a person* became a british citizen by descent at commencement.
+*a person* became a british citizen otherwise than by descent at commencement.
+*a person* would have become a british citizen by acquisition at commencement on *a date*.
+*a person* would have become a british citizen by descent under section 14(1)(b) on *a date*.
+*a person* would have become a british citizen at commencement had he lived.
+*a person* would have become a british citizen by descent at commencement had he lived.
+*a person* would have become a british citizen otherwise than by descent at commencement had he lived.
+*a person* became or would have become a british citizen otherwise than by descent at commencement.
+*a person* would have become a british citizen at commencement but for renunciation.
+*a person* would have become a british citizen by descent at commencement but for renunciation.
+*a person* is a british citizen at the birth of *a child* under section 48.
+*a person* is a british citizen otherwise than by descent at the birth of *a child* under section 48.
+*a person* is a british citizen by descent at the birth of *a child* under section 48.
+*a person* is disqualified under section *a section*.
+*a person* has an appropriate qualifying connection with the UK on *a date*.
+
+% --- birth, finding and service
+*a person* is found as an abandoned infant on *a date*; undefined.
+*a person* is found in the UK; undefined.
+the claim of *a person* under section 1(2) is invalidated.
+it can be shown that *a person* was born outside the UK; undefined.
+it can be shown that *a person* was born before commencement; undefined.
+the birthday of *a person* is known; undefined.
+*a person* was born aboard *a ship or aircraft* registered in the UK; undefined.
+*a person* was born aboard *a ship or aircraft* of the UK government; undefined.
+*a person* was working outside the UK on *a date*; undefined.
+*a person* was employed by *an employer* on *a date*; undefined.
+*a person* would have been working outside the UK on *a date* had he lived; undefined.
+*a person* would have been employed by *an employer* on *a date* had he lived; undefined.
+*a person* was recruited in the UK by *an employer*; undefined.
+*a person* was recruited in the UK; undefined.
+*a person* was working in crown service under the UK government on *a date*; undefined.
+*an employer* is suitable for section 2(1)(b).
+*an employer* is crown service under the UK government; undefined.
+*an employer* is designated as suitable by the secretary of state under section 2(3); undefined.
+the designation of *an employer* is annulled by a House of Parliament; undefined.
+*a person* served in crown service under the government of a dependent territory on or before *a date*; undefined.
+
+% --- places
+*a place* counts as a foreign country.
+*a place* is in the commonwealth.
+*a place* counts as a dependent territory; undefined.
+*a place* is part of *a second place*.
+
+the knowledge base the British Nationality Act 1981 includes:
+
+% ======================================================================
+% The questions the original system offered (its askabout facts)
+% ======================================================================
+
+% offset 259895
+rule question_citizen with provenance the British Nationality Act 1981:
+a person is a british citizen on a date
+    if the date is on or after commencement
+    and the person is a british citizen by a way under section a section on the date.
+
+% offset 257448
+rule question_descent with provenance the British Nationality Act 1981 at "section 14":
+a person is a british citizen by descent on a date
+    if the date is on or after commencement
+    and the person is a british citizen by descent for the purposes of section a section on the date.
+
+% offset 257319
+rule question_annulment with provenance the British Nationality Act 1981 at "section 12(3)":
+a person is a british citizen by annulment of renunciation on a date
+    if the date is on or after commencement
+    and the person regains british citizenship by annulment of renunciation under section "12(3)" on the date.
+
+% offset 257541
+rule question_naturalise with provenance the British Nationality Act 1981 at "section 6":
+a person is entitled to naturalise as a british citizen on a date
+    if the date is on or after commencement
+    and the person is born on a birth date
+    and the date is after or equal to the birth date
+    and the person is entitled to naturalise as a british citizen under section a section on the date.
+
+% offsets 278686, 329365 (recovered from inside damaged records)
+rule question_renounce with provenance the British Nationality Act 1981 at "section 12":
+a person is entitled to renounce british citizenship on a date
+    if the date is on or after commencement
+    and the person is entitled to renounce british citizenship under section "12" on the date.
+
+% reconstructed: only a misspelt fact with no arguments survives (offset 257695);
+% written by analogy with the five questions above
+rule question_register with provenance the British Nationality Act 1981:
+a person is entitled to register as a british citizen on a date
+    if the date is on or after commencement
+    and the person is entitled to register as a british citizen as a category under section a section on the date.
+
+% ======================================================================
+% Section 1: acquisition by birth or adoption
+% ======================================================================
+
+% offset 333174
+rule s1_1_a with provenance the British Nationality Act 1981 at "section 1(1)(a)":
+a person is a british citizen by birth under section "1(1)(a)" on a date
+    if the birthplace of the person is in the UK
+    and the person is born on a birth date
+    and the date is after or equal to the birth date
+    and the birth date is on or after commencement
+    and a parent is a parent of the person
+    and it is not the case that
+        the parent had died by commencement
+    and a first date is the earlier of the birth date and the death of the parent
+    and the parent is a british citizen on the first date.
+
+% offset 289064 (version with a posthumous parent's citizenship at birth, section 48)
+rule s1_1_a_48 with provenance the British Nationality Act 1981 at "section 1(1)(a)":
+a person is a british citizen by birth under section "1(1)(a)" on a date
+    if the birthplace of the person is in the UK
+    and the person is born on a birth date
+    and the date is after or equal to the birth date
+    and the birth date is on or after commencement
+    and a parent is a parent of the person
+    and the parent is a british citizen at the birth of the person under section 48.
+
+% offset 334755
+rule s1_1_b with provenance the British Nationality Act 1981 at "section 1(1)(b)":
+a person is a british citizen by birth under section "1(1)(b)" on a date
+    if the birthplace of the person is in the UK
+    and the person is born on a birth date
+    and the date is after or equal to the birth date
+    and the birth date is on or after commencement
+    and a parent is a parent of the person
+    and a first date is the earlier of the birth date and the death of the parent
+    and the person is settled in the UK for section 1(1)(b) through the parent on the first date.
+
+% offset 50739
+rule s1_2 with provenance the British Nationality Act 1981 at "section 1(2)":
+a person is a british citizen by birth under section "1(2)" on a date
+    if the person is found as an abandoned infant on a first date
+    and the person is found in the UK
+    and the first date is on or after commencement
+    and the date is after or equal to the first date
+    and it is not the case that
+        the claim of the person under section 1(2) is invalidated.
+
+% offsets 166090 - 166600
+rule s1_2_invalid_1 with provenance the British Nationality Act 1981 at "section 1(2)":
+the claim of a person under section 1(2) is invalidated
+    if it can be shown that the person was born outside the UK.
+
+rule s1_2_invalid_2 with provenance the British Nationality Act 1981 at "section 1(2)":
+the claim of a person under section 1(2) is invalidated
+    if the birthday of the person is known
+    and the person is born on a date
+    and it is not the case that
+        the date is on or after commencement.
+
+rule s1_2_invalid_3 with provenance the British Nationality Act 1981 at "section 1(2)":
+the claim of a person under section 1(2) is invalidated
+    if it can be shown that the person was born before commencement.
+
+% offset 54009
+rule s1_5 with provenance the British Nationality Act 1981 at "section 1(5)":
+a person is a british citizen by adoption under section "1(5)" on a date
+    if the person becomes a british citizen from a first date by adoption under section "1(5)"
+    and the date is after or equal to the first date.
+
+% offsets 54431, 313484 (recovered from inside damaged records)
+rule s1_5_from with provenance the British Nationality Act 1981 at "section 1(5)":
+a person becomes a british citizen from a date by adoption under section "1(5)"
+    if the person is adopted as a minor by an order of a UK court on the date
+    and the date is on or after commencement
+    and a first date is the day before the date
+    and it is not the case that
+        the person is a british citizen by a way under section a section on the first date
+    and an adopter is an adopter of the person
+    and the adopter is a british citizen on the date.
+
+% offset 136300 and its twins
+rule s1_3_register_minor with provenance the British Nationality Act 1981 at "section 3(1)":
+a person is entitled to register as a british citizen as "a minor" under section "3(1)" on a date
+    if the person is a minor from a start to an end
+    and the application of the person made while a minor is in order from the start to the end on the date
+    and the approval of the secretary of state for the person is given or needed on the date.
+
+% offset 42061
+rule s1_4_register with provenance the British Nationality Act 1981 at "section 1(4)":
+a person is entitled to register as a british citizen as "born in the UK" under section "1(4)" on a date
+    if the birthplace of the person is in the UK
+    and the person is born after commencement
+    and it is not the case that
+        the person is a british citizen by birth under section "1(1)(a)" on the date
+    and it is not the case that
+        the person is a british citizen by birth under section "1(1)(b)" on the date
+    and it is not the case that
+        the person is a british citizen by birth under section "1(2)" on the date
+    and the person is an age years old on the date
+    and the age is greater than or equal to 10
+    and the person satisfies the residence requirement of section 1(4)
+    and the application of the person for section 1(4) is in order on the date.
+
+% offset 262823
+rule s1_4_residence with provenance the British Nationality Act 1981 at "section 1(4)":
+a person satisfies the residence requirement of section 1(4)
+    if the person is born on a birth date
+    and a tenth birthday is 10 years after the birth date
+    and the person satisfies the residence requirement of section 1(4) from the birth date to the tenth birthday.
+
+% offsets 57001, 265025: every year of the first ten, at most 90 days of absence
+rule s1_4_residence_end with provenance the British Nationality Act 1981 at "section 1(4)":
+a person satisfies the residence requirement of section 1(4) from a start to an end
+    if the start is after or equal to the end.
+
+rule s1_4_residence_year with provenance the British Nationality Act 1981 at "section 1(4)":
+a person satisfies the residence requirement of section 1(4) from a start to an end
+    if the start is before the end
+    and a next date is 1 years after the start
+    and the person was absent from the UK for a number days from the start to the next date
+    and the number is less than or equal to 90
+    and the person satisfies the residence requirement of section 1(4) from the next date to the end.
+
+% offset 348112
+rule s1_4_application with provenance the British Nationality Act 1981 at "section 1(4)":
+the application of a person for section 1(4) is in order on a date
+    if the person made an application on a first date
+    and the date is after or equal to the first date
+    and the person is an age years old on the first date
+    and the age is greater than 10.
+
+% ======================================================================
+% Section 2: acquisition by descent
+% ======================================================================
+
+% offset 346941
+rule s2_1_a with provenance the British Nationality Act 1981 at "section 2(1)(a)":
+a person is a british citizen by descent under section "2(1)(a)" on a date
+    if the birthplace of the person is outside the UK
+    and the person is born on a birth date
+    and the birth date is on or after commencement
+    and the date is after or equal to the birth date
+    and a parent is a parent of the person
+    and it is not the case that
+        the parent had died by commencement
+    and a first date is the earlier of the birth date and the death of the parent
+    and the parent is a british citizen on the first date
+    and it is not the case that
+        the parent is a british citizen by descent for the purposes of section a section on the first date.
+
+% offset 343026 (a parent in suitable service abroad)
+rule s2_1_b with provenance the British Nationality Act 1981 at "section 2(1)(b)":
+a person is a british citizen by descent under section "2(1)(b)" on a date
+    if the person is born outside the UK after commencement
+    and the person is born on a birth date
+    and the date is after or equal to the birth date
+    and a parent is a parent of the person
+    and it is not the case that
+        the parent had died by commencement
+    and a first date is the earlier of the birth date and the death of the parent
+    and the parent is a british citizen on the first date
+    and the parent was working outside the UK on the first date
+    and the parent was employed by an employer on the first date
+    and the employer is suitable for section 2(1)(b)
+    and the parent was recruited in the UK by the employer.
+
+% offset 337600 (a parent who had died by commencement)
+rule s2_1_b_dead with provenance the British Nationality Act 1981 at "section 2(1)(b)":
+a person is a british citizen by descent under section "2(1)(b)" on a date
+    if the person is born outside the UK after commencement
+    and the person is born on a birth date
+    and the date is after or equal to the birth date
+    and a parent is a parent of the person
+    and the parent had died by commencement
+    and the parent would have become a british citizen at commencement had he lived
+    and the parent would have been working outside the UK on the birth date had he lived
+    and the parent would have been employed by an employer on the birth date had he lived
+    and the employer is suitable for section 2(1)(b)
+    and the parent was recruited in the UK by the employer.
+
+% offsets 239284, 314263
+rule s2_2_suitable_1 with provenance the British Nationality Act 1981 at "section 2(2)":
+an employer is suitable for section 2(1)(b)
+    if the employer is crown service under the UK government.
+
+rule s2_2_suitable_2 with provenance the British Nationality Act 1981 at "section 2(3)":
+an employer is suitable for section 2(1)(b)
+    if the employer is designated as suitable by the secretary of state under section 2(3)
+    and it is not the case that
+        the designation of the employer is annulled by a House of Parliament.
+
+% ======================================================================
+% Section 3: registration of minors
+% ======================================================================
+
+% offset 21240 (2 copies)
+rule s3_2 with provenance the British Nationality Act 1981 at "section 3(2)":
+a person is entitled to register as a british citizen as "a minor" under section "3(2)" on a date
+    if the person is born outside the UK after commencement
+    and the person made an application on an application date
+    and the person is born on a birth date
+    and the application date is within 1 years after the birth date
+    and the date is after or equal to the application date
+    and the person is born stateless
+    and a parent is a parent of the person
+    and the parent is a british citizen by descent at the birth of the person under section 48
+    and the parent satisfies section "3(3)(b)" on the date.
+
+% offset 1220
+rule s3_5 with provenance the British Nationality Act 1981 at "section 3(5)":
+a person is entitled to register as a british citizen as "a minor" under section "3(5)" on a date
+    if the birthplace of the person is outside the UK
+    and the person made an application on an application date
+    and the person is a minor from a start to an end
+    and the application date is in the period from the start to the end
+    and the date is after or equal to the application date
+    and a parent is a parent of the person
+    and the person is born on a birth date
+    and the parent is a british citizen by descent for the purposes of section a section on the birth date
+    and the person is an age years old on the application date
+    and the age is greater than or equal to 3
+    and the application date is 3 years after a second date
+    and the person was in the UK on the second date
+    and the person was absent from the UK for a number days from the second date to the application date
+    and the number is less than or equal to 270
+    and the person satisfies section "3(5)(b) and (c)" on the date for an application made on the application date.
+
+% offset 208882 (both parents alive)
+rule s3_5_bc_both with provenance the British Nationality Act 1981 at "section 3(5)(b) and (c)":
+a person satisfies section "3(5)(b) and (c)" on a date for an application made on an application date
+    if both parents of the person are alive on the application date
+    and the application date is 3 years after a first date
+    and a mother is the mother of the person
+    and the mother was in the UK on the first date
+    and the mother was absent from the UK for a first number days from the first date to the application date
+    and the first number is less than or equal to 270
+    and a father is the father of the person
+    and the father was in the UK on the first date
+    and the father was absent from the UK for a second number days from the first date to the application date
+    and the second number is less than or equal to 270
+    and formal consent of both parents to the registration of the person is given or needed on the date.
+
+% offset 208882 (the mother dead)
+rule s3_5_bc_one with provenance the British Nationality Act 1981 at "section 3(5)(b) and (c)":
+a person satisfies section "3(5)(b) and (c)" on a date for an application made on an application date
+    if it is not the case that
+        both parents of the person are alive on the application date
+    and the mother of the person was dead on the application date
+    and a father is the father of the person
+    and the application date is 3 years after a first date
+    and the father was in the UK on the first date
+    and the father was absent from the UK for a number days from the first date to the application date
+    and the number is less than or equal to 270
+    and formal consent of one parent to the registration of the person is given or needed on the date.
+
+% offset 4289
+rule s3_3 with provenance the British Nationality Act 1981 at "section 3(3)":
+a person satisfies section "3(3)" on a date
+    if a parent is a parent of the person
+    and the parent satisfies section "3(3)(a)" on the date
+    and the parent satisfies section "3(3)(b)" on the date
+    and the parent satisfies section "3(3)(c)" on the date.
+
+% offset 5357
+rule s3_3_b_1 with provenance the British Nationality Act 1981 at "section 3(3)(b)":
+a person satisfies section "3(3)(b)" on a date
+    if a parent is a parent of the person
+    and the person is born on a birth date
+    and the parent is a british citizen on the birth date
+    and it is not the case that
+        the parent is a british citizen by descent for the purposes of section a section on the birth date.
+
+rule s3_3_b_2 with provenance the British Nationality Act 1981 at "section 3(3)(b)":
+a person satisfies section "3(3)(b)" on a date
+    if a parent is a parent of the person
+    and the parent had died by commencement
+    and the parent would have become a british citizen otherwise than by descent at commencement had he lived.
+
+rule s3_3_b_3 with provenance the British Nationality Act 1981 at "section 3(3)(b)":
+a person satisfies section "3(3)(b)" on a date
+    if a parent is a parent of the person
+    and it is not the case that
+        the parent had died by commencement
+    and the parent became a british citizen otherwise than by descent at commencement.
+
+% offset 5583
+rule s3_3_c with provenance the British Nationality Act 1981 at "section 3(3)(c)":
+a person satisfies section "3(3)(c)" on a date
+    if the date is 3 years after a first date
+    and the person satisfies the residence requirement of section 3(3)(c) from the first date to the date.
+
+rule s3_3_c_residence with provenance the British Nationality Act 1981 at "section 3(3)(c)":
+a person satisfies the residence requirement of section 3(3)(c) from a start to an end
+    if the person was in the UK on the start
+    and the person was absent from the UK for a number days from the start to the end
+    and the number is less than or equal to 270.
+
+% ======================================================================
+% Section 4: british dependent territories citizens and others
+% ======================================================================
+
+% offset 21240
+rule s4_5 with provenance the British Nationality Act 1981 at "section 4(5) and 4(6)(a)":
+a person is entitled to register as a british citizen as "a british dependent territories citizen or similar" under section "4(5)" on a date
+    if section 4 applies to the person on the date
+    and the person served in crown service under the government of a dependent territory on or before the date
+    and the application of the person is in order on the date
+    and the approval of the secretary of state for the person is given or needed on the date.
+
+rule s4_applies_1 with provenance the British Nationality Act 1981 at "section 4":
+section 4 applies to a person on a date
+    if the person is a british dependent territories citizen on the date.
+
+rule s4_applies_2 with provenance the British Nationality Act 1981 at "section 4":
+section 4 applies to a person on a date
+    if the person is a british overseas citizen on the date.
+
+rule s4_applies_3 with provenance the British Nationality Act 1981 at "section 4":
+section 4 applies to a person on a date
+    if the person is a british protected person on the date.
+
+rule s4_applies_4 with provenance the British Nationality Act 1981 at "section 4":
+section 4 applies to a person on a date
+    if the person is a british subject on the date.
+
+% offsets 27244 - 28900: the residence conditions of section 4(2); the rule of
+% section 4(2) that uses them is lost
+rule s4_2_a with provenance the British Nationality Act 1981 at "section 4(2)(a)":
+a person satisfies section "4(2)(a)" on a date
+    if the date is 5 years after a first date
+    and the person was in the UK on the first date
+    and the person was absent from the UK for a number days from the first date to the date
+    and the number is less than or equal to 450.
+
+rule s4_2_b with provenance the British Nationality Act 1981 at "section 4(2)(b)":
+a person satisfies section "4(2)(b)" on a date
+    if the date is 1 years after a first date
+    and the person was absent from the UK for a number days from the first date to the date
+    and the number is less than or equal to 90.
+
+rule s4_2_b_waived with provenance the British Nationality Act 1981 at "section 4(4)(a)":
+a person satisfies section "4(2)(b)" on a date
+    if discretion of the secretary of state under section "4(4)(a)" is exercised or needed for the person.
+
+rule s4_2_c with provenance the British Nationality Act 1981 at "section 4(2)(c)":
+a person satisfies section "4(2)(c)" on a date
+    if the person is subject to no residence restriction imposed by the immigration laws on the date
+    and discretion of the secretary of state under section "4(4)(b)" is exercised or needed for the person.
+
+rule s4_2_d with provenance the British Nationality Act 1981 at "section 4(2)(d)":
+a person satisfies section "4(2)(d)" on a date
+    if the date is 5 years after a first date
+    and it is not the case that
+        the person was in the UK in breach of the immigration laws from the first date to the date.
+
+% ======================================================================
+% Section 6: naturalisation
+% ======================================================================
+
+% offset 74039
+rule s6_1 with provenance the British Nationality Act 1981 at "section 6(1)":
+a person is entitled to naturalise as a british citizen under section "6(1)" on a date
+    if the person is of full age on the date
+    and the person is of full capacity
+    and the person fulfils the requirements of schedule 1 for naturalisation
+    and the application of the person for naturalisation is in order on the date
+    and the approval of the secretary of state for the person is given or needed on the date.
+
+% offset 31786
+rule s6_application with provenance the British Nationality Act 1981 at "section 6":
+the application of a person for naturalisation is in order on a date
+    if the person made an application on a first date
+    and the date is after or equal to the first date.
+
+% offset 50629
+rule naturalised with provenance the British Nationality Act 1981 at "section 6":
+a person is a british citizen by naturalisation under section a section on a date
+    if the person is naturalised as a british citizen under section the section on a first date
+    and the date is after or equal to the first date.
+
+% ======================================================================
+% Section 8: women by virtue of marriage
+% ======================================================================
+
+% offset 161937
+rule s8_3 with provenance the British Nationality Act 1981 at "section 8(3)":
+a person is entitled to register as a british citizen as "a woman by virtue of marriage" under section "8(3)" on a date
+    if the person is female
+    and the person made an application on an application date
+    and the application date is within 5 years of commencement
+    and the person is the wife of a husband on the application date
+    and a first date is the eve of commencement
+    and the person would have been entitled to register as a citizen of the UK and colonies by virtue of her marriage to the husband on the first date
+    and the husband satisfies section "8(3)(b)" on the date
+    and the approval of the secretary of state for the person is given or needed on the date.
+
+% offsets 40429, 160300
+rule s8_3_b_1 with provenance the British Nationality Act 1981 at "section 8(3)(b)":
+a person satisfies section "8(3)(b)" on a date
+    if the person became a british citizen at commencement
+    and the person ceased to be a british citizen by renunciation since commencement.
+
+% ======================================================================
+% Section 9: by virtue of the father's citizenship; the rule itself is lost
+% ======================================================================
+
+% offset 170573
+rule s9_2 with provenance the British Nationality Act 1981 at "section 9(2)":
+a person satisfies section "9(2)" on a date
+    if a first date is the eve of commencement
+    and a father is the father of the person
+    and a second date is the earlier of the first date and the death of the father
+    and the father was a citizen of the UK and colonies under section 5 of the 1948 act on the second date
+    and a mother is the mother of the person
+    and the mother is the wife of the father on the second date
+    and the father satisfies section "9(2)(b)" on the date.
+
+% offset 170801
+rule s9_2_b with provenance the British Nationality Act 1981 at "section 9(2)(b)":
+a person satisfies section "9(2)(b)" on a date
+    if it is not the case that
+        the person had died by commencement
+    and the person became a british citizen at commencement
+    and a first date is the earlier of the date and the death of the person
+    and the person remained a british citizen from commencement to the first date.
+
+% ======================================================================
+% Section 10: registration following renunciation of citizenship of the UK and colonies
+% ======================================================================
+
+% offset 35663
+rule s10_2 with provenance the British Nationality Act 1981 at "section 10(2)":
+a person is entitled to register as a british citizen as "following renunciation of citizenship of the UK and colonies" under section "10(2)" on a date
+    if the person is of full capacity
+    and a first date is the commencement date
+    and the person was a citizen of the UK and colonies at some time before the first date
+    and the person ceased to be a citizen of the UK and colonies through renunciation before the first date
+    and the person satisfies section "10(2)(a) or (b)" on the date
+    and the application of the person is in order on the date
+    and the approval of the secretary of state for the person is given or needed on the date.
+
+rule s10_2_or_a with provenance the British Nationality Act 1981 at "section 10(2)":
+a person satisfies section "10(2)(a) or (b)" on a date
+    if the person satisfies section "10(2)(a)" on the date.
+
+rule s10_2_or_b with provenance the British Nationality Act 1981 at "section 10(2)":
+a person satisfies section "10(2)(a) or (b)" on a date
+    if the person satisfies section "10(2)(b)" on the date.
+
+rule s10_2_a with provenance the British Nationality Act 1981 at "section 10(2)(a)":
+a person satisfies section "10(2)(a)" on a date
+    if the person has an appropriate qualifying connection with the UK on the date.
+
+rule s10_2_b with provenance the British Nationality Act 1981 at "section 10(2)(b)":
+a person satisfies section "10(2)(b)" on a date
+    if the person is female
+    and the person had married by the date
+    and the person was married to a husband on or before the date
+    and the husband has an appropriate qualifying connection with the UK on the date.
+
+% offsets 84784 - 86200 and twins: section 10(4)
+rule s10_4_born_self with provenance the British Nationality Act 1981 at "section 10(4)":
+a person has an appropriate qualifying connection with the UK on a date
+    if the birthplace of the person is in the UK.
+
+rule s10_4_born_father with provenance the British Nationality Act 1981 at "section 10(4)":
+a person has an appropriate qualifying connection with the UK on a date
+    if a father is the father of the person
+    and the birthplace of the father is in the UK.
+
+rule s10_4_born_grandfather with provenance the British Nationality Act 1981 at "section 10(4)":
+a person has an appropriate qualifying connection with the UK on a date
+    if a grandfather is the paternal grandfather of the person
+    and the birthplace of the grandfather is in the UK.
+
+rule s10_4_naturalised_self with provenance the British Nationality Act 1981 at "section 10(4)":
+a person has an appropriate qualifying connection with the UK on a date
+    if the person is naturalised in the UK before commencement
+    and the person was naturalised in the UK before the date.
+
+rule s10_4_naturalised_father with provenance the British Nationality Act 1981 at "section 10(4)":
+a person has an appropriate qualifying connection with the UK on a date
+    if a father is the father of the person
+    and the father is naturalised in the UK before commencement
+    and the father was naturalised in the UK before the date.
+
+rule s10_4_naturalised_grandfather with provenance the British Nationality Act 1981 at "section 10(4)":
+a person has an appropriate qualifying connection with the UK on a date
+    if a grandfather is the paternal grandfather of the person
+    and the grandfather is naturalised in the UK before commencement
+    and the grandfather was naturalised in the UK before the date.
+
+rule s10_4_registered_self with provenance the British Nationality Act 1981 at "section 10(4)":
+a person has an appropriate qualifying connection with the UK on a date
+    if the person was registered as a citizen of the UK and colonies in a place before the date
+    and the place is part of the UK.
+
+rule s10_4_registered_father with provenance the British Nationality Act 1981 at "section 10(4)":
+a person has an appropriate qualifying connection with the UK on a date
+    if a father is the father of the person
+    and the father was registered as a citizen of the UK and colonies in a place before the date
+    and the place is part of the UK.
+
+rule s10_4_registered_grandfather with provenance the British Nationality Act 1981 at "section 10(4)":
+a person has an appropriate qualifying connection with the UK on a date
+    if a grandfather is the paternal grandfather of the person
+    and the grandfather was registered as a citizen of the UK and colonies in a place before the date
+    and the place is mentioned in section 1(3) of the 1948 act.
+
+% ======================================================================
+% Section 11: citizens of the UK and colonies at commencement
+% ======================================================================
+
+% offset 301243 (not registered)
+rule s11_1 with provenance the British Nationality Act 1981 at "section 11(1)":
+a person is a british citizen by "acquisition at commencement" under section "11(1)" on a date
+    if the date is on or after commencement
+    and a first date is the eve of commencement
+    and the person was a citizen of the UK and colonies on the first date
+    and it is not the case that
+        the person was a citizen of the UK and colonies by registration on the first date
+    and the person had the right of abode in the UK under the Immigration Act 1971 on the first date.
+
+% offset 129831 (registered: section 11(2) applies)
+rule s11_1_registered with provenance the British Nationality Act 1981 at "section 11(1)":
+a person is a british citizen by "acquisition at commencement" under section "11(1)" on a date
+    if the date is on or after commencement
+    and a first date is the eve of commencement
+    and the person was a citizen of the UK and colonies on the first date
+    and the person was a citizen of the UK and colonies by registration on the first date
+    and the person satisfies section "11(2)" on the first date
+    and the person had the right of abode in the UK under the Immigration Act 1971 on the first date.
+
+% offsets 129831 - 130700
+rule s11_2_1 with provenance the British Nationality Act 1981 at "section 11(2)":
+a person satisfies section "11(2)" on a date
+    if it is not the case that
+        the person was a citizen of the UK and colonies through registration under the 1964 act on the date.
+
+rule s11_2_2 with provenance the British Nationality Act 1981 at "section 11(2)":
+a person satisfies section "11(2)" on a date
+    if the person was a citizen of the UK and colonies through registration under the 1964 act on the date
+    and the person had the right of abode in the UK under section 2(1)(c) of the Immigration Act 1971 on the date.
+
+rule s11_2_3 with provenance the British Nationality Act 1981 at "section 11(2)":
+a person satisfies section "11(2)" on a date
+    if the person was a citizen of the UK and colonies through registration under the 1964 act on the date
+    and a mother is the mother of the person
+    and the mother had died by commencement
+    and the mother would have become a british citizen at commencement had he lived.
+
+% offset 21576 and twins
+rule s11_would with provenance the British Nationality Act 1981 at "section 11(1)":
+a person would have become a british citizen by acquisition at commencement on a date
+    if the person was a citizen of the UK and colonies by registration on the date
+    and the person satisfies section "11(2)" on the date
+    and the person had the right of abode in the UK under the Immigration Act 1971 on the date.
+
+% ======================================================================
+% Section 12: renunciation, and its annulment
+% ======================================================================
+
+% reconstructed from the damaged copies at offsets 156189, 319002 and 321217:
+% each keeps a different part of the rule
+rule s12_ceases with provenance the British Nationality Act 1981 at "section 12":
+a person ceases to be a british citizen through renunciation under section "12" on a date
+    if the person made a declaration of renunciation on a first date
+    and the person is of full age for section 12(5) on the date
+    and the person is of full capacity
+    and the declaration of renunciation of the person is in order on the date
+    and the approval of the renunciation of the person is given or needed on the date.
+
+% reconstructed from the damaged copy at offset 321610; the end of the rule is lost
+rule s12_entitled with provenance the British Nationality Act 1981 at "section 12(1)":
+a person is entitled to renounce british citizenship under section "12" on a date
+    if the person is a british citizen on the date
+    and the person is of full age for section 12(5) on the date
+    and the person is of full capacity.
+
+% offsets 157077 - 157200
+rule s12_5_married with provenance the British Nationality Act 1981 at "section 12(5)":
+a person is of full age for section 12(5) on a date
+    if the person was married on the date.
+
+rule s12_5_not_minor with provenance the British Nationality Act 1981 at "section 12(5)":
+a person is of full age for section 12(5) on a date
+    if it is not the case that
+        the person is a minor on the date.
+
+rule s12_5_is_married with provenance the British Nationality Act 1981 at "section 12(5)":
+a person is of full age for section 12(5) on a date
+    if the person is married on the date.
+
+% offset 156489
+rule s12_declaration with provenance the British Nationality Act 1981 at "section 12":
+the declaration of renunciation of a person is in order on a date
+    if the person made a declaration of renunciation on a first date
+    and the date is after or equal to the first date.
+
+% offset 158939
+rule s12_approval with provenance the British Nationality Act 1981 at "section 12":
+the approval of the renunciation of a person is given or needed on a date
+    if the person made a declaration of renunciation on a first date
+    and the secretary of state has approved the renunciation of the person on a second date
+    and the date is after or equal to the second date.
+
+% offset 158404
+rule s12_3_annulment with provenance the British Nationality Act 1981 at "section 12(3)":
+a person regains british citizenship by annulment of renunciation under section "12(3)" on a date
+    if the person was a british citizen at some time before the date
+    and the person ceased to be a british citizen through renunciation on a first date
+    and the person did not have any citizenship or nationality other than british citizenship on the first date
+    and a second date is six months on from the first date
+    and the person did not acquire any citizenship or nationality from the first date to the second date
+    and the date is after or equal to the second date.
+
+a second date is six months on from a first date
+    if the second date is 6 months after the first date.
+
+rule s12_ceased with provenance the British Nationality Act 1981 at "section 12":
+a person ceased to be a british citizen through renunciation on a date
+    if the person made a declaration of renunciation on the date
+    and the person ceases to be a british citizen through renunciation under section "12" on the date.
+
+% ======================================================================
+% Section 13: resumption of citizenship
+% ======================================================================
+
+% offset 136143
+rule s13_3 with provenance the British Nationality Act 1981 at "section 13(3)":
+a person is entitled to register as a british citizen as "resumption after renunciation" under section "13(3)" on a date
+    if the person is of full capacity
+    and the person was a british citizen at some time before the date
+    and the person renounced british citizenship before the date
+    and the application of the person is in order on the date
+    and the approval of the secretary of state for the person is given or needed on the date.
+
+% ======================================================================
+% Section 14: british citizens by descent
+% ======================================================================
+
+rule s14_1_a_descent with provenance the British Nationality Act 1981 at "section 14(1)(a)":
+a person is a british citizen by descent for the purposes of section "14(1)(a)" on a date
+    if the birthplace of the person is outside the UK
+    and the person is born after commencement
+    and the person is a british citizen by descent under section "2(1)(a)" on the date.
+
+rule s14_1_a_registered with provenance the British Nationality Act 1981 at "section 14(1)(a)":
+a person is a british citizen by descent for the purposes of section "14(1)(a)" on a date
+    if the birthplace of the person is outside the UK
+    and the person is born after commencement
+    and the person is registered as a british citizen under section "3(2)" on a first date
+    and the date is after or equal to the first date.
+
+rule s14_1_a_registered_9 with provenance the British Nationality Act 1981 at "section 14(1)(a)":
+a person is a british citizen by descent for the purposes of section "14(1)(a)" on a date
+    if the birthplace of the person is outside the UK
+    and the person is born after commencement
+    and the person is registered as a british citizen under section "9" on a first date
+    and the date is after or equal to the first date.
+
+rule s14_1_b with provenance the British Nationality Act 1981 at "section 14(1)(b)":
+a person is a british citizen by descent for the purposes of section "14(1)(b)" on a date
+    if the birthplace of the person is outside the UK
+    and the person is born before commencement
+    and it is not the case that
+        the person is disqualified under section "14(2)"
+    and the person became a british citizen at commencement
+    and a first date is the eve of commencement
+    and the person satisfies section "14(1)(b)(i) to (iv)" on the first date.
+
+rule s14_1_c with provenance the British Nationality Act 1981 at "section 14(1)(c)":
+a person is a british citizen by descent for the purposes of section "14(1)(c)" on a date
+    if the person is born after commencement
+    and the person is registered as a british citizen under section "3(1)" on a first date
+    and the date is after or equal to the first date
+    and a parent is a parent of the person
+    and the parent is a british citizen at the birth of the person under section 48.
+
+rule s14_1_d with provenance the British Nationality Act 1981 at "section 14(1)(d)":
+a person is a british citizen by descent for the purposes of section "14(1)(d)" on a date
+    if the person is registered as a british citizen under section "5" on a first date
+    and the date is after or equal to the first date.
+
+rule s14_1_e with provenance the British Nationality Act 1981 at "section 14(1)(e)":
+a person is a british citizen by descent for the purposes of section "14(1)(e)" on a date
+    if the person is female
+    and the birthplace of the person is outside the UK
+    and the person is born before commencement
+    and it is not the case that
+        the person is disqualified under section "14(2)"
+    and the person is registered as a british citizen under section a section on a first date
+    and the date is after or equal to the first date
+    and the person is registered under section 8 by virtue of her marriage to a husband
+    and the husband ceased to be a citizen of the UK and colonies through renunciation before commencement
+    and the husband would have become a british citizen by descent at commencement but for renunciation.
+
+rule s14_1_f with provenance the British Nationality Act 1981 at "section 14(1)(f)":
+a person is a british citizen by descent for the purposes of section "14(1)(f)" on a date
+    if the person is registered as a british citizen under section "10(2)" on a first date
+    and the date is after or equal to the first date
+    and a second date is the commencement date
+    and the person was a citizen of the UK and colonies at some time before the second date
+    and the person ceased to be a citizen of the UK and colonies before the second date
+    and the person would have become a british citizen by descent at commencement but for renunciation.
+
+rule s14_1_g with provenance the British Nationality Act 1981 at "section 14(1)(g)":
+a person is a british citizen by descent for the purposes of section "14(1)(g)" on a date
+    if the person is registered as a british citizen under section "13" on a first date
+    and the date is after or equal to the first date
+    and the person ceased to be a british citizen through renunciation on a second date
+    and a third date is the day before the second date
+    and the person is a british citizen by descent for the purposes of section a section on the third date.
+
+rule s14_1_b_any_i with provenance the British Nationality Act 1981 at "section 14(1)(b)":
+a person satisfies section "14(1)(b)(i) to (iv)" on a date
+    if the person satisfies section "14(1)(b)(i)" on the date.
+
+rule s14_1_b_any_ii with provenance the British Nationality Act 1981 at "section 14(1)(b)":
+a person satisfies section "14(1)(b)(i) to (iv)" on a date
+    if the person satisfies section "14(1)(b)(ii)" on the date.
+
+rule s14_1_b_any_iii with provenance the British Nationality Act 1981 at "section 14(1)(b)":
+a person satisfies section "14(1)(b)(i) to (iv)" on a date
+    if the person satisfies section "14(1)(b)(iii)" on the date.
+
+rule s14_1_b_any_iv with provenance the British Nationality Act 1981 at "section 14(1)(b)":
+a person satisfies section "14(1)(b)(i) to (iv)" on a date
+    if the person satisfies section "14(1)(b)(iv)" on the date.
+
+% offsets 73260 (recovered from inside a damaged record) and 297715 - 313824
+rule s14_1_b_i with provenance the British Nationality Act 1981 at "section 14(1)(b)(i)":
+a person satisfies section "14(1)(b)(i)" on a date
+    if the person was a citizen of the UK and colonies on the date
+    and the person was a citizen of the UK and colonies under section 5 of the 1948 act on the date.
+
+rule s14_1_b_ii with provenance the British Nationality Act 1981 at "section 14(1)(b)(ii)":
+a person satisfies section "14(1)(b)(ii)" on a date
+    if the person was a citizen of the UK and colonies on the date
+    and the person was a citizen of the UK and colonies solely by descent on the date.
+
+rule s14_1_b_iii with provenance the British Nationality Act 1981 at "section 14(1)(b)(iii)":
+a person satisfies section "14(1)(b)(iii)" on a date
+    if the person had the right of abode in the UK under section 2(1)(b) of the Immigration Act 1971 on the date.
+
+rule s14_1_b_iv with provenance the British Nationality Act 1981 at "section 14(1)(b)(iv)":
+a person satisfies section "14(1)(b)(iv)" on a date
+    if the person is female
+    and the person had married by the date
+    and the person was married to a husband on or before the date
+    and the person was a citizen of the UK and colonies on the date
+    and the person was a citizen of the UK and colonies by registration by virtue of her marriage to the husband on the date
+    and the husband became a british citizen by descent at commencement.
+
+rule s14_1_b_iv_dead with provenance the British Nationality Act 1981 at "section 14(1)(b)(iv)":
+a person satisfies section "14(1)(b)(iv)" on a date
+    if the person is female
+    and the person had married by the date
+    and the person was married to a husband on or before the date
+    and the person was a citizen of the UK and colonies on the date
+    and the person was a citizen of the UK and colonies by registration by virtue of her marriage to the husband on the date
+    and the husband had died by commencement
+    and the husband would have become a british citizen by descent at commencement had he lived.
+
+% offsets 52401 - 53300
+rule s14_2 with provenance the British Nationality Act 1981 at "section 14(2)":
+a person is disqualified under section "14(2)"
+    if the person is disqualified under section "14(2)(a)".
+
+rule s14_2_a with provenance the British Nationality Act 1981 at "section 14(2)(a)":
+a person is disqualified under section "14(2)(a)"
+    if a father is the father of the person
+    and the person is born on a birth date
+    and a first date is the earlier of the birth date and the death of the father
+    and the father was working outside the UK on the first date
+    and the father was working in crown service under the UK government on the first date
+    and the father was recruited in the UK.
+
+% offset 22720 and twins: would-have-become rules used by section 14
+rule s14_would with provenance the British Nationality Act 1981 at "section 14(1)(b)":
+a person would have become a british citizen by descent under section 14(1)(b) on a date
+    if the birthplace of the person is outside the UK
+    and it is not the case that
+        the person is disqualified under section "14(2)"
+    and the person satisfies section "14(1)(b)(i) to (iv)" on the date.
+
+% ======================================================================
+% Commencement: who became, or would have become, a british citizen
+% ======================================================================
+
+% offset 190188: the original asked whether this was known; a scenario may state it
+rule commencement_became with provenance the British Nationality Act 1981 at "section 11":
+a person became a british citizen at commencement
+    if a date is the commencement date
+    and the person is a british citizen by a way under section a section on the date.
+
+rule commencement_by_descent with provenance the British Nationality Act 1981 at "section 14":
+a person became a british citizen by descent at commencement
+    if the person became a british citizen at commencement
+    and a date is the commencement date
+    and the person is a british citizen by descent for the purposes of section a section on the date.
+
+rule commencement_otherwise with provenance the British Nationality Act 1981 at "section 14":
+a person became a british citizen otherwise than by descent at commencement
+    if the person became a british citizen at commencement
+    and a date is the commencement date
+    and it is not the case that
+        the person is a british citizen by descent for the purposes of section a section on the date.
+
+rule commencement_if_alive with provenance the British Nationality Act 1981 at "section 11(1)":
+a person would have become a british citizen at commencement had he lived
+    if the person died on a date
+    and the person was a citizen of the UK and colonies on the date
+    and the person would have become a british citizen by acquisition at commencement on the date.
+
+rule commencement_if_alive_descent with provenance the British Nationality Act 1981 at "section 14":
+a person would have become a british citizen by descent at commencement had he lived
+    if the person died on a date
+    and the person would have become a british citizen at commencement had he lived
+    and the person would have become a british citizen by descent under section 14(1)(b) on the date.
+
+rule commencement_if_alive_otherwise with provenance the British Nationality Act 1981 at "section 14":
+a person would have become a british citizen otherwise than by descent at commencement had he lived
+    if the person died on a date
+    and the person would have become a british citizen at commencement had he lived
+    and it is not the case that
+        the person would have become a british citizen by descent under section 14(1)(b) on the date.
+
+rule commencement_or_if_alive_1 with provenance the British Nationality Act 1981 at "section 14":
+a person became or would have become a british citizen otherwise than by descent at commencement
+    if the person became a british citizen otherwise than by descent at commencement.
+
+rule commencement_or_if_alive_2 with provenance the British Nationality Act 1981 at "section 14":
+a person became or would have become a british citizen otherwise than by descent at commencement
+    if the person had died by commencement
+    and the person would have become a british citizen otherwise than by descent at commencement had he lived.
+
+rule commencement_renounced with provenance the British Nationality Act 1981 at "section 14(1)(f)":
+a person would have become a british citizen at commencement but for renunciation
+    if the person ceased to be a citizen of the UK and colonies through renunciation on a date
+    and a first date is the day before the date
+    and the person would have become a british citizen by acquisition at commencement on the first date.
+
+rule commencement_renounced_descent with provenance the British Nationality Act 1981 at "section 14(1)(f)":
+a person would have become a british citizen by descent at commencement but for renunciation
+    if the person would have become a british citizen at commencement but for renunciation
+    and the person ceased to be a citizen of the UK and colonies through renunciation on a date
+    and a first date is the day before the date
+    and the person would have become a british citizen by descent under section 14(1)(b) on the first date.
+
+% offset 141911 and twins: section 48, a parent's citizenship at a child's birth
+rule s48 with provenance the British Nationality Act 1981 at "section 48":
+a parent is a british citizen at the birth of a child under section 48
+    if the child is born on a birth date
+    and it is not the case that
+        the parent had died by commencement
+    and a first date is the earlier of the birth date and the death of the parent
+    and the parent is a british citizen on the first date.
+
+rule s48_otherwise with provenance the British Nationality Act 1981 at "section 48":
+a parent is a british citizen otherwise than by descent at the birth of a child under section 48
+    if the parent is a british citizen at the birth of the child under section 48
+    and the child is born on a birth date
+    and a first date is the earlier of the birth date and the death of the parent
+    and it is not the case that
+        the parent is a british citizen by descent for the purposes of section a section on the first date.
+
+rule s48_descent with provenance the British Nationality Act 1981 at "section 48":
+a parent is a british citizen by descent at the birth of a child under section 48
+    if the parent had died by commencement
+    and the parent would have become a british citizen by descent at commencement had he lived.
+
+% ======================================================================
+% Part 5: interpretation
+% ======================================================================
+
+% offset 219849: section 50(7), birth on a ship or aircraft
+rule s50_7_registered with provenance the British Nationality Act 1981 at "section 50(7)":
+the birthplace of a person is in the UK
+    if the person was born aboard a ship registered in the UK
+    and a parent is a parent of the person
+    and the parent is a british citizen at the birth of the person under section 48.
+
+rule s50_7_government with provenance the British Nationality Act 1981 at "section 50(7)":
+the birthplace of a person is in the UK
+    if the person was born aboard a ship of the UK government
+    and a parent is a parent of the person
+    and the parent is a british citizen at the birth of the person under section 48.
+
+rule born_in_uk with provenance the British Nationality Act 1981:
+the birthplace of a person is in the UK
+    if the person is born in a place
+    and the place is part of the UK.
+
+rule born_outside_uk with provenance the British Nationality Act 1981:
+the birthplace of a person is outside the UK
+    if the person is born in a place
+    and it is not the case that
+        the birthplace of the person is in the UK.
+
+% offset 182227 (recovered from inside a damaged record)
+rule born_outside_after with provenance the British Nationality Act 1981:
+a person is born outside the UK after commencement
+    if the birthplace of the person is outside the UK
+    and the person is born on a date
+    and the date is on or after commencement.
+
+rule born_after with provenance the British Nationality Act 1981:
+a person is born after commencement
+    if the person is born on a date
+    and the date is on or after commencement.
+
+rule born_before with provenance the British Nationality Act 1981:
+a person is born before commencement
+    if the person is born on a date
+    and the date is prior to commencement.
+
+% offset 1197 (the end of the rule is lost; the three conditions that survive)
+rule s50_2 with provenance the British Nationality Act 1981 at "section 50(2) and (3)(a)", reconstructed:
+a person is settled in the UK under section 50(2) on a date
+    if the person is ordinarily resident in the UK on the date
+    and the person is subject to no restriction on the period for which he may remain in the UK on the date
+    and it is not the case that
+        the person is entitled to an exemption under section 8(3) of the Immigration Act 1971 on the date.
+
+% offset 334600
+rule s50_4 with provenance the British Nationality Act 1981 at "section 50(4)":
+a person is settled in the UK for section 1(1)(b) through a parent on a date
+    if the parent is settled in the UK under section 50(2) on the date.
+
+% offsets 284590, 338001 and 339276: section 50(6)(a)
+rule s50_6_a_1 with provenance the British Nationality Act 1981 at "section 50(6)(a)":
+a person is naturalised in the UK before commencement
+    if the person was granted a certificate of naturalisation by the secretary of state.
+
+rule s50_6_a_2 with provenance the British Nationality Act 1981 at "section 50(6)(a)":
+a person is naturalised in the UK before commencement
+    if the person was granted a certificate of naturalisation in the islands by the lieutenant governor.
+
+rule s50_6_a_3 with provenance the British Nationality Act 1981 at "section 50(6)(a)":
+a person is naturalised in the UK before commencement
+    if the person became a british subject by residence with a parent under the Naturalisation Act 1870.
+
+% offset 83647: section 50(1), what "the UK" means
+Great Britain is part of the UK.
+Northern Ireland is part of the UK.
+the Channel Islands is part of the UK.
+the Isle of Man is part of the UK.
+the UK is part of the UK.
+
+% offset 93979
+rule foreign_country with provenance the British Nationality Act 1981 at "section 50(1)":
+a place counts as a foreign country
+    if it is not the case that
+        the place is part of the UK
+    and it is not the case that
+        the place is equal to the Republic of Ireland
+    and it is not the case that
+        the place counts as a dependent territory
+    and it is not the case that
+        the place is in the commonwealth.
+
+
+% offset 96027: schedule 3 as the program recorded it
+"Antigua and Barbuda" is in the commonwealth.
+"Australia" is in the commonwealth.
+"The Bahamas" is in the commonwealth.
+"Bangladesh" is in the commonwealth.
+"Barbados" is in the commonwealth.
+"Belize" is in the commonwealth.
+"Botswana" is in the commonwealth.
+"Canada" is in the commonwealth.
+"Republic of Cyprus" is in the commonwealth.
+"Dominica" is in the commonwealth.
+"Fiji" is in the commonwealth.
+"The Gambia" is in the commonwealth.
+"Ghana" is in the commonwealth.
+"Grenada" is in the commonwealth.
+"Guyana" is in the commonwealth.
+"India" is in the commonwealth.
+"Jamaica" is in the commonwealth.
+"Kenya" is in the commonwealth.
+"Kiribati" is in the commonwealth.
+"Lesotho" is in the commonwealth.
+"Malawi" is in the commonwealth.
+"Malaysia" is in the commonwealth.
+"Malta" is in the commonwealth.
+"Mauritius" is in the commonwealth.
+"Nauru" is in the commonwealth.
+"New Zealand" is in the commonwealth.
+"Nigeria" is in the commonwealth.
+"Papua New Guinea" is in the commonwealth.
+"Saint Lucia" is in the commonwealth.
+"Saint Vincent and the Grenadines" is in the commonwealth.
+"Seychelles" is in the commonwealth.
+"Sierra Leone" is in the commonwealth.
+"Singapore" is in the commonwealth.
+"Solomon Islands" is in the commonwealth.
+"St Christopher and Nevis" is in the commonwealth.
+"St Helena and Dependencies" is in the commonwealth.
+"The Sovereign Base of Akrotiri and Dhekelia" is in the commonwealth.
+"Turks and Caicos Islands" is in the commonwealth.
+"Virgin Islands" is in the commonwealth.
+
+% ======================================================================
+% Persons, families and ages
+% ======================================================================
+
+rule parent_mother with provenance the British Nationality Act 1981 at "section 50(9)":
+a person is a parent of a second person
+    if the person is the mother of the second person.
+
+rule parent_father with provenance the British Nationality Act 1981 at "section 50(9)":
+a person is a parent of a second person
+    if the person is the father of the second person.
+
+rule grandfather with provenance the British Nationality Act 1981:
+a person is the paternal grandfather of a second person
+    if a father is the father of the second person
+    and the person is the father of the father.
+
+rule wife with provenance the British Nationality Act 1981:
+a person is the wife of a second person on a date
+    if the person was married on the date
+    and the second person is the husband of the person on the date.
+
+rule died_before_commencement with provenance the British Nationality Act 1981:
+a person had died by commencement
+    if the person is dead
+    and a date is the commencement date
+    and the person died before the date.
+
+rule age with provenance the British Nationality Act 1981:
+a person is a number A years old on a date
+    if the person is born on a birth date
+    and the date is after or equal to the birth date
+    and the date is a number M months after the birth date
+    and A = M // 12.
+
+rule minor_period with provenance the British Nationality Act 1981 at "section 50(11)":
+a person is a minor from a date to a second date
+    if the person is born on the date
+    and the second date is 18 years after the date.
+
+rule minor_on with provenance the British Nationality Act 1981 at "section 50(11)":
+a person is a minor on a date
+    if the person is a minor from a start to an end
+    and the date is in the period from the start to the end.
+
+rule minor_at_commencement with provenance the British Nationality Act 1981:
+a person is a minor at commencement
+    if a date is the commencement date
+    and the person is a minor on the date.
+
+rule full_age_date with provenance the British Nationality Act 1981 at "section 50(11)":
+a person attains full age on a date
+    if the person is born on a birth date
+    and the date is 18 years after the birth date.
+
+rule full_age with provenance the British Nationality Act 1981 at "section 50(11)":
+a person is of full age on a date
+    if the person is an age years old on the date
+    and the age is greater than or equal to 18.
+
+rule full_capacity with provenance the British Nationality Act 1981 at "section 50(11)":
+a person is of full capacity
+    if it is not the case that
+        the person is of unsound mind.
+
+% ======================================================================
+% Applications, consents and approvals: "given or needed"
+% ======================================================================
+
+rule application_made with provenance the British Nationality Act 1981:
+the application of a person is in order on a date
+    if the person made an application on a first date
+    and the date is after or equal to the first date.
+
+rule application_needed with provenance the British Nationality Act 1981:
+the application of a person is in order on a date
+    if it is not the case that
+        the person made an application on a first date
+    and the person makes an application.
+
+rule application_minor_made with provenance the British Nationality Act 1981:
+the application of a person made while a minor is in order from a start to an end on a date
+    if the person made an application on a first date
+    and the first date is in the period from the start to the end
+    and the date is after or equal to the first date.
+
+rule application_minor_needed with provenance the British Nationality Act 1981:
+the application of a person made while a minor is in order from a start to an end on a date
+    if it is not the case that
+        the person made an application on a first date
+    and the date is in the period from the start to the end
+    and the person makes an application.
+
+rule approval_given with provenance the British Nationality Act 1981:
+the approval of the secretary of state for a person is given or needed on a date
+    if the case of the person is approved by the secretary of state on a first date
+    and the date is after or equal to the first date.
+
+rule approval_needed with provenance the British Nationality Act 1981:
+the approval of the secretary of state for a person is given or needed on a date
+    if it is not the case that
+        the case of the person is approved by the secretary of state on a first date
+    and the secretary of state approves the case of the person.
+
+% offset 223380 (recovered from inside a damaged record) and 223739
+rule consent_both_given with provenance the British Nationality Act 1981 at "section 3(5)(c)":
+formal consent of both parents to the registration of a person is given or needed on a date
+    if a mother is the mother of the person
+    and the mother formally consented to the registration of the person on a first date
+    and the date is after or equal to the first date
+    and a father is the father of the person
+    and the father formally consented to the registration of the person on a second date
+    and the date is after or equal to the second date.
+
+rule consent_both_needed with provenance the British Nationality Act 1981 at "section 3(5)(c)":
+formal consent of both parents to the registration of a person is given or needed on a date
+    if formal consent to the registration of the person is given by both parents.
+
+rule consent_either_given with provenance the British Nationality Act 1981 at "section 3(5)(c)":
+formal consent of one parent to the registration of a person is given or needed on a date
+    if a parent is a parent of the person
+    and the parent formally consented to the registration of the person on a first date
+    and the date is after or equal to the first date.
+
+rule consent_either_needed with provenance the British Nationality Act 1981 at "section 3(5)(c)":
+formal consent of one parent to the registration of a person is given or needed on a date
+    if formal consent to the registration of the person is given by one parent.
+
+rule discretion_exercised with provenance the British Nationality Act 1981:
+discretion of the secretary of state under section a section is exercised or needed for a person
+    if the secretary of state has exercised discretion under section the section for the person.
+
+rule discretion_needed with provenance the British Nationality Act 1981:
+discretion of the secretary of state under section a section is exercised or needed for a person
+    if it is not the case that
+        the secretary of state has exercised discretion under section the section for the person
+    and the secretary of state exercises discretion under section the section for the person.
+
+% ======================================================================
+% Dates
+% ======================================================================
+
+% offset 30838: this is how the program recorded commencement (the date of Royal Assent)
+1981-10-30 is the commencement date.
+
+rule after_commencement with provenance the British Nationality Act 1981:
+a date is on or after commencement
+    if a first date is the commencement date
+    and the date is after or equal to the first date.
+
+rule before_commencement with provenance the British Nationality Act 1981:
+a date is prior to commencement
+    if a first date is the commencement date
+    and the date is before the first date.
+
+rule day_before with provenance the British Nationality Act 1981:
+a date is the day before a second date
+    if the second date is 1 days after the date.
+
+rule day_before_commencement with provenance the British Nationality Act 1981:
+a date is the eve of commencement
+    if a first date is the commencement date
+    and the date is the day before the first date.
+
+rule during with provenance the British Nationality Act 1981:
+a date is in the period from a start to an end
+    if the date is after or equal to the start
+    and the date is before the end.
+
+rule years_after with provenance the British Nationality Act 1981:
+a second date is a number N years after a first date
+    if M = 12 * N
+    and the second date is M months after the first date.
+
+rule within_years with provenance the British Nationality Act 1981:
+a date is within a number years after a second date
+    if a third date is the number years after the second date
+    and the date is after or equal to the second date
+    and the third date is after or equal to the date.
+
+rule within_years_commencement with provenance the British Nationality Act 1981:
+a date is within a number years of commencement
+    if a second date is the commencement date
+    and the date is within the number years after the second date.
+
+rule earliest_dead with provenance the British Nationality Act 1981:
+a date is the earlier of a second date and the death of a person
+    if the person is dead
+    and the person died on a third date
+    and the date is the earlier date of the second date and the third date.
+
+rule earliest_alive with provenance the British Nationality Act 1981:
+a date is the earlier of the date and the death of a person
+    if it is not the case that
+        the person is dead.
+
+rule earliest_first with provenance the British Nationality Act 1981:
+a date is the earlier date of a second date and the date
+    if the second date is after or equal to the date.
+
+rule earliest_second with provenance the British Nationality Act 1981:
+a date is the earlier date of the date and a second date
+    if the second date is after the date.
+
+query british_citizen is:
+    the question is asked on a date
+    and which person is a british citizen on the date.
+
+query british_citizen_by_descent is:
+    the question is asked on a date
+    and which person is a british citizen by descent on the date.
+
+query british_citizen_by_annulment_of_renunciation is:
+    the question is asked on a date
+    and which person is a british citizen by annulment of renunciation on the date.
+
+query entitled_to_register is:
+    the question is asked on a date
+    and which person is entitled to register as a british citizen on the date.
+
+query entitled_to_naturalise is:
+    the question is asked on a date
+    and which person is entitled to naturalise as a british citizen on the date.
+
+query entitled_to_renounce is:
+    the question is asked on a date
+    and which person is entitled to renounce british citizenship on the date.
+
+query how is:
+    the question is asked on a date
+    and which person is a british citizen by which way under section which section on the date.
+
+% ======================================================================
+% Test cases. Each was also run on bna.pl (the SWI-Prolog conversion) with the
+% same facts; every person bna.pl names, this program names too (bnaRecovery.md, section 10).
+% entitled_to_renounce has no answers in bna.pl, which lost that question.
+% ======================================================================
+
+scenario birth_in_uk is:
+    the question is asked on 1990-01-01.
+    peter is born in London.
+    London is part of the UK.
+    peter is born on 1985-01-01.
+    john is the father of peter.
+    john is born on 1950-06-05.
+    john was a citizen of the UK and colonies on 1981-10-29.
+    john had the right of abode in the UK under the Immigration Act 1971 on 1981-10-29.
+    british_citizen expects answers ["the question is asked on 1990-01-01 and peter is a british citizen on 1990-01-01", "the question is asked on 1990-01-01 and john is a british citizen on 1990-01-01"].
+    british_citizen_by_descent expects answers [].
+    british_citizen_by_annulment_of_renunciation expects answers [].
+    entitled_to_register expects answers ["the question is asked on 1990-01-01 and peter is entitled to register as a british citizen on 1990-01-01"] and any unknowns.
+    entitled_to_naturalise expects answers [].
+    entitled_to_renounce expects answers ["the question is asked on 1990-01-01 and john is entitled to renounce british citizenship on 1990-01-01"].
+
+scenario foundling is:
+    the question is asked on 1990-01-01.
+    anna is found as an abandoned infant on 1984-05-01.
+    anna is found in the UK.
+    british_citizen expects answers ["the question is asked on 1990-01-01 and anna is a british citizen on 1990-01-01"].
+    british_citizen_by_descent expects answers [].
+    british_citizen_by_annulment_of_renunciation expects answers [].
+    entitled_to_register expects answers [].
+    entitled_to_naturalise expects answers [].
+    entitled_to_renounce expects answers ["the question is asked on 1990-01-01 and anna is entitled to renounce british citizenship on 1990-01-01"].
+
+scenario descent is:
+    the question is asked on 1990-01-01.
+    carl is born in France.
+    carl is born on 1986-03-03.
+    mary is the mother of carl.
+    mary is born in Leeds.
+    Leeds is part of the UK.
+    mary is born on 1955-02-02.
+    mary was a citizen of the UK and colonies on 1981-10-29.
+    mary had the right of abode in the UK under the Immigration Act 1971 on 1981-10-29.
+    british_citizen expects answers ["the question is asked on 1990-01-01 and carl is a british citizen on 1990-01-01", "the question is asked on 1990-01-01 and mary is a british citizen on 1990-01-01"].
+    british_citizen_by_descent expects answers ["the question is asked on 1990-01-01 and carl is a british citizen by descent on 1990-01-01"].
+    british_citizen_by_annulment_of_renunciation expects answers [].
+    entitled_to_register expects answers ["the question is asked on 1990-01-01 and carl is entitled to register as a british citizen on 1990-01-01"] and any unknowns.
+    entitled_to_naturalise expects answers [].
+    entitled_to_renounce expects answers ["the question is asked on 1990-01-01 and mary is entitled to renounce british citizenship on 1990-01-01"].
+
+scenario register_1_4 is:
+    the question is asked on 1994-01-01.
+    dora is born in Leeds.
+    Leeds is part of the UK.
+    dora is born on 1983-02-01.
+    dora made an application on 1993-06-01.
+    the case of dora is approved by the secretary of state on 1993-07-01.
+    dora was absent from the UK for 10 days from 1983-02-01 to 1984-02-01.
+    dora was absent from the UK for 10 days from 1984-02-01 to 1985-02-01.
+    dora was absent from the UK for 10 days from 1985-02-01 to 1986-02-01.
+    dora was absent from the UK for 10 days from 1986-02-01 to 1987-02-01.
+    dora was absent from the UK for 10 days from 1987-02-01 to 1988-02-01.
+    dora was absent from the UK for 10 days from 1988-02-01 to 1989-02-01.
+    dora was absent from the UK for 10 days from 1989-02-01 to 1990-02-01.
+    dora was absent from the UK for 10 days from 1990-02-01 to 1991-02-01.
+    dora was absent from the UK for 10 days from 1991-02-01 to 1992-02-01.
+    dora was absent from the UK for 10 days from 1992-02-01 to 1993-02-01.
+    british_citizen expects answers [].
+    british_citizen_by_descent expects answers [].
+    british_citizen_by_annulment_of_renunciation expects answers [].
+    entitled_to_register expects answers ["the question is asked on 1994-01-01 and dora is entitled to register as a british citizen on 1994-01-01"].
+    entitled_to_naturalise expects answers [].
+    entitled_to_renounce expects answers [].
+
+scenario naturalise is:
+    % bna.pl gives no answer to entitled_to_naturalise: it lost the rule approval-of-naturalisation-given-or-needed.
+    the question is asked on 1991-01-01.
+    eve is born on 1950-01-01.
+    eve made an application on 1990-01-01.
+    eve fulfils the requirements of schedule 1 for naturalisation.
+    the case of eve is approved by the secretary of state on 1990-06-01.
+    british_citizen expects answers [].
+    british_citizen_by_descent expects answers [].
+    british_citizen_by_annulment_of_renunciation expects answers [].
+    entitled_to_register expects answers [].
+    entitled_to_naturalise expects answers ["the question is asked on 1991-01-01 and eve is entitled to naturalise as a british citizen on 1991-01-01"].
+    entitled_to_renounce expects answers [].
+
+scenario renounce is:
+    the question is asked on 1990-01-01.
+    frank is born on 1940-04-04.
+    frank was a citizen of the UK and colonies on 1981-10-29.
+    frank had the right of abode in the UK under the Immigration Act 1971 on 1981-10-29.
+    british_citizen expects answers ["the question is asked on 1990-01-01 and frank is a british citizen on 1990-01-01"].
+    british_citizen_by_descent expects answers [].
+    british_citizen_by_annulment_of_renunciation expects answers [].
+    entitled_to_register expects answers [].
+    entitled_to_naturalise expects answers [].
+    entitled_to_renounce expects answers ["the question is asked on 1990-01-01 and frank is entitled to renounce british citizenship on 1990-01-01"].
+
+scenario annulment is:
+    the question is asked on 1990-01-01.
+    gina is born on 1950-01-01.
+    gina was a british citizen at some time before 1990-01-01.
+    gina made a declaration of renunciation on 1985-01-01.
+    the secretary of state has approved the renunciation of gina on 1985-01-01.
+    gina did not have any citizenship or nationality other than british citizenship on 1985-01-01.
+    gina did not acquire any citizenship or nationality from 1985-01-01 to 1985-07-01.
+    british_citizen expects answers [].
+    british_citizen_by_descent expects answers [].
+    british_citizen_by_annulment_of_renunciation expects answers ["the question is asked on 1990-01-01 and gina is a british citizen by annulment of renunciation on 1990-01-01"].
+    entitled_to_register expects answers [].
+    entitled_to_naturalise expects answers [].
+    entitled_to_renounce expects answers [].
+
+scenario resumption is:
+    the question is asked on 1990-01-01.
+    hal was a british citizen at some time before 1990-01-01.
+    hal renounced british citizenship before 1990-01-01.
+    hal made an application on 1989-01-01.
+    the case of hal is approved by the secretary of state on 1989-06-01.
+    british_citizen expects answers [].
+    british_citizen_by_descent expects answers [].
+    british_citizen_by_annulment_of_renunciation expects answers [].
+    entitled_to_register expects answers ["the question is asked on 1990-01-01 and hal is entitled to register as a british citizen on 1990-01-01"].
+    entitled_to_naturalise expects answers [].
+    entitled_to_renounce expects answers [].
+
+scenario nobody is:
+    the question is asked on 1990-01-01.
+    ivan is born on 1960-01-01.
+    british_citizen expects answers [].
+    british_citizen_by_descent expects answers [].
+    british_citizen_by_annulment_of_renunciation expects answers [].
+    entitled_to_register expects answers [].
+    entitled_to_naturalise expects answers [].
+    entitled_to_renounce expects answers [].
+
+scenario settled_parent is:
+    the question is asked on 1990-01-01.
+    rita is born in York.
+    York is part of the UK.
+    rita is born on 1986-01-01.
+    sara is the mother of rita.
+    sara is ordinarily resident in the UK on 1986-01-01.
+    sara is subject to no restriction on the period for which he may remain in the UK on 1986-01-01.
+    british_citizen expects answers ["the question is asked on 1990-01-01 and rita is a british citizen on 1990-01-01"].
+    british_citizen_by_descent expects answers [].
+    british_citizen_by_annulment_of_renunciation expects answers [].
+    entitled_to_register expects answers ["the question is asked on 1990-01-01 and rita is entitled to register as a british citizen on 1990-01-01"] and any unknowns.
+    entitled_to_naturalise expects answers [].
+    entitled_to_renounce expects answers [].
+
+scenario crown_service is:
+    % bna.pl also gives an answer naming no one, from a damaged clause; this program does not.
+    the question is asked on 1990-01-01.
+    carlo is born in Italy.
+    carlo is born on 1986-03-03.
+    paul is the father of carlo.
+    paul is born in Italy.
+    paul was working outside the UK on 1986-03-03.
+    paul was employed by the foreign office on 1986-03-03.
+    the foreign office is crown service under the UK government.
+    paul was recruited in the UK by the foreign office.
+    paul was a citizen of the UK and colonies on 1981-10-29.
+    paul had the right of abode in the UK under the Immigration Act 1971 on 1981-10-29.
+    british_citizen expects answers ["the question is asked on 1990-01-01 and carlo is a british citizen on 1990-01-01", "the question is asked on 1990-01-01 and paul is a british citizen on 1990-01-01"].
+    british_citizen_by_descent expects answers ["the question is asked on 1990-01-01 and carlo is a british citizen by descent on 1990-01-01"].
+    british_citizen_by_annulment_of_renunciation expects answers [].
+    entitled_to_register expects answers ["the question is asked on 1990-01-01 and carlo is entitled to register as a british citizen on 1990-01-01"] and any unknowns.
+    entitled_to_naturalise expects answers [].
+    entitled_to_renounce expects answers ["the question is asked on 1990-01-01 and paul is entitled to renounce british citizenship on 1990-01-01"].
+
+scenario adoption is:
+    % bna.pl gives no answer for kim: it lost the rule b-c-from, recovered here from inside a damaged record.
+    the question is asked on 1990-01-01.
+    kim is adopted as a minor by an order of a UK court on 1986-05-05.
+    lee is an adopter of kim.
+    lee is born on 1950-01-01.
+    lee was a citizen of the UK and colonies on 1981-10-29.
+    lee had the right of abode in the UK under the Immigration Act 1971 on 1981-10-29.
+    british_citizen expects answers ["the question is asked on 1990-01-01 and kim is a british citizen on 1990-01-01", "the question is asked on 1990-01-01 and lee is a british citizen on 1990-01-01"].
+    british_citizen_by_descent expects answers [].
+    british_citizen_by_annulment_of_renunciation expects answers [].
+    entitled_to_register expects answers [].
+    entitled_to_naturalise expects answers [].
+    entitled_to_renounce expects answers ["the question is asked on 1990-01-01 and kim is entitled to renounce british citizenship on 1990-01-01", "the question is asked on 1990-01-01 and lee is entitled to renounce british citizenship on 1990-01-01"].
+
+scenario descent_before_1983 is:
+    % bna.pl gives no answer to british_citizen_by_descent: it lost section 14(1)(b)(i), recovered here from inside a damaged record.
+    the question is asked on 1990-01-01.
+    olga is born in Kenya.
+    olga is born on 1960-01-01.
+    olga was a citizen of the UK and colonies under section 5 of the 1948 act on 1981-10-29.
+    olga was a citizen of the UK and colonies on 1981-10-29.
+    olga had the right of abode in the UK under the Immigration Act 1971 on 1981-10-29.
+    british_citizen expects answers ["the question is asked on 1990-01-01 and olga is a british citizen on 1990-01-01"].
+    british_citizen_by_descent expects answers ["the question is asked on 1990-01-01 and olga is a british citizen by descent on 1990-01-01"].
+    british_citizen_by_annulment_of_renunciation expects answers [].
+    entitled_to_register expects answers [].
+    entitled_to_naturalise expects answers [].
+    entitled_to_renounce expects answers ["the question is asked on 1990-01-01 and olga is entitled to renounce british citizenship on 1990-01-01"].
+
+scenario posthumous is:
+    the question is asked on 1990-01-01.
+    tom is born in York.
+    York is part of the UK.
+    tom is born on 1985-03-01.
+    sam is the father of tom.
+    sam is dead.
+    sam died on 1985-01-01.
+    sam was a citizen of the UK and colonies on 1981-10-29.
+    sam had the right of abode in the UK under the Immigration Act 1971 on 1981-10-29.
+    british_citizen expects answers ["the question is asked on 1990-01-01 and tom is a british citizen on 1990-01-01", "the question is asked on 1990-01-01 and sam is a british citizen on 1990-01-01"].
+    british_citizen_by_descent expects answers [].
+    british_citizen_by_annulment_of_renunciation expects answers [].
+    entitled_to_register expects answers ["the question is asked on 1990-01-01 and tom is entitled to register as a british citizen on 1990-01-01"] and any unknowns.
+    entitled_to_naturalise expects answers [].
+    entitled_to_renounce expects answers ["the question is asked on 1990-01-01 and sam is entitled to renounce british citizenship on 1990-01-01"].
