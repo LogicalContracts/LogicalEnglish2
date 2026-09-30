@@ -1,0 +1,234 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from module-3-examples.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the description of *a conviction* is *a text*.
+    the name of *a person* is *a text*.
+    the age of *a person* is *a number*.
+    the convictions of *a person* is *a list*.
+
+the templates are:
+    *a conviction* is spent.
+    *a person* is bankrupt.
+    the age category for *an age* is *a text*.
+    the letter grade for *a score* is *a text*.
+    the amount category for *an amount* is *a text*.
+    the person can vote for *an age* with *a boolean*.
+    the transaction needs review for *an amount* with *a boolean*.
+    the person is a minor for *an age*.
+    all *a numbers* are positive.
+    some number is negative for *a numbers*.
+    the numbers above threshold for *a numbers* with *a threshold* is *a list*.
+    the describe the list for *an items* is *a text*.
+    *a person* has an unspent conviction.
+    *a person* is eligible for the position.
+    the positive numbers is *a list*.
+    the mixed numbers is *a list*.
+    the empty list is *a list*.
+    the single item is *a list*.
+    the multiple items is *a list*.
+
+the knowledge base module_3_examples includes:
+
+the text of the source program is at "sources/module-3-examples.l4".
+
+the age category for an age N is a text if
+    N < 18
+    and the text is equal to "minor"
+    otherwise the text is equal to "adult".
+
+the letter grade for a score S is a text if
+    S >= 90
+    and the text is equal to "A"
+    otherwise S >= 80
+    and the text is equal to "B"
+    otherwise S >= 70
+    and the text is equal to "C"
+    otherwise S >= 60
+    and the text is equal to "D"
+    otherwise the text is equal to "F".
+
+the amount category for an amount N is a text if
+    N < 100
+    and the text is equal to "small"
+    otherwise N < 1000
+    and the text is equal to "medium"
+    otherwise the text is equal to "large".
+
+the person can vote for an age N with a boolean if
+    N >= 18
+    and true is equal to the boolean.
+
+the transaction needs review for an amount N with a boolean if
+    N > 10000
+    or true is equal to the boolean.
+
+the person is a minor for an age N if
+    it is not the case that N >= 18.
+
+all a numbers are positive if
+    for all cases in which
+        a number N is in the numbers
+        it is the case that
+            N > 0.
+
+some number is negative for a numbers if
+    a number N is in the numbers
+    and N < 0.
+
+the numbers above threshold for a numbers with a threshold T is a list L if
+    L is the list of each N such that
+        a number N is in the numbers
+        and N > T.
+
+the describe the list for an items is a text if
+    [] is equal to the items
+    and the text is equal to "no items"
+    otherwise prolog (the items=[T|N])
+    and [] is equal to N
+    and the text is equal to "one item"
+    otherwise prolog (the items=[M|K])
+    and the text is equal to "multiple items".
+
+a person has an unspent conviction if
+    the convictions of the person is a list
+    and a conviction is in the list
+    and it is not the case that the conviction is spent.
+
+a person is eligible for the position if
+    the age of the person is a number N
+    and N >= 21
+    and it is not the case that the person is bankrupt
+    and it is not the case that the person has an unspent conviction.
+
+the positive numbers is [1, 2, 3, 4, 5].
+
+the mixed numbers is [-1, 2, -3, 4].
+
+the empty list is [].
+
+the single item is ["apple"].
+
+the multiple items is ["apple", "banana", "cherry"].
+
+the description of spent_conviction is "Minor offense 2010".
+
+spent_conviction is spent.
+
+the description of unspent_conviction is "Fraud 2023".
+
+the name of eligible_person is "Alice".
+
+the age of eligible_person is 30.
+
+the convictions of eligible_person is [].
+
+the name of bankrupt_person is "Bob".
+
+the age of bankrupt_person is 35.
+
+bankrupt_person is bankrupt.
+
+the convictions of bankrupt_person is [].
+
+the name of person_with_unspent_conviction is "Charlie".
+
+the age of person_with_unspent_conviction is 40.
+
+the convictions of person_with_unspent_conviction is [unspent_conviction].
+
+the name of young_person is "Diana".
+
+the age of young_person is 19.
+
+the convictions of young_person is [].
+
+scenario line_157 is, as stated in the source program at line 157:
+    line_157 expects answers ["the age category for 16 is minor"].
+
+scenario line_158 is, as stated in the source program at line 158:
+    line_158 expects answers ["the age category for 25 is adult"].
+
+scenario line_159 is, as stated in the source program at line 159:
+    line_159 expects answers ["the letter grade for 85 is B"].
+
+scenario line_160 is, as stated in the source program at line 160:
+    line_160 expects answers ["the amount category for 50 is small"].
+
+scenario line_161 is, as stated in the source program at line 161:
+    line_161 expects answers ["the amount category for 500 is medium"].
+
+scenario line_162 is, as stated in the source program at line 162:
+    line_162 expects answers ["the amount category for 5000 is large"].
+
+scenario line_165 is, as stated in the source program at line 165:
+    line_165 expects answers ["the person can vote for 21 with true"].
+
+scenario line_166 is, as stated in the source program at line 166:
+    line_166 expects answers [].
+
+scenario line_167 is, as stated in the source program at line 167:
+    line_167 expects answers ["the person is a minor for 16"].
+
+scenario line_181 is, as stated in the source program at line 181:
+    line_181 expects answers ["eligible_person is eligible for the position"].
+
+scenario line_182 is, as stated in the source program at line 182:
+    line_182 expects answers [].
+
+scenario line_183 is, as stated in the source program at line 183:
+    line_183 expects answers [].
+
+scenario line_184 is, as stated in the source program at line 184:
+    line_184 expects answers [].
+
+query line_157 is:
+    the age category for 16 is which text.
+
+query line_158 is:
+    the age category for 25 is which text.
+
+query line_159 is:
+    the letter grade for 85 is which text.
+
+query line_160 is:
+    the amount category for 50 is which text.
+
+query line_161 is:
+    the amount category for 500 is which text.
+
+query line_162 is:
+    the amount category for 5000 is which text.
+
+query line_165 is:
+    the person can vote for 21 with true.
+
+query line_166 is:
+    the person can vote for 16 with true.
+
+query line_167 is:
+    the person is a minor for 16.
+
+query line_181 is:
+    eligible_person is eligible for the position.
+
+query line_182 is:
+    bankrupt_person is eligible for the position.
+
+query line_183 is:
+    person_with_unspent_conviction is eligible for the position.
+
+query line_184 is:
+    young_person is eligible for the position.
+

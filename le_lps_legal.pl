@@ -442,7 +442,7 @@ materialisation(F, Gs, T1) :-
 timeless_conds([], _, []).
 timeless_conds([holds(findall(E, Gs, L), T), Red|Rest], T1, [agg(Op, E, G, R)|Cs]) :-
     T == T1, nonvar(Red), Red =.. [Pred, L2, R], L2 == L,
-    memberchk(Pred-Op, [length-count, sum_list-sum, max_list-max, min_list-min, mean_list-average]),
+    memberchk(Pred-Op, [length-count, sum_list-sum, max_list-max, min_list-min, mean_list-average, (=)-list]),
     is_list(Gs), !,
     timeless_conds(Gs, T1, GCs),
     ( GCs == [] -> G = true ; conj_list(GCs, G) ),

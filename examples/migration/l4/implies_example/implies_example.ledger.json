@@ -1,0 +1,334 @@
+{
+  "counts": {"approximated":5,"encoded":31,"residue":0},
+  "entries": [
+    {
+      "element":"impliesVersion",
+      "in_program":"implies version for *a boolean* with *a second boolean*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"orVersion",
+      "in_program":"else version for *a value* with *a second value*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"chainedImpl",
+      "in_program":"chained impl for *a boolean* with *a second boolean* with *a third boolean*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"conjunctionImplies",
+      "in_program":"conjunction implies for *a boolean* with *a second boolean* with *a third boolean*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"impliesDisjunction",
+      "in_program":"implies disjunction for *a value* with *a second value* with *a third value*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"impliesVersion",
+      "in_program":"implies version for *a boolean* with *a second boolean*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"orVersion",
+      "in_program":"else version for *a value* with *a second value*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"isEmployee",
+      "in_program":"isEmployee",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"hasBadge",
+      "in_program":"hasBadge",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"badgeRule",
+      "in_program":"badge rule",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"personAge",
+      "in_program":"personAge",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"hasParentalConsent",
+      "in_program":"hasParentalConsent",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"consentRule",
+      "in_program":"consent rule",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"chainedImpl",
+      "in_program":"chained impl for *a boolean* with *a second boolean* with *a third boolean*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"conjunctionImplies",
+      "in_program":"conjunction implies for *a boolean* with *a second boolean* with *a third boolean*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"impliesDisjunction",
+      "in_program":"implies disjunction for *a value* with *a second value* with *a third value*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 5",
+      "in_program":"line_5",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 6",
+      "in_program":"line_6",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 7",
+      "in_program":"line_7",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 8",
+      "in_program":"line_8",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 12",
+      "in_program":"line_12",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 13",
+      "in_program":"line_13",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 14",
+      "in_program":"line_14",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 26",
+      "in_program":"line_26",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 27",
+      "in_program":"line_27",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 29",
+      "in_program":"line_29",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 30",
+      "in_program":"line_30",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 32",
+      "in_program":"line_32",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 33",
+      "in_program":"line_33",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 61",
+      "in_program":"line_61",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 62",
+      "in_program":"line_62",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 63",
+      "in_program":"line_63",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 77",
+      "in_program":"line_77",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 78",
+      "in_program":"line_78",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 79",
+      "in_program":"line_79",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 80",
+      "in_program":"line_80",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":24,
+    "tests": [
+      {"detail":"","query":"line_5","result":"pass","scenario":"line_5"},
+      {"detail":"","query":"line_6","result":"pass","scenario":"line_6"},
+      {"detail":"","query":"line_7","result":"pass","scenario":"line_7"},
+      {"detail":"","query":"line_8","result":"pass","scenario":"line_8"},
+      {"detail":"","query":"line_12","result":"pass","scenario":"line_12"},
+      {"detail":"","query":"line_13","result":"pass","scenario":"line_13"},
+      {"detail":"","query":"line_14","result":"pass","scenario":"line_14"},
+      {"detail":"","query":"line_26","result":"pass","scenario":"line_26"},
+      {"detail":"","query":"line_27","result":"pass","scenario":"line_27"},
+      {"detail":"","query":"line_29","result":"pass","scenario":"line_29"},
+      {"detail":"","query":"line_30","result":"pass","scenario":"line_30"},
+      {"detail":"","query":"line_32","result":"pass","scenario":"line_32"},
+      {"detail":"","query":"line_33","result":"pass","scenario":"line_33"},
+      {"detail":"","query":"line_61","result":"pass","scenario":"line_61"},
+      {"detail":"","query":"line_62","result":"pass","scenario":"line_62"},
+      {"detail":"","query":"line_63","result":"pass","scenario":"line_63"},
+      {"detail":"","query":"line_77","result":"pass","scenario":"line_77"},
+      {"detail":"","query":"line_78","result":"pass","scenario":"line_78"},
+      {"detail":"","query":"line_79","result":"pass","scenario":"line_79"},
+      {"detail":"","query":"line_80","result":"pass","scenario":"line_80"},
+      {"detail":"","query":"badge_rule","result":"pass","scenario":"variant_1"},
+      {"detail":"","query":"badge_rule","result":"pass","scenario":"variant_2"},
+      {"detail":"","query":"badge_rule","result":"pass","scenario":"variant_3"},
+      {"detail":"","query":"badge_rule","result":"pass","scenario":"variant_4"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["implies-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"implies_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":24
+}

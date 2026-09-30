@@ -78,6 +78,7 @@ aggregate,count,count,contagem,recuento|cuenta,compte|nombre,conteggio|conto
 aggregate,average,average,média,promedio|media,moyenne,media
 aggregate,min,minimum|min,mínimo|mín,mínimo|mín,minimum|min,minimo|min
 aggregate,max,maximum|max,máximo|máx,máximo|máx,maximum|max,massimo|max
+aggregate,list,list,lista,lista,liste,lista
 aggregate,is_the,is the,é a|é o,es la|es el,est la|est le,è la|è il
 aggregate,of_each,of each,de cada,de cada,de chaque,di ogni|di ciascun
 aggregate,such_that,such that,tal que|tais que,tal que|tales que,tel que|telle que|tels que,tale che|tali che

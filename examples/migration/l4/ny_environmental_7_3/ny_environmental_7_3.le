@@ -1,0 +1,180 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from ny-environmental-7.3.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the knowledge base ny_environmental_7_3 includes these resources:
+    l4_daydate.
+
+the functions are:
+    the name of *a commission* is *a text*.
+    the name of *a newspaper* is *a text*.
+    the general circulation area of *a newspaper* is *a text*.
+    the publish date of *a notice* is *a date*.
+    the scheduled date of *a notice* is *a date*.
+    the publishing medium of *a notice* is *a newspaper*.
+    the name of *an applicant* is *a text*.
+    the hearing notice of *a file draft copy of EIS as well as cause notice of hearing to be published* is *a notice*.
+    the notice of EIS completion of *a file draft copy of EIS as well as cause notice of hearing to be published* is *a notice*.
+    the prepared draft copy of EIS of *a file draft copy of EIS as well as cause notice of hearing to be published* is *an environmental impact statement*.
+    the proposed by of *an action that may have a significant adverse effect on the environment* is *an applicant*.
+    the lead agency of *an action that may have a significant adverse effect on the environment* is *a commission*.
+    the potential effect area of *an action that may have a significant adverse effect on the environment* is *a text*.
+    the EIS of *an action that may have a significant adverse effect on the environment* is *an environmental impact statement*.
+    the draft filing date of *an environmental impact statement* is *a date*.
+    the final filing date of *an environmental impact statement* is *a date*.
+    the closing date of *a proceeding record* is *a date*.
+    the action of *a tentative else recommended decision* is *an action that may have a significant adverse effect on the environment*.
+    the proceeding record of *a tentative else recommended decision* is *a proceeding record*.
+    the action of *a render decision on whether else not to approve action* is *an action that may have a significant adverse effect on the environment*.
+
+the templates are:
+    *a notice* is in accordance with the requirements of 6 NYCRR 617 10.
+    *an action that may have a significant adverse effect on the environment* has hearing required by statute.
+    *an action that may have a significant adverse effect on the environment* has been withdrawn.
+    *a tentative else recommended decision* has on the basis of the record of the proceeding including the draft EIS as well as any comments received thereon the administrative law judge issuing this decision determined that the action will not have a significant adverse effect on the environment.
+    the example filing is *a value*.
+    tentative else recommended decision will contain a final EIS for *a decision*.
+    the determining issuance for final EIS for *a decision* with *a cause for extension* is *a final EIS issuance*.
+    the determining days till issuance for final EIS for *a decision* with *a cause for extension* with *a days of extension* is *a number*.
+    notice of no significant adverse effect on the environment determination will be filed in accordance with 6 NYCRR 617 10 for *a decision*.
+    copies of *a decision* together with a notice of its completion will be filed in accordance with 6 NYCRR 617 10.
+    the never is *a number*.
+    the closing date for *a decision* is *a number*.
+
+the knowledge base ny_environmental_7_3 includes:
+
+the text of the source program is at "sources/ny-environmental-7.3.l4".
+
+section new york codes rules as well as regulations is:
+
+section title 16 DEPARTMENT OF PUBLIC SERVICE is:
+
+section chapter i RULES OF PROCEDURE is:
+
+section subchapter a GENERAL is:
+
+section part 7 implementation of state environmental quality review act is:
+
+section section 7 3 environmental review procedures is:
+
+section section 7 3 a is:
+
+% RESIDUE r1 BEGIN: Example Filing
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 99-101
+% a value with no LE form: (`Filing of draft copy of EIS and causing notice of hearing to be published` OF `Example Commission`, `Example Action`)
+%   l4:
+%   | `Example Filing` MEANS `Filing of draft copy of EIS and causing notice of hearing to be published`
+%   |                             `Example Commission`
+%   |                             `Example Action`
+% RESIDUE r1 END
+
+section section 7 3 b is:
+
+section section 7 3 b 1 is:
+
+tentative else recommended decision will contain a final EIS for a decision if
+    it is not the case that
+        the action of the decision is an action that may have a significant adverse effect on the environment
+        and the action that may have a significant adverse effect on the environment has been withdrawn
+    and it is not the case that the decision has on the basis of the record of the proceeding including the draft EIS as well as any comments received thereon the administrative law judge issuing this decision determined that the action will not have a significant adverse effect on the environment.
+
+section section 7 3 b 2 is:
+
+the determining issuance for final EIS for a decision with a cause for extension is a final EIS issuance if
+    it is not the case that tentative else recommended decision will contain a final EIS for the decision
+    and the final EIS issuance is equal to no_issuance
+    otherwise it is not the case that nothing is equal to the cause for extension
+    and the final EIS issuance is equal to issued_extended_beyond_45_days_of_the_close_of_the_record
+    otherwise the final EIS issuance is equal to issued_within_45_days_of_the_close_of_the_record.
+
+the closing date for a decision is a number N if
+    the closing date of the proceeding record of the decision is a date D
+    and N = D + 45.
+
+the determining days till issuance for final EIS for a decision with a cause for extension with a days of extension D is a number if
+    tentative else recommended decision will contain a final EIS for the decision
+    and the never is the number
+    otherwise it is not the case that nothing is equal to the cause for extension
+    and the closing date for the decision is a number N
+    and a date M = N + (45 + D)
+    and the day number of M is the number
+    otherwise the closing date for the decision is a third number
+    and the day number of the third number is the number.
+
+section section 7 3 b 3 is:
+
+notice of no significant adverse effect on the environment determination will be filed in accordance with 6 NYCRR 617 10 for a decision if
+    the decision has on the basis of the record of the proceeding including the draft EIS as well as any comments received thereon the administrative law judge issuing this decision determined that the action will not have a significant adverse effect on the environment.
+
+copies of a decision together with a notice of its completion will be filed in accordance with 6 NYCRR 617 10 if
+    tentative else recommended decision will contain a final EIS for the decision.
+
+section section 7 3 c is:
+
+the never is -1.
+
+the name of example_commission is "A commission".
+
+the draft filing date of example_eis is 2025-07-19.
+
+the name of applicant_1 is "An applicant".
+
+the proposed by of example_action is applicant_1.
+
+the lead agency of example_action is example_commission.
+
+the potential effect area of example_action is "Brooklyn".
+
+example_action has hearing required by statute.
+
+the EIS of example_action is example_eis.
+
+the name of example_newspaper is "New York Times".
+
+the general circulation area of example_newspaper is "Brooklyn".
+
+the publish date of example_hearing_notice is 2025-07-20.
+
+the scheduled date of example_hearing_notice is 2025-08-01.
+
+the publishing medium of example_hearing_notice is example_newspaper.
+
+example_hearing_notice is in accordance with the requirements of 6 NYCRR 617 10.
+
+the publish date of example_notice_of_eis_completion is 2025-07-20.
+
+the scheduled date of example_notice_of_eis_completion is 2025-08-08.
+
+the publishing medium of example_notice_of_eis_completion is example_newspaper.
+
+example_notice_of_eis_completion is in accordance with the requirements of 6 NYCRR 617 10.
+
+the closing date of example_proceeding_record is 2026-08-08.
+
+the action of example_decision is example_action.
+
+the proceeding record of example_decision is example_proceeding_record.
+
+example_decision has on the basis of the record of the proceeding including the draft EIS as well as any comments received thereon the administrative law judge issuing this decision determined that the action will not have a significant adverse effect on the environment.
+
+% The contracts of this file (Filing of draft copy of EIS and causing notice of hearing to be published, Rendering of the decision on whether or not to approve action proposed by applicant) are twins of their own, written by step 3 of
+% the L4 translator: in LE for LPS, run by LPS2 (LPS2's examples/migration/l4/ny_environmental_7_3/ny_environmental_7_3.le,
+% each #TRACE a scenario), and as a history view read over a finished history of
+% events (ny_environmental_7_3_history.le, beside this program).
+scenario line_160 is, as stated in the source program at line 160:
+    line_160 expects answers [].
+
+query line_160 is:
+    tentative else recommended decision will contain a final EIS for example_decision.
+

@@ -1,0 +1,366 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from british-citizen-act.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the english name of *a place* is *a text*.
+    the year of *a date* is *a number*.
+    the month of *a date* is *a number*.
+    the day of *a date* is *a number*.
+    the val of *a just* is *a thing*.
+    the mama of *a natural person* is *a maybe*.
+    the papa of *a natural person* is *a maybe*.
+    the birth place of *a natural person* is *a maybe*.
+    the birth date of *a natural person* is *a maybe*.
+
+the templates are:
+    *a maybe* is a just.
+    the mother of *a person* is *a second person*; scenario element.
+    the father of *a person* is *a second person*; scenario element.
+    *a person* is born in the united kingdom after commencement; scenario element.
+    *a person* is born in a qualifying territory after the appointed day; scenario element.
+    *a person* is settled in the united kingdom; scenario element.
+    *a person* is settled in the qualifying territory in what the person is born; scenario element.
+    *a place* is BOT.
+    qualifying territory for *a place*.
+    after for *a date* with *a second date*.
+    *a natural person* is born in UK.
+    *a natural person* is born in US.
+    after commencement for *a natural person*.
+    after appointed day for *a natural person*.
+    the plus for *a number* with *a second number* is *a third number*.
+    *a person* is a british citizen whether anything for *a boolean*.
+    *a person* is a british citizen local.
+    for father else mother of *a person* with *a property*.
+    *a person* is a british citizen variant.
+    father else mother for *a person* with *a property*.
+
+the knowledge base british_citizen_act includes:
+
+the text of the source program is at "sources/british-citizen-act.l4".
+
+section british citizen act is:
+
+section assumptions is:
+
+section improved readability version is:
+
+a place is BOT if
+    the english name of the place is "Anguilla"
+    or the english name of the place is "Bermuda"
+    or the english name of the place is "British Antarctic Territory"
+    or the english name of the place is "British Indian Ocean Territory"
+    or the english name of the place is "Cayman Islands"
+    or the english name of the place is "Falkland Islands"
+    or the english name of the place is "Gibraltar"
+    or the english name of the place is "Hong Kong"
+    or the english name of the place is "Montserrat"
+    or the english name of the place is "Pitcairn, Henderson, Ducie and Oeno Islands"
+    or the english name of the place is "St Helena, Ascension and Tristan da Cunha"
+    or the english name of the place is "Sovereign Base Areas of Akrotiri and Dhekelia"
+    or the english name of the place is "South Georgia and the South Sandwich Islands"
+    or the english name of the place is "Turks and Caicos Islands"
+    or the english name of the place is "Virgin Islands".
+
+qualifying territory for a place if
+    the place is BOT
+    and it is not the case that the english name of the place is "Sovereign Base Areas of Akrotiri and Dhekelia".
+
+after for a date with a second date if
+    the year of the second date is a number N
+    and the month of the second date is a number M
+    and the day of the second date is a number K
+    and the year of the date is a number P
+    and the month of the date is a number Q
+    and the day of the date is a number R
+    and (N - 1900) * 365 + M * 30 + K < (P - 1900) * 365 + Q * 30 + R.
+
+a natural person is born in UK if
+    the english name of the val of the birth place of the natural person is "UK".
+
+a natural person is born in US if
+    the english name of the val of the birth place of the natural person is "US".
+
+after commencement for a natural person if
+    after for the val of the birth date of the natural person with commencement.
+
+after appointed day for a natural person if
+    after for the val of the birth date of the natural person with appointed_day.
+
+the plus for a number N with a number M is a number K if
+    K = N + M.
+
+section expanded version is:
+
+a person is a british citizen whether anything for a boolean if
+    the person is born in the united kingdom after commencement
+    or the person is born in a qualifying territory after the appointed day
+    and the father of the person is a second person
+        and the second person is a british citizen whether anything for the boolean
+        or the mother of the person is a third person
+            and the third person is a british citizen whether anything for the boolean
+        or the father of the person is a fourth person
+            and the fourth person is settled in the united kingdom
+        or the mother of the person is a fifth person
+            and the fifth person is settled in the united kingdom
+        or the father of the person is a sixth person
+            and the sixth person is settled in the qualifying territory in what the person is born
+        or the mother of the person is a person P
+            and P is settled in the qualifying territory in what the person is born.
+
+section version using a local auxiliary declaration is:
+
+% RESIDUE r1 BEGIN: father or mother
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 137-137
+% a value with no LE form: (`property` OF (`father of` OF `p`))
+%   l4:
+%   |         `father or mother` property MEANS
+% RESIDUE r1 END
+
+% RESIDUE r2 BEGIN: is a British citizen (local)
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 127-139
+% a condition with no LE form: `is settled in the United Kingdom`
+%   l4:
+%   | GIVEN p IS A Person
+%   | GIVETH A BOOLEAN
+%   | DECIDE `is a British citizen (local)` IS
+%   |          `is born in the United Kingdom after commencement` p
+%   |       OR `is born in a qualifying territory after the appointed day` p
+%   |   AND -- when the person is born ...
+%   |          -- `father or mother` `is a British citizen if anything`
+%   |          `father or mother` `is settled in the United Kingdom`
+%   |       OR `father or mother` `is settled in the qualifying territory in which the person is born`
+%   |       WHERE
+%   |         `father or mother` property MEANS
+%   |              property OF `father of` p
+%   |           OR property OF `mother of` p
+% RESIDUE r2 END
+
+section version using a global auxiliary declaration is:
+
+% RESIDUE r3 BEGIN: for father or mother of
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 143-145
+% a value with no LE form: (`property` OF (`father of` OF `person`))
+%   l4:
+%   | `for father or mother of` person property MEANS
+%   |       property OF `father of` person
+%   |    OR property OF `mother of` person
+% RESIDUE r3 END
+
+% RESIDUE r4 BEGIN: is a British citizen (variant)
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 147-155
+% a condition with no LE form: `is a British citizen (variant)`
+%   l4:
+%   | GIVEN p IS A Person
+%   | GIVETH A BOOLEAN
+%   | DECIDE `is a British citizen (variant)` IS
+%   |          `is born in the United Kingdom after commencement` p
+%   |       OR `is born in a qualifying territory after the appointed day` p
+%   |   AND -- when the person is born ...
+%   |          `for father or mother of` p `is a British citizen (variant)`
+%   |       OR `for father or mother of` p `is settled in the United Kingdom`
+%   |       OR `for father or mother of` p `is settled in the qualifying territory in which the person is born`
+% RESIDUE r4 END
+
+the english name of british_overseas_territories_1 is "Anguilla".
+
+the english name of british_overseas_territories_2 is "Bermuda".
+
+the english name of british_overseas_territories_3 is "British Antarctic Territory".
+
+the english name of british_overseas_territories_4 is "British Indian Ocean Territory".
+
+the english name of british_overseas_territories_5 is "Cayman Islands".
+
+the english name of british_overseas_territories_6 is "Falkland Islands".
+
+the english name of british_overseas_territories_7 is "Gibraltar".
+
+the english name of british_overseas_territories_8 is "Hong Kong".
+
+the english name of british_overseas_territories_9 is "Montserrat".
+
+the english name of british_overseas_territories_10 is "Pitcairn, Henderson, Ducie and Oeno Islands".
+
+the english name of british_overseas_territories_11 is "St Helena, Ascension and Tristan da Cunha".
+
+the english name of british_overseas_territories_12 is "South Georgia and the South Sandwich Islands".
+
+the english name of british_overseas_territories_13 is "The Sovereign Base Areas of Akrotiri and Dhekelia".
+
+the english name of british_overseas_territories_14 is "Turks and Caicos Islands".
+
+the english name of british_overseas_territories_15 is "Virgin Islands".
+
+the english name of akdh is "Sovereign Base Areas of Akrotiri and Dhekelia".
+
+the year of commencement is 1983.
+
+the month of commencement is 1.
+
+the day of commencement is 1.
+
+the year of appointed_day is 2002.
+
+the month of appointed_day is 2.
+
+the day of appointed_day is 21.
+
+scenario line_57 is, as stated in the source program at line 57:
+    line_57 expects answers ["akdh is BOT"].
+
+scenario line_73 is, as stated in the source program at line 73:
+    the english name of place_1 is "Anguilla".
+    line_73 expects answers ["qualifying territory for place_1"].
+
+scenario variant_1 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    the mother of person1 is person1.
+    the father of person1 is person1.
+    person1 is born in the united kingdom after commencement.
+    person1 is born in a qualifying territory after the appointed day.
+    person1 is settled in the united kingdom.
+    person1 is settled in the qualifying territory in what the person is born.
+    % pending — waits for residue r2:
+    % is_a_british_citizen_local expects answers ["person1 is a british citizen local"].
+
+scenario variant_2 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    the mother of person1 is person1.
+    the father of person1 is person1.
+    person1 is born in the united kingdom after commencement.
+    person1 is born in a qualifying territory after the appointed day.
+    person1 is settled in the united kingdom.
+    % pending — waits for residue r2:
+    % is_a_british_citizen_local expects answers ["person1 is a british citizen local"].
+
+scenario variant_3 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    the mother of person1 is person1.
+    the father of person1 is person1.
+    person1 is born in the united kingdom after commencement.
+    person1 is born in a qualifying territory after the appointed day.
+    person1 is settled in the qualifying territory in what the person is born.
+    % pending — waits for residue r2:
+    % is_a_british_citizen_local expects answers ["person1 is a british citizen local"].
+
+scenario variant_4 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    the mother of person1 is person1.
+    the father of person1 is person1.
+    person1 is born in the united kingdom after commencement.
+    person1 is born in a qualifying territory after the appointed day.
+    % pending — waits for residue r2:
+    % is_a_british_citizen_local expects answers [].
+
+scenario variant_5 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    the mother of person1 is person1.
+    the father of person1 is person1.
+    person1 is born in a qualifying territory after the appointed day.
+    person1 is settled in the united kingdom.
+    person1 is settled in the qualifying territory in what the person is born.
+    % pending — waits for residue r2:
+    % is_a_british_citizen_local expects answers ["person1 is a british citizen local"].
+
+scenario variant_6 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    the mother of person1 is person1.
+    the father of person1 is person1.
+    person1 is born in a qualifying territory after the appointed day.
+    person1 is settled in the united kingdom.
+    % pending — waits for residue r2:
+    % is_a_british_citizen_local expects answers ["person1 is a british citizen local"].
+
+scenario variant_7 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    the mother of person1 is person1.
+    the father of person1 is person1.
+    person1 is born in a qualifying territory after the appointed day.
+    person1 is settled in the qualifying territory in what the person is born.
+    % pending — waits for residue r2:
+    % is_a_british_citizen_local expects answers ["person1 is a british citizen local"].
+
+scenario variant_8 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    the mother of person1 is person1.
+    the father of person1 is person1.
+    person1 is born in a qualifying territory after the appointed day.
+    % pending — waits for residue r2:
+    % is_a_british_citizen_local expects answers [].
+
+scenario variant_9 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    the mother of person1 is person1.
+    the father of person1 is person1.
+    person1 is born in the united kingdom after commencement.
+    person1 is settled in the united kingdom.
+    person1 is settled in the qualifying territory in what the person is born.
+    % pending — waits for residue r2:
+    % is_a_british_citizen_local expects answers ["person1 is a british citizen local"].
+
+scenario variant_10 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    the mother of person1 is person1.
+    the father of person1 is person1.
+    person1 is born in the united kingdom after commencement.
+    person1 is settled in the united kingdom.
+    % pending — waits for residue r2:
+    % is_a_british_citizen_local expects answers ["person1 is a british citizen local"].
+
+scenario variant_11 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    the mother of person1 is person1.
+    the father of person1 is person1.
+    person1 is born in the united kingdom after commencement.
+    person1 is settled in the qualifying territory in what the person is born.
+    % pending — waits for residue r2:
+    % is_a_british_citizen_local expects answers ["person1 is a british citizen local"].
+
+scenario variant_12 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    the mother of person1 is person1.
+    the father of person1 is person1.
+    person1 is born in the united kingdom after commencement.
+    % pending — waits for residue r2:
+    % is_a_british_citizen_local expects answers [].
+
+scenario variant_13 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    the mother of person1 is person1.
+    the father of person1 is person1.
+    person1 is settled in the united kingdom.
+    person1 is settled in the qualifying territory in what the person is born.
+    % pending — waits for residue r2:
+    % is_a_british_citizen_local expects answers [].
+
+scenario variant_14 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    the mother of person1 is person1.
+    the father of person1 is person1.
+    person1 is settled in the united kingdom.
+    % pending — waits for residue r2:
+    % is_a_british_citizen_local expects answers [].
+
+scenario variant_15 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    the mother of person1 is person1.
+    the father of person1 is person1.
+    person1 is settled in the qualifying territory in what the person is born.
+    % pending — waits for residue r2:
+    % is_a_british_citizen_local expects answers [].
+
+scenario variant_16 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    the mother of person1 is person1.
+    the father of person1 is person1.
+    % pending — waits for residue r2:
+    % is_a_british_citizen_local expects answers [].
+
+query line_57 is:
+    akdh is BOT.
+
+query line_73 is:
+    qualifying territory for place_1.
+
+query is_a_british_citizen_local is:
+    person1 is a british citizen local.
+

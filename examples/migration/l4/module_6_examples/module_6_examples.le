@@ -1,0 +1,201 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from module-6-examples.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the description of *an other purpose* is *a text*.
+    the reason of *a suspended* is *a text*.
+    the description of *a conviction* is *a text*.
+    the name of *a governor* is *a text*.
+    the age of *a governor* is *a number*.
+    the convictions of *a governor* is *a list*.
+    the name of *a registered charity* is *a text*.
+    the registration number of *a registered charity* is *a text*.
+    the status of *a registered charity* is *a status*.
+    the purposes of *a registered charity* is *a list*.
+    the governors of *a registered charity* is *a list*.
+
+the templates are:
+    *a purpose* is an other purpose.
+    *a status* is a suspended.
+    *a conviction* is spent.
+    *a governor* is bankrupt.
+    *a governor* is an adult.
+    *a governor* has a disqualifying conviction.
+    the person can be *a governor*.
+    *a purpose* is charitable.
+    *a charity* is valid.
+
+the knowledge base module_6_examples includes:
+
+the text of the source program is at "sources/module-6-examples.l4".
+
+a governor is an adult if
+    the age of the governor >= 18.
+
+a governor has a disqualifying conviction if
+    the convictions of the governor is a list
+    and a conviction is in the list
+    and it is not the case that the conviction is spent.
+
+the person can be a governor if
+    the governor is an adult
+    and it is not the case that the governor is bankrupt
+    and it is not the case that the governor has a disqualifying conviction.
+
+a purpose is charitable if
+    prevention_else_relief_of_poverty is equal to the purpose
+    otherwise advancement_of_education is equal to the purpose
+    otherwise advancement_of_religion is equal to the purpose
+    otherwise advancement_of_health is equal to the purpose
+    otherwise advancement_of_animal_welfare is equal to the purpose.
+
+a charity is valid if
+    the status of the charity is active
+    and it is not the case that
+        the purposes of the charity is a list
+        and [] is equal to the list
+    and the purposes of the charity is a second list
+    and for all cases in which
+        a purpose is in the second list
+        it is the case that
+            the purpose is charitable
+    and it is not the case that
+        the governors of the charity is a third list
+        and [] is equal to the third list
+    and the governors of the charity is a fourth list
+    and for all cases in which
+        a governor is in the fourth list
+        it is the case that
+            the person can be the governor.
+
+the name of jane_smith is "Jane Smith".
+
+the age of jane_smith is 45.
+
+the convictions of jane_smith is [].
+
+the name of john_doe_bankrupt is "John Doe".
+
+the age of john_doe_bankrupt is 50.
+
+john_doe_bankrupt is bankrupt.
+
+the convictions of john_doe_bankrupt is [].
+
+the description of unspent_conviction is "Fraud conviction 2020".
+
+the name of bob_jones_with_conviction is "Bob Jones".
+
+the age of bob_jones_with_conviction is 40.
+
+the convictions of bob_jones_with_conviction is [unspent_conviction].
+
+the name of young_person is "Young Person".
+
+the age of young_person is 16.
+
+the convictions of young_person is [].
+
+the name of jersey_animal_welfare is "Jersey Animal Welfare".
+
+the registration number of jersey_animal_welfare is "CH001".
+
+the status of jersey_animal_welfare is active.
+
+the purposes of jersey_animal_welfare is [advancement_of_animal_welfare, advancement_of_education].
+
+the governors of jersey_animal_welfare is [jane_smith].
+
+the name of problem_charity is "Problem Charity".
+
+the registration number of problem_charity is "CH002".
+
+the status of problem_charity is active.
+
+the purposes of problem_charity is [advancement_of_education].
+
+the governors of problem_charity is [john_doe_bankrupt].
+
+the name of suspended_charity is "Suspended Charity".
+
+the registration number of suspended_charity is "CH003".
+
+suspended_1 is a suspended.
+
+the reason of suspended_1 is "Financial irregularities".
+
+the status of suspended_charity is suspended_1.
+
+the purposes of suspended_charity is [advancement_of_health].
+
+the governors of suspended_charity is [jane_smith].
+
+% The contracts of this file (the annual return obligation, the correction period) are twins of their own, written by step 3 of
+% the L4 translator: in LE for LPS, run by LPS2 (LPS2's examples/migration/l4/module_6_examples/module_6_examples.le,
+% each #TRACE a scenario), and as a history view read over a finished history of
+% events (module_6_examples_history.le, beside this program).
+scenario line_162 is, as stated in the source program at line 162:
+    line_162 expects answers ["jane_smith is an adult"].
+
+scenario line_163 is, as stated in the source program at line 163:
+    line_163 expects answers [].
+
+scenario line_164 is, as stated in the source program at line 164:
+    line_164 expects answers ["the person can be jane_smith"].
+
+scenario line_165 is, as stated in the source program at line 165:
+    line_165 expects answers [].
+
+scenario line_166 is, as stated in the source program at line 166:
+    line_166 expects answers [].
+
+scenario line_167 is, as stated in the source program at line 167:
+    line_167 expects answers [].
+
+scenario line_170 is, as stated in the source program at line 170:
+    line_170 expects answers ["jersey_animal_welfare is valid"].
+
+scenario line_171 is, as stated in the source program at line 171:
+    line_171 expects answers [].
+
+scenario line_172 is, as stated in the source program at line 172:
+    line_172 expects answers [].
+
+query line_162 is:
+    jane_smith is an adult.
+
+query line_163 is:
+    young_person is an adult.
+
+query line_164 is:
+    the person can be jane_smith.
+
+query line_165 is:
+    the person can be john_doe_bankrupt.
+
+query line_166 is:
+    the person can be bob_jones_with_conviction.
+
+query line_167 is:
+    the person can be young_person.
+
+query line_170 is:
+    jersey_animal_welfare is valid.
+
+query line_171 is:
+    problem_charity is valid.
+
+query line_172 is:
+    suspended_charity is valid.
+

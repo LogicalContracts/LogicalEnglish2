@@ -1,0 +1,97 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from a-an-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the balance of *an account* is *a number*.
+    the holder of *an account* is *a text*.
+    the person name of *a person* is *a text*.
+    the person age of *a person* is *a number*.
+    the effective date of *a contract* is *a number*.
+    the amount of *a contract* is *a number*.
+
+the templates are:
+    the age is *a number*; scenario element.
+    the name is *a text*; scenario element.
+    employed; scenario element.
+    the double for *a number* is *a second number*.
+    the my account is *an account*; scenario element.
+    the get balance for *an acc* is *a value*.
+    the johns name is *a value*.
+    the johns age is *a value*.
+    the name via genitive is *a value*.
+    the agreement is *a contract*; scenario element.
+    the contract date is *a value*.
+    the contract amount is *a value*.
+    L4's answer at line 14 is reproduced.
+    L4's answer at line 45 is reproduced.
+
+the knowledge base a_an_example includes:
+
+the text of the source program is at "sources/a-an-example.l4".
+
+the double for a number N is a number M if
+    M = N * 2.
+
+the get balance for an acc is the balance of the acc.
+
+the johns name is the person name of john.
+
+the johns age is the person age of john.
+
+the name via genitive is the person name of john.
+
+the contract date is the effective date of a contract if
+    the agreement is the contract.
+
+the contract amount is the amount of a contract if
+    the agreement is the contract.
+
+L4's answer at line 14 is reproduced if
+    the double for 21 is a number N
+    and N * 100000000 >= 4199999999
+    and N * 100000000 <= 4200000001.
+
+L4's answer at line 45 is reproduced if
+    the johns age is a value V
+    and V * 100000000 >= 2999999999
+    and V * 100000000 <= 3000000001.
+
+the person name of john is "John".
+
+the person age of john is 30.
+
+scenario line_14 is, as stated in the source program at line 14:
+    line_14 expects answers ["L4's answer at line 14 is reproduced"].
+
+scenario line_44 is, as stated in the source program at line 44:
+    line_44 expects answers ["the johns name is John"].
+
+scenario line_45 is, as stated in the source program at line 45:
+    line_45 expects answers ["L4's answer at line 45 is reproduced"].
+
+scenario line_52 is, as stated in the source program at line 52:
+    line_52 expects answers ["the name via genitive is John"].
+
+query line_14 is:
+    L4's answer at line 14 is reproduced.
+
+query line_44 is:
+    the johns name is which value.
+
+query line_45 is:
+    L4's answer at line 45 is reproduced.
+
+query line_52 is:
+    the name via genitive is which value.
+

@@ -1334,7 +1334,7 @@ aggregate_head(Ctx, St, Op, E, R, T) :-
     format(atom(T), '~w ~w ~w ~w ~w ~w', [RT, IsThe, OpW, OfEach, ET, SuchThat]).
 
 agg_key(sum, sum). agg_key(count, count). agg_key(average, average).
-agg_key(min, min). agg_key(max, max).
+agg_key(min, min). agg_key(max, max). agg_key(list, list).
 
 write_nodes(Nodes, Indent, Last) :-
     length(Nodes, N),
@@ -1615,7 +1615,30 @@ id_vars(Term, Vs) :-
     %  Without this, "the price of the cup > 10" came out as "the price of C".
     mask_functions(Term, Masked),
     id_walk(Masked, [], Vs0),
-    list_to_set_eq(Vs0, Vs).
+    prolog_first_vars(Term, PVs),
+    append(Vs0, PVs, Vs1),
+    list_to_set_eq(Vs1, Vs).
+
+%   A variable first met inside a `prolog` goal (a list taken apart:
+%   `prolog (the list=[H|T])`) is new there, and `the <name>` would read as
+%   one already met: it is written as an id, which LE reads anywhere.
+prolog_first_vars(Term, Vs) :-
+    pf_walk(Term, [], _, [], Vs0), reverse(Vs0, Vs).
+
+pf_walk(T, S0, S, V0, V) :- var(T), !,
+    ( memberchk_eq(T, S0) -> S = S0 ; S = [T|S0] ), V = V0.
+pf_walk(T, S0, S, V0, V) :- compound(T), ( T = prolog(G) ; T = prolog_call(G) ), !,
+    term_variables(G, GVs),
+    not_met(GVs, S0, New),
+    append(New, S0, S), append(New, V0, V).
+pf_walk(T, S0, S, V0, V) :- compound(T), !,
+    T =.. [_|Args], foldl(pf_walk2, Args, S0-V0, S-V).
+pf_walk(_, S, S, V, V).
+
+pf_walk2(A, S0-V0, S-V) :- pf_walk(A, S0, S, V0, V).
+
+not_met([], _, []).
+not_met([X|Xs], S, New) :- ( memberchk_eq(X, S) -> New = New1 ; New = [X|New1] ), not_met(Xs, S, New1).
 
 mask_functions(T, T) :- var(T), !.
 mask_functions(T, '$masked') :- T = '$function'(_, _), !.
@@ -2026,10 +2049,9 @@ render_constant(X, T) :-
 render_constant(X, T) :- string(X), !, render_string(X, T).
 render_constant(X, T) :- is_list(X), !,
     maplist(list_element_text, X, Ts),
-    %  in an expected answer, a list as LE writes one in its answers
-    %  (le_kbs:render_list_value/3: `[bob carol]`); elsewhere, as it is read
-    ( nb_current(le_writer_answer, true) -> Sep = ' ' ; Sep = ', ' ),
-    atomic_list_concat(Ts, Sep, In),
+    %  as it is read, and as LE writes one in its answers
+    %  (le_kbs:render_list_value/3: `[bob, carol]`)
+    atomic_list_concat(Ts, ', ', In),
     format(atom(T), '[~w]', [In]).
 render_constant(X, T) :- atom(X), !,
     (   bare_atom_ok(X) -> T = X
@@ -2059,6 +2081,8 @@ render_number(X, T) :- float(X), nb_current(le_writer_answer, true),
 render_number(X, T) :- float(X), !,
     (   X =:= float_integer_part(X), abs(X) < 1.0e15
     ->  format(atom(T0), '~1f', [X])
+    ;   format(atom(T1), '~w', [X]), \+ sub_atom(T1, _, _, _, e)
+    ->  T0 = T1     % the shortest digits that read back as X (2256.46, not 2256.460000000000036)
     ;   format(atom(T1), '~15f', [X]), strip_zeros(T1, T0)
     ),
     localized_decimal(T0, T).
@@ -2945,6 +2969,8 @@ prolog_body(aggregate_all(count, G, R), agg(count, E, G1, R)) :- !,
 prolog_body(aggregate_all(sum(E), G, R), agg(sum, E, G1, R)) :- !, prolog_body(G, G1).
 prolog_body(aggregate_all(max(E), G, R), agg(max, E, G1, R)) :- !, prolog_body(G, G1).
 prolog_body(aggregate_all(min(E), G, R), agg(min, E, G1, R)) :- !, prolog_body(G, G1).
+prolog_body(aggregate_all(bag(E), G, R), agg(list, E, G1, R)) :- !, prolog_body(G, G1).
+prolog_body(findall(E, G, R), agg(list, E, G1, R)) :- !, prolog_body(G, G1).
 prolog_body(member(X, L), le_is_in(X, L)) :- !.
 prolog_body(X = Y, le_equal_to(X, Y)) :- !.
 prolog_body(X \= Y, le_not_equal_to(X, Y)) :- !.

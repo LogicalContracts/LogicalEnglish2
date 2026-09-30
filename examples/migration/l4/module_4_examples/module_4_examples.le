@@ -1,0 +1,469 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from module-4-examples.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the name of *a person* is *a text*.
+    the age of *a person* is *a number*.
+    the citizenship of *a person* is *a text*.
+    the annual income of *a person* is *a number*.
+
+the templates are:
+    *a person* has criminal record.
+    the person is an adult for *an age*.
+    the person is eligible to vote for *an age* with *a boolean*.
+    *an age* qualifies for senior discount.
+    the person is a student for *an age* with *a boolean*.
+    *an income* qualifies for exemption.
+    the tax bracket for *an income* is *a text*.
+    the income category for *an income* is *a text*.
+    the tax owed for *a gross income* with *a tax rate* is *a number*.
+    the income tax owed for *an income* is *a number*.
+    the net income for *a gross income* with *an expenses* is *a number*.
+    *an applicant* is eligible for benefit.
+    the taxpayers bracket for *a taxpayer* is *a text*.
+    the loan is approved for *an income* with *a credit score* with *a loan amount*.
+    the annual premium for *an insured age* with *a coverage amount* with *a boolean* is *a number*.
+    the late payment penalty for *a principal amount* with *a days overdue* is *a number*.
+    *a years as tenant* qualifies for lease renewal for *a late payments* with *a current rent* with *a market rent*.
+    the standard deduction is *a number*.
+    the taxable income for *a gross income* is *a number*.
+    the tax on first bracket for *an income* is *a number*.
+    the tax on second bracket for *an income* is *a number*.
+    the tax on third bracket for *an income* is *a number*.
+    the amount in first bracket for *an income* is *a value*.
+    the amount in second bracket for *an income* is *a number*.
+    the amount in third bracket for *an income* is *a number*.
+    the standard deduction for *a gross income* is *a number*.
+    the calculated deduction for *a gross income* is *a number*.
+    the total deductions for *an expenses* with *a gross income* is *a number*.
+    *an applicant* is a qualifying resident.
+    *an applicant* is of age.
+    *an applicant* meets income threshold.
+    *an applicant* is disqualified.
+    income requirement is met for *an income* with *a loan amount*.
+    credit score is sufficient for *a credit score*.
+    debt to income ratio is acceptable for *an income* with *a loan amount*.
+    the base premium for *a coverage amount* is *a number*.
+    the age factor for *an insured age* is *a number*.
+    the smoking factor for *a boolean* is *a number*.
+    tenant is in good standing for *a late payments* with *a years as tenant*.
+    rent is at market rate for *a current rent* with *a market rent*.
+    L4's answer at line 279 is reproduced.
+    L4's answer at line 280 is reproduced.
+    L4's answer at line 281 is reproduced.
+    L4's answer at line 294 is reproduced.
+    L4's answer at line 295 is reproduced.
+    L4's answer at line 298 is reproduced.
+    L4's answer at line 299 is reproduced.
+
+the knowledge base module_4_examples includes:
+
+the text of the source program is at "sources/module-4-examples.l4".
+
+the person is an adult for an age N if
+    N >= 18.
+
+the person is eligible to vote for an age N with a boolean if
+    N >= 18
+    and true is equal to the boolean.
+
+an age N qualifies for senior discount if
+    N >= 65.
+
+the person is a student for an age N with a boolean if
+    N >= 16
+    and N <= 25
+    and true is equal to the boolean.
+
+an income N qualifies for exemption if
+    N < 10000.
+
+the tax bracket for an income N is a text if
+    N < 10000
+    and the text is equal to "exempt"
+    otherwise N < 50000
+    and the text is equal to "standard"
+    otherwise the text is equal to "higher rate".
+
+the income category for an income N is a text if
+    N < 20000
+    and the text is equal to "low"
+    otherwise N < 80000
+    and the text is equal to "medium"
+    otherwise the text is equal to "high".
+
+the standard deduction is 12000.
+
+the taxable income for a gross income G is a number N if
+    the standard deduction is a number M
+    and G > M
+    and the standard deduction is a number K
+    and N = G - K
+    otherwise N is equal to 0.
+
+the tax owed for a gross income with a tax rate T is a number N if
+    the taxable income for the gross income is a number M
+    and N = M * T.
+
+the tax on first bracket for an income is a number N if
+    the amount in first bracket for the income is a value V
+    and N = V * 0.1.
+
+the tax on second bracket for an income is a number N if
+    the amount in second bracket for the income is a number M
+    and N = M * 0.2.
+
+the tax on third bracket for an income is a number N if
+    the amount in third bracket for the income is a number M
+    and N = M * 0.3.
+
+the amount in first bracket for an income N is a value if
+    N <= 10000
+    and the value is equal to N
+    otherwise the value is equal to 10000.
+
+the amount in second bracket for an income N is a number M if
+    N <= 10000
+    and M is equal to 0
+    otherwise N <= 50000
+    and M = N - 10000
+    otherwise M is equal to 40000.
+
+the amount in third bracket for an income N is a number M if
+    N <= 50000
+    and M is equal to 0
+    otherwise M = N - 50000.
+
+the income tax owed for an income is a number N if
+    the tax on first bracket for the income is a number M
+    and the tax on second bracket for the income is a number K
+    and the tax on third bracket for the income is a number P
+    and N = M + K + P.
+
+the standard deduction for a gross income is a number if
+    the calculated deduction for the gross income is a number N
+    and N >= 1000
+    and the calculated deduction for the gross income is the number
+    otherwise the number is equal to 1000.
+
+the calculated deduction for a gross income G is a number N if
+    N = G * 0.1.
+
+the total deductions for an expenses E with a gross income is a number N if
+    the standard deduction for the gross income is a number M
+    and N = M + E.
+
+the net income for a gross income G with an expenses is a number N if
+    the total deductions for the expenses with G is a number M
+    and N = G - M.
+
+an applicant is a qualifying resident if
+    the citizenship of the applicant is "citizen".
+
+an applicant is of age if
+    the age of the applicant >= 21
+    and the age of the applicant < 65.
+
+an applicant meets income threshold if
+    the annual income of the applicant < 30000.
+
+an applicant is disqualified if
+    the applicant has criminal record.
+
+an applicant is eligible for benefit if
+    the applicant is a qualifying resident
+    and the applicant is of age
+    and the applicant meets income threshold
+    and it is not the case that the applicant is disqualified.
+
+the taxpayers bracket for a taxpayer is a text if
+    the annual income of the taxpayer is a number N
+    and N < 10000
+    and the text is equal to "exempt"
+    otherwise the annual income of the taxpayer is a number M
+    and M < 50000
+    and the text is equal to "standard"
+    otherwise the annual income of the taxpayer is a number K
+    and K < 100000
+    and the text is equal to "higher"
+    otherwise the text is equal to "top rate".
+
+income requirement is met for an income N with a loan amount L if
+    N >= L * 0.3.
+
+credit score is sufficient for a credit score C if
+    C >= 650.
+
+debt to income ratio is acceptable for an income N with a loan amount L if
+    L <= N * 4.
+
+the loan is approved for an income with a credit score with a loan amount if
+    income requirement is met for the income with the loan amount
+    and credit score is sufficient for the credit score
+    and debt to income ratio is acceptable for the income with the loan amount.
+
+the base premium for a coverage amount C is a number N if
+    N = C * 0.001.
+
+the age factor for an insured age N is a number if
+    N < 30
+    and the number is equal to 1.0
+    otherwise N < 50
+    and the number is equal to 1.5
+    otherwise the number is equal to 2.0.
+
+the smoking factor for a boolean is a number if
+    true is equal to the boolean
+    and the number is equal to 1.5
+    otherwise the number is equal to 1.0.
+
+the annual premium for an insured age with a coverage amount with a boolean is a number N if
+    the base premium for the coverage amount is a number M
+    and the age factor for the insured age is a number K
+    and the smoking factor for the boolean is a number P
+    and N = M * K * P.
+
+the late payment penalty for a principal amount P with a days overdue D is a number N if
+    D <= 0
+    and N is equal to 0
+    otherwise D <= 30
+    and N = P * 0.02
+    otherwise N = P * 0.05.
+
+tenant is in good standing for a late payments with a years as tenant Y if
+    Y >= 1
+    and 0 is equal to the late payments.
+
+rent is at market rate for a rent R with a market rent M if
+    R >= M * 0.9.
+
+a years as tenant qualifies for lease renewal for a late payments with a rent with a market rent if
+    tenant is in good standing for the late payments with the years as tenant
+    and rent is at market rate for the rent with the market rent.
+
+L4's answer at line 279 is reproduced if
+    the tax owed for 50000 with 0.2 is a number N
+    and N * 1000000 >= 7599999999
+    and N * 1000000 <= 7600000001.
+
+L4's answer at line 280 is reproduced if
+    the income tax owed for 75000 is a number N
+    and N * 100000 >= 1649999999
+    and N * 100000 <= 1650000001.
+
+L4's answer at line 281 is reproduced if
+    the net income for 100000 with 15000 is a number N
+    and N * 100000 >= 7499999999
+    and N * 100000 <= 7500000001.
+
+L4's answer at line 294 is reproduced if
+    the annual premium for 35 with 100000 with false is a number N
+    and N * 10000000 >= 1499999999
+    and N * 10000000 <= 1500000001.
+
+L4's answer at line 295 is reproduced if
+    the annual premium for 35 with 100000 with true is a number N
+    and N * 10000000 >= 2249999999
+    and N * 10000000 <= 2250000001.
+
+L4's answer at line 298 is reproduced if
+    the late payment penalty for 1000 with 15 is a number N
+    and N * 100000000 >= 1999999999
+    and N * 100000000 <= 2000000001.
+
+L4's answer at line 299 is reproduced if
+    the late payment penalty for 1000 with 45 is a number N
+    and N * 100000000 >= 4999999999
+    and N * 100000000 <= 5000000001.
+
+the name of test_person_eligible is "Alice".
+
+the age of test_person_eligible is 25.
+
+the citizenship of test_person_eligible is "citizen".
+
+the annual income of test_person_eligible is 25000.
+
+the name of test_person_ineligible_age is "Bob".
+
+the age of test_person_ineligible_age is 17.
+
+the citizenship of test_person_ineligible_age is "citizen".
+
+the annual income of test_person_ineligible_age is 20000.
+
+the name of test_person_ineligible_citizenship is "Carol".
+
+the age of test_person_ineligible_citizenship is 30.
+
+the citizenship of test_person_ineligible_citizenship is "permanent resident".
+
+the annual income of test_person_ineligible_citizenship is 20000.
+
+the name of test_person_ineligible_income is "David".
+
+the age of test_person_ineligible_income is 30.
+
+the citizenship of test_person_ineligible_income is "citizen".
+
+the annual income of test_person_ineligible_income is 50000.
+
+the name of test_person_disqualified is "Eve".
+
+the age of test_person_disqualified is 30.
+
+the citizenship of test_person_disqualified is "citizen".
+
+the annual income of test_person_disqualified is 20000.
+
+test_person_disqualified has criminal record.
+
+scenario line_271 is, as stated in the source program at line 271:
+    line_271 expects answers ["the person is an adult for 21"].
+
+scenario line_272 is, as stated in the source program at line 272:
+    line_272 expects answers [].
+
+scenario line_273 is, as stated in the source program at line 273:
+    line_273 expects answers ["the person is eligible to vote for 25 with true"].
+
+scenario line_274 is, as stated in the source program at line 274:
+    line_274 expects answers [].
+
+scenario line_275 is, as stated in the source program at line 275:
+    line_275 expects answers ["70 qualifies for senior discount"].
+
+scenario line_276 is, as stated in the source program at line 276:
+    line_276 expects answers [].
+
+scenario line_279 is, as stated in the source program at line 279:
+    line_279 expects answers ["L4's answer at line 279 is reproduced"].
+
+scenario line_280 is, as stated in the source program at line 280:
+    line_280 expects answers ["L4's answer at line 280 is reproduced"].
+
+scenario line_281 is, as stated in the source program at line 281:
+    line_281 expects answers ["L4's answer at line 281 is reproduced"].
+
+scenario line_284 is, as stated in the source program at line 284:
+    line_284 expects answers ["test_person_eligible is eligible for benefit"].
+
+scenario line_285 is, as stated in the source program at line 285:
+    line_285 expects answers [].
+
+scenario line_286 is, as stated in the source program at line 286:
+    line_286 expects answers [].
+
+scenario line_287 is, as stated in the source program at line 287:
+    line_287 expects answers [].
+
+scenario line_288 is, as stated in the source program at line 288:
+    line_288 expects answers [].
+
+scenario line_289 is, as stated in the source program at line 289:
+    line_289 expects answers ["the taxpayers bracket for test_person_eligible is standard"].
+
+scenario line_292 is, as stated in the source program at line 292:
+    line_292 expects answers ["the loan is approved for 60000 with 700 with 200000"].
+
+scenario line_293 is, as stated in the source program at line 293:
+    line_293 expects answers [].
+
+scenario line_294 is, as stated in the source program at line 294:
+    line_294 expects answers ["L4's answer at line 294 is reproduced"].
+
+scenario line_295 is, as stated in the source program at line 295:
+    line_295 expects answers ["L4's answer at line 295 is reproduced"].
+
+scenario line_298 is, as stated in the source program at line 298:
+    line_298 expects answers ["L4's answer at line 298 is reproduced"].
+
+scenario line_299 is, as stated in the source program at line 299:
+    line_299 expects answers ["L4's answer at line 299 is reproduced"].
+
+scenario line_300 is, as stated in the source program at line 300:
+    line_300 expects answers ["2 qualifies for lease renewal for 0 with 1800 with 2000"].
+
+scenario line_301 is, as stated in the source program at line 301:
+    line_301 expects answers [].
+
+query line_271 is:
+    the person is an adult for 21.
+
+query line_272 is:
+    the person is an adult for 16.
+
+query line_273 is:
+    the person is eligible to vote for 25 with true.
+
+query line_274 is:
+    the person is eligible to vote for 16 with true.
+
+query line_275 is:
+    70 qualifies for senior discount.
+
+query line_276 is:
+    50 qualifies for senior discount.
+
+query line_279 is:
+    L4's answer at line 279 is reproduced.
+
+query line_280 is:
+    L4's answer at line 280 is reproduced.
+
+query line_281 is:
+    L4's answer at line 281 is reproduced.
+
+query line_284 is:
+    test_person_eligible is eligible for benefit.
+
+query line_285 is:
+    test_person_ineligible_age is eligible for benefit.
+
+query line_286 is:
+    test_person_ineligible_citizenship is eligible for benefit.
+
+query line_287 is:
+    test_person_ineligible_income is eligible for benefit.
+
+query line_288 is:
+    test_person_disqualified is eligible for benefit.
+
+query line_289 is:
+    the taxpayers bracket for test_person_eligible is which text.
+
+query line_292 is:
+    the loan is approved for 60000 with 700 with 200000.
+
+query line_293 is:
+    the loan is approved for 40000 with 700 with 200000.
+
+query line_294 is:
+    L4's answer at line 294 is reproduced.
+
+query line_295 is:
+    L4's answer at line 295 is reproduced.
+
+query line_298 is:
+    L4's answer at line 298 is reproduced.
+
+query line_299 is:
+    L4's answer at line 299 is reproduced.
+
+query line_300 is:
+    2 qualifies for lease renewal for 0 with 1800 with 2000.
+
+query line_301 is:
+    2 qualifies for lease renewal for 3 with 1800 with 2000.
+

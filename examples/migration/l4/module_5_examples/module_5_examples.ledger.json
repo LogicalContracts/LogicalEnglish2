@@ -1,0 +1,144 @@
+{
+  "counts": {"approximated":0,"encoded":10,"residue":6},
+  "entries": [
+    {
+      "element":"Contract Party",
+      "in_program":"Contract Party",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Sale Action",
+      "in_program":"Sale Action",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Spouse",
+      "in_program":"Spouse",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Vow",
+      "in_program":"Vow",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the delivery obligation",
+      "in_program":"the delivery obligation",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"the inspection right",
+      "in_program":"the inspection right",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"the complete sale contract",
+      "in_program":"the complete sale contract",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"the payment with late fee",
+      "in_program":"the payment with late fee",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"the wedding ceremony",
+      "in_program":"the wedding ceremony",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"the fidelity clause",
+      "in_program":"the fidelity clause",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"the complete sale contract",
+      "in_program":"the complete sale contract",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the delivery obligation",
+      "in_program":"the delivery obligation",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the fidelity clause",
+      "in_program":"the fidelity clause",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the inspection right",
+      "in_program":"the inspection right",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the payment with late fee",
+      "in_program":"the payment with late fee",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the wedding ceremony",
+      "in_program":"the wedding ceremony",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity":null,
+  "meta": {
+    "artifacts": ["module-5-examples.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"module_5_examples",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":0
+}

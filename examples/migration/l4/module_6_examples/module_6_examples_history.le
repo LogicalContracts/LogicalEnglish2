@@ -1,0 +1,348 @@
+% module-6-examples.l4: the history view
+%
+% The timeless Logical English twin of the contracts of an L4 file (module-6-examples.l4), written
+% by the L4 translator (docs/migration/l4.md, step 3): the contracts read over a finished
+% history of events. For each obligation the program says when it starts, its deadline
+% and which events meet it, and four rules say how it ends: met, missed, or still
+% open when the history stops. The same obligations, in the same words, as the LE for LPS twin in LPS2's
+% examples/migration/l4/; each scenario expects what that twin's run ended with, which
+% agrees with L4's evaluator.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    something happens on day *a day*.
+    an obligation can start on day *a day*.
+    the obligation that the annual return obligation obliges *a party* to file the annual return by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that the annual return obligation obliges *a party* to file the annual return by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that the annual return obligation obliges *a party* to file the annual return by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that the annual return obligation obliges *a party* to file the annual return by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that the annual return obligation obliges *a party* to file the annual return by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that the annual return obligation obliges *a party* to file the annual return by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that the annual return obligation obliges *a party* to file the annual return by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that the annual return obligation obliges *a party* to file the annual return by day *a due day* as its first obligation is still open.
+    the obligation that the annual return obligation obliges *a party* to issue a required steps notice by day *a due day* as its second obligation starts on day *a day*; memorable.
+    the obligation that the annual return obligation obliges *a party* to issue a required steps notice by day *a due day* as its second obligation has deadline day *a day*.
+    the obligation that the annual return obligation obliges *a party* to issue a required steps notice by day *a due day* as its second obligation is met on day *a day*.
+    the obligation that the annual return obligation obliges *a party* to issue a required steps notice by day *a due day* as its second obligation ends on day *a day*; memorable.
+    the obligation that the annual return obligation obliges *a party* to issue a required steps notice by day *a due day* as its second obligation is missed on day *a day*.
+    the deadline of the obligation that the annual return obligation obliges *a party* to issue a required steps notice by day *a due day* as its second obligation has passed on day *a day*; memorable.
+    the obligation that the annual return obligation obliges *a party* to issue a required steps notice by day *a due day* as its second obligation is pending since day *a day*.
+    the obligation that the annual return obligation obliges *a party* to issue a required steps notice by day *a due day* as its second obligation is still open.
+    the obligation that the correction period obliges *a party* to correct the deficiencies by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that the correction period obliges *a party* to correct the deficiencies by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that the correction period obliges *a party* to correct the deficiencies by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that the correction period obliges *a party* to correct the deficiencies by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that the correction period obliges *a party* to correct the deficiencies by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that the correction period obliges *a party* to correct the deficiencies by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that the correction period obliges *a party* to correct the deficiencies by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that the correction period obliges *a party* to correct the deficiencies by day *a due day* as its first obligation is still open.
+    the contract the annual return obligation starts on day *a day* with charity *a charity*; scenario element.
+    the charity status of *a registered charity* is *a value*.
+    the charity name of *a registered charity* is *a value*.
+    the registration number of *a registered charity* is *a value*.
+    the charity purposes of *a registered charity* is *a value*.
+    the governor name of *a governor* is *a value*.
+    the governor age of *a governor* is *a value*.
+    the governor is bankrupt of *a governor* is *a value*.
+    the governor convictions of *a governor* is *a value*.
+    the description of *a conviction* is *a value*.
+    the conviction is spent of *a conviction* is *a value*.
+    the charity governors of *a registered charity* is *a value*.
+    the annual return obligation obliges *a party* to file the annual return by day *a due day* as its first obligation.
+    the contract is fulfilled.
+    *a party* does file the annual return on day *a day*; scenario element.
+    *a party* does something on day *a day*.
+    the clock reaches day *a day*; scenario element.
+    *a party* does issue a required steps notice on day *a day*; scenario element.
+    *a party* does correct the deficiencies on day *a day*; scenario element.
+    the annual return obligation obliges *a party* to issue a required steps notice by day *a due day* as its second obligation.
+    the correction period obliges *a party* to correct the deficiencies by day *a due day* as its first obligation.
+    the contract is breached by *a party* because *a reason*.
+
+the knowledge base module_6_examples_history includes:
+
+the text of "the L4 source module-6-examples.l4" is at "sources/module-6-examples.l4".
+
+the charity name of suspended_charity is "Suspended Charity".
+
+the registration number of suspended_charity is "CH003".
+
+the charity status of suspended_charity is suspended.
+
+the charity purposes of suspended_charity is [advancement_of_health].
+
+the governor name of young_person is "Young Person".
+
+the governor age of young_person is 16.
+
+the governor is bankrupt of young_person is false.
+
+the governor convictions of young_person is [].
+
+the governor name of "bob_jones_(with_conviction)" is "Bob Jones".
+
+the governor age of "bob_jones_(with_conviction)" is 40.
+
+the governor is bankrupt of "bob_jones_(with_conviction)" is false.
+
+the description of unspent_conviction is "Fraud conviction 2020".
+
+the conviction is spent of unspent_conviction is false.
+
+the governor convictions of "bob_jones_(with_conviction)" is [unspent_conviction].
+
+the governor name of "john_doe_(bankrupt)" is "John Doe".
+
+the governor age of "john_doe_(bankrupt)" is 50.
+
+the governor is bankrupt of "john_doe_(bankrupt)" is true.
+
+the governor convictions of "john_doe_(bankrupt)" is [].
+
+the governor name of jane_smith is "Jane Smith".
+
+the governor age of jane_smith is 45.
+
+the governor is bankrupt of jane_smith is false.
+
+the governor convictions of jane_smith is [].
+
+the charity governors of suspended_charity is [jane_smith].
+
+the charity name of problem_charity is "Problem Charity".
+
+the registration number of problem_charity is "CH002".
+
+the charity status of problem_charity is active.
+
+the charity purposes of problem_charity is [advancement_of_education].
+
+the charity governors of problem_charity is ["john_doe_(bankrupt)"].
+
+the charity name of jersey_animal_welfare is "Jersey Animal Welfare".
+
+the registration number of jersey_animal_welfare is "CH001".
+
+the charity status of jersey_animal_welfare is active.
+
+the charity purposes of jersey_animal_welfare is [advancement_of_animal_welfare, advancement_of_education].
+
+the charity governors of jersey_animal_welfare is [jane_smith].
+
+something happens on day a day if
+    a party does file the annual return on day the day.
+
+something happens on day a day if
+    the clock reaches day the day.
+
+something happens on day a day if
+    a party does issue a required steps notice on day the day.
+
+something happens on day a day if
+    a party does correct the deficiencies on day the day.
+
+an obligation can start on day a day if
+    something happens on day the day.
+
+a party does something on day a day if
+    the party does file the annual return on day the day.
+
+a party does something on day a day if
+    the party does issue a required steps notice on day the day.
+
+a party does something on day a day if
+    the party does correct the deficiencies on day the day.
+
+an obligation can start on day a day if
+    the contract the annual return obligation starts on day the day with charity a charity.
+
+the obligation that the annual return obligation obliges the_charity to file the annual return by day a due day D as its first obligation starts on day a day N if
+    the contract the annual return obligation starts on day N with charity a charity
+    and the charity status of the charity is a value
+    and the value is equal to active
+    and D = N + 60.
+
+the contract is fulfilled if
+    the contract the annual return obligation starts on day a day with charity a charity
+    and the charity status of the charity is a value
+    and it is not the case that the value is equal to active.
+
+the obligation that the annual return obligation obliges a party to file the annual return by day a due day D as its first obligation is met on day a day N if
+    the party does file the annual return on day N
+    and the obligation that the annual return obligation obliges the party to file the annual return by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that the annual return obligation obliges a party to file the annual return by day a due day as its first obligation ends on day a day
+    and the party does file the annual return on day the day.
+
+the obligation that the annual return obligation obliges the_commissioner to issue a required steps notice by day a due day D as its second obligation starts on day a day N if
+    the obligation that the annual return obligation obliges a party to file the annual return by day a second due day as its first obligation is missed on day N
+    and D = N + 14.
+
+the obligation that the annual return obligation obliges a party to file the annual return by day a due day as its first obligation has deadline day the due day if
+    the obligation that the annual return obligation obliges the party to file the annual return by day the due day as its first obligation starts on day a day.
+
+the obligation that the annual return obligation obliges a party to issue a required steps notice by day a due day D as its second obligation is met on day a day N if
+    the party does issue a required steps notice on day N
+    and the obligation that the annual return obligation obliges the party to issue a required steps notice by day D as its second obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that the correction period obliges the_charity to correct the deficiencies by day a due day D as its first obligation starts on day a day N if
+    the obligation that the annual return obligation obliges a party to issue a required steps notice by day a second due day as its second obligation ends on day N
+    and the party does issue a required steps notice on day N
+    and D = N + 30.
+
+the contract is breached by the_commissioner because "failed to issue notice" if
+    the obligation that the annual return obligation obliges a party to issue a required steps notice by day a due day as its second obligation is missed on day a day.
+
+the obligation that the annual return obligation obliges a party to issue a required steps notice by day a due day as its second obligation has deadline day the due day if
+    the obligation that the annual return obligation obliges the party to issue a required steps notice by day the due day as its second obligation starts on day a day.
+
+the obligation that the correction period obliges a party to correct the deficiencies by day a due day D as its first obligation is met on day a day N if
+    the party does correct the deficiencies on day N
+    and the obligation that the correction period obliges the party to correct the deficiencies by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that the correction period obliges a party to correct the deficiencies by day a due day as its first obligation ends on day a day
+    and the party does correct the deficiencies on day the day.
+
+the contract is breached by the_charity because "failed to correct after notice" if
+    the obligation that the correction period obliges a party to correct the deficiencies by day a due day as its first obligation is missed on day a day.
+
+the obligation that the correction period obliges a party to correct the deficiencies by day a due day as its first obligation has deadline day the due day if
+    the obligation that the correction period obliges the party to correct the deficiencies by day the due day as its first obligation starts on day a day.
+
+the deadline of the obligation that the annual return obligation obliges a party to file the annual return by day a due day as its first obligation has passed on day a day D if
+    the obligation that the annual return obligation obliges the party to file the annual return by day the due day as its first obligation starts on day a day N
+    and the obligation that the annual return obligation obliges the party to file the annual return by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that the annual return obligation obliges a party to file the annual return by day a due day as its first obligation ends on day a day D if
+    the obligation that the annual return obligation obliges the party to file the annual return by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that the annual return obligation obliges the party to file the annual return by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that the annual return obligation obliges a party to file the annual return by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that the annual return obligation obliges the party to file the annual return by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that the annual return obligation obliges the party to file the annual return by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that the annual return obligation obliges the party to file the annual return by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that the annual return obligation obliges a party to file the annual return by day a due day as its first obligation is pending since day a day if
+    the obligation that the annual return obligation obliges the party to file the annual return by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that the annual return obligation obliges the party to file the annual return by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that the annual return obligation obliges the party to file the annual return by day the due day as its first obligation is missed on day a third day.
+
+the obligation that the annual return obligation obliges a party to file the annual return by day a due day as its first obligation is still open if
+    the obligation that the annual return obligation obliges the party to file the annual return by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that the annual return obligation obliges a party to issue a required steps notice by day a due day as its second obligation has passed on day a day D if
+    the obligation that the annual return obligation obliges the party to issue a required steps notice by day the due day as its second obligation starts on day a day N
+    and the obligation that the annual return obligation obliges the party to issue a required steps notice by day the due day as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that the annual return obligation obliges a party to issue a required steps notice by day a due day as its second obligation ends on day a day D if
+    the obligation that the annual return obligation obliges the party to issue a required steps notice by day the due day as its second obligation is met on day D
+    and it is not the case that
+        the obligation that the annual return obligation obliges the party to issue a required steps notice by day the due day as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that the annual return obligation obliges a party to issue a required steps notice by day a due day as its second obligation is missed on day a day D if
+    the deadline of the obligation that the annual return obligation obliges the party to issue a required steps notice by day the due day as its second obligation has passed on day D
+    and it is not the case that the obligation that the annual return obligation obliges the party to issue a required steps notice by day the due day as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that the annual return obligation obliges the party to issue a required steps notice by day the due day as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that the annual return obligation obliges a party to issue a required steps notice by day a due day as its second obligation is pending since day a day if
+    the obligation that the annual return obligation obliges the party to issue a required steps notice by day the due day as its second obligation starts on day the day
+    and it is not the case that the obligation that the annual return obligation obliges the party to issue a required steps notice by day the due day as its second obligation ends on day a second day
+    and it is not the case that the obligation that the annual return obligation obliges the party to issue a required steps notice by day the due day as its second obligation is missed on day a third day.
+
+the obligation that the annual return obligation obliges a party to issue a required steps notice by day a due day as its second obligation is still open if
+    the obligation that the annual return obligation obliges the party to issue a required steps notice by day the due day as its second obligation is pending since day a day.
+
+the deadline of the obligation that the correction period obliges a party to correct the deficiencies by day a due day as its first obligation has passed on day a day D if
+    the obligation that the correction period obliges the party to correct the deficiencies by day the due day as its first obligation starts on day a day N
+    and the obligation that the correction period obliges the party to correct the deficiencies by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that the correction period obliges a party to correct the deficiencies by day a due day as its first obligation ends on day a day D if
+    the obligation that the correction period obliges the party to correct the deficiencies by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that the correction period obliges the party to correct the deficiencies by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that the correction period obliges a party to correct the deficiencies by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that the correction period obliges the party to correct the deficiencies by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that the correction period obliges the party to correct the deficiencies by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that the correction period obliges the party to correct the deficiencies by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that the correction period obliges a party to correct the deficiencies by day a due day as its first obligation is pending since day a day if
+    the obligation that the correction period obliges the party to correct the deficiencies by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that the correction period obliges the party to correct the deficiencies by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that the correction period obliges the party to correct the deficiencies by day the due day as its first obligation is missed on day a third day.
+
+the obligation that the correction period obliges a party to correct the deficiencies by day a due day as its first obligation is still open if
+    the obligation that the correction period obliges the party to correct the deficiencies by day the due day as its first obligation is pending since day a day.
+
+scenario trace_177 is:
+    % #TRACE (`the annual return obligation` OF `Jersey Animal Welfare`) (line 177) of the L4 source
+    the contract the annual return obligation starts on day 0 with charity jersey_animal_welfare.
+    the_charity does file the annual return on day 30.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_181 is:
+    % #TRACE (`the annual return obligation` OF `Suspended Charity`) (line 181) of the L4 source
+    the contract the annual return obligation starts on day 0 with charity suspended_charity.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_184 is:
+    % #TRACE (`the annual return obligation` OF `Jersey Animal Welfare`) (line 184) of the L4 source
+    the contract the annual return obligation starts on day 0 with charity jersey_animal_welfare.
+    the_commissioner does issue a required steps notice on day 70.
+    the_charity does correct the deficiencies on day 90.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_because expects answers ["the contract is breached by the_commissioner because failed to issue notice"].
+
+query fulfilled is:
+    the contract is fulfilled.
+
+query q_the_contract_is_breached_by_because is:
+    the contract is breached by which party because which reason.
+
+query q_open_o_the_annual_return_obligation_1 is:
+    the obligation that the annual return obligation obliges which party to file the annual return by day which due day as its first obligation is still open.
+
+query q_open_o_the_annual_return_obligation_2 is:
+    the obligation that the annual return obligation obliges which party to issue a required steps notice by day which due day as its second obligation is still open.
+
+query q_open_o_the_correction_period_1 is:
+    the obligation that the correction period obliges which party to correct the deficiencies by day which due day as its first obligation is still open.
+

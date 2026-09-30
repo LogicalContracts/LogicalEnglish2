@@ -1,0 +1,770 @@
+% party-example.l4: the history view
+%
+% The timeless Logical English twin of the contracts of an L4 file (party-example.l4), written
+% by the L4 translator (docs/migration/l4.md, step 3): the contracts read over a finished
+% history of events. For each obligation the program says when it starts, its deadline
+% and which events meet it, and four rules say how it ends: met, missed, or still
+% open when the history stops. The same obligations, in the same words, as the LE for LPS twin in LPS2's
+% examples/migration/l4/; each scenario expects what that twin's run ended with, which
+% agrees with L4's evaluator.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    something happens on day *a day*.
+    an obligation can start on day *a day*.
+    the obligation that payment obligation obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that payment obligation obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that payment obligation obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that payment obligation obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that payment obligation obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that payment obligation obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that payment obligation obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that payment obligation obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation is still open.
+    the obligation that early termination right permits *a party* to vacate premises by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that early termination right permits *a party* to vacate premises by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that early termination right permits *a party* to vacate premises by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that early termination right permits *a party* to vacate premises by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that early termination right permits *a party* to vacate premises by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that early termination right permits *a party* to vacate premises by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that early termination right permits *a party* to vacate premises by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that early termination right permits *a party* to vacate premises by day *a due day* as its first obligation is still open.
+    the obligation that confidentiality obligation forbids *a party* to disclose confidential information by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that confidentiality obligation forbids *a party* to disclose confidential information by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that confidentiality obligation forbids *a party* to disclose confidential information by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that confidentiality obligation forbids *a party* to disclose confidential information by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that confidentiality obligation forbids *a party* to disclose confidential information by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that confidentiality obligation forbids *a party* to disclose confidential information by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that confidentiality obligation forbids *a party* to disclose confidential information by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that confidentiality obligation forbids *a party* to disclose confidential information by day *a due day* as its first obligation is still open.
+    the obligation that payment with penalty clause obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that payment with penalty clause obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that payment with penalty clause obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that payment with penalty clause obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that payment with penalty clause obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that payment with penalty clause obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that payment with penalty clause obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that payment with penalty clause obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation is still open.
+    the obligation that purchase and delivery contract obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that purchase and delivery contract obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that purchase and delivery contract obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that purchase and delivery contract obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that purchase and delivery contract obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that purchase and delivery contract obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that purchase and delivery contract obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that purchase and delivery contract obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation is still open.
+    the obligation that service agreement obliges *a party* to sign document with document name *a document name* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that service agreement obliges *a party* to sign document with document name *a document name* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that service agreement obliges *a party* to sign document with document name *a document name* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that service agreement obliges *a party* to sign document with document name *a document name* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that service agreement obliges *a party* to sign document with document name *a document name* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that service agreement obliges *a party* to sign document with document name *a document name* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that service agreement obliges *a party* to sign document with document name *a document name* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that service agreement obliges *a party* to sign document with document name *a document name* by day *a due day* as its first obligation is still open.
+    the obligation that payment with penalty clause obliges *a party* to make payment with amount *an amount* by day *a due day* as its second obligation starts on day *a day*; memorable.
+    the obligation that payment with penalty clause obliges *a party* to make payment with amount *an amount* by day *a due day* as its second obligation has deadline day *a day*.
+    the obligation that payment with penalty clause obliges *a party* to make payment with amount *an amount* by day *a due day* as its second obligation is met on day *a day*.
+    the obligation that payment with penalty clause obliges *a party* to make payment with amount *an amount* by day *a due day* as its second obligation ends on day *a day*; memorable.
+    the obligation that payment with penalty clause obliges *a party* to make payment with amount *an amount* by day *a due day* as its second obligation is missed on day *a day*.
+    the deadline of the obligation that payment with penalty clause obliges *a party* to make payment with amount *an amount* by day *a due day* as its second obligation has passed on day *a day*; memorable.
+    the obligation that payment with penalty clause obliges *a party* to make payment with amount *an amount* by day *a due day* as its second obligation is pending since day *a day*.
+    the obligation that payment with penalty clause obliges *a party* to make payment with amount *an amount* by day *a due day* as its second obligation is still open.
+    the obligation that purchase and delivery contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation starts on day *a day*; memorable.
+    the obligation that purchase and delivery contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation has deadline day *a day*.
+    the obligation that purchase and delivery contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation is met on day *a day*.
+    the obligation that purchase and delivery contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation ends on day *a day*; memorable.
+    the obligation that purchase and delivery contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation is missed on day *a day*.
+    the deadline of the obligation that purchase and delivery contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation has passed on day *a day*; memorable.
+    the obligation that purchase and delivery contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation is pending since day *a day*.
+    the obligation that purchase and delivery contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation is still open.
+    the obligation that service agreement obliges *a party* to provide services by day *a due day* as its second obligation starts on day *a day*; memorable.
+    the obligation that service agreement obliges *a party* to provide services by day *a due day* as its second obligation has deadline day *a day*.
+    the obligation that service agreement obliges *a party* to provide services by day *a due day* as its second obligation is met on day *a day*.
+    the obligation that service agreement obliges *a party* to provide services by day *a due day* as its second obligation ends on day *a day*; memorable.
+    the obligation that service agreement obliges *a party* to provide services by day *a due day* as its second obligation is missed on day *a day*.
+    the deadline of the obligation that service agreement obliges *a party* to provide services by day *a due day* as its second obligation has passed on day *a day*; memorable.
+    the obligation that service agreement obliges *a party* to provide services by day *a due day* as its second obligation is pending since day *a day*.
+    the obligation that service agreement obliges *a party* to provide services by day *a due day* as its second obligation is still open.
+    the obligation that service agreement obliges *a party* to make payment with amount *an amount* by day *a due day* as its third obligation starts on day *a day*; memorable.
+    the obligation that service agreement obliges *a party* to make payment with amount *an amount* by day *a due day* as its third obligation has deadline day *a day*.
+    the obligation that service agreement obliges *a party* to make payment with amount *an amount* by day *a due day* as its third obligation is met on day *a day*.
+    the obligation that service agreement obliges *a party* to make payment with amount *an amount* by day *a due day* as its third obligation ends on day *a day*; memorable.
+    the obligation that service agreement obliges *a party* to make payment with amount *an amount* by day *a due day* as its third obligation is missed on day *a day*.
+    the deadline of the obligation that service agreement obliges *a party* to make payment with amount *an amount* by day *a due day* as its third obligation has passed on day *a day*; memorable.
+    the obligation that service agreement obliges *a party* to make payment with amount *an amount* by day *a due day* as its third obligation is pending since day *a day*.
+    the obligation that service agreement obliges *a party* to make payment with amount *an amount* by day *a due day* as its third obligation is still open.
+    the contract payment obligation starts on day *a day*; scenario element.
+    payment obligation obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation.
+    *a party* does make payment with amount *an amount* on day *a day*; scenario element.
+    *a party* does something on day *a day*.
+    the clock reaches day *a day*; scenario element.
+    the contract early termination right starts on day *a day*; scenario element.
+    early termination right permits *a party* to vacate premises by day *a due day* as its first obligation.
+    *a party* does vacate premises on day *a day*; scenario element.
+    the contract confidentiality obligation starts on day *a day*; scenario element.
+    confidentiality obligation forbids *a party* to disclose confidential information by day *a due day* as its first obligation.
+    the contract payment with penalty clause starts on day *a day*; scenario element.
+    payment with penalty clause obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation.
+    the contract purchase and delivery contract starts on day *a day*; scenario element.
+    purchase and delivery contract obliges *a party* to make payment with amount *an amount* by day *a due day* as its first obligation.
+    *a party* does deliver goods with description *a description* on day *a day*; scenario element.
+    the contract service agreement starts on day *a day*; scenario element.
+    service agreement obliges *a party* to sign document with document name *a document name* by day *a due day* as its first obligation.
+    *a party* does sign document with document name *a document name* on day *a day*; scenario element.
+    *a party* does provide services on day *a day*; scenario element.
+    the contract is fulfilled.
+    the contract is breached by *a party* missing the deadline of day *a deadline*.
+    *a party* does disclose confidential information on day *a day*; scenario element.
+    the contract is breached by *a party* doing what was forbidden on day *a day*.
+    payment with penalty clause obliges *a party* to make payment with amount *an amount* by day *a due day* as its second obligation.
+    purchase and delivery contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation.
+    service agreement obliges *a party* to provide services by day *a due day* as its second obligation.
+    the contract is breached.
+    service agreement obliges *a party* to make payment with amount *an amount* by day *a due day* as its third obligation.
+
+the knowledge base party_example_history includes:
+
+the text of "the L4 source party-example.l4" is at "sources/party-example.l4".
+
+something happens on day a day if
+    a party does make payment with amount an amount on day the day.
+
+something happens on day a day if
+    the clock reaches day the day.
+
+something happens on day a day if
+    a party does vacate premises on day the day.
+
+something happens on day a day if
+    a party does deliver goods with description a description on day the day.
+
+something happens on day a day if
+    a party does sign document with document name a document name on day the day.
+
+something happens on day a day if
+    a party does provide services on day the day.
+
+something happens on day a day if
+    a party does disclose confidential information on day the day.
+
+an obligation can start on day a day if
+    something happens on day the day.
+
+a party does something on day a day if
+    the party does make payment with amount an amount on day the day.
+
+a party does something on day a day if
+    the party does vacate premises on day the day.
+
+a party does something on day a day if
+    the party does deliver goods with description a description on day the day.
+
+a party does something on day a day if
+    the party does sign document with document name a document name on day the day.
+
+a party does something on day a day if
+    the party does provide services on day the day.
+
+a party does something on day a day if
+    the party does disclose confidential information on day the day.
+
+an obligation can start on day a day if
+    the contract payment obligation starts on day the day.
+
+the obligation that payment obligation obliges the_borrower to make payment with amount 5000 by day a due day D as its first obligation starts on day a day N if
+    the contract payment obligation starts on day N
+    and D = N + 30.
+
+an obligation can start on day a day if
+    the contract early termination right starts on day the day.
+
+the obligation that early termination right permits the_tenant to vacate premises by day a due day D as its first obligation starts on day a day N if
+    the contract early termination right starts on day N
+    and D = N + 60.
+
+an obligation can start on day a day if
+    the contract confidentiality obligation starts on day the day.
+
+the obligation that confidentiality obligation forbids the_employee to disclose confidential information by day a due day D as its first obligation starts on day a day N if
+    the contract confidentiality obligation starts on day N
+    and D = N + 730.
+
+an obligation can start on day a day if
+    the contract payment with penalty clause starts on day the day.
+
+the obligation that payment with penalty clause obliges the_borrower to make payment with amount 1000 by day a due day D as its first obligation starts on day a day N if
+    the contract payment with penalty clause starts on day N
+    and D = N + 30.
+
+an obligation can start on day a day if
+    the contract purchase and delivery contract starts on day the day.
+
+the obligation that purchase and delivery contract obliges the_buyer to make payment with amount 5000 by day a due day D as its first obligation starts on day a day N if
+    the contract purchase and delivery contract starts on day N
+    and D = N + 7.
+
+an obligation can start on day a day if
+    the contract service agreement starts on day the day.
+
+the obligation that service agreement obliges the_employee to sign document with document name "employment contract" by day a due day D as its first obligation starts on day a day N if
+    the contract service agreement starts on day N
+    and D = N + 7.
+
+the obligation that payment obligation obliges a party to make payment with amount an amount by day a due day D as its first obligation is met on day a day N if
+    the party does make payment with amount the amount on day N
+    and the obligation that payment obligation obliges the party to make payment with amount the amount by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that payment obligation obliges a party to make payment with amount an amount by day a due day as its first obligation ends on day a day
+    and the party does make payment with amount the amount on day the day.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that payment obligation obliges the party to make payment with amount an amount by day the deadline as its first obligation is missed on day a day.
+
+the obligation that payment obligation obliges a party to make payment with amount an amount by day a due day as its first obligation has deadline day the due day if
+    the obligation that payment obligation obliges the party to make payment with amount the amount by day the due day as its first obligation starts on day a day.
+
+the obligation that early termination right permits a party to vacate premises by day a due day D as its first obligation is met on day a day N if
+    the party does vacate premises on day N
+    and the obligation that early termination right permits the party to vacate premises by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that early termination right permits a party to vacate premises by day a due day as its first obligation ends on day a day
+    and the party does vacate premises on day the day.
+
+the contract is fulfilled if
+    the obligation that early termination right permits a party to vacate premises by day a due day as its first obligation is missed on day a day.
+
+the obligation that early termination right permits a party to vacate premises by day a due day as its first obligation has deadline day the due day if
+    the obligation that early termination right permits the party to vacate premises by day the due day as its first obligation starts on day a day.
+
+the obligation that confidentiality obligation forbids a party to disclose confidential information by day a due day D as its first obligation is met on day a day N if
+    the party does disclose confidential information on day N
+    and the obligation that confidentiality obligation forbids the party to disclose confidential information by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is breached by a party doing what was forbidden on day a day if
+    the obligation that confidentiality obligation forbids the party to disclose confidential information by day a due day as its first obligation ends on day the day
+    and the party does disclose confidential information on day the day.
+
+the contract is fulfilled if
+    the obligation that confidentiality obligation forbids a party to disclose confidential information by day a due day as its first obligation is missed on day a day.
+
+the obligation that confidentiality obligation forbids a party to disclose confidential information by day a due day as its first obligation has deadline day the due day if
+    the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation starts on day a day.
+
+the obligation that payment with penalty clause obliges a party to make payment with amount an amount by day a due day D as its first obligation is met on day a day N if
+    the party does make payment with amount the amount on day N
+    and the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that payment with penalty clause obliges a party to make payment with amount an amount by day a due day as its first obligation ends on day a day
+    and the party does make payment with amount the amount on day the day.
+
+the obligation that payment with penalty clause obliges the_borrower to make payment with amount 1100 by day a due day D as its second obligation starts on day a day N if
+    the obligation that payment with penalty clause obliges a party to make payment with amount an amount by day a second due day as its first obligation is missed on day N
+    and D = N + 45.
+
+the obligation that payment with penalty clause obliges a party to make payment with amount an amount by day a due day as its first obligation has deadline day the due day if
+    the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its first obligation starts on day a day.
+
+the obligation that purchase and delivery contract obliges a party to make payment with amount an amount by day a due day D as its first obligation is met on day a day N if
+    the party does make payment with amount the amount on day N
+    and the obligation that purchase and delivery contract obliges the party to make payment with amount the amount by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that purchase and delivery contract obliges the_seller to deliver goods with description "electronic equipment" by day a due day D as its second obligation starts on day a day N if
+    the obligation that purchase and delivery contract obliges a party to make payment with amount an amount by day a second due day as its first obligation ends on day N
+    and the party does make payment with amount the amount on day N
+    and D = N + 14.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that purchase and delivery contract obliges the party to make payment with amount an amount by day the deadline as its first obligation is missed on day a day.
+
+the obligation that purchase and delivery contract obliges a party to make payment with amount an amount by day a due day as its first obligation has deadline day the due day if
+    the obligation that purchase and delivery contract obliges the party to make payment with amount the amount by day the due day as its first obligation starts on day a day.
+
+the obligation that service agreement obliges a party to sign document with document name a document name by day a due day D as its first obligation is met on day a day N if
+    the party does sign document with document name the document name on day N
+    and the obligation that service agreement obliges the party to sign document with document name the document name by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that service agreement obliges the_employee to provide services by day a due day D as its second obligation starts on day a day N if
+    the obligation that service agreement obliges a party to sign document with document name a document name by day a second due day as its first obligation ends on day N
+    and the party does sign document with document name the document name on day N
+    and D = N + 90.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that service agreement obliges the party to sign document with document name a document name by day the deadline as its first obligation is missed on day a day.
+
+the obligation that service agreement obliges a party to sign document with document name a document name by day a due day as its first obligation has deadline day the due day if
+    the obligation that service agreement obliges the party to sign document with document name the document name by day the due day as its first obligation starts on day a day.
+
+the obligation that payment with penalty clause obliges a party to make payment with amount an amount by day a due day D as its second obligation is met on day a day N if
+    the party does make payment with amount the amount on day N
+    and the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day D as its second obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that payment with penalty clause obliges a party to make payment with amount an amount by day a due day as its second obligation ends on day a day
+    and the party does make payment with amount the amount on day the day.
+
+the contract is breached if
+    the obligation that payment with penalty clause obliges a party to make payment with amount an amount by day a due day as its second obligation is missed on day a day.
+
+the obligation that payment with penalty clause obliges a party to make payment with amount an amount by day a due day as its second obligation has deadline day the due day if
+    the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its second obligation starts on day a day.
+
+the obligation that purchase and delivery contract obliges a party to deliver goods with description a description by day a due day D as its second obligation is met on day a day N if
+    the party does deliver goods with description the description on day N
+    and the obligation that purchase and delivery contract obliges the party to deliver goods with description the description by day D as its second obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that purchase and delivery contract obliges a party to deliver goods with description a description by day a due day as its second obligation ends on day a day
+    and the party does deliver goods with description the description on day the day.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that purchase and delivery contract obliges the party to deliver goods with description a description by day the deadline as its second obligation is missed on day a day.
+
+the obligation that purchase and delivery contract obliges a party to deliver goods with description a description by day a due day as its second obligation has deadline day the due day if
+    the obligation that purchase and delivery contract obliges the party to deliver goods with description the description by day the due day as its second obligation starts on day a day.
+
+the obligation that service agreement obliges a party to provide services by day a due day D as its second obligation is met on day a day N if
+    the party does provide services on day N
+    and the obligation that service agreement obliges the party to provide services by day D as its second obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that service agreement obliges the_employer to make payment with amount 3000 by day a due day D as its third obligation starts on day a day N if
+    the obligation that service agreement obliges a party to provide services by day a second due day as its second obligation ends on day N
+    and the party does provide services on day N
+    and D = N + 7.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that service agreement obliges the party to provide services by day the deadline as its second obligation is missed on day a day.
+
+the obligation that service agreement obliges a party to provide services by day a due day as its second obligation has deadline day the due day if
+    the obligation that service agreement obliges the party to provide services by day the due day as its second obligation starts on day a day.
+
+the obligation that service agreement obliges a party to make payment with amount an amount by day a due day D as its third obligation is met on day a day N if
+    the party does make payment with amount the amount on day N
+    and the obligation that service agreement obliges the party to make payment with amount the amount by day D as its third obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that service agreement obliges a party to make payment with amount an amount by day a due day as its third obligation ends on day a day
+    and the party does make payment with amount the amount on day the day.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that service agreement obliges the party to make payment with amount an amount by day the deadline as its third obligation is missed on day a day.
+
+the obligation that service agreement obliges a party to make payment with amount an amount by day a due day as its third obligation has deadline day the due day if
+    the obligation that service agreement obliges the party to make payment with amount the amount by day the due day as its third obligation starts on day a day.
+
+the deadline of the obligation that payment obligation obliges a party to make payment with amount an amount by day a due day as its first obligation has passed on day a day D if
+    the obligation that payment obligation obliges the party to make payment with amount the amount by day the due day as its first obligation starts on day a day N
+    and the obligation that payment obligation obliges the party to make payment with amount the amount by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that payment obligation obliges a party to make payment with amount an amount by day a due day as its first obligation ends on day a day D if
+    the obligation that payment obligation obliges the party to make payment with amount the amount by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that payment obligation obliges the party to make payment with amount the amount by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that payment obligation obliges a party to make payment with amount an amount by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that payment obligation obliges the party to make payment with amount the amount by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that payment obligation obliges the party to make payment with amount the amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that payment obligation obliges the party to make payment with amount the amount by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that payment obligation obliges a party to make payment with amount an amount by day a due day as its first obligation is pending since day a day if
+    the obligation that payment obligation obliges the party to make payment with amount the amount by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that payment obligation obliges the party to make payment with amount the amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that payment obligation obliges the party to make payment with amount the amount by day the due day as its first obligation is missed on day a third day.
+
+the obligation that payment obligation obliges a party to make payment with amount an amount by day a due day as its first obligation is still open if
+    the obligation that payment obligation obliges the party to make payment with amount the amount by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that early termination right permits a party to vacate premises by day a due day as its first obligation has passed on day a day D if
+    the obligation that early termination right permits the party to vacate premises by day the due day as its first obligation starts on day a day N
+    and the obligation that early termination right permits the party to vacate premises by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that early termination right permits a party to vacate premises by day a due day as its first obligation ends on day a day D if
+    the obligation that early termination right permits the party to vacate premises by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that early termination right permits the party to vacate premises by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that early termination right permits a party to vacate premises by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that early termination right permits the party to vacate premises by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that early termination right permits the party to vacate premises by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that early termination right permits the party to vacate premises by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that early termination right permits a party to vacate premises by day a due day as its first obligation is pending since day a day if
+    the obligation that early termination right permits the party to vacate premises by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that early termination right permits the party to vacate premises by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that early termination right permits the party to vacate premises by day the due day as its first obligation is missed on day a third day.
+
+the obligation that early termination right permits a party to vacate premises by day a due day as its first obligation is still open if
+    the obligation that early termination right permits the party to vacate premises by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that confidentiality obligation forbids a party to disclose confidential information by day a due day as its first obligation has passed on day a day D if
+    the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation starts on day a day N
+    and the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that confidentiality obligation forbids a party to disclose confidential information by day a due day as its first obligation ends on day a day D if
+    the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that confidentiality obligation forbids a party to disclose confidential information by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that confidentiality obligation forbids a party to disclose confidential information by day a due day as its first obligation is pending since day a day if
+    the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation is missed on day a third day.
+
+the obligation that confidentiality obligation forbids a party to disclose confidential information by day a due day as its first obligation is still open if
+    the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that payment with penalty clause obliges a party to make payment with amount an amount by day a due day as its first obligation has passed on day a day D if
+    the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its first obligation starts on day a day N
+    and the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that payment with penalty clause obliges a party to make payment with amount an amount by day a due day as its first obligation ends on day a day D if
+    the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that payment with penalty clause obliges a party to make payment with amount an amount by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that payment with penalty clause obliges a party to make payment with amount an amount by day a due day as its first obligation is pending since day a day if
+    the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its first obligation is missed on day a third day.
+
+the obligation that payment with penalty clause obliges a party to make payment with amount an amount by day a due day as its first obligation is still open if
+    the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that purchase and delivery contract obliges a party to make payment with amount an amount by day a due day as its first obligation has passed on day a day D if
+    the obligation that purchase and delivery contract obliges the party to make payment with amount the amount by day the due day as its first obligation starts on day a day N
+    and the obligation that purchase and delivery contract obliges the party to make payment with amount the amount by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that purchase and delivery contract obliges a party to make payment with amount an amount by day a due day as its first obligation ends on day a day D if
+    the obligation that purchase and delivery contract obliges the party to make payment with amount the amount by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that purchase and delivery contract obliges the party to make payment with amount the amount by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that purchase and delivery contract obliges a party to make payment with amount an amount by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that purchase and delivery contract obliges the party to make payment with amount the amount by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that purchase and delivery contract obliges the party to make payment with amount the amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that purchase and delivery contract obliges the party to make payment with amount the amount by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that purchase and delivery contract obliges a party to make payment with amount an amount by day a due day as its first obligation is pending since day a day if
+    the obligation that purchase and delivery contract obliges the party to make payment with amount the amount by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that purchase and delivery contract obliges the party to make payment with amount the amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that purchase and delivery contract obliges the party to make payment with amount the amount by day the due day as its first obligation is missed on day a third day.
+
+the obligation that purchase and delivery contract obliges a party to make payment with amount an amount by day a due day as its first obligation is still open if
+    the obligation that purchase and delivery contract obliges the party to make payment with amount the amount by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that service agreement obliges a party to sign document with document name a document name by day a due day as its first obligation has passed on day a day D if
+    the obligation that service agreement obliges the party to sign document with document name the document name by day the due day as its first obligation starts on day a day N
+    and the obligation that service agreement obliges the party to sign document with document name the document name by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that service agreement obliges a party to sign document with document name a document name by day a due day as its first obligation ends on day a day D if
+    the obligation that service agreement obliges the party to sign document with document name the document name by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that service agreement obliges the party to sign document with document name the document name by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that service agreement obliges a party to sign document with document name a document name by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that service agreement obliges the party to sign document with document name the document name by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that service agreement obliges the party to sign document with document name the document name by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that service agreement obliges the party to sign document with document name the document name by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that service agreement obliges a party to sign document with document name a document name by day a due day as its first obligation is pending since day a day if
+    the obligation that service agreement obliges the party to sign document with document name the document name by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that service agreement obliges the party to sign document with document name the document name by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that service agreement obliges the party to sign document with document name the document name by day the due day as its first obligation is missed on day a third day.
+
+the obligation that service agreement obliges a party to sign document with document name a document name by day a due day as its first obligation is still open if
+    the obligation that service agreement obliges the party to sign document with document name the document name by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that payment with penalty clause obliges a party to make payment with amount an amount by day a due day as its second obligation has passed on day a day D if
+    the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its second obligation starts on day a day N
+    and the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that payment with penalty clause obliges a party to make payment with amount an amount by day a due day as its second obligation ends on day a day D if
+    the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its second obligation is met on day D
+    and it is not the case that
+        the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that payment with penalty clause obliges a party to make payment with amount an amount by day a due day as its second obligation is missed on day a day D if
+    the deadline of the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its second obligation has passed on day D
+    and it is not the case that the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that payment with penalty clause obliges a party to make payment with amount an amount by day a due day as its second obligation is pending since day a day if
+    the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its second obligation starts on day the day
+    and it is not the case that the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its second obligation ends on day a second day
+    and it is not the case that the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its second obligation is missed on day a third day.
+
+the obligation that payment with penalty clause obliges a party to make payment with amount an amount by day a due day as its second obligation is still open if
+    the obligation that payment with penalty clause obliges the party to make payment with amount the amount by day the due day as its second obligation is pending since day a day.
+
+the deadline of the obligation that purchase and delivery contract obliges a party to deliver goods with description a description by day a due day as its second obligation has passed on day a day D if
+    the obligation that purchase and delivery contract obliges the party to deliver goods with description the description by day the due day as its second obligation starts on day a day N
+    and the obligation that purchase and delivery contract obliges the party to deliver goods with description the description by day the due day as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that purchase and delivery contract obliges a party to deliver goods with description a description by day a due day as its second obligation ends on day a day D if
+    the obligation that purchase and delivery contract obliges the party to deliver goods with description the description by day the due day as its second obligation is met on day D
+    and it is not the case that
+        the obligation that purchase and delivery contract obliges the party to deliver goods with description the description by day the due day as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that purchase and delivery contract obliges a party to deliver goods with description a description by day a due day as its second obligation is missed on day a day D if
+    the deadline of the obligation that purchase and delivery contract obliges the party to deliver goods with description the description by day the due day as its second obligation has passed on day D
+    and it is not the case that the obligation that purchase and delivery contract obliges the party to deliver goods with description the description by day the due day as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that purchase and delivery contract obliges the party to deliver goods with description the description by day the due day as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that purchase and delivery contract obliges a party to deliver goods with description a description by day a due day as its second obligation is pending since day a day if
+    the obligation that purchase and delivery contract obliges the party to deliver goods with description the description by day the due day as its second obligation starts on day the day
+    and it is not the case that the obligation that purchase and delivery contract obliges the party to deliver goods with description the description by day the due day as its second obligation ends on day a second day
+    and it is not the case that the obligation that purchase and delivery contract obliges the party to deliver goods with description the description by day the due day as its second obligation is missed on day a third day.
+
+the obligation that purchase and delivery contract obliges a party to deliver goods with description a description by day a due day as its second obligation is still open if
+    the obligation that purchase and delivery contract obliges the party to deliver goods with description the description by day the due day as its second obligation is pending since day a day.
+
+the deadline of the obligation that service agreement obliges a party to provide services by day a due day as its second obligation has passed on day a day D if
+    the obligation that service agreement obliges the party to provide services by day the due day as its second obligation starts on day a day N
+    and the obligation that service agreement obliges the party to provide services by day the due day as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that service agreement obliges a party to provide services by day a due day as its second obligation ends on day a day D if
+    the obligation that service agreement obliges the party to provide services by day the due day as its second obligation is met on day D
+    and it is not the case that
+        the obligation that service agreement obliges the party to provide services by day the due day as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that service agreement obliges a party to provide services by day a due day as its second obligation is missed on day a day D if
+    the deadline of the obligation that service agreement obliges the party to provide services by day the due day as its second obligation has passed on day D
+    and it is not the case that the obligation that service agreement obliges the party to provide services by day the due day as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that service agreement obliges the party to provide services by day the due day as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that service agreement obliges a party to provide services by day a due day as its second obligation is pending since day a day if
+    the obligation that service agreement obliges the party to provide services by day the due day as its second obligation starts on day the day
+    and it is not the case that the obligation that service agreement obliges the party to provide services by day the due day as its second obligation ends on day a second day
+    and it is not the case that the obligation that service agreement obliges the party to provide services by day the due day as its second obligation is missed on day a third day.
+
+the obligation that service agreement obliges a party to provide services by day a due day as its second obligation is still open if
+    the obligation that service agreement obliges the party to provide services by day the due day as its second obligation is pending since day a day.
+
+the deadline of the obligation that service agreement obliges a party to make payment with amount an amount by day a due day as its third obligation has passed on day a day D if
+    the obligation that service agreement obliges the party to make payment with amount the amount by day the due day as its third obligation starts on day a day N
+    and the obligation that service agreement obliges the party to make payment with amount the amount by day the due day as its third obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that service agreement obliges a party to make payment with amount an amount by day a due day as its third obligation ends on day a day D if
+    the obligation that service agreement obliges the party to make payment with amount the amount by day the due day as its third obligation is met on day D
+    and it is not the case that
+        the obligation that service agreement obliges the party to make payment with amount the amount by day the due day as its third obligation is met on day a day N
+        and N < D.
+
+the obligation that service agreement obliges a party to make payment with amount an amount by day a due day as its third obligation is missed on day a day D if
+    the deadline of the obligation that service agreement obliges the party to make payment with amount the amount by day the due day as its third obligation has passed on day D
+    and it is not the case that the obligation that service agreement obliges the party to make payment with amount the amount by day the due day as its third obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that service agreement obliges the party to make payment with amount the amount by day the due day as its third obligation has passed on day a day N
+        and N < D.
+
+the obligation that service agreement obliges a party to make payment with amount an amount by day a due day as its third obligation is pending since day a day if
+    the obligation that service agreement obliges the party to make payment with amount the amount by day the due day as its third obligation starts on day the day
+    and it is not the case that the obligation that service agreement obliges the party to make payment with amount the amount by day the due day as its third obligation ends on day a second day
+    and it is not the case that the obligation that service agreement obliges the party to make payment with amount the amount by day the due day as its third obligation is missed on day a third day.
+
+the obligation that service agreement obliges a party to make payment with amount an amount by day a due day as its third obligation is still open if
+    the obligation that service agreement obliges the party to make payment with amount the amount by day the due day as its third obligation is pending since day a day.
+
+scenario trace_112 is:
+    % #TRACE `payment obligation` (line 112) of the L4 source
+    the contract payment obligation starts on day 0.
+    the_borrower does make payment with amount 5000 on day 20.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_missing expects answers [].
+    q_the_contract_is_breached_by_doing expects answers [].
+    q_the_contract_is_breached expects answers [].
+
+scenario trace_116 is:
+    % #TRACE `payment obligation` (line 116) of the L4 source
+    the contract payment obligation starts on day 0.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_missing expects answers [].
+    q_the_contract_is_breached_by_doing expects answers [].
+    q_the_contract_is_breached expects answers [].
+
+scenario trace_119 is:
+    % #TRACE `early termination right` (line 119) of the L4 source
+    the contract early termination right starts on day 0.
+    the_tenant does vacate premises on day 30.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_missing expects answers [].
+    q_the_contract_is_breached_by_doing expects answers [].
+    q_the_contract_is_breached expects answers [].
+
+scenario trace_123 is:
+    % #TRACE `confidentiality obligation` (line 123) of the L4 source
+    the contract confidentiality obligation starts on day 0.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_missing expects answers [].
+    q_the_contract_is_breached_by_doing expects answers [].
+    q_the_contract_is_breached expects answers [].
+
+scenario trace_126 is:
+    % #TRACE `payment with penalty clause` (line 126) of the L4 source
+    the contract payment with penalty clause starts on day 0.
+    the_borrower does make payment with amount 1100 on day 40.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_missing expects answers [].
+    q_the_contract_is_breached_by_doing expects answers [].
+    q_the_contract_is_breached expects answers [].
+
+scenario trace_130 is:
+    % #TRACE `purchase and delivery contract` (line 130) of the L4 source
+    the contract purchase and delivery contract starts on day 0.
+    the_buyer does make payment with amount 5000 on day 5.
+    the_seller does deliver goods with description "electronic equipment" on day 15.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_missing expects answers [].
+    q_the_contract_is_breached_by_doing expects answers [].
+    q_the_contract_is_breached expects answers [].
+
+scenario trace_135 is:
+    % #TRACE `service agreement` (line 135) of the L4 source
+    the contract service agreement starts on day 0.
+    the_employee does sign document with document name "employment contract" on day 3.
+    the_employee does provide services on day 50.
+    the_employer does make payment with amount 3000 on day 100.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_missing expects answers ["the contract is breached by the_employer missing the deadline of day 57"].
+    q_the_contract_is_breached_by_doing expects answers [].
+    q_the_contract_is_breached expects answers [].
+
+query fulfilled is:
+    the contract is fulfilled.
+
+query q_the_contract_is_breached_by_missing is:
+    the contract is breached by which party missing the deadline of day which deadline.
+
+query q_the_contract_is_breached_by_doing is:
+    the contract is breached by which party doing what was forbidden on day which day.
+
+query q_the_contract_is_breached is:
+    the contract is breached.
+
+query q_open_o_payment_obligation_1 is:
+    the obligation that payment obligation obliges which party to make payment with amount which amount by day which due day as its first obligation is still open.
+
+query q_open_o_early_termination_right_1 is:
+    the obligation that early termination right permits which party to vacate premises by day which due day as its first obligation is still open.
+
+query q_open_o_confidentiality_obligation_1 is:
+    the obligation that confidentiality obligation forbids which party to disclose confidential information by day which due day as its first obligation is still open.
+
+query q_open_o_payment_with_penalty_clause_1 is:
+    the obligation that payment with penalty clause obliges which party to make payment with amount which amount by day which due day as its first obligation is still open.
+
+query q_open_o_purchase_and_delivery_contract_1 is:
+    the obligation that purchase and delivery contract obliges which party to make payment with amount which amount by day which due day as its first obligation is still open.
+
+query q_open_o_service_agreement_1 is:
+    the obligation that service agreement obliges which party to sign document with document name which document name by day which due day as its first obligation is still open.
+
+query q_open_o_payment_with_penalty_clause_2 is:
+    the obligation that payment with penalty clause obliges which party to make payment with amount which amount by day which due day as its second obligation is still open.
+
+query q_open_o_purchase_and_delivery_contract_2 is:
+    the obligation that purchase and delivery contract obliges which party to deliver goods with description which description by day which due day as its second obligation is still open.
+
+query q_open_o_service_agreement_2 is:
+    the obligation that service agreement obliges which party to provide services by day which due day as its second obligation is still open.
+
+query q_open_o_service_agreement_3 is:
+    the obligation that service agreement obliges which party to make payment with amount which amount by day which due day as its third obligation is still open.
+

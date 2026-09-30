@@ -1,0 +1,404 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from jerseyCharities.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the name of *an entity* is *a text*.
+    the purposes of *an entity* is *a list*.
+    the name of *a person* is *a text*.
+    the address of *a person* is *a text*.
+    the name of *a governor* is *a text*.
+    the symbol of office of *a governor* is *a text*.
+    the year of *a date* is *a number*.
+    the month of *a date* is *a number*.
+    the day of *a date* is *a number*.
+    the english name of *a place* is *a text*.
+
+the templates are:
+    charitable purpose for *a purpose*; scenario element.
+    ancillary else incidental to charitable purpose for *a purpose*; scenario element.
+    *an entity* provides public benefit in jersey else elsewhere; scenario element.
+    *an entity* is a jersey entity; scenario element.
+    carries out substantial activity in jersey for *an entity*; scenario element.
+    *an entity* has a principal address in jersey; scenario element.
+    the constitution for *an entity* is *a constitution*; scenario element.
+    *a constitution* is a written document; scenario element.
+    the name for *an entity* is *a name*; scenario element.
+    *a x10* is undesirable; scenario element.
+    same as another charity for *a x11*; scenario element.
+    too similar to another charity for *a x12*; scenario element.
+    misleading for *a x13*; scenario element.
+    implies false connection for *a x14*; scenario element.
+    offensive for *a x15*; scenario element.
+    *a x16* is governor of for *a x17*; scenario element.
+    directed by minister for *a x18*; scenario element.
+    directed by states assembly member for *a x19*; scenario element.
+    directed by equivalent in another jurisdiction for *a x20*; scenario element.
+    *a x21* is registered; scenario element.
+    *a x22* is deregistered; scenario element.
+    the registration date for *a x23* is *a date*; scenario element.
+    the deregistration date for *a x24* is *a date*; scenario element.
+    the registration section for *a x25* is *a register section*; scenario element.
+    applied for registration for *a x26*; scenario element.
+    applied for deregistration for *a x27*; scenario element.
+    registration refused for *a x28*; scenario element.
+    applied to change name for *a x29*; scenario element.
+    name change refused for *a x30*; scenario element.
+    *a x31* meets funding condition; scenario element.
+    refrains from soliciting donations for *a x32*; scenario element.
+    requested restricted section for *a x33*; scenario element.
+    acts with due diligence for *a x34* with *a x35*; scenario element.
+    acts as prudent person for *a x36* with *a x37*; scenario element.
+    acts to best ability for *a x38* with *a x39*; scenario element.
+    observes good faith for *a x40* with *a x41*; scenario element.
+    ensures consistency with purposes for *a x42* with *a x43*; scenario element.
+    ensures compliance with law for *a x44* with *a x45*; scenario element.
+    reportable matter exists for *a x46*; scenario element.
+    reported to charity for *a x47* with *a x48*; scenario element.
+    reported to commissioner for *a x49*; scenario element.
+    declared no reportable matters for *a x50* with *a x51*; scenario element.
+    *a x52* is fit as well as proper person; scenario element.
+    *a x53* provides annual return; scenario element.
+    reports changes for *a x54*; scenario element.
+    applies property per purposes for *a x55*; scenario element.
+    applies property per statement for *a x56*; scenario element.
+    amended to non charitable purpose for *a x57*; scenario element.
+    changed name without permission for *a x58*; scenario element.
+    uses other than registered name for *a x59*; scenario element.
+    amended purposes without approval for *a x60*; scenario element.
+    amended statement without approval for *a x61*; scenario element.
+    required steps notice served for *a x62*; scenario element.
+    notice served on governor for *a x63*; scenario element.
+    complied with notice for *a x64*; scenario element.
+    disqualification order exists for *a x65*; scenario element.
+    refers to as charity for *a x66* with *a x67*; scenario element.
+    refers to as jersey charity for *a x68* with *a x69*; scenario element.
+    refers to as registered for *a x70* with *a x71*; scenario element.
+    knows not registered for *a x72* with *a x73*; scenario element.
+    intends to mislead for *a x74* with *a x75*; scenario element.
+    intends to gain advantage for *a x76* with *a x77*; scenario element.
+    misconduct for *a x78*; scenario element.
+    governor misconduct for *a x79*; scenario element.
+    governor reportable matter for *a x80*; scenario element.
+    misled commissioner for *a x81*; scenario element.
+    no longer exists for *a x82*; scenario element.
+    governor of registered charity for *a x83*; scenario element.
+    wholly managed in jersey for *a x84*; scenario element.
+    excepted foreign charity for *a x85*; scenario element.
+    established under UK law for *a x86*; scenario element.
+    established under prescribed law for *a x87*; scenario element.
+    entitled to use charity term for *a x88*; scenario element.
+    managed from establishment jurisdiction for *a x89*; scenario element.
+    *a x90* may appeal to tribunal for *a x91*; scenario element.
+    *a x92* may appeal to court for *a x93*; scenario element.
+    *a x94* is required steps notice; scenario element.
+    *a x95* is deregistration decision; scenario element.
+    *a x96* is registration refusal; scenario element.
+    *a x97* is name change refusal; scenario element.
+    organized religious charity for *a x98*; scenario element.
+    acquired before deregistration for *a x99*; scenario element.
+    the preserved charitable purposes for *a x100* is *a purpose*; scenario element.
+    the preserved public benefit statement for *a x101* is *a statement*; scenario element.
+    *a place* is BOT.
+    qualifying territory for *a place*.
+    *a x102* is ancillary; scenario element.
+    *a x103* is analogous to charitable purpose; scenario element.
+    the known charitable purposes is *a list*.
+    *an entity* meets the charity test.
+    eligible for registration as charity for *an entity*.
+    *a name* is undesirable variant one.
+    eligible for restricted section for *an entity*.
+    complies with requirements for *an entity*.
+    fulfills governor duties for *a person* with *an entity*.
+    *an entity* may refer to as jersey charity for *an user*.
+    *an entity* may refer to as charity for *an user*.
+    excepted foreign charity for *an entity* variant two.
+    *an entity* may issue required steps notice.
+    *an entity* may deregister.
+    *an entity* must apply *a property* for preserved purposes.
+    *an entity* may appeal to tribunal for *a decision* variant three.
+    in public register for *a x104*; scenario element.
+    general section for *a x105*; scenario element.
+    restricted section public elements for *a x106*; scenario element.
+    historic section for *a x107*; scenario element.
+    disclosure to authorized person for *a x108*; scenario element.
+    for investigation of offense for *a x109*; scenario element.
+    for legal proceedings for *a x110*; scenario element.
+    *a person* may disclose for *an info*.
+    *an entity* may require governor removal for *a notice*.
+    *a value* is charitable.
+    all purposes are qualifying for *an entity*.
+
+the knowledge base jerseycharities includes:
+
+the text of the source program is at "sources/jerseyCharities.l4".
+
+a place is BOT if
+    the english name of the place is "Anguilla"
+    or the english name of the place is "Bermuda"
+    or the english name of the place is "British Antarctic Territory"
+    or the english name of the place is "British Indian Ocean Territory"
+    or the english name of the place is "Cayman Islands"
+    or the english name of the place is "Falkland Islands"
+    or the english name of the place is "Gibraltar"
+    or the english name of the place is "Hong Kong"
+    or the english name of the place is "Montserrat"
+    or the english name of the place is "Pitcairn, Henderson, Ducie and Oeno Islands"
+    or the english name of the place is "St Helena, Ascension and Tristan da Cunha"
+    or the english name of the place is "Sovereign Base Areas of Akrotiri and Dhekelia"
+    or the english name of the place is "South Georgia and the South Sandwich Islands"
+    or the english name of the place is "Turks and Caicos Islands"
+    or the english name of the place is "Virgin Islands".
+
+qualifying territory for a place if
+    the place is BOT
+    and it is not the case that the english name of the place is "Sovereign Base Areas of Akrotiri and Dhekelia".
+
+section section 5 charity test is:
+
+the known charitable purposes is ["the prevention or relief of poverty", "the advancement of education", "the advancement of religion", "the advancement of health", "the saving of lives", "the advancement of citizenship or community development", "the advancement of the arts, heritage, culture or science", "the advancement of public participation in sport", "the provision of recreational facilities, or the organisation of recreational activities, with the object of improving the conditions of life for the persons for whom the facilities or activities are primarily intended", "the advancement of human rights, conflict resolution or reconciliation", "the promotion of religious or racial harmony", "the promotion of equality and diversity", "the advancement of environmental protection or improvement", "the relief of those in need by reason of age, ill-health, disability, financial hardship or other disadvantage", "the advancement of animal welfare", "something analogous to one of the above"].
+
+a value is charitable if
+    the known charitable purposes is a list
+    and the value is in the list.
+
+all purposes are qualifying for an entity if
+    the purposes of the entity is a list
+    and for all cases in which
+        a value is in the list
+        it is the case that
+            the value is charitable
+            or the value is analogous to charitable purpose
+            or the value is ancillary.
+
+an entity meets the charity test if
+    all purposes are qualifying for the entity
+    and the entity provides public benefit in jersey else elsewhere
+    and it is not the case that
+        directed by minister for the entity
+        or directed by states assembly member for the entity
+        or directed by equivalent in another jurisdiction for the entity.
+
+eligible for registration as charity for an entity if
+    the entity meets the charity test
+    and the constitution for the entity is a constitution
+    and the constitution is a written document
+    and the entity is a jersey entity
+        or carries out substantial activity in jersey for the entity
+    and the entity has a principal address in jersey.
+
+% RESIDUE r1 BEGIN: is undesirable
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 363-370
+% no LE form found: ((`same as another charity` OF `n`) OR (`too similar to another charity` OF `n`) OR (`misleading` OF `n`) OR (`implies false connection` OF `n`) OR (`offensi...
+%   l4:
+%   | GIVEN n IS A Name
+%   | GIVETH A BOOLEAN
+%   | DECIDE `is undesirable` IF
+%   |     `same as another charity` n
+%   |     OR `too similar to another charity` n
+%   |     OR `misleading` n
+%   |     OR `implies false connection` n
+%   |     OR `offensive` n
+% RESIDUE r1 END
+
+eligible for restricted section for an entity if
+    eligible for registration as charity for the entity
+    and requested restricted section for the entity
+    and the entity meets funding condition
+        or refrains from soliciting donations for the entity.
+
+complies with requirements for an entity if
+    the entity is registered
+    and reports changes for the entity
+    and the entity provides annual return
+    and the entity meets funding condition
+        or it is not the case that the registration section for the entity is restricted_section
+        or refrains from soliciting donations for the entity
+    and it is not the case that amended to non charitable purpose for the entity
+    and it is not the case that changed name without permission for the entity
+    and it is not the case that uses other than registered name for the entity
+    and it is not the case that amended purposes without approval for the entity
+    and it is not the case that amended statement without approval for the entity
+    and applies property per purposes for the entity
+    and applies property per statement for the entity.
+
+fulfills governor duties for a person with an entity if
+    the person is governor of for the entity
+    and the entity is registered
+    and acts with due diligence for the person with the entity
+    and acts as prudent person for the person with the entity
+    and acts to best ability for the person with the entity
+    and observes good faith for the person with the entity
+    and ensures consistency with purposes for the person with the entity
+    and ensures compliance with law for the person with the entity
+    and reported to charity for the person with the entity
+        and reported to commissioner for the person
+        or it is not the case that reportable matter exists for the person
+        or declared no reportable matters for the person with the entity.
+
+an entity may refer to as jersey charity for an user if
+    the entity is registered
+    and the entity is a jersey entity
+    and wholly managed in jersey for the entity
+    or it is not the case that
+        knows not registered for the user with the entity
+        and intends to mislead for the user with the entity
+            or intends to gain advantage for the user with the entity.
+
+an entity may refer to as charity for an user if
+    the entity is registered
+    or it is not the case that
+        knows not registered for the user with the entity
+        and intends to mislead for the user with the entity
+            or intends to gain advantage for the user with the entity.
+
+% RESIDUE r2 BEGIN: excepted foreign charity
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 476-488
+% no LE form found: (((`established under UK law` OF `entity`) OR (`established under prescribed law` OF `entity`)) AND (`entitled to use charity term` OF `entity`) AND (`manage...
+%   l4:
+%   | GIVEN entity IS AN Entity
+%   | GIVETH A BOOLEAN
+%   | DECIDE `excepted foreign charity` IF
+%   |     -- First condition - established under relevant law
+%   |     (
+%   |         `established under UK law` entity
+%   |         OR `established under prescribed law` entity
+%   |     )
+%   |     -- Entitled to refer to itself as charity in that jurisdiction
+%   |     AND `entitled to use charity term` entity
+%   |     -- Second condition - managed from that jurisdiction and not registered
+%   |     AND `managed from establishment jurisdiction` entity
+%   |     AND NOT `is registered` entity
+% RESIDUE r2 END
+
+an entity may issue required steps notice if
+    the entity is registered
+    and misconduct for the entity
+        or it is not the case that the entity meets the charity test
+        or governor misconduct for the entity
+        or governor reportable matter for the entity
+        or it is not the case that
+            the entity is a jersey entity
+            or carries out substantial activity in jersey for the entity
+        or it is not the case that the entity has a principal address in jersey.
+
+an entity may deregister if
+    the entity is registered
+    and applied for deregistration for the entity
+        or it is not the case that the entity meets the charity test
+        or misled commissioner for the entity
+        or required steps notice served for the entity
+            and it is not the case that complied with notice for the entity
+        or no longer exists for the entity.
+
+an entity must apply a property for preserved purposes if
+    the entity is deregistered
+    and acquired before deregistration for the property.
+
+% RESIDUE r3 BEGIN: may appeal to tribunal
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 540-564
+% no LE form found: (((`applied for registration` OF `entity`) AND (`is registration refusal` OF `decision`)) OR ((`is registered` OF `entity`) AND (`is deregistration decision`...
+%   l4:
+%   | GIVEN entity IS AN Entity
+%   |       decision IS A Decision
+%   | GIVETH A BOOLEAN
+%   | DECIDE `may appeal to tribunal` IF
+%   |     (
+%   |         -- Applicant appealing registration refusal
+%   |         `applied for registration` entity
+%   |         AND `is registration refusal` decision
+%   |     )
+%   |     OR (
+%   |         -- Charity appealing deregistration
+%   |         `is registered` entity
+%   |         AND `is deregistration decision` decision
+%   |     )
+%   |     OR (
+%   |         -- Charity appealing name change refusal
+%   |         `is registered` entity
+%   |         AND `applied to change name` entity
+%   |         AND `is name change refusal` decision
+%   |     )
+%   |     OR (
+%   |         -- Entity or person appealing required steps notice
+%   |         (`is registered` entity OR `governor of registered charity` entity)
+%   |         AND `is required steps notice` decision
+%   |     )
+% RESIDUE r3 END
+
+a person may disclose for an info if
+    in public register for the info
+    or general section for the info
+    or restricted section public elements for the info
+    or historic section for the info
+    or disclosure to authorized person for the info
+    or for investigation of offense for the info
+    or for legal proceedings for the info.
+
+an entity may require governor removal for a notice if
+    the entity may issue required steps notice
+    and it is not the case that organized religious charity for the entity.
+
+the name of billy is "William".
+
+the address of billy is "home".
+
+the name of william_farquhar is "William Farquhar".
+
+the symbol of office of william_farquhar is "large hat".
+
+the year of commencement is 1983.
+
+the month of commencement is 1.
+
+the day of commencement is 1.
+
+the year of appointed_day is 2002.
+
+the month of appointed_day is 2.
+
+the day of appointed_day is 21.
+
+the english name of british_overseas_territories_1 is "Anguilla".
+
+the english name of british_overseas_territories_2 is "Bermuda".
+
+the english name of british_overseas_territories_3 is "British Antarctic Territory".
+
+the english name of british_overseas_territories_4 is "British Indian Ocean Territory".
+
+the english name of british_overseas_territories_5 is "Cayman Islands".
+
+the english name of british_overseas_territories_6 is "Falkland Islands".
+
+the english name of british_overseas_territories_7 is "Gibraltar".
+
+the english name of british_overseas_territories_8 is "Hong Kong".
+
+the english name of british_overseas_territories_9 is "Montserrat".
+
+the english name of british_overseas_territories_10 is "Pitcairn, Henderson, Ducie and Oeno Islands".
+
+the english name of british_overseas_territories_11 is "St Helena, Ascension and Tristan da Cunha".
+
+the english name of british_overseas_territories_12 is "South Georgia and the South Sandwich Islands".
+
+the english name of british_overseas_territories_13 is "The Sovereign Base Areas of Akrotiri and Dhekelia".
+
+the english name of british_overseas_territories_14 is "Turks and Caicos Islands".
+
+the english name of british_overseas_territories_15 is "Virgin Islands".
+

@@ -838,13 +838,28 @@ next_section_start --> any_indent, at_line_start, section_opener.
 % statement too, and in languages whose phrase does not open with a guard word
 % it must still end the section before it; a table header is recognised by
 % its whole shape (table_header_ahead//0).
-section_opener --> kw(guard).
+section_opener --> \+ contract_sentence_ahead, kw(guard).
 % An LPS setting (`the maximum time is 7.`) is a section of its own, in an LPS
 % document only: a resource list before it (`… extends token.`) ends there.
 section_opener --> { lps_target }, ( kw(lps_max_time) ; kw(lps_max_real_time) ; kw(lps_min_cycle_time) ).
 section_opener --> kw(provenance_required).
 section_opener --> table_header_ahead.
 section_opener --> view_header_ahead.
+
+% "the contract" opens a header only as `the contract <name> states that:`,
+% which has a colon before its full stop. A sentence that starts with the same
+% words and has no colon -- the template `the contract is fulfilled; known as
+% fulfilled.`, a fact `the contract is signed.` -- is ordinary vocabulary; it
+% was taken for a header and reported as an unknown section.
+contract_sentence_ahead(S, S) :-
+    phrase(kw(contract_open), S, Rest),
+    no_colon_before_stop(Rest).
+
+no_colon_before_stop([T|Ts]) :-
+    (   T = punctuation('.', _) -> true
+    ;   T = punctuation(':', _) -> fail
+    ;   no_colon_before_stop(Ts)
+    ).
 
 % Non-consuming: the next token begins a line. With no table recorded — a
 % fragment parsed directly through kb_items//1, say — every position qualifies,
@@ -3665,7 +3680,7 @@ has_query_connective(forall(_, _)).
 %   a body structure too: read as one literal it falls to the generic `is`.
 has_query_connective(G) :-
     compound(G), G =.. [Op, [each|_], _, _],
-    memberchk(Op, [sum, count, average, min, max]).
+    memberchk(Op, [sum, count, average, min, max, list]).
 
 second_pass_query_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), query_clause(NewHead, Head, BodyTokens, Instance, Indent, Start, End, ActualID), _M) :-
     (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
@@ -4600,7 +4615,7 @@ fallback_literal(Literal) :-
 % "<result> is the <op> of each <element> such that" (with each phrase piece —
 % "is the", the operator word, "of each", "such that" — coming from the
 % aggregate lexicon keys). Op is the CANONICAL operator (sum/count/average/
-% min/max — the reasoner's functor), whatever the surface language.
+% min/max/list — the reasoner's functor), whatever the surface language.
 is_aggregate(Tokens, Op, ElementTokens, ResultTokens) :-
     Tokens = [_, _, _, _, _, _, _, _ | _],
     % Cheap guard (this runs on every body line): the line must END with the
@@ -4612,7 +4627,7 @@ is_aggregate(Tokens, Op, ElementTokens, ResultTokens) :-
     length(SuchThat, SK), length(SuchTokens, SK),
     append(Rest, SuchTokens, Tokens),
     tokens_match_words(SuchTokens, SuchThat),
-    member(Op, [sum, count, average, min, max]),
+    member(Op, [sum, count, average, min, max, list]),
     le_i18n:kw_synonym_words(Op, OpWords),
     le_i18n:kw_synonym_words(is_the, IsThe),
     le_i18n:kw_synonym_words(of_each, OfEach),

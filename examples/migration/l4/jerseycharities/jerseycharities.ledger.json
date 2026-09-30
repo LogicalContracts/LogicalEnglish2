@@ -1,0 +1,1920 @@
+{
+  "counts": {"approximated":112,"encoded":123,"residue":3},
+  "entries": [
+    {
+      "element":"Purpose",
+      "in_program":"Purpose",
+      "kind":"type",
+      "mapping":"a type",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Entity",
+      "in_program":"Entity",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Person",
+      "in_program":"Person",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Governor",
+      "in_program":"Governor",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"RegisterSection",
+      "in_program":"RegisterSection",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Date",
+      "in_program":"Date",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Place",
+      "in_program":"Place",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"CharitablePurpose",
+      "in_program":"CharitablePurpose",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"charitable purpose",
+      "in_program":"charitable purpose for *a purpose*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"ancillary or incidental to charitable purpose",
+      "in_program":"ancillary else incidental to charitable purpose for *a purpose*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"provides public benefit in Jersey or elsewhere",
+      "in_program":"*an entity* provides public benefit in jersey else elsewhere",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is a Jersey entity",
+      "in_program":"*an entity* is a jersey entity",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"carries out substantial activity in Jersey",
+      "in_program":"carries out substantial activity in jersey for *an entity*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"has a principal address in Jersey",
+      "in_program":"*an entity* has a principal address in jersey",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"constitution",
+      "in_program":"the constitution for *an entity* is *a constitution*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is a written document",
+      "in_program":"*a constitution* is a written document",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"name",
+      "in_program":"the name for *an entity* is *a name*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is undesirable",
+      "in_program":"*a x10* is undesirable",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"same as another charity",
+      "in_program":"same as another charity for *a x11*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"too similar to another charity",
+      "in_program":"too similar to another charity for *a x12*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"misleading",
+      "in_program":"misleading for *a x13*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"implies false connection",
+      "in_program":"implies false connection for *a x14*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"offensive",
+      "in_program":"offensive for *a x15*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is governor of",
+      "in_program":"*a x16* is governor of for *a x17*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"directed by Minister",
+      "in_program":"directed by minister for *a x18*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"directed by States Assembly member",
+      "in_program":"directed by states assembly member for *a x19*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"directed by equivalent in another jurisdiction",
+      "in_program":"directed by equivalent in another jurisdiction for *a x20*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is registered",
+      "in_program":"*a x21* is registered",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is deregistered",
+      "in_program":"*a x22* is deregistered",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"registration date",
+      "in_program":"the registration date for *a x23* is *a date*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"deregistration date",
+      "in_program":"the deregistration date for *a x24* is *a date*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"registration section",
+      "in_program":"the registration section for *a x25* is *a register section*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"applied for registration",
+      "in_program":"applied for registration for *a x26*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"applied for deregistration",
+      "in_program":"applied for deregistration for *a x27*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"registration refused",
+      "in_program":"registration refused for *a x28*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"applied to change name",
+      "in_program":"applied to change name for *a x29*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"name change refused",
+      "in_program":"name change refused for *a x30*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"meets funding condition",
+      "in_program":"*a x31* meets funding condition",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"refrains from soliciting donations",
+      "in_program":"refrains from soliciting donations for *a x32*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"requested restricted section",
+      "in_program":"requested restricted section for *a x33*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"acts with due diligence",
+      "in_program":"acts with due diligence for *a x34* with *a x35*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"acts as prudent person",
+      "in_program":"acts as prudent person for *a x36* with *a x37*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"acts to best ability",
+      "in_program":"acts to best ability for *a x38* with *a x39*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"observes good faith",
+      "in_program":"observes good faith for *a x40* with *a x41*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"ensures consistency with purposes",
+      "in_program":"ensures consistency with purposes for *a x42* with *a x43*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"ensures compliance with law",
+      "in_program":"ensures compliance with law for *a x44* with *a x45*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"reportable matter exists",
+      "in_program":"reportable matter exists for *a x46*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"reported to charity",
+      "in_program":"reported to charity for *a x47* with *a x48*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"reported to Commissioner",
+      "in_program":"reported to commissioner for *a x49*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"declared no reportable matters",
+      "in_program":"declared no reportable matters for *a x50* with *a x51*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is fit and proper person",
+      "in_program":"*a x52* is fit as well as proper person",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"provides annual return",
+      "in_program":"*a x53* provides annual return",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"reports changes",
+      "in_program":"reports changes for *a x54*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"applies property per purposes",
+      "in_program":"applies property per purposes for *a x55*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"applies property per statement",
+      "in_program":"applies property per statement for *a x56*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"amended to non-charitable purpose",
+      "in_program":"amended to non charitable purpose for *a x57*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"changed name without permission",
+      "in_program":"changed name without permission for *a x58*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"uses other than registered name",
+      "in_program":"uses other than registered name for *a x59*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"amended purposes without approval",
+      "in_program":"amended purposes without approval for *a x60*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"amended statement without approval",
+      "in_program":"amended statement without approval for *a x61*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"required steps notice served",
+      "in_program":"required steps notice served for *a x62*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"notice served on governor",
+      "in_program":"notice served on governor for *a x63*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"complied with notice",
+      "in_program":"complied with notice for *a x64*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"disqualification order exists",
+      "in_program":"disqualification order exists for *a x65*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"refers to as charity",
+      "in_program":"refers to as charity for *a x66* with *a x67*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"refers to as Jersey charity",
+      "in_program":"refers to as jersey charity for *a x68* with *a x69*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"refers to as registered",
+      "in_program":"refers to as registered for *a x70* with *a x71*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"knows not registered",
+      "in_program":"knows not registered for *a x72* with *a x73*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"intends to mislead",
+      "in_program":"intends to mislead for *a x74* with *a x75*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"intends to gain advantage",
+      "in_program":"intends to gain advantage for *a x76* with *a x77*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"misconduct",
+      "in_program":"misconduct for *a x78*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"governor misconduct",
+      "in_program":"governor misconduct for *a x79*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"governor reportable matter",
+      "in_program":"governor reportable matter for *a x80*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"misled Commissioner",
+      "in_program":"misled commissioner for *a x81*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"no longer exists",
+      "in_program":"no longer exists for *a x82*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"governor of registered charity",
+      "in_program":"governor of registered charity for *a x83*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"wholly managed in Jersey",
+      "in_program":"wholly managed in jersey for *a x84*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"excepted foreign charity",
+      "in_program":"excepted foreign charity for *a x85*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"established under UK law",
+      "in_program":"established under UK law for *a x86*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"established under prescribed law",
+      "in_program":"established under prescribed law for *a x87*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"entitled to use charity term",
+      "in_program":"entitled to use charity term for *a x88*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"managed from establishment jurisdiction",
+      "in_program":"managed from establishment jurisdiction for *a x89*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"may appeal to tribunal",
+      "in_program":"*a x90* may appeal to tribunal for *a x91*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"may appeal to court",
+      "in_program":"*a x92* may appeal to court for *a x93*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is required steps notice",
+      "in_program":"*a x94* is required steps notice",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is deregistration decision",
+      "in_program":"*a x95* is deregistration decision",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is registration refusal",
+      "in_program":"*a x96* is registration refusal",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is name change refusal",
+      "in_program":"*a x97* is name change refusal",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"organized religious charity",
+      "in_program":"organized religious charity for *a x98*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"acquired before deregistration",
+      "in_program":"acquired before deregistration for *a x99*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"preserved charitable purposes",
+      "in_program":"the preserved charitable purposes for *a x100* is *a purpose*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"preserved public benefit statement",
+      "in_program":"the preserved public benefit statement for *a x101* is *a statement*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"isBOT",
+      "in_program":"*a place* is BOT",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"qualifying territory",
+      "in_program":"qualifying territory for *a place*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is ancillary",
+      "in_program":"*a x102* is ancillary",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is analogous to charitable purpose",
+      "in_program":"*a x103* is analogous to charitable purpose",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"meets the charity test",
+      "in_program":"*an entity* meets the charity test",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"eligible for registration as charity",
+      "in_program":"eligible for registration as charity for *an entity*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is undesirable",
+      "in_program":"*a name* is undesirable variant one",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"eligible for restricted section",
+      "in_program":"eligible for restricted section for *an entity*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"complies with requirements",
+      "in_program":"complies with requirements for *an entity*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"fulfills governor duties",
+      "in_program":"fulfills governor duties for *a person* with *an entity*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"may refer to as Jersey charity",
+      "in_program":"*an entity* may refer to as jersey charity for *an user*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"may refer to as charity",
+      "in_program":"*an entity* may refer to as charity for *an user*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"excepted foreign charity",
+      "in_program":"excepted foreign charity for *an entity* variant two",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"may issue required steps notice",
+      "in_program":"*an entity* may issue required steps notice",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"may deregister",
+      "in_program":"*an entity* may deregister",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"must apply property for preserved purposes",
+      "in_program":"*an entity* must apply *a property* for preserved purposes",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"may appeal to tribunal",
+      "in_program":"*an entity* may appeal to tribunal for *a decision* variant three",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"in public register",
+      "in_program":"in public register for *a x104*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"general section",
+      "in_program":"general section for *a x105*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"restricted section public elements",
+      "in_program":"restricted section public elements for *a x106*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"historic section",
+      "in_program":"historic section for *a x107*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"disclosure to authorized person",
+      "in_program":"disclosure to authorized person for *a x108*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"for investigation of offense",
+      "in_program":"for investigation of offense for *a x109*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"for legal proceedings",
+      "in_program":"for legal proceedings for *a x110*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"may disclose",
+      "in_program":"*a person* may disclose for *an info*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"may require governor removal",
+      "in_program":"*an entity* may require governor removal for *a notice*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Billy",
+      "in_program":"billy",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"William Farquhar",
+      "in_program":"william_farquhar",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"commencement",
+      "in_program":"commencement",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"appointed day",
+      "in_program":"appointed_day",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"charitable purpose",
+      "in_program":"charitable purpose",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"ancillary or incidental to charitable purpose",
+      "in_program":"ancillary or incidental to charitable purpose",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"provides public benefit in Jersey or elsewhere",
+      "in_program":"provides public benefit in Jersey or elsewhere",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is a Jersey entity",
+      "in_program":"is a Jersey entity",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"carries out substantial activity in Jersey",
+      "in_program":"carries out substantial activity in Jersey",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"has a principal address in Jersey",
+      "in_program":"has a principal address in Jersey",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"constitution",
+      "in_program":"constitution",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is a written document",
+      "in_program":"is a written document",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"name",
+      "in_program":"name",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is undesirable",
+      "in_program":"is undesirable",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"same as another charity",
+      "in_program":"same as another charity",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"too similar to another charity",
+      "in_program":"too similar to another charity",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"misleading",
+      "in_program":"misleading",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"implies false connection",
+      "in_program":"implies false connection",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"offensive",
+      "in_program":"offensive",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is governor of",
+      "in_program":"is governor of",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"directed by Minister",
+      "in_program":"directed by Minister",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"directed by States Assembly member",
+      "in_program":"directed by States Assembly member",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"directed by equivalent in another jurisdiction",
+      "in_program":"directed by equivalent in another jurisdiction",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is registered",
+      "in_program":"is registered",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is deregistered",
+      "in_program":"is deregistered",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"registration date",
+      "in_program":"registration date",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"deregistration date",
+      "in_program":"deregistration date",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"registration section",
+      "in_program":"registration section",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"applied for registration",
+      "in_program":"applied for registration",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"applied for deregistration",
+      "in_program":"applied for deregistration",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"registration refused",
+      "in_program":"registration refused",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"applied to change name",
+      "in_program":"applied to change name",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"name change refused",
+      "in_program":"name change refused",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"meets funding condition",
+      "in_program":"meets funding condition",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"refrains from soliciting donations",
+      "in_program":"refrains from soliciting donations",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"requested restricted section",
+      "in_program":"requested restricted section",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"acts with due diligence",
+      "in_program":"acts with due diligence",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"acts as prudent person",
+      "in_program":"acts as prudent person",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"acts to best ability",
+      "in_program":"acts to best ability",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"observes good faith",
+      "in_program":"observes good faith",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"ensures consistency with purposes",
+      "in_program":"ensures consistency with purposes",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"ensures compliance with law",
+      "in_program":"ensures compliance with law",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"reportable matter exists",
+      "in_program":"reportable matter exists",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"reported to charity",
+      "in_program":"reported to charity",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"reported to Commissioner",
+      "in_program":"reported to Commissioner",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"declared no reportable matters",
+      "in_program":"declared no reportable matters",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is fit and proper person",
+      "in_program":"is fit and proper person",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"provides annual return",
+      "in_program":"provides annual return",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"reports changes",
+      "in_program":"reports changes",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"applies property per purposes",
+      "in_program":"applies property per purposes",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"applies property per statement",
+      "in_program":"applies property per statement",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"amended to non-charitable purpose",
+      "in_program":"amended to non-charitable purpose",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"changed name without permission",
+      "in_program":"changed name without permission",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"uses other than registered name",
+      "in_program":"uses other than registered name",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"amended purposes without approval",
+      "in_program":"amended purposes without approval",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"amended statement without approval",
+      "in_program":"amended statement without approval",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"required steps notice served",
+      "in_program":"required steps notice served",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"notice served on governor",
+      "in_program":"notice served on governor",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"complied with notice",
+      "in_program":"complied with notice",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"disqualification order exists",
+      "in_program":"disqualification order exists",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"refers to as charity",
+      "in_program":"refers to as charity",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"refers to as Jersey charity",
+      "in_program":"refers to as Jersey charity",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"refers to as registered",
+      "in_program":"refers to as registered",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"knows not registered",
+      "in_program":"knows not registered",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"intends to mislead",
+      "in_program":"intends to mislead",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"intends to gain advantage",
+      "in_program":"intends to gain advantage",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"misconduct",
+      "in_program":"misconduct",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"governor misconduct",
+      "in_program":"governor misconduct",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"governor reportable matter",
+      "in_program":"governor reportable matter",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"misled Commissioner",
+      "in_program":"misled Commissioner",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"no longer exists",
+      "in_program":"no longer exists",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"governor of registered charity",
+      "in_program":"governor of registered charity",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"wholly managed in Jersey",
+      "in_program":"wholly managed in Jersey",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"excepted foreign charity",
+      "in_program":"excepted foreign charity",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"established under UK law",
+      "in_program":"established under UK law",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"established under prescribed law",
+      "in_program":"established under prescribed law",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"entitled to use charity term",
+      "in_program":"entitled to use charity term",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"managed from establishment jurisdiction",
+      "in_program":"managed from establishment jurisdiction",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"may appeal to tribunal",
+      "in_program":"may appeal to tribunal",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"may appeal to court",
+      "in_program":"may appeal to court",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is required steps notice",
+      "in_program":"is required steps notice",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is deregistration decision",
+      "in_program":"is deregistration decision",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is registration refusal",
+      "in_program":"is registration refusal",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is name change refusal",
+      "in_program":"is name change refusal",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"organized religious charity",
+      "in_program":"organized religious charity",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"acquired before deregistration",
+      "in_program":"acquired before deregistration",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"preserved charitable purposes",
+      "in_program":"preserved charitable purposes",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"preserved public benefit statement",
+      "in_program":"preserved public benefit statement",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"British Overseas Territories",
+      "in_program":"british_overseas_territories",
+      "kind":"record",
+      "mapping":"a list of individuals, one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"isBOT",
+      "in_program":"*a place* is BOT",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"qualifying territory",
+      "in_program":"qualifying territory for *a place*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is ancillary",
+      "in_program":"is ancillary",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is analogous to charitable purpose",
+      "in_program":"is analogous to charitable purpose",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"knownCharitablePurposes",
+      "in_program":"the known charitable purposes is *a list*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is charitable",
+      "in_program":"*a value* is charitable",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"all purposes are qualifying",
+      "in_program":"all purposes are qualifying for *an entity*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is charitable",
+      "in_program":"*a value* is charitable",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"all purposes are qualifying",
+      "in_program":"all purposes are qualifying for *an entity*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"meets the charity test",
+      "in_program":"*an entity* meets the charity test",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"eligible for registration as charity",
+      "in_program":"eligible for registration as charity for *an entity*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is undesirable",
+      "in_program":"r1",
+      "kind":"definition",
+      "mapping":"no LE form found",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"eligible for restricted section",
+      "in_program":"eligible for restricted section for *an entity*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"complies with requirements",
+      "in_program":"complies with requirements for *an entity*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"fulfills governor duties",
+      "in_program":"fulfills governor duties for *a person* with *an entity*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"may refer to as Jersey charity",
+      "in_program":"*an entity* may refer to as jersey charity for *an user*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"may refer to as charity",
+      "in_program":"*an entity* may refer to as charity for *an user*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"excepted foreign charity",
+      "in_program":"r2",
+      "kind":"definition",
+      "mapping":"no LE form found",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"may issue required steps notice",
+      "in_program":"*an entity* may issue required steps notice",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"may deregister",
+      "in_program":"*an entity* may deregister",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"must apply property for preserved purposes",
+      "in_program":"*an entity* must apply *a property* for preserved purposes",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"may appeal to tribunal",
+      "in_program":"r3",
+      "kind":"definition",
+      "mapping":"no LE form found",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"in public register",
+      "in_program":"in public register",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"general section",
+      "in_program":"general section",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"restricted section public elements",
+      "in_program":"restricted section public elements",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"historic section",
+      "in_program":"historic section",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"disclosure to authorized person",
+      "in_program":"disclosure to authorized person",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"for investigation of offense",
+      "in_program":"for investigation of offense",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"for legal proceedings",
+      "in_program":"for legal proceedings",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"may disclose",
+      "in_program":"*a person* may disclose for *an info*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"may require governor removal",
+      "in_program":"*an entity* may require governor removal for *a notice*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity":null,
+  "meta": {
+    "artifacts": ["jerseyCharities.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"jerseycharities",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":0
+}

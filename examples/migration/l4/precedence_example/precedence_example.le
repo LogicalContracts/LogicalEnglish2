@@ -1,0 +1,59 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from precedence-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    the x is *a number*.
+    the y is *a number*.
+    the z is *a number*.
+    L4's answer at line 9 is reproduced.
+    L4's answer at line 13 is reproduced.
+
+the knowledge base precedence_example includes:
+
+the text of the source program is at "sources/precedence-example.l4".
+
+the x is 3.
+
+the y is 4.
+
+the z is 5.
+
+L4's answer at line 9 is reproduced if
+    the x is a number N
+    and the y is a number M
+    and the z is a number K
+    and a thing T = N + M * K
+    and T * 100000000 >= 2299999999
+    and T * 100000000 <= 2300000001.
+
+L4's answer at line 13 is reproduced if
+    the x is a number N
+    and the y is a number M
+    and the z is a number K
+    and a thing T = (N + M) * K
+    and T * 100000000 >= 3499999999
+    and T * 100000000 <= 3500000001.
+
+scenario line_9 is, as stated in the source program at line 9:
+    line_9 expects answers ["L4's answer at line 9 is reproduced"].
+
+scenario line_13 is, as stated in the source program at line 13:
+    line_13 expects answers ["L4's answer at line 13 is reproduced"].
+
+query line_9 is:
+    L4's answer at line 9 is reproduced.
+
+query line_13 is:
+    L4's answer at line 13 is reproduced.
+

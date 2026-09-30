@@ -1,0 +1,295 @@
+{
+  "counts": {"approximated":0,"encoded":31,"residue":2},
+  "entries": [
+    {
+      "element":"Purpose",
+      "in_program":"Purpose",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Status",
+      "in_program":"Status",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Conviction",
+      "in_program":"Conviction",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Governor",
+      "in_program":"Governor",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Registered Charity",
+      "in_program":"Registered Charity",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Actor",
+      "in_program":"Actor",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Action",
+      "in_program":"Action",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the governor is an adult",
+      "in_program":"*a governor* is an adult",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the governor has a disqualifying conviction",
+      "in_program":"*a governor* has a disqualifying conviction",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the person can be a governor",
+      "in_program":"the person can be *a governor*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the purpose is charitable",
+      "in_program":"*a purpose* is charitable",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the charity is valid",
+      "in_program":"*a charity* is valid",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the annual return obligation",
+      "in_program":"the annual return obligation",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"the correction period",
+      "in_program":"the correction period",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"Jane Smith",
+      "in_program":"jane_smith",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"John Doe (bankrupt)",
+      "in_program":"john_doe_bankrupt",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"unspent conviction",
+      "in_program":"unspent_conviction",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Bob Jones (with conviction)",
+      "in_program":"bob_jones_with_conviction",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Young Person",
+      "in_program":"young_person",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Jersey Animal Welfare",
+      "in_program":"jersey_animal_welfare",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Problem Charity",
+      "in_program":"problem_charity",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Suspended Charity",
+      "in_program":"suspended_charity",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 162",
+      "in_program":"line_162",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 163",
+      "in_program":"line_163",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 164",
+      "in_program":"line_164",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 165",
+      "in_program":"line_165",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 166",
+      "in_program":"line_166",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 167",
+      "in_program":"line_167",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 170",
+      "in_program":"line_170",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 171",
+      "in_program":"line_171",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 172",
+      "in_program":"line_172",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the annual return obligation",
+      "in_program":"the annual return obligation",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the correction period",
+      "in_program":"the correction period",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":9,
+    "tests": [
+      {"detail":"","query":"line_162","result":"pass","scenario":"line_162"},
+      {"detail":"","query":"line_163","result":"pass","scenario":"line_163"},
+      {"detail":"","query":"line_164","result":"pass","scenario":"line_164"},
+      {"detail":"","query":"line_165","result":"pass","scenario":"line_165"},
+      {"detail":"","query":"line_166","result":"pass","scenario":"line_166"},
+      {"detail":"","query":"line_167","result":"pass","scenario":"line_167"},
+      {"detail":"","query":"line_170","result":"pass","scenario":"line_170"},
+      {"detail":"","query":"line_171","result":"pass","scenario":"line_171"},
+      {"detail":"","query":"line_172","result":"pass","scenario":"line_172"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["module-6-examples.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"module_6_examples",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":9
+}

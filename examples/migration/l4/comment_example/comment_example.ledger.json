@@ -1,0 +1,40 @@
+{
+  "counts": {"approximated":0,"encoded":2,"residue":1},
+  "entries": [
+    {
+      "element":"age",
+      "in_program":"age",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"name",
+      "in_program":"name",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#eval at line 13",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"the evaluator's answer is not a value LE writes: age",
+      "note":"",
+      "verdict":"residue"
+    }
+  ],
+  "fidelity":null,
+  "meta": {
+    "artifacts": ["comment-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"comment_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":0
+}

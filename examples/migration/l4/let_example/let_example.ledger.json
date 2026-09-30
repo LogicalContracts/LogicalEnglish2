@@ -1,0 +1,440 @@
+{
+  "counts": {"approximated":4,"encoded":44,"residue":3},
+  "entries": [
+    {
+      "element":"Point",
+      "in_program":"Point",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"factorial of",
+      "in_program":"the factorial of *a number* is *a second number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"quadratic discriminant",
+      "in_program":"the quadratic discriminant for *a number* with *a second number* with *a third number* is *a value*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"x",
+      "in_program":"the x is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"result with single binding",
+      "in_program":"the result with single binding is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"x",
+      "in_program":"the x in sum of two values is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"y",
+      "in_program":"the y is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"sum of two values",
+      "in_program":"the sum of two values is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"x",
+      "in_program":"the x in sum of three values is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"y",
+      "in_program":"the y in sum of three values is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"z",
+      "in_program":"the z is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"sum of three values",
+      "in_program":"the sum of three values is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"initial value",
+      "in_program":"the initial value is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"doubled value",
+      "in_program":"the doubled value is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"final value",
+      "in_program":"the final value is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"calculated result using forward references",
+      "in_program":"the calculated result using forward references is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"a",
+      "in_program":"a is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"b",
+      "in_program":"the b is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"c",
+      "in_program":"the c is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"d",
+      "in_program":"the d is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"e",
+      "in_program":"the e is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"sum using various binding keywords",
+      "in_program":"the sum using various binding keywords is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"val",
+      "in_program":"the val is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"result",
+      "in_program":"the result is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"using equals for binding",
+      "in_program":"the using equals for binding is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"step one",
+      "in_program":"the step one is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"step two",
+      "in_program":"the step two is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"step three",
+      "in_program":"the step three is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"nested let expressions",
+      "in_program":"the nested let expressions is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"previous factorial",
+      "in_program":"the previous factorial for *a number* is *a second number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"previous factorial",
+      "in_program":"the previous factorial for *a number* is *a second number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"factorial of",
+      "in_program":"the factorial of *a number* is *a second number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the origin",
+      "in_program":"r1",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"shifted point",
+      "in_program":"r2",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"shifted point example",
+      "in_program":"the shifted point example is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"all numbers",
+      "in_program":"the all numbers is *a list*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"list of numbers example",
+      "in_program":"the list of numbers example is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the discriminant",
+      "in_program":"the discriminant for *a number* with *a second number* with *a third number* is *a fourth number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the discriminant",
+      "in_program":"the discriminant for *a number* with *a second number* with *a third number* is *a fourth number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"quadratic discriminant",
+      "in_program":"the quadratic discriminant for *a number* with *a second number* with *a third number* is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 9",
+      "in_program":"line_9",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 19",
+      "in_program":"line_19",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 30",
+      "in_program":"line_30",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 41",
+      "in_program":"line_41",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 54",
+      "in_program":"line_54",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 64",
+      "in_program":"line_64",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 74",
+      "in_program":"line_74",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 85",
+      "in_program":"line_85",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#eval at line 97",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"the evaluator's answer is not a value LE writes: Point WITH x IS 10, y IS 20",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#EVAL at line 106",
+      "in_program":"line_106",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 118",
+      "in_program":"line_118",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":10,
+    "tests": [
+      {"detail":"","query":"line_9","result":"pass","scenario":"line_9"},
+      {"detail":"","query":"line_19","result":"pass","scenario":"line_19"},
+      {"detail":"","query":"line_30","result":"pass","scenario":"line_30"},
+      {"detail":"","query":"line_41","result":"pass","scenario":"line_41"},
+      {"detail":"","query":"line_54","result":"pass","scenario":"line_54"},
+      {"detail":"","query":"line_64","result":"pass","scenario":"line_64"},
+      {"detail":"","query":"line_74","result":"pass","scenario":"line_74"},
+      {"detail":"","query":"line_85","result":"pass","scenario":"line_85"},
+      {"detail":"","query":"line_106","result":"pass","scenario":"line_106"},
+      {"detail":"","query":"line_118","result":"pass","scenario":"line_118"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["let-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"let_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":10
+}

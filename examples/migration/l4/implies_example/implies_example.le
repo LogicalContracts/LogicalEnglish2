@@ -1,0 +1,226 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from implies-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    implies version for *a boolean* with *a second boolean*.
+    else version for *a value* with *a second value*.
+    is employee; scenario element.
+    has badge; scenario element.
+    badge rule.
+    the person age is *a number*; scenario element.
+    has parental consent; scenario element.
+    consent rule.
+    chained impl for *a boolean* with *a second boolean* with *a third boolean*.
+    conjunction implies for *a boolean* with *a second boolean* with *a third boolean*.
+    implies disjunction for *a value* with *a second value* with *a third value*.
+    L4's answer at line 5 is reproduced.
+    L4's answer at line 6 is reproduced.
+    L4's answer at line 7 is reproduced.
+    L4's answer at line 8 is reproduced.
+    L4's answer at line 12 is reproduced.
+    L4's answer at line 13 is reproduced.
+    L4's answer at line 14 is reproduced.
+
+the knowledge base implies_example includes:
+
+the text of the source program is at "sources/implies-example.l4".
+
+implies version for a boolean with a second boolean if
+    it is not the case that true is equal to the boolean
+    or true is equal to the second boolean.
+
+else version for a value with a second value if
+    it is not the case that
+        true is equal to the value
+        or true is equal to the second value.
+
+badge rule if
+    it is not the case that is employee
+    or has badge.
+
+consent rule if
+    it is not the case that
+        the person age is a number N
+        and N < 18
+    or has parental consent.
+
+chained impl for a boolean with a second boolean with a third boolean if
+    it is not the case that true is equal to the boolean
+    or true is equal to the third boolean
+        or it is not the case that true is equal to the second boolean.
+
+conjunction implies for a boolean with a second boolean with a third boolean if
+    it is not the case that
+        true is equal to the boolean
+        and true is equal to the second boolean
+    or true is equal to the third boolean.
+
+implies disjunction for a value with a second value with a third value if
+    it is not the case that true is equal to the value
+    or true is equal to the second value
+        or true is equal to the third value.
+
+L4's answer at line 5 is reproduced.
+
+L4's answer at line 6 is reproduced.
+
+L4's answer at line 7 is reproduced.
+
+L4's answer at line 8 is reproduced.
+
+L4's answer at line 12 is reproduced.
+
+L4's answer at line 13 is reproduced.
+
+L4's answer at line 14 is reproduced.
+
+scenario line_5 is, as stated in the source program at line 5:
+    line_5 expects answers ["L4's answer at line 5 is reproduced"].
+
+scenario line_6 is, as stated in the source program at line 6:
+    line_6 expects answers ["L4's answer at line 6 is reproduced"].
+
+scenario line_7 is, as stated in the source program at line 7:
+    line_7 expects answers ["L4's answer at line 7 is reproduced"].
+
+scenario line_8 is, as stated in the source program at line 8:
+    line_8 expects answers ["L4's answer at line 8 is reproduced"].
+
+scenario line_12 is, as stated in the source program at line 12:
+    line_12 expects answers ["L4's answer at line 12 is reproduced"].
+
+scenario line_13 is, as stated in the source program at line 13:
+    line_13 expects answers ["L4's answer at line 13 is reproduced"].
+
+scenario line_14 is, as stated in the source program at line 14:
+    line_14 expects answers ["L4's answer at line 14 is reproduced"].
+
+scenario line_26 is, as stated in the source program at line 26:
+    line_26 expects answers ["implies version for true with true"].
+
+scenario line_27 is, as stated in the source program at line 27:
+    line_27 expects answers [].
+
+scenario line_29 is, as stated in the source program at line 29:
+    line_29 expects answers [].
+
+scenario line_30 is, as stated in the source program at line 30:
+    line_30 expects answers [].
+
+scenario line_32 is, as stated in the source program at line 32:
+    line_32 expects answers ["implies version for false with true"].
+
+scenario line_33 is, as stated in the source program at line 33:
+    line_33 expects answers [].
+
+scenario line_61 is, as stated in the source program at line 61:
+    line_61 expects answers ["chained impl for true with true with true"].
+
+scenario line_62 is, as stated in the source program at line 62:
+    line_62 expects answers [].
+
+scenario line_63 is, as stated in the source program at line 63:
+    line_63 expects answers ["chained impl for false with false with false"].
+
+scenario line_77 is, as stated in the source program at line 77:
+    line_77 expects answers ["conjunction implies for true with true with true"].
+
+scenario line_78 is, as stated in the source program at line 78:
+    line_78 expects answers [].
+
+scenario line_79 is, as stated in the source program at line 79:
+    line_79 expects answers ["implies disjunction for true with false with true"].
+
+scenario line_80 is, as stated in the source program at line 80:
+    line_80 expects answers [].
+
+scenario variant_1 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is employee.
+    has badge.
+    badge_rule expects answers ["badge rule"].
+
+scenario variant_2 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    has badge.
+    badge_rule expects answers ["badge rule"].
+
+scenario variant_3 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is employee.
+    badge_rule expects answers [].
+
+scenario variant_4 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    badge_rule expects answers ["badge rule"].
+
+query line_5 is:
+    L4's answer at line 5 is reproduced.
+
+query line_6 is:
+    L4's answer at line 6 is reproduced.
+
+query line_7 is:
+    L4's answer at line 7 is reproduced.
+
+query line_8 is:
+    L4's answer at line 8 is reproduced.
+
+query line_12 is:
+    L4's answer at line 12 is reproduced.
+
+query line_13 is:
+    L4's answer at line 13 is reproduced.
+
+query line_14 is:
+    L4's answer at line 14 is reproduced.
+
+query line_26 is:
+    implies version for true with true.
+
+query line_27 is:
+    else version for true with true.
+
+query line_29 is:
+    implies version for true with false.
+
+query line_30 is:
+    else version for true with false.
+
+query line_32 is:
+    implies version for false with true.
+
+query line_33 is:
+    else version for false with true.
+
+query line_61 is:
+    chained impl for true with true with true.
+
+query line_62 is:
+    chained impl for true with true with false.
+
+query line_63 is:
+    chained impl for false with false with false.
+
+query line_77 is:
+    conjunction implies for true with true with true.
+
+query line_78 is:
+    conjunction implies for true with true with false.
+
+query line_79 is:
+    implies disjunction for true with false with true.
+
+query line_80 is:
+    implies disjunction for true with false with false.
+
+query badge_rule is:
+    badge rule.
+

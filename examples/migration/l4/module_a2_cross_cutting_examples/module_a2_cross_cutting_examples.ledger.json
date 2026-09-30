@@ -1,0 +1,448 @@
+{
+  "counts": {"approximated":2,"encoded":35,"residue":17},
+  "entries": [
+    {
+      "element":"Actor",
+      "in_program":"Actor",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"LicenceParty",
+      "in_program":"LicenceParty",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Action",
+      "in_program":"Action",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"LicenceAction",
+      "in_program":"LicenceAction",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Severity",
+      "in_program":"Severity",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Violation",
+      "in_program":"Violation",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"CharityStatus",
+      "in_program":"CharityStatus",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"RegisteredCharity",
+      "in_program":"RegisteredCharity",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Decision",
+      "in_program":"Decision",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"CommissionerDecision",
+      "in_program":"CommissionerDecision",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"CourtDecision",
+      "in_program":"CourtDecision",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"RequiredStepsNotice",
+      "in_program":"RequiredStepsNotice",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"PracticableDeadline",
+      "in_program":"PracticableDeadline",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"AppealOutcome",
+      "in_program":"AppealOutcome",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"practicable days",
+      "in_program":"the practicable days for *a timing* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"to calendar days",
+      "in_program":"the to calendar days for *a business days* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"practicable days",
+      "in_program":"the practicable days for *a timing* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"to calendar days",
+      "in_program":"the to calendar days for *a business days* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"ten business days",
+      "in_program":"the ten business days is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"obligation within days",
+      "in_program":"obligation within days",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"obligation after trigger",
+      "in_program":"obligation after trigger",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"notice and cure",
+      "in_program":"notice and cure",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"required steps procedure",
+      "in_program":"required steps procedure",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"right to appeal",
+      "in_program":"right to appeal",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"suspensive appeal",
+      "in_program":"suspensive appeal",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"original decision takes effect",
+      "in_program":"r1",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"decision has no effect",
+      "in_program":"r2",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"varied decision takes effect",
+      "in_program":"varied decision takes effect",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"appeal commissioner decision",
+      "in_program":"appeal commissioner decision",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"escalation chain",
+      "in_program":"escalation chain",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"enforcement response",
+      "in_program":"enforcement response",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"payment with grace",
+      "in_program":"payment with grace",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"licence suspended",
+      "in_program":"r3",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"licence revoked",
+      "in_program":"r4",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"appeal procedure",
+      "in_program":"r5",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"licence renewal procedure",
+      "in_program":"licence renewal procedure",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"testCharity",
+      "in_program":"test_charity",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"testNotice",
+      "in_program":"test_notice",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"minorViolation",
+      "in_program":"minor_violation",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"seriousViolation",
+      "in_program":"serious_violation",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"criticalViolation",
+      "in_program":"critical_violation",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"testHolder",
+      "in_program":"test_holder",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"appeal commissioner decision",
+      "in_program":"appeal commissioner decision",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"enforcement response",
+      "in_program":"enforcement response",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"escalation chain",
+      "in_program":"escalation chain",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"licence renewal procedure",
+      "in_program":"licence renewal procedure",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"notice and cure",
+      "in_program":"notice and cure",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"obligation after trigger",
+      "in_program":"obligation after trigger",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"obligation within days",
+      "in_program":"obligation within days",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"payment with grace",
+      "in_program":"payment with grace",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"required steps procedure",
+      "in_program":"required steps procedure",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"right to appeal",
+      "in_program":"right to appeal",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"suspensive appeal",
+      "in_program":"suspensive appeal",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"varied decision takes effect",
+      "in_program":"varied decision takes effect",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity":null,
+  "meta": {
+    "artifacts": ["module-a2-cross-cutting-examples.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"module_a2_cross_cutting_examples",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":0
+}

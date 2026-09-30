@@ -1,0 +1,52 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from either-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    the api result is *a EITHER*; scenario element.
+    the error case is *a value*.
+    the success case is *a value*.
+    the handle *a result* is *a value*.
+
+the knowledge base either_example includes:
+
+the text of the source program is at "sources/either-example.l4".
+
+% RESIDUE r1 BEGIN: error case
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 8-8
+% a value with no LE form: (`LEFT` OF "Error occurred")
+%   l4:
+%   | `error case` MEANS LEFT OF "Error occurred"
+% RESIDUE r1 END
+
+% RESIDUE r2 BEGIN: success case
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 9-9
+% a value with no LE form: (`RIGHT` OF 42)
+%   l4:
+%   | `success case` MEANS RIGHT OF 42
+% RESIDUE r2 END
+
+% RESIDUE r3 BEGIN: handle the result
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 12-16
+% a pattern with no LE form: papp('LEFT',[papp(err,[])])
+%   l4:
+%   | GIVEN result IS AN EITHER STRING NUMBER
+%   | `handle the result` result MEANS
+%   |   CONSIDER result
+%   |   WHEN LEFT OF err THEN CONCAT "Error: ", err
+%   |   WHEN RIGHT OF val THEN CONCAT "Success: ", TOSTRING val
+% RESIDUE r3 END
+

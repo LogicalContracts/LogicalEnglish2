@@ -1,0 +1,104 @@
+{
+  "counts": {"approximated":0,"encoded":10,"residue":0},
+  "entries": [
+    {
+      "element":"citizen",
+      "in_program":"citizen",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"over18",
+      "in_program":"over18",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"hasID",
+      "in_program":"has ID",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"approved",
+      "in_program":"approved",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pending",
+      "in_program":"pending",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"review",
+      "in_program":"review",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"eligible1",
+      "in_program":"eligible1",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"inProgress",
+      "in_program":"in progress",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 20",
+      "in_program":"line_20",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 21",
+      "in_program":"line_21",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":2,
+    "tests": [
+      {"detail":"","query":"line_20","result":"pass","scenario":"line_20"},
+      {"detail":"","query":"line_21","result":"pass","scenario":"line_21"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["asyndetic-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"asyndetic_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":2
+}

@@ -1,0 +1,340 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from coercion-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    the number text is *a value*.
+    the bool text is *a value*.
+    the date text is *a value*.
+    the bool as string is *a value*.
+    the date as string is *a value*.
+    the parsed good is *a value*.
+    the parsed sci is *a value*.
+    the parsed bad is *a value*.
+    the parsed isodate is *a value*.
+    the parsed slash date is *a value*.
+    the parsed named date is *a value*.
+    the parsed bad date is *a value*.
+    the trunc whole is *a value*.
+    the trunc decimals is *a value*.
+    the trunc negative digits is *a value*.
+    the trunc negative number is *a value*.
+    the parse as well as double for *an input* is *a text*.
+    L4's answer at line 23 is reproduced.
+    L4's answer at line 26 is reproduced.
+    L4's answer at line 46 is reproduced.
+    L4's answer at line 49 is reproduced.
+    L4's answer at line 52 is reproduced.
+    L4's answer at line 55 is reproduced.
+
+the knowledge base coercion_example includes:
+
+the text of the source program is at "sources/coercion-example.l4".
+
+% RESIDUE r1 BEGIN: numberText
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 5-5
+% a value with no LE form: (`TOSTRING` OF 1.2)
+%   l4:
+%   | DECIDE numberText IS TOSTRING 1.20
+% RESIDUE r1 END
+
+% RESIDUE r2 BEGIN: boolText
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 8-8
+% a value with no LE form: (`TOSTRING` OF `TRUE`)
+%   l4:
+%   | DECIDE boolText IS TOSTRING TRUE
+% RESIDUE r2 END
+
+% RESIDUE r3 BEGIN: dateText
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 11-11
+% a value with no LE form: (`TOSTRING` OF (`Date` OF 29, 2, 2024))
+%   l4:
+%   | DECIDE dateText IS TOSTRING (Date 29 2 2024)
+% RESIDUE r3 END
+
+% RESIDUE r4 BEGIN: boolAsString
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 15-15
+% a value with no LE form: (`TRUE` AS `STRING`)
+%   l4:
+%   | DECIDE boolAsString IS TRUE AS STRING
+% RESIDUE r4 END
+
+% RESIDUE r5 BEGIN: dateAsString
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 18-18
+% a value with no LE form: ((`Date` OF 1, 1, 2024) AS `STRING`)
+%   l4:
+%   | DECIDE dateAsString IS (Date 1 1 2024) AS STRING
+% RESIDUE r5 END
+
+% RESIDUE r6 BEGIN: parsedGood
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 22-22
+% a value with no LE form: (`TONUMBER` OF "  -12.50 ")
+%   l4:
+%   | DECIDE parsedGood IS TONUMBER "  -12.50 "
+% RESIDUE r6 END
+
+% RESIDUE r7 BEGIN: parsedSci
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 25-25
+% a value with no LE form: (`TONUMBER` OF "1.2E3")
+%   l4:
+%   | DECIDE parsedSci IS TONUMBER "1.2E3"
+% RESIDUE r7 END
+
+% RESIDUE r8 BEGIN: parsedBad
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 28-28
+% a value with no LE form: (`TONUMBER` OF "oops")
+%   l4:
+%   | DECIDE parsedBad IS TONUMBER "oops"
+% RESIDUE r8 END
+
+% RESIDUE r9 BEGIN: parsedISODate
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 32-32
+% a value with no LE form: (`TODATE` OF "2024-02-29")
+%   l4:
+%   | DECIDE parsedISODate IS TODATE "2024-02-29"
+% RESIDUE r9 END
+
+% RESIDUE r10 BEGIN: parsedSlashDate
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 35-35
+% a value with no LE form: (`TODATE` OF "15/01/2024")
+%   l4:
+%   | DECIDE parsedSlashDate IS TODATE "15/01/2024"
+% RESIDUE r10 END
+
+% RESIDUE r11 BEGIN: parsedNamedDate
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 38-38
+% a value with no LE form: (`TODATE` OF "Feb 01, 2024")
+%   l4:
+%   | DECIDE parsedNamedDate IS TODATE "Feb 01, 2024"
+% RESIDUE r11 END
+
+% RESIDUE r12 BEGIN: parsedBadDate
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 41-41
+% a value with no LE form: (`TODATE` OF "31/02/2024")
+%   l4:
+%   | DECIDE parsedBadDate IS TODATE "31/02/2024"
+% RESIDUE r12 END
+
+% RESIDUE r13 BEGIN: truncWhole
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 45-45
+% a value with no LE form: (`TRUNC` OF 12.987, 0)
+%   l4:
+%   | DECIDE truncWhole IS TRUNC 12.987 0
+% RESIDUE r13 END
+
+% RESIDUE r14 BEGIN: truncDecimals
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 48-48
+% a value with no LE form: (`TRUNC` OF 12.987, 2)
+%   l4:
+%   | DECIDE truncDecimals IS TRUNC 12.987 2
+% RESIDUE r14 END
+
+% RESIDUE r15 BEGIN: truncNegativeDigits
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 51-51
+% a value with no LE form: (`TRUNC` OF 123.45, (0 MINUS 1))
+%   l4:
+%   | DECIDE truncNegativeDigits IS TRUNC 123.45 (0 MINUS 1)
+% RESIDUE r15 END
+
+% RESIDUE r16 BEGIN: truncNegativeNumber
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 54-54
+% a value with no LE form: (`TRUNC` OF (0 MINUS 123.45), 1)
+%   l4:
+%   | DECIDE truncNegativeNumber IS TRUNC (0 MINUS 123.45) 1
+% RESIDUE r16 END
+
+% RESIDUE r17 BEGIN: parseAndDouble
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 58-63
+% a value with no LE form: (`TONUMBER` OF `input`)
+%   l4:
+%   | GIVEN input IS A STRING
+%   | GIVETH A STRING
+%   | parseAndDouble input MEANS
+%   |     CONSIDER TONUMBER input
+%   |     WHEN NOTHING THEN "Invalid number"
+%   |     WHEN JUST n THEN TOSTRING (n TIMES 2)
+% RESIDUE r17 END
+
+L4's answer at line 23 is reproduced if
+    the parsed good is a value V
+    and V * 100000000 >= -1250000001
+    and V * 100000000 <= -1249999999.
+
+L4's answer at line 26 is reproduced if
+    the parsed sci is a value V
+    and V * 1000000 >= 1199999999
+    and V * 1000000 <= 1200000001.
+
+L4's answer at line 46 is reproduced if
+    the trunc whole is a value V
+    and V * 100000000 >= 1199999999
+    and V * 100000000 <= 1200000001.
+
+L4's answer at line 49 is reproduced if
+    the trunc decimals is a value V
+    and V * 100000000 >= 1297999999
+    and V * 100000000 <= 1298000001.
+
+L4's answer at line 52 is reproduced if
+    the trunc negative digits is a value V
+    and V * 10000000 >= 1199999999
+    and V * 10000000 <= 1200000001.
+
+L4's answer at line 55 is reproduced if
+    the trunc negative number is a value V
+    and V * 10000000 >= -1234000001
+    and V * 10000000 <= -1233999999.
+
+scenario line_6 is, as stated in the source program at line 6:
+    % pending — waits for residue r1:
+    % line_6 expects answers ["the number text is 1.2"].
+
+scenario line_9 is, as stated in the source program at line 9:
+    % pending — waits for residue r2:
+    % line_9 expects answers ["the bool text is TRUE"].
+
+scenario line_12 is, as stated in the source program at line 12:
+    % pending — waits for residue r3:
+    % line_12 expects answers ["the date text is 2024-02-29"].
+
+scenario line_16 is, as stated in the source program at line 16:
+    % pending — waits for residue r4:
+    % line_16 expects answers ["the bool as string is TRUE"].
+
+scenario line_19 is, as stated in the source program at line 19:
+    % pending — waits for residue r5:
+    % line_19 expects answers ["the date as string is 2024-01-01"].
+
+scenario line_23 is, as stated in the source program at line 23:
+    % pending — waits for residue r6:
+    % line_23 expects answers ["L4's answer at line 23 is reproduced"].
+
+scenario line_26 is, as stated in the source program at line 26:
+    % pending — waits for residue r7:
+    % line_26 expects answers ["L4's answer at line 26 is reproduced"].
+
+scenario line_29 is, as stated in the source program at line 29:
+    % pending — waits for residue r8:
+    % line_29 expects answers ["the parsed bad is nothing"].
+
+scenario line_33 is, as stated in the source program at line 33:
+    % pending — waits for residue r9:
+    % line_33 expects answers ["the parsed isodate is 2024-02-29"].
+
+scenario line_36 is, as stated in the source program at line 36:
+    % pending — waits for residue r10:
+    % line_36 expects answers ["the parsed slash date is 2024-01-15"].
+
+scenario line_39 is, as stated in the source program at line 39:
+    % pending — waits for residue r11:
+    % line_39 expects answers ["the parsed named date is 2024-02-01"].
+
+scenario line_42 is, as stated in the source program at line 42:
+    % pending — waits for residue r12:
+    % line_42 expects answers ["the parsed bad date is nothing"].
+
+scenario line_46 is, as stated in the source program at line 46:
+    % pending — waits for residue r13:
+    % line_46 expects answers ["L4's answer at line 46 is reproduced"].
+
+scenario line_49 is, as stated in the source program at line 49:
+    % pending — waits for residue r14:
+    % line_49 expects answers ["L4's answer at line 49 is reproduced"].
+
+scenario line_52 is, as stated in the source program at line 52:
+    % pending — waits for residue r15:
+    % line_52 expects answers ["L4's answer at line 52 is reproduced"].
+
+scenario line_55 is, as stated in the source program at line 55:
+    % pending — waits for residue r16:
+    % line_55 expects answers ["L4's answer at line 55 is reproduced"].
+
+scenario line_65 is, as stated in the source program at line 65:
+    % pending — waits for residue r17:
+    % line_65 expects answers ["the parse as well as double for 21 is 42"].
+
+scenario line_66 is, as stated in the source program at line 66:
+    % pending — waits for residue r17:
+    % line_66 expects answers ["the parse as well as double for abc is Invalid number"].
+
+query line_6 is:
+    the number text is which value.
+
+query line_9 is:
+    the bool text is which value.
+
+query line_12 is:
+    the date text is which value.
+
+query line_16 is:
+    the bool as string is which value.
+
+query line_19 is:
+    the date as string is which value.
+
+query line_23 is:
+    L4's answer at line 23 is reproduced.
+
+query line_26 is:
+    L4's answer at line 26 is reproduced.
+
+query line_29 is:
+    the parsed bad is which value.
+
+query line_33 is:
+    the parsed isodate is which value.
+
+query line_36 is:
+    the parsed slash date is which value.
+
+query line_39 is:
+    the parsed named date is which value.
+
+query line_42 is:
+    the parsed bad date is which value.
+
+query line_46 is:
+    L4's answer at line 46 is reproduced.
+
+query line_49 is:
+    L4's answer at line 49 is reproduced.
+
+query line_52 is:
+    L4's answer at line 52 is reproduced.
+
+query line_55 is:
+    L4's answer at line 55 is reproduced.
+
+query line_65 is:
+    the parse as well as double for "21" is which text.
+
+query line_66 is:
+    the parse as well as double for "abc" is which text.
+

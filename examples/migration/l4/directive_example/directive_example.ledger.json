@@ -1,0 +1,32 @@
+{
+  "counts": {"approximated":0,"encoded":1,"residue":1},
+  "entries": [
+    {
+      "element":"person age",
+      "in_program":"person age",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#eval at line 12",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"the evaluator's answer is not a value LE writes: `person age`",
+      "note":"",
+      "verdict":"residue"
+    }
+  ],
+  "fidelity":null,
+  "meta": {
+    "artifacts": ["directive-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"directive_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":0
+}

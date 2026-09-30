@@ -1,0 +1,381 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from unless-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    basic1.
+    basic2.
+    basic3.
+    basic4.
+    is a citizen; scenario element.
+    has resided for 5 years; scenario element.
+    has valid identification; scenario element.
+    has been disqualified; scenario element.
+    is eligible for benefits.
+    as well as except when example.
+    as well as except when example2.
+    else except when example.
+    else except when example2.
+    single as well as.
+    single else.
+    precedence test.
+    signed by both parties; scenario element.
+    consideration exchanged; scenario element.
+    signed under duress; scenario element.
+    contract is valid.
+    has valid badge; scenario element.
+    during business hours; scenario element.
+    building is closed; scenario element.
+    can enter building.
+    is employee; scenario element.
+    is contractor; scenario element.
+    has been terminated; scenario element.
+    has system access.
+    L4's answer at line 10 is reproduced.
+    L4's answer at line 18 is reproduced.
+    L4's answer at line 22 is reproduced.
+    L4's answer at line 53 is reproduced.
+    L4's answer at line 76 is reproduced.
+    L4's answer at line 93 is reproduced.
+    L4's answer at line 94 is reproduced.
+    L4's answer at line 105 is reproduced.
+
+the knowledge base unless_example includes:
+
+the text of the source program is at "sources/unless-example.l4".
+
+% never holds
+basic2.
+
+% never holds
+% never holds
+is eligible for benefits if
+    is a citizen
+    and has resided for 5 years
+    and has valid identification
+    and it is not the case that has been disqualified.
+
+% never holds
+as well as except when example2.
+
+% never holds
+else except when example2.
+
+% never holds
+% never holds
+% never holds
+contract is valid if
+    signed by both parties
+    and consideration exchanged
+    and it is not the case that signed under duress.
+
+can enter building if
+    has valid badge
+    and during business hours
+    and it is not the case that building is closed.
+
+has system access if
+    is employee
+    or is contractor
+    and it is not the case that has been terminated.
+
+L4's answer at line 10 is reproduced if
+    it is not the case that basic1.
+
+L4's answer at line 18 is reproduced if
+    it is not the case that basic3.
+
+L4's answer at line 22 is reproduced if
+    it is not the case that basic4.
+
+L4's answer at line 53 is reproduced if
+    it is not the case that as well as except when example.
+
+L4's answer at line 76 is reproduced if
+    it is not the case that else except when example.
+
+L4's answer at line 93 is reproduced if
+    it is not the case that single as well as.
+
+L4's answer at line 94 is reproduced if
+    it is not the case that single else.
+
+L4's answer at line 105 is reproduced if
+    it is not the case that precedence test.
+
+scenario line_10 is, as stated in the source program at line 10:
+    line_10 expects answers ["L4's answer at line 10 is reproduced"].
+
+scenario line_14 is, as stated in the source program at line 14:
+    line_14 expects answers ["basic2"].
+
+scenario line_18 is, as stated in the source program at line 18:
+    line_18 expects answers ["L4's answer at line 18 is reproduced"].
+
+scenario line_22 is, as stated in the source program at line 22:
+    line_22 expects answers ["L4's answer at line 22 is reproduced"].
+
+scenario line_53 is, as stated in the source program at line 53:
+    line_53 expects answers ["L4's answer at line 53 is reproduced"].
+
+scenario line_61 is, as stated in the source program at line 61:
+    line_61 expects answers ["as well as except when example2"].
+
+scenario line_76 is, as stated in the source program at line 76:
+    line_76 expects answers ["L4's answer at line 76 is reproduced"].
+
+scenario line_84 is, as stated in the source program at line 84:
+    line_84 expects answers ["else except when example2"].
+
+scenario line_93 is, as stated in the source program at line 93:
+    line_93 expects answers ["L4's answer at line 93 is reproduced"].
+
+scenario line_94 is, as stated in the source program at line 94:
+    line_94 expects answers ["L4's answer at line 94 is reproduced"].
+
+scenario line_105 is, as stated in the source program at line 105:
+    line_105 expects answers ["L4's answer at line 105 is reproduced"].
+
+scenario variant_1 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is a citizen.
+    has resided for 5 years.
+    has valid identification.
+    has been disqualified.
+    is_eligible_for_benefits expects answers [].
+
+scenario variant_2 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    has resided for 5 years.
+    has valid identification.
+    has been disqualified.
+    is_eligible_for_benefits expects answers [].
+
+scenario variant_3 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is a citizen.
+    has resided for 5 years.
+    has been disqualified.
+    is_eligible_for_benefits expects answers [].
+
+scenario variant_4 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    has resided for 5 years.
+    has been disqualified.
+    is_eligible_for_benefits expects answers [].
+
+scenario variant_5 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is a citizen.
+    has valid identification.
+    has been disqualified.
+    is_eligible_for_benefits expects answers [].
+
+scenario variant_6 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    has valid identification.
+    has been disqualified.
+    is_eligible_for_benefits expects answers [].
+
+scenario variant_7 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is a citizen.
+    has been disqualified.
+    is_eligible_for_benefits expects answers [].
+
+scenario variant_8 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    has been disqualified.
+    is_eligible_for_benefits expects answers [].
+
+scenario variant_9 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is a citizen.
+    has resided for 5 years.
+    has valid identification.
+    is_eligible_for_benefits expects answers ["is eligible for benefits"].
+
+scenario variant_10 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    has resided for 5 years.
+    has valid identification.
+    is_eligible_for_benefits expects answers [].
+
+scenario variant_11 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is a citizen.
+    has resided for 5 years.
+    is_eligible_for_benefits expects answers [].
+
+scenario variant_12 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    has resided for 5 years.
+    is_eligible_for_benefits expects answers [].
+
+scenario variant_13 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is a citizen.
+    has valid identification.
+    is_eligible_for_benefits expects answers [].
+
+scenario variant_14 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    has valid identification.
+    is_eligible_for_benefits expects answers [].
+
+scenario variant_15 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is a citizen.
+    is_eligible_for_benefits expects answers [].
+
+scenario variant_16 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is_eligible_for_benefits expects answers [].
+
+scenario variant_17 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    signed by both parties.
+    consideration exchanged.
+    signed under duress.
+    contract_is_valid expects answers [].
+
+scenario variant_18 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    signed by both parties.
+    consideration exchanged.
+    contract_is_valid expects answers ["contract is valid"].
+
+scenario variant_19 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    consideration exchanged.
+    signed under duress.
+    contract_is_valid expects answers [].
+
+scenario variant_20 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    consideration exchanged.
+    contract_is_valid expects answers [].
+
+scenario variant_21 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    signed by both parties.
+    signed under duress.
+    contract_is_valid expects answers [].
+
+scenario variant_22 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    signed by both parties.
+    contract_is_valid expects answers [].
+
+scenario variant_23 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    signed under duress.
+    contract_is_valid expects answers [].
+
+scenario variant_24 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    contract_is_valid expects answers [].
+
+scenario variant_25 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    has valid badge.
+    during business hours.
+    building is closed.
+    can_enter_building expects answers [].
+
+scenario variant_26 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    during business hours.
+    building is closed.
+    can_enter_building expects answers [].
+
+scenario variant_27 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    has valid badge.
+    building is closed.
+    can_enter_building expects answers [].
+
+scenario variant_28 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    building is closed.
+    can_enter_building expects answers [].
+
+scenario variant_29 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    has valid badge.
+    during business hours.
+    can_enter_building expects answers ["can enter building"].
+
+scenario variant_30 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    during business hours.
+    can_enter_building expects answers [].
+
+scenario variant_31 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    has valid badge.
+    can_enter_building expects answers [].
+
+scenario variant_32 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    can_enter_building expects answers [].
+
+scenario variant_33 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is employee.
+    is contractor.
+    has been terminated.
+    has_system_access expects answers [].
+
+scenario variant_34 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is contractor.
+    has been terminated.
+    has_system_access expects answers [].
+
+scenario variant_35 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is employee.
+    has been terminated.
+    has_system_access expects answers [].
+
+scenario variant_36 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    has been terminated.
+    has_system_access expects answers [].
+
+scenario variant_37 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is employee.
+    is contractor.
+    has_system_access expects answers ["has system access"].
+
+scenario variant_38 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is contractor.
+    has_system_access expects answers ["has system access"].
+
+scenario variant_39 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is employee.
+    has_system_access expects answers ["has system access"].
+
+scenario variant_40 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    has_system_access expects answers [].
+
+query line_10 is:
+    L4's answer at line 10 is reproduced.
+
+query line_14 is:
+    basic2.
+
+query line_18 is:
+    L4's answer at line 18 is reproduced.
+
+query line_22 is:
+    L4's answer at line 22 is reproduced.
+
+query line_53 is:
+    L4's answer at line 53 is reproduced.
+
+query line_61 is:
+    as well as except when example2.
+
+query line_76 is:
+    L4's answer at line 76 is reproduced.
+
+query line_84 is:
+    else except when example2.
+
+query line_93 is:
+    L4's answer at line 93 is reproduced.
+
+query line_94 is:
+    L4's answer at line 94 is reproduced.
+
+query line_105 is:
+    L4's answer at line 105 is reproduced.
+
+query is_eligible_for_benefits is:
+    is eligible for benefits.
+
+query contract_is_valid is:
+    contract is valid.
+
+query can_enter_building is:
+    can enter building.
+
+query has_system_access is:
+    has system access.
+

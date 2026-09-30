@@ -1,0 +1,32 @@
+{
+  "counts": {"approximated":1,"encoded":1,"residue":0},
+  "entries": [
+    {
+      "element":"add two numbers",
+      "in_program":"the add two numbers for *a number* with *a second number* is *a third number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"add two numbers",
+      "in_program":"the add two numbers for *a number* with *a second number* is *a third number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity":null,
+  "meta": {
+    "artifacts": ["type-inference-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"type_inference_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":0
+}

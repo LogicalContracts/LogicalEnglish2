@@ -1,0 +1,114 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from aka-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the px of *a pair* is *a thing*.
+    the py of *a pair* is *a b*.
+    the name of *an authorized representative* is *a text*.
+    the license id of *an authorized representative* is *a text*.
+
+the templates are:
+    x.
+    the example1 is *a b*.
+    the example2 is *a yes no*.
+    the double for *a number* is *a second number*.
+    the tax for *an amount* is *a number*.
+    L4's answer at line 10 is reproduced.
+    L4's answer at line 11 is reproduced.
+    L4's answer at line 62 is reproduced.
+    L4's answer at line 70 is reproduced.
+    L4's answer at line 71 is reproduced.
+    L4's answer at line 78 is reproduced.
+    L4's answer at line 79 is reproduced.
+    L4's answer at line 80 is reproduced.
+    L4's answer at line 81 is reproduced.
+
+the knowledge base aka_example includes:
+
+the text of the source program is at "sources/aka-example.l4".
+
+x.
+
+the example1 is true.
+
+the example2 is false.
+
+the double for a number N is a number M if
+    M = N * 2.
+
+the tax for an amount N is a number M if
+    M = N * 0.1.
+
+L4's answer at line 62 is reproduced if
+    the name of my_agent is a text
+    and the text is equal to "John Smith".
+
+L4's answer at line 70 is reproduced if
+    the double for 5 is a number N
+    and N * 100000000 >= 999999999
+    and N * 100000000 <= 1000000001.
+
+L4's answer at line 78 is reproduced if
+    the tax for 100 is a number N
+    and N * 100000000 >= 999999999
+    and N * 100000000 <= 1000000001.
+
+the px of test_pair1 is 3.
+
+the py of test_pair1 is 5.
+
+the px of test_pair2 is 10.
+
+the py of test_pair2 is 20.
+
+the name of my_agent is "John Smith".
+
+the license id of my_agent is "A12345".
+
+scenario line_9 is, as stated in the source program at line 9:
+    line_9 expects answers ["x"].
+
+scenario line_25 is, as stated in the source program at line 25:
+    line_25 expects answers ["the example1 is true"].
+
+scenario line_26 is, as stated in the source program at line 26:
+    line_26 expects answers ["the example2 is false"].
+
+scenario line_62 is, as stated in the source program at line 62:
+    line_62 expects answers ["L4's answer at line 62 is reproduced"].
+
+scenario line_70 is, as stated in the source program at line 70:
+    line_70 expects answers ["L4's answer at line 70 is reproduced"].
+
+scenario line_78 is, as stated in the source program at line 78:
+    line_78 expects answers ["L4's answer at line 78 is reproduced"].
+
+query line_9 is:
+    x.
+
+query line_25 is:
+    the example1 is which b.
+
+query line_26 is:
+    the example2 is which yes no.
+
+query line_62 is:
+    L4's answer at line 62 is reproduced.
+
+query line_70 is:
+    L4's answer at line 70 is reproduced.
+
+query line_78 is:
+    L4's answer at line 78 is reproduced.
+

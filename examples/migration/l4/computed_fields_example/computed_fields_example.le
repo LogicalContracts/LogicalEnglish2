@@ -1,0 +1,236 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from computed-fields-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the name of *an employee* is *a text*.
+    the date of birth of *an employee* is *a number*.
+    the date of employment of *an employee* is *a number*.
+    the monthly salary of *an employee* is *a number*.
+    the current year of *an employee* is *a number*.
+    the age of *an employee* is *a number*.
+    the years of service of *an employee* is *a number*.
+    the balance of *an account* is *a number*.
+    the rate of *an account* is *a number*.
+    the interest of *an account* is *a number*.
+    the projected of *an account* is *a number*.
+    the width of *a shape* is *a number*.
+    the height of *a shape* is *a number*.
+    the area of *a shape* is *a number*.
+    the diag sq of *a shape* is *a number*.
+    the scaled of *a shape* is *a number*.
+
+the templates are:
+    *an employee* has senior.
+    *an employee* has eligible.
+    the apply *a rate* for *a base* is *a number*.
+    the square for *a number* is *a second number*.
+    the w2 is *a number*.
+    the h2 is *a number*.
+    the result is *a number*.
+    the factor is *a number*.
+    L4's answer at line 40 is reproduced.
+    L4's answer at line 41 is reproduced.
+    L4's answer at line 42 is reproduced.
+    L4's answer at line 43 is reproduced.
+    L4's answer at line 71 is reproduced.
+    L4's answer at line 72 is reproduced.
+    L4's answer at line 100 is reproduced.
+    L4's answer at line 101 is reproduced.
+    L4's answer at line 102 is reproduced.
+
+the knowledge base computed_fields_example includes:
+
+the text of the source program is at "sources/computed-fields-example.l4".
+
+the age of an employee is a number N if
+    the current year of the employee is a number M
+    and the date of birth of the employee is a number K
+    and N = M - K.
+
+the years of service of an employee is a number N if
+    the current year of the employee is a number M
+    and the date of employment of the employee is a number K
+    and N = M - K.
+
+an employee has senior if
+    the years of service of the employee >= 10.
+
+an employee has eligible if
+    the employee has senior
+    and the monthly salary of the employee <= 6000.
+
+the interest of an account is a number if
+    the apply the balance of the account for the rate of the account is the number.
+
+the projected of an account is a number N if
+    the balance of the account is a number M
+    and the interest of the account is a number K
+    and N = M + K.
+
+the area of a shape is a number N if
+    the width of the shape is a number M
+    and the height of the shape is a number K
+    and N = M * K.
+
+% RESIDUE r1 BEGIN: w2
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 90-90
+% a value with no LE form: `width`
+%   l4:
+%   |             `w2` MEANS `square` `width`
+% RESIDUE r1 END
+
+% RESIDUE r2 BEGIN: h2
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 91-91
+% a value with no LE form: `height`
+%   l4:
+%   |             `h2` MEANS `square` `height`
+% RESIDUE r2 END
+
+the result is a number N if
+    the w2 is a number M
+    and the h2 is a number K
+    and N = M + K.
+
+the diag sq of a shape is a number if
+    the result is the number.
+
+the factor is 2.
+
+the scaled of a shape is a number N if
+    the area of the shape is a number M
+    and the factor is a number K
+    and N = M * K.
+
+the apply a rate R for a base B is a number N if
+    N = R * B / 100.
+
+the square for a number N is a number M if
+    M = N * N.
+
+L4's answer at line 40 is reproduced if
+    the age of veteran is a number N
+    and N * 100000000 >= 6599999999
+    and N * 100000000 <= 6600000001.
+
+L4's answer at line 41 is reproduced if
+    the years of service of veteran is a number N
+    and N * 100000000 >= 3599999999
+    and N * 100000000 <= 3600000001.
+
+L4's answer at line 42 is reproduced if
+    veteran has senior.
+
+L4's answer at line 43 is reproduced if
+    veteran has eligible.
+
+L4's answer at line 71 is reproduced if
+    the interest of savings is a number N
+    and N * 10000000 >= 4999999999
+    and N * 10000000 <= 5000000001.
+
+L4's answer at line 72 is reproduced if
+    the projected of savings is a number N
+    and N * 100000 >= 1049999999
+    and N * 100000 <= 1050000001.
+
+L4's answer at line 100 is reproduced if
+    the area of rect is a number N
+    and N * 100000000 >= 1199999999
+    and N * 100000000 <= 1200000001.
+
+L4's answer at line 101 is reproduced if
+    the diag sq of rect is a number N
+    and N * 100000000 >= 2499999999
+    and N * 100000000 <= 2500000001.
+
+L4's answer at line 102 is reproduced if
+    the scaled of rect is a number N
+    and N * 100000000 >= 2399999999
+    and N * 100000000 <= 2400000001.
+
+the name of veteran is "Lim".
+
+the date of birth of veteran is 1960.
+
+the date of employment of veteran is 1990.
+
+the monthly salary of veteran is 3000.
+
+the current year of veteran is 2026.
+
+the balance of savings is 10000.
+
+the rate of savings is 5.
+
+the width of rect is 3.
+
+the height of rect is 4.
+
+scenario line_40 is, as stated in the source program at line 40:
+    line_40 expects answers ["L4's answer at line 40 is reproduced"].
+
+scenario line_41 is, as stated in the source program at line 41:
+    line_41 expects answers ["L4's answer at line 41 is reproduced"].
+
+scenario line_42 is, as stated in the source program at line 42:
+    line_42 expects answers ["L4's answer at line 42 is reproduced"].
+
+scenario line_43 is, as stated in the source program at line 43:
+    line_43 expects answers ["L4's answer at line 43 is reproduced"].
+
+scenario line_71 is, as stated in the source program at line 71:
+    line_71 expects answers ["L4's answer at line 71 is reproduced"].
+
+scenario line_72 is, as stated in the source program at line 72:
+    line_72 expects answers ["L4's answer at line 72 is reproduced"].
+
+scenario line_100 is, as stated in the source program at line 100:
+    line_100 expects answers ["L4's answer at line 100 is reproduced"].
+
+scenario line_101 is, as stated in the source program at line 101:
+    % pending — waits for residue r1, r2:
+    % line_101 expects answers ["L4's answer at line 101 is reproduced"].
+
+scenario line_102 is, as stated in the source program at line 102:
+    line_102 expects answers ["L4's answer at line 102 is reproduced"].
+
+query line_40 is:
+    L4's answer at line 40 is reproduced.
+
+query line_41 is:
+    L4's answer at line 41 is reproduced.
+
+query line_42 is:
+    L4's answer at line 42 is reproduced.
+
+query line_43 is:
+    L4's answer at line 43 is reproduced.
+
+query line_71 is:
+    L4's answer at line 71 is reproduced.
+
+query line_72 is:
+    L4's answer at line 72 is reproduced.
+
+query line_100 is:
+    L4's answer at line 100 is reproduced.
+
+query line_101 is:
+    L4's answer at line 101 is reproduced.
+
+query line_102 is:
+    L4's answer at line 102 is reproduced.
+

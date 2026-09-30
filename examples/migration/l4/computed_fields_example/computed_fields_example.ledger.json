@@ -1,0 +1,286 @@
+{
+  "counts": {"approximated":2,"encoded":28,"residue":2},
+  "entries": [
+    {
+      "element":"Employee",
+      "in_program":"Employee",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Account",
+      "in_program":"Account",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Shape",
+      "in_program":"Shape",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"apply rate",
+      "in_program":"the apply *a rate* for *a base* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"square",
+      "in_program":"the square for *a number* is *a second number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"age",
+      "in_program":"Employee",
+      "kind":"computed_field",
+      "mapping":"a rule over the record's other fields",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"years of service",
+      "in_program":"Employee",
+      "kind":"computed_field",
+      "mapping":"a rule over the record's other fields",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"senior",
+      "in_program":"Employee",
+      "kind":"computed_field",
+      "mapping":"a rule over the record's other fields",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"eligible",
+      "in_program":"Employee",
+      "kind":"computed_field",
+      "mapping":"a rule over the record's other fields",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"interest",
+      "in_program":"Account",
+      "kind":"computed_field",
+      "mapping":"a rule over the record's other fields",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"projected",
+      "in_program":"Account",
+      "kind":"computed_field",
+      "mapping":"a rule over the record's other fields",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"area",
+      "in_program":"Shape",
+      "kind":"computed_field",
+      "mapping":"a rule over the record's other fields",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"w2",
+      "in_program":"r1",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"h2",
+      "in_program":"r2",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"result",
+      "in_program":"the result is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"diag sq",
+      "in_program":"Shape",
+      "kind":"computed_field",
+      "mapping":"a rule over the record's other fields",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"factor",
+      "in_program":"the factor is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"scaled",
+      "in_program":"Shape",
+      "kind":"computed_field",
+      "mapping":"a rule over the record's other fields",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"veteran",
+      "in_program":"veteran",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"apply rate",
+      "in_program":"the apply *a rate* for *a base* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"savings",
+      "in_program":"savings",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"square",
+      "in_program":"the square for *a number* is *a second number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"rect",
+      "in_program":"rect",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 40",
+      "in_program":"line_40",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 41",
+      "in_program":"line_41",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 42",
+      "in_program":"line_42",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 43",
+      "in_program":"line_43",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 71",
+      "in_program":"line_71",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 72",
+      "in_program":"line_72",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 100",
+      "in_program":"line_100",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 101",
+      "in_program":"line_101",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 102",
+      "in_program":"line_102",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":8,
+    "tests": [
+      {"detail":"","query":"line_40","result":"pass","scenario":"line_40"},
+      {"detail":"","query":"line_41","result":"pass","scenario":"line_41"},
+      {"detail":"","query":"line_42","result":"pass","scenario":"line_42"},
+      {"detail":"","query":"line_43","result":"pass","scenario":"line_43"},
+      {"detail":"","query":"line_71","result":"pass","scenario":"line_71"},
+      {"detail":"","query":"line_72","result":"pass","scenario":"line_72"},
+      {"detail":"","query":"line_100","result":"pass","scenario":"line_100"},
+      {"detail":"","query":"line_102","result":"pass","scenario":"line_102"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["computed-fields-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"computed_fields_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":1,
+  "source_tests":9
+}

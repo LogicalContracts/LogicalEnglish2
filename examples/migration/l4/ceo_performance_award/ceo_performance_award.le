@@ -1,0 +1,971 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from ceo-performance-award.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the knowledge base ceo_performance_award includes these resources:
+    l4_daydate.
+
+the functions are:
+    the current market cap of *a tesla performance metrics* is *a number*.
+    the six month avg market cap of *a tesla performance metrics* is *a number*.
+    the thirty day avg market cap of *a tesla performance metrics* is *a number*.
+    the one year avg market cap of *a tesla performance metrics* is *a number*.
+    the tesla vehicles delivered of *a tesla performance metrics* is *a number*.
+    the active FSD subscriptions of *a tesla performance metrics* is *a number*.
+    the bots delivered of *a tesla performance metrics* is *a number*.
+    the robotaxis in operation of *a tesla performance metrics* is *a number*.
+    the current adjusted EBITDA of *a tesla performance metrics* is *a number*.
+    the outstanding shares of *a tesla performance metrics* is *a number*.
+    the last closing price of *a tesla performance metrics* is *a number*.
+    the per share consideration of *a tesla performance metrics* is *a number*.
+    the musk service status of *a CEO award state* is *a service status*.
+    the current date of *a CEO award state* is *a date*.
+    the performance metrics of *a CEO award state* is *a tesla performance metrics*.
+    the earned tranches of *a CEO award state* is *a list*.
+    the earned dates of *a CEO award state* is *a list*.
+    the termination reason of *a CEO award state* is *a termination reason*.
+    the covered event type of *a CEO award state* is *a covered event type*.
+    the tranche number of *a tranche status* is *a number*.
+    the earn date of *a tranche status* is *a date*.
+    the vesting category of *a tranche status* is *a vesting category*.
+    the vesting date of *a tranche status* is *a date*.
+    the name of *an award participant* is *a text*.
+    the birthdate of *an award participant* is *a date*.
+    the service status of *a maintain eligible service status* is *a service status*.
+    the tranche number of *an achieve market cap milestone* is *a number*.
+    the market cap of *an achieve market cap milestone* is *a number*.
+    the tranche number of *an achieve operational milestone* is *a number*.
+    the milestone type of *an achieve operational milestone* is *a text*.
+    the tranche number of *a vest earned shares* is *a number*.
+    the vesting date of *a vest earned shares* is *a date*.
+    the reason of *a forfeit unvested shares* is *a text*.
+    the reason of *a vest immediately* is *a text*.
+    the amount of *a pay offset amount* is *a number*.
+    the years of *a hold shares for period* is *a number*.
+
+the templates are:
+    *an award action* is a maintain eligible service status.
+    *an award action* is an achieve market cap milestone.
+    *an award action* is an achieve operational milestone.
+    *an award action* is a vest earned shares.
+    *an award action* is a forfeit unvested shares.
+    *an award action* is a vest immediately.
+    *an award action* is a pay offset amount.
+    *an award action* is a hold shares for period.
+    *a CEO award state* has CEO succession framework.
+    *a CEO award state* has covered event occurred.
+    *a CEO award state* has HSR waiting period expired.
+    *a CEO award state* has shareholder approval received.
+    *a tranche status* is earned.
+    *a tranche status* is vested.
+    *a tranche status* has market cap met.
+    *a tranche status* has operational met.
+    the grant date is *a value*.
+    the performance period years is *a number*.
+    the performance end date is *a value*.
+    the reference stock price is *a number*.
+    the total award shares is *a number*.
+    the shares per tranche is *a number*.
+    the number of tranches is *a number*.
+    the third anniversary is *a value*.
+    the fifth anniversary is *a value*.
+    the seventh as well as half anniversary is *a value*.
+    the acquisition threshold is *a value*.
+    the EBITDA threshold is *a value*.
+    the required market cap for tranche for *a tranche number* is *a number*.
+    market cap milestone met given *a tranche number* with *a metrics*.
+    market cap milestone met for change in control for *a tranche number* with *a metrics*.
+    operational milestone met for *a tranche number* with *a metrics*.
+    EBITDA milestone met for *a tranche number* with *a metrics*.
+    deemed achievement applies for *a tranche number* with *an award state*.
+    covered event affects product goals for *a tranche number* with *an award state*.
+    all market cap averages met for *a tranche number* with *a metrics*.
+    tranche can be earned for *a tranche number* with *an award state*.
+    musk in eligible service for *an award state*.
+    CEO succession framework required met for *a tranche number* with *an award state*.
+    tranche already earned for *a tranche number* with *an award state*.
+    operational milestone already used for *a tranche number* with *an award state*.
+    product goal already used for *a tranche number* with *an award state*.
+    issuance conditions met for *an award state*.
+    the determine vesting category for *an earn date* is *a vesting category*.
+    the determine vesting date for *a vesting category* is *a date*.
+    tranche is vested for *a tranche number* with *a current date* with *an earn date*.
+    immediate vesting applies for *an award state*.
+    forfeiture applies for *an award state*.
+    the offset amount for tranche for *a tranche number* is *a number*.
+    holding period met for *an earn date* with *a current date*.
+    *a tranche* is earned for *an award state*.
+    the get earn date for *a tranche* for *an award state* is *a date*.
+    the get *an index* of *a tranche* for *a tranche list* is *a number*.
+    the get date at *an index* for *a date list* is *a date*.
+    the million for *a number* is *a second number*.
+    the billion for *a number* is *a second number*.
+    the trillion for *a number* is *a second number*.
+    the years after for *a number* with *a date* is *a second date*.
+    number in *a list* for *an item*.
+    any earned tranche uses same product goal for *a tranche number* with *an earned tranches*.
+    product goals are same for *a tranche1* with *a tranche2*.
+    the forfeiture reason for *an award state* is *a text*.
+    the immediate vesting reason for *an award state* is *a text*.
+    the required market cap given *a tranche number* is *a number*.
+    the required market cap in market cap milestone met for change in control for *a tranche number* is *a number*.
+    the change in control market cap for *a metrics* is *a number*.
+    the higher price for *a metrics* is *a value*.
+    the required market cap in all market cap averages met for *a tranche number* is *a number*.
+    the vesting category for *an earn date* is *a vesting category*.
+    the vesting date for *an earn date* is *a date*.
+    the holding period end for *an earn date* is *a date*.
+    the new year for *a date* with *a number* is *a second number*.
+    the fractional days for *a date* with *a number* is *a second number*.
+    the new day for *a date* with *a number* is *a second number*.
+    the new month for *a date* is *a value*.
+    L4's answer at line 665 is reproduced.
+    L4's answer at line 666 is reproduced.
+    L4's answer at line 667 is reproduced.
+    L4's answer at line 668 is reproduced.
+    L4's answer at line 669 is reproduced.
+
+the knowledge base ceo_performance_award includes:
+
+the text of the source program is at "sources/ceo-performance-award.l4".
+
+section 2025 CEO performance award complete implementation is:
+
+section core constants is:
+
+the grant date is 2025-09-03.
+
+the performance period years is 10.
+
+the performance end date is a value if
+    the performance period years is a number
+    and the grant date is a second value
+    and the years after for the number with the second value is the value.
+
+the reference stock price is 334.09.
+
+the total award shares is 423743904.
+
+the shares per tranche is 35311992.
+
+the number of tranches is 12.
+
+the third anniversary is a value if
+    the grant date is a second value
+    and the years after for 3 with the second value is the value.
+
+the fifth anniversary is a value if
+    the grant date is a second value
+    and the years after for 5 with the second value is the value.
+
+the seventh as well as half anniversary is a value if
+    the grant date is a second value
+    and the years after for 7.5 with the second value is the value.
+
+the acquisition threshold is a value if
+    the billion for 20 is the value.
+
+the EBITDA threshold is a value if
+    the billion for 2 is the value.
+
+section type definitions is:
+
+section market cap milestone functions is:
+
+the required market cap for tranche for a tranche number T is a number N if
+    1 is equal to T
+    and the trillion for 2 is N
+    otherwise T >= 2
+    and T <= 10
+    and the trillion for 2 is a number M
+    and the billion for 500 is a number K
+    and N = M + (T - 1) * K
+    otherwise 11 is equal to T
+    and the trillion for 7.5 is N
+    otherwise 12 is equal to T
+    and the trillion for 8.5 is N
+    otherwise N is equal to 0.
+
+section market cap achievement functions is:
+
+the required market cap given a tranche number is a number if
+    the required market cap for tranche for the tranche number is the number.
+
+market cap milestone met given a tranche number with a metrics if
+    the required market cap given the tranche number is a number N
+    and N <= the six month avg market cap of the metrics
+    and the required market cap given the tranche number is a number M
+    and M <= the thirty day avg market cap of the metrics.
+
+the required market cap in market cap milestone met for change in control for a tranche number is a number if
+    the required market cap for tranche for the tranche number is the number.
+
+the change in control market cap for a metrics is a number N if
+    the outstanding shares of the metrics is a number M
+    and the higher price for the metrics is a value V
+    and N = M * V.
+
+the higher price for a metrics is a value if
+    the per share consideration of the metrics is a number
+    and the number is equal to nothing
+    and the last closing price of the metrics is the value
+    otherwise the per share consideration of the metrics is a number N
+    and it is not the case that nothing is equal to N
+    and the last closing price of the metrics is a number M
+        and N > M
+        and the value is equal to N
+        otherwise the last closing price of the metrics is the value
+    otherwise the last closing price of the metrics is the value.
+
+market cap milestone met for change in control for a tranche number with a metrics if
+    the required market cap in market cap milestone met for change in control for the tranche number is a number N
+    and the change in control market cap for the metrics is a number M
+    and N <= M.
+
+section operational milestone functions is:
+
+operational milestone met for a tranche number T with a metrics if
+    1 is equal to T
+    and the tesla vehicles delivered of the metrics is a number N
+    and the million for 20 is a number M
+    and N >= M
+    or all of
+        it is not the case that 1 is equal to T
+        and 2 is equal to T
+            and the active FSD subscriptions of the metrics is a number K
+            and the million for 10 is a number P
+            and K >= P
+            or all of
+                it is not the case that 2 is equal to T
+                and 3 is equal to T
+                    and the bots delivered of the metrics is a number Q
+                    and the million for 1 is a number R
+                    and Q >= R
+                    or all of
+                        it is not the case that 3 is equal to T
+                        and 4 is equal to T
+                            and the robotaxis in operation of the metrics is a number S
+                            and the million for 1 is a number U
+                            and S >= U
+                            or T >= 5
+                                and it is not the case that 4 is equal to T
+                                and T <= 12
+                                and EBITDA milestone met for T with the metrics.
+
+EBITDA milestone met for a tranche number T with a metrics if
+    5 is equal to T
+    and the current adjusted EBITDA of the metrics is a number N
+    and the billion for 50 is a number M
+    and N >= M
+    or all of
+        it is not the case that 5 is equal to T
+        and 6 is equal to T
+            and the current adjusted EBITDA of the metrics is a number K
+            and the billion for 80 is a number P
+            and K >= P
+            or all of
+                it is not the case that 6 is equal to T
+                and 7 is equal to T
+                    and the current adjusted EBITDA of the metrics is a number Q
+                    and the billion for 130 is a number R
+                    and Q >= R
+                    or all of
+                        it is not the case that 7 is equal to T
+                        and 8 is equal to T
+                            and the current adjusted EBITDA of the metrics is a number S
+                            and the billion for 210 is a number U
+                            and S >= U
+                            or all of
+                                it is not the case that 8 is equal to T
+                                and 9 is equal to T
+                                    and the current adjusted EBITDA of the metrics is a number V
+                                    and the billion for 300 is a number W
+                                    and V >= W
+                                    or T >= 10
+                                        and it is not the case that 9 is equal to T
+                                        and T <= 12
+                                        and the current adjusted EBITDA of the metrics is a number X
+                                        and the billion for 400 is a number Y
+                                        and X >= Y.
+
+section deemed achievement logic is:
+
+deemed achievement applies for a tranche number with an award state if
+    the third anniversary is a value V
+    and the current date of the award state >= V
+    and the award state has covered event occurred
+    and covered event affects product goals for the tranche number with the award state
+    and all market cap averages met for the tranche number with the performance metrics of the award state.
+
+covered event affects product goals for a tranche number T with an award state if
+    T >= 2
+    and T <= 4
+    and the covered event type of the award state is a covered event type
+    and the covered event type is equal to external_event_affecting_product_goals.
+
+the required market cap in all market cap averages met for a tranche number is a number if
+    the required market cap for tranche for the tranche number is the number.
+
+all market cap averages met for a tranche number with a metrics if
+    the required market cap in all market cap averages met for the tranche number is a number N
+    and N >= the thirty day avg market cap of the metrics
+    and the required market cap in all market cap averages met for the tranche number is a number M
+    and M >= the six month avg market cap of the metrics
+    and the required market cap in all market cap averages met for the tranche number is a number K
+    and K >= the one year avg market cap of the metrics.
+
+section earning logic is:
+
+tranche can be earned for a tranche number with an award state if
+    the performance metrics of the award state is a tesla performance metrics
+    and market cap milestone met given the tranche number with the tesla performance metrics
+    or deemed achievement applies for the tranche number with the award state
+        and the performance metrics of the award state is a second tesla performance metrics
+        and market cap milestone met for change in control for the tranche number with the second tesla performance metrics
+    and the performance metrics of the award state is a third tesla performance metrics
+        and operational milestone met for the tranche number with the third tesla performance metrics
+        or deemed achievement applies for the tranche number with the award state
+    and musk in eligible service for the award state
+    and CEO succession framework required met for the tranche number with the award state
+    and it is not the case that tranche already earned for the tranche number with the award state
+    and it is not the case that operational milestone already used for the tranche number with the award state
+    and issuance conditions met for the award state.
+
+musk in eligible service for an award state if
+    the musk service status of the award state is chief_executive_officer
+    or the musk service status of the award state is executive_officer_product_development.
+
+CEO succession framework required met for a tranche number T with an award state if
+    T >= 11
+    and the award state has CEO succession framework
+    or it is not the case that T >= 11.
+
+tranche already earned for a tranche number with an award state if
+    number in the tranche number for the earned tranches of the award state.
+
+operational milestone already used for a tranche number T with an award state if
+    T >= 1
+    and T <= 4
+    and product goal already used for T with the award state.
+
+product goal already used for a tranche number with an award state if
+    any earned tranche uses same product goal for the tranche number with the earned tranches of the award state.
+
+issuance conditions met for an award state if
+    the award state has HSR waiting period expired
+    and the award state has shareholder approval received.
+
+section vesting logic is:
+
+the determine vesting category for an earn date E is a vesting category if
+    the fifth anniversary is a value V
+    and E <= V
+    and the vesting category is equal to seven_as_well_as_half_year_earned_shares
+    otherwise the vesting category is equal to ten_year_earned_shares.
+
+the determine vesting date for a vesting category is a date if
+    seven_as_well_as_half_year_earned_shares is equal to the vesting category
+    and the seventh as well as half anniversary is the date
+    otherwise the performance end date is the date.
+
+the vesting category for an earn date is a vesting category if
+    the determine vesting category for the earn date is the vesting category.
+
+the vesting date for an earn date is a date if
+    the vesting category for the earn date is a vesting category
+    and the determine vesting date for the vesting category is the date.
+
+tranche is vested for a tranche number with a date D with an earn date if
+    the vesting date for the earn date is a date N
+    and D >= N.
+
+section termination as well as change in control logic is:
+
+immediate vesting applies for an award state if
+    the termination reason of the award state is a termination reason
+    and it is not the case that nothing is equal to the termination reason
+    and without_cause is equal to the termination reason
+    otherwise the termination reason of the award state is a second termination reason
+    and it is not the case that nothing is equal to the second termination reason
+    and death is equal to the second termination reason
+    otherwise the termination reason of the award state is a third termination reason
+    and it is not the case that nothing is equal to the third termination reason
+    and disability is equal to the third termination reason
+    otherwise the termination reason of the award state is a fourth termination reason
+    and it is not the case that nothing is equal to the fourth termination reason
+    and change_in_control is equal to the fourth termination reason.
+
+forfeiture applies for an award state if
+    the termination reason of the award state is a termination reason
+    and it is not the case that nothing is equal to the termination reason
+    and for_cause is equal to the termination reason
+    otherwise the termination reason of the award state is a second termination reason
+    and it is not the case that nothing is equal to the second termination reason
+    and voluntary_resignation is equal to the second termination reason
+    otherwise it is not the case that musk in eligible service for the award state
+    or the current date of the award state is a date D
+        and it is not the case that it is not the case that musk in eligible service for the award state
+        and the performance end date is a value V
+        and D > V.
+
+section offset amount calculations is:
+
+the offset amount for tranche for a tranche number is a number N if
+    the reference stock price is a number M
+    and the shares per tranche is a number K
+    and N = M * K.
+
+section holding period requirements is:
+
+the holding period end for an earn date is a date if
+    the years after for 5 with the earn date is the date.
+
+holding period met for an earn date with a date D if
+    the holding period end for the earn date is a date N
+    and D >= N.
+
+section regulative deontics is:
+
+section date tracking functions is:
+
+a tranche is earned for an award state if
+    number in the tranche for the earned tranches of the award state.
+
+the get earn date for a tranche for an award state is a date if
+    the get the tranche of the earned tranches of the award state for 0 is a number
+    and the get date at the number for the earned dates of the award state is the date.
+
+the get an index of a tranche for a tranche list T is a number if
+    [] is equal to the tranche
+    and the number is equal to 0
+    otherwise prolog (the tranche=[N|M])
+    and the index is equal to N
+        and the number is equal to T
+        otherwise a tranche list K = T + 1
+        and the get the index of M for K is the number.
+
+the get date at an index N for a date list is a date if
+    [] is equal to the date list
+    and the grant date is the date
+    otherwise prolog (the date list=[T|D])
+    and 0 is equal to N
+        and the date is equal to T
+        otherwise an index M = N - 1
+        and the get date at M for D is the date.
+
+section helper functions is:
+
+the million for a number N is a number M if
+    M = N * 1000000.
+
+the billion for a number is a number N if
+    the million for the number is a number M
+    and N = M * 1000.
+
+the trillion for a number is a number N if
+    the billion for the number is a number M
+    and N = M * 1000.
+
+the new year for a date with a number N is a number M if
+    the year number of the date is a number K
+    and M = K + floor(N).
+
+% RESIDUE r1 BEGIN: fractionalDays
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 492-492
+% a value with no LE form: (`Days in year` OF `newYear`)
+%   l4:
+%   |         fractionalDays MEANS (`Days in year` newYear) TIMES (n MINUS FLOOR n)
+% RESIDUE r1 END
+
+the new day for a date with a number is a number N if
+    the day in the month of the date is a number M
+    and the fractional days for the date with the number is a number K
+    and N = M + floor(K).
+
+the new month for a date is a value if
+    the month number of the date is the value.
+
+the years after for a number with a date is a second date if
+    the new day for the date with the number is a second number
+    and the new month for the date is a value
+    and the new year for the date with the number is a third number
+    and the date with day the second number month the value year the third number is the second date.
+
+number in a list for an item if
+    prolog (the item=[T|N])
+    and the list is equal to T
+        or number in the list for N
+            and it is not the case that the list is equal to T.
+
+any earned tranche uses same product goal for a tranche number with an earned tranches if
+    prolog (the earned tranches=[T|E])
+    and product goals are same for the tranche number with T
+        otherwise any earned tranche uses same product goal for the tranche number with E.
+
+product goals are same for a tranche1 T with a tranche2 N if
+    T >= 1
+    and T <= 4
+    and N >= 1
+    and N <= 4
+    and T is equal to N.
+
+the forfeiture reason for an award state is a text if
+    the termination reason of the award state is a termination reason
+    and it is not the case that nothing is equal to the termination reason
+    and for_cause is equal to the termination reason
+    and the text is equal to "Termination For Cause"
+    otherwise the termination reason of the award state is a second termination reason
+    and it is not the case that nothing is equal to the second termination reason
+    and voluntary_resignation is equal to the second termination reason
+    and the text is equal to "Voluntary Resignation"
+    otherwise the termination reason of the award state is a third termination reason
+    and it is not the case that nothing is equal to the third termination reason
+    and without_cause is equal to the third termination reason
+    and the text is equal to "Should Not Forfeit"
+    otherwise the termination reason of the award state is a fourth termination reason
+    and it is not the case that nothing is equal to the fourth termination reason
+    and death is equal to the fourth termination reason
+    and the text is equal to "Should Not Forfeit"
+    otherwise the termination reason of the award state is a fifth termination reason
+    and it is not the case that nothing is equal to the fifth termination reason
+    and disability is equal to the fifth termination reason
+    and the text is equal to "Should Not Forfeit"
+    otherwise the termination reason of the award state is a sixth termination reason
+    and it is not the case that nothing is equal to the sixth termination reason
+    and change_in_control is equal to the sixth termination reason
+    and the text is equal to "Should Not Forfeit"
+    otherwise it is not the case that musk in eligible service for the award state
+    and the text is equal to "Cessation of Eligible Service"
+    otherwise the text is equal to "Performance Period Expired".
+
+the immediate vesting reason for an award state is a text if
+    the termination reason of the award state is a termination reason
+    and it is not the case that nothing is equal to the termination reason
+    and without_cause is equal to the termination reason
+    and the text is equal to "Termination Without Cause"
+    otherwise the termination reason of the award state is a second termination reason
+    and it is not the case that nothing is equal to the second termination reason
+    and death is equal to the second termination reason
+    and the text is equal to "Death"
+    otherwise the termination reason of the award state is a third termination reason
+    and it is not the case that nothing is equal to the third termination reason
+    and disability is equal to the third termination reason
+    and the text is equal to "Disability"
+    otherwise the termination reason of the award state is a fourth termination reason
+    and it is not the case that nothing is equal to the fourth termination reason
+    and change_in_control is equal to the fourth termination reason
+    and the text is equal to "Change In Control"
+    otherwise the termination reason of the award state is a fifth termination reason
+    and it is not the case that nothing is equal to the fifth termination reason
+    and for_cause is equal to the fifth termination reason
+    and the text is equal to "Should Not Vest Immediately"
+    otherwise the termination reason of the award state is a sixth termination reason
+    and it is not the case that nothing is equal to the sixth termination reason
+    and voluntary_resignation is equal to the sixth termination reason
+    and the text is equal to "Should Not Vest Immediately"
+    otherwise the text is equal to "Should Not Vest Immediately".
+
+section testing examples is:
+
+the current market cap of example_metrics_high_performance is a number if
+    the trillion for 3 is the number.
+
+the six month avg market cap of example_metrics_high_performance is a number if
+    the billion for 2800 is the number.
+
+the thirty day avg market cap of example_metrics_high_performance is a number if
+    the billion for 2900 is the number.
+
+the one year avg market cap of example_metrics_high_performance is a number if
+    the billion for 2700 is the number.
+
+the tesla vehicles delivered of example_metrics_high_performance is a number if
+    the million for 25 is the number.
+
+the active FSD subscriptions of example_metrics_high_performance is a number if
+    the million for 12 is the number.
+
+the bots delivered of example_metrics_high_performance is a number if
+    the million for 1.8 is the number.
+
+the robotaxis in operation of example_metrics_high_performance is a number if
+    the million for 1.1 is the number.
+
+the current adjusted EBITDA of example_metrics_high_performance is a number if
+    the billion for 60 is the number.
+
+the outstanding shares of example_metrics_high_performance is a number if
+    the billion for 3 is the number.
+
+the current market cap of example_metrics_medium_performance is a number if
+    the billion for 2500 is the number.
+
+the six month avg market cap of example_metrics_medium_performance is a number if
+    the billion for 2200 is the number.
+
+the thirty day avg market cap of example_metrics_medium_performance is a number if
+    the billion for 2300 is the number.
+
+the one year avg market cap of example_metrics_medium_performance is a number if
+    the billion for 2100 is the number.
+
+the tesla vehicles delivered of example_metrics_medium_performance is a number if
+    the million for 22 is the number.
+
+the active FSD subscriptions of example_metrics_medium_performance is a number if
+    the million for 8 is the number.
+
+the bots delivered of example_metrics_medium_performance is a number if
+    the million for 0.8 is the number.
+
+the robotaxis in operation of example_metrics_medium_performance is a number if
+    the million for 0.6 is the number.
+
+the current adjusted EBITDA of example_metrics_medium_performance is a number if
+    the billion for 55 is the number.
+
+the outstanding shares of example_metrics_medium_performance is a number if
+    the billion for 3 is the number.
+
+the current market cap of example_metrics_low_performance is a number if
+    the billion for 1800 is the number.
+
+the six month avg market cap of example_metrics_low_performance is a number if
+    the billion for 1700 is the number.
+
+the thirty day avg market cap of example_metrics_low_performance is a number if
+    the billion for 1750 is the number.
+
+the one year avg market cap of example_metrics_low_performance is a number if
+    the billion for 1600 is the number.
+
+the tesla vehicles delivered of example_metrics_low_performance is a number if
+    the million for 15 is the number.
+
+the active FSD subscriptions of example_metrics_low_performance is a number if
+    the million for 5 is the number.
+
+the bots delivered of example_metrics_low_performance is a number if
+    the million for 0.3 is the number.
+
+the robotaxis in operation of example_metrics_low_performance is a number if
+    the million for 0.2 is the number.
+
+the current adjusted EBITDA of example_metrics_low_performance is a number if
+    the billion for 25 is the number.
+
+the outstanding shares of example_metrics_low_performance is a number if
+    the billion for 3 is the number.
+
+the current date of example_award_state_active is a date if
+    the grant date is the date.
+
+the current date of example_award_state_terminated is a date if
+    the grant date is a value
+    and the years after for 2 with the value is the date.
+
+the earned dates of example_award_state_terminated is a list if
+    the grant date is a value
+    and the years after for 1 with the value is a date
+    and the grant date is a value V
+    and a number N = V + 500
+    and the date of day number N is a second date
+    and the list is equal to [the date, the second date].
+
+the current date of example_award_state_change_in_control is a date if
+    the grant date is a value
+    and the years after for 2 with the value is a date D
+    and a number N = D
+    and the date of day number N is the date.
+
+the earned dates of example_award_state_change_in_control is a list if
+    the grant date is a value
+    and the years after for 1 with the value is a date
+    and the list is equal to [the date].
+
+the current date of example_award_state_medium_performance is a date if
+    the grant date is the date.
+
+the current date of example_award_state_low_performance is a date if
+    the grant date is the date.
+
+section testing is:
+
+the current date of example_award_state_with_earned_tranche is a date if
+    the seventh as well as half anniversary is the date.
+
+the earned dates of example_award_state_with_earned_tranche is a list if
+    the fifth anniversary is a value
+    and the list is equal to [the value].
+
+L4's answer at line 665 is reproduced if
+    the required market cap for tranche for 1 is a number N
+    and N * 1 >= 1999999999999
+    and N * 1 <= 2000000000001.
+
+L4's answer at line 666 is reproduced if
+    the required market cap for tranche for 5 is a number N
+    and N * 1 >= 3999999999999
+    and N * 1 <= 4000000000001.
+
+L4's answer at line 667 is reproduced if
+    the required market cap for tranche for 11 is a number N
+    and N * 1 >= 7499999999999
+    and N * 1 <= 7500000000001.
+
+L4's answer at line 668 is reproduced if
+    the required market cap for tranche for 12 is a number N
+    and N * 1 >= 8499999999999
+    and N * 1 <= 8500000000001.
+
+L4's answer at line 669 is reproduced if
+    the offset amount for tranche for 1 is a number N
+    and N * 1 >= 11797383406
+    and N * 1 <= 11797383408.
+
+the name of elon_musk is "Elon Reeve Musk".
+
+the birthdate of elon_musk is 1971-06-28.
+
+the last closing price of example_metrics_high_performance is 400.0.
+
+the per share consideration of example_metrics_high_performance is 450.0.
+
+the last closing price of example_metrics_medium_performance is 350.0.
+
+the last closing price of example_metrics_low_performance is 280.0.
+
+the musk service status of example_award_state_active is chief_executive_officer.
+
+the performance metrics of example_award_state_active is example_metrics_high_performance.
+
+the earned tranches of example_award_state_active is [].
+
+the earned dates of example_award_state_active is [].
+
+example_award_state_active has CEO succession framework.
+
+example_award_state_active has HSR waiting period expired.
+
+example_award_state_active has shareholder approval received.
+
+the musk service status of example_award_state_terminated is not_in_eligible_service.
+
+the performance metrics of example_award_state_terminated is example_metrics_high_performance.
+
+the earned tranches of example_award_state_terminated is [1, 2].
+
+example_award_state_terminated has CEO succession framework.
+
+the termination reason of example_award_state_terminated is without_cause.
+
+example_award_state_terminated has HSR waiting period expired.
+
+example_award_state_terminated has shareholder approval received.
+
+the musk service status of example_award_state_change_in_control is chief_executive_officer.
+
+the performance metrics of example_award_state_change_in_control is example_metrics_high_performance.
+
+the earned tranches of example_award_state_change_in_control is [1].
+
+example_award_state_change_in_control has CEO succession framework.
+
+the termination reason of example_award_state_change_in_control is change_in_control.
+
+example_award_state_change_in_control has HSR waiting period expired.
+
+example_award_state_change_in_control has shareholder approval received.
+
+the musk service status of example_award_state_medium_performance is chief_executive_officer.
+
+the performance metrics of example_award_state_medium_performance is example_metrics_medium_performance.
+
+the earned tranches of example_award_state_medium_performance is [].
+
+the earned dates of example_award_state_medium_performance is [].
+
+example_award_state_medium_performance has CEO succession framework.
+
+example_award_state_medium_performance has HSR waiting period expired.
+
+example_award_state_medium_performance has shareholder approval received.
+
+the musk service status of example_award_state_low_performance is chief_executive_officer.
+
+the performance metrics of example_award_state_low_performance is example_metrics_low_performance.
+
+the earned tranches of example_award_state_low_performance is [].
+
+the earned dates of example_award_state_low_performance is [].
+
+example_award_state_low_performance has HSR waiting period expired.
+
+example_award_state_low_performance has shareholder approval received.
+
+the musk service status of example_award_state_with_earned_tranche is chief_executive_officer.
+
+the performance metrics of example_award_state_with_earned_tranche is example_metrics_high_performance.
+
+the earned tranches of example_award_state_with_earned_tranche is [1].
+
+example_award_state_with_earned_tranche has CEO succession framework.
+
+example_award_state_with_earned_tranche has HSR waiting period expired.
+
+example_award_state_with_earned_tranche has shareholder approval received.
+
+% The contracts of this file (Eligible Service Requirement, Milestone Achievement Requirement, Vesting Requirement) are twins of their own, written by step 3 of
+% the L4 translator: in LE for LPS, run by LPS2 (LPS2's examples/migration/l4/ceo_performance_award/ceo_performance_award.le,
+% each #TRACE a scenario), and as a history view read over a finished history of
+% events (ceo_performance_award_history.le, beside this program).
+scenario line_665 is, as stated in the source program at line 665:
+    line_665 expects answers ["L4's answer at line 665 is reproduced"].
+
+scenario line_666 is, as stated in the source program at line 666:
+    line_666 expects answers ["L4's answer at line 666 is reproduced"].
+
+scenario line_667 is, as stated in the source program at line 667:
+    line_667 expects answers ["L4's answer at line 667 is reproduced"].
+
+scenario line_668 is, as stated in the source program at line 668:
+    line_668 expects answers ["L4's answer at line 668 is reproduced"].
+
+scenario line_669 is, as stated in the source program at line 669:
+    line_669 expects answers ["L4's answer at line 669 is reproduced"].
+
+scenario line_676 is, as stated in the source program at line 676:
+    % pending — waits for residue r1:
+    % line_676 expects answers ["tranche can be earned for 1 with example_award_state_active"].
+
+scenario line_677 is, as stated in the source program at line 677:
+    % pending — waits for residue r1:
+    % line_677 expects answers [].
+
+scenario line_678 is, as stated in the source program at line 678:
+    line_678 expects answers ["market cap milestone met given 1 with example_metrics_high_performance"].
+
+scenario line_679 is, as stated in the source program at line 679:
+    line_679 expects answers ["operational milestone met for 1 with example_metrics_high_performance"].
+
+scenario line_680 is, as stated in the source program at line 680:
+    line_680 expects answers [].
+
+scenario line_683 is, as stated in the source program at line 683:
+    % pending — waits for residue r1:
+    % line_683 expects answers ["tranche can be earned for 1 with example_award_state_medium_performance"].
+
+scenario line_684 is, as stated in the source program at line 684:
+    % pending — waits for residue r1:
+    % line_684 expects answers [].
+
+scenario line_685 is, as stated in the source program at line 685:
+    line_685 expects answers ["market cap milestone met given 1 with example_metrics_medium_performance"].
+
+scenario line_686 is, as stated in the source program at line 686:
+    line_686 expects answers ["operational milestone met for 1 with example_metrics_medium_performance"].
+
+scenario line_687 is, as stated in the source program at line 687:
+    line_687 expects answers ["operational milestone met for 5 with example_metrics_medium_performance"].
+
+scenario line_690 is, as stated in the source program at line 690:
+    % pending — waits for residue r1:
+    % line_690 expects answers [].
+
+scenario line_691 is, as stated in the source program at line 691:
+    % pending — waits for residue r1:
+    % line_691 expects answers [].
+
+scenario line_692 is, as stated in the source program at line 692:
+    line_692 expects answers [].
+
+scenario line_693 is, as stated in the source program at line 693:
+    line_693 expects answers [].
+
+scenario line_694 is, as stated in the source program at line 694:
+    line_694 expects answers [].
+
+scenario line_697 is, as stated in the source program at line 697:
+    line_697 expects answers ["immediate vesting applies for example_award_state_terminated"].
+
+scenario line_698 is, as stated in the source program at line 698:
+    % pending — waits for residue r1:
+    % line_698 expects answers [].
+
+query line_665 is:
+    L4's answer at line 665 is reproduced.
+
+query line_666 is:
+    L4's answer at line 666 is reproduced.
+
+query line_667 is:
+    L4's answer at line 667 is reproduced.
+
+query line_668 is:
+    L4's answer at line 668 is reproduced.
+
+query line_669 is:
+    L4's answer at line 669 is reproduced.
+
+query line_676 is:
+    tranche can be earned for 1 with example_award_state_active.
+
+query line_677 is:
+    tranche can be earned for 3 with example_award_state_active.
+
+query line_678 is:
+    market cap milestone met given 1 with example_metrics_high_performance.
+
+query line_679 is:
+    operational milestone met for 1 with example_metrics_high_performance.
+
+query line_680 is:
+    market cap milestone met for change in control for 1 with example_metrics_high_performance.
+
+query line_683 is:
+    tranche can be earned for 1 with example_award_state_medium_performance.
+
+query line_684 is:
+    tranche can be earned for 5 with example_award_state_medium_performance.
+
+query line_685 is:
+    market cap milestone met given 1 with example_metrics_medium_performance.
+
+query line_686 is:
+    operational milestone met for 1 with example_metrics_medium_performance.
+
+query line_687 is:
+    operational milestone met for 5 with example_metrics_medium_performance.
+
+query line_690 is:
+    tranche can be earned for 1 with example_award_state_low_performance.
+
+query line_691 is:
+    tranche can be earned for 11 with example_award_state_low_performance.
+
+query line_692 is:
+    market cap milestone met given 1 with example_metrics_low_performance.
+
+query line_693 is:
+    operational milestone met for 1 with example_metrics_low_performance.
+
+query line_694 is:
+    CEO succession framework required met for 11 with example_award_state_low_performance.
+
+query line_697 is:
+    immediate vesting applies for example_award_state_terminated.
+
+query line_698 is:
+    forfeiture applies for example_award_state_terminated.
+

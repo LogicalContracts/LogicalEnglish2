@@ -64,6 +64,7 @@
     le_lps_json/1,               % +Path            (writes the §2 JSON object)
     le_lps_json_text/1,          % +LEText
     le_lps_dict/4,               % +Text, +Provenance, +Issues, -Dict
+    le_lps_with_scenario/2,      % +ScenarioName, :Goal   (which scenario is the run)
     offset_line_col/4,           % +Text, +Offset, -Line, -Col  (for le_service.pl)
     lps_split_time/5,            % for le_lps_write.pl and the tests
     lps_expand_defaults/2        % +Terms, -Terms   (defaults/1 made explicit)
@@ -768,14 +769,55 @@ initial_state_entry(KB, Body, Start, [e(initial_state(Fluents), Start)], Issues)
 bare_fluent(holds(F, _), F) :- !.
 bare_fluent(F, F).
 
-observations(KB, Es, []) :-
+observations(KB, Es, Issues) :-
+	run_scenario(KB, Scenario, Issues),
 	findall(e(observe([Event], T2), none),
-		( observed(KB, Event0, T2), rename(Event0, Event) ),
+		( observed(KB, Scenario, Event0, T2), rename(Event0, Event) ),
 		Es).
 
-observed(KB, Event0, T2) :-
-	(   current_predicate(KB:scenario/2),
-	    KB:scenario(_, Terms), member(Term, Terms),
+%!  le_lps_with_scenario(+Name, :Goal)
+%
+%   Translate with the scenario Name as the run's observations (`lps run
+%   --scenario Name`). Without it the document's only scenario is run, or,
+%   with several, the first one, and a warning names the others. Until 29
+%   September 2026 the observations of every scenario were run together, as
+%   if they were one history.
+:- meta_predicate le_lps_with_scenario(+, 0).
+le_lps_with_scenario(Name, Goal) :-
+	setup_call_cleanup(asserta(chosen_scenario(Name), Ref), Goal, erase(Ref)).
+
+:- dynamic chosen_scenario/1.
+
+scenario_names(KB, Names) :-
+	(   current_predicate(KB:scenario/2)
+	->  findall(N, KB:scenario(N, _), Ns0), list_to_set(Ns0, Names)
+	;   Names = []
+	).
+
+run_scenario(KB, Scenario, Issues) :-
+	scenario_names(KB, Names),
+	(   chosen_scenario(Chosen0)
+	->  atom_string(Chosen, Chosen0),
+	    (   memberchk(Chosen, Names)
+	    ->  Scenario = Chosen, Issues = []
+	    ;   atomic_list_concat(Names, ', ', NamesA),
+		le_i18n:le_msg(lps_no_such_scenario_desc, [name-Chosen, names-NamesA], Desc),
+		Scenario = none,
+		Issues = [le_lps_issue(error, lps_no_such_scenario, Desc, none, 0)]
+	    )
+	;   Names = [First, _|_]
+	->  Scenario = First,
+	    atomic_list_concat(Names, ', ', NamesA),
+	    le_i18n:le_msg(lps_several_scenarios_desc, [name-First, names-NamesA], Desc),
+	    Issues = [le_lps_issue(warning, lps_several_scenarios, Desc, none, 0)]
+	;   Names = [Only]
+	->  Scenario = Only, Issues = []
+	;   Scenario = none, Issues = []
+	).
+
+observed(KB, Scenario, Event0, T2) :-
+	(   Scenario \== none,
+	    KB:scenario(Scenario, Terms), member(Term, Terms),
 	    scenario_observation(Term, Event0, _T1, T2)
 	;   current_predicate(KB:lps_observe/3),
 	    KB:lps_observe(Event0, _T1, T2)
@@ -904,17 +946,59 @@ causal_law(KB, Trigger, Conds, C, Law) :-
 		Law = updated(Trigger, Fluent, Old-New, Cs)
 	    )
 	;   lower(KB, C, none, Lowered, _),
-	    (   Lowered = holds(not(F), _)
-	    ->  Law = terminated(Trigger, F, Conds)
-	    ;   Lowered = holds(F, _)
-	    ->  Law = initiated(Trigger, F, Conds)
-	    ;   Lowered = happens(initiate(F), _, _)
-	    ->  Law = initiated(Trigger, F, Conds)
-	    ;   Lowered = happens(terminate(F), _, _)
-	    ->  Law = terminated(Trigger, F, Conds)
+	    (   Lowered = holds(not(F0), _)
+	    ->  Kind = terminated
+	    ;   Lowered = holds(F0, _)
+	    ->  Kind = initiated
+	    ;   Lowered = happens(initiate(F0), _, _)
+	    ->  Kind = initiated
+	    ;   Lowered = happens(terminate(F0), _, _)
+	    ->  Kind = terminated
 	    ;   fail
-	    )
+	    ),
+	    worked_out_places(F0, F, Sums),
+	    append(Conds, Sums, Cs),
+	    Law =.. [Kind, Trigger, F, Cs]
 	).
+
+%!  worked_out_places(+Term0, -Term, -Goals) is det.
+%
+%   A place of an effect or of a conclusion written as a sum (`… by the first
+%   time + 30`) is worked out before the fluent is stored or the action
+%   attempted: the place gets a fresh variable, and `V is Sum` joins the
+%   conditions. Without it the fluent held `10+30`, which a comparison still
+%   worked out but a lookup by value (`… by 40`), the timeline and the
+%   explanations did not. Dates (`date(Y,M,D)`) and words are left alone.
+worked_out_places(T0, T, Goals) :-
+	compound(T0), \+ arithmetic_place(T0), !,
+	T0 =.. [F|Args0],
+	foldl(worked_out_place, Args0, Args, [], Goals0),
+	reverse(Goals0, Goals),
+	T =.. [F|Args].
+worked_out_places(T, T, []).
+
+worked_out_place(A0, V, G0, [V is A0|G0]) :- arithmetic_place(A0), !.
+worked_out_place(A, A, G, G).
+
+arithmetic_place(E) :-
+	compound(E),
+	compound_name_arity(E, Op, N),
+	memberchk(Op/N, [(+)/2, (-)/2, (*)/2, (/)/2, (//)/2, mod/2, (-)/1, min/2, max/2, abs/1]),
+	E =.. [_|Args],
+	forall(member(X, Args), ( var(X) ; number(X) ; arithmetic_place(X) )).
+
+%   The conclusions of a reactive rule with the sums in their places worked
+%   out first (worked_out_places/3).
+worked_out_conclusions([], []).
+worked_out_conclusions([C0|Cs0], Out) :-
+	(   C0 = happens(E0, T1, T2)
+	->  worked_out_places(E0, E, Gs), C = happens(E, T1, T2)
+	;   C0 = holds(F0, T)
+	->  worked_out_places(F0, F, Gs), C = holds(F, T)
+	;   C = C0, Gs = []
+	),
+	worked_out_conclusions(Cs0, Rest),
+	append(Gs, [C|Rest], Out).
 
 reactive_rules(KB, Es, Is) :-
 	findall(E-I,
@@ -926,9 +1010,23 @@ reactive_rules(KB, Es, Is) :-
 reactive_entry(KB, Ante, Cons, Start, [e(reactive_rule(A, C), Start)], Issues) :-
 	conjuncts(Ante, AnteGoals),
 	lower_all(KB, AnteGoals, at(T1), A, Is1),
+	consequent_start(A, T1, TC),
 	conjuncts(Cons, ConsGoals),
-	lower_all(KB, ConsGoals, after(T1), C, Is2),
+	lower_all(KB, ConsGoals, after(TC), C0, Is2),
+	worked_out_conclusions(C0, C),
 	append(Is1, Is2, Issues).
+
+%   Where an untimed conclusion starts. With conditions about the state only,
+%   at the time the conditions read. With an untimed event among the
+%   conditions (`if the door opens then the guest enters`), at the END of that
+%   event: the event's start is already past when the engine learns of the
+%   event, so an action started there could never happen and the run failed.
+%   The state conditions still read the state the event happened in.
+consequent_start(A, T1, TC) :-
+	(   member(happens(_, TS, TE), A), TS == T1, var(TE)
+	->  TC = TE
+	;   TC = T1
+	).
 
 denials(KB, Es, Is) :-
 	findall(E-I,
@@ -1024,7 +1122,7 @@ lower(KB, not(G0), Ctx, Out, Is) :- !,
 %   expects).
 lower(KB, Agg, Ctx, goals(Out), Is) :-
 	Agg =.. [Op, [each|Elems], Goal, Results],
-	memberchk(Op, [count, sum, average, min, max]), !,
+	memberchk(Op, [count, sum, average, min, max, list]), !,
 	conjuncts(Goal, Gs),
 	lower_all(KB, Gs, Ctx, Inner, Is),
 	agg_var(Elems, Elem),
@@ -1117,6 +1215,8 @@ aggregate_goal(count, Elem, Inner, Result, T,
 	       [holds(findall(Elem, Inner, L), T), length(L, Result)]) :- !.
 aggregate_goal(sum, Elem, Inner, Result, T,
 	       [holds(findall(Elem, Inner, L), T), sum_list(L, Result)]) :- !.
+aggregate_goal(list, Elem, Inner, Result, T,
+	       [holds(findall(Elem, Inner, L), T), L = Result]) :- !.
 aggregate_goal(Op, Elem, Inner, Result, T,
 	       [holds(findall(Elem, Inner, L), T), Goal]) :-
 	memberchk(Op-Pred, [average-mean_list, min-min_list, max-max_list]),
@@ -1140,11 +1240,37 @@ builtin(le_gt(X, Y),          X > Y).
 builtin(le_lt(X, Y),          X < Y).
 builtin(le_equal_to(X, Y),    X = Y).
 builtin(le_not_equal_to(X, Y), X \= Y).
-builtin(le_assign(X, Y),      X is Y).
-builtin(le_is(X, Y),          X is Y).
+builtin(le_assign(X, Y),      G) :- assignment(X, Y, G).
+builtin(le_is(X, Y),          G) :- assignment(X, Y, G).
 builtin(le_is_in(X, L),       member(X, L)).
 builtin(le_known(X),          ground(X)).
 builtin(prolog_call(G),       G).
+
+%   `X = Y` is arithmetic only when Y can be a number: a list (`the list =
+%   [5, 7]`), a text or a name is not a formula, and `X is [5,7]` is a type
+%   error at run time. Such a value is unified instead, as LE's own reasoner
+%   does (reasoner.pl, le_assign/2).
+assignment(X, Y, X = Y) :-
+	nonvar(Y), not_arithmetic(Y), !.
+assignment(X, Y, X is Y).
+
+not_arithmetic(Y) :- is_list(Y), !.
+not_arithmetic(Y) :- string(Y), !.
+not_arithmetic(Y) :- nonvar(Y), Y = [_|_], !.       % never binds a variable to a list
+not_arithmetic(Y) :- atom(Y), \+ arithmetic_constant(Y).
+
+arithmetic_constant(pi).
+arithmetic_constant(e).
+arithmetic_constant(inf).
+arithmetic_constant(infinite).
+arithmetic_constant(nan).
+arithmetic_constant(epsilon).
+arithmetic_constant(max_tagged_integer).
+arithmetic_constant(min_tagged_integer).
+arithmetic_constant(random).
+arithmetic_constant(random_float).
+arithmetic_constant(cputime).
+arithmetic_constant(realtime).
 
 		 /*******************************
 		 *	 resource budgets	*
@@ -1300,7 +1426,7 @@ not_lps_goal(_, G, What) :-
 	).
 not_lps_goal(_, G, What) :-
 	compound(G), G =.. [Op, [each|_], _, _],
-	memberchk(Op, [count, sum, average, min, max]), !,
+	memberchk(Op, [count, sum, average, min, max, list]), !,
 	le_i18n:le_msg(not_lps_unlowered, [], What).
 not_lps_goal(_, G, What) :-
 	callable(G), functor(G, F, N), sub_atom(F, 0, _, _, le_), !,

@@ -1,0 +1,1469 @@
+% module-a2-cross-cutting-examples.l4: the history view
+%
+% The timeless Logical English twin of the contracts of an L4 file (module-a2-cross-cutting-examples.l4), written
+% by the L4 translator (docs/migration/l4.md, step 3): the contracts read over a finished
+% history of events. For each obligation the program says when it starts, its deadline
+% and which events meet it, and four rules say how it ends: met, missed, or still
+% open when the history stops. The same obligations, in the same words, as the LE for LPS twin in LPS2's
+% examples/migration/l4/; each scenario expects what that twin's run ended with, which
+% agrees with L4's evaluator.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    something happens on day *a day*.
+    an obligation can start on day *a day*.
+    the obligation that obligation within days obliges *a party* to do anything by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that obligation within days obliges *a party* to do anything by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that obligation within days obliges *a party* to do anything by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that obligation within days obliges *a party* to do anything by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that obligation within days obliges *a party* to do anything by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that obligation within days obliges *a party* to do anything by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that obligation within days obliges *a party* to do anything by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that obligation within days obliges *a party* to do anything by day *a due day* as its first obligation is still open.
+    the obligation that required steps procedure obliges *a party* to serve required steps notice by day *a due day* as its first obligation given charity *a charity* and notice *a notice* starts on day *a day*; memorable.
+    the obligation that required steps procedure obliges *a party* to serve required steps notice by day *a due day* as its first obligation given charity *a charity* and notice *a notice* has deadline day *a day*.
+    the obligation that required steps procedure obliges *a party* to serve required steps notice by day *a due day* as its first obligation given charity *a charity* and notice *a notice* is met on day *a day*.
+    the obligation that required steps procedure obliges *a party* to serve required steps notice by day *a due day* as its first obligation given charity *a charity* and notice *a notice* ends on day *a day*; memorable.
+    the obligation that required steps procedure obliges *a party* to serve required steps notice by day *a due day* as its first obligation given charity *a charity* and notice *a notice* is missed on day *a day*.
+    the deadline of the obligation that required steps procedure obliges *a party* to serve required steps notice by day *a due day* as its first obligation given charity *a charity* and notice *a notice* has passed on day *a day*; memorable.
+    the obligation that required steps procedure obliges *a party* to serve required steps notice by day *a due day* as its first obligation given charity *a charity* and notice *a notice* is pending since day *a day*.
+    the obligation that required steps procedure obliges *a party* to serve required steps notice by day *a due day* as its first obligation given charity *a charity* and notice *a notice* is still open.
+    the obligation that payment with grace obliges *a party* to pay by day *a due day* as its first obligation given amount *an amount* and debtor *a debtor* and due date *a due date* and grace period *a grace period* and late fee pct *a late fee pct* starts on day *a day*; memorable.
+    the obligation that payment with grace obliges *a party* to pay by day *a due day* as its first obligation given amount *an amount* and debtor *a debtor* and due date *a due date* and grace period *a grace period* and late fee pct *a late fee pct* has deadline day *a day*.
+    the obligation that payment with grace obliges *a party* to pay by day *a due day* as its first obligation given amount *an amount* and debtor *a debtor* and due date *a due date* and grace period *a grace period* and late fee pct *a late fee pct* is met on day *a day*.
+    the obligation that payment with grace obliges *a party* to pay by day *a due day* as its first obligation given amount *an amount* and debtor *a debtor* and due date *a due date* and grace period *a grace period* and late fee pct *a late fee pct* ends on day *a day*; memorable.
+    the obligation that payment with grace obliges *a party* to pay by day *a due day* as its first obligation given amount *an amount* and debtor *a debtor* and due date *a due date* and grace period *a grace period* and late fee pct *a late fee pct* is missed on day *a day*.
+    the deadline of the obligation that payment with grace obliges *a party* to pay by day *a due day* as its first obligation given amount *an amount* and debtor *a debtor* and due date *a due date* and grace period *a grace period* and late fee pct *a late fee pct* has passed on day *a day*; memorable.
+    the obligation that payment with grace obliges *a party* to pay by day *a due day* as its first obligation given amount *an amount* and debtor *a debtor* and due date *a due date* and grace period *a grace period* and late fee pct *a late fee pct* is pending since day *a day*.
+    the obligation that payment with grace obliges *a party* to pay by day *a due day* as its first obligation given amount *an amount* and debtor *a debtor* and due date *a due date* and grace period *a grace period* and late fee pct *a late fee pct* is still open.
+    the obligation that escalation chain permits *a party* to issue warning as its first obligation given subject *a subject* starts on day *a day*; memorable.
+    the obligation that escalation chain permits *a party* to issue warning as its first obligation given subject *a subject* has deadline day *a day*.
+    the obligation that escalation chain permits *a party* to issue warning as its first obligation given subject *a subject* is met on day *a day*.
+    the obligation that escalation chain permits *a party* to issue warning as its first obligation given subject *a subject* ends on day *a day*; memorable.
+    the obligation that escalation chain permits *a party* to issue warning as its first obligation given subject *a subject* is missed on day *a day*.
+    the deadline of the obligation that escalation chain permits *a party* to issue warning as its first obligation given subject *a subject* has passed on day *a day*; memorable.
+    the obligation that escalation chain permits *a party* to issue warning as its first obligation given subject *a subject* is pending since day *a day*.
+    the obligation that escalation chain permits *a party* to issue warning as its first obligation given subject *a subject* is still open.
+    the obligation that enforcement response obliges *a party* to suspend immediately as its first obligation starts on day *a day*; memorable.
+    the obligation that enforcement response obliges *a party* to suspend immediately as its first obligation has deadline day *a day*.
+    the obligation that enforcement response obliges *a party* to suspend immediately as its first obligation is met on day *a day*.
+    the obligation that enforcement response obliges *a party* to suspend immediately as its first obligation ends on day *a day*; memorable.
+    the obligation that enforcement response obliges *a party* to suspend immediately as its first obligation is missed on day *a day*.
+    the deadline of the obligation that enforcement response obliges *a party* to suspend immediately as its first obligation has passed on day *a day*; memorable.
+    the obligation that enforcement response obliges *a party* to suspend immediately as its first obligation is pending since day *a day*.
+    the obligation that enforcement response obliges *a party* to suspend immediately as its first obligation is still open.
+    the obligation that enforcement response permits *a party* to impose fine as its second obligation given subject *a subject* starts on day *a day*; memorable.
+    the obligation that enforcement response permits *a party* to impose fine as its second obligation given subject *a subject* has deadline day *a day*.
+    the obligation that enforcement response permits *a party* to impose fine as its second obligation given subject *a subject* is met on day *a day*.
+    the obligation that enforcement response permits *a party* to impose fine as its second obligation given subject *a subject* ends on day *a day*; memorable.
+    the obligation that enforcement response permits *a party* to impose fine as its second obligation given subject *a subject* is missed on day *a day*.
+    the deadline of the obligation that enforcement response permits *a party* to impose fine as its second obligation given subject *a subject* has passed on day *a day*; memorable.
+    the obligation that enforcement response permits *a party* to impose fine as its second obligation given subject *a subject* is pending since day *a day*.
+    the obligation that enforcement response permits *a party* to impose fine as its second obligation given subject *a subject* is still open.
+    the obligation that licence renewal procedure obliges *a party* to apply for renewal by day *a due day* as its first obligation given expiry date *an expiry date* and holder *a holder* starts on day *a day*; memorable.
+    the obligation that licence renewal procedure obliges *a party* to apply for renewal by day *a due day* as its first obligation given expiry date *an expiry date* and holder *a holder* has deadline day *a day*.
+    the obligation that licence renewal procedure obliges *a party* to apply for renewal by day *a due day* as its first obligation given expiry date *an expiry date* and holder *a holder* is met on day *a day*.
+    the obligation that licence renewal procedure obliges *a party* to apply for renewal by day *a due day* as its first obligation given expiry date *an expiry date* and holder *a holder* ends on day *a day*; memorable.
+    the obligation that licence renewal procedure obliges *a party* to apply for renewal by day *a due day* as its first obligation given expiry date *an expiry date* and holder *a holder* is missed on day *a day*.
+    the deadline of the obligation that licence renewal procedure obliges *a party* to apply for renewal by day *a due day* as its first obligation given expiry date *an expiry date* and holder *a holder* has passed on day *a day*; memorable.
+    the obligation that licence renewal procedure obliges *a party* to apply for renewal by day *a due day* as its first obligation given expiry date *an expiry date* and holder *a holder* is pending since day *a day*.
+    the obligation that licence renewal procedure obliges *a party* to apply for renewal by day *a due day* as its first obligation given expiry date *an expiry date* and holder *a holder* is still open.
+    the obligation that required steps procedure obliges *a party* to take required steps by day *a due day* as its second obligation given charity *a charity* starts on day *a day*; memorable.
+    the obligation that required steps procedure obliges *a party* to take required steps by day *a due day* as its second obligation given charity *a charity* has deadline day *a day*.
+    the obligation that required steps procedure obliges *a party* to take required steps by day *a due day* as its second obligation given charity *a charity* is met on day *a day*.
+    the obligation that required steps procedure obliges *a party* to take required steps by day *a due day* as its second obligation given charity *a charity* ends on day *a day*; memorable.
+    the obligation that required steps procedure obliges *a party* to take required steps by day *a due day* as its second obligation given charity *a charity* is missed on day *a day*.
+    the deadline of the obligation that required steps procedure obliges *a party* to take required steps by day *a due day* as its second obligation given charity *a charity* has passed on day *a day*; memorable.
+    the obligation that required steps procedure obliges *a party* to take required steps by day *a due day* as its second obligation given charity *a charity* is pending since day *a day*.
+    the obligation that required steps procedure obliges *a party* to take required steps by day *a due day* as its second obligation given charity *a charity* is still open.
+    the obligation that payment with grace obliges *a party* to pay with late fee by day *a due day* as its second obligation given debtor *a debtor* starts on day *a day*; memorable.
+    the obligation that payment with grace obliges *a party* to pay with late fee by day *a due day* as its second obligation given debtor *a debtor* has deadline day *a day*.
+    the obligation that payment with grace obliges *a party* to pay with late fee by day *a due day* as its second obligation given debtor *a debtor* is met on day *a day*.
+    the obligation that payment with grace obliges *a party* to pay with late fee by day *a due day* as its second obligation given debtor *a debtor* ends on day *a day*; memorable.
+    the obligation that payment with grace obliges *a party* to pay with late fee by day *a due day* as its second obligation given debtor *a debtor* is missed on day *a day*.
+    the deadline of the obligation that payment with grace obliges *a party* to pay with late fee by day *a due day* as its second obligation given debtor *a debtor* has passed on day *a day*; memorable.
+    the obligation that payment with grace obliges *a party* to pay with late fee by day *a due day* as its second obligation given debtor *a debtor* is pending since day *a day*.
+    the obligation that payment with grace obliges *a party* to pay with late fee by day *a due day* as its second obligation given debtor *a debtor* is still open.
+    the obligation that escalation chain obliges *a party* to comply with warning by day *a due day* as its second obligation given subject *a subject* starts on day *a day*; memorable.
+    the obligation that escalation chain obliges *a party* to comply with warning by day *a due day* as its second obligation given subject *a subject* has deadline day *a day*.
+    the obligation that escalation chain obliges *a party* to comply with warning by day *a due day* as its second obligation given subject *a subject* is met on day *a day*.
+    the obligation that escalation chain obliges *a party* to comply with warning by day *a due day* as its second obligation given subject *a subject* ends on day *a day*; memorable.
+    the obligation that escalation chain obliges *a party* to comply with warning by day *a due day* as its second obligation given subject *a subject* is missed on day *a day*.
+    the deadline of the obligation that escalation chain obliges *a party* to comply with warning by day *a due day* as its second obligation given subject *a subject* has passed on day *a day*; memorable.
+    the obligation that escalation chain obliges *a party* to comply with warning by day *a due day* as its second obligation given subject *a subject* is pending since day *a day*.
+    the obligation that escalation chain obliges *a party* to comply with warning by day *a due day* as its second obligation given subject *a subject* is still open.
+    the obligation that enforcement response obliges *a party* to pay fine and comply by day *a due day* as its third obligation given subject *a subject* starts on day *a day*; memorable.
+    the obligation that enforcement response obliges *a party* to pay fine and comply by day *a due day* as its third obligation given subject *a subject* has deadline day *a day*.
+    the obligation that enforcement response obliges *a party* to pay fine and comply by day *a due day* as its third obligation given subject *a subject* is met on day *a day*.
+    the obligation that enforcement response obliges *a party* to pay fine and comply by day *a due day* as its third obligation given subject *a subject* ends on day *a day*; memorable.
+    the obligation that enforcement response obliges *a party* to pay fine and comply by day *a due day* as its third obligation given subject *a subject* is missed on day *a day*.
+    the deadline of the obligation that enforcement response obliges *a party* to pay fine and comply by day *a due day* as its third obligation given subject *a subject* has passed on day *a day*; memorable.
+    the obligation that enforcement response obliges *a party* to pay fine and comply by day *a due day* as its third obligation given subject *a subject* is pending since day *a day*.
+    the obligation that enforcement response obliges *a party* to pay fine and comply by day *a due day* as its third obligation given subject *a subject* is still open.
+    the obligation that licence renewal procedure obliges *a party* to apply with late fee by day *a due day* as its second obligation given holder *a holder* starts on day *a day*; memorable.
+    the obligation that licence renewal procedure obliges *a party* to apply with late fee by day *a due day* as its second obligation given holder *a holder* has deadline day *a day*.
+    the obligation that licence renewal procedure obliges *a party* to apply with late fee by day *a due day* as its second obligation given holder *a holder* is met on day *a day*.
+    the obligation that licence renewal procedure obliges *a party* to apply with late fee by day *a due day* as its second obligation given holder *a holder* ends on day *a day*; memorable.
+    the obligation that licence renewal procedure obliges *a party* to apply with late fee by day *a due day* as its second obligation given holder *a holder* is missed on day *a day*.
+    the deadline of the obligation that licence renewal procedure obliges *a party* to apply with late fee by day *a due day* as its second obligation given holder *a holder* has passed on day *a day*; memorable.
+    the obligation that licence renewal procedure obliges *a party* to apply with late fee by day *a due day* as its second obligation given holder *a holder* is pending since day *a day*.
+    the obligation that licence renewal procedure obliges *a party* to apply with late fee by day *a due day* as its second obligation given holder *a holder* is still open.
+    the obligation that required steps procedure obliges *a party* to publish compliance by day *a due day* as its third obligation starts on day *a day*; memorable.
+    the obligation that required steps procedure obliges *a party* to publish compliance by day *a due day* as its third obligation has deadline day *a day*.
+    the obligation that required steps procedure obliges *a party* to publish compliance by day *a due day* as its third obligation is met on day *a day*.
+    the obligation that required steps procedure obliges *a party* to publish compliance by day *a due day* as its third obligation ends on day *a day*; memorable.
+    the obligation that required steps procedure obliges *a party* to publish compliance by day *a due day* as its third obligation is missed on day *a day*.
+    the deadline of the obligation that required steps procedure obliges *a party* to publish compliance by day *a due day* as its third obligation has passed on day *a day*; memorable.
+    the obligation that required steps procedure obliges *a party* to publish compliance by day *a due day* as its third obligation is pending since day *a day*.
+    the obligation that required steps procedure obliges *a party* to publish compliance by day *a due day* as its third obligation is still open.
+    the obligation that required steps procedure permits *a party* to deregister charity as its fourth obligation given charity *a charity* starts on day *a day*; memorable.
+    the obligation that required steps procedure permits *a party* to deregister charity as its fourth obligation given charity *a charity* has deadline day *a day*.
+    the obligation that required steps procedure permits *a party* to deregister charity as its fourth obligation given charity *a charity* is met on day *a day*.
+    the obligation that required steps procedure permits *a party* to deregister charity as its fourth obligation given charity *a charity* ends on day *a day*; memorable.
+    the obligation that required steps procedure permits *a party* to deregister charity as its fourth obligation given charity *a charity* is missed on day *a day*.
+    the deadline of the obligation that required steps procedure permits *a party* to deregister charity as its fourth obligation given charity *a charity* has passed on day *a day*; memorable.
+    the obligation that required steps procedure permits *a party* to deregister charity as its fourth obligation given charity *a charity* is pending since day *a day*.
+    the obligation that required steps procedure permits *a party* to deregister charity as its fourth obligation given charity *a charity* is still open.
+    the obligation that escalation chain permits *a party* to impose fine as its third obligation given subject *a subject* starts on day *a day*; memorable.
+    the obligation that escalation chain permits *a party* to impose fine as its third obligation given subject *a subject* has deadline day *a day*.
+    the obligation that escalation chain permits *a party* to impose fine as its third obligation given subject *a subject* is met on day *a day*.
+    the obligation that escalation chain permits *a party* to impose fine as its third obligation given subject *a subject* ends on day *a day*; memorable.
+    the obligation that escalation chain permits *a party* to impose fine as its third obligation given subject *a subject* is missed on day *a day*.
+    the deadline of the obligation that escalation chain permits *a party* to impose fine as its third obligation given subject *a subject* has passed on day *a day*; memorable.
+    the obligation that escalation chain permits *a party* to impose fine as its third obligation given subject *a subject* is pending since day *a day*.
+    the obligation that escalation chain permits *a party* to impose fine as its third obligation given subject *a subject* is still open.
+    the obligation that licence renewal procedure permits *a party* to apply for reinstatement by day *a due day* as its third obligation given holder *a holder* starts on day *a day*; memorable.
+    the obligation that licence renewal procedure permits *a party* to apply for reinstatement by day *a due day* as its third obligation given holder *a holder* has deadline day *a day*.
+    the obligation that licence renewal procedure permits *a party* to apply for reinstatement by day *a due day* as its third obligation given holder *a holder* is met on day *a day*.
+    the obligation that licence renewal procedure permits *a party* to apply for reinstatement by day *a due day* as its third obligation given holder *a holder* ends on day *a day*; memorable.
+    the obligation that licence renewal procedure permits *a party* to apply for reinstatement by day *a due day* as its third obligation given holder *a holder* is missed on day *a day*.
+    the deadline of the obligation that licence renewal procedure permits *a party* to apply for reinstatement by day *a due day* as its third obligation given holder *a holder* has passed on day *a day*; memorable.
+    the obligation that licence renewal procedure permits *a party* to apply for reinstatement by day *a due day* as its third obligation given holder *a holder* is pending since day *a day*.
+    the obligation that licence renewal procedure permits *a party* to apply for reinstatement by day *a due day* as its third obligation given holder *a holder* is still open.
+    the obligation that escalation chain obliges *a party* to pay fine and comply by day *a due day* as its fourth obligation given subject *a subject* starts on day *a day*; memorable.
+    the obligation that escalation chain obliges *a party* to pay fine and comply by day *a due day* as its fourth obligation given subject *a subject* has deadline day *a day*.
+    the obligation that escalation chain obliges *a party* to pay fine and comply by day *a due day* as its fourth obligation given subject *a subject* is met on day *a day*.
+    the obligation that escalation chain obliges *a party* to pay fine and comply by day *a due day* as its fourth obligation given subject *a subject* ends on day *a day*; memorable.
+    the obligation that escalation chain obliges *a party* to pay fine and comply by day *a due day* as its fourth obligation given subject *a subject* is missed on day *a day*.
+    the deadline of the obligation that escalation chain obliges *a party* to pay fine and comply by day *a due day* as its fourth obligation given subject *a subject* has passed on day *a day*; memorable.
+    the obligation that escalation chain obliges *a party* to pay fine and comply by day *a due day* as its fourth obligation given subject *a subject* is pending since day *a day*.
+    the obligation that escalation chain obliges *a party* to pay fine and comply by day *a due day* as its fourth obligation given subject *a subject* is still open.
+    the obligation that escalation chain permits *a party* to suspend registration as its fifth obligation given subject *a subject* starts on day *a day*; memorable.
+    the obligation that escalation chain permits *a party* to suspend registration as its fifth obligation given subject *a subject* has deadline day *a day*.
+    the obligation that escalation chain permits *a party* to suspend registration as its fifth obligation given subject *a subject* is met on day *a day*.
+    the obligation that escalation chain permits *a party* to suspend registration as its fifth obligation given subject *a subject* ends on day *a day*; memorable.
+    the obligation that escalation chain permits *a party* to suspend registration as its fifth obligation given subject *a subject* is missed on day *a day*.
+    the deadline of the obligation that escalation chain permits *a party* to suspend registration as its fifth obligation given subject *a subject* has passed on day *a day*; memorable.
+    the obligation that escalation chain permits *a party* to suspend registration as its fifth obligation given subject *a subject* is pending since day *a day*.
+    the obligation that escalation chain permits *a party* to suspend registration as its fifth obligation given subject *a subject* is still open.
+    the obligation that escalation chain obliges *a party* to remedy and apply for reinstatement by day *a due day* as its sixth obligation starts on day *a day*; memorable.
+    the obligation that escalation chain obliges *a party* to remedy and apply for reinstatement by day *a due day* as its sixth obligation has deadline day *a day*.
+    the obligation that escalation chain obliges *a party* to remedy and apply for reinstatement by day *a due day* as its sixth obligation is met on day *a day*.
+    the obligation that escalation chain obliges *a party* to remedy and apply for reinstatement by day *a due day* as its sixth obligation ends on day *a day*; memorable.
+    the obligation that escalation chain obliges *a party* to remedy and apply for reinstatement by day *a due day* as its sixth obligation is missed on day *a day*.
+    the deadline of the obligation that escalation chain obliges *a party* to remedy and apply for reinstatement by day *a due day* as its sixth obligation has passed on day *a day*; memorable.
+    the obligation that escalation chain obliges *a party* to remedy and apply for reinstatement by day *a due day* as its sixth obligation is pending since day *a day*.
+    the obligation that escalation chain obliges *a party* to remedy and apply for reinstatement by day *a due day* as its sixth obligation is still open.
+    the obligation that escalation chain obliges *a party* to remove from register as its seventh obligation starts on day *a day*; memorable.
+    the obligation that escalation chain obliges *a party* to remove from register as its seventh obligation has deadline day *a day*.
+    the obligation that escalation chain obliges *a party* to remove from register as its seventh obligation is met on day *a day*.
+    the obligation that escalation chain obliges *a party* to remove from register as its seventh obligation ends on day *a day*; memorable.
+    the obligation that escalation chain obliges *a party* to remove from register as its seventh obligation is missed on day *a day*.
+    the deadline of the obligation that escalation chain obliges *a party* to remove from register as its seventh obligation has passed on day *a day*; memorable.
+    the obligation that escalation chain obliges *a party* to remove from register as its seventh obligation is pending since day *a day*.
+    the obligation that escalation chain obliges *a party* to remove from register as its seventh obligation is still open.
+    the contract obligation within days starts on day *a day* with party *a party* and action *an action* and deadline *a deadline*; scenario element.
+    obligation within days obliges *a party* to do anything by day *a due day* as its first obligation.
+    *a party* does take action on day *a day*; scenario element.
+    *a party* does something on day *a day*.
+    the clock reaches day *a day*; scenario element.
+    the contract required steps procedure starts on day *a day* with charity *a charity* and notice *a notice*; scenario element.
+    required steps procedure obliges *a party* to serve required steps notice by day *a due day* as its first obligation given charity *a charity* and notice *a notice*.
+    the charity name of *a registered charity* is *a value*.
+    the registration number of *a registered charity* is *a value*.
+    the status of *a registered charity* is *a value*.
+    the notice id of *a required steps notice* is *a value*.
+    the issued date of *a required steps notice* is *a value*.
+    the steps of *a required steps notice* is *a value*.
+    the deadline of *a required steps notice* is *a value*.
+    *a party* does serve required steps notice on day *a day*; scenario element.
+    *a party* does take required steps with notice *a notice* on day *a day*; scenario element.
+    *a party* does publish compliance on day *a day*; scenario element.
+    *a party* does deregister charity on day *a day*; scenario element.
+    the contract payment with grace starts on day *a day* with debtor *a debtor* and amount *an amount* and due date *a due date* and grace period *a grace period* and late fee pct *a late fee pct*; scenario element.
+    payment with grace obliges *a party* to pay by day *a due day* as its first obligation given amount *an amount* and debtor *a debtor* and due date *a due date* and grace period *a grace period* and late fee pct *a late fee pct*.
+    *a party* does pay with payment amount *a payment amount* on day *a day*; scenario element.
+    *a party* does pay with late fee with total amount *a total amount* on day *a day*; scenario element.
+    the contract escalation chain starts on day *a day* with subject *a subject*; scenario element.
+    escalation chain permits *a party* to issue warning as its first obligation given subject *a subject*.
+    *a party* does issue warning on day *a day*; scenario element.
+    *a party* does comply with warning on day *a day*; scenario element.
+    the contract enforcement response starts on day *a day* with violation *a violation* and subject *a subject*; scenario element.
+    the severity of *a violation* is *a value*.
+    the description of *a violation* is *a value*.
+    the penalty of *a violation* is *a value*.
+    enforcement response obliges *a party* to suspend immediately as its first obligation.
+    enforcement response permits *a party* to impose fine as its second obligation given subject *a subject*.
+    *a party* does suspend immediately on day *a day*; scenario element.
+    the contract licence renewal procedure starts on day *a day* with holder *a holder* and expiry date *an expiry date*; scenario element.
+    licence renewal procedure obliges *a party* to apply for renewal by day *a due day* as its first obligation given expiry date *an expiry date* and holder *a holder*.
+    *a party* does apply for renewal on day *a day*; scenario element.
+    *a party* does apply with late fee on day *a day*; scenario element.
+    *a party* does apply for reinstatement on day *a day*; scenario element.
+    the contract is fulfilled.
+    the contract is breached.
+    required steps procedure obliges *a party* to take required steps by day *a due day* as its second obligation given charity *a charity*.
+    *a party* is the charity actor of *a thing*.
+    the contract is breached by *a party* because *a reason*.
+    payment with grace obliges *a party* to pay with late fee by day *a due day* as its second obligation given debtor *a debtor*.
+    escalation chain obliges *a party* to comply with warning by day *a due day* as its second obligation given subject *a subject*.
+    *a party* does impose fine on day *a day*; scenario element.
+    enforcement response obliges *a party* to pay fine and comply by day *a due day* as its third obligation given subject *a subject*.
+    licence renewal procedure obliges *a party* to apply with late fee by day *a due day* as its second obligation given holder *a holder*.
+    required steps procedure obliges *a party* to publish compliance by day *a due day* as its third obligation.
+    required steps procedure permits *a party* to deregister charity as its fourth obligation given charity *a charity*.
+    escalation chain permits *a party* to impose fine as its third obligation given subject *a subject*.
+    *a party* does pay fine and comply on day *a day*; scenario element.
+    licence renewal procedure permits *a party* to apply for reinstatement by day *a due day* as its third obligation given holder *a holder*.
+    escalation chain obliges *a party* to pay fine and comply by day *a due day* as its fourth obligation given subject *a subject*.
+    escalation chain permits *a party* to suspend registration as its fifth obligation given subject *a subject*.
+    *a party* does suspend registration on day *a day*; scenario element.
+    escalation chain obliges *a party* to remedy and apply for reinstatement by day *a due day* as its sixth obligation.
+    *a party* does remedy and apply for reinstatement on day *a day*; scenario element.
+    escalation chain obliges *a party* to remove from register as its seventh obligation.
+    *a party* does remove from register on day *a day*; scenario element.
+
+the knowledge base module_a2_cross_cutting_examples_history includes:
+
+the text of "the L4 source module-a2-cross-cutting-examples.l4" is at "sources/module-a2-cross-cutting-examples.l4".
+
+the charity name of test_charity is "Test Charity".
+
+the registration number of test_charity is "TC-001".
+
+the status of test_charity is active.
+
+the notice id of test_notice is "RSN-001".
+
+the issued date of test_notice is 0.
+
+the steps of test_notice is ["Update records", "Submit report"].
+
+the deadline of test_notice is 30.
+
+the description of critical_violation is "Fraud detected".
+
+the penalty of critical_violation is 10000.
+
+the severity of critical_violation is critical.
+
+the description of serious_violation is "Missing records".
+
+the penalty of serious_violation is 2000.
+
+the severity of serious_violation is serious.
+
+the description of minor_violation is "Late filing".
+
+the penalty of minor_violation is 500.
+
+the severity of minor_violation is minor.
+
+charity_actor_test_charity is the charity actor of test_charity.
+
+something happens on day a day if
+    a party does take action on day the day.
+
+something happens on day a day if
+    the clock reaches day the day.
+
+something happens on day a day if
+    a party does serve required steps notice on day the day.
+
+something happens on day a day if
+    a party does take required steps with notice a notice on day the day.
+
+something happens on day a day if
+    a party does publish compliance on day the day.
+
+something happens on day a day if
+    a party does deregister charity on day the day.
+
+something happens on day a day if
+    a party does pay with payment amount a payment amount on day the day.
+
+something happens on day a day if
+    a party does pay with late fee with total amount a total amount on day the day.
+
+something happens on day a day if
+    a party does issue warning on day the day.
+
+something happens on day a day if
+    a party does comply with warning on day the day.
+
+something happens on day a day if
+    a party does suspend immediately on day the day.
+
+something happens on day a day if
+    a party does apply for renewal on day the day.
+
+something happens on day a day if
+    a party does apply with late fee on day the day.
+
+something happens on day a day if
+    a party does apply for reinstatement on day the day.
+
+something happens on day a day if
+    a party does impose fine on day the day.
+
+something happens on day a day if
+    a party does pay fine and comply on day the day.
+
+something happens on day a day if
+    a party does suspend registration on day the day.
+
+something happens on day a day if
+    a party does remedy and apply for reinstatement on day the day.
+
+something happens on day a day if
+    a party does remove from register on day the day.
+
+an obligation can start on day a day if
+    something happens on day the day.
+
+a party does something on day a day if
+    the party does take action on day the day.
+
+a party does something on day a day if
+    the party does serve required steps notice on day the day.
+
+a party does something on day a day if
+    the party does take required steps with notice a notice on day the day.
+
+a party does something on day a day if
+    the party does publish compliance on day the day.
+
+a party does something on day a day if
+    the party does deregister charity on day the day.
+
+a party does something on day a day if
+    the party does pay with payment amount a payment amount on day the day.
+
+a party does something on day a day if
+    the party does pay with late fee with total amount a total amount on day the day.
+
+a party does something on day a day if
+    the party does issue warning on day the day.
+
+a party does something on day a day if
+    the party does comply with warning on day the day.
+
+a party does something on day a day if
+    the party does suspend immediately on day the day.
+
+a party does something on day a day if
+    the party does apply for renewal on day the day.
+
+a party does something on day a day if
+    the party does apply with late fee on day the day.
+
+a party does something on day a day if
+    the party does apply for reinstatement on day the day.
+
+a party does something on day a day if
+    the party does impose fine on day the day.
+
+a party does something on day a day if
+    the party does pay fine and comply on day the day.
+
+a party does something on day a day if
+    the party does suspend registration on day the day.
+
+a party does something on day a day if
+    the party does remedy and apply for reinstatement on day the day.
+
+a party does something on day a day if
+    the party does remove from register on day the day.
+
+an obligation can start on day a day if
+    the contract obligation within days starts on day the day with party a party and action an action and deadline a deadline.
+
+the obligation that obligation within days obliges a party to do anything by day a due day D as its first obligation starts on day a day N if
+    the contract obligation within days starts on day N with party the party and action an action and deadline a deadline M
+    and D = N + M.
+
+an obligation can start on day a day if
+    the contract required steps procedure starts on day the day with charity a charity and notice a notice.
+
+the obligation that required steps procedure obliges commissioner_actor to serve required steps notice by day a due day D as its first obligation given charity a charity and notice a notice starts on day a day N if
+    the contract required steps procedure starts on day N with charity the charity and notice the notice
+    and D = N + 30.
+
+an obligation can start on day a day if
+    the contract payment with grace starts on day the day with debtor a debtor and amount an amount and due date a due date and grace period a grace period and late fee pct a late fee pct.
+
+the obligation that payment with grace obliges a party to pay by day a due day D as its first obligation given amount an amount and debtor the party and due date a due date N and grace period a grace period and late fee pct a late fee pct starts on day a day M if
+    the contract payment with grace starts on day M with debtor the party and amount the amount and due date N and grace period the grace period and late fee pct the late fee pct
+    and D = M + N.
+
+an obligation can start on day a day if
+    the contract escalation chain starts on day the day with subject a subject.
+
+the obligation that escalation chain permits regulatory_body to issue warning as its first obligation given subject a subject starts on day a day if
+    the contract escalation chain starts on day the day with subject the subject.
+
+an obligation can start on day a day if
+    the contract enforcement response starts on day the day with violation a violation and subject a subject.
+
+the obligation that enforcement response obliges regulatory_body to suspend immediately as its first obligation starts on day a day if
+    the contract enforcement response starts on day the day with violation a violation and subject a subject
+    and the severity of the violation is a value
+    and the value is equal to critical.
+
+the obligation that enforcement response permits regulatory_body to impose fine as its second obligation given subject a subject starts on day a day if
+    the contract enforcement response starts on day the day with violation a violation and subject the subject
+    and the severity of the violation is a value
+    and it is not the case that the value is equal to critical
+    and the severity of the violation is a second value
+    and the second value is equal to serious.
+
+the obligation that escalation chain permits regulatory_body to issue warning as its first obligation given subject a subject starts on day a day if
+    the contract enforcement response starts on day the day with violation a violation and subject the subject
+    and the severity of the violation is a value
+    and it is not the case that the value is equal to critical
+    and the severity of the violation is a second value
+    and it is not the case that the second value is equal to serious.
+
+an obligation can start on day a day if
+    the contract licence renewal procedure starts on day the day with holder a holder and expiry date an expiry date.
+
+the obligation that licence renewal procedure obliges a party to apply for renewal by day a due day D as its first obligation given expiry date an expiry date E and holder the party starts on day a day N if
+    the contract licence renewal procedure starts on day N with holder the party and expiry date E
+    and a thing T = E - 30
+    and D = N + T.
+
+the obligation that obligation within days obliges a party to do anything by day a due day D as its first obligation is met on day a day N if
+    the party does something on day N
+    and the obligation that obligation within days obliges the party to do anything by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that obligation within days obliges a party to do anything by day a due day as its first obligation ends on day a day
+    and the party does something on day the day.
+
+the contract is breached if
+    the obligation that obligation within days obliges a party to do anything by day a due day as its first obligation is missed on day a day.
+
+the obligation that obligation within days obliges a party to do anything by day a due day as its first obligation has deadline day the due day if
+    the obligation that obligation within days obliges the party to do anything by day the due day as its first obligation starts on day a day.
+
+the obligation that required steps procedure obliges a party to serve required steps notice by day a due day D as its first obligation given charity a charity and notice a notice is met on day a day N if
+    the party does serve required steps notice on day N
+    and the obligation that required steps procedure obliges the party to serve required steps notice by day D as its first obligation given charity the charity and notice the notice starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that required steps procedure obliges a party to take required steps by day a due day D as its second obligation given charity a charity starts on day a day N if
+    the obligation that required steps procedure obliges a second party to serve required steps notice by day a second due day as its first obligation given charity the charity and notice a notice ends on day N
+    and the second party does serve required steps notice on day N
+    and the party is the charity actor of the charity
+    and the deadline of the notice is a value V
+    and D = N + V.
+
+the contract is breached by commissioner_actor because "failed to serve notice" if
+    the obligation that required steps procedure obliges a party to serve required steps notice by day a due day as its first obligation given charity a charity and notice a notice is missed on day a day.
+
+the obligation that required steps procedure obliges a party to serve required steps notice by day a due day as its first obligation given charity a charity and notice a notice has deadline day the due day if
+    the obligation that required steps procedure obliges the party to serve required steps notice by day the due day as its first obligation given charity the charity and notice the notice starts on day a day.
+
+the obligation that payment with grace obliges a party to pay by day a due day D as its first obligation given amount an amount and debtor a debtor and due date a due date and grace period a grace period and late fee pct a late fee pct is met on day a day N if
+    the party does pay with payment amount a payment amount on day N
+    and the obligation that payment with grace obliges the party to pay by day D as its first obligation given amount the amount and debtor the debtor and due date the due date and grace period the grace period and late fee pct the late fee pct starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that payment with grace obliges a party to pay by day a due day as its first obligation given amount an amount and debtor a debtor and due date a due date and grace period a grace period and late fee pct a late fee pct ends on day a day
+    and the party does pay with payment amount a payment amount on day the day.
+
+the obligation that payment with grace obliges a party to pay with late fee by day a due day D as its second obligation given debtor the party starts on day a day N if
+    the obligation that payment with grace obliges a second party to pay by day a second due day as its first obligation given amount an amount and debtor the party and due date a due date M and grace period a grace period G and late fee pct a late fee pct is missed on day N
+    and a thing T = M + G
+    and D = N + T.
+
+the obligation that payment with grace obliges a party to pay by day a due day as its first obligation given amount an amount and debtor a debtor and due date a due date and grace period a grace period and late fee pct a late fee pct has deadline day the due day if
+    the obligation that payment with grace obliges the party to pay by day the due day as its first obligation given amount the amount and debtor the debtor and due date the due date and grace period the grace period and late fee pct the late fee pct starts on day a day.
+
+the obligation that escalation chain permits a party to issue warning as its first obligation given subject a subject is met on day a day D if
+    the party does issue warning on day D
+    and the obligation that escalation chain permits the party to issue warning as its first obligation given subject the subject starts on day a day N
+    and N < D.
+
+the obligation that escalation chain obliges a party to comply with warning by day a due day D as its second obligation given subject the party starts on day a day N if
+    the obligation that escalation chain permits a second party to issue warning as its first obligation given subject the party ends on day N
+    and the second party does issue warning on day N
+    and D = N + 30.
+
+the obligation that enforcement response obliges a party to suspend immediately as its first obligation is met on day a day D if
+    the party does suspend immediately on day D
+    and the obligation that enforcement response obliges the party to suspend immediately as its first obligation starts on day a day N
+    and N < D.
+
+the contract is fulfilled if
+    the obligation that enforcement response obliges a party to suspend immediately as its first obligation ends on day a day
+    and the party does suspend immediately on day the day.
+
+the obligation that enforcement response permits a party to impose fine as its second obligation given subject a subject is met on day a day D if
+    the party does impose fine on day D
+    and the obligation that enforcement response permits the party to impose fine as its second obligation given subject the subject starts on day a day N
+    and N < D.
+
+the obligation that enforcement response obliges a party to pay fine and comply by day a due day D as its third obligation given subject the party starts on day a day N if
+    the obligation that enforcement response permits a second party to impose fine as its second obligation given subject the party ends on day N
+    and the second party does impose fine on day N
+    and D = N + 14.
+
+the obligation that licence renewal procedure obliges a party to apply for renewal by day a due day D as its first obligation given expiry date an expiry date and holder a holder is met on day a day N if
+    the party does apply for renewal on day N
+    and the obligation that licence renewal procedure obliges the party to apply for renewal by day D as its first obligation given expiry date the expiry date and holder the holder starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that licence renewal procedure obliges a party to apply for renewal by day a due day as its first obligation given expiry date an expiry date and holder a holder ends on day a day
+    and the party does apply for renewal on day the day.
+
+the obligation that licence renewal procedure obliges a party to apply with late fee by day a due day D as its second obligation given holder the party starts on day a day N if
+    the obligation that licence renewal procedure obliges a second party to apply for renewal by day a second due day as its first obligation given expiry date an expiry date E and holder the party is missed on day N
+    and a thing T = E - 30
+    and a thing M = T + 14
+    and D = N + M.
+
+the obligation that licence renewal procedure obliges a party to apply for renewal by day a due day as its first obligation given expiry date an expiry date and holder a holder has deadline day the due day if
+    the obligation that licence renewal procedure obliges the party to apply for renewal by day the due day as its first obligation given expiry date the expiry date and holder the holder starts on day a day.
+
+the obligation that required steps procedure obliges a party to take required steps by day a due day D as its second obligation given charity a charity is met on day a day N if
+    the party does take required steps with notice a notice on day N
+    and the obligation that required steps procedure obliges the party to take required steps by day D as its second obligation given charity the charity starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that required steps procedure obliges commissioner_actor to publish compliance by day a due day D as its third obligation starts on day a day N if
+    the obligation that required steps procedure obliges a party to take required steps by day a second due day as its second obligation given charity a charity ends on day N
+    and the party does take required steps with notice a notice on day N
+    and D = N + 14.
+
+the obligation that required steps procedure permits commissioner_actor to deregister charity as its fourth obligation given charity a charity starts on day a day if
+    the obligation that required steps procedure obliges a party to take required steps by day a due day as its second obligation given charity the charity is missed on day the day.
+
+the obligation that required steps procedure obliges a party to take required steps by day a due day as its second obligation given charity a charity has deadline day the due day if
+    the obligation that required steps procedure obliges the party to take required steps by day the due day as its second obligation given charity the charity starts on day a day.
+
+the obligation that payment with grace obliges a party to pay with late fee by day a due day D as its second obligation given debtor a debtor is met on day a day N if
+    the party does pay with late fee with total amount a total amount on day N
+    and the obligation that payment with grace obliges the party to pay with late fee by day D as its second obligation given debtor the debtor starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that payment with grace obliges a party to pay with late fee by day a due day as its second obligation given debtor a debtor ends on day a day
+    and the party does pay with late fee with total amount a total amount on day the day.
+
+the contract is breached by a party because "failed to pay within grace period" if
+    the obligation that payment with grace obliges a second party to pay with late fee by day a due day as its second obligation given debtor the party is missed on day a day.
+
+the obligation that payment with grace obliges a party to pay with late fee by day a due day as its second obligation given debtor a debtor has deadline day the due day if
+    the obligation that payment with grace obliges the party to pay with late fee by day the due day as its second obligation given debtor the debtor starts on day a day.
+
+the obligation that escalation chain obliges a party to comply with warning by day a due day D as its second obligation given subject a subject is met on day a day N if
+    the party does comply with warning on day N
+    and the obligation that escalation chain obliges the party to comply with warning by day D as its second obligation given subject the subject starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that escalation chain obliges a party to comply with warning by day a due day as its second obligation given subject a subject ends on day a day
+    and the party does comply with warning on day the day.
+
+the obligation that escalation chain permits regulatory_body to impose fine as its third obligation given subject a subject starts on day a day if
+    the obligation that escalation chain obliges a party to comply with warning by day a due day as its second obligation given subject the subject is missed on day the day.
+
+the obligation that escalation chain obliges a party to comply with warning by day a due day as its second obligation given subject a subject has deadline day the due day if
+    the obligation that escalation chain obliges the party to comply with warning by day the due day as its second obligation given subject the subject starts on day a day.
+
+the obligation that enforcement response obliges a party to pay fine and comply by day a due day D as its third obligation given subject a subject is met on day a day N if
+    the party does pay fine and comply on day N
+    and the obligation that enforcement response obliges the party to pay fine and comply by day D as its third obligation given subject the subject starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that enforcement response obliges a party to pay fine and comply by day a due day as its third obligation given subject a subject ends on day a day
+    and the party does pay fine and comply on day the day.
+
+the contract is breached by a party because "failed to pay fine" if
+    the obligation that enforcement response obliges a second party to pay fine and comply by day a due day as its third obligation given subject the party is missed on day a day.
+
+the obligation that enforcement response obliges a party to pay fine and comply by day a due day as its third obligation given subject a subject has deadline day the due day if
+    the obligation that enforcement response obliges the party to pay fine and comply by day the due day as its third obligation given subject the subject starts on day a day.
+
+the obligation that licence renewal procedure obliges a party to apply with late fee by day a due day D as its second obligation given holder a holder is met on day a day N if
+    the party does apply with late fee on day N
+    and the obligation that licence renewal procedure obliges the party to apply with late fee by day D as its second obligation given holder the holder starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that licence renewal procedure obliges a party to apply with late fee by day a due day as its second obligation given holder a holder ends on day a day
+    and the party does apply with late fee on day the day.
+
+the obligation that licence renewal procedure permits a party to apply for reinstatement by day a due day D as its third obligation given holder the party starts on day a day N if
+    the obligation that licence renewal procedure obliges a second party to apply with late fee by day a second due day as its second obligation given holder the party is missed on day N
+    and D = N + 60.
+
+the obligation that licence renewal procedure obliges a party to apply with late fee by day a due day as its second obligation given holder a holder has deadline day the due day if
+    the obligation that licence renewal procedure obliges the party to apply with late fee by day the due day as its second obligation given holder the holder starts on day a day.
+
+the obligation that required steps procedure obliges a party to publish compliance by day a due day D as its third obligation is met on day a day N if
+    the party does publish compliance on day N
+    and the obligation that required steps procedure obliges the party to publish compliance by day D as its third obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that required steps procedure obliges a party to publish compliance by day a due day as its third obligation ends on day a day
+    and the party does publish compliance on day the day.
+
+the contract is breached by commissioner_actor because "failed to publish compliance" if
+    the obligation that required steps procedure obliges a party to publish compliance by day a due day as its third obligation is missed on day a day.
+
+the obligation that required steps procedure obliges a party to publish compliance by day a due day as its third obligation has deadline day the due day if
+    the obligation that required steps procedure obliges the party to publish compliance by day the due day as its third obligation starts on day a day.
+
+the obligation that required steps procedure permits a party to deregister charity as its fourth obligation given charity a charity is met on day a day D if
+    the party does deregister charity on day D
+    and the obligation that required steps procedure permits the party to deregister charity as its fourth obligation given charity the charity starts on day a day N
+    and N < D.
+
+the contract is breached by a party because "failed to take required steps" if
+    the obligation that required steps procedure permits a second party to deregister charity as its fourth obligation given charity a charity ends on day a day
+    and the second party does deregister charity on day the day
+    and the party is the charity actor of the charity.
+
+the obligation that escalation chain permits a party to impose fine as its third obligation given subject a subject is met on day a day D if
+    the party does impose fine on day D
+    and the obligation that escalation chain permits the party to impose fine as its third obligation given subject the subject starts on day a day N
+    and N < D.
+
+the obligation that escalation chain obliges a party to pay fine and comply by day a due day D as its fourth obligation given subject the party starts on day a day N if
+    the obligation that escalation chain permits a second party to impose fine as its third obligation given subject the party ends on day N
+    and the second party does impose fine on day N
+    and D = N + 14.
+
+the obligation that licence renewal procedure permits a party to apply for reinstatement by day a due day D as its third obligation given holder a holder is met on day a day N if
+    the party does apply for reinstatement on day N
+    and the obligation that licence renewal procedure permits the party to apply for reinstatement by day D as its third obligation given holder the holder starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that licence renewal procedure permits a party to apply for reinstatement by day a due day as its third obligation given holder a holder ends on day a day
+    and the party does apply for reinstatement on day the day.
+
+the contract is fulfilled if
+    the obligation that licence renewal procedure permits a party to apply for reinstatement by day a due day as its third obligation given holder a holder is missed on day a day.
+
+the obligation that licence renewal procedure permits a party to apply for reinstatement by day a due day as its third obligation given holder a holder has deadline day the due day if
+    the obligation that licence renewal procedure permits the party to apply for reinstatement by day the due day as its third obligation given holder the holder starts on day a day.
+
+the obligation that escalation chain obliges a party to pay fine and comply by day a due day D as its fourth obligation given subject a subject is met on day a day N if
+    the party does pay fine and comply on day N
+    and the obligation that escalation chain obliges the party to pay fine and comply by day D as its fourth obligation given subject the subject starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that escalation chain obliges a party to pay fine and comply by day a due day as its fourth obligation given subject a subject ends on day a day
+    and the party does pay fine and comply on day the day.
+
+the obligation that escalation chain permits regulatory_body to suspend registration as its fifth obligation given subject a subject starts on day a day if
+    the obligation that escalation chain obliges a party to pay fine and comply by day a due day as its fourth obligation given subject the subject is missed on day the day.
+
+the obligation that escalation chain obliges a party to pay fine and comply by day a due day as its fourth obligation given subject a subject has deadline day the due day if
+    the obligation that escalation chain obliges the party to pay fine and comply by day the due day as its fourth obligation given subject the subject starts on day a day.
+
+the obligation that escalation chain permits a party to suspend registration as its fifth obligation given subject a subject is met on day a day D if
+    the party does suspend registration on day D
+    and the obligation that escalation chain permits the party to suspend registration as its fifth obligation given subject the subject starts on day a day N
+    and N < D.
+
+the obligation that escalation chain obliges a party to remedy and apply for reinstatement by day a due day D as its sixth obligation starts on day a day N if
+    the obligation that escalation chain permits a second party to suspend registration as its fifth obligation given subject the party ends on day N
+    and the second party does suspend registration on day N
+    and D = N + 60.
+
+the obligation that escalation chain obliges a party to remedy and apply for reinstatement by day a due day D as its sixth obligation is met on day a day N if
+    the party does remedy and apply for reinstatement on day N
+    and the obligation that escalation chain obliges the party to remedy and apply for reinstatement by day D as its sixth obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that escalation chain obliges a party to remedy and apply for reinstatement by day a due day as its sixth obligation ends on day a day
+    and the party does remedy and apply for reinstatement on day the day.
+
+the obligation that escalation chain obliges regulatory_body to remove from register as its seventh obligation starts on day a day if
+    the obligation that escalation chain obliges a party to remedy and apply for reinstatement by day a due day as its sixth obligation is missed on day the day.
+
+the obligation that escalation chain obliges a party to remedy and apply for reinstatement by day a due day as its sixth obligation has deadline day the due day if
+    the obligation that escalation chain obliges the party to remedy and apply for reinstatement by day the due day as its sixth obligation starts on day a day.
+
+the obligation that escalation chain obliges a party to remove from register as its seventh obligation is met on day a day D if
+    the party does remove from register on day D
+    and the obligation that escalation chain obliges the party to remove from register as its seventh obligation starts on day a day N
+    and N < D.
+
+the contract is breached if
+    the obligation that escalation chain obliges a party to remove from register as its seventh obligation ends on day a day
+    and the party does remove from register on day the day.
+
+the deadline of the obligation that obligation within days obliges a party to do anything by day a due day as its first obligation has passed on day a day D if
+    the obligation that obligation within days obliges the party to do anything by day the due day as its first obligation starts on day a day N
+    and the obligation that obligation within days obliges the party to do anything by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that obligation within days obliges a party to do anything by day a due day as its first obligation ends on day a day D if
+    the obligation that obligation within days obliges the party to do anything by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that obligation within days obliges the party to do anything by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that obligation within days obliges a party to do anything by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that obligation within days obliges the party to do anything by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that obligation within days obliges the party to do anything by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that obligation within days obliges the party to do anything by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that obligation within days obliges a party to do anything by day a due day as its first obligation is pending since day a day if
+    the obligation that obligation within days obliges the party to do anything by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that obligation within days obliges the party to do anything by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that obligation within days obliges the party to do anything by day the due day as its first obligation is missed on day a third day.
+
+the obligation that obligation within days obliges a party to do anything by day a due day as its first obligation is still open if
+    the obligation that obligation within days obliges the party to do anything by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that required steps procedure obliges a party to serve required steps notice by day a due day as its first obligation given charity a charity and notice a notice has passed on day a day D if
+    the obligation that required steps procedure obliges the party to serve required steps notice by day the due day as its first obligation given charity the charity and notice the notice starts on day a day N
+    and the obligation that required steps procedure obliges the party to serve required steps notice by day the due day as its first obligation given charity the charity and notice the notice has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that required steps procedure obliges a party to serve required steps notice by day a due day as its first obligation given charity a charity and notice a notice ends on day a day D if
+    the obligation that required steps procedure obliges the party to serve required steps notice by day the due day as its first obligation given charity the charity and notice the notice is met on day D
+    and it is not the case that
+        the obligation that required steps procedure obliges the party to serve required steps notice by day the due day as its first obligation given charity the charity and notice the notice is met on day a day N
+        and N < D.
+
+the obligation that required steps procedure obliges a party to serve required steps notice by day a due day as its first obligation given charity a charity and notice a notice is missed on day a day D if
+    the deadline of the obligation that required steps procedure obliges the party to serve required steps notice by day the due day as its first obligation given charity the charity and notice the notice has passed on day D
+    and it is not the case that the obligation that required steps procedure obliges the party to serve required steps notice by day the due day as its first obligation given charity the charity and notice the notice ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that required steps procedure obliges the party to serve required steps notice by day the due day as its first obligation given charity the charity and notice the notice has passed on day a day N
+        and N < D.
+
+the obligation that required steps procedure obliges a party to serve required steps notice by day a due day as its first obligation given charity a charity and notice a notice is pending since day a day if
+    the obligation that required steps procedure obliges the party to serve required steps notice by day the due day as its first obligation given charity the charity and notice the notice starts on day the day
+    and it is not the case that the obligation that required steps procedure obliges the party to serve required steps notice by day the due day as its first obligation given charity the charity and notice the notice ends on day a second day
+    and it is not the case that the obligation that required steps procedure obliges the party to serve required steps notice by day the due day as its first obligation given charity the charity and notice the notice is missed on day a third day.
+
+the obligation that required steps procedure obliges a party to serve required steps notice by day a due day as its first obligation given charity a charity and notice a notice is still open if
+    the obligation that required steps procedure obliges the party to serve required steps notice by day the due day as its first obligation given charity the charity and notice the notice is pending since day a day.
+
+the deadline of the obligation that payment with grace obliges a party to pay by day a due day as its first obligation given amount an amount and debtor a debtor and due date a due date and grace period a grace period and late fee pct a late fee pct has passed on day a day D if
+    the obligation that payment with grace obliges the party to pay by day the due day as its first obligation given amount the amount and debtor the debtor and due date the due date and grace period the grace period and late fee pct the late fee pct starts on day a day N
+    and the obligation that payment with grace obliges the party to pay by day the due day as its first obligation given amount the amount and debtor the debtor and due date the due date and grace period the grace period and late fee pct the late fee pct has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that payment with grace obliges a party to pay by day a due day as its first obligation given amount an amount and debtor a debtor and due date a due date and grace period a grace period and late fee pct a late fee pct ends on day a day D if
+    the obligation that payment with grace obliges the party to pay by day the due day as its first obligation given amount the amount and debtor the debtor and due date the due date and grace period the grace period and late fee pct the late fee pct is met on day D
+    and it is not the case that
+        the obligation that payment with grace obliges the party to pay by day the due day as its first obligation given amount the amount and debtor the debtor and due date the due date and grace period the grace period and late fee pct the late fee pct is met on day a day N
+        and N < D.
+
+the obligation that payment with grace obliges a party to pay by day a due day as its first obligation given amount an amount and debtor a debtor and due date a due date and grace period a grace period and late fee pct a late fee pct is missed on day a day D if
+    the deadline of the obligation that payment with grace obliges the party to pay by day the due day as its first obligation given amount the amount and debtor the debtor and due date the due date and grace period the grace period and late fee pct the late fee pct has passed on day D
+    and it is not the case that the obligation that payment with grace obliges the party to pay by day the due day as its first obligation given amount the amount and debtor the debtor and due date the due date and grace period the grace period and late fee pct the late fee pct ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that payment with grace obliges the party to pay by day the due day as its first obligation given amount the amount and debtor the debtor and due date the due date and grace period the grace period and late fee pct the late fee pct has passed on day a day N
+        and N < D.
+
+the obligation that payment with grace obliges a party to pay by day a due day as its first obligation given amount an amount and debtor a debtor and due date a due date and grace period a grace period and late fee pct a late fee pct is pending since day a day if
+    the obligation that payment with grace obliges the party to pay by day the due day as its first obligation given amount the amount and debtor the debtor and due date the due date and grace period the grace period and late fee pct the late fee pct starts on day the day
+    and it is not the case that the obligation that payment with grace obliges the party to pay by day the due day as its first obligation given amount the amount and debtor the debtor and due date the due date and grace period the grace period and late fee pct the late fee pct ends on day a second day
+    and it is not the case that the obligation that payment with grace obliges the party to pay by day the due day as its first obligation given amount the amount and debtor the debtor and due date the due date and grace period the grace period and late fee pct the late fee pct is missed on day a third day.
+
+the obligation that payment with grace obliges a party to pay by day a due day as its first obligation given amount an amount and debtor a debtor and due date a due date and grace period a grace period and late fee pct a late fee pct is still open if
+    the obligation that payment with grace obliges the party to pay by day the due day as its first obligation given amount the amount and debtor the debtor and due date the due date and grace period the grace period and late fee pct the late fee pct is pending since day a day.
+
+the deadline of the obligation that escalation chain permits a party to issue warning as its first obligation given subject a subject has passed on day a day D if
+    the obligation that escalation chain permits the party to issue warning as its first obligation given subject the subject starts on day a day N
+    and the obligation that escalation chain permits the party to issue warning as its first obligation given subject the subject has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that escalation chain permits a party to issue warning as its first obligation given subject a subject ends on day a day D if
+    the obligation that escalation chain permits the party to issue warning as its first obligation given subject the subject is met on day D
+    and it is not the case that
+        the obligation that escalation chain permits the party to issue warning as its first obligation given subject the subject is met on day a day N
+        and N < D.
+
+the obligation that escalation chain permits a party to issue warning as its first obligation given subject a subject is missed on day a day D if
+    the deadline of the obligation that escalation chain permits the party to issue warning as its first obligation given subject the subject has passed on day D
+    and it is not the case that the obligation that escalation chain permits the party to issue warning as its first obligation given subject the subject ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that escalation chain permits the party to issue warning as its first obligation given subject the subject has passed on day a day N
+        and N < D.
+
+the obligation that escalation chain permits a party to issue warning as its first obligation given subject a subject is pending since day a day if
+    the obligation that escalation chain permits the party to issue warning as its first obligation given subject the subject starts on day the day
+    and it is not the case that the obligation that escalation chain permits the party to issue warning as its first obligation given subject the subject ends on day a second day
+    and it is not the case that the obligation that escalation chain permits the party to issue warning as its first obligation given subject the subject is missed on day a third day.
+
+the obligation that escalation chain permits a party to issue warning as its first obligation given subject a subject is still open if
+    the obligation that escalation chain permits the party to issue warning as its first obligation given subject the subject is pending since day a day.
+
+the deadline of the obligation that enforcement response obliges a party to suspend immediately as its first obligation has passed on day a day D if
+    the obligation that enforcement response obliges the party to suspend immediately as its first obligation starts on day a day N
+    and the obligation that enforcement response obliges the party to suspend immediately as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that enforcement response obliges a party to suspend immediately as its first obligation ends on day a day D if
+    the obligation that enforcement response obliges the party to suspend immediately as its first obligation is met on day D
+    and it is not the case that
+        the obligation that enforcement response obliges the party to suspend immediately as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that enforcement response obliges a party to suspend immediately as its first obligation is missed on day a day D if
+    the deadline of the obligation that enforcement response obliges the party to suspend immediately as its first obligation has passed on day D
+    and it is not the case that the obligation that enforcement response obliges the party to suspend immediately as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that enforcement response obliges the party to suspend immediately as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that enforcement response obliges a party to suspend immediately as its first obligation is pending since day a day if
+    the obligation that enforcement response obliges the party to suspend immediately as its first obligation starts on day the day
+    and it is not the case that the obligation that enforcement response obliges the party to suspend immediately as its first obligation ends on day a second day
+    and it is not the case that the obligation that enforcement response obliges the party to suspend immediately as its first obligation is missed on day a third day.
+
+the obligation that enforcement response obliges a party to suspend immediately as its first obligation is still open if
+    the obligation that enforcement response obliges the party to suspend immediately as its first obligation is pending since day a day.
+
+the deadline of the obligation that enforcement response permits a party to impose fine as its second obligation given subject a subject has passed on day a day D if
+    the obligation that enforcement response permits the party to impose fine as its second obligation given subject the subject starts on day a day N
+    and the obligation that enforcement response permits the party to impose fine as its second obligation given subject the subject has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that enforcement response permits a party to impose fine as its second obligation given subject a subject ends on day a day D if
+    the obligation that enforcement response permits the party to impose fine as its second obligation given subject the subject is met on day D
+    and it is not the case that
+        the obligation that enforcement response permits the party to impose fine as its second obligation given subject the subject is met on day a day N
+        and N < D.
+
+the obligation that enforcement response permits a party to impose fine as its second obligation given subject a subject is missed on day a day D if
+    the deadline of the obligation that enforcement response permits the party to impose fine as its second obligation given subject the subject has passed on day D
+    and it is not the case that the obligation that enforcement response permits the party to impose fine as its second obligation given subject the subject ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that enforcement response permits the party to impose fine as its second obligation given subject the subject has passed on day a day N
+        and N < D.
+
+the obligation that enforcement response permits a party to impose fine as its second obligation given subject a subject is pending since day a day if
+    the obligation that enforcement response permits the party to impose fine as its second obligation given subject the subject starts on day the day
+    and it is not the case that the obligation that enforcement response permits the party to impose fine as its second obligation given subject the subject ends on day a second day
+    and it is not the case that the obligation that enforcement response permits the party to impose fine as its second obligation given subject the subject is missed on day a third day.
+
+the obligation that enforcement response permits a party to impose fine as its second obligation given subject a subject is still open if
+    the obligation that enforcement response permits the party to impose fine as its second obligation given subject the subject is pending since day a day.
+
+the deadline of the obligation that licence renewal procedure obliges a party to apply for renewal by day a due day as its first obligation given expiry date an expiry date and holder a holder has passed on day a day D if
+    the obligation that licence renewal procedure obliges the party to apply for renewal by day the due day as its first obligation given expiry date the expiry date and holder the holder starts on day a day N
+    and the obligation that licence renewal procedure obliges the party to apply for renewal by day the due day as its first obligation given expiry date the expiry date and holder the holder has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that licence renewal procedure obliges a party to apply for renewal by day a due day as its first obligation given expiry date an expiry date and holder a holder ends on day a day D if
+    the obligation that licence renewal procedure obliges the party to apply for renewal by day the due day as its first obligation given expiry date the expiry date and holder the holder is met on day D
+    and it is not the case that
+        the obligation that licence renewal procedure obliges the party to apply for renewal by day the due day as its first obligation given expiry date the expiry date and holder the holder is met on day a day N
+        and N < D.
+
+the obligation that licence renewal procedure obliges a party to apply for renewal by day a due day as its first obligation given expiry date an expiry date and holder a holder is missed on day a day D if
+    the deadline of the obligation that licence renewal procedure obliges the party to apply for renewal by day the due day as its first obligation given expiry date the expiry date and holder the holder has passed on day D
+    and it is not the case that the obligation that licence renewal procedure obliges the party to apply for renewal by day the due day as its first obligation given expiry date the expiry date and holder the holder ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that licence renewal procedure obliges the party to apply for renewal by day the due day as its first obligation given expiry date the expiry date and holder the holder has passed on day a day N
+        and N < D.
+
+the obligation that licence renewal procedure obliges a party to apply for renewal by day a due day as its first obligation given expiry date an expiry date and holder a holder is pending since day a day if
+    the obligation that licence renewal procedure obliges the party to apply for renewal by day the due day as its first obligation given expiry date the expiry date and holder the holder starts on day the day
+    and it is not the case that the obligation that licence renewal procedure obliges the party to apply for renewal by day the due day as its first obligation given expiry date the expiry date and holder the holder ends on day a second day
+    and it is not the case that the obligation that licence renewal procedure obliges the party to apply for renewal by day the due day as its first obligation given expiry date the expiry date and holder the holder is missed on day a third day.
+
+the obligation that licence renewal procedure obliges a party to apply for renewal by day a due day as its first obligation given expiry date an expiry date and holder a holder is still open if
+    the obligation that licence renewal procedure obliges the party to apply for renewal by day the due day as its first obligation given expiry date the expiry date and holder the holder is pending since day a day.
+
+the deadline of the obligation that required steps procedure obliges a party to take required steps by day a due day as its second obligation given charity a charity has passed on day a day D if
+    the obligation that required steps procedure obliges the party to take required steps by day the due day as its second obligation given charity the charity starts on day a day N
+    and the obligation that required steps procedure obliges the party to take required steps by day the due day as its second obligation given charity the charity has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that required steps procedure obliges a party to take required steps by day a due day as its second obligation given charity a charity ends on day a day D if
+    the obligation that required steps procedure obliges the party to take required steps by day the due day as its second obligation given charity the charity is met on day D
+    and it is not the case that
+        the obligation that required steps procedure obliges the party to take required steps by day the due day as its second obligation given charity the charity is met on day a day N
+        and N < D.
+
+the obligation that required steps procedure obliges a party to take required steps by day a due day as its second obligation given charity a charity is missed on day a day D if
+    the deadline of the obligation that required steps procedure obliges the party to take required steps by day the due day as its second obligation given charity the charity has passed on day D
+    and it is not the case that the obligation that required steps procedure obliges the party to take required steps by day the due day as its second obligation given charity the charity ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that required steps procedure obliges the party to take required steps by day the due day as its second obligation given charity the charity has passed on day a day N
+        and N < D.
+
+the obligation that required steps procedure obliges a party to take required steps by day a due day as its second obligation given charity a charity is pending since day a day if
+    the obligation that required steps procedure obliges the party to take required steps by day the due day as its second obligation given charity the charity starts on day the day
+    and it is not the case that the obligation that required steps procedure obliges the party to take required steps by day the due day as its second obligation given charity the charity ends on day a second day
+    and it is not the case that the obligation that required steps procedure obliges the party to take required steps by day the due day as its second obligation given charity the charity is missed on day a third day.
+
+the obligation that required steps procedure obliges a party to take required steps by day a due day as its second obligation given charity a charity is still open if
+    the obligation that required steps procedure obliges the party to take required steps by day the due day as its second obligation given charity the charity is pending since day a day.
+
+the deadline of the obligation that payment with grace obliges a party to pay with late fee by day a due day as its second obligation given debtor a debtor has passed on day a day D if
+    the obligation that payment with grace obliges the party to pay with late fee by day the due day as its second obligation given debtor the debtor starts on day a day N
+    and the obligation that payment with grace obliges the party to pay with late fee by day the due day as its second obligation given debtor the debtor has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that payment with grace obliges a party to pay with late fee by day a due day as its second obligation given debtor a debtor ends on day a day D if
+    the obligation that payment with grace obliges the party to pay with late fee by day the due day as its second obligation given debtor the debtor is met on day D
+    and it is not the case that
+        the obligation that payment with grace obliges the party to pay with late fee by day the due day as its second obligation given debtor the debtor is met on day a day N
+        and N < D.
+
+the obligation that payment with grace obliges a party to pay with late fee by day a due day as its second obligation given debtor a debtor is missed on day a day D if
+    the deadline of the obligation that payment with grace obliges the party to pay with late fee by day the due day as its second obligation given debtor the debtor has passed on day D
+    and it is not the case that the obligation that payment with grace obliges the party to pay with late fee by day the due day as its second obligation given debtor the debtor ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that payment with grace obliges the party to pay with late fee by day the due day as its second obligation given debtor the debtor has passed on day a day N
+        and N < D.
+
+the obligation that payment with grace obliges a party to pay with late fee by day a due day as its second obligation given debtor a debtor is pending since day a day if
+    the obligation that payment with grace obliges the party to pay with late fee by day the due day as its second obligation given debtor the debtor starts on day the day
+    and it is not the case that the obligation that payment with grace obliges the party to pay with late fee by day the due day as its second obligation given debtor the debtor ends on day a second day
+    and it is not the case that the obligation that payment with grace obliges the party to pay with late fee by day the due day as its second obligation given debtor the debtor is missed on day a third day.
+
+the obligation that payment with grace obliges a party to pay with late fee by day a due day as its second obligation given debtor a debtor is still open if
+    the obligation that payment with grace obliges the party to pay with late fee by day the due day as its second obligation given debtor the debtor is pending since day a day.
+
+the deadline of the obligation that escalation chain obliges a party to comply with warning by day a due day as its second obligation given subject a subject has passed on day a day D if
+    the obligation that escalation chain obliges the party to comply with warning by day the due day as its second obligation given subject the subject starts on day a day N
+    and the obligation that escalation chain obliges the party to comply with warning by day the due day as its second obligation given subject the subject has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that escalation chain obliges a party to comply with warning by day a due day as its second obligation given subject a subject ends on day a day D if
+    the obligation that escalation chain obliges the party to comply with warning by day the due day as its second obligation given subject the subject is met on day D
+    and it is not the case that
+        the obligation that escalation chain obliges the party to comply with warning by day the due day as its second obligation given subject the subject is met on day a day N
+        and N < D.
+
+the obligation that escalation chain obliges a party to comply with warning by day a due day as its second obligation given subject a subject is missed on day a day D if
+    the deadline of the obligation that escalation chain obliges the party to comply with warning by day the due day as its second obligation given subject the subject has passed on day D
+    and it is not the case that the obligation that escalation chain obliges the party to comply with warning by day the due day as its second obligation given subject the subject ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that escalation chain obliges the party to comply with warning by day the due day as its second obligation given subject the subject has passed on day a day N
+        and N < D.
+
+the obligation that escalation chain obliges a party to comply with warning by day a due day as its second obligation given subject a subject is pending since day a day if
+    the obligation that escalation chain obliges the party to comply with warning by day the due day as its second obligation given subject the subject starts on day the day
+    and it is not the case that the obligation that escalation chain obliges the party to comply with warning by day the due day as its second obligation given subject the subject ends on day a second day
+    and it is not the case that the obligation that escalation chain obliges the party to comply with warning by day the due day as its second obligation given subject the subject is missed on day a third day.
+
+the obligation that escalation chain obliges a party to comply with warning by day a due day as its second obligation given subject a subject is still open if
+    the obligation that escalation chain obliges the party to comply with warning by day the due day as its second obligation given subject the subject is pending since day a day.
+
+the deadline of the obligation that enforcement response obliges a party to pay fine and comply by day a due day as its third obligation given subject a subject has passed on day a day D if
+    the obligation that enforcement response obliges the party to pay fine and comply by day the due day as its third obligation given subject the subject starts on day a day N
+    and the obligation that enforcement response obliges the party to pay fine and comply by day the due day as its third obligation given subject the subject has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that enforcement response obliges a party to pay fine and comply by day a due day as its third obligation given subject a subject ends on day a day D if
+    the obligation that enforcement response obliges the party to pay fine and comply by day the due day as its third obligation given subject the subject is met on day D
+    and it is not the case that
+        the obligation that enforcement response obliges the party to pay fine and comply by day the due day as its third obligation given subject the subject is met on day a day N
+        and N < D.
+
+the obligation that enforcement response obliges a party to pay fine and comply by day a due day as its third obligation given subject a subject is missed on day a day D if
+    the deadline of the obligation that enforcement response obliges the party to pay fine and comply by day the due day as its third obligation given subject the subject has passed on day D
+    and it is not the case that the obligation that enforcement response obliges the party to pay fine and comply by day the due day as its third obligation given subject the subject ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that enforcement response obliges the party to pay fine and comply by day the due day as its third obligation given subject the subject has passed on day a day N
+        and N < D.
+
+the obligation that enforcement response obliges a party to pay fine and comply by day a due day as its third obligation given subject a subject is pending since day a day if
+    the obligation that enforcement response obliges the party to pay fine and comply by day the due day as its third obligation given subject the subject starts on day the day
+    and it is not the case that the obligation that enforcement response obliges the party to pay fine and comply by day the due day as its third obligation given subject the subject ends on day a second day
+    and it is not the case that the obligation that enforcement response obliges the party to pay fine and comply by day the due day as its third obligation given subject the subject is missed on day a third day.
+
+the obligation that enforcement response obliges a party to pay fine and comply by day a due day as its third obligation given subject a subject is still open if
+    the obligation that enforcement response obliges the party to pay fine and comply by day the due day as its third obligation given subject the subject is pending since day a day.
+
+the deadline of the obligation that licence renewal procedure obliges a party to apply with late fee by day a due day as its second obligation given holder a holder has passed on day a day D if
+    the obligation that licence renewal procedure obliges the party to apply with late fee by day the due day as its second obligation given holder the holder starts on day a day N
+    and the obligation that licence renewal procedure obliges the party to apply with late fee by day the due day as its second obligation given holder the holder has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that licence renewal procedure obliges a party to apply with late fee by day a due day as its second obligation given holder a holder ends on day a day D if
+    the obligation that licence renewal procedure obliges the party to apply with late fee by day the due day as its second obligation given holder the holder is met on day D
+    and it is not the case that
+        the obligation that licence renewal procedure obliges the party to apply with late fee by day the due day as its second obligation given holder the holder is met on day a day N
+        and N < D.
+
+the obligation that licence renewal procedure obliges a party to apply with late fee by day a due day as its second obligation given holder a holder is missed on day a day D if
+    the deadline of the obligation that licence renewal procedure obliges the party to apply with late fee by day the due day as its second obligation given holder the holder has passed on day D
+    and it is not the case that the obligation that licence renewal procedure obliges the party to apply with late fee by day the due day as its second obligation given holder the holder ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that licence renewal procedure obliges the party to apply with late fee by day the due day as its second obligation given holder the holder has passed on day a day N
+        and N < D.
+
+the obligation that licence renewal procedure obliges a party to apply with late fee by day a due day as its second obligation given holder a holder is pending since day a day if
+    the obligation that licence renewal procedure obliges the party to apply with late fee by day the due day as its second obligation given holder the holder starts on day the day
+    and it is not the case that the obligation that licence renewal procedure obliges the party to apply with late fee by day the due day as its second obligation given holder the holder ends on day a second day
+    and it is not the case that the obligation that licence renewal procedure obliges the party to apply with late fee by day the due day as its second obligation given holder the holder is missed on day a third day.
+
+the obligation that licence renewal procedure obliges a party to apply with late fee by day a due day as its second obligation given holder a holder is still open if
+    the obligation that licence renewal procedure obliges the party to apply with late fee by day the due day as its second obligation given holder the holder is pending since day a day.
+
+the deadline of the obligation that required steps procedure obliges a party to publish compliance by day a due day as its third obligation has passed on day a day D if
+    the obligation that required steps procedure obliges the party to publish compliance by day the due day as its third obligation starts on day a day N
+    and the obligation that required steps procedure obliges the party to publish compliance by day the due day as its third obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that required steps procedure obliges a party to publish compliance by day a due day as its third obligation ends on day a day D if
+    the obligation that required steps procedure obliges the party to publish compliance by day the due day as its third obligation is met on day D
+    and it is not the case that
+        the obligation that required steps procedure obliges the party to publish compliance by day the due day as its third obligation is met on day a day N
+        and N < D.
+
+the obligation that required steps procedure obliges a party to publish compliance by day a due day as its third obligation is missed on day a day D if
+    the deadline of the obligation that required steps procedure obliges the party to publish compliance by day the due day as its third obligation has passed on day D
+    and it is not the case that the obligation that required steps procedure obliges the party to publish compliance by day the due day as its third obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that required steps procedure obliges the party to publish compliance by day the due day as its third obligation has passed on day a day N
+        and N < D.
+
+the obligation that required steps procedure obliges a party to publish compliance by day a due day as its third obligation is pending since day a day if
+    the obligation that required steps procedure obliges the party to publish compliance by day the due day as its third obligation starts on day the day
+    and it is not the case that the obligation that required steps procedure obliges the party to publish compliance by day the due day as its third obligation ends on day a second day
+    and it is not the case that the obligation that required steps procedure obliges the party to publish compliance by day the due day as its third obligation is missed on day a third day.
+
+the obligation that required steps procedure obliges a party to publish compliance by day a due day as its third obligation is still open if
+    the obligation that required steps procedure obliges the party to publish compliance by day the due day as its third obligation is pending since day a day.
+
+the deadline of the obligation that required steps procedure permits a party to deregister charity as its fourth obligation given charity a charity has passed on day a day D if
+    the obligation that required steps procedure permits the party to deregister charity as its fourth obligation given charity the charity starts on day a day N
+    and the obligation that required steps procedure permits the party to deregister charity as its fourth obligation given charity the charity has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that required steps procedure permits a party to deregister charity as its fourth obligation given charity a charity ends on day a day D if
+    the obligation that required steps procedure permits the party to deregister charity as its fourth obligation given charity the charity is met on day D
+    and it is not the case that
+        the obligation that required steps procedure permits the party to deregister charity as its fourth obligation given charity the charity is met on day a day N
+        and N < D.
+
+the obligation that required steps procedure permits a party to deregister charity as its fourth obligation given charity a charity is missed on day a day D if
+    the deadline of the obligation that required steps procedure permits the party to deregister charity as its fourth obligation given charity the charity has passed on day D
+    and it is not the case that the obligation that required steps procedure permits the party to deregister charity as its fourth obligation given charity the charity ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that required steps procedure permits the party to deregister charity as its fourth obligation given charity the charity has passed on day a day N
+        and N < D.
+
+the obligation that required steps procedure permits a party to deregister charity as its fourth obligation given charity a charity is pending since day a day if
+    the obligation that required steps procedure permits the party to deregister charity as its fourth obligation given charity the charity starts on day the day
+    and it is not the case that the obligation that required steps procedure permits the party to deregister charity as its fourth obligation given charity the charity ends on day a second day
+    and it is not the case that the obligation that required steps procedure permits the party to deregister charity as its fourth obligation given charity the charity is missed on day a third day.
+
+the obligation that required steps procedure permits a party to deregister charity as its fourth obligation given charity a charity is still open if
+    the obligation that required steps procedure permits the party to deregister charity as its fourth obligation given charity the charity is pending since day a day.
+
+the deadline of the obligation that escalation chain permits a party to impose fine as its third obligation given subject a subject has passed on day a day D if
+    the obligation that escalation chain permits the party to impose fine as its third obligation given subject the subject starts on day a day N
+    and the obligation that escalation chain permits the party to impose fine as its third obligation given subject the subject has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that escalation chain permits a party to impose fine as its third obligation given subject a subject ends on day a day D if
+    the obligation that escalation chain permits the party to impose fine as its third obligation given subject the subject is met on day D
+    and it is not the case that
+        the obligation that escalation chain permits the party to impose fine as its third obligation given subject the subject is met on day a day N
+        and N < D.
+
+the obligation that escalation chain permits a party to impose fine as its third obligation given subject a subject is missed on day a day D if
+    the deadline of the obligation that escalation chain permits the party to impose fine as its third obligation given subject the subject has passed on day D
+    and it is not the case that the obligation that escalation chain permits the party to impose fine as its third obligation given subject the subject ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that escalation chain permits the party to impose fine as its third obligation given subject the subject has passed on day a day N
+        and N < D.
+
+the obligation that escalation chain permits a party to impose fine as its third obligation given subject a subject is pending since day a day if
+    the obligation that escalation chain permits the party to impose fine as its third obligation given subject the subject starts on day the day
+    and it is not the case that the obligation that escalation chain permits the party to impose fine as its third obligation given subject the subject ends on day a second day
+    and it is not the case that the obligation that escalation chain permits the party to impose fine as its third obligation given subject the subject is missed on day a third day.
+
+the obligation that escalation chain permits a party to impose fine as its third obligation given subject a subject is still open if
+    the obligation that escalation chain permits the party to impose fine as its third obligation given subject the subject is pending since day a day.
+
+the deadline of the obligation that licence renewal procedure permits a party to apply for reinstatement by day a due day as its third obligation given holder a holder has passed on day a day D if
+    the obligation that licence renewal procedure permits the party to apply for reinstatement by day the due day as its third obligation given holder the holder starts on day a day N
+    and the obligation that licence renewal procedure permits the party to apply for reinstatement by day the due day as its third obligation given holder the holder has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that licence renewal procedure permits a party to apply for reinstatement by day a due day as its third obligation given holder a holder ends on day a day D if
+    the obligation that licence renewal procedure permits the party to apply for reinstatement by day the due day as its third obligation given holder the holder is met on day D
+    and it is not the case that
+        the obligation that licence renewal procedure permits the party to apply for reinstatement by day the due day as its third obligation given holder the holder is met on day a day N
+        and N < D.
+
+the obligation that licence renewal procedure permits a party to apply for reinstatement by day a due day as its third obligation given holder a holder is missed on day a day D if
+    the deadline of the obligation that licence renewal procedure permits the party to apply for reinstatement by day the due day as its third obligation given holder the holder has passed on day D
+    and it is not the case that the obligation that licence renewal procedure permits the party to apply for reinstatement by day the due day as its third obligation given holder the holder ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that licence renewal procedure permits the party to apply for reinstatement by day the due day as its third obligation given holder the holder has passed on day a day N
+        and N < D.
+
+the obligation that licence renewal procedure permits a party to apply for reinstatement by day a due day as its third obligation given holder a holder is pending since day a day if
+    the obligation that licence renewal procedure permits the party to apply for reinstatement by day the due day as its third obligation given holder the holder starts on day the day
+    and it is not the case that the obligation that licence renewal procedure permits the party to apply for reinstatement by day the due day as its third obligation given holder the holder ends on day a second day
+    and it is not the case that the obligation that licence renewal procedure permits the party to apply for reinstatement by day the due day as its third obligation given holder the holder is missed on day a third day.
+
+the obligation that licence renewal procedure permits a party to apply for reinstatement by day a due day as its third obligation given holder a holder is still open if
+    the obligation that licence renewal procedure permits the party to apply for reinstatement by day the due day as its third obligation given holder the holder is pending since day a day.
+
+the deadline of the obligation that escalation chain obliges a party to pay fine and comply by day a due day as its fourth obligation given subject a subject has passed on day a day D if
+    the obligation that escalation chain obliges the party to pay fine and comply by day the due day as its fourth obligation given subject the subject starts on day a day N
+    and the obligation that escalation chain obliges the party to pay fine and comply by day the due day as its fourth obligation given subject the subject has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that escalation chain obliges a party to pay fine and comply by day a due day as its fourth obligation given subject a subject ends on day a day D if
+    the obligation that escalation chain obliges the party to pay fine and comply by day the due day as its fourth obligation given subject the subject is met on day D
+    and it is not the case that
+        the obligation that escalation chain obliges the party to pay fine and comply by day the due day as its fourth obligation given subject the subject is met on day a day N
+        and N < D.
+
+the obligation that escalation chain obliges a party to pay fine and comply by day a due day as its fourth obligation given subject a subject is missed on day a day D if
+    the deadline of the obligation that escalation chain obliges the party to pay fine and comply by day the due day as its fourth obligation given subject the subject has passed on day D
+    and it is not the case that the obligation that escalation chain obliges the party to pay fine and comply by day the due day as its fourth obligation given subject the subject ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that escalation chain obliges the party to pay fine and comply by day the due day as its fourth obligation given subject the subject has passed on day a day N
+        and N < D.
+
+the obligation that escalation chain obliges a party to pay fine and comply by day a due day as its fourth obligation given subject a subject is pending since day a day if
+    the obligation that escalation chain obliges the party to pay fine and comply by day the due day as its fourth obligation given subject the subject starts on day the day
+    and it is not the case that the obligation that escalation chain obliges the party to pay fine and comply by day the due day as its fourth obligation given subject the subject ends on day a second day
+    and it is not the case that the obligation that escalation chain obliges the party to pay fine and comply by day the due day as its fourth obligation given subject the subject is missed on day a third day.
+
+the obligation that escalation chain obliges a party to pay fine and comply by day a due day as its fourth obligation given subject a subject is still open if
+    the obligation that escalation chain obliges the party to pay fine and comply by day the due day as its fourth obligation given subject the subject is pending since day a day.
+
+the deadline of the obligation that escalation chain permits a party to suspend registration as its fifth obligation given subject a subject has passed on day a day D if
+    the obligation that escalation chain permits the party to suspend registration as its fifth obligation given subject the subject starts on day a day N
+    and the obligation that escalation chain permits the party to suspend registration as its fifth obligation given subject the subject has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that escalation chain permits a party to suspend registration as its fifth obligation given subject a subject ends on day a day D if
+    the obligation that escalation chain permits the party to suspend registration as its fifth obligation given subject the subject is met on day D
+    and it is not the case that
+        the obligation that escalation chain permits the party to suspend registration as its fifth obligation given subject the subject is met on day a day N
+        and N < D.
+
+the obligation that escalation chain permits a party to suspend registration as its fifth obligation given subject a subject is missed on day a day D if
+    the deadline of the obligation that escalation chain permits the party to suspend registration as its fifth obligation given subject the subject has passed on day D
+    and it is not the case that the obligation that escalation chain permits the party to suspend registration as its fifth obligation given subject the subject ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that escalation chain permits the party to suspend registration as its fifth obligation given subject the subject has passed on day a day N
+        and N < D.
+
+the obligation that escalation chain permits a party to suspend registration as its fifth obligation given subject a subject is pending since day a day if
+    the obligation that escalation chain permits the party to suspend registration as its fifth obligation given subject the subject starts on day the day
+    and it is not the case that the obligation that escalation chain permits the party to suspend registration as its fifth obligation given subject the subject ends on day a second day
+    and it is not the case that the obligation that escalation chain permits the party to suspend registration as its fifth obligation given subject the subject is missed on day a third day.
+
+the obligation that escalation chain permits a party to suspend registration as its fifth obligation given subject a subject is still open if
+    the obligation that escalation chain permits the party to suspend registration as its fifth obligation given subject the subject is pending since day a day.
+
+the deadline of the obligation that escalation chain obliges a party to remedy and apply for reinstatement by day a due day as its sixth obligation has passed on day a day D if
+    the obligation that escalation chain obliges the party to remedy and apply for reinstatement by day the due day as its sixth obligation starts on day a day N
+    and the obligation that escalation chain obliges the party to remedy and apply for reinstatement by day the due day as its sixth obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that escalation chain obliges a party to remedy and apply for reinstatement by day a due day as its sixth obligation ends on day a day D if
+    the obligation that escalation chain obliges the party to remedy and apply for reinstatement by day the due day as its sixth obligation is met on day D
+    and it is not the case that
+        the obligation that escalation chain obliges the party to remedy and apply for reinstatement by day the due day as its sixth obligation is met on day a day N
+        and N < D.
+
+the obligation that escalation chain obliges a party to remedy and apply for reinstatement by day a due day as its sixth obligation is missed on day a day D if
+    the deadline of the obligation that escalation chain obliges the party to remedy and apply for reinstatement by day the due day as its sixth obligation has passed on day D
+    and it is not the case that the obligation that escalation chain obliges the party to remedy and apply for reinstatement by day the due day as its sixth obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that escalation chain obliges the party to remedy and apply for reinstatement by day the due day as its sixth obligation has passed on day a day N
+        and N < D.
+
+the obligation that escalation chain obliges a party to remedy and apply for reinstatement by day a due day as its sixth obligation is pending since day a day if
+    the obligation that escalation chain obliges the party to remedy and apply for reinstatement by day the due day as its sixth obligation starts on day the day
+    and it is not the case that the obligation that escalation chain obliges the party to remedy and apply for reinstatement by day the due day as its sixth obligation ends on day a second day
+    and it is not the case that the obligation that escalation chain obliges the party to remedy and apply for reinstatement by day the due day as its sixth obligation is missed on day a third day.
+
+the obligation that escalation chain obliges a party to remedy and apply for reinstatement by day a due day as its sixth obligation is still open if
+    the obligation that escalation chain obliges the party to remedy and apply for reinstatement by day the due day as its sixth obligation is pending since day a day.
+
+the deadline of the obligation that escalation chain obliges a party to remove from register as its seventh obligation has passed on day a day D if
+    the obligation that escalation chain obliges the party to remove from register as its seventh obligation starts on day a day N
+    and the obligation that escalation chain obliges the party to remove from register as its seventh obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that escalation chain obliges a party to remove from register as its seventh obligation ends on day a day D if
+    the obligation that escalation chain obliges the party to remove from register as its seventh obligation is met on day D
+    and it is not the case that
+        the obligation that escalation chain obliges the party to remove from register as its seventh obligation is met on day a day N
+        and N < D.
+
+the obligation that escalation chain obliges a party to remove from register as its seventh obligation is missed on day a day D if
+    the deadline of the obligation that escalation chain obliges the party to remove from register as its seventh obligation has passed on day D
+    and it is not the case that the obligation that escalation chain obliges the party to remove from register as its seventh obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that escalation chain obliges the party to remove from register as its seventh obligation has passed on day a day N
+        and N < D.
+
+the obligation that escalation chain obliges a party to remove from register as its seventh obligation is pending since day a day if
+    the obligation that escalation chain obliges the party to remove from register as its seventh obligation starts on day the day
+    and it is not the case that the obligation that escalation chain obliges the party to remove from register as its seventh obligation ends on day a second day
+    and it is not the case that the obligation that escalation chain obliges the party to remove from register as its seventh obligation is missed on day a third day.
+
+the obligation that escalation chain obliges a party to remove from register as its seventh obligation is still open if
+    the obligation that escalation chain obliges the party to remove from register as its seventh obligation is pending since day a day.
+
+scenario trace_444 is:
+    % #TRACE (`obligation within days` OF `CommissionerActor`, `take action`, 14) (line 444) of the L4 source
+    the contract obligation within days starts on day 0 with party commissioner_actor and action take_action and deadline 14.
+    commissioner_actor does take action on day 10.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_448 is:
+    % #TRACE (`obligation within days` OF `CommissionerActor`, `take action`, 14) (line 448) of the L4 source
+    the contract obligation within days starts on day 0 with party commissioner_actor and action take_action and deadline 14.
+    commissioner_actor does take action on day 20.
+    fulfilled expects answers [].
+    q_the_contract_is_breached expects answers ["the contract is breached"].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_452 is:
+    % #TRACE (`required steps procedure` OF `testCharity`, `testNotice`) (line 452) of the L4 source
+    the contract required steps procedure starts on day 0 with charity test_charity and notice test_notice.
+    commissioner_actor does serve required steps notice on day 1.
+    charity_actor_test_charity does take required steps with notice test_notice on day 20.
+    commissioner_actor does publish compliance on day 30.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_458 is:
+    % #TRACE (`required steps procedure` OF `testCharity`, `testNotice`) (line 458) of the L4 source
+    the contract required steps procedure starts on day 0 with charity test_charity and notice test_notice.
+    commissioner_actor does serve required steps notice on day 1.
+    commissioner_actor does deregister charity on day 40.
+    fulfilled expects answers [].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_463 is:
+    % #TRACE (`payment with grace` OF `CommissionerActor`, 1000, 30, 10, 0.1) (line 463) of the L4 source
+    the contract payment with grace starts on day 0 with debtor commissioner_actor and amount 1000 and due date 30 and grace period 10 and late fee pct 0.1.
+    commissioner_actor does pay with payment amount 1000 on day 25.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_467 is:
+    % #TRACE (`payment with grace` OF `CommissionerActor`, 1000, 30, 10, 0.1) (line 467) of the L4 source
+    the contract payment with grace starts on day 0 with debtor commissioner_actor and amount 1000 and due date 30 and grace period 10 and late fee pct 0.1.
+    commissioner_actor does pay with late fee with total amount 1100 on day 38.
+    fulfilled expects answers [].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_471 is:
+    % #TRACE (`escalation chain` OF `CommissionerActor`) (line 471) of the L4 source
+    the contract escalation chain starts on day 0 with subject commissioner_actor.
+    regulatory_body does issue warning on day 1.
+    commissioner_actor does comply with warning on day 20.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_476 is:
+    % #TRACE (`enforcement response` OF `minorViolation`, `CommissionerActor`) (line 476) of the L4 source
+    the contract enforcement response starts on day 0 with violation minor_violation and subject commissioner_actor.
+    regulatory_body does issue warning on day 1.
+    commissioner_actor does comply with warning on day 20.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_481 is:
+    % #TRACE (`enforcement response` OF `criticalViolation`, `CommissionerActor`) (line 481) of the L4 source
+    the contract enforcement response starts on day 0 with violation critical_violation and subject commissioner_actor.
+    regulatory_body does suspend immediately on day 1.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_486 is:
+    % #TRACE (`licence renewal procedure` OF `testHolder`, 100) (line 486) of the L4 source
+    the contract licence renewal procedure starts on day 0 with holder test_holder and expiry date 100.
+    test_holder does apply for renewal on day 60.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_490 is:
+    % #TRACE (`licence renewal procedure` OF `testHolder`, 100) (line 490) of the L4 source
+    the contract licence renewal procedure starts on day 0 with holder test_holder and expiry date 100.
+    test_holder does apply with late fee on day 78.
+    fulfilled expects answers [].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_494 is:
+    % #TRACE (`licence renewal procedure` OF `testHolder`, 100) (line 494) of the L4 source
+    the contract licence renewal procedure starts on day 0 with holder test_holder and expiry date 100.
+    test_holder does apply for reinstatement on day 100.
+    fulfilled expects answers [].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+query fulfilled is:
+    the contract is fulfilled.
+
+query q_the_contract_is_breached is:
+    the contract is breached.
+
+query q_the_contract_is_breached_by_because is:
+    the contract is breached by which party because which reason.
+
+query q_open_o_obligation_within_days_1 is:
+    the obligation that obligation within days obliges which party to do anything by day which due day as its first obligation is still open.
+
+query q_open_o_required_steps_procedure_1 is:
+    the obligation that required steps procedure obliges which party to serve required steps notice by day which due day as its first obligation given charity which charity and notice which notice is still open.
+
+query q_open_o_payment_with_grace_1 is:
+    the obligation that payment with grace obliges which party to pay by day which due day as its first obligation given amount which amount and debtor which debtor and due date which due date and grace period which grace period and late fee pct which late fee pct is still open.
+
+query q_open_o_escalation_chain_1 is:
+    the obligation that escalation chain permits which party to issue warning as its first obligation given subject which subject is still open.
+
+query q_open_o_enforcement_response_1 is:
+    the obligation that enforcement response obliges which party to suspend immediately as its first obligation is still open.
+
+query q_open_o_enforcement_response_2 is:
+    the obligation that enforcement response permits which party to impose fine as its second obligation given subject which subject is still open.
+
+query q_open_o_licence_renewal_procedure_1 is:
+    the obligation that licence renewal procedure obliges which party to apply for renewal by day which due day as its first obligation given expiry date which expiry date and holder which holder is still open.
+
+query q_open_o_required_steps_procedure_2 is:
+    the obligation that required steps procedure obliges which party to take required steps by day which due day as its second obligation given charity which charity is still open.
+
+query q_open_o_payment_with_grace_2 is:
+    the obligation that payment with grace obliges which party to pay with late fee by day which due day as its second obligation given debtor which debtor is still open.
+
+query q_open_o_escalation_chain_2 is:
+    the obligation that escalation chain obliges which party to comply with warning by day which due day as its second obligation given subject which subject is still open.
+
+query q_open_o_enforcement_response_3 is:
+    the obligation that enforcement response obliges which party to pay fine and comply by day which due day as its third obligation given subject which subject is still open.
+
+query q_open_o_licence_renewal_procedure_2 is:
+    the obligation that licence renewal procedure obliges which party to apply with late fee by day which due day as its second obligation given holder which holder is still open.
+
+query q_open_o_required_steps_procedure_3 is:
+    the obligation that required steps procedure obliges which party to publish compliance by day which due day as its third obligation is still open.
+
+query q_open_o_required_steps_procedure_4 is:
+    the obligation that required steps procedure permits which party to deregister charity as its fourth obligation given charity which charity is still open.
+
+query q_open_o_escalation_chain_3 is:
+    the obligation that escalation chain permits which party to impose fine as its third obligation given subject which subject is still open.
+
+query q_open_o_licence_renewal_procedure_3 is:
+    the obligation that licence renewal procedure permits which party to apply for reinstatement by day which due day as its third obligation given holder which holder is still open.
+
+query q_open_o_escalation_chain_4 is:
+    the obligation that escalation chain obliges which party to pay fine and comply by day which due day as its fourth obligation given subject which subject is still open.
+
+query q_open_o_escalation_chain_5 is:
+    the obligation that escalation chain permits which party to suspend registration as its fifth obligation given subject which subject is still open.
+
+query q_open_o_escalation_chain_6 is:
+    the obligation that escalation chain obliges which party to remedy and apply for reinstatement by day which due day as its sixth obligation is still open.
+
+query q_open_o_escalation_chain_7 is:
+    the obligation that escalation chain obliges which party to remove from register as its seventh obligation is still open.
+

@@ -146,6 +146,11 @@
           "path": "integrations/epilog",
           "title": "Epilog and Logical English",
           "blurb": "Epilog rulesets as Logical English, and games as Logical English for LPS."
+        },
+        {
+          "path": "integrations/l4",
+          "title": "L4 and Logical English",
+          "blurb": "L4 files (Legalese, SMU): the rules as Logical English, the contracts as Logical English for LPS, checked against L4's own evaluator."
         }
       ]
     },

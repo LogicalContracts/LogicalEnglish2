@@ -1,0 +1,33 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from charity-obligation.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the name of *a registered charity* is *a text*.
+    the registration number of *a registered charity* is *a text*.
+    the status of *a registered charity* is *a charity status*.
+
+the knowledge base charity_obligation includes:
+
+the text of the source program is at "sources/charity-obligation.l4".
+
+the name of acme_animal_shelter is "Acme Animal Shelter".
+
+the registration number of acme_animal_shelter is "JC-2024-001".
+
+the status of acme_animal_shelter is active.
+
+% The contracts of this file (the charity must file its annual return) are twins of their own, written by step 3 of
+% the L4 translator: in LE for LPS, run by LPS2 (LPS2's examples/migration/l4/charity_obligation/charity_obligation.le,
+% each #TRACE a scenario), and as a history view read over a finished history of
+% events (charity_obligation_history.le, beside this program).

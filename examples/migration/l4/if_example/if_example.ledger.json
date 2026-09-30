@@ -1,0 +1,309 @@
+{
+  "counts": {"approximated":9,"encoded":25,"residue":0},
+  "entries": [
+    {
+      "element":"check if positive",
+      "in_program":"the check whether positive for *a number* is *a text*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"absolute value of",
+      "in_program":"the absolute value of *a number* is *a second number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"letter grade for",
+      "in_program":"the letter grade for *a score* is *a text*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"can enter venue",
+      "in_program":"the can enter venue for *an age* with *a boolean* with *a second boolean* is *a text*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is adult",
+      "in_program":"*a person age* is adult",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is adult 2",
+      "in_program":"*a number* is adult 2",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"maximum number",
+      "in_program":"the maximum number for *a number* with *a second number* is *a value*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"list if true otherwise empty",
+      "in_program":"the list whether true else empty for *a condition* is *a list*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"fibonacci number",
+      "in_program":"the fibonacci number for *a number* is *a second number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"basic if example",
+      "in_program":"the basic whether example is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"check if positive",
+      "in_program":"the check whether positive for *a number* is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"absolute value of",
+      "in_program":"the absolute value of *a number* is *a second number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"letter grade for",
+      "in_program":"the letter grade for *a score* is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"can enter venue",
+      "in_program":"the can enter venue for *an age* with *a boolean* with *a second boolean* is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is adult",
+      "in_program":"*a person age* is adult",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is adult 2",
+      "in_program":"*a number* is adult 2",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"maximum number",
+      "in_program":"the maximum number for *a number* with *a second number* is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"list if true otherwise empty",
+      "in_program":"the list whether true else empty for *a condition* is *a list*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"fibonacci number",
+      "in_program":"the fibonacci number for *a number* is *a second number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 12",
+      "in_program":"line_12",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 13",
+      "in_program":"line_13",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 14",
+      "in_program":"line_14",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 24",
+      "in_program":"line_24",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 25",
+      "in_program":"line_25",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 37",
+      "in_program":"line_37",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 38",
+      "in_program":"line_38",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 39",
+      "in_program":"line_39",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 51",
+      "in_program":"line_51",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 52",
+      "in_program":"line_52",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 53",
+      "in_program":"line_53",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 82",
+      "in_program":"line_82",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 83",
+      "in_program":"line_83",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 84",
+      "in_program":"line_84",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 95",
+      "in_program":"line_95",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":15,
+    "tests": [
+      {"detail":"","query":"line_12","result":"pass","scenario":"line_12"},
+      {"detail":"","query":"line_13","result":"pass","scenario":"line_13"},
+      {"detail":"","query":"line_14","result":"pass","scenario":"line_14"},
+      {"detail":"","query":"line_24","result":"pass","scenario":"line_24"},
+      {"detail":"","query":"line_25","result":"pass","scenario":"line_25"},
+      {"detail":"","query":"line_37","result":"pass","scenario":"line_37"},
+      {"detail":"","query":"line_38","result":"pass","scenario":"line_38"},
+      {"detail":"","query":"line_39","result":"pass","scenario":"line_39"},
+      {"detail":"","query":"line_51","result":"pass","scenario":"line_51"},
+      {"detail":"","query":"line_52","result":"pass","scenario":"line_52"},
+      {"detail":"","query":"line_53","result":"pass","scenario":"line_53"},
+      {"detail":"","query":"line_82","result":"pass","scenario":"line_82"},
+      {"detail":"","query":"line_83","result":"pass","scenario":"line_83"},
+      {"detail":"","query":"line_84","result":"pass","scenario":"line_84"},
+      {"detail":"","query":"line_95","result":"pass","scenario":"line_95"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["if-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"if_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":15
+}

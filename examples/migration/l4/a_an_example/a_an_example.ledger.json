@@ -1,0 +1,202 @@
+{
+  "counts": {"approximated":2,"encoded":20,"residue":0},
+  "entries": [
+    {
+      "element":"Account",
+      "in_program":"Account",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Person",
+      "in_program":"Person",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Contract",
+      "in_program":"Contract",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"double",
+      "in_program":"the double for *a number* is *a second number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"getBalance",
+      "in_program":"the get balance for *an acc* is *a value*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"age",
+      "in_program":"age",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"name",
+      "in_program":"name",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"employed",
+      "in_program":"employed",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"double",
+      "in_program":"the double for *a number* is *a second number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"myAccount",
+      "in_program":"myAccount",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"getBalance",
+      "in_program":"the get balance for *an acc* is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"john",
+      "in_program":"john",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"johnsName",
+      "in_program":"the johns name is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"johnsAge",
+      "in_program":"the johns age is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"nameViaGenitive",
+      "in_program":"the name via genitive is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"agreement",
+      "in_program":"agreement",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"contractDate",
+      "in_program":"the contract date is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"contractAmount",
+      "in_program":"the contract amount is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 14",
+      "in_program":"line_14",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 44",
+      "in_program":"line_44",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 45",
+      "in_program":"line_45",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 52",
+      "in_program":"line_52",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":4,
+    "tests": [
+      {"detail":"","query":"line_14","result":"pass","scenario":"line_14"},
+      {"detail":"","query":"line_44","result":"pass","scenario":"line_44"},
+      {"detail":"","query":"line_45","result":"pass","scenario":"line_45"},
+      {"detail":"","query":"line_52","result":"pass","scenario":"line_52"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["a-an-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"a_an_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":4
+}

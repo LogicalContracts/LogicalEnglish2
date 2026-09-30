@@ -1,0 +1,389 @@
+{
+  "counts": {"approximated":7,"encoded":31,"residue":8},
+  "entries": [
+    {
+      "element":"Money",
+      "in_program":"Money",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Company",
+      "in_program":"Company",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Natural Person",
+      "in_program":"Natural Person",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Borrower",
+      "in_program":"Borrower",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Lender",
+      "in_program":"Lender",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Bank Account",
+      "in_program":"Bank Account",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Payment",
+      "in_program":"Payment",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Penalty",
+      "in_program":"Penalty",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"pay monthly installment to",
+      "in_program":"pay monthly installment to",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"The lesser of",
+      "in_program":"the lesser of *a number* with *a second number* is *a value*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"The greater of",
+      "in_program":"the greater of *a number* with *a second number* is *a value*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Base to the power of",
+      "in_program":"the base to the power of *a base* with *an exp* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is money at least equal within error",
+      "in_program":"*a money* is money at least equal within error for *a second money*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"USD",
+      "in_program":"the USD for *a number* is *a value*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"EUR",
+      "in_program":"the EUR for *a number* is *a value*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"SGD",
+      "in_program":"the SGD for *a number* is *a value*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Note Date",
+      "in_program":"the note date is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Principal Amount",
+      "in_program":"the principal amount is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Interest Rate Per Annum",
+      "in_program":"the interest rate per annum is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Security Collateral",
+      "in_program":"the security collateral is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Monthly Installments",
+      "in_program":"the monthly installments is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Default After Days Not Paid Beyond Due",
+      "in_program":"the default after days not paid beyond due is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Late Payment Penalty",
+      "in_program":"late_payment_penalty",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Governing Law",
+      "in_program":"the governing law is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"The Borrower",
+      "in_program":"the_borrower",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"The Lender",
+      "in_program":"the_lender",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Monthly Interest Rate",
+      "in_program":"the monthly interest rate is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Compound Factor",
+      "in_program":"the compound factor is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Monthly Installment Amount",
+      "in_program":"r1",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"Total Repayment Amount",
+      "in_program":"total_repayment_amount",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Total Interest Amount",
+      "in_program":"total_interest_amount",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Payment Obligations",
+      "in_program":"Payment Obligations",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"NaN",
+      "in_program":"NaN",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"NO_COLLATERAL",
+      "in_program":"NO_COLLATERAL",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"The lesser of",
+      "in_program":"the lesser of *a number* with *a second number* is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"The greater of",
+      "in_program":"the greater of *a number* with *a second number* is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Base to the power of",
+      "in_program":"the base to the power of *a base* with *an exp* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is money at least equal within error",
+      "in_program":"*a money* is money at least equal within error for *a second money*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"USD",
+      "in_program":"r2",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"EUR",
+      "in_program":"r3",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"SGD",
+      "in_program":"r4",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#eval at line 167",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"the evaluator's answer is not a value LE writes: Money WITH Currency IS \"USD\", Value IS 2077.49370354708",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#eval at line 169",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"the evaluator's answer is not a value LE writes: Money WITH Currency IS \"USD\", Value IS 27077.49370354708",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#EVAL at line 171",
+      "in_program":"line_171",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#eval at line 173",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"the evaluator's answer is not a value LE writes: Money WITH Currency IS \"USD\", Value IS 2256.4578086289234",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"Payment Obligations",
+      "in_program":"Payment Obligations",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":1,
+    "tests": [ {"detail":"","query":"line_171","result":"pass","scenario":"line_171"} ]
+  },
+  "meta": {
+    "artifacts": ["promissory-note.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"promissory_note",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":1
+}

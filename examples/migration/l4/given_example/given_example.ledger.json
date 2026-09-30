@@ -1,0 +1,334 @@
+{
+  "counts": {"approximated":12,"encoded":22,"residue":4},
+  "entries": [
+    {
+      "element":"Point",
+      "in_program":"Point",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"double the value",
+      "in_program":"the double the value for *a number* is *a second number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"greet the person",
+      "in_program":"the greet the person for *a person name* is *a value*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"add two numbers",
+      "in_program":"the add two numbers for *a number* with *a second number* is *a third number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"multiply two numbers",
+      "in_program":"the multiply two numbers for *a number* with *a second number* is *a third number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"sum of three numbers",
+      "in_program":"the sum of three numbers for *a number* with *a second number* with *a third number* is *a fourth number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"get x coordinate",
+      "in_program":"the get x coordinate for *a point* is *a value*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"distance squared between points",
+      "in_program":"the distance squared between points for *a point* with *a second point* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"length of list",
+      "in_program":"the length of list for *a value* with *a list* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is positive number",
+      "in_program":"*a number* is positive number",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"sign of number",
+      "in_program":"the sign of number for *a num* is *a text*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"double the value",
+      "in_program":"the double the value for *a number* is *a second number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"greet the person",
+      "in_program":"r1",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"add two numbers",
+      "in_program":"the add two numbers for *a number* with *a second number* is *a third number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"multiply two numbers",
+      "in_program":"the multiply two numbers for *a number* with *a second number* is *a third number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"sum of three numbers",
+      "in_program":"the sum of three numbers for *a number* with *a second number* with *a third number* is *a fourth number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"get x coordinate",
+      "in_program":"the get x coordinate for *a point* is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"delta x",
+      "in_program":"the delta x for *a point* with *a second point* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"delta y",
+      "in_program":"the delta y for *a point* with *a second point* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"delta x",
+      "in_program":"the delta x for *a point* with *a second point* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"delta y",
+      "in_program":"the delta y for *a point* with *a second point* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"distance squared between points",
+      "in_program":"the distance squared between points for *a point* with *a second point* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the origin",
+      "in_program":"the_origin",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"point one",
+      "in_program":"point_one",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"length of list",
+      "in_program":"r2",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"is positive number",
+      "in_program":"*a number* is positive number",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"sign of number",
+      "in_program":"the sign of number for *a num* is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 11",
+      "in_program":"line_11",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 12",
+      "in_program":"line_12",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 22",
+      "in_program":"line_22",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 23",
+      "in_program":"line_23",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 32",
+      "in_program":"line_32",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 51",
+      "in_program":"line_51",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 52",
+      "in_program":"line_52",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#eval at line 63",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value with no LE form: (`length of list` OF (LIST 1, 2, 3, 4, 5))",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#eval at line 64",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value with no LE form: (`length of list` OF (LIST \"a\", \"b\", \"c\"))",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#EVAL at line 79",
+      "in_program":"line_79",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 80",
+      "in_program":"line_80",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":8,
+    "tests": [
+      {"detail":"","query":"line_11","result":"pass","scenario":"line_11"},
+      {"detail":"","query":"line_22","result":"pass","scenario":"line_22"},
+      {"detail":"","query":"line_23","result":"pass","scenario":"line_23"},
+      {"detail":"","query":"line_32","result":"pass","scenario":"line_32"},
+      {"detail":"","query":"line_51","result":"pass","scenario":"line_51"},
+      {"detail":"","query":"line_52","result":"pass","scenario":"line_52"},
+      {"detail":"","query":"line_79","result":"pass","scenario":"line_79"},
+      {"detail":"","query":"line_80","result":"pass","scenario":"line_80"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["given-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"given_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":1,
+  "source_tests":9
+}

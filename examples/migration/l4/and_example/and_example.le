@@ -1,0 +1,166 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from and-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    the age is *a number*; scenario element.
+    has license; scenario element.
+    can drive.
+    all true for *a boolean* with *a second boolean* with *a third boolean*.
+    the person age is *a number*; scenario element.
+    the person income is *a number*; scenario element.
+    has criminal record; scenario element.
+    is eligible.
+    in range for *a number* with *a second number*.
+    passing grade for *a score*.
+    the access level for *an user age* with *a boolean* is *a text*.
+    L4's answer at line 5 is reproduced.
+    L4's answer at line 6 is reproduced.
+    L4's answer at line 7 is reproduced.
+    L4's answer at line 8 is reproduced.
+    L4's answer at line 12 is reproduced.
+    L4's answer at line 13 is reproduced.
+
+the knowledge base and_example includes:
+
+the text of the source program is at "sources/and-example.l4".
+
+can drive if
+    the age is a number N
+    and N >= 16
+    and has license.
+
+all true for a boolean with a second boolean with a third boolean if
+    true is equal to the boolean
+    and true is equal to the second boolean
+    and true is equal to the third boolean.
+
+is eligible if
+    the person age is a number N
+    and N >= 18
+    and the person income is a number M
+    and M > 30000
+    and it is not the case that has criminal record.
+
+in range for a number N with a number M if
+    N >= 0
+    and N <= 100
+    and M >= 0
+    and M <= 100.
+
+passing grade for a score S if
+    S >= 60
+    and S <= 100.
+
+the access level for an user age U with a boolean is a text if
+    U >= 18
+    and true is equal to the boolean
+    and the text is equal to "full access"
+    otherwise the text is equal to "restricted".
+
+L4's answer at line 5 is reproduced.
+
+L4's answer at line 6 is reproduced.
+
+L4's answer at line 7 is reproduced.
+
+L4's answer at line 8 is reproduced.
+
+L4's answer at line 12 is reproduced.
+
+L4's answer at line 13 is reproduced.
+
+scenario line_5 is, as stated in the source program at line 5:
+    line_5 expects answers ["L4's answer at line 5 is reproduced"].
+
+scenario line_6 is, as stated in the source program at line 6:
+    line_6 expects answers ["L4's answer at line 6 is reproduced"].
+
+scenario line_7 is, as stated in the source program at line 7:
+    line_7 expects answers ["L4's answer at line 7 is reproduced"].
+
+scenario line_8 is, as stated in the source program at line 8:
+    line_8 expects answers ["L4's answer at line 8 is reproduced"].
+
+scenario line_12 is, as stated in the source program at line 12:
+    line_12 expects answers ["L4's answer at line 12 is reproduced"].
+
+scenario line_13 is, as stated in the source program at line 13:
+    line_13 expects answers ["L4's answer at line 13 is reproduced"].
+
+scenario line_31 is, as stated in the source program at line 31:
+    line_31 expects answers ["all true for true with true with true"].
+
+scenario line_32 is, as stated in the source program at line 32:
+    line_32 expects answers [].
+
+scenario line_52 is, as stated in the source program at line 52:
+    line_52 expects answers ["in range for 50 with 50"].
+
+scenario line_53 is, as stated in the source program at line 53:
+    line_53 expects answers [].
+
+scenario line_60 is, as stated in the source program at line 60:
+    line_60 expects answers ["passing grade for 75"].
+
+scenario line_61 is, as stated in the source program at line 61:
+    line_61 expects answers [].
+
+scenario line_71 is, as stated in the source program at line 71:
+    line_71 expects answers ["the access level for 25 with true is full access"].
+
+scenario line_72 is, as stated in the source program at line 72:
+    line_72 expects answers ["the access level for 25 with false is restricted"].
+
+query line_5 is:
+    L4's answer at line 5 is reproduced.
+
+query line_6 is:
+    L4's answer at line 6 is reproduced.
+
+query line_7 is:
+    L4's answer at line 7 is reproduced.
+
+query line_8 is:
+    L4's answer at line 8 is reproduced.
+
+query line_12 is:
+    L4's answer at line 12 is reproduced.
+
+query line_13 is:
+    L4's answer at line 13 is reproduced.
+
+query line_31 is:
+    all true for true with true with true.
+
+query line_32 is:
+    all true for true with true with false.
+
+query line_52 is:
+    in range for 50 with 50.
+
+query line_53 is:
+    in range for 150 with 50.
+
+query line_60 is:
+    passing grade for 75.
+
+query line_61 is:
+    passing grade for 55.
+
+query line_71 is:
+    the access level for 25 with true is which text.
+
+query line_72 is:
+    the access level for 25 with false is which text.
+

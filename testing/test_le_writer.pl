@@ -200,6 +200,9 @@ test(constants_that_would_read_as_something_else_are_quoted) :-
     render_constant('012', T2), assertion(T2 == '"012"'),
     render_constant('the UK', T3), assertion(T3 == 'the UK'),
     render_constant(date(2021, 3, 9), T4), assertion(T4 == '2021-03-09'),
+    %  a decimal is written with the digits that read back as it, no float noise
+    le_writer:render_number(2256.46, T7), assertion(T7 == '2256.46'),
+    le_writer:render_number(27077.49370354708, T8), assertion(T8 == '27077.49370354708'),
     render_constant(0.2, T5), assertion(T5 == '0.2').
 
 test(multilingual_articles) :-
@@ -311,6 +314,28 @@ test(comparison_of_an_arithmetic_operand_is_evaluated) :-
                                query(r, after(2000, 1000, 100))]), Text),
     text_results(Text, Results),
     assertion(all_pass(Results)).
+
+%   `L is the list of each X such that …` (29 September 2026), written from
+%   the IR and from Prolog's findall/3, and an expected answer with a list
+%   in it written as LE prints it, with commas.
+test(list_aggregate_written_and_passes) :-
+    IR = program([kb(lists)], [
+        template(pays, "*a taxpayer* pays *an amount* to *a person*", [undefined]),
+        template(payments, "the payments of *a taxpayer* are *a list*", []),
+        rule(payments(P, L), agg(list, A, pays(P, A, _), L), []),
+        scenario(one, [
+            fact(pays(ann, 10, cy)), fact(pays(ann, 5, dee)),
+            expects(lists, [payments(ann, [10, 5])])
+        ], []),
+        query(lists, payments(ann, _))
+    ]),
+    le_write(IR, Text),
+    assertion(sub_string(Text, _, _, _, "is the list of each")),
+    assertion(sub_string(Text, _, _, _, "[10, 5]")),
+    text_results(Text, Results),
+    assertion(all_pass(Results)),
+    le_writer:prolog_body(findall(E, pays(ann, E, _), R), G),
+    assertion(G = agg(list, _, _, R)).
 
 :- end_tests(le_writer_ir).
 

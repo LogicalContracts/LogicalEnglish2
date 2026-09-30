@@ -1,0 +1,62 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from textual-vs-symbolic-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    the age is *a number*.
+    citizen.
+    eligible1.
+    eligible2.
+    eligible3.
+
+the knowledge base textual_vs_symbolic_example includes:
+
+the text of the source program is at "sources/textual-vs-symbolic-example.l4".
+
+the age is 25.
+
+citizen.
+
+eligible1 if
+    the age is a number N
+    and N > 18
+    and citizen.
+
+eligible2 if
+    the age is a number N
+    and N > 18
+    and citizen.
+
+eligible3 if
+    the age is a number N
+    and N > 18
+    and citizen.
+
+scenario line_12 is, as stated in the source program at line 12:
+    line_12 expects answers ["eligible1"].
+
+scenario line_13 is, as stated in the source program at line 13:
+    line_13 expects answers ["eligible2"].
+
+scenario line_14 is, as stated in the source program at line 14:
+    line_14 expects answers ["eligible3"].
+
+query line_12 is:
+    eligible1.
+
+query line_13 is:
+    eligible2.
+
+query line_14 is:
+    eligible3.
+

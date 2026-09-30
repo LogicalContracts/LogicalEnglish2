@@ -1,0 +1,228 @@
+{
+  "counts": {"approximated":1,"encoded":23,"residue":1},
+  "entries": [
+    {
+      "element":"Person",
+      "in_program":"Person",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Registered Charity",
+      "in_program":"Registered Charity",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Purpose",
+      "in_program":"Purpose",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Status",
+      "in_program":"Status",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Bank Account",
+      "in_program":"Bank Account",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Company",
+      "in_program":"Company",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Legal Entity",
+      "in_program":"Legal Entity",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the entity's name",
+      "in_program":"the entitys name for *an entity* is *a text*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the purpose is charitable",
+      "in_program":"*a purpose* is charitable",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the entity's name",
+      "in_program":"the entitys name for *an entity* is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Alice Smith",
+      "in_program":"alice_smith",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Bob Jones",
+      "in_program":"bob_jones",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"education purpose",
+      "in_program":"the education purpose is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"custom purpose",
+      "in_program":"custom_purpose",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Acme Bank Account",
+      "in_program":"acme_bank_account",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Acme Corporation",
+      "in_program":"acme_corporation",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Alice as individual",
+      "in_program":"alice_as_individual",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Acme as corporation",
+      "in_program":"acme_as_corporation",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 112",
+      "in_program":"line_112",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 113",
+      "in_program":"line_113",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 116",
+      "in_program":"line_116",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#eval at line 119",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value that is not a constant: `education purpose`",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#EVAL at line 120",
+      "in_program":"line_120",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 123",
+      "in_program":"line_123",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 124",
+      "in_program":"line_124",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":6,
+    "tests": [
+      {"detail":"","query":"line_112","result":"pass","scenario":"line_112"},
+      {"detail":"","query":"line_113","result":"pass","scenario":"line_113"},
+      {"detail":"","query":"line_116","result":"pass","scenario":"line_116"},
+      {"detail":"","query":"line_120","result":"pass","scenario":"line_120"},
+      {"detail":"","query":"line_123","result":"pass","scenario":"line_123"},
+      {"detail":"","query":"line_124","result":"pass","scenario":"line_124"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["module-2-examples.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"module_2_examples",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":6
+}

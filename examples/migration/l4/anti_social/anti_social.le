@@ -1,0 +1,1145 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from anti-social.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    *a person* is authorised; scenario element.
+    *a receiver* is an individual aged 16 else over; scenario element.
+    *a receiver* is a body; scenario element.
+    *an effect* is detrimental; scenario element.
+    *an effect* is of a persistent else continuing nature; scenario element.
+    *an effect* affects the quality of life of those in the locality; scenario element.
+    the conduct for *a receiver* is *a conduct*; scenario element.
+    the effect for *a conduct* is *an effect*; scenario element.
+    *a conduct* is unreasonable; scenario element.
+    *a person* may issue a community protection notice for *a receiver*.
+    the conduct in may issue a community protection notice for *a receiver* variant one is *a conduct*.
+    the effect in may issue a community protection notice for *a receiver* variant two is *an effect*.
+
+the knowledge base anti_social includes:
+
+the text of the source program is at "sources/anti-social.l4".
+
+section anti social is:
+
+the conduct in may issue a community protection notice for a receiver variant one is a conduct if
+    the conduct for the receiver is the conduct.
+
+the effect in may issue a community protection notice for a receiver variant two is an effect if
+    the conduct in may issue a community protection notice for the receiver variant one is a conduct
+    and the effect for the conduct is the effect.
+
+a person may issue a community protection notice for a receiver if
+    the person is authorised
+    and the receiver is an individual aged 16 else over
+        or the receiver is a body
+    and the effect in may issue a community protection notice for the receiver variant two is an effect
+    and the effect is detrimental
+    and the effect in may issue a community protection notice for the receiver variant two is a second effect
+    and the second effect is of a persistent else continuing nature
+    and the effect in may issue a community protection notice for the receiver variant two is a third effect
+    and the third effect affects the quality of life of those in the locality
+    and the conduct in may issue a community protection notice for the receiver variant one is a conduct
+    and the conduct is unreasonable.
+
+scenario variant_1 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers ["person1 may issue a community protection notice for receiver1"].
+
+scenario variant_2 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_3 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_4 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_5 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_6 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_7 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_8 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_9 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_10 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_11 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_12 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_13 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_14 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_15 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_16 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_17 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers ["person1 may issue a community protection notice for receiver1"].
+
+scenario variant_18 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_19 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_20 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_21 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is a body.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_22 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is a body.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_23 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is a body.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_24 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is a body.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_25 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_26 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_27 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_28 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_29 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is a body.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_30 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is a body.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_31 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is a body.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_32 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is a body.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_33 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers ["person1 may issue a community protection notice for receiver1"].
+
+scenario variant_34 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_35 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    effect1 is detrimental.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_36 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    effect1 is detrimental.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_37 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_38 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_39 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_40 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_41 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_42 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_43 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    effect1 is detrimental.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_44 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    effect1 is detrimental.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_45 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_46 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_47 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_48 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_49 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_50 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_51 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    effect1 is detrimental.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_52 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    effect1 is detrimental.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_53 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_54 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_55 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_56 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_57 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_58 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_59 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    effect1 is detrimental.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_60 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    effect1 is detrimental.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_61 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_62 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    effect1 is of a persistent else continuing nature.
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_63 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_64 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    effect1 affects the quality of life of those in the locality.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_65 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_66 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_67 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is detrimental.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_68 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is detrimental.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_69 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_70 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_71 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_72 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_73 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_74 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_75 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is detrimental.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_76 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is detrimental.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_77 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_78 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_79 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_80 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    receiver1 is a body.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_81 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_82 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_83 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is a body.
+    effect1 is detrimental.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_84 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is a body.
+    effect1 is detrimental.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_85 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is a body.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_86 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is a body.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_87 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is a body.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_88 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is a body.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_89 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_90 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is a body.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_91 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is a body.
+    effect1 is detrimental.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_92 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is a body.
+    effect1 is detrimental.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_93 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is a body.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_94 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is a body.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_95 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is a body.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_96 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is a body.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_97 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_98 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_99 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    effect1 is detrimental.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_100 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    effect1 is detrimental.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_101 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_102 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_103 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_104 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    receiver1 is an individual aged 16 else over.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_105 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_106 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_107 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    effect1 is detrimental.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_108 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    effect1 is detrimental.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_109 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_110 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_111 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_112 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    receiver1 is an individual aged 16 else over.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_113 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_114 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_115 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    effect1 is detrimental.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_116 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    effect1 is detrimental.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_117 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_118 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_119 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_120 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    person1 is authorised.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_121 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_122 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    effect1 is detrimental.
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_123 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    effect1 is detrimental.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_124 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    effect1 is detrimental.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_125 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_126 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    effect1 is of a persistent else continuing nature.
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_127 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    conduct1 is unreasonable.
+    may_issue_a_community_protection_notice expects answers [].
+
+scenario variant_128 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    the conduct for receiver1 is conduct1.
+    the effect for conduct1 is effect1.
+    may_issue_a_community_protection_notice expects answers [].
+
+query may_issue_a_community_protection_notice is:
+    person1 may issue a community protection notice for receiver1.
+

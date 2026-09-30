@@ -1,6 +1,6 @@
 # Other systems: importing and exporting
 
-*Kind: integration guide · Audience: users · Status: current (2026-09-16)*
+*Kind: integration guide · Audience: users · Status: current (2026-09-29)*
 
 The editor opens the files of other rule and contract systems as Logical
 English (LE). The editor also writes some Logical English programs in another
@@ -51,6 +51,7 @@ flowchart LR
     OIA["Oracle Intelligent Advisor"]
     BX["Blawx"]
     EP["Epilog"]
+    L4["L4"]
   end
 
   subgraph core["Logical English"]
@@ -77,6 +78,8 @@ flowchart LR
   BX --> LE
   EP -- "rulesets" --> LE
   EP -- "games" --> LPS
+  L4 -- "rules" --> LE
+  L4 -- "contracts" --> LPS
   DR -- "decision services" --> LE
   DR -- "stateful rules" --> LPS
 
@@ -92,6 +95,7 @@ flowchart LR
   click OIA "oia" "Oracle Intelligent Advisor and Logical English"
   click BX "blawx" "Blawx and Logical English"
   click EP "epilog" "Epilog and Logical English"
+  click L4 "l4" "L4 and Logical English"
   click SC "scasp" "s(CASP), Prolog and LE1"
   click LR "legalruleml" "LegalRuleML and Logical English"
   click MS "miniscript" "Bitcoin Miniscript and Logical English"
@@ -118,6 +122,7 @@ reads (PDDL, Inform 7):
 | Socotra product configuration | import | [Socotra](socotra.md) |
 | Oracle Insurance Policy Administration transaction | import | [OIPA](oipa.md) |
 | Epilog program | import (rulesets as LE, games as LE for LPS) | [Epilog](epilog.md) |
+| L4 file | import (rules as LE, contracts as LE for LPS) | [L4](l4.md) |
 | Drools rule base (DRL) | import (LE for LPS, and a decision service in LE) | [Drools, in the LPS2 documentation](https://lps2.logicalcontracts.com/docs/user/integrations/drools) |
 | Solidity contract | import (LE for LPS); Deploy as Solidity in LPS2 | [Solidity, in the LPS2 documentation](https://lps2.logicalcontracts.com/docs/user/integrations/solidity) |
 | Daml (Canton) | import, export (LE for LPS) | [Daml, in the LPS2 documentation](https://lps2.logicalcontracts.com/docs/user/integrations/daml) |
@@ -293,13 +298,16 @@ twin comes with its ledger, its source's tests written as scenarios, and its
 `sources/` folder.
 
 - `migration/blawx/…`: Blawx encodings;
+- `migration/l4/…`: L4's examples and courses, their rules, and the history
+  views of their contracts;
 - `migration/legalruleml/…`: the examples of the LegalRuleML specification;
 - `migration/miniscript/…`: Bitcoin spending policies, each with a custody
   view, flip queries for lost keys, and scenarios confirmed by a recorded
   run on the public Tape network;
 - `migration/scasp/…`: s(CASP) programs, including LE1's.
 
-The twins written in Logical English for LPS (Daml, Drools, Solidity) are
+The twins written in Logical English for LPS (Daml, Drools, Solidity, L4's
+contracts) are
 among the examples of LPS2. The twins of Oracle Intelligent Advisor, Oracle
 Insurance Policy Administration (OIPA), Socotra and Epilog are only on
 installations that have the lpsPlus examples (under `lpsPlus/migration/`), and

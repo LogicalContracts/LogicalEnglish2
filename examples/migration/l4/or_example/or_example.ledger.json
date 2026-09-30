@@ -1,0 +1,281 @@
+{
+  "counts": {"approximated":3,"encoded":26,"residue":0},
+  "entries": [
+    {
+      "element":"anyTrue",
+      "in_program":"any true for *a boolean* with *a second boolean* with *a third boolean*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"getPriority",
+      "in_program":"the get priority for *an user type* with *a boolean* is *a text*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"complexCondition",
+      "in_program":"complex condition for *a number* with *a boolean*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"isStudent",
+      "in_program":"isStudent",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"isSenior",
+      "in_program":"isSenior",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"getsDiscount",
+      "in_program":"gets discount",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"anyTrue",
+      "in_program":"any true for *a boolean* with *a second boolean* with *a third boolean*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"isAdmin",
+      "in_program":"isAdmin",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"isOwner",
+      "in_program":"isOwner",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"hasPermission",
+      "in_program":"hasPermission",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"hasAccess",
+      "in_program":"has access",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"isTerminalStatus",
+      "in_program":"is terminal *a status*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"getPriority",
+      "in_program":"the get priority for *an user type* with *a boolean* is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"complexCondition",
+      "in_program":"complex condition for *a number* with *a boolean*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 5",
+      "in_program":"line_5",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 6",
+      "in_program":"line_6",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 7",
+      "in_program":"line_7",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 8",
+      "in_program":"line_8",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 12",
+      "in_program":"line_12",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 13",
+      "in_program":"line_13",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 31",
+      "in_program":"line_31",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 32",
+      "in_program":"line_32",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 55",
+      "in_program":"line_55",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 56",
+      "in_program":"line_56",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 66",
+      "in_program":"line_66",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 67",
+      "in_program":"line_67",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 75",
+      "in_program":"line_75",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 76",
+      "in_program":"line_76",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 77",
+      "in_program":"line_77",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":27,
+    "tests": [
+      {"detail":"","query":"line_5","result":"pass","scenario":"line_5"},
+      {"detail":"","query":"line_6","result":"pass","scenario":"line_6"},
+      {"detail":"","query":"line_7","result":"pass","scenario":"line_7"},
+      {"detail":"","query":"line_8","result":"pass","scenario":"line_8"},
+      {"detail":"","query":"line_12","result":"pass","scenario":"line_12"},
+      {"detail":"","query":"line_13","result":"pass","scenario":"line_13"},
+      {"detail":"","query":"line_31","result":"pass","scenario":"line_31"},
+      {"detail":"","query":"line_32","result":"pass","scenario":"line_32"},
+      {"detail":"","query":"line_55","result":"pass","scenario":"line_55"},
+      {"detail":"","query":"line_56","result":"pass","scenario":"line_56"},
+      {"detail":"","query":"line_66","result":"pass","scenario":"line_66"},
+      {"detail":"","query":"line_67","result":"pass","scenario":"line_67"},
+      {"detail":"","query":"line_75","result":"pass","scenario":"line_75"},
+      {"detail":"","query":"line_76","result":"pass","scenario":"line_76"},
+      {"detail":"","query":"line_77","result":"pass","scenario":"line_77"},
+      {"detail":"","query":"gets_discount","result":"pass","scenario":"variant_1"},
+      {"detail":"","query":"gets_discount","result":"pass","scenario":"variant_2"},
+      {"detail":"","query":"gets_discount","result":"pass","scenario":"variant_3"},
+      {"detail":"","query":"gets_discount","result":"pass","scenario":"variant_4"},
+      {"detail":"","query":"has_access","result":"pass","scenario":"variant_5"},
+      {"detail":"","query":"has_access","result":"pass","scenario":"variant_6"},
+      {"detail":"","query":"has_access","result":"pass","scenario":"variant_7"},
+      {"detail":"","query":"has_access","result":"pass","scenario":"variant_8"},
+      {"detail":"","query":"has_access","result":"pass","scenario":"variant_9"},
+      {"detail":"","query":"has_access","result":"pass","scenario":"variant_10"},
+      {"detail":"","query":"has_access","result":"pass","scenario":"variant_11"},
+      {"detail":"","query":"has_access","result":"pass","scenario":"variant_12"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["or-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"or_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":27
+}

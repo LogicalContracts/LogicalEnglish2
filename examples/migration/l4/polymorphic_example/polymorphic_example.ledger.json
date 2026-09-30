@@ -1,0 +1,64 @@
+{
+  "counts": {"approximated":2,"encoded":2,"residue":2},
+  "entries": [
+    {
+      "element":"length of list",
+      "in_program":"the length of *a list* for *a value* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"go",
+      "in_program":"the go for *an acc* with *a value* is *a second value*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"go",
+      "in_program":"the go for *an acc* with *a value* is *a second value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"length of list",
+      "in_program":"the length of *a list* for *a value* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#eval at line 14",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value with no LE form: (`length of list` OF (LIST 1, 2, 3))",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#eval at line 15",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value with no LE form: (`length of list` OF (LIST \"a\", \"b\", \"c\"))",
+      "note":"",
+      "verdict":"residue"
+    }
+  ],
+  "fidelity":null,
+  "meta": {
+    "artifacts": ["polymorphic-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"polymorphic_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":0
+}

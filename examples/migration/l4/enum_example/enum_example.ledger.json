@@ -1,0 +1,53 @@
+{
+  "counts": {"approximated":0,"encoded":4,"residue":0},
+  "entries": [
+    {
+      "element":"Color",
+      "in_program":"Color",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"my favorite color",
+      "in_program":"the my favorite color is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"name of the color",
+      "in_program":"the name of the color is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 18",
+      "in_program":"line_18",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":1,
+    "tests": [ {"detail":"","query":"line_18","result":"pass","scenario":"line_18"} ]
+  },
+  "meta": {
+    "artifacts": ["enum-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"enum_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":1
+}

@@ -1,0 +1,347 @@
+{
+  "counts": {"approximated":8,"encoded":26,"residue":5},
+  "entries": [
+    {
+      "element":"Colour",
+      "in_program":"Colour",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Shape",
+      "in_program":"Shape",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"PairNum",
+      "in_program":"PairNum",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"name of colour",
+      "in_program":"the name of colour for *a colour* is *a text*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"sum of list",
+      "in_program":"the sum of list for *a list* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"first element or zero",
+      "in_program":"the first element else zero for *a list* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"length of list",
+      "in_program":"the length of list for *a value* with *a list* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"get value or default to zero",
+      "in_program":"the get value else default to zero for *a number* is *a second number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"area of shape",
+      "in_program":"the area of shape for *a shape* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"add pair values",
+      "in_program":"the add pair values for *a pair num* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"sum of maybe list",
+      "in_program":"the sum of maybe list for *a maybe list* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"name of colour",
+      "in_program":"the name of colour for *a colour* is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"sum of list",
+      "in_program":"the sum of list for *a list* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"first element or zero",
+      "in_program":"the first element else zero for *a list* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"length of list",
+      "in_program":"r1",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"get value or default to zero",
+      "in_program":"the get value else default to zero for *a number* is *a second number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"area of shape",
+      "in_program":"the area of shape for *a shape* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"my circle",
+      "in_program":"my_circle",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"my rectangle",
+      "in_program":"my_rectangle",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"handle either result",
+      "in_program":"r2",
+      "kind":"definition",
+      "mapping":"a pattern with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"add pair values",
+      "in_program":"the add pair values for *a pair num* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"first pair",
+      "in_program":"first_pair",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"sum of maybe list",
+      "in_program":"the sum of maybe list for *a maybe list* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 14",
+      "in_program":"line_14",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 15",
+      "in_program":"line_15",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 27",
+      "in_program":"line_27",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 37",
+      "in_program":"line_37",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 38",
+      "in_program":"line_38",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#eval at line 48",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value with no LE form: (`length of list` OF (LIST \"a\", \"b\", \"c\"))",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#EVAL at line 58",
+      "in_program":"line_58",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 59",
+      "in_program":"line_59",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 78",
+      "in_program":"line_78",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 79",
+      "in_program":"line_79",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 80",
+      "in_program":"line_80",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#eval at line 90",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value that is not a constant: (`LEFT` OF \"not found\")",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#eval at line 91",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value that is not a constant: (`RIGHT` OF 42)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#EVAL at line 103",
+      "in_program":"line_103",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 113",
+      "in_program":"line_113",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 114",
+      "in_program":"line_114",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":13,
+    "tests": [
+      {"detail":"","query":"line_14","result":"pass","scenario":"line_14"},
+      {"detail":"","query":"line_15","result":"pass","scenario":"line_15"},
+      {"detail":"","query":"line_27","result":"pass","scenario":"line_27"},
+      {"detail":"","query":"line_37","result":"pass","scenario":"line_37"},
+      {"detail":"","query":"line_38","result":"pass","scenario":"line_38"},
+      {"detail":"","query":"line_58","result":"pass","scenario":"line_58"},
+      {"detail":"","query":"line_59","result":"pass","scenario":"line_59"},
+      {"detail":"","query":"line_78","result":"pass","scenario":"line_78"},
+      {"detail":"","query":"line_79","result":"pass","scenario":"line_79"},
+      {"detail":"","query":"line_80","result":"pass","scenario":"line_80"},
+      {"detail":"","query":"line_103","result":"pass","scenario":"line_103"},
+      {"detail":"","query":"line_113","result":"pass","scenario":"line_113"},
+      {"detail":"","query":"line_114","result":"pass","scenario":"line_114"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["consider-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"consider_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":13
+}

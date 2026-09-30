@@ -644,6 +644,7 @@ reduction(sum_list, sum).
 reduction(mean_list, average).
 reduction(min_list, min).
 reduction(max_list, max).
+reduction(=, list).
 
 %   The conditions of a sentence, as text; a named constant's goal says
 %   nothing of its own (the constant's name stands where its value is used).
@@ -720,13 +721,22 @@ conclusion(KB, Ns, G, S) :- condition(KB, Ns, G, S).
 expr_text(Ns, T, S) :- var(T), !, name_of(Ns, T, S).
 expr_text(_, T, S) :- number(T), !, format(atom(S), '~w', [T]).
 expr_text(Ns, T, S) :- arith(T), !, expr_operand(Ns, T, S).
+expr_text(Ns, T, S) :- arith_function(T), !, expr_operand(Ns, T, S).
 expr_text(_, T, S) :- string(T), !, format(atom(S), '"~w"', [T]).    % a string stays one
 expr_text(_, T, S) :- format(atom(S), '~w', [T]).
 
 arith(T) :- compound(T), T =.. [Op, _, _], memberchk(Op, [+, -, *, /, //, mod]).
 
+%   LE's one-argument arithmetic functions (language.md §7), written with
+%   their argument in brackets: `ceiling(the amount / the multiple)`.
+arith_function(T) :- compound(T), T =.. [F, _], le_grammar:is_arith_function(F).
+
 expr_operand(Ns, T, S) :- var(T), !, name_of(Ns, T, S0), drop_article(S0, S).
 expr_operand(_, T, S) :- number(T), !, format(atom(S), '~w', [T]).
+expr_operand(Ns, T, S) :-
+	arith_function(T), !, T =.. [F, A],
+	expr_operand(Ns, A, AS),
+	format(atom(S), '~w(~w)', [F, AS]).
 expr_operand(Ns, T, S) :-
 	arith(T), !, T =.. [Op, A, B],
 	sub_operand(Ns, Op, left, A, AS), sub_operand(Ns, Op, right, B, BS),

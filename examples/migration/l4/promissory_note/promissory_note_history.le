@@ -1,0 +1,534 @@
+% promissory-note.l4: the history view
+%
+% The timeless Logical English twin of the contracts of an L4 file (promissory-note.l4), written
+% by the L4 translator (docs/migration/l4.md, step 3): the contracts read over a finished
+% history of events. For each obligation the program says when it starts, its deadline
+% and which events meet it, and four rules say how it ends: met, missed, or still
+% open when the history stops. The same obligations, in the same words, as the LE for LPS twin in LPS2's
+% examples/migration/l4/; each scenario expects what that twin's run ended with, which
+% agrees with L4's evaluator.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    something happens on day *a day*.
+    an obligation can start on day *a day*.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* by day *a due day* as its first obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* starts on day *a day*; memorable.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* by day *a due day* as its first obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* has deadline day *a day*.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* by day *a due day* as its first obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* is met on day *a day*.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* by day *a due day* as its first obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* ends on day *a day*; memorable.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* by day *a due day* as its first obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* is missed on day *a day*.
+    the deadline of the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* by day *a due day* as its first obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* has passed on day *a day*; memorable.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* by day *a due day* as its first obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* is pending since day *a day*.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* by day *a due day* as its first obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* is still open.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* by day *a due day* as its second obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* starts on day *a day*; memorable.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* by day *a due day* as its second obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* has deadline day *a day*.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* by day *a due day* as its second obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* is met on day *a day*.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* by day *a due day* as its second obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* ends on day *a day*; memorable.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* by day *a due day* as its second obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* is missed on day *a day*.
+    the deadline of the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* by day *a due day* as its second obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* has passed on day *a day*; memorable.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* by day *a due day* as its second obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* is pending since day *a day*.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* by day *a due day* as its second obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* is still open.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* as its third obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* starts on day *a day*; memorable.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* as its third obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* has deadline day *a day*.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* as its third obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* is met on day *a day*.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* as its third obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* ends on day *a day*; memorable.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* as its third obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* is missed on day *a day*.
+    the deadline of the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* as its third obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* has passed on day *a day*; memorable.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* as its third obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* is pending since day *a day*.
+    the obligation that payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* as its third obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value* is still open.
+    the contract payment obligations starts on day *a day* with outstanding payment amount currency *a currency* and outstanding payment amount value *a value*; scenario element.
+    payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* by day *a due day* as its first obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value*.
+    the value of currency of monthly installment amount is *a value*; memorable.
+    the value of currency of principal amount is *a value*; memorable.
+    the value of value of principal amount is *a value*; memorable.
+    the value of monthly interest rate is *a value*; memorable.
+    the value of interest rate per annum is *a value*; memorable.
+    the value of months in a year is *a value*; memorable.
+    the value of base to the power of for base *a base* and exp *an exp* is *a value*; memorable.
+    the value of monthly installments is *a value*; memorable.
+    the value of the lesser of for value *a value* and b *a b* is *a value input*; memorable.
+    the value of value of monthly installment amount is *a value*; memorable.
+    the value of value of total repayment amount is *a value*; memorable.
+    the value of days in a month is *a value*; memorable.
+    the interest rate of *a penalty* is *a value*.
+    the grace period days of *a penalty* is *a value*.
+    the contract is fulfilled.
+    the value of day for days *a days* is *a value*; memorable.
+    the value of february for day *a day* and year *a year* is *a value*; memorable.
+    the value of march for day *a day* and year *a year* is *a value*; memorable.
+    *a party* does pay monthly installment to with recipient *a recipient* and amount currency *a currency* and amount value *a value* on day *a day*; scenario element.
+    *a party* does something on day *a day*.
+    the clock reaches day *a day*; scenario element.
+    the value of april for day *a day* and year *a year* is *a value*; memorable.
+    the value of may for day *a day* and year *a year* is *a value*; memorable.
+    the value of june for day *a day* and year *a year* is *a value*; memorable.
+    the value of july for day *a day* and year *a year* is *a value*; memorable.
+    the value of august for day *a day* and year *a year* is *a value*; memorable.
+    the value of september for day *a day* and year *a year* is *a value*; memorable.
+    the value of october for day *a day* and year *a year* is *a value*; memorable.
+    the value of november for day *a day* and year *a year* is *a value*; memorable.
+    the value of december for day *a day* and year *a year* is *a value*; memorable.
+    the value of january for day *a day* and year *a year* is *a value*; memorable.
+    payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* by day *a due day* as its second obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value*.
+    the value of default after days not paid beyond due is *a value*; memorable.
+    payment obligations obliges *a party* to pay monthly installment to with recipient *a recipient* as its third obligation given outstanding payment amount currency *a currency* and outstanding payment amount value *a value*.
+
+the knowledge base promissory_note_history includes:
+
+the text of "the L4 source promissory-note.l4" is at "sources/promissory-note.l4".
+
+the interest rate of late_payment_penalty is 0.05.
+
+the grace period days of late_payment_penalty is 10.
+
+the value of currency of principal amount is "USD".
+
+the value of value of principal amount is 25000.
+
+the value of interest rate per annum is 0.15.
+
+the value of months in a year is 12.
+
+the value of monthly interest rate is a value V if
+    the value of interest rate per annum is a value N
+    and the value of months in a year is a value M
+    and V = N / M.
+
+the value of base to the power of for base a base and exp an exp is 1 if
+    the exp is equal to 0.
+
+the value of base to the power of for base a base and exp an exp E is 0 if
+    it is not the case that E is equal to 0
+    and the base is equal to 0
+    and E >= 0.
+
+the value of base to the power of for base a base and exp an exp is the base if
+    it is not the case that the exp is equal to 0
+    and it is not the case that the base is equal to 0
+    and the exp is equal to 1.
+
+the value of base to the power of for base a base B and exp an exp E is a value V if
+    it is not the case that E is equal to 0
+    and it is not the case that B is equal to 0
+    and it is not the case that E is equal to 1
+    and E > 0
+    and an exp N = E - 1
+    and the value of base to the power of for base B and exp N is a value M
+    and V = B * M.
+
+the value of base to the power of for base a base and exp an exp E is a value V if
+    it is not the case that E is equal to 0
+    and it is not the case that the base is equal to 0
+    and it is not the case that E is equal to 1
+    and E <= 0
+    and an exp N = 0 - E
+    and the value of base to the power of for base the base and exp N is a value M
+    and V = 1 / M.
+
+the value of monthly installments is 12.
+
+the value of currency of monthly installment amount is a value if
+    the value of currency of principal amount is the value
+    and the value of value of principal amount is a value V
+    and the value of monthly interest rate is a value N
+    and the value of monthly interest rate is a value M
+    and a base B = 1 + M
+    and the value of monthly installments is a fifth value
+    and the value of base to the power of for base B and exp the fifth value is a value K
+    and a thing T = N * K
+    and the value of monthly interest rate is a value P
+    and a base Q = 1 + P
+    and the value of monthly installments is a value R
+    and the value of base to the power of for base Q and exp R is a value S
+    and a thing U = S - 1
+    and a thing W = T / U
+    and a thing X = V * W.
+
+the value of the lesser of for value a value V and b a b N is N if
+    V > N.
+
+the value of the lesser of for value a value V and b a b N is V if
+    V <= N.
+
+the value of value of monthly installment amount is a value V if
+    the value of currency of principal amount is a second value
+    and the value of value of principal amount is a value N
+    and the value of monthly interest rate is a value M
+    and the value of monthly interest rate is a value K
+    and a base B = 1 + K
+    and the value of monthly installments is a sixth value
+    and the value of base to the power of for base B and exp the sixth value is a value P
+    and a thing T = M * P
+    and the value of monthly interest rate is a value Q
+    and a base R = 1 + Q
+    and the value of monthly installments is a value S
+    and the value of base to the power of for base R and exp S is a value U
+    and a thing W = U - 1
+    and a thing X = T / W
+    and V = N * X.
+
+the value of value of total repayment amount is a value V if
+    the value of currency of principal amount is a second value
+    and the value of value of monthly installment amount is a value N
+    and the value of monthly installments is a value M
+    and V = N * M.
+
+the value of days in a month is 30.436875.
+
+the value of day for days a days is the days.
+
+the value of default after days not paid beyond due is 30.
+
+something happens on day a day if
+    a party does pay monthly installment to with recipient a recipient and amount currency a currency and amount value a value on day the day.
+
+something happens on day a day if
+    the clock reaches day the day.
+
+an obligation can start on day a day if
+    something happens on day the day.
+
+a party does something on day a day if
+    the party does pay monthly installment to with recipient a recipient and amount currency a currency and amount value a value on day the day.
+
+an obligation can start on day a day if
+    the contract payment obligations starts on day the day with outstanding payment amount currency a currency and outstanding payment amount value a value.
+
+the obligation that payment obligations obliges the_borrower to pay monthly installment to with recipient the_lender by day a due day D as its first obligation given outstanding payment amount currency a currency and outstanding payment amount value a value V starts on day a day N if
+    the contract payment obligations starts on day N with outstanding payment amount currency the currency and outstanding payment amount value V
+    and V > 0
+    and the value of currency of monthly installment amount is a second value
+    and the value of value of monthly installment amount is a third value
+    and the value of the lesser of for value the third value and b V is a value input
+    and the value of value of total repayment amount is a value M
+    and a thing T = M - V
+    and the value of value of monthly installment amount is a value K
+    and a thing P = T / K
+    and a thing Q = P + 1
+    and the value of days in a month is a value R
+    and a thing S = Q * R
+    and a thing U = ceiling(S)
+    and the grace period days of late_payment_penalty is a value W
+    and a thing X = U + W
+    and D = N + X.
+
+the contract is fulfilled if
+    the contract payment obligations starts on day a day with outstanding payment amount currency a currency and outstanding payment amount value a value V
+    and V <= 0.
+
+the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient by day a due day D as its first obligation given outstanding payment amount currency a currency and outstanding payment amount value a value V is met on day a day N if
+    the party does pay monthly installment to with recipient the recipient and amount currency a second currency and amount value a value M on day N
+    and the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day D as its first obligation given outstanding payment amount currency the currency and outstanding payment amount value V starts on day a day K
+    and K < N
+    and the value of currency of monthly installment amount is a third value
+    and the value of value of monthly installment amount is a fourth value
+    and the value of the lesser of for value the fourth value and b V is a value input P
+    and the value of value of total repayment amount is a value Q
+    and a thing T = Q - V
+    and the value of value of monthly installment amount is a value R
+    and a thing S = T / R
+    and a thing U = S + 1
+    and the value of days in a month is a value W
+    and a thing X = U * W
+    and the second currency is equal to the third value
+    and a number Y = P - 0.05
+    and M >= Y
+    and N <= D.
+
+the obligation that payment obligations obliges the_borrower to pay monthly installment to with recipient the_lender by day a due day D as its first obligation given outstanding payment amount currency a currency and outstanding payment amount value a value V starts on day a day N if
+    the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient by day a second due day as its first obligation given outstanding payment amount currency a second currency and outstanding payment amount value a value M ends on day N
+    and the party does pay monthly installment to with recipient the recipient and amount currency a third currency and amount value a value K on day N
+    and the value of currency of monthly installment amount is the currency
+    and V = M - K
+    and V > 0
+    and the value of currency of monthly installment amount is a fourth value
+    and the value of value of monthly installment amount is a fifth value
+    and the value of the lesser of for value the fifth value and b V is a value input
+    and the value of value of total repayment amount is a value P
+    and a thing T = P - V
+    and the value of value of monthly installment amount is a value Q
+    and a thing R = T / Q
+    and a thing S = R + 1
+    and the value of days in a month is a value U
+    and a thing W = S * U
+    and a thing X = ceiling(W)
+    and the grace period days of late_payment_penalty is a value Y
+    and a thing Z = X + Y
+    and D = N + Z.
+
+the contract is fulfilled if
+    the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient by day a due day as its first obligation given outstanding payment amount currency a currency and outstanding payment amount value a value V ends on day a day
+    and the party does pay monthly installment to with recipient the recipient and amount currency a second currency and amount value a value N on day the day
+    and the value of currency of monthly installment amount is a third value
+    and a number M = V - N
+    and M <= 0.
+
+the obligation that payment obligations obliges the_borrower to pay monthly installment to with recipient the_lender by day a due day D as its second obligation given outstanding payment amount currency a currency and outstanding payment amount value a value V starts on day a day N if
+    the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient by day a second due day as its first obligation given outstanding payment amount currency the currency and outstanding payment amount value V is missed on day N
+    and the value of currency of monthly installment amount is a second value
+    and the value of value of monthly installment amount is a third value
+    and the value of the lesser of for value the third value and b V is a value input
+    and the value of value of total repayment amount is a value M
+    and a thing T = M - V
+    and the value of value of monthly installment amount is a value K
+    and a thing P = T / K
+    and a thing Q = P + 1
+    and the value of days in a month is a value R
+    and a thing S = Q * R
+    and a thing U = ceiling(S)
+    and the value of default after days not paid beyond due is a value W
+    and a thing X = U + W
+    and D = N + X.
+
+the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient by day a due day as its first obligation given outstanding payment amount currency a currency and outstanding payment amount value a value has deadline day the due day if
+    the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its first obligation given outstanding payment amount currency the currency and outstanding payment amount value the value starts on day a day.
+
+the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient by day a due day D as its second obligation given outstanding payment amount currency a currency and outstanding payment amount value a value V is met on day a day N if
+    the party does pay monthly installment to with recipient the recipient and amount currency a second currency and amount value a value M on day N
+    and the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day D as its second obligation given outstanding payment amount currency the currency and outstanding payment amount value V starts on day a day K
+    and K < N
+    and the value of currency of monthly installment amount is a third value
+    and the value of value of monthly installment amount is a fourth value
+    and the value of the lesser of for value the fourth value and b V is a value input
+    and the value of value of total repayment amount is a value P
+    and a thing T = P - V
+    and the value of value of monthly installment amount is a value Q
+    and a thing R = T / Q
+    and a thing S = R + 1
+    and the value of days in a month is a value U
+    and a thing W = S * U
+    and the value of currency of monthly installment amount is a value X
+    and the value of value of monthly installment amount is a value Y
+    and the value of the lesser of for value Y and b V is a value input Z
+    and the value of value of total repayment amount is a value C
+    and a thing E = C - V
+    and the value of value of monthly installment amount is a value F
+    and a thing G = E / F
+    and a thing H = G + 1
+    and the value of days in a month is a value J
+    and a thing L = H * J
+    and the value of currency of monthly installment amount is a value NN
+    and the value of value of monthly installment amount is a value NM
+    and the value of the lesser of for value NM and b V is a value input NK
+    and the value of value of total repayment amount is a value NP
+    and a thing NQ = NP - V
+    and the value of value of monthly installment amount is a value NR
+    and a thing NS = NQ / NR
+    and a thing NT = NS + 1
+    and the value of days in a month is a value NU
+    and a thing NV = NT * NU
+    and the interest rate of late_payment_penalty is a value NW
+    and a thing NX = NK * NW
+    and a thing NY = Z + NX
+    and the second currency is equal to the third value
+    and a number NZ = NY - 0.05
+    and M >= NZ
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient by day a due day as its second obligation given outstanding payment amount currency a currency and outstanding payment amount value a value ends on day a day
+    and the party does pay monthly installment to with recipient the recipient and amount currency a second currency and amount value a second value on day the day.
+
+the obligation that payment obligations obliges the_borrower to pay monthly installment to with recipient the_lender as its third obligation given outstanding payment amount currency a currency and outstanding payment amount value a value starts on day a day if
+    the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient by day a due day as its second obligation given outstanding payment amount currency the currency and outstanding payment amount value the value is missed on day the day.
+
+the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient by day a due day as its second obligation given outstanding payment amount currency a currency and outstanding payment amount value a value has deadline day the due day if
+    the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its second obligation given outstanding payment amount currency the currency and outstanding payment amount value the value starts on day a day.
+
+the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient as its third obligation given outstanding payment amount currency a currency and outstanding payment amount value a value V is met on day a day D if
+    the party does pay monthly installment to with recipient the recipient and amount currency a second currency and amount value a value N on day D
+    and the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient as its third obligation given outstanding payment amount currency the currency and outstanding payment amount value V starts on day a day M
+    and M < D
+    and the value of currency of monthly installment amount is a third value
+    and the value of value of monthly installment amount is a fourth value
+    and the value of the lesser of for value the fourth value and b V is a value input
+    and the value of value of total repayment amount is a value K
+    and a thing T = K - V
+    and the value of value of monthly installment amount is a value P
+    and a thing Q = T / P
+    and a thing R = Q + 1
+    and the value of days in a month is a value S
+    and a thing U = R * S
+    and the value of currency of monthly installment amount is a value W
+    and the value of value of monthly installment amount is a value X
+    and the value of the lesser of for value X and b V is a second value input
+    and the value of value of total repayment amount is a value Y
+    and a thing Z = Y - V
+    and the value of value of monthly installment amount is a value C
+    and a thing E = Z / C
+    and a thing F = E + 1
+    and the value of days in a month is a value G
+    and a thing H = F * G
+    and the value of currency of monthly installment amount is a value J
+    and the value of value of monthly installment amount is a value L
+    and the value of the lesser of for value L and b V is a value input NN
+    and the value of value of total repayment amount is a value NM
+    and a thing NK = NM - V
+    and the value of value of monthly installment amount is a value NP
+    and a thing NQ = NK / NP
+    and a thing NR = NQ + 1
+    and the value of days in a month is a value NS
+    and a thing NT = NR * NS
+    and the value of currency of monthly installment amount is a value NU
+    and the value of value of monthly installment amount is a value NV
+    and the value of the lesser of for value NV and b V is a value input NW
+    and the value of value of total repayment amount is a value NX
+    and a thing NY = NX - V
+    and the value of value of monthly installment amount is a value NZ
+    and a thing NB = NY / NZ
+    and a thing NC = NB + 1
+    and the value of days in a month is a value ND
+    and a thing NE = NC * ND
+    and the interest rate of late_payment_penalty is a value NF
+    and a thing NG = NW * NF
+    and a thing NH = NN + NG
+    and the value of currency of monthly installment amount is a value NJ
+    and the value of value of monthly installment amount is a value NL
+    and the value of the lesser of for value NL and b V is a value input MN
+    and the value of value of total repayment amount is a value MM
+    and a thing MK = MM - V
+    and the value of value of monthly installment amount is a value MP
+    and a thing MQ = MK / MP
+    and a thing MR = MQ + 1
+    and the value of days in a month is a value MS
+    and a thing MT = MR * MS
+    and a thing MU = NH - MN
+    and a thing MV = V + MU
+    and the second currency is equal to the third value
+    and a number MW = MV - 0.05
+    and N >= MW.
+
+the contract is fulfilled if
+    the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient as its third obligation given outstanding payment amount currency a currency and outstanding payment amount value a value ends on day a day
+    and the party does pay monthly installment to with recipient the recipient and amount currency a second currency and amount value a second value on day the day.
+
+the deadline of the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient by day a due day as its first obligation given outstanding payment amount currency a currency and outstanding payment amount value a value has passed on day a day D if
+    the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its first obligation given outstanding payment amount currency the currency and outstanding payment amount value the value starts on day a day N
+    and the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its first obligation given outstanding payment amount currency the currency and outstanding payment amount value the value has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient by day a due day as its first obligation given outstanding payment amount currency a currency and outstanding payment amount value a value ends on day a day D if
+    the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its first obligation given outstanding payment amount currency the currency and outstanding payment amount value the value is met on day D
+    and it is not the case that
+        the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its first obligation given outstanding payment amount currency the currency and outstanding payment amount value the value is met on day a day N
+        and N < D.
+
+the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient by day a due day as its first obligation given outstanding payment amount currency a currency and outstanding payment amount value a value is missed on day a day D if
+    the deadline of the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its first obligation given outstanding payment amount currency the currency and outstanding payment amount value the value has passed on day D
+    and it is not the case that the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its first obligation given outstanding payment amount currency the currency and outstanding payment amount value the value ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its first obligation given outstanding payment amount currency the currency and outstanding payment amount value the value has passed on day a day N
+        and N < D.
+
+the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient by day a due day as its first obligation given outstanding payment amount currency a currency and outstanding payment amount value a value is pending since day a day if
+    the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its first obligation given outstanding payment amount currency the currency and outstanding payment amount value the value starts on day the day
+    and it is not the case that the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its first obligation given outstanding payment amount currency the currency and outstanding payment amount value the value ends on day a second day
+    and it is not the case that the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its first obligation given outstanding payment amount currency the currency and outstanding payment amount value the value is missed on day a third day.
+
+the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient by day a due day as its first obligation given outstanding payment amount currency a currency and outstanding payment amount value a value is still open if
+    the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its first obligation given outstanding payment amount currency the currency and outstanding payment amount value the value is pending since day a day.
+
+the deadline of the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient by day a due day as its second obligation given outstanding payment amount currency a currency and outstanding payment amount value a value has passed on day a day D if
+    the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its second obligation given outstanding payment amount currency the currency and outstanding payment amount value the value starts on day a day N
+    and the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its second obligation given outstanding payment amount currency the currency and outstanding payment amount value the value has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient by day a due day as its second obligation given outstanding payment amount currency a currency and outstanding payment amount value a value ends on day a day D if
+    the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its second obligation given outstanding payment amount currency the currency and outstanding payment amount value the value is met on day D
+    and it is not the case that
+        the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its second obligation given outstanding payment amount currency the currency and outstanding payment amount value the value is met on day a day N
+        and N < D.
+
+the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient by day a due day as its second obligation given outstanding payment amount currency a currency and outstanding payment amount value a value is missed on day a day D if
+    the deadline of the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its second obligation given outstanding payment amount currency the currency and outstanding payment amount value the value has passed on day D
+    and it is not the case that the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its second obligation given outstanding payment amount currency the currency and outstanding payment amount value the value ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its second obligation given outstanding payment amount currency the currency and outstanding payment amount value the value has passed on day a day N
+        and N < D.
+
+the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient by day a due day as its second obligation given outstanding payment amount currency a currency and outstanding payment amount value a value is pending since day a day if
+    the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its second obligation given outstanding payment amount currency the currency and outstanding payment amount value the value starts on day the day
+    and it is not the case that the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its second obligation given outstanding payment amount currency the currency and outstanding payment amount value the value ends on day a second day
+    and it is not the case that the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its second obligation given outstanding payment amount currency the currency and outstanding payment amount value the value is missed on day a third day.
+
+the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient by day a due day as its second obligation given outstanding payment amount currency a currency and outstanding payment amount value a value is still open if
+    the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient by day the due day as its second obligation given outstanding payment amount currency the currency and outstanding payment amount value the value is pending since day a day.
+
+the deadline of the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient as its third obligation given outstanding payment amount currency a currency and outstanding payment amount value a value has passed on day a day D if
+    the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient as its third obligation given outstanding payment amount currency the currency and outstanding payment amount value the value starts on day a day N
+    and the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient as its third obligation given outstanding payment amount currency the currency and outstanding payment amount value the value has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient as its third obligation given outstanding payment amount currency a currency and outstanding payment amount value a value ends on day a day D if
+    the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient as its third obligation given outstanding payment amount currency the currency and outstanding payment amount value the value is met on day D
+    and it is not the case that
+        the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient as its third obligation given outstanding payment amount currency the currency and outstanding payment amount value the value is met on day a day N
+        and N < D.
+
+the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient as its third obligation given outstanding payment amount currency a currency and outstanding payment amount value a value is missed on day a day D if
+    the deadline of the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient as its third obligation given outstanding payment amount currency the currency and outstanding payment amount value the value has passed on day D
+    and it is not the case that the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient as its third obligation given outstanding payment amount currency the currency and outstanding payment amount value the value ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient as its third obligation given outstanding payment amount currency the currency and outstanding payment amount value the value has passed on day a day N
+        and N < D.
+
+the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient as its third obligation given outstanding payment amount currency a currency and outstanding payment amount value a value is pending since day a day if
+    the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient as its third obligation given outstanding payment amount currency the currency and outstanding payment amount value the value starts on day the day
+    and it is not the case that the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient as its third obligation given outstanding payment amount currency the currency and outstanding payment amount value the value ends on day a second day
+    and it is not the case that the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient as its third obligation given outstanding payment amount currency the currency and outstanding payment amount value the value is missed on day a third day.
+
+the obligation that payment obligations obliges a party to pay monthly installment to with recipient a recipient as its third obligation given outstanding payment amount currency a currency and outstanding payment amount value a value is still open if
+    the obligation that payment obligations obliges the party to pay monthly installment to with recipient the recipient as its third obligation given outstanding payment amount currency the currency and outstanding payment amount value the value is pending since day a day.
+
+scenario trace_179 is:
+    % #TRACE (`Payment Obligations` OF `Total Repayment Amount`) (line 179) of the L4 source
+    % The days as dates: 739650 is 4 February 2025, 739678 is 4 March 2025, 739709 is 4 April 2025, 739739 is 4 May 2025, 739770 is 4 June 2025, 739800 is 4 July 2025, 739831 is 4 August 2025, 739862 is 4 September 2025, 739892 is 4 October 2025, 739923 is 4 November 2025, 739953 is 4 December 2025, 739984 is 4 January 2026, 740015 is 4 February 2026.
+    the contract payment obligations starts on day 739650 with outstanding payment amount currency "USD" and outstanding payment amount value 27077.49370354708.
+    the_borrower does pay monthly installment to with recipient the_lender and amount currency "USD" and amount value 2256.46 on day 739678.
+    the_borrower does pay monthly installment to with recipient the_lender and amount currency "USD" and amount value 2256.46 on day 739709.
+    the_borrower does pay monthly installment to with recipient the_lender and amount currency "USD" and amount value 2256.46 on day 739739.
+    the_borrower does pay monthly installment to with recipient the_lender and amount currency "USD" and amount value 2256.46 on day 739770.
+    the_borrower does pay monthly installment to with recipient the_lender and amount currency "USD" and amount value 2256.46 on day 739800.
+    the_borrower does pay monthly installment to with recipient the_lender and amount currency "USD" and amount value 2256.46 on day 739831.
+    the_borrower does pay monthly installment to with recipient the_lender and amount currency "USD" and amount value 2256.46 on day 739862.
+    the_borrower does pay monthly installment to with recipient the_lender and amount currency "USD" and amount value 2256.46 on day 739892.
+    the_borrower does pay monthly installment to with recipient the_lender and amount currency "USD" and amount value 2256.46 on day 739923.
+    the_borrower does pay monthly installment to with recipient the_lender and amount currency "USD" and amount value 2256.46 on day 739953.
+    the_borrower does pay monthly installment to with recipient the_lender and amount currency "USD" and amount value 2256.46 on day 739984.
+    the_borrower does pay monthly installment to with recipient the_lender and amount currency "USD" and amount value 2256.46 on day 740015.
+    % no expectation: this history is longer than the test runner's time limit allows the view to read (the LE for LPS twin in LPS2 runs it, and agrees with L4)
+
+scenario trace_195 is:
+    % #TRACE (`Payment Obligations` OF `Total Repayment Amount`) (line 195) of the L4 source
+    % The days as dates: 739650 is 4 February 2025, 739708 is 3 April 2025.
+    the contract payment obligations starts on day 739650 with outstanding payment amount currency "USD" and outstanding payment amount value 27077.49370354708.
+    the_borrower does pay monthly installment to with recipient the_lender and amount currency "USD" and amount value 2256.46 on day 739708.
+    fulfilled expects answers [].
+
+query fulfilled is:
+    the contract is fulfilled.
+
+query q_open_o_payment_obligations_1 is:
+    the obligation that payment obligations obliges which party to pay monthly installment to with recipient which recipient by day which due day as its first obligation given outstanding payment amount currency which currency and outstanding payment amount value which value is still open.
+
+query q_open_o_payment_obligations_2 is:
+    the obligation that payment obligations obliges which party to pay monthly installment to with recipient which recipient by day which due day as its second obligation given outstanding payment amount currency which currency and outstanding payment amount value which value is still open.
+
+query q_open_o_payment_obligations_3 is:
+    the obligation that payment obligations obliges which party to pay monthly installment to with recipient which recipient as its third obligation given outstanding payment amount currency which currency and outstanding payment amount value which value is still open.
+

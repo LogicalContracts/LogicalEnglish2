@@ -1,0 +1,196 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from giveth-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the name of *a person* is *a text*.
+    the age of *a person* is *a number*.
+
+the templates are:
+    the square for *a number* is *a second number*.
+    the maximum for *a number* with *a second number* is *a third number*.
+    *an age* is adult.
+    *a number* is even.
+    the greet for *a name* is *a text*.
+    the describe for *a num* is *a text*.
+    the safe head for *a list* is *a number*.
+    the countdown for *a number* is *a list*.
+    the triple for *a number* is *a second number*.
+    the singleton for *a value* with *a thing* is *a list*.
+    the make person for *a person name* with *a person age* is *a person*.
+    L4's answer at line 14 is reproduced.
+    L4's answer at line 15 is reproduced.
+    L4's answer at line 57 is reproduced.
+    L4's answer at line 75 is reproduced.
+    L4's answer at line 83 is reproduced.
+    L4's answer at line 84 is reproduced.
+
+the knowledge base giveth_example includes:
+
+the text of the source program is at "sources/giveth-example.l4".
+
+the square for a number N is a number M if
+    M = N * N.
+
+the maximum for a number N with a number M is a third number if
+    N > M
+    and the third number is equal to N
+    otherwise the third number is equal to M.
+
+an age N is adult if
+    N >= 18.
+
+a number N is even if
+    0 = N mod 2.
+
+% RESIDUE r1 BEGIN: greet
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 32-34
+% a value with no LE form: (CONCAT "Hello, ", `name`)
+%   l4:
+%   | GIVEN name IS A STRING
+%   | GIVETH A STRING
+%   | greet name MEANS CONCAT "Hello, ", name
+% RESIDUE r1 END
+
+the describe for a num N is a text if
+    N > 0
+    and the text is equal to "positive"
+    otherwise N < 0
+    and the text is equal to "negative"
+    otherwise the text is equal to "zero".
+
+the safe head for a list is a number if
+    [] is equal to the list
+    and the number is equal to nothing
+    otherwise prolog (the list=[T|N])
+    and the number is equal to T.
+
+% RESIDUE r2 BEGIN: countdown
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 61-65
+% a value with no LE form: (`n` FOLLOWED BY (`countdown` OF (`n` MINUS 1)))
+%   l4:
+%   | GIVEN n IS A NUMBER
+%   | GIVETH A LIST OF NUMBER
+%   | countdown n MEANS
+%   |   IF n <= 0 THEN EMPTY
+%   |   ELSE n FOLLOWED BY countdown (n MINUS 1)
+% RESIDUE r2 END
+
+the triple for a number N is a number M if
+    M = N * 3.
+
+% RESIDUE r3 BEGIN: singleton
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 79-81
+% a value with no LE form: (`x` FOLLOWED BY `EMPTY`)
+%   l4:
+%   | GIVEN a IS A TYPE, x IS AN a
+%   | GIVETH A LIST OF a
+%   | singleton x MEANS x FOLLOWED BY EMPTY
+% RESIDUE r3 END
+
+% RESIDUE r4 BEGIN: makePerson
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 90-93
+% a value with no LE form: (`Person` WITH `name` IS `personName`, `age` IS `personAge`)
+%   l4:
+%   | GIVEN personName IS A STRING
+%   |       personAge IS A NUMBER
+%   | GIVETH A Person
+%   | makePerson personName personAge MEANS Person WITH name IS personName, age IS personAge
+% RESIDUE r4 END
+
+L4's answer at line 14 is reproduced if
+    the square for 7 is a number N
+    and N * 100000000 >= 4899999999
+    and N * 100000000 <= 4900000001.
+
+L4's answer at line 15 is reproduced if
+    the maximum for 10 with 25 is a number N
+    and N * 100000000 >= 2499999999
+    and N * 100000000 <= 2500000001.
+
+L4's answer at line 57 is reproduced if
+    the safe head for [1, 2, 3] is a number N
+    and N * 1000000000 >= 999999999
+    and N * 1000000000 <= 1000000001.
+
+L4's answer at line 75 is reproduced if
+    the triple for 7 is a number N
+    and N * 100000000 >= 2099999999
+    and N * 100000000 <= 2100000001.
+
+scenario line_14 is, as stated in the source program at line 14:
+    line_14 expects answers ["L4's answer at line 14 is reproduced"].
+
+scenario line_15 is, as stated in the source program at line 15:
+    line_15 expects answers ["L4's answer at line 15 is reproduced"].
+
+scenario line_27 is, as stated in the source program at line 27:
+    line_27 expects answers ["21 is adult"].
+
+scenario line_28 is, as stated in the source program at line 28:
+    line_28 expects answers ["4 is even"].
+
+scenario line_43 is, as stated in the source program at line 43:
+    % pending — waits for residue r1:
+    % line_43 expects answers ["the greet for Alice is Hello, Alice"].
+
+scenario line_44 is, as stated in the source program at line 44:
+    line_44 expects answers ["the describe for -5 is negative"].
+
+scenario line_57 is, as stated in the source program at line 57:
+    line_57 expects answers ["L4's answer at line 57 is reproduced"].
+
+scenario line_58 is, as stated in the source program at line 58:
+    line_58 expects answers ["the safe head for [] is nothing"].
+
+scenario line_67 is, as stated in the source program at line 67:
+    % pending — waits for residue r2:
+    % line_67 expects answers ["the countdown for 5 is [5, 4, 3, 2, 1]"].
+
+scenario line_75 is, as stated in the source program at line 75:
+    line_75 expects answers ["L4's answer at line 75 is reproduced"].
+
+query line_14 is:
+    L4's answer at line 14 is reproduced.
+
+query line_15 is:
+    L4's answer at line 15 is reproduced.
+
+query line_27 is:
+    21 is adult.
+
+query line_28 is:
+    4 is even.
+
+query line_43 is:
+    the greet for "Alice" is which text.
+
+query line_44 is:
+    the describe for -5 is which text.
+
+query line_57 is:
+    L4's answer at line 57 is reproduced.
+
+query line_58 is:
+    the safe head for [] is which number.
+
+query line_67 is:
+    the countdown for 5 is which list.
+
+query line_75 is:
+    L4's answer at line 75 is reproduced.
+

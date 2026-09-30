@@ -1,0 +1,1218 @@
+% deontic-example.l4: the history view
+%
+% The timeless Logical English twin of the contracts of an L4 file (deontic-example.l4), written
+% by the L4 translator (docs/migration/l4.md, step 3): the contracts read over a finished
+% history of events. For each obligation the program says when it starts, its deadline
+% and which events meet it, and four rules say how it ends: met, missed, or still
+% open when the history stops. The same obligations, in the same words, as the LE for LPS twin in LPS2's
+% examples/migration/l4/; each scenario expects what that twin's run ended with, which
+% agrees with L4's evaluator.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    something happens on day *a day*.
+    an obligation can start on day *a day*.
+    the obligation that simple delivery obligation obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that simple delivery obligation obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that simple delivery obligation obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that simple delivery obligation obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that simple delivery obligation obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that simple delivery obligation obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that simple delivery obligation obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that simple delivery obligation obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation is still open.
+    the obligation that delivery within days obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that delivery within days obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that delivery within days obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that delivery within days obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that delivery within days obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that delivery within days obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that delivery within days obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that delivery within days obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation is still open.
+    the obligation that sale contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation given price *a price* starts on day *a day*; memorable.
+    the obligation that sale contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation given price *a price* has deadline day *a day*.
+    the obligation that sale contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation given price *a price* is met on day *a day*.
+    the obligation that sale contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation given price *a price* ends on day *a day*; memorable.
+    the obligation that sale contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation given price *a price* is missed on day *a day*.
+    the deadline of the obligation that sale contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation given price *a price* has passed on day *a day*; memorable.
+    the obligation that sale contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation given price *a price* is pending since day *a day*.
+    the obligation that sale contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation given price *a price* is still open.
+    the obligation that the first joint part of mutual obligations obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that the first joint part of mutual obligations obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that the first joint part of mutual obligations obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that the first joint part of mutual obligations obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that the first joint part of mutual obligations obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that the first joint part of mutual obligations obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that the first joint part of mutual obligations obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that the first joint part of mutual obligations obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation is still open.
+    the obligation that the second joint part of mutual obligations obliges *a party* to pay invoice with amount *an amount* by day *a due day* as its second obligation starts on day *a day*; memorable.
+    the obligation that the second joint part of mutual obligations obliges *a party* to pay invoice with amount *an amount* by day *a due day* as its second obligation has deadline day *a day*.
+    the obligation that the second joint part of mutual obligations obliges *a party* to pay invoice with amount *an amount* by day *a due day* as its second obligation is met on day *a day*.
+    the obligation that the second joint part of mutual obligations obliges *a party* to pay invoice with amount *an amount* by day *a due day* as its second obligation ends on day *a day*; memorable.
+    the obligation that the second joint part of mutual obligations obliges *a party* to pay invoice with amount *an amount* by day *a due day* as its second obligation is missed on day *a day*.
+    the deadline of the obligation that the second joint part of mutual obligations obliges *a party* to pay invoice with amount *an amount* by day *a due day* as its second obligation has passed on day *a day*; memorable.
+    the obligation that the second joint part of mutual obligations obliges *a party* to pay invoice with amount *an amount* by day *a due day* as its second obligation is pending since day *a day*.
+    the obligation that the second joint part of mutual obligations obliges *a party* to pay invoice with amount *an amount* by day *a due day* as its second obligation is still open.
+    the obligation that the first alternative part of flexible delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that the first alternative part of flexible delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that the first alternative part of flexible delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that the first alternative part of flexible delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that the first alternative part of flexible delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that the first alternative part of flexible delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that the first alternative part of flexible delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that the first alternative part of flexible delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation is still open.
+    the obligation that the second alternative part of flexible delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation starts on day *a day*; memorable.
+    the obligation that the second alternative part of flexible delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation has deadline day *a day*.
+    the obligation that the second alternative part of flexible delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation is met on day *a day*.
+    the obligation that the second alternative part of flexible delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation ends on day *a day*; memorable.
+    the obligation that the second alternative part of flexible delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation is missed on day *a day*.
+    the deadline of the obligation that the second alternative part of flexible delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation has passed on day *a day*; memorable.
+    the obligation that the second alternative part of flexible delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation is pending since day *a day*.
+    the obligation that the second alternative part of flexible delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation is still open.
+    the obligation that conditional delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that conditional delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that conditional delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that conditional delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that conditional delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that conditional delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that conditional delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that conditional delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation is still open.
+    the obligation that conditional delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation starts on day *a day*; memorable.
+    the obligation that conditional delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation has deadline day *a day*.
+    the obligation that conditional delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation is met on day *a day*.
+    the obligation that conditional delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation ends on day *a day*; memorable.
+    the obligation that conditional delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation is missed on day *a day*.
+    the deadline of the obligation that conditional delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation has passed on day *a day*; memorable.
+    the obligation that conditional delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation is pending since day *a day*.
+    the obligation that conditional delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation is still open.
+    the obligation that minimum payment contract obliges *a party* to pay invoice by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that minimum payment contract obliges *a party* to pay invoice by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that minimum payment contract obliges *a party* to pay invoice by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that minimum payment contract obliges *a party* to pay invoice by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that minimum payment contract obliges *a party* to pay invoice by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that minimum payment contract obliges *a party* to pay invoice by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that minimum payment contract obliges *a party* to pay invoice by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that minimum payment contract obliges *a party* to pay invoice by day *a due day* as its first obligation is still open.
+    the obligation that exact payment required obliges *a party* to pay invoice with amount *an amount* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that exact payment required obliges *a party* to pay invoice with amount *an amount* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that exact payment required obliges *a party* to pay invoice with amount *an amount* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that exact payment required obliges *a party* to pay invoice with amount *an amount* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that exact payment required obliges *a party* to pay invoice with amount *an amount* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that exact payment required obliges *a party* to pay invoice with amount *an amount* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that exact payment required obliges *a party* to pay invoice with amount *an amount* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that exact payment required obliges *a party* to pay invoice with amount *an amount* by day *a due day* as its first obligation is still open.
+    the obligation that create order contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation given price *a price* starts on day *a day*; memorable.
+    the obligation that create order contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation given price *a price* has deadline day *a day*.
+    the obligation that create order contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation given price *a price* is met on day *a day*.
+    the obligation that create order contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation given price *a price* ends on day *a day*; memorable.
+    the obligation that create order contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation given price *a price* is missed on day *a day*.
+    the deadline of the obligation that create order contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation given price *a price* has passed on day *a day*; memorable.
+    the obligation that create order contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation given price *a price* is pending since day *a day*.
+    the obligation that create order contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation given price *a price* is still open.
+    the obligation that create order contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation given price *a price* starts on day *a day*; memorable.
+    the obligation that create order contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation given price *a price* has deadline day *a day*.
+    the obligation that create order contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation given price *a price* is met on day *a day*.
+    the obligation that create order contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation given price *a price* ends on day *a day*; memorable.
+    the obligation that create order contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation given price *a price* is missed on day *a day*.
+    the deadline of the obligation that create order contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation given price *a price* has passed on day *a day*; memorable.
+    the obligation that create order contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation given price *a price* is pending since day *a day*.
+    the obligation that create order contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation given price *a price* is still open.
+    the obligation that sale contract obliges *a party* to pay invoice by day *a due day* as its second obligation starts on day *a day*; memorable.
+    the obligation that sale contract obliges *a party* to pay invoice by day *a due day* as its second obligation has deadline day *a day*.
+    the obligation that sale contract obliges *a party* to pay invoice by day *a due day* as its second obligation is met on day *a day*.
+    the obligation that sale contract obliges *a party* to pay invoice by day *a due day* as its second obligation ends on day *a day*; memorable.
+    the obligation that sale contract obliges *a party* to pay invoice by day *a due day* as its second obligation is missed on day *a day*.
+    the deadline of the obligation that sale contract obliges *a party* to pay invoice by day *a due day* as its second obligation has passed on day *a day*; memorable.
+    the obligation that sale contract obliges *a party* to pay invoice by day *a due day* as its second obligation is pending since day *a day*.
+    the obligation that sale contract obliges *a party* to pay invoice by day *a due day* as its second obligation is still open.
+    the obligation that create order contract obliges *a party* to pay invoice by day *a due day* as its third obligation starts on day *a day*; memorable.
+    the obligation that create order contract obliges *a party* to pay invoice by day *a due day* as its third obligation has deadline day *a day*.
+    the obligation that create order contract obliges *a party* to pay invoice by day *a due day* as its third obligation is met on day *a day*.
+    the obligation that create order contract obliges *a party* to pay invoice by day *a due day* as its third obligation ends on day *a day*; memorable.
+    the obligation that create order contract obliges *a party* to pay invoice by day *a due day* as its third obligation is missed on day *a day*.
+    the deadline of the obligation that create order contract obliges *a party* to pay invoice by day *a due day* as its third obligation has passed on day *a day*; memorable.
+    the obligation that create order contract obliges *a party* to pay invoice by day *a due day* as its third obligation is pending since day *a day*.
+    the obligation that create order contract obliges *a party* to pay invoice by day *a due day* as its third obligation is still open.
+    the obligation that create order contract obliges *a party* to pay invoice by day *a due day* as its fourth obligation starts on day *a day*; memorable.
+    the obligation that create order contract obliges *a party* to pay invoice by day *a due day* as its fourth obligation has deadline day *a day*.
+    the obligation that create order contract obliges *a party* to pay invoice by day *a due day* as its fourth obligation is met on day *a day*.
+    the obligation that create order contract obliges *a party* to pay invoice by day *a due day* as its fourth obligation ends on day *a day*; memorable.
+    the obligation that create order contract obliges *a party* to pay invoice by day *a due day* as its fourth obligation is missed on day *a day*.
+    the deadline of the obligation that create order contract obliges *a party* to pay invoice by day *a due day* as its fourth obligation has passed on day *a day*; memorable.
+    the obligation that create order contract obliges *a party* to pay invoice by day *a due day* as its fourth obligation is pending since day *a day*.
+    the obligation that create order contract obliges *a party* to pay invoice by day *a due day* as its fourth obligation is still open.
+    the contract simple delivery obligation starts on day *a day*; scenario element.
+    simple delivery obligation obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation.
+    *a party* does deliver goods with description *a description* on day *a day*; scenario element.
+    *a party* does something on day *a day*.
+    the clock reaches day *a day*; scenario element.
+    the contract delivery within days starts on day *a day* with deadline *a deadline*; scenario element.
+    delivery within days obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation.
+    the contract sale contract starts on day *a day* with price *a price*; scenario element.
+    sale contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation given price *a price*.
+    *a party* does pay invoice with amount *an amount* on day *a day*; scenario element.
+    the contract mutual obligations starts on day *a day*; scenario element.
+    the first joint part of mutual obligations obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation.
+    the second joint part of mutual obligations obliges *a party* to pay invoice with amount *an amount* by day *a due day* as its second obligation.
+    the contract flexible delivery starts on day *a day*; scenario element.
+    the first alternative part of flexible delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation.
+    the second alternative part of flexible delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation.
+    the contract conditional delivery starts on day *a day* with urgent *an urgent*; scenario element.
+    conditional delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation.
+    conditional delivery obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation.
+    the contract minimum payment contract starts on day *a day*; scenario element.
+    minimum payment contract obliges *a party* to pay invoice by day *a due day* as its first obligation.
+    the contract exact payment required starts on day *a day* with required amount *a required amount*; scenario element.
+    exact payment required obliges *a party* to pay invoice with amount *an amount* by day *a due day* as its first obligation.
+    the contract create order contract starts on day *a day* with order type *an order type* and price *a price*; scenario element.
+    create order contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its first obligation given price *a price*.
+    create order contract obliges *a party* to deliver goods with description *a description* by day *a due day* as its second obligation given price *a price*.
+    the contract is fulfilled.
+    the contract is breached.
+    sale contract obliges *a party* to pay invoice by day *a due day* as its second obligation.
+    the contract is breached by *a party* because *a reason*.
+    the first joint part of the contract is fulfilled.
+    the first joint part of the contract is breached.
+    the second joint part of the contract is fulfilled.
+    the second joint part of the contract is breached.
+    the first alternative part of the contract is fulfilled.
+    the first alternative part of the contract is breached.
+    the second alternative part of the contract is fulfilled.
+    the second alternative part of the contract is breached.
+    create order contract obliges *a party* to pay invoice by day *a due day* as its third obligation.
+    create order contract obliges *a party* to pay invoice by day *a due day* as its fourth obligation.
+
+the knowledge base deontic_example_history includes:
+
+the text of "the L4 source deontic-example.l4" is at "sources/deontic-example.l4".
+
+something happens on day a day if
+    a party does deliver goods with description a description on day the day.
+
+something happens on day a day if
+    the clock reaches day the day.
+
+something happens on day a day if
+    a party does pay invoice with amount an amount on day the day.
+
+an obligation can start on day a day if
+    something happens on day the day.
+
+a party does something on day a day if
+    the party does deliver goods with description a description on day the day.
+
+a party does something on day a day if
+    the party does pay invoice with amount an amount on day the day.
+
+an obligation can start on day a day if
+    the contract simple delivery obligation starts on day the day.
+
+the obligation that simple delivery obligation obliges seller to deliver goods with description "standard package" by day a due day D as its first obligation starts on day a day N if
+    the contract simple delivery obligation starts on day N
+    and D = N + 14.
+
+an obligation can start on day a day if
+    the contract delivery within days starts on day the day with deadline a deadline.
+
+the obligation that delivery within days obliges seller to deliver goods with description "standard package" by day a due day D as its first obligation starts on day a day N if
+    the contract delivery within days starts on day N with deadline a deadline M
+    and D = N + M.
+
+an obligation can start on day a day if
+    the contract sale contract starts on day the day with price a price.
+
+the obligation that sale contract obliges seller to deliver goods with description "merchandise" by day a due day D as its first obligation given price a price starts on day a day N if
+    the contract sale contract starts on day N with price the price
+    and D = N + 14.
+
+an obligation can start on day a day if
+    the contract mutual obligations starts on day the day.
+
+the obligation that the first joint part of mutual obligations obliges seller to deliver goods with description "item A" by day a due day D as its first obligation starts on day a day N if
+    the contract mutual obligations starts on day N
+    and D = N + 14
+    and a thing T = N + 30.
+
+the obligation that the second joint part of mutual obligations obliges buyer to pay invoice with amount 1000 by day a due day D as its second obligation starts on day a day N if
+    the contract mutual obligations starts on day N
+    and a thing T = N + 14
+    and D = N + 30.
+
+an obligation can start on day a day if
+    the contract flexible delivery starts on day the day.
+
+the obligation that the first alternative part of flexible delivery obliges seller to deliver goods with description "express shipping" by day a due day D as its first obligation starts on day a day N if
+    the contract flexible delivery starts on day N
+    and D = N + 7
+    and a thing T = N + 14.
+
+the obligation that the second alternative part of flexible delivery obliges seller to deliver goods with description "standard shipping" by day a due day D as its second obligation starts on day a day N if
+    the contract flexible delivery starts on day N
+    and a thing T = N + 7
+    and D = N + 14.
+
+an obligation can start on day a day if
+    the contract conditional delivery starts on day the day with urgent an urgent.
+
+the obligation that conditional delivery obliges seller to deliver goods with description "urgent delivery" by day a due day D as its first obligation starts on day a day N if
+    the contract conditional delivery starts on day N with urgent an urgent
+    and the urgent is equal to true
+    and D = N + 3.
+
+the obligation that conditional delivery obliges seller to deliver goods with description "standard delivery" by day a due day D as its second obligation starts on day a day N if
+    the contract conditional delivery starts on day N with urgent an urgent
+    and it is not the case that the urgent is equal to true
+    and D = N + 14.
+
+an obligation can start on day a day if
+    the contract minimum payment contract starts on day the day.
+
+the obligation that minimum payment contract obliges buyer to pay invoice by day a due day D as its first obligation starts on day a day N if
+    the contract minimum payment contract starts on day N
+    and D = N + 30.
+
+an obligation can start on day a day if
+    the contract exact payment required starts on day the day with required amount a required amount.
+
+the obligation that exact payment required obliges buyer to pay invoice with amount an amount by day a due day D as its first obligation starts on day a day N if
+    the contract exact payment required starts on day N with required amount the amount
+    and D = N + 30.
+
+an obligation can start on day a day if
+    the contract create order contract starts on day the day with order type an order type and price a price.
+
+the obligation that create order contract obliges seller to deliver goods with description "express order" by day a due day D as its first obligation given price a price starts on day a day N if
+    the contract create order contract starts on day N with order type an order type and price the price
+    and the order type is equal to "express"
+    and D = N + 3.
+
+the obligation that create order contract obliges seller to deliver goods with description "standard order" by day a due day D as its second obligation given price a price starts on day a day N if
+    the contract create order contract starts on day N with order type an order type and price the price
+    and it is not the case that the order type is equal to "express"
+    and D = N + 14.
+
+the obligation that simple delivery obligation obliges a party to deliver goods with description a description by day a due day D as its first obligation is met on day a day N if
+    the party does deliver goods with description the description on day N
+    and the obligation that simple delivery obligation obliges the party to deliver goods with description the description by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that simple delivery obligation obliges a party to deliver goods with description a description by day a due day as its first obligation ends on day a day
+    and the party does deliver goods with description the description on day the day.
+
+the contract is breached if
+    the obligation that simple delivery obligation obliges a party to deliver goods with description a description by day a due day as its first obligation is missed on day a day.
+
+the obligation that simple delivery obligation obliges a party to deliver goods with description a description by day a due day as its first obligation has deadline day the due day if
+    the obligation that simple delivery obligation obliges the party to deliver goods with description the description by day the due day as its first obligation starts on day a day.
+
+the obligation that delivery within days obliges a party to deliver goods with description a description by day a due day D as its first obligation is met on day a day N if
+    the party does deliver goods with description the description on day N
+    and the obligation that delivery within days obliges the party to deliver goods with description the description by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that delivery within days obliges a party to deliver goods with description a description by day a due day as its first obligation ends on day a day
+    and the party does deliver goods with description the description on day the day.
+
+the contract is breached if
+    the obligation that delivery within days obliges a party to deliver goods with description a description by day a due day as its first obligation is missed on day a day.
+
+the obligation that delivery within days obliges a party to deliver goods with description a description by day a due day as its first obligation has deadline day the due day if
+    the obligation that delivery within days obliges the party to deliver goods with description the description by day the due day as its first obligation starts on day a day.
+
+the obligation that sale contract obliges a party to deliver goods with description a description by day a due day D as its first obligation given price a price is met on day a day N if
+    the party does deliver goods with description the description on day N
+    and the obligation that sale contract obliges the party to deliver goods with description the description by day D as its first obligation given price the price starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that sale contract obliges buyer to pay invoice by day a due day D as its second obligation starts on day a day N if
+    the obligation that sale contract obliges a party to deliver goods with description a description by day a second due day as its first obligation given price a price ends on day N
+    and the party does deliver goods with description the description on day N
+    and D = N + 30.
+
+the contract is breached by seller because "failed to deliver" if
+    the obligation that sale contract obliges a party to deliver goods with description a description by day a due day as its first obligation given price a price is missed on day a day.
+
+the obligation that sale contract obliges a party to deliver goods with description a description by day a due day as its first obligation given price a price has deadline day the due day if
+    the obligation that sale contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price starts on day a day.
+
+the obligation that the first joint part of mutual obligations obliges a party to deliver goods with description a description by day a due day D as its first obligation is met on day a day N if
+    the party does deliver goods with description the description on day N
+    and the obligation that the first joint part of mutual obligations obliges the party to deliver goods with description the description by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the first joint part of the contract is fulfilled if
+    the obligation that the first joint part of mutual obligations obliges a party to deliver goods with description a description by day a due day as its first obligation ends on day a day
+    and the party does deliver goods with description the description on day the day.
+
+the first joint part of the contract is breached if
+    the obligation that the first joint part of mutual obligations obliges a party to deliver goods with description a description by day a due day as its first obligation is missed on day a day.
+
+the obligation that the first joint part of mutual obligations obliges a party to deliver goods with description a description by day a due day as its first obligation has deadline day the due day if
+    the obligation that the first joint part of mutual obligations obliges the party to deliver goods with description the description by day the due day as its first obligation starts on day a day.
+
+the obligation that the second joint part of mutual obligations obliges a party to pay invoice with amount an amount by day a due day D as its second obligation is met on day a day N if
+    the party does pay invoice with amount the amount on day N
+    and the obligation that the second joint part of mutual obligations obliges the party to pay invoice with amount the amount by day D as its second obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the second joint part of the contract is fulfilled if
+    the obligation that the second joint part of mutual obligations obliges a party to pay invoice with amount an amount by day a due day as its second obligation ends on day a day
+    and the party does pay invoice with amount the amount on day the day.
+
+the second joint part of the contract is breached if
+    the obligation that the second joint part of mutual obligations obliges a party to pay invoice with amount an amount by day a due day as its second obligation is missed on day a day.
+
+the obligation that the second joint part of mutual obligations obliges a party to pay invoice with amount an amount by day a due day as its second obligation has deadline day the due day if
+    the obligation that the second joint part of mutual obligations obliges the party to pay invoice with amount the amount by day the due day as its second obligation starts on day a day.
+
+the obligation that the first alternative part of flexible delivery obliges a party to deliver goods with description a description by day a due day D as its first obligation is met on day a day N if
+    the party does deliver goods with description the description on day N
+    and the obligation that the first alternative part of flexible delivery obliges the party to deliver goods with description the description by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the first alternative part of the contract is fulfilled if
+    the obligation that the first alternative part of flexible delivery obliges a party to deliver goods with description a description by day a due day as its first obligation ends on day a day
+    and the party does deliver goods with description the description on day the day.
+
+the first alternative part of the contract is breached if
+    the obligation that the first alternative part of flexible delivery obliges a party to deliver goods with description a description by day a due day as its first obligation is missed on day a day.
+
+the obligation that the first alternative part of flexible delivery obliges a party to deliver goods with description a description by day a due day as its first obligation has deadline day the due day if
+    the obligation that the first alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its first obligation starts on day a day.
+
+the obligation that the second alternative part of flexible delivery obliges a party to deliver goods with description a description by day a due day D as its second obligation is met on day a day N if
+    the party does deliver goods with description the description on day N
+    and the obligation that the second alternative part of flexible delivery obliges the party to deliver goods with description the description by day D as its second obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the second alternative part of the contract is fulfilled if
+    the obligation that the second alternative part of flexible delivery obliges a party to deliver goods with description a description by day a due day as its second obligation ends on day a day
+    and the party does deliver goods with description the description on day the day.
+
+the second alternative part of the contract is breached if
+    the obligation that the second alternative part of flexible delivery obliges a party to deliver goods with description a description by day a due day as its second obligation is missed on day a day.
+
+the obligation that the second alternative part of flexible delivery obliges a party to deliver goods with description a description by day a due day as its second obligation has deadline day the due day if
+    the obligation that the second alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its second obligation starts on day a day.
+
+the obligation that conditional delivery obliges a party to deliver goods with description a description by day a due day D as its first obligation is met on day a day N if
+    the party does deliver goods with description the description on day N
+    and the obligation that conditional delivery obliges the party to deliver goods with description the description by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that conditional delivery obliges a party to deliver goods with description a description by day a due day as its first obligation ends on day a day
+    and the party does deliver goods with description the description on day the day.
+
+the contract is breached if
+    the obligation that conditional delivery obliges a party to deliver goods with description a description by day a due day as its first obligation is missed on day a day.
+
+the obligation that conditional delivery obliges a party to deliver goods with description a description by day a due day as its first obligation has deadline day the due day if
+    the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its first obligation starts on day a day.
+
+the obligation that conditional delivery obliges a party to deliver goods with description a description by day a due day D as its second obligation is met on day a day N if
+    the party does deliver goods with description the description on day N
+    and the obligation that conditional delivery obliges the party to deliver goods with description the description by day D as its second obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that conditional delivery obliges a party to deliver goods with description a description by day a due day as its second obligation ends on day a day
+    and the party does deliver goods with description the description on day the day.
+
+the contract is breached if
+    the obligation that conditional delivery obliges a party to deliver goods with description a description by day a due day as its second obligation is missed on day a day.
+
+the obligation that conditional delivery obliges a party to deliver goods with description a description by day a due day as its second obligation has deadline day the due day if
+    the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its second obligation starts on day a day.
+
+the obligation that minimum payment contract obliges a party to pay invoice by day a due day D as its first obligation is met on day a day N if
+    the party does pay invoice with amount an amount M on day N
+    and the obligation that minimum payment contract obliges the party to pay invoice by day D as its first obligation starts on day a day K
+    and K < N
+    and M >= 100
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that minimum payment contract obliges a party to pay invoice by day a due day as its first obligation ends on day a day
+    and the party does pay invoice with amount an amount on day the day.
+
+the contract is breached if
+    the obligation that minimum payment contract obliges a party to pay invoice by day a due day as its first obligation is missed on day a day.
+
+the obligation that minimum payment contract obliges a party to pay invoice by day a due day as its first obligation has deadline day the due day if
+    the obligation that minimum payment contract obliges the party to pay invoice by day the due day as its first obligation starts on day a day.
+
+the obligation that exact payment required obliges a party to pay invoice with amount an amount by day a due day D as its first obligation is met on day a day N if
+    the party does pay invoice with amount the amount on day N
+    and the obligation that exact payment required obliges the party to pay invoice with amount the amount by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that exact payment required obliges a party to pay invoice with amount an amount by day a due day as its first obligation ends on day a day
+    and the party does pay invoice with amount the amount on day the day.
+
+the contract is breached if
+    the obligation that exact payment required obliges a party to pay invoice with amount an amount by day a due day as its first obligation is missed on day a day.
+
+the obligation that exact payment required obliges a party to pay invoice with amount an amount by day a due day as its first obligation has deadline day the due day if
+    the obligation that exact payment required obliges the party to pay invoice with amount the amount by day the due day as its first obligation starts on day a day.
+
+the obligation that create order contract obliges a party to deliver goods with description a description by day a due day D as its first obligation given price a price is met on day a day N if
+    the party does deliver goods with description the description on day N
+    and the obligation that create order contract obliges the party to deliver goods with description the description by day D as its first obligation given price the price starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that create order contract obliges buyer to pay invoice by day a due day D as its third obligation starts on day a day N if
+    the obligation that create order contract obliges a party to deliver goods with description a description by day a second due day as its first obligation given price a price ends on day N
+    and the party does deliver goods with description the description on day N
+    and D = N + 7.
+
+the contract is breached if
+    the obligation that create order contract obliges a party to deliver goods with description a description by day a due day as its first obligation given price a price is missed on day a day.
+
+the obligation that create order contract obliges a party to deliver goods with description a description by day a due day as its first obligation given price a price has deadline day the due day if
+    the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price starts on day a day.
+
+the obligation that create order contract obliges a party to deliver goods with description a description by day a due day D as its second obligation given price a price is met on day a day N if
+    the party does deliver goods with description the description on day N
+    and the obligation that create order contract obliges the party to deliver goods with description the description by day D as its second obligation given price the price starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that create order contract obliges buyer to pay invoice by day a due day D as its fourth obligation starts on day a day N if
+    the obligation that create order contract obliges a party to deliver goods with description a description by day a second due day as its second obligation given price a price ends on day N
+    and the party does deliver goods with description the description on day N
+    and D = N + 30.
+
+the contract is breached if
+    the obligation that create order contract obliges a party to deliver goods with description a description by day a due day as its second obligation given price a price is missed on day a day.
+
+the obligation that create order contract obliges a party to deliver goods with description a description by day a due day as its second obligation given price a price has deadline day the due day if
+    the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its second obligation given price the price starts on day a day.
+
+the obligation that sale contract obliges a party to pay invoice by day a due day D as its second obligation is met on day a day N if
+    the party does pay invoice with amount an amount on day N
+    and the obligation that sale contract obliges the party to pay invoice by day D as its second obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that sale contract obliges a party to pay invoice by day a due day as its second obligation ends on day a day
+    and the party does pay invoice with amount an amount on day the day.
+
+the contract is breached by buyer because "failed to pay" if
+    the obligation that sale contract obliges a party to pay invoice by day a due day as its second obligation is missed on day a day.
+
+the obligation that sale contract obliges a party to pay invoice by day a due day as its second obligation has deadline day the due day if
+    the obligation that sale contract obliges the party to pay invoice by day the due day as its second obligation starts on day a day.
+
+the obligation that create order contract obliges a party to pay invoice by day a due day D as its third obligation is met on day a day N if
+    the party does pay invoice with amount an amount on day N
+    and the obligation that create order contract obliges the party to pay invoice by day D as its third obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that create order contract obliges a party to pay invoice by day a due day as its third obligation ends on day a day
+    and the party does pay invoice with amount an amount on day the day.
+
+the contract is breached if
+    the obligation that create order contract obliges a party to pay invoice by day a due day as its third obligation is missed on day a day.
+
+the obligation that create order contract obliges a party to pay invoice by day a due day as its third obligation has deadline day the due day if
+    the obligation that create order contract obliges the party to pay invoice by day the due day as its third obligation starts on day a day.
+
+the obligation that create order contract obliges a party to pay invoice by day a due day D as its fourth obligation is met on day a day N if
+    the party does pay invoice with amount an amount on day N
+    and the obligation that create order contract obliges the party to pay invoice by day D as its fourth obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that create order contract obliges a party to pay invoice by day a due day as its fourth obligation ends on day a day
+    and the party does pay invoice with amount an amount on day the day.
+
+the contract is breached if
+    the obligation that create order contract obliges a party to pay invoice by day a due day as its fourth obligation is missed on day a day.
+
+the obligation that create order contract obliges a party to pay invoice by day a due day as its fourth obligation has deadline day the due day if
+    the obligation that create order contract obliges the party to pay invoice by day the due day as its fourth obligation starts on day a day.
+
+the deadline of the obligation that simple delivery obligation obliges a party to deliver goods with description a description by day a due day as its first obligation has passed on day a day D if
+    the obligation that simple delivery obligation obliges the party to deliver goods with description the description by day the due day as its first obligation starts on day a day N
+    and the obligation that simple delivery obligation obliges the party to deliver goods with description the description by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that simple delivery obligation obliges a party to deliver goods with description a description by day a due day as its first obligation ends on day a day D if
+    the obligation that simple delivery obligation obliges the party to deliver goods with description the description by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that simple delivery obligation obliges the party to deliver goods with description the description by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that simple delivery obligation obliges a party to deliver goods with description a description by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that simple delivery obligation obliges the party to deliver goods with description the description by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that simple delivery obligation obliges the party to deliver goods with description the description by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that simple delivery obligation obliges the party to deliver goods with description the description by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that simple delivery obligation obliges a party to deliver goods with description a description by day a due day as its first obligation is pending since day a day if
+    the obligation that simple delivery obligation obliges the party to deliver goods with description the description by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that simple delivery obligation obliges the party to deliver goods with description the description by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that simple delivery obligation obliges the party to deliver goods with description the description by day the due day as its first obligation is missed on day a third day.
+
+the obligation that simple delivery obligation obliges a party to deliver goods with description a description by day a due day as its first obligation is still open if
+    the obligation that simple delivery obligation obliges the party to deliver goods with description the description by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that delivery within days obliges a party to deliver goods with description a description by day a due day as its first obligation has passed on day a day D if
+    the obligation that delivery within days obliges the party to deliver goods with description the description by day the due day as its first obligation starts on day a day N
+    and the obligation that delivery within days obliges the party to deliver goods with description the description by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that delivery within days obliges a party to deliver goods with description a description by day a due day as its first obligation ends on day a day D if
+    the obligation that delivery within days obliges the party to deliver goods with description the description by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that delivery within days obliges the party to deliver goods with description the description by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that delivery within days obliges a party to deliver goods with description a description by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that delivery within days obliges the party to deliver goods with description the description by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that delivery within days obliges the party to deliver goods with description the description by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that delivery within days obliges the party to deliver goods with description the description by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that delivery within days obliges a party to deliver goods with description a description by day a due day as its first obligation is pending since day a day if
+    the obligation that delivery within days obliges the party to deliver goods with description the description by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that delivery within days obliges the party to deliver goods with description the description by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that delivery within days obliges the party to deliver goods with description the description by day the due day as its first obligation is missed on day a third day.
+
+the obligation that delivery within days obliges a party to deliver goods with description a description by day a due day as its first obligation is still open if
+    the obligation that delivery within days obliges the party to deliver goods with description the description by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that sale contract obliges a party to deliver goods with description a description by day a due day as its first obligation given price a price has passed on day a day D if
+    the obligation that sale contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price starts on day a day N
+    and the obligation that sale contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that sale contract obliges a party to deliver goods with description a description by day a due day as its first obligation given price a price ends on day a day D if
+    the obligation that sale contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price is met on day D
+    and it is not the case that
+        the obligation that sale contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price is met on day a day N
+        and N < D.
+
+the obligation that sale contract obliges a party to deliver goods with description a description by day a due day as its first obligation given price a price is missed on day a day D if
+    the deadline of the obligation that sale contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price has passed on day D
+    and it is not the case that the obligation that sale contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that sale contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price has passed on day a day N
+        and N < D.
+
+the obligation that sale contract obliges a party to deliver goods with description a description by day a due day as its first obligation given price a price is pending since day a day if
+    the obligation that sale contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price starts on day the day
+    and it is not the case that the obligation that sale contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price ends on day a second day
+    and it is not the case that the obligation that sale contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price is missed on day a third day.
+
+the obligation that sale contract obliges a party to deliver goods with description a description by day a due day as its first obligation given price a price is still open if
+    the obligation that sale contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price is pending since day a day.
+
+the deadline of the obligation that the first joint part of mutual obligations obliges a party to deliver goods with description a description by day a due day as its first obligation has passed on day a day D if
+    the obligation that the first joint part of mutual obligations obliges the party to deliver goods with description the description by day the due day as its first obligation starts on day a day N
+    and the obligation that the first joint part of mutual obligations obliges the party to deliver goods with description the description by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that the first joint part of mutual obligations obliges a party to deliver goods with description a description by day a due day as its first obligation ends on day a day D if
+    the obligation that the first joint part of mutual obligations obliges the party to deliver goods with description the description by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that the first joint part of mutual obligations obliges the party to deliver goods with description the description by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that the first joint part of mutual obligations obliges a party to deliver goods with description a description by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that the first joint part of mutual obligations obliges the party to deliver goods with description the description by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that the first joint part of mutual obligations obliges the party to deliver goods with description the description by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that the first joint part of mutual obligations obliges the party to deliver goods with description the description by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that the first joint part of mutual obligations obliges a party to deliver goods with description a description by day a due day as its first obligation is pending since day a day if
+    the obligation that the first joint part of mutual obligations obliges the party to deliver goods with description the description by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that the first joint part of mutual obligations obliges the party to deliver goods with description the description by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that the first joint part of mutual obligations obliges the party to deliver goods with description the description by day the due day as its first obligation is missed on day a third day.
+
+the obligation that the first joint part of mutual obligations obliges a party to deliver goods with description a description by day a due day as its first obligation is still open if
+    the obligation that the first joint part of mutual obligations obliges the party to deliver goods with description the description by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that the second joint part of mutual obligations obliges a party to pay invoice with amount an amount by day a due day as its second obligation has passed on day a day D if
+    the obligation that the second joint part of mutual obligations obliges the party to pay invoice with amount the amount by day the due day as its second obligation starts on day a day N
+    and the obligation that the second joint part of mutual obligations obliges the party to pay invoice with amount the amount by day the due day as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that the second joint part of mutual obligations obliges a party to pay invoice with amount an amount by day a due day as its second obligation ends on day a day D if
+    the obligation that the second joint part of mutual obligations obliges the party to pay invoice with amount the amount by day the due day as its second obligation is met on day D
+    and it is not the case that
+        the obligation that the second joint part of mutual obligations obliges the party to pay invoice with amount the amount by day the due day as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that the second joint part of mutual obligations obliges a party to pay invoice with amount an amount by day a due day as its second obligation is missed on day a day D if
+    the deadline of the obligation that the second joint part of mutual obligations obliges the party to pay invoice with amount the amount by day the due day as its second obligation has passed on day D
+    and it is not the case that the obligation that the second joint part of mutual obligations obliges the party to pay invoice with amount the amount by day the due day as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that the second joint part of mutual obligations obliges the party to pay invoice with amount the amount by day the due day as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that the second joint part of mutual obligations obliges a party to pay invoice with amount an amount by day a due day as its second obligation is pending since day a day if
+    the obligation that the second joint part of mutual obligations obliges the party to pay invoice with amount the amount by day the due day as its second obligation starts on day the day
+    and it is not the case that the obligation that the second joint part of mutual obligations obliges the party to pay invoice with amount the amount by day the due day as its second obligation ends on day a second day
+    and it is not the case that the obligation that the second joint part of mutual obligations obliges the party to pay invoice with amount the amount by day the due day as its second obligation is missed on day a third day.
+
+the obligation that the second joint part of mutual obligations obliges a party to pay invoice with amount an amount by day a due day as its second obligation is still open if
+    the obligation that the second joint part of mutual obligations obliges the party to pay invoice with amount the amount by day the due day as its second obligation is pending since day a day.
+
+the deadline of the obligation that the first alternative part of flexible delivery obliges a party to deliver goods with description a description by day a due day as its first obligation has passed on day a day D if
+    the obligation that the first alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its first obligation starts on day a day N
+    and the obligation that the first alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that the first alternative part of flexible delivery obliges a party to deliver goods with description a description by day a due day as its first obligation ends on day a day D if
+    the obligation that the first alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that the first alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that the first alternative part of flexible delivery obliges a party to deliver goods with description a description by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that the first alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that the first alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that the first alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that the first alternative part of flexible delivery obliges a party to deliver goods with description a description by day a due day as its first obligation is pending since day a day if
+    the obligation that the first alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that the first alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that the first alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its first obligation is missed on day a third day.
+
+the obligation that the first alternative part of flexible delivery obliges a party to deliver goods with description a description by day a due day as its first obligation is still open if
+    the obligation that the first alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that the second alternative part of flexible delivery obliges a party to deliver goods with description a description by day a due day as its second obligation has passed on day a day D if
+    the obligation that the second alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its second obligation starts on day a day N
+    and the obligation that the second alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that the second alternative part of flexible delivery obliges a party to deliver goods with description a description by day a due day as its second obligation ends on day a day D if
+    the obligation that the second alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its second obligation is met on day D
+    and it is not the case that
+        the obligation that the second alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that the second alternative part of flexible delivery obliges a party to deliver goods with description a description by day a due day as its second obligation is missed on day a day D if
+    the deadline of the obligation that the second alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its second obligation has passed on day D
+    and it is not the case that the obligation that the second alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that the second alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that the second alternative part of flexible delivery obliges a party to deliver goods with description a description by day a due day as its second obligation is pending since day a day if
+    the obligation that the second alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its second obligation starts on day the day
+    and it is not the case that the obligation that the second alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its second obligation ends on day a second day
+    and it is not the case that the obligation that the second alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its second obligation is missed on day a third day.
+
+the obligation that the second alternative part of flexible delivery obliges a party to deliver goods with description a description by day a due day as its second obligation is still open if
+    the obligation that the second alternative part of flexible delivery obliges the party to deliver goods with description the description by day the due day as its second obligation is pending since day a day.
+
+the deadline of the obligation that conditional delivery obliges a party to deliver goods with description a description by day a due day as its first obligation has passed on day a day D if
+    the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its first obligation starts on day a day N
+    and the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that conditional delivery obliges a party to deliver goods with description a description by day a due day as its first obligation ends on day a day D if
+    the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that conditional delivery obliges a party to deliver goods with description a description by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that conditional delivery obliges a party to deliver goods with description a description by day a due day as its first obligation is pending since day a day if
+    the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its first obligation is missed on day a third day.
+
+the obligation that conditional delivery obliges a party to deliver goods with description a description by day a due day as its first obligation is still open if
+    the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that conditional delivery obliges a party to deliver goods with description a description by day a due day as its second obligation has passed on day a day D if
+    the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its second obligation starts on day a day N
+    and the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that conditional delivery obliges a party to deliver goods with description a description by day a due day as its second obligation ends on day a day D if
+    the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its second obligation is met on day D
+    and it is not the case that
+        the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that conditional delivery obliges a party to deliver goods with description a description by day a due day as its second obligation is missed on day a day D if
+    the deadline of the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its second obligation has passed on day D
+    and it is not the case that the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that conditional delivery obliges a party to deliver goods with description a description by day a due day as its second obligation is pending since day a day if
+    the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its second obligation starts on day the day
+    and it is not the case that the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its second obligation ends on day a second day
+    and it is not the case that the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its second obligation is missed on day a third day.
+
+the obligation that conditional delivery obliges a party to deliver goods with description a description by day a due day as its second obligation is still open if
+    the obligation that conditional delivery obliges the party to deliver goods with description the description by day the due day as its second obligation is pending since day a day.
+
+the deadline of the obligation that minimum payment contract obliges a party to pay invoice by day a due day as its first obligation has passed on day a day D if
+    the obligation that minimum payment contract obliges the party to pay invoice by day the due day as its first obligation starts on day a day N
+    and the obligation that minimum payment contract obliges the party to pay invoice by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that minimum payment contract obliges a party to pay invoice by day a due day as its first obligation ends on day a day D if
+    the obligation that minimum payment contract obliges the party to pay invoice by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that minimum payment contract obliges the party to pay invoice by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that minimum payment contract obliges a party to pay invoice by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that minimum payment contract obliges the party to pay invoice by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that minimum payment contract obliges the party to pay invoice by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that minimum payment contract obliges the party to pay invoice by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that minimum payment contract obliges a party to pay invoice by day a due day as its first obligation is pending since day a day if
+    the obligation that minimum payment contract obliges the party to pay invoice by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that minimum payment contract obliges the party to pay invoice by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that minimum payment contract obliges the party to pay invoice by day the due day as its first obligation is missed on day a third day.
+
+the obligation that minimum payment contract obliges a party to pay invoice by day a due day as its first obligation is still open if
+    the obligation that minimum payment contract obliges the party to pay invoice by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that exact payment required obliges a party to pay invoice with amount an amount by day a due day as its first obligation has passed on day a day D if
+    the obligation that exact payment required obliges the party to pay invoice with amount the amount by day the due day as its first obligation starts on day a day N
+    and the obligation that exact payment required obliges the party to pay invoice with amount the amount by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that exact payment required obliges a party to pay invoice with amount an amount by day a due day as its first obligation ends on day a day D if
+    the obligation that exact payment required obliges the party to pay invoice with amount the amount by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that exact payment required obliges the party to pay invoice with amount the amount by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that exact payment required obliges a party to pay invoice with amount an amount by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that exact payment required obliges the party to pay invoice with amount the amount by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that exact payment required obliges the party to pay invoice with amount the amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that exact payment required obliges the party to pay invoice with amount the amount by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that exact payment required obliges a party to pay invoice with amount an amount by day a due day as its first obligation is pending since day a day if
+    the obligation that exact payment required obliges the party to pay invoice with amount the amount by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that exact payment required obliges the party to pay invoice with amount the amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that exact payment required obliges the party to pay invoice with amount the amount by day the due day as its first obligation is missed on day a third day.
+
+the obligation that exact payment required obliges a party to pay invoice with amount an amount by day a due day as its first obligation is still open if
+    the obligation that exact payment required obliges the party to pay invoice with amount the amount by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that create order contract obliges a party to deliver goods with description a description by day a due day as its first obligation given price a price has passed on day a day D if
+    the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price starts on day a day N
+    and the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that create order contract obliges a party to deliver goods with description a description by day a due day as its first obligation given price a price ends on day a day D if
+    the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price is met on day D
+    and it is not the case that
+        the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price is met on day a day N
+        and N < D.
+
+the obligation that create order contract obliges a party to deliver goods with description a description by day a due day as its first obligation given price a price is missed on day a day D if
+    the deadline of the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price has passed on day D
+    and it is not the case that the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price has passed on day a day N
+        and N < D.
+
+the obligation that create order contract obliges a party to deliver goods with description a description by day a due day as its first obligation given price a price is pending since day a day if
+    the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price starts on day the day
+    and it is not the case that the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price ends on day a second day
+    and it is not the case that the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price is missed on day a third day.
+
+the obligation that create order contract obliges a party to deliver goods with description a description by day a due day as its first obligation given price a price is still open if
+    the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its first obligation given price the price is pending since day a day.
+
+the deadline of the obligation that create order contract obliges a party to deliver goods with description a description by day a due day as its second obligation given price a price has passed on day a day D if
+    the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its second obligation given price the price starts on day a day N
+    and the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its second obligation given price the price has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that create order contract obliges a party to deliver goods with description a description by day a due day as its second obligation given price a price ends on day a day D if
+    the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its second obligation given price the price is met on day D
+    and it is not the case that
+        the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its second obligation given price the price is met on day a day N
+        and N < D.
+
+the obligation that create order contract obliges a party to deliver goods with description a description by day a due day as its second obligation given price a price is missed on day a day D if
+    the deadline of the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its second obligation given price the price has passed on day D
+    and it is not the case that the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its second obligation given price the price ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its second obligation given price the price has passed on day a day N
+        and N < D.
+
+the obligation that create order contract obliges a party to deliver goods with description a description by day a due day as its second obligation given price a price is pending since day a day if
+    the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its second obligation given price the price starts on day the day
+    and it is not the case that the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its second obligation given price the price ends on day a second day
+    and it is not the case that the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its second obligation given price the price is missed on day a third day.
+
+the obligation that create order contract obliges a party to deliver goods with description a description by day a due day as its second obligation given price a price is still open if
+    the obligation that create order contract obliges the party to deliver goods with description the description by day the due day as its second obligation given price the price is pending since day a day.
+
+the deadline of the obligation that sale contract obliges a party to pay invoice by day a due day as its second obligation has passed on day a day D if
+    the obligation that sale contract obliges the party to pay invoice by day the due day as its second obligation starts on day a day N
+    and the obligation that sale contract obliges the party to pay invoice by day the due day as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that sale contract obliges a party to pay invoice by day a due day as its second obligation ends on day a day D if
+    the obligation that sale contract obliges the party to pay invoice by day the due day as its second obligation is met on day D
+    and it is not the case that
+        the obligation that sale contract obliges the party to pay invoice by day the due day as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that sale contract obliges a party to pay invoice by day a due day as its second obligation is missed on day a day D if
+    the deadline of the obligation that sale contract obliges the party to pay invoice by day the due day as its second obligation has passed on day D
+    and it is not the case that the obligation that sale contract obliges the party to pay invoice by day the due day as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that sale contract obliges the party to pay invoice by day the due day as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that sale contract obliges a party to pay invoice by day a due day as its second obligation is pending since day a day if
+    the obligation that sale contract obliges the party to pay invoice by day the due day as its second obligation starts on day the day
+    and it is not the case that the obligation that sale contract obliges the party to pay invoice by day the due day as its second obligation ends on day a second day
+    and it is not the case that the obligation that sale contract obliges the party to pay invoice by day the due day as its second obligation is missed on day a third day.
+
+the obligation that sale contract obliges a party to pay invoice by day a due day as its second obligation is still open if
+    the obligation that sale contract obliges the party to pay invoice by day the due day as its second obligation is pending since day a day.
+
+the deadline of the obligation that create order contract obliges a party to pay invoice by day a due day as its third obligation has passed on day a day D if
+    the obligation that create order contract obliges the party to pay invoice by day the due day as its third obligation starts on day a day N
+    and the obligation that create order contract obliges the party to pay invoice by day the due day as its third obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that create order contract obliges a party to pay invoice by day a due day as its third obligation ends on day a day D if
+    the obligation that create order contract obliges the party to pay invoice by day the due day as its third obligation is met on day D
+    and it is not the case that
+        the obligation that create order contract obliges the party to pay invoice by day the due day as its third obligation is met on day a day N
+        and N < D.
+
+the obligation that create order contract obliges a party to pay invoice by day a due day as its third obligation is missed on day a day D if
+    the deadline of the obligation that create order contract obliges the party to pay invoice by day the due day as its third obligation has passed on day D
+    and it is not the case that the obligation that create order contract obliges the party to pay invoice by day the due day as its third obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that create order contract obliges the party to pay invoice by day the due day as its third obligation has passed on day a day N
+        and N < D.
+
+the obligation that create order contract obliges a party to pay invoice by day a due day as its third obligation is pending since day a day if
+    the obligation that create order contract obliges the party to pay invoice by day the due day as its third obligation starts on day the day
+    and it is not the case that the obligation that create order contract obliges the party to pay invoice by day the due day as its third obligation ends on day a second day
+    and it is not the case that the obligation that create order contract obliges the party to pay invoice by day the due day as its third obligation is missed on day a third day.
+
+the obligation that create order contract obliges a party to pay invoice by day a due day as its third obligation is still open if
+    the obligation that create order contract obliges the party to pay invoice by day the due day as its third obligation is pending since day a day.
+
+the deadline of the obligation that create order contract obliges a party to pay invoice by day a due day as its fourth obligation has passed on day a day D if
+    the obligation that create order contract obliges the party to pay invoice by day the due day as its fourth obligation starts on day a day N
+    and the obligation that create order contract obliges the party to pay invoice by day the due day as its fourth obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that create order contract obliges a party to pay invoice by day a due day as its fourth obligation ends on day a day D if
+    the obligation that create order contract obliges the party to pay invoice by day the due day as its fourth obligation is met on day D
+    and it is not the case that
+        the obligation that create order contract obliges the party to pay invoice by day the due day as its fourth obligation is met on day a day N
+        and N < D.
+
+the obligation that create order contract obliges a party to pay invoice by day a due day as its fourth obligation is missed on day a day D if
+    the deadline of the obligation that create order contract obliges the party to pay invoice by day the due day as its fourth obligation has passed on day D
+    and it is not the case that the obligation that create order contract obliges the party to pay invoice by day the due day as its fourth obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that create order contract obliges the party to pay invoice by day the due day as its fourth obligation has passed on day a day N
+        and N < D.
+
+the obligation that create order contract obliges a party to pay invoice by day a due day as its fourth obligation is pending since day a day if
+    the obligation that create order contract obliges the party to pay invoice by day the due day as its fourth obligation starts on day the day
+    and it is not the case that the obligation that create order contract obliges the party to pay invoice by day the due day as its fourth obligation ends on day a second day
+    and it is not the case that the obligation that create order contract obliges the party to pay invoice by day the due day as its fourth obligation is missed on day a third day.
+
+the obligation that create order contract obliges a party to pay invoice by day a due day as its fourth obligation is still open if
+    the obligation that create order contract obliges the party to pay invoice by day the due day as its fourth obligation is pending since day a day.
+
+the contract is fulfilled if
+    the first joint part of the contract is fulfilled
+    and the second joint part of the contract is fulfilled.
+
+the contract is fulfilled if
+    the first alternative part of the contract is fulfilled.
+
+the contract is fulfilled if
+    the second alternative part of the contract is fulfilled.
+
+the contract is breached if
+    the first joint part of the contract is breached.
+
+the contract is breached if
+    the second joint part of the contract is breached.
+
+the contract is breached if
+    the second alternative part of the contract is breached
+    and the first alternative part of the contract is breached.
+
+scenario trace_170 is:
+    % #TRACE `simple delivery obligation` (line 170) of the L4 source
+    the contract simple delivery obligation starts on day 0.
+    seller does deliver goods with description "standard package" on day 10.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_174 is:
+    % #TRACE `simple delivery obligation` (line 174) of the L4 source
+    the contract simple delivery obligation starts on day 0.
+    seller does deliver goods with description "standard package" on day 20.
+    fulfilled expects answers [].
+    q_the_contract_is_breached expects answers ["the contract is breached"].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_178 is:
+    % #TRACE (`delivery within days` OF 7) (line 178) of the L4 source
+    the contract delivery within days starts on day 0 with deadline 7.
+    seller does deliver goods with description "standard package" on day 5.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_182 is:
+    % #TRACE (`sale contract` OF 500) (line 182) of the L4 source
+    the contract sale contract starts on day 0 with price 500.
+    seller does deliver goods with description "merchandise" on day 10.
+    buyer does pay invoice with amount 500 on day 30.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_187 is:
+    % #TRACE `mutual obligations` (line 187) of the L4 source
+    the contract mutual obligations starts on day 0.
+    seller does deliver goods with description "item A" on day 10.
+    buyer does pay invoice with amount 1000 on day 25.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_192 is:
+    % #TRACE `flexible delivery` (line 192) of the L4 source
+    the contract flexible delivery starts on day 0.
+    seller does deliver goods with description "express shipping" on day 5.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_196 is:
+    % #TRACE `flexible delivery` (line 196) of the L4 source
+    the contract flexible delivery starts on day 0.
+    seller does deliver goods with description "standard shipping" on day 12.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_200 is:
+    % #TRACE (`conditional delivery` OF `TRUE`) (line 200) of the L4 source
+    the contract conditional delivery starts on day 0 with urgent true.
+    seller does deliver goods with description "urgent delivery" on day 2.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_204 is:
+    % #TRACE (`conditional delivery` OF `FALSE`) (line 204) of the L4 source
+    the contract conditional delivery starts on day 0 with urgent false.
+    seller does deliver goods with description "standard delivery" on day 10.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_222 is:
+    % #TRACE `minimum payment contract` (line 222) of the L4 source
+    the contract minimum payment contract starts on day 0.
+    buyer does pay invoice with amount 150 on day 20.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_226 is:
+    % #TRACE `minimum payment contract` (line 226) of the L4 source
+    the contract minimum payment contract starts on day 0.
+    buyer does pay invoice with amount 50 on day 20.
+    fulfilled expects answers [].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_245 is:
+    % #TRACE (`exact payment required` OF 500) (line 245) of the L4 source
+    the contract exact payment required starts on day 0 with required amount 500.
+    buyer does pay invoice with amount 500 on day 15.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_249 is:
+    % #TRACE (`exact payment required` OF 500) (line 249) of the L4 source
+    the contract exact payment required starts on day 0 with required amount 500.
+    buyer does pay invoice with amount 499 on day 15.
+    fulfilled expects answers [].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_259 is:
+    % #TRACE `simple delivery obligation` (line 259) of the L4 source
+    the contract simple delivery obligation starts on day 0.
+    the clock reaches day 20.
+    fulfilled expects answers [].
+    q_the_contract_is_breached expects answers ["the contract is breached"].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_299 is:
+    % #TRACE (`create order contract` OF "express", 200) (line 299) of the L4 source
+    the contract create order contract starts on day 0 with order type "express" and price 200.
+    seller does deliver goods with description "express order" on day 2.
+    buyer does pay invoice with amount 250 on day 5.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_304 is:
+    % #TRACE (`create order contract` OF "standard", 200) (line 304) of the L4 source
+    the contract create order contract starts on day 0 with order type "standard" and price 200.
+    seller does deliver goods with description "standard order" on day 10.
+    buyer does pay invoice with amount 200 on day 30.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+query fulfilled is:
+    the contract is fulfilled.
+
+query q_the_contract_is_breached is:
+    the contract is breached.
+
+query q_the_contract_is_breached_by_because is:
+    the contract is breached by which party because which reason.
+
+query q_open_o_simple_delivery_obligation_1 is:
+    the obligation that simple delivery obligation obliges which party to deliver goods with description which description by day which due day as its first obligation is still open.
+
+query q_open_o_delivery_within_days_1 is:
+    the obligation that delivery within days obliges which party to deliver goods with description which description by day which due day as its first obligation is still open.
+
+query q_open_o_sale_contract_1 is:
+    the obligation that sale contract obliges which party to deliver goods with description which description by day which due day as its first obligation given price which price is still open.
+
+query q_open_o_mutual_obligations_and1_1 is:
+    the obligation that the first joint part of mutual obligations obliges which party to deliver goods with description which description by day which due day as its first obligation is still open.
+
+query q_open_o_mutual_obligations_and2_2 is:
+    the obligation that the second joint part of mutual obligations obliges which party to pay invoice with amount which amount by day which due day as its second obligation is still open.
+
+query q_open_o_flexible_delivery_or1_1 is:
+    the obligation that the first alternative part of flexible delivery obliges which party to deliver goods with description which description by day which due day as its first obligation is still open.
+
+query q_open_o_flexible_delivery_or2_2 is:
+    the obligation that the second alternative part of flexible delivery obliges which party to deliver goods with description which description by day which due day as its second obligation is still open.
+
+query q_open_o_conditional_delivery_1 is:
+    the obligation that conditional delivery obliges which party to deliver goods with description which description by day which due day as its first obligation is still open.
+
+query q_open_o_conditional_delivery_2 is:
+    the obligation that conditional delivery obliges which party to deliver goods with description which description by day which due day as its second obligation is still open.
+
+query q_open_o_minimum_payment_contract_1 is:
+    the obligation that minimum payment contract obliges which party to pay invoice by day which due day as its first obligation is still open.
+
+query q_open_o_exact_payment_required_1 is:
+    the obligation that exact payment required obliges which party to pay invoice with amount which amount by day which due day as its first obligation is still open.
+
+query q_open_o_create_order_contract_1 is:
+    the obligation that create order contract obliges which party to deliver goods with description which description by day which due day as its first obligation given price which price is still open.
+
+query q_open_o_create_order_contract_2 is:
+    the obligation that create order contract obliges which party to deliver goods with description which description by day which due day as its second obligation given price which price is still open.
+
+query q_open_o_sale_contract_2 is:
+    the obligation that sale contract obliges which party to pay invoice by day which due day as its second obligation is still open.
+
+query q_open_o_create_order_contract_3 is:
+    the obligation that create order contract obliges which party to pay invoice by day which due day as its third obligation is still open.
+
+query q_open_o_create_order_contract_4 is:
+    the obligation that create order contract obliges which party to pay invoice by day which due day as its fourth obligation is still open.
+

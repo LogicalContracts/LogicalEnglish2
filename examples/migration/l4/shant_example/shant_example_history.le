@@ -1,0 +1,317 @@
+% shant-example.l4: the history view
+%
+% The timeless Logical English twin of the contracts of an L4 file (shant-example.l4), written
+% by the L4 translator (docs/migration/l4.md, step 3): the contracts read over a finished
+% history of events. For each obligation the program says when it starts, its deadline
+% and which events meet it, and four rules say how it ends: met, missed, or still
+% open when the history stops. The same obligations, in the same words, as the LE for LPS twin in LPS2's
+% examples/migration/l4/; each scenario expects what that twin's run ended with, which
+% agrees with L4's evaluator.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    something happens on day *a day*.
+    an obligation can start on day *a day*.
+    the obligation that confidentiality obligation forbids *a party* to disclose confidential information by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that confidentiality obligation forbids *a party* to disclose confidential information by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that confidentiality obligation forbids *a party* to disclose confidential information by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that confidentiality obligation forbids *a party* to disclose confidential information by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that confidentiality obligation forbids *a party* to disclose confidential information by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that confidentiality obligation forbids *a party* to disclose confidential information by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that confidentiality obligation forbids *a party* to disclose confidential information by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that confidentiality obligation forbids *a party* to disclose confidential information by day *a due day* as its first obligation is still open.
+    the obligation that structural alteration prohibition forbids *a party* to make alterations by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that structural alteration prohibition forbids *a party* to make alterations by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that structural alteration prohibition forbids *a party* to make alterations by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that structural alteration prohibition forbids *a party* to make alterations by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that structural alteration prohibition forbids *a party* to make alterations by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that structural alteration prohibition forbids *a party* to make alterations by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that structural alteration prohibition forbids *a party* to make alterations by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that structural alteration prohibition forbids *a party* to make alterations by day *a due day* as its first obligation is still open.
+    the obligation that debt restriction forbids *a party* to incur additional debt by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that debt restriction forbids *a party* to incur additional debt by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that debt restriction forbids *a party* to incur additional debt by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that debt restriction forbids *a party* to incur additional debt by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that debt restriction forbids *a party* to incur additional debt by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that debt restriction forbids *a party* to incur additional debt by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that debt restriction forbids *a party* to incur additional debt by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that debt restriction forbids *a party* to incur additional debt by day *a due day* as its first obligation is still open.
+    the contract confidentiality obligation starts on day *a day*; scenario element.
+    confidentiality obligation forbids *a party* to disclose confidential information by day *a due day* as its first obligation.
+    *a party* does disclose confidential information on day *a day*; scenario element.
+    *a party* does something on day *a day*.
+    the clock reaches day *a day*; scenario element.
+    the contract structural alteration prohibition starts on day *a day*; scenario element.
+    structural alteration prohibition forbids *a party* to make alterations by day *a due day* as its first obligation.
+    *a party* does make alterations with alteration type *an alteration type* on day *a day*; scenario element.
+    the contract debt restriction starts on day *a day*; scenario element.
+    debt restriction forbids *a party* to incur additional debt by day *a due day* as its first obligation.
+    *a party* does incur additional debt with debt amount *a debt amount* on day *a day*; scenario element.
+    the contract is breached by *a party* doing what was forbidden on day *a day*.
+    the contract is fulfilled.
+    the contract is breached by *a party* because *a reason*.
+
+the knowledge base shant_example_history includes:
+
+the text of "the L4 source shant-example.l4" is at "sources/shant-example.l4".
+
+something happens on day a day if
+    a party does disclose confidential information on day the day.
+
+something happens on day a day if
+    the clock reaches day the day.
+
+something happens on day a day if
+    a party does make alterations with alteration type an alteration type on day the day.
+
+something happens on day a day if
+    a party does incur additional debt with debt amount a debt amount on day the day.
+
+an obligation can start on day a day if
+    something happens on day the day.
+
+a party does something on day a day if
+    the party does disclose confidential information on day the day.
+
+a party does something on day a day if
+    the party does make alterations with alteration type an alteration type on day the day.
+
+a party does something on day a day if
+    the party does incur additional debt with debt amount a debt amount on day the day.
+
+an obligation can start on day a day if
+    the contract confidentiality obligation starts on day the day.
+
+the obligation that confidentiality obligation forbids the_employee to disclose confidential information by day a due day D as its first obligation starts on day a day N if
+    the contract confidentiality obligation starts on day N
+    and D = N + 1825.
+
+an obligation can start on day a day if
+    the contract structural alteration prohibition starts on day the day.
+
+the obligation that structural alteration prohibition forbids the_tenant to make alterations by day a due day D as its first obligation starts on day a day N if
+    the contract structural alteration prohibition starts on day N
+    and D = N + 365.
+
+an obligation can start on day a day if
+    the contract debt restriction starts on day the day.
+
+the obligation that debt restriction forbids the_borrower to incur additional debt by day a due day D as its first obligation starts on day a day N if
+    the contract debt restriction starts on day N
+    and D = N + 1095.
+
+the obligation that confidentiality obligation forbids a party to disclose confidential information by day a due day D as its first obligation is met on day a day N if
+    the party does disclose confidential information on day N
+    and the obligation that confidentiality obligation forbids the party to disclose confidential information by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is breached by a party doing what was forbidden on day a day if
+    the obligation that confidentiality obligation forbids the party to disclose confidential information by day a due day as its first obligation ends on day the day
+    and the party does disclose confidential information on day the day.
+
+the contract is fulfilled if
+    the obligation that confidentiality obligation forbids a party to disclose confidential information by day a due day as its first obligation is missed on day a day.
+
+the obligation that confidentiality obligation forbids a party to disclose confidential information by day a due day as its first obligation has deadline day the due day if
+    the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation starts on day a day.
+
+the obligation that structural alteration prohibition forbids a party to make alterations by day a due day D as its first obligation is met on day a day N if
+    the party does make alterations with alteration type an alteration type on day N
+    and the obligation that structural alteration prohibition forbids the party to make alterations by day D as its first obligation starts on day a day M
+    and M < N
+    and the alteration type is equal to "structural"
+    and N <= D.
+
+the contract is breached by the_tenant because "made unauthorized structural changes" if
+    the obligation that structural alteration prohibition forbids a party to make alterations by day a due day as its first obligation ends on day a day
+    and the party does make alterations with alteration type an alteration type on day the day.
+
+the obligation that structural alteration prohibition forbids a party to make alterations by day a due day D as its first obligation is met on day a day N if
+    the party does make alterations with alteration type an alteration type on day N
+    and the obligation that structural alteration prohibition forbids the party to make alterations by day D as its first obligation starts on day a day M
+    and M < N
+    and the alteration type is equal to "load-bearing"
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that structural alteration prohibition forbids a party to make alterations by day a due day as its first obligation is missed on day a day.
+
+the obligation that structural alteration prohibition forbids a party to make alterations by day a due day as its first obligation has deadline day the due day if
+    the obligation that structural alteration prohibition forbids the party to make alterations by day the due day as its first obligation starts on day a day.
+
+the obligation that debt restriction forbids a party to incur additional debt by day a due day D as its first obligation is met on day a day N if
+    the party does incur additional debt with debt amount a debt amount M on day N
+    and the obligation that debt restriction forbids the party to incur additional debt by day D as its first obligation starts on day a day K
+    and K < N
+    and M > 50000
+    and N <= D.
+
+the contract is breached by the_borrower because "exceeded debt covenant limit" if
+    the obligation that debt restriction forbids a party to incur additional debt by day a due day as its first obligation ends on day a day
+    and the party does incur additional debt with debt amount a debt amount on day the day.
+
+the contract is fulfilled if
+    the obligation that debt restriction forbids a party to incur additional debt by day a due day as its first obligation is missed on day a day.
+
+the obligation that debt restriction forbids a party to incur additional debt by day a due day as its first obligation has deadline day the due day if
+    the obligation that debt restriction forbids the party to incur additional debt by day the due day as its first obligation starts on day a day.
+
+the deadline of the obligation that confidentiality obligation forbids a party to disclose confidential information by day a due day as its first obligation has passed on day a day D if
+    the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation starts on day a day N
+    and the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that confidentiality obligation forbids a party to disclose confidential information by day a due day as its first obligation ends on day a day D if
+    the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that confidentiality obligation forbids a party to disclose confidential information by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that confidentiality obligation forbids a party to disclose confidential information by day a due day as its first obligation is pending since day a day if
+    the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation is missed on day a third day.
+
+the obligation that confidentiality obligation forbids a party to disclose confidential information by day a due day as its first obligation is still open if
+    the obligation that confidentiality obligation forbids the party to disclose confidential information by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that structural alteration prohibition forbids a party to make alterations by day a due day as its first obligation has passed on day a day D if
+    the obligation that structural alteration prohibition forbids the party to make alterations by day the due day as its first obligation starts on day a day N
+    and the obligation that structural alteration prohibition forbids the party to make alterations by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that structural alteration prohibition forbids a party to make alterations by day a due day as its first obligation ends on day a day D if
+    the obligation that structural alteration prohibition forbids the party to make alterations by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that structural alteration prohibition forbids the party to make alterations by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that structural alteration prohibition forbids a party to make alterations by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that structural alteration prohibition forbids the party to make alterations by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that structural alteration prohibition forbids the party to make alterations by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that structural alteration prohibition forbids the party to make alterations by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that structural alteration prohibition forbids a party to make alterations by day a due day as its first obligation is pending since day a day if
+    the obligation that structural alteration prohibition forbids the party to make alterations by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that structural alteration prohibition forbids the party to make alterations by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that structural alteration prohibition forbids the party to make alterations by day the due day as its first obligation is missed on day a third day.
+
+the obligation that structural alteration prohibition forbids a party to make alterations by day a due day as its first obligation is still open if
+    the obligation that structural alteration prohibition forbids the party to make alterations by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that debt restriction forbids a party to incur additional debt by day a due day as its first obligation has passed on day a day D if
+    the obligation that debt restriction forbids the party to incur additional debt by day the due day as its first obligation starts on day a day N
+    and the obligation that debt restriction forbids the party to incur additional debt by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that debt restriction forbids a party to incur additional debt by day a due day as its first obligation ends on day a day D if
+    the obligation that debt restriction forbids the party to incur additional debt by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that debt restriction forbids the party to incur additional debt by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that debt restriction forbids a party to incur additional debt by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that debt restriction forbids the party to incur additional debt by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that debt restriction forbids the party to incur additional debt by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that debt restriction forbids the party to incur additional debt by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that debt restriction forbids a party to incur additional debt by day a due day as its first obligation is pending since day a day if
+    the obligation that debt restriction forbids the party to incur additional debt by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that debt restriction forbids the party to incur additional debt by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that debt restriction forbids the party to incur additional debt by day the due day as its first obligation is missed on day a third day.
+
+the obligation that debt restriction forbids a party to incur additional debt by day a due day as its first obligation is still open if
+    the obligation that debt restriction forbids the party to incur additional debt by day the due day as its first obligation is pending since day a day.
+
+scenario trace_104 is:
+    % #TRACE `confidentiality obligation` (line 104) of the L4 source
+    the contract confidentiality obligation starts on day 0.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_doing expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_107 is:
+    % #TRACE `confidentiality obligation` (line 107) of the L4 source
+    the contract confidentiality obligation starts on day 0.
+    the_employee does disclose confidential information on day 100.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_doing expects answers ["the contract is breached by the_employee doing what was forbidden on day 100"].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_111 is:
+    % #TRACE `structural alteration prohibition` (line 111) of the L4 source
+    the contract structural alteration prohibition starts on day 0.
+    the_tenant does make alterations with alteration type "cosmetic" on day 50.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_doing expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_115 is:
+    % #TRACE `structural alteration prohibition` (line 115) of the L4 source
+    the contract structural alteration prohibition starts on day 0.
+    the_tenant does make alterations with alteration type "structural" on day 50.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_doing expects answers [].
+    q_the_contract_is_breached_by_because expects answers ["the contract is breached by the_tenant because made unauthorized structural changes"].
+
+scenario trace_119 is:
+    % #TRACE `debt restriction` (line 119) of the L4 source
+    the contract debt restriction starts on day 0.
+    the_borrower does incur additional debt with debt amount 40000 on day 100.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_doing expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_123 is:
+    % #TRACE `debt restriction` (line 123) of the L4 source
+    the contract debt restriction starts on day 0.
+    the_borrower does incur additional debt with debt amount 75000 on day 100.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_doing expects answers [].
+    q_the_contract_is_breached_by_because expects answers ["the contract is breached by the_borrower because exceeded debt covenant limit"].
+
+query fulfilled is:
+    the contract is fulfilled.
+
+query q_the_contract_is_breached_by_doing is:
+    the contract is breached by which party doing what was forbidden on day which day.
+
+query q_the_contract_is_breached_by_because is:
+    the contract is breached by which party because which reason.
+
+query q_open_o_confidentiality_obligation_1 is:
+    the obligation that confidentiality obligation forbids which party to disclose confidential information by day which due day as its first obligation is still open.
+
+query q_open_o_structural_alteration_prohibition_1 is:
+    the obligation that structural alteration prohibition forbids which party to make alterations by day which due day as its first obligation is still open.
+
+query q_open_o_debt_restriction_1 is:
+    the obligation that debt restriction forbids which party to incur additional debt by day which due day as its first obligation is still open.
+

@@ -1,0 +1,72 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from eligibility-rule.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the name of *an applicant* is *a text*.
+    the age of *an applicant* is *a number*.
+
+the templates are:
+    *an applicant* has valid ID.
+    *an applicant* is eligible.
+    *an applicant* is at least 18 years old.
+    *an applicant* has shown valid identification.
+
+the knowledge base eligibility_rule includes:
+
+the text of the source program is at "sources/eligibility-rule.l4".
+
+an applicant is eligible if
+    the applicant is at least 18 years old
+    and the applicant has shown valid identification.
+
+an applicant is at least 18 years old if
+    the age of the applicant >= 18.
+
+an applicant has shown valid identification if
+    the applicant has valid ID.
+
+the name of alice_the_adult is "Alice".
+
+the age of alice_the_adult is 25.
+
+alice_the_adult has valid ID.
+
+the name of bob_without_id is "Bob".
+
+the age of bob_without_id is 30.
+
+the name of young_charlie is "Charlie".
+
+the age of young_charlie is 16.
+
+young_charlie has valid ID.
+
+scenario line_34 is, as stated in the source program at line 34:
+    line_34 expects answers ["alice_the_adult is eligible"].
+
+scenario line_35 is, as stated in the source program at line 35:
+    line_35 expects answers [].
+
+scenario line_36 is, as stated in the source program at line 36:
+    line_36 expects answers [].
+
+query line_34 is:
+    alice_the_adult is eligible.
+
+query line_35 is:
+    bob_without_id is eligible.
+
+query line_36 is:
+    young_charlie is eligible.
+

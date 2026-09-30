@@ -1,0 +1,61 @@
+{
+  "counts": {"approximated":0,"encoded":4,"residue":1},
+  "entries": [
+    {
+      "element":"a",
+      "in_program":"a is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"b",
+      "in_program":"the b is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"c",
+      "in_program":"the c is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 9",
+      "in_program":"line_9",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#eval at line 13",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value with no LE form: (1 FOLLOWED BY 2 FOLLOWED BY 3 FOLLOWED BY `EMPTY`)",
+      "note":"",
+      "verdict":"residue"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":1,
+    "tests": [ {"detail":"","query":"line_9","result":"pass","scenario":"line_9"} ]
+  },
+  "meta": {
+    "artifacts": ["associativity-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"associativity_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":1
+}

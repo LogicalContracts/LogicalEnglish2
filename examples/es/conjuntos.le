@@ -35,8 +35,8 @@ escenario listas es:
 	[Alicia, Roberto] es un conjunto.
 	[Alicia] es un conjunto.
 	subconjunto espera respuestas [
-		"[Alicia Roberto] es un subconjunto de [Alicia Roberto]",
-		"[Alicia] es un subconjunto de [Alicia Roberto]",
+		"[Alicia, Roberto] es un subconjunto de [Alicia, Roberto]",
+		"[Alicia] es un subconjunto de [Alicia, Roberto]",
 		"[Alicia] es un subconjunto de [Alicia]"].
 
 	una cosa pertenece a un conjunto

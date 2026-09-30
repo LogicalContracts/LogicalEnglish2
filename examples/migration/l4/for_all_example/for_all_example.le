@@ -1,0 +1,161 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from for-all-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the payload of *a left* is *a thing*.
+    the payload of *a right* is *a b*.
+    the value of *a some* is *a thing*.
+    the first of *a pair* is *a thing*.
+    the second of *a pair* is *a b*.
+    the value of *a leaf* is *a thing*.
+    the left of *a node* is *a tree*.
+    the right of *a node* is *a tree*.
+
+the templates are:
+    *a choice* is a left.
+    *a choice* is a right.
+    *an optional* is a some.
+    *a tree* is a leaf.
+    *a tree* is a node.
+    the identity is *a value*; scenario element.
+    the const is *a value*; scenario element.
+    the map is *a value*; scenario element.
+    the filter is *a value*; scenario element.
+    the foldl is *a value*; scenario element.
+    the one of is *a value*; scenario element.
+    the from optional is *a value*; scenario element.
+    the make pair is *a value*; scenario element.
+    the my map for *a value* with *a second value* with *a third value* with *a list* is *a second list*.
+    the my length for *a value* with *a list* is *a number*.
+    the my reverse for *a value* with *a list* is *a second list*.
+    the append for *a value* with *a list1* with *a list2* is *a list*.
+    the numbers is *a list*.
+    the strings is *a list*.
+    the double for *a number* is *a second number*.
+    the compose is *a value*; scenario element.
+    the flip is *a value*; scenario element.
+    the tree size for *a value* with *a tree* is *a number*.
+    L4's answer at line 146 is reproduced.
+    L4's answer at line 147 is reproduced.
+    L4's answer at line 153 is reproduced.
+    L4's answer at line 202 is reproduced.
+
+the knowledge base for_all_example includes:
+
+the text of the source program is at "sources/for-all-example.l4".
+
+% RESIDUE r1 BEGIN: myMap
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 99-107
+% a value with no LE form: ((`f` OF `x`) FOLLOWED BY (`myMap` OF `f`, `xs`))
+%   l4:
+%   | GIVEN a IS A TYPE
+%   |       b IS A TYPE
+%   |       f IS A FUNCTION FROM a TO b
+%   |       list IS A LIST OF a
+%   | GIVETH A LIST OF b
+%   | myMap f list MEANS
+%   |   CONSIDER list
+%   |   WHEN EMPTY THEN EMPTY
+%   |   WHEN x FOLLOWED BY xs THEN f x FOLLOWED BY myMap f xs
+% RESIDUE r1 END
+
+% RESIDUE r2 BEGIN: myLength
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 110-116
+% a value with no LE form: (`myLength` OF `xs`)
+%   l4:
+%   | GIVEN a IS A TYPE
+%   |       list IS A LIST OF a
+%   | GIVETH A NUMBER
+%   | myLength list MEANS
+%   |   CONSIDER list
+%   |   WHEN EMPTY THEN 0
+%   |   WHEN x FOLLOWED BY xs THEN 1 PLUS myLength xs
+% RESIDUE r2 END
+
+% RESIDUE r3 BEGIN: myReverse
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 119-125
+% a value with no LE form: (`append` OF (`myReverse` OF `xs`), (`x` FOLLOWED BY `EMPTY`))
+%   l4:
+%   | GIVEN a IS A TYPE
+%   |       list IS A LIST OF a
+%   | GIVETH A LIST OF a
+%   | myReverse list MEANS
+%   |   CONSIDER list
+%   |   WHEN EMPTY THEN EMPTY
+%   |   WHEN x FOLLOWED BY xs THEN append (myReverse xs) (x FOLLOWED BY EMPTY)
+% RESIDUE r3 END
+
+% RESIDUE r4 BEGIN: append
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 128-135
+% a value with no LE form: (`x` FOLLOWED BY (`append` OF `xs`, `list2`))
+%   l4:
+%   | GIVEN a IS A TYPE
+%   |       list1 IS A LIST OF a
+%   |       list2 IS A LIST OF a
+%   | GIVETH A LIST OF a
+%   | append list1 list2 MEANS
+%   |   CONSIDER list1
+%   |   WHEN EMPTY THEN list2
+%   |   WHEN x FOLLOWED BY xs THEN x FOLLOWED BY append xs list2
+% RESIDUE r4 END
+
+the numbers is [1, 2, 3, 4, 5].
+
+the strings is ["a", "b", "c"].
+
+the double for a number N is a number M if
+    M = N * 2.
+
+% RESIDUE r5 BEGIN: treeSize
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 186-192
+% a value with no LE form: (`treeSize` OF `l`)
+%   l4:
+%   | GIVEN a IS A TYPE
+%   |       tree IS A Tree OF a
+%   | GIVETH A NUMBER
+%   | treeSize tree MEANS
+%   |   CONSIDER tree
+%   |   WHEN Leaf v THEN 1
+%   |   WHEN Node l r THEN treeSize l PLUS treeSize r
+% RESIDUE r5 END
+
+example_tree is a node.
+
+leaf_1 is a leaf.
+
+the value of leaf_1 is 1.
+
+the left of example_tree is leaf_1.
+
+node_1 is a node.
+
+leaf_2 is a leaf.
+
+the value of leaf_2 is 2.
+
+the left of node_1 is leaf_2.
+
+leaf_3 is a leaf.
+
+the value of leaf_3 is 3.
+
+the right of node_1 is leaf_3.
+
+the right of example_tree is node_1.
+

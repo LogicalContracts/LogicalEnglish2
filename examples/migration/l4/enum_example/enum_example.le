@@ -1,0 +1,39 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from enum-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    the my favorite color is *a value*.
+    the name of the color is *a text*.
+
+the knowledge base enum_example includes:
+
+the text of the source program is at "sources/enum-example.l4".
+
+the my favorite color is red.
+
+the name of the color is a text if
+    the my favorite color is a value
+    and red is equal to the value
+        and the text is equal to "red"
+        otherwise green is equal to the value
+        and the text is equal to "green"
+        otherwise blue is equal to the value
+        and the text is equal to "blue".
+
+scenario line_18 is, as stated in the source program at line 18:
+    line_18 expects answers ["the name of the color is red"].
+
+query line_18 is:
+    the name of the color is which text.
+

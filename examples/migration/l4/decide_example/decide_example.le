@@ -1,0 +1,170 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from decide-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    the answer is *a number*.
+    the approximate pi is *a number*.
+    the welcome greeting is *a text*.
+    is enabled.
+    the double a number for *a number* is *a second number*.
+    the square of *a number* is *a second number*.
+    the age category for *an age* is *a text*.
+    the person age is *a number*; scenario element.
+    has valid ID; scenario element.
+    can enter venue.
+    the area of circle with *a radius* is *a number*.
+    the factorial of *a num* is *a number*.
+    the maximum of two numbers for *a number* with *a second number* is *a value*.
+    the local pi is *a number*.
+    L4's answer at line 10 is reproduced.
+    L4's answer at line 19 is reproduced.
+    L4's answer at line 25 is reproduced.
+    L4's answer at line 56 is reproduced.
+    L4's answer at line 67 is reproduced.
+    L4's answer at line 75 is reproduced.
+
+the knowledge base decide_example includes:
+
+the text of the source program is at "sources/decide-example.l4".
+
+the answer is 42.
+
+the approximate pi is 3.14159.
+
+the welcome greeting is "Hello, World!".
+
+is enabled.
+
+the double a number for a number N is a number M if
+    M = N * 2.
+
+the square of a number N is a number M if
+    M = N * N.
+
+the age category for an age N is a text if
+    N < 13
+    and the text is equal to "child"
+    otherwise N < 20
+    and the text is equal to "teenager"
+    otherwise N < 65
+    and the text is equal to "adult"
+    otherwise the text is equal to "senior".
+
+can enter venue if
+    the person age is a number N
+    and N >= 21
+    and has valid ID.
+
+the local pi is 3.14159.
+
+the area of circle with a radius R is a number N if
+    the local pi is a number M
+    and N = M * R * R.
+
+the factorial of a num N is a number M if
+    0 is equal to N
+    and M is equal to 1
+    otherwise a num K = N - 1
+    and the factorial of K is a number P
+    and M = N * P.
+
+the maximum of two numbers for a number N with a number M is a value if
+    N > M
+    and the value is equal to N
+    otherwise the value is equal to M.
+
+L4's answer at line 10 is reproduced if
+    the answer is a number N
+    and N * 100000000 >= 4199999999
+    and N * 100000000 <= 4200000001.
+
+L4's answer at line 19 is reproduced if
+    the double a number for 21 is a number N
+    and N * 100000000 >= 4199999999
+    and N * 100000000 <= 4200000001.
+
+L4's answer at line 25 is reproduced if
+    the square of 7 is a number N
+    and N * 100000000 >= 4899999999
+    and N * 100000000 <= 4900000001.
+
+L4's answer at line 56 is reproduced if
+    the area of circle with 10 is a number N
+    and N * 10000000 >= 3141589999
+    and N * 10000000 <= 3141590001.
+
+L4's answer at line 67 is reproduced if
+    the factorial of 5 is a number N
+    and N * 10000000 >= 1199999999
+    and N * 10000000 <= 1200000001.
+
+L4's answer at line 75 is reproduced if
+    the maximum of two numbers for 10 with 25 is a value V
+    and V * 100000000 >= 2499999999
+    and V * 100000000 <= 2500000001.
+
+scenario line_10 is, as stated in the source program at line 10:
+    line_10 expects answers ["L4's answer at line 10 is reproduced"].
+
+scenario line_11 is, as stated in the source program at line 11:
+    line_11 expects answers ["the welcome greeting is Hello, World!"].
+
+scenario line_19 is, as stated in the source program at line 19:
+    line_19 expects answers ["L4's answer at line 19 is reproduced"].
+
+scenario line_25 is, as stated in the source program at line 25:
+    line_25 expects answers ["L4's answer at line 25 is reproduced"].
+
+scenario line_36 is, as stated in the source program at line 36:
+    line_36 expects answers ["the age category for 25 is adult"].
+
+scenario line_37 is, as stated in the source program at line 37:
+    line_37 expects answers ["the age category for 10 is child"].
+
+scenario line_56 is, as stated in the source program at line 56:
+    line_56 expects answers ["L4's answer at line 56 is reproduced"].
+
+scenario line_67 is, as stated in the source program at line 67:
+    line_67 expects answers ["L4's answer at line 67 is reproduced"].
+
+scenario line_75 is, as stated in the source program at line 75:
+    line_75 expects answers ["L4's answer at line 75 is reproduced"].
+
+query line_10 is:
+    L4's answer at line 10 is reproduced.
+
+query line_11 is:
+    the welcome greeting is which text.
+
+query line_19 is:
+    L4's answer at line 19 is reproduced.
+
+query line_25 is:
+    L4's answer at line 25 is reproduced.
+
+query line_36 is:
+    the age category for 25 is which text.
+
+query line_37 is:
+    the age category for 10 is which text.
+
+query line_56 is:
+    L4's answer at line 56 is reproduced.
+
+query line_67 is:
+    L4's answer at line 67 is reproduced.
+
+query line_75 is:
+    L4's answer at line 75 is reproduced.
+

@@ -1,0 +1,200 @@
+{
+  "counts": {"approximated":7,"encoded":6,"residue":10},
+  "entries": [
+    {
+      "element":"Person",
+      "in_program":"Person",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"all positive",
+      "in_program":"all positive for *a numbers*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"has negative",
+      "in_program":"*a numbers* has negative",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"doubled list",
+      "in_program":"the doubled list for *a numbers* is *a list*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"only positive",
+      "in_program":"the only positive for *a numbers* is *a list*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"all adults",
+      "in_program":"all adults for *a people*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"negate",
+      "in_program":"the negate for *a predicate* is *a value*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"compose",
+      "in_program":"the compose for *a value* with *a second value* with *a third value* with *a fourth value* with *a fifth value* is *a sixth value*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"add one",
+      "in_program":"r1",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"add together",
+      "in_program":"r2",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"multiply values",
+      "in_program":"r3",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"double number",
+      "in_program":"r4",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"format pair",
+      "in_program":"r5",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"all positive",
+      "in_program":"all positive for *a numbers*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"has negative",
+      "in_program":"*a numbers* has negative",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"doubled list",
+      "in_program":"the doubled list for *a numbers* is *a list*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"only positive",
+      "in_program":"the only positive for *a numbers* is *a list*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"all adults",
+      "in_program":"all adults for *a people*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"negate",
+      "in_program":"r6",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"compose",
+      "in_program":"r7",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#eval at line 89",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value with no LE form: (`add one` OF 5)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#eval at line 90",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value with no LE form: (`add together` OF 3, 7)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#eval at line 91",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value with no LE form: (`double number` OF 21)",
+      "note":"",
+      "verdict":"residue"
+    }
+  ],
+  "fidelity":null,
+  "meta": {
+    "artifacts": ["yield-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"yield_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":0
+}

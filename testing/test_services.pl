@@ -120,7 +120,7 @@ test(answer_attributed_in_the_explanation) :-
     once(query(SM, category, _, _, Why)),
     destroySession(SM),
     why_literals(Why, Lits),
-    memberchk("the best match of a red bicycle with a basket among [fruit vehicle tool] is vehicle, according to service matcher, because \"bicycle names a kind of vehicle\"", Lits).
+    memberchk("the best match of a red bicycle with a basket among [fruit, vehicle, tool] is vehicle, according to service matcher, because \"bicycle names a kind of vehicle\"", Lits).
 
 test(scoped_proof_admits_the_service) :-
     program('stub:matcher', "", P), load_text(P, KB),

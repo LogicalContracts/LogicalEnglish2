@@ -1,0 +1,1257 @@
+% must-example.l4: the history view
+%
+% The timeless Logical English twin of the contracts of an L4 file (must-example.l4), written
+% by the L4 translator (docs/migration/l4.md, step 3): the contracts read over a finished
+% history of events. For each obligation the program says when it starts, its deadline
+% and which events meet it, and four rules say how it ends: met, missed, or still
+% open when the history stops. The same obligations, in the same words, as the LE for LPS twin in LPS2's
+% examples/migration/l4/; each scenario expects what that twin's run ended with, which
+% agrees with L4's evaluator.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    something happens on day *a day*.
+    an obligation can start on day *a day*.
+    the obligation that monthly loan payment obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that monthly loan payment obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that monthly loan payment obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that monthly loan payment obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that monthly loan payment obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that monthly loan payment obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that monthly loan payment obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that monthly loan payment obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is still open.
+    the obligation that purchase and delivery agreement obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that purchase and delivery agreement obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that purchase and delivery agreement obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that purchase and delivery agreement obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that purchase and delivery agreement obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that purchase and delivery agreement obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that purchase and delivery agreement obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that purchase and delivery agreement obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is still open.
+    the obligation that payment with late fee obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that payment with late fee obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that payment with late fee obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that payment with late fee obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that payment with late fee obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that payment with late fee obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that payment with late fee obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that payment with late fee obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is still open.
+    the obligation that staged service contract obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that staged service contract obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that staged service contract obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that staged service contract obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that staged service contract obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that staged service contract obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that staged service contract obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that staged service contract obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is still open.
+    the obligation that construction contract workflow obliges *a party* to sign contract by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that construction contract workflow obliges *a party* to sign contract by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that construction contract workflow obliges *a party* to sign contract by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that construction contract workflow obliges *a party* to sign contract by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that construction contract workflow obliges *a party* to sign contract by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that construction contract workflow obliges *a party* to sign contract by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that construction contract workflow obliges *a party* to sign contract by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that construction contract workflow obliges *a party* to sign contract by day *a due day* as its first obligation is still open.
+    the obligation that lease termination and deposit return obliges *a party* to provide notice with notice content *a notice content* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that lease termination and deposit return obliges *a party* to provide notice with notice content *a notice content* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that lease termination and deposit return obliges *a party* to provide notice with notice content *a notice content* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that lease termination and deposit return obliges *a party* to provide notice with notice content *a notice content* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that lease termination and deposit return obliges *a party* to provide notice with notice content *a notice content* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that lease termination and deposit return obliges *a party* to provide notice with notice content *a notice content* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that lease termination and deposit return obliges *a party* to provide notice with notice content *a notice content* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that lease termination and deposit return obliges *a party* to provide notice with notice content *a notice content* by day *a due day* as its first obligation is still open.
+    the obligation that landlord repair obligation obliges *a party* to complete repairs with repair description *a repair description* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that landlord repair obligation obliges *a party* to complete repairs with repair description *a repair description* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that landlord repair obligation obliges *a party* to complete repairs with repair description *a repair description* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that landlord repair obligation obliges *a party* to complete repairs with repair description *a repair description* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that landlord repair obligation obliges *a party* to complete repairs with repair description *a repair description* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that landlord repair obligation obliges *a party* to complete repairs with repair description *a repair description* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that landlord repair obligation obliges *a party* to complete repairs with repair description *a repair description* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that landlord repair obligation obliges *a party* to complete repairs with repair description *a repair description* by day *a due day* as its first obligation is still open.
+    the obligation that purchase and delivery agreement obliges *a party* to deliver goods with goods description *a goods description* by day *a due day* as its second obligation starts on day *a day*; memorable.
+    the obligation that purchase and delivery agreement obliges *a party* to deliver goods with goods description *a goods description* by day *a due day* as its second obligation has deadline day *a day*.
+    the obligation that purchase and delivery agreement obliges *a party* to deliver goods with goods description *a goods description* by day *a due day* as its second obligation is met on day *a day*.
+    the obligation that purchase and delivery agreement obliges *a party* to deliver goods with goods description *a goods description* by day *a due day* as its second obligation ends on day *a day*; memorable.
+    the obligation that purchase and delivery agreement obliges *a party* to deliver goods with goods description *a goods description* by day *a due day* as its second obligation is missed on day *a day*.
+    the deadline of the obligation that purchase and delivery agreement obliges *a party* to deliver goods with goods description *a goods description* by day *a due day* as its second obligation has passed on day *a day*; memorable.
+    the obligation that purchase and delivery agreement obliges *a party* to deliver goods with goods description *a goods description* by day *a due day* as its second obligation is pending since day *a day*.
+    the obligation that purchase and delivery agreement obliges *a party* to deliver goods with goods description *a goods description* by day *a due day* as its second obligation is still open.
+    the obligation that payment with late fee obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its second obligation starts on day *a day*; memorable.
+    the obligation that payment with late fee obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its second obligation has deadline day *a day*.
+    the obligation that payment with late fee obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its second obligation is met on day *a day*.
+    the obligation that payment with late fee obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its second obligation ends on day *a day*; memorable.
+    the obligation that payment with late fee obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its second obligation is missed on day *a day*.
+    the deadline of the obligation that payment with late fee obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its second obligation has passed on day *a day*; memorable.
+    the obligation that payment with late fee obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its second obligation is pending since day *a day*.
+    the obligation that payment with late fee obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its second obligation is still open.
+    the obligation that staged service contract obliges *a party* to provide services with service description *a service description* by day *a due day* as its second obligation starts on day *a day*; memorable.
+    the obligation that staged service contract obliges *a party* to provide services with service description *a service description* by day *a due day* as its second obligation has deadline day *a day*.
+    the obligation that staged service contract obliges *a party* to provide services with service description *a service description* by day *a due day* as its second obligation is met on day *a day*.
+    the obligation that staged service contract obliges *a party* to provide services with service description *a service description* by day *a due day* as its second obligation ends on day *a day*; memorable.
+    the obligation that staged service contract obliges *a party* to provide services with service description *a service description* by day *a due day* as its second obligation is missed on day *a day*.
+    the deadline of the obligation that staged service contract obliges *a party* to provide services with service description *a service description* by day *a due day* as its second obligation has passed on day *a day*; memorable.
+    the obligation that staged service contract obliges *a party* to provide services with service description *a service description* by day *a due day* as its second obligation is pending since day *a day*.
+    the obligation that staged service contract obliges *a party* to provide services with service description *a service description* by day *a due day* as its second obligation is still open.
+    the obligation that construction contract workflow obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its second obligation starts on day *a day*; memorable.
+    the obligation that construction contract workflow obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its second obligation has deadline day *a day*.
+    the obligation that construction contract workflow obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its second obligation is met on day *a day*.
+    the obligation that construction contract workflow obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its second obligation ends on day *a day*; memorable.
+    the obligation that construction contract workflow obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its second obligation is missed on day *a day*.
+    the deadline of the obligation that construction contract workflow obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its second obligation has passed on day *a day*; memorable.
+    the obligation that construction contract workflow obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its second obligation is pending since day *a day*.
+    the obligation that construction contract workflow obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its second obligation is still open.
+    the obligation that lease termination and deposit return obliges *a party* to complete repairs with repair description *a repair description* by day *a due day* as its second obligation starts on day *a day*; memorable.
+    the obligation that lease termination and deposit return obliges *a party* to complete repairs with repair description *a repair description* by day *a due day* as its second obligation has deadline day *a day*.
+    the obligation that lease termination and deposit return obliges *a party* to complete repairs with repair description *a repair description* by day *a due day* as its second obligation is met on day *a day*.
+    the obligation that lease termination and deposit return obliges *a party* to complete repairs with repair description *a repair description* by day *a due day* as its second obligation ends on day *a day*; memorable.
+    the obligation that lease termination and deposit return obliges *a party* to complete repairs with repair description *a repair description* by day *a due day* as its second obligation is missed on day *a day*.
+    the deadline of the obligation that lease termination and deposit return obliges *a party* to complete repairs with repair description *a repair description* by day *a due day* as its second obligation has passed on day *a day*; memorable.
+    the obligation that lease termination and deposit return obliges *a party* to complete repairs with repair description *a repair description* by day *a due day* as its second obligation is pending since day *a day*.
+    the obligation that lease termination and deposit return obliges *a party* to complete repairs with repair description *a repair description* by day *a due day* as its second obligation is still open.
+    the obligation that landlord repair obligation obliges *a party* to provide notice with notice content *a notice content* by day *a due day* as its second obligation starts on day *a day*; memorable.
+    the obligation that landlord repair obligation obliges *a party* to provide notice with notice content *a notice content* by day *a due day* as its second obligation has deadline day *a day*.
+    the obligation that landlord repair obligation obliges *a party* to provide notice with notice content *a notice content* by day *a due day* as its second obligation is met on day *a day*.
+    the obligation that landlord repair obligation obliges *a party* to provide notice with notice content *a notice content* by day *a due day* as its second obligation ends on day *a day*; memorable.
+    the obligation that landlord repair obligation obliges *a party* to provide notice with notice content *a notice content* by day *a due day* as its second obligation is missed on day *a day*.
+    the deadline of the obligation that landlord repair obligation obliges *a party* to provide notice with notice content *a notice content* by day *a due day* as its second obligation has passed on day *a day*; memorable.
+    the obligation that landlord repair obligation obliges *a party* to provide notice with notice content *a notice content* by day *a due day* as its second obligation is pending since day *a day*.
+    the obligation that landlord repair obligation obliges *a party* to provide notice with notice content *a notice content* by day *a due day* as its second obligation is still open.
+    the obligation that staged service contract obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its third obligation starts on day *a day*; memorable.
+    the obligation that staged service contract obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its third obligation has deadline day *a day*.
+    the obligation that staged service contract obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its third obligation is met on day *a day*.
+    the obligation that staged service contract obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its third obligation ends on day *a day*; memorable.
+    the obligation that staged service contract obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its third obligation is missed on day *a day*.
+    the deadline of the obligation that staged service contract obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its third obligation has passed on day *a day*; memorable.
+    the obligation that staged service contract obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its third obligation is pending since day *a day*.
+    the obligation that staged service contract obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its third obligation is still open.
+    the obligation that construction contract workflow obliges *a party* to provide services with service description *a service description* by day *a due day* as its third obligation starts on day *a day*; memorable.
+    the obligation that construction contract workflow obliges *a party* to provide services with service description *a service description* by day *a due day* as its third obligation has deadline day *a day*.
+    the obligation that construction contract workflow obliges *a party* to provide services with service description *a service description* by day *a due day* as its third obligation is met on day *a day*.
+    the obligation that construction contract workflow obliges *a party* to provide services with service description *a service description* by day *a due day* as its third obligation ends on day *a day*; memorable.
+    the obligation that construction contract workflow obliges *a party* to provide services with service description *a service description* by day *a due day* as its third obligation is missed on day *a day*.
+    the deadline of the obligation that construction contract workflow obliges *a party* to provide services with service description *a service description* by day *a due day* as its third obligation has passed on day *a day*; memorable.
+    the obligation that construction contract workflow obliges *a party* to provide services with service description *a service description* by day *a due day* as its third obligation is pending since day *a day*.
+    the obligation that construction contract workflow obliges *a party* to provide services with service description *a service description* by day *a due day* as its third obligation is still open.
+    the obligation that lease termination and deposit return obliges *a party* to return security deposit with deposit amount *a deposit amount* by day *a due day* as its third obligation starts on day *a day*; memorable.
+    the obligation that lease termination and deposit return obliges *a party* to return security deposit with deposit amount *a deposit amount* by day *a due day* as its third obligation has deadline day *a day*.
+    the obligation that lease termination and deposit return obliges *a party* to return security deposit with deposit amount *a deposit amount* by day *a due day* as its third obligation is met on day *a day*.
+    the obligation that lease termination and deposit return obliges *a party* to return security deposit with deposit amount *a deposit amount* by day *a due day* as its third obligation ends on day *a day*; memorable.
+    the obligation that lease termination and deposit return obliges *a party* to return security deposit with deposit amount *a deposit amount* by day *a due day* as its third obligation is missed on day *a day*.
+    the deadline of the obligation that lease termination and deposit return obliges *a party* to return security deposit with deposit amount *a deposit amount* by day *a due day* as its third obligation has passed on day *a day*; memorable.
+    the obligation that lease termination and deposit return obliges *a party* to return security deposit with deposit amount *a deposit amount* by day *a due day* as its third obligation is pending since day *a day*.
+    the obligation that lease termination and deposit return obliges *a party* to return security deposit with deposit amount *a deposit amount* by day *a due day* as its third obligation is still open.
+    the obligation that construction contract workflow obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its fourth obligation starts on day *a day*; memorable.
+    the obligation that construction contract workflow obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its fourth obligation has deadline day *a day*.
+    the obligation that construction contract workflow obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its fourth obligation is met on day *a day*.
+    the obligation that construction contract workflow obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its fourth obligation ends on day *a day*; memorable.
+    the obligation that construction contract workflow obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its fourth obligation is missed on day *a day*.
+    the deadline of the obligation that construction contract workflow obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its fourth obligation has passed on day *a day*; memorable.
+    the obligation that construction contract workflow obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its fourth obligation is pending since day *a day*.
+    the obligation that construction contract workflow obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its fourth obligation is still open.
+    the obligation that lease termination and deposit return obliges *a party* to return security deposit with deposit amount *a deposit amount* by day *a due day* as its fourth obligation starts on day *a day*; memorable.
+    the obligation that lease termination and deposit return obliges *a party* to return security deposit with deposit amount *a deposit amount* by day *a due day* as its fourth obligation has deadline day *a day*.
+    the obligation that lease termination and deposit return obliges *a party* to return security deposit with deposit amount *a deposit amount* by day *a due day* as its fourth obligation is met on day *a day*.
+    the obligation that lease termination and deposit return obliges *a party* to return security deposit with deposit amount *a deposit amount* by day *a due day* as its fourth obligation ends on day *a day*; memorable.
+    the obligation that lease termination and deposit return obliges *a party* to return security deposit with deposit amount *a deposit amount* by day *a due day* as its fourth obligation is missed on day *a day*.
+    the deadline of the obligation that lease termination and deposit return obliges *a party* to return security deposit with deposit amount *a deposit amount* by day *a due day* as its fourth obligation has passed on day *a day*; memorable.
+    the obligation that lease termination and deposit return obliges *a party* to return security deposit with deposit amount *a deposit amount* by day *a due day* as its fourth obligation is pending since day *a day*.
+    the obligation that lease termination and deposit return obliges *a party* to return security deposit with deposit amount *a deposit amount* by day *a due day* as its fourth obligation is still open.
+    the contract monthly loan payment starts on day *a day*; scenario element.
+    monthly loan payment obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation.
+    *a party* does make payment with payment amount *a payment amount* on day *a day*; scenario element.
+    *a party* does something on day *a day*.
+    the clock reaches day *a day*; scenario element.
+    the contract purchase and delivery agreement starts on day *a day*; scenario element.
+    purchase and delivery agreement obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation.
+    *a party* does deliver goods with goods description *a goods description* on day *a day*; scenario element.
+    the contract payment with late fee starts on day *a day*; scenario element.
+    payment with late fee obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation.
+    the contract staged service contract starts on day *a day*; scenario element.
+    staged service contract obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation.
+    *a party* does provide services with service description *a service description* on day *a day*; scenario element.
+    the contract construction contract workflow starts on day *a day*; scenario element.
+    construction contract workflow obliges *a party* to sign contract by day *a due day* as its first obligation.
+    *a party* does sign contract on day *a day*; scenario element.
+    the contract lease termination and deposit return starts on day *a day*; scenario element.
+    lease termination and deposit return obliges *a party* to provide notice with notice content *a notice content* by day *a due day* as its first obligation.
+    *a party* does provide notice with notice content *a notice content* on day *a day*; scenario element.
+    *a party* does complete repairs with repair description *a repair description* on day *a day*; scenario element.
+    *a party* does return security deposit with deposit amount *a deposit amount* on day *a day*; scenario element.
+    the contract landlord repair obligation starts on day *a day*; scenario element.
+    landlord repair obligation obliges *a party* to complete repairs with repair description *a repair description* by day *a due day* as its first obligation.
+    the contract is fulfilled.
+    the contract is breached by *a party* missing the deadline of day *a deadline*.
+    purchase and delivery agreement obliges *a party* to deliver goods with goods description *a goods description* by day *a due day* as its second obligation.
+    payment with late fee obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its second obligation.
+    staged service contract obliges *a party* to provide services with service description *a service description* by day *a due day* as its second obligation.
+    construction contract workflow obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its second obligation.
+    lease termination and deposit return obliges *a party* to complete repairs with repair description *a repair description* by day *a due day* as its second obligation.
+    landlord repair obligation obliges *a party* to provide notice with notice content *a notice content* by day *a due day* as its second obligation.
+    the contract is breached.
+    staged service contract obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its third obligation.
+    construction contract workflow obliges *a party* to provide services with service description *a service description* by day *a due day* as its third obligation.
+    lease termination and deposit return obliges *a party* to return security deposit with deposit amount *a deposit amount* by day *a due day* as its third obligation.
+    construction contract workflow obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its fourth obligation.
+    lease termination and deposit return obliges *a party* to return security deposit with deposit amount *a deposit amount* by day *a due day* as its fourth obligation.
+
+the knowledge base must_example_history includes:
+
+the text of "the L4 source must-example.l4" is at "sources/must-example.l4".
+
+something happens on day a day if
+    a party does make payment with payment amount a payment amount on day the day.
+
+something happens on day a day if
+    the clock reaches day the day.
+
+something happens on day a day if
+    a party does deliver goods with goods description a goods description on day the day.
+
+something happens on day a day if
+    a party does provide services with service description a service description on day the day.
+
+something happens on day a day if
+    a party does sign contract on day the day.
+
+something happens on day a day if
+    a party does provide notice with notice content a notice content on day the day.
+
+something happens on day a day if
+    a party does complete repairs with repair description a repair description on day the day.
+
+something happens on day a day if
+    a party does return security deposit with deposit amount a deposit amount on day the day.
+
+an obligation can start on day a day if
+    something happens on day the day.
+
+a party does something on day a day if
+    the party does make payment with payment amount a payment amount on day the day.
+
+a party does something on day a day if
+    the party does deliver goods with goods description a goods description on day the day.
+
+a party does something on day a day if
+    the party does provide services with service description a service description on day the day.
+
+a party does something on day a day if
+    the party does sign contract on day the day.
+
+a party does something on day a day if
+    the party does provide notice with notice content a notice content on day the day.
+
+a party does something on day a day if
+    the party does complete repairs with repair description a repair description on day the day.
+
+a party does something on day a day if
+    the party does return security deposit with deposit amount a deposit amount on day the day.
+
+an obligation can start on day a day if
+    the contract monthly loan payment starts on day the day.
+
+the obligation that monthly loan payment obliges the_borrower to make payment with payment amount 10000 by day a due day D as its first obligation starts on day a day N if
+    the contract monthly loan payment starts on day N
+    and D = N + 30.
+
+an obligation can start on day a day if
+    the contract purchase and delivery agreement starts on day the day.
+
+the obligation that purchase and delivery agreement obliges the_buyer to make payment with payment amount 25000 by day a due day D as its first obligation starts on day a day N if
+    the contract purchase and delivery agreement starts on day N
+    and D = N + 7.
+
+an obligation can start on day a day if
+    the contract payment with late fee starts on day the day.
+
+the obligation that payment with late fee obliges the_borrower to make payment with payment amount 10000 by day a due day D as its first obligation starts on day a day N if
+    the contract payment with late fee starts on day N
+    and D = N + 30.
+
+an obligation can start on day a day if
+    the contract staged service contract starts on day the day.
+
+the obligation that staged service contract obliges the_client to make payment with payment amount 5000 by day a due day D as its first obligation starts on day a day N if
+    the contract staged service contract starts on day N
+    and D = N + 3.
+
+an obligation can start on day a day if
+    the contract construction contract workflow starts on day the day.
+
+the obligation that construction contract workflow obliges the_contractor to sign contract by day a due day D as its first obligation starts on day a day N if
+    the contract construction contract workflow starts on day N
+    and D = N + 7.
+
+an obligation can start on day a day if
+    the contract lease termination and deposit return starts on day the day.
+
+the obligation that lease termination and deposit return obliges the_tenant to provide notice with notice content "60-day notice of non-renewal" by day a due day D as its first obligation starts on day a day N if
+    the contract lease termination and deposit return starts on day N
+    and D = N + 60.
+
+an obligation can start on day a day if
+    the contract landlord repair obligation starts on day the day.
+
+the obligation that landlord repair obligation obliges the_landlord to complete repairs with repair description "fix leaking roof" by day a due day D as its first obligation starts on day a day N if
+    the contract landlord repair obligation starts on day N
+    and D = N + 14.
+
+the obligation that monthly loan payment obliges a party to make payment with payment amount a payment amount by day a due day D as its first obligation is met on day a day N if
+    the party does make payment with payment amount the payment amount on day N
+    and the obligation that monthly loan payment obliges the party to make payment with payment amount the payment amount by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that monthly loan payment obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation ends on day a day
+    and the party does make payment with payment amount the payment amount on day the day.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that monthly loan payment obliges the party to make payment with payment amount a payment amount by day the deadline as its first obligation is missed on day a day.
+
+the obligation that monthly loan payment obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation has deadline day the due day if
+    the obligation that monthly loan payment obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day a day.
+
+the obligation that purchase and delivery agreement obliges a party to make payment with payment amount a payment amount by day a due day D as its first obligation is met on day a day N if
+    the party does make payment with payment amount the payment amount on day N
+    and the obligation that purchase and delivery agreement obliges the party to make payment with payment amount the payment amount by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that purchase and delivery agreement obliges the_seller to deliver goods with goods description "industrial machinery" by day a due day D as its second obligation starts on day a day N if
+    the obligation that purchase and delivery agreement obliges a party to make payment with payment amount a payment amount by day a second due day as its first obligation ends on day N
+    and the party does make payment with payment amount the payment amount on day N
+    and D = N + 14.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that purchase and delivery agreement obliges the party to make payment with payment amount a payment amount by day the deadline as its first obligation is missed on day a day.
+
+the obligation that purchase and delivery agreement obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation has deadline day the due day if
+    the obligation that purchase and delivery agreement obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day a day.
+
+the obligation that payment with late fee obliges a party to make payment with payment amount a payment amount by day a due day D as its first obligation is met on day a day N if
+    the party does make payment with payment amount the payment amount on day N
+    and the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that payment with late fee obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation ends on day a day
+    and the party does make payment with payment amount the payment amount on day the day.
+
+the obligation that payment with late fee obliges the_borrower to make payment with payment amount 12000 by day a due day D as its second obligation starts on day a day N if
+    the obligation that payment with late fee obliges a party to make payment with payment amount a payment amount by day a second due day as its first obligation is missed on day N
+    and D = N + 45.
+
+the obligation that payment with late fee obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation has deadline day the due day if
+    the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day a day.
+
+the obligation that staged service contract obliges a party to make payment with payment amount a payment amount by day a due day D as its first obligation is met on day a day N if
+    the party does make payment with payment amount the payment amount on day N
+    and the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that staged service contract obliges the_contractor to provide services with service description "website development" by day a due day D as its second obligation starts on day a day N if
+    the obligation that staged service contract obliges a party to make payment with payment amount a payment amount by day a second due day as its first obligation ends on day N
+    and the party does make payment with payment amount the payment amount on day N
+    and D = N + 30.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that staged service contract obliges the party to make payment with payment amount a payment amount by day the deadline as its first obligation is missed on day a day.
+
+the obligation that staged service contract obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation has deadline day the due day if
+    the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day a day.
+
+the obligation that construction contract workflow obliges a party to sign contract by day a due day D as its first obligation is met on day a day N if
+    the party does sign contract on day N
+    and the obligation that construction contract workflow obliges the party to sign contract by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that construction contract workflow obliges the_client to make payment with payment amount 50000 by day a due day D as its second obligation starts on day a day N if
+    the obligation that construction contract workflow obliges a party to sign contract by day a second due day as its first obligation ends on day N
+    and the party does sign contract on day N
+    and D = N + 14.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that construction contract workflow obliges the party to sign contract by day the deadline as its first obligation is missed on day a day.
+
+the obligation that construction contract workflow obliges a party to sign contract by day a due day as its first obligation has deadline day the due day if
+    the obligation that construction contract workflow obliges the party to sign contract by day the due day as its first obligation starts on day a day.
+
+the obligation that lease termination and deposit return obliges a party to provide notice with notice content a notice content by day a due day D as its first obligation is met on day a day N if
+    the party does provide notice with notice content the notice content on day N
+    and the obligation that lease termination and deposit return obliges the party to provide notice with notice content the notice content by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that lease termination and deposit return obliges the_tenant to complete repairs with repair description "restore premises to original condition" by day a due day D as its second obligation starts on day a day N if
+    the obligation that lease termination and deposit return obliges a party to provide notice with notice content a notice content by day a second due day as its first obligation ends on day N
+    and the party does provide notice with notice content the notice content on day N
+    and D = N + 30.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that lease termination and deposit return obliges the party to provide notice with notice content a notice content by day the deadline as its first obligation is missed on day a day.
+
+the obligation that lease termination and deposit return obliges a party to provide notice with notice content a notice content by day a due day as its first obligation has deadline day the due day if
+    the obligation that lease termination and deposit return obliges the party to provide notice with notice content the notice content by day the due day as its first obligation starts on day a day.
+
+the obligation that landlord repair obligation obliges a party to complete repairs with repair description a repair description by day a due day D as its first obligation is met on day a day N if
+    the party does complete repairs with repair description the repair description on day N
+    and the obligation that landlord repair obligation obliges the party to complete repairs with repair description the repair description by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that landlord repair obligation obliges a party to complete repairs with repair description a repair description by day a due day as its first obligation ends on day a day
+    and the party does complete repairs with repair description the repair description on day the day.
+
+the obligation that landlord repair obligation obliges the_tenant to provide notice with notice content "tenant will arrange repairs and deduct cost" by day a due day D as its second obligation starts on day a day N if
+    the obligation that landlord repair obligation obliges a party to complete repairs with repair description a repair description by day a second due day as its first obligation is missed on day N
+    and D = N + 3.
+
+the obligation that landlord repair obligation obliges a party to complete repairs with repair description a repair description by day a due day as its first obligation has deadline day the due day if
+    the obligation that landlord repair obligation obliges the party to complete repairs with repair description the repair description by day the due day as its first obligation starts on day a day.
+
+the obligation that purchase and delivery agreement obliges a party to deliver goods with goods description a goods description by day a due day D as its second obligation is met on day a day N if
+    the party does deliver goods with goods description the goods description on day N
+    and the obligation that purchase and delivery agreement obliges the party to deliver goods with goods description the goods description by day D as its second obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that purchase and delivery agreement obliges a party to deliver goods with goods description a goods description by day a due day as its second obligation ends on day a day
+    and the party does deliver goods with goods description the goods description on day the day.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that purchase and delivery agreement obliges the party to deliver goods with goods description a goods description by day the deadline as its second obligation is missed on day a day.
+
+the obligation that purchase and delivery agreement obliges a party to deliver goods with goods description a goods description by day a due day as its second obligation has deadline day the due day if
+    the obligation that purchase and delivery agreement obliges the party to deliver goods with goods description the goods description by day the due day as its second obligation starts on day a day.
+
+the obligation that payment with late fee obliges a party to make payment with payment amount a payment amount by day a due day D as its second obligation is met on day a day N if
+    the party does make payment with payment amount the payment amount on day N
+    and the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day D as its second obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that payment with late fee obliges a party to make payment with payment amount a payment amount by day a due day as its second obligation ends on day a day
+    and the party does make payment with payment amount the payment amount on day the day.
+
+the contract is breached if
+    the obligation that payment with late fee obliges a party to make payment with payment amount a payment amount by day a due day as its second obligation is missed on day a day.
+
+the obligation that payment with late fee obliges a party to make payment with payment amount a payment amount by day a due day as its second obligation has deadline day the due day if
+    the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation starts on day a day.
+
+the obligation that staged service contract obliges a party to provide services with service description a service description by day a due day D as its second obligation is met on day a day N if
+    the party does provide services with service description the service description on day N
+    and the obligation that staged service contract obliges the party to provide services with service description the service description by day D as its second obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that staged service contract obliges the_client to make payment with payment amount 15000 by day a due day D as its third obligation starts on day a day N if
+    the obligation that staged service contract obliges a party to provide services with service description a service description by day a second due day as its second obligation ends on day N
+    and the party does provide services with service description the service description on day N
+    and D = N + 7.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that staged service contract obliges the party to provide services with service description a service description by day the deadline as its second obligation is missed on day a day.
+
+the obligation that staged service contract obliges a party to provide services with service description a service description by day a due day as its second obligation has deadline day the due day if
+    the obligation that staged service contract obliges the party to provide services with service description the service description by day the due day as its second obligation starts on day a day.
+
+the obligation that construction contract workflow obliges a party to make payment with payment amount a payment amount by day a due day D as its second obligation is met on day a day N if
+    the party does make payment with payment amount the payment amount on day N
+    and the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day D as its second obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that construction contract workflow obliges the_contractor to provide services with service description "foundation work" by day a due day D as its third obligation starts on day a day N if
+    the obligation that construction contract workflow obliges a party to make payment with payment amount a payment amount by day a second due day as its second obligation ends on day N
+    and the party does make payment with payment amount the payment amount on day N
+    and D = N + 30.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that construction contract workflow obliges the party to make payment with payment amount a payment amount by day the deadline as its second obligation is missed on day a day.
+
+the obligation that construction contract workflow obliges a party to make payment with payment amount a payment amount by day a due day as its second obligation has deadline day the due day if
+    the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation starts on day a day.
+
+the obligation that lease termination and deposit return obliges a party to complete repairs with repair description a repair description by day a due day D as its second obligation is met on day a day N if
+    the party does complete repairs with repair description the repair description on day N
+    and the obligation that lease termination and deposit return obliges the party to complete repairs with repair description the repair description by day D as its second obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that lease termination and deposit return obliges the_landlord to return security deposit with deposit amount 3000 by day a due day D as its third obligation starts on day a day N if
+    the obligation that lease termination and deposit return obliges a party to complete repairs with repair description a repair description by day a second due day as its second obligation ends on day N
+    and the party does complete repairs with repair description the repair description on day N
+    and D = N + 14.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that lease termination and deposit return obliges the party to complete repairs with repair description a repair description by day the deadline as its second obligation is missed on day a day.
+
+the obligation that lease termination and deposit return obliges a party to complete repairs with repair description a repair description by day a due day as its second obligation has deadline day the due day if
+    the obligation that lease termination and deposit return obliges the party to complete repairs with repair description the repair description by day the due day as its second obligation starts on day a day.
+
+the obligation that landlord repair obligation obliges a party to provide notice with notice content a notice content by day a due day D as its second obligation is met on day a day N if
+    the party does provide notice with notice content the notice content on day N
+    and the obligation that landlord repair obligation obliges the party to provide notice with notice content the notice content by day D as its second obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that landlord repair obligation obliges a party to provide notice with notice content a notice content by day a due day as its second obligation ends on day a day
+    and the party does provide notice with notice content the notice content on day the day.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that landlord repair obligation obliges the party to provide notice with notice content a notice content by day the deadline as its second obligation is missed on day a day.
+
+the obligation that landlord repair obligation obliges a party to provide notice with notice content a notice content by day a due day as its second obligation has deadline day the due day if
+    the obligation that landlord repair obligation obliges the party to provide notice with notice content the notice content by day the due day as its second obligation starts on day a day.
+
+the obligation that staged service contract obliges a party to make payment with payment amount a payment amount by day a due day D as its third obligation is met on day a day N if
+    the party does make payment with payment amount the payment amount on day N
+    and the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day D as its third obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that staged service contract obliges a party to make payment with payment amount a payment amount by day a due day as its third obligation ends on day a day
+    and the party does make payment with payment amount the payment amount on day the day.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that staged service contract obliges the party to make payment with payment amount a payment amount by day the deadline as its third obligation is missed on day a day.
+
+the obligation that staged service contract obliges a party to make payment with payment amount a payment amount by day a due day as its third obligation has deadline day the due day if
+    the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation starts on day a day.
+
+the obligation that construction contract workflow obliges a party to provide services with service description a service description by day a due day D as its third obligation is met on day a day N if
+    the party does provide services with service description the service description on day N
+    and the obligation that construction contract workflow obliges the party to provide services with service description the service description by day D as its third obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that construction contract workflow obliges the_client to make payment with payment amount 150000 by day a due day D as its fourth obligation starts on day a day N if
+    the obligation that construction contract workflow obliges a party to provide services with service description a service description by day a second due day as its third obligation ends on day N
+    and the party does provide services with service description the service description on day N
+    and D = N + 7.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that construction contract workflow obliges the party to provide services with service description a service description by day the deadline as its third obligation is missed on day a day.
+
+the obligation that construction contract workflow obliges a party to provide services with service description a service description by day a due day as its third obligation has deadline day the due day if
+    the obligation that construction contract workflow obliges the party to provide services with service description the service description by day the due day as its third obligation starts on day a day.
+
+the obligation that lease termination and deposit return obliges a party to return security deposit with deposit amount a deposit amount by day a due day D as its third obligation is met on day a day N if
+    the party does return security deposit with deposit amount the deposit amount on day N
+    and the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day D as its third obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that lease termination and deposit return obliges a party to return security deposit with deposit amount a deposit amount by day a due day as its third obligation ends on day a day
+    and the party does return security deposit with deposit amount the deposit amount on day the day.
+
+the obligation that lease termination and deposit return obliges the_landlord to return security deposit with deposit amount 3090 by day a due day D as its fourth obligation starts on day a day N if
+    the obligation that lease termination and deposit return obliges a party to return security deposit with deposit amount a deposit amount by day a second due day as its third obligation is missed on day N
+    and D = N + 30.
+
+the obligation that lease termination and deposit return obliges a party to return security deposit with deposit amount a deposit amount by day a due day as its third obligation has deadline day the due day if
+    the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its third obligation starts on day a day.
+
+the obligation that construction contract workflow obliges a party to make payment with payment amount a payment amount by day a due day D as its fourth obligation is met on day a day N if
+    the party does make payment with payment amount the payment amount on day N
+    and the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day D as its fourth obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that construction contract workflow obliges a party to make payment with payment amount a payment amount by day a due day as its fourth obligation ends on day a day
+    and the party does make payment with payment amount the payment amount on day the day.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that construction contract workflow obliges the party to make payment with payment amount a payment amount by day the deadline as its fourth obligation is missed on day a day.
+
+the obligation that construction contract workflow obliges a party to make payment with payment amount a payment amount by day a due day as its fourth obligation has deadline day the due day if
+    the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its fourth obligation starts on day a day.
+
+the obligation that lease termination and deposit return obliges a party to return security deposit with deposit amount a deposit amount by day a due day D as its fourth obligation is met on day a day N if
+    the party does return security deposit with deposit amount the deposit amount on day N
+    and the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day D as its fourth obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that lease termination and deposit return obliges a party to return security deposit with deposit amount a deposit amount by day a due day as its fourth obligation ends on day a day
+    and the party does return security deposit with deposit amount the deposit amount on day the day.
+
+the contract is breached if
+    the obligation that lease termination and deposit return obliges a party to return security deposit with deposit amount a deposit amount by day a due day as its fourth obligation is missed on day a day.
+
+the obligation that lease termination and deposit return obliges a party to return security deposit with deposit amount a deposit amount by day a due day as its fourth obligation has deadline day the due day if
+    the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its fourth obligation starts on day a day.
+
+the deadline of the obligation that monthly loan payment obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation has passed on day a day D if
+    the obligation that monthly loan payment obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day a day N
+    and the obligation that monthly loan payment obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that monthly loan payment obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation ends on day a day D if
+    the obligation that monthly loan payment obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that monthly loan payment obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that monthly loan payment obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that monthly loan payment obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that monthly loan payment obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that monthly loan payment obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that monthly loan payment obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is pending since day a day if
+    the obligation that monthly loan payment obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that monthly loan payment obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that monthly loan payment obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is missed on day a third day.
+
+the obligation that monthly loan payment obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is still open if
+    the obligation that monthly loan payment obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that purchase and delivery agreement obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation has passed on day a day D if
+    the obligation that purchase and delivery agreement obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day a day N
+    and the obligation that purchase and delivery agreement obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that purchase and delivery agreement obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation ends on day a day D if
+    the obligation that purchase and delivery agreement obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that purchase and delivery agreement obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that purchase and delivery agreement obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that purchase and delivery agreement obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that purchase and delivery agreement obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that purchase and delivery agreement obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that purchase and delivery agreement obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is pending since day a day if
+    the obligation that purchase and delivery agreement obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that purchase and delivery agreement obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that purchase and delivery agreement obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is missed on day a third day.
+
+the obligation that purchase and delivery agreement obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is still open if
+    the obligation that purchase and delivery agreement obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that payment with late fee obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation has passed on day a day D if
+    the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day a day N
+    and the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that payment with late fee obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation ends on day a day D if
+    the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that payment with late fee obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that payment with late fee obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is pending since day a day if
+    the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is missed on day a third day.
+
+the obligation that payment with late fee obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is still open if
+    the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that staged service contract obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation has passed on day a day D if
+    the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day a day N
+    and the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that staged service contract obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation ends on day a day D if
+    the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that staged service contract obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that staged service contract obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is pending since day a day if
+    the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is missed on day a third day.
+
+the obligation that staged service contract obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is still open if
+    the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that construction contract workflow obliges a party to sign contract by day a due day as its first obligation has passed on day a day D if
+    the obligation that construction contract workflow obliges the party to sign contract by day the due day as its first obligation starts on day a day N
+    and the obligation that construction contract workflow obliges the party to sign contract by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that construction contract workflow obliges a party to sign contract by day a due day as its first obligation ends on day a day D if
+    the obligation that construction contract workflow obliges the party to sign contract by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that construction contract workflow obliges the party to sign contract by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that construction contract workflow obliges a party to sign contract by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that construction contract workflow obliges the party to sign contract by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that construction contract workflow obliges the party to sign contract by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that construction contract workflow obliges the party to sign contract by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that construction contract workflow obliges a party to sign contract by day a due day as its first obligation is pending since day a day if
+    the obligation that construction contract workflow obliges the party to sign contract by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that construction contract workflow obliges the party to sign contract by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that construction contract workflow obliges the party to sign contract by day the due day as its first obligation is missed on day a third day.
+
+the obligation that construction contract workflow obliges a party to sign contract by day a due day as its first obligation is still open if
+    the obligation that construction contract workflow obliges the party to sign contract by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that lease termination and deposit return obliges a party to provide notice with notice content a notice content by day a due day as its first obligation has passed on day a day D if
+    the obligation that lease termination and deposit return obliges the party to provide notice with notice content the notice content by day the due day as its first obligation starts on day a day N
+    and the obligation that lease termination and deposit return obliges the party to provide notice with notice content the notice content by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that lease termination and deposit return obliges a party to provide notice with notice content a notice content by day a due day as its first obligation ends on day a day D if
+    the obligation that lease termination and deposit return obliges the party to provide notice with notice content the notice content by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that lease termination and deposit return obliges the party to provide notice with notice content the notice content by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that lease termination and deposit return obliges a party to provide notice with notice content a notice content by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that lease termination and deposit return obliges the party to provide notice with notice content the notice content by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that lease termination and deposit return obliges the party to provide notice with notice content the notice content by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that lease termination and deposit return obliges the party to provide notice with notice content the notice content by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that lease termination and deposit return obliges a party to provide notice with notice content a notice content by day a due day as its first obligation is pending since day a day if
+    the obligation that lease termination and deposit return obliges the party to provide notice with notice content the notice content by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that lease termination and deposit return obliges the party to provide notice with notice content the notice content by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that lease termination and deposit return obliges the party to provide notice with notice content the notice content by day the due day as its first obligation is missed on day a third day.
+
+the obligation that lease termination and deposit return obliges a party to provide notice with notice content a notice content by day a due day as its first obligation is still open if
+    the obligation that lease termination and deposit return obliges the party to provide notice with notice content the notice content by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that landlord repair obligation obliges a party to complete repairs with repair description a repair description by day a due day as its first obligation has passed on day a day D if
+    the obligation that landlord repair obligation obliges the party to complete repairs with repair description the repair description by day the due day as its first obligation starts on day a day N
+    and the obligation that landlord repair obligation obliges the party to complete repairs with repair description the repair description by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that landlord repair obligation obliges a party to complete repairs with repair description a repair description by day a due day as its first obligation ends on day a day D if
+    the obligation that landlord repair obligation obliges the party to complete repairs with repair description the repair description by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that landlord repair obligation obliges the party to complete repairs with repair description the repair description by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that landlord repair obligation obliges a party to complete repairs with repair description a repair description by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that landlord repair obligation obliges the party to complete repairs with repair description the repair description by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that landlord repair obligation obliges the party to complete repairs with repair description the repair description by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that landlord repair obligation obliges the party to complete repairs with repair description the repair description by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that landlord repair obligation obliges a party to complete repairs with repair description a repair description by day a due day as its first obligation is pending since day a day if
+    the obligation that landlord repair obligation obliges the party to complete repairs with repair description the repair description by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that landlord repair obligation obliges the party to complete repairs with repair description the repair description by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that landlord repair obligation obliges the party to complete repairs with repair description the repair description by day the due day as its first obligation is missed on day a third day.
+
+the obligation that landlord repair obligation obliges a party to complete repairs with repair description a repair description by day a due day as its first obligation is still open if
+    the obligation that landlord repair obligation obliges the party to complete repairs with repair description the repair description by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that purchase and delivery agreement obliges a party to deliver goods with goods description a goods description by day a due day as its second obligation has passed on day a day D if
+    the obligation that purchase and delivery agreement obliges the party to deliver goods with goods description the goods description by day the due day as its second obligation starts on day a day N
+    and the obligation that purchase and delivery agreement obliges the party to deliver goods with goods description the goods description by day the due day as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that purchase and delivery agreement obliges a party to deliver goods with goods description a goods description by day a due day as its second obligation ends on day a day D if
+    the obligation that purchase and delivery agreement obliges the party to deliver goods with goods description the goods description by day the due day as its second obligation is met on day D
+    and it is not the case that
+        the obligation that purchase and delivery agreement obliges the party to deliver goods with goods description the goods description by day the due day as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that purchase and delivery agreement obliges a party to deliver goods with goods description a goods description by day a due day as its second obligation is missed on day a day D if
+    the deadline of the obligation that purchase and delivery agreement obliges the party to deliver goods with goods description the goods description by day the due day as its second obligation has passed on day D
+    and it is not the case that the obligation that purchase and delivery agreement obliges the party to deliver goods with goods description the goods description by day the due day as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that purchase and delivery agreement obliges the party to deliver goods with goods description the goods description by day the due day as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that purchase and delivery agreement obliges a party to deliver goods with goods description a goods description by day a due day as its second obligation is pending since day a day if
+    the obligation that purchase and delivery agreement obliges the party to deliver goods with goods description the goods description by day the due day as its second obligation starts on day the day
+    and it is not the case that the obligation that purchase and delivery agreement obliges the party to deliver goods with goods description the goods description by day the due day as its second obligation ends on day a second day
+    and it is not the case that the obligation that purchase and delivery agreement obliges the party to deliver goods with goods description the goods description by day the due day as its second obligation is missed on day a third day.
+
+the obligation that purchase and delivery agreement obliges a party to deliver goods with goods description a goods description by day a due day as its second obligation is still open if
+    the obligation that purchase and delivery agreement obliges the party to deliver goods with goods description the goods description by day the due day as its second obligation is pending since day a day.
+
+the deadline of the obligation that payment with late fee obliges a party to make payment with payment amount a payment amount by day a due day as its second obligation has passed on day a day D if
+    the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation starts on day a day N
+    and the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that payment with late fee obliges a party to make payment with payment amount a payment amount by day a due day as its second obligation ends on day a day D if
+    the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation is met on day D
+    and it is not the case that
+        the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that payment with late fee obliges a party to make payment with payment amount a payment amount by day a due day as its second obligation is missed on day a day D if
+    the deadline of the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation has passed on day D
+    and it is not the case that the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that payment with late fee obliges a party to make payment with payment amount a payment amount by day a due day as its second obligation is pending since day a day if
+    the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation starts on day the day
+    and it is not the case that the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation ends on day a second day
+    and it is not the case that the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation is missed on day a third day.
+
+the obligation that payment with late fee obliges a party to make payment with payment amount a payment amount by day a due day as its second obligation is still open if
+    the obligation that payment with late fee obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation is pending since day a day.
+
+the deadline of the obligation that staged service contract obliges a party to provide services with service description a service description by day a due day as its second obligation has passed on day a day D if
+    the obligation that staged service contract obliges the party to provide services with service description the service description by day the due day as its second obligation starts on day a day N
+    and the obligation that staged service contract obliges the party to provide services with service description the service description by day the due day as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that staged service contract obliges a party to provide services with service description a service description by day a due day as its second obligation ends on day a day D if
+    the obligation that staged service contract obliges the party to provide services with service description the service description by day the due day as its second obligation is met on day D
+    and it is not the case that
+        the obligation that staged service contract obliges the party to provide services with service description the service description by day the due day as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that staged service contract obliges a party to provide services with service description a service description by day a due day as its second obligation is missed on day a day D if
+    the deadline of the obligation that staged service contract obliges the party to provide services with service description the service description by day the due day as its second obligation has passed on day D
+    and it is not the case that the obligation that staged service contract obliges the party to provide services with service description the service description by day the due day as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that staged service contract obliges the party to provide services with service description the service description by day the due day as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that staged service contract obliges a party to provide services with service description a service description by day a due day as its second obligation is pending since day a day if
+    the obligation that staged service contract obliges the party to provide services with service description the service description by day the due day as its second obligation starts on day the day
+    and it is not the case that the obligation that staged service contract obliges the party to provide services with service description the service description by day the due day as its second obligation ends on day a second day
+    and it is not the case that the obligation that staged service contract obliges the party to provide services with service description the service description by day the due day as its second obligation is missed on day a third day.
+
+the obligation that staged service contract obliges a party to provide services with service description a service description by day a due day as its second obligation is still open if
+    the obligation that staged service contract obliges the party to provide services with service description the service description by day the due day as its second obligation is pending since day a day.
+
+the deadline of the obligation that construction contract workflow obliges a party to make payment with payment amount a payment amount by day a due day as its second obligation has passed on day a day D if
+    the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation starts on day a day N
+    and the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that construction contract workflow obliges a party to make payment with payment amount a payment amount by day a due day as its second obligation ends on day a day D if
+    the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation is met on day D
+    and it is not the case that
+        the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that construction contract workflow obliges a party to make payment with payment amount a payment amount by day a due day as its second obligation is missed on day a day D if
+    the deadline of the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation has passed on day D
+    and it is not the case that the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that construction contract workflow obliges a party to make payment with payment amount a payment amount by day a due day as its second obligation is pending since day a day if
+    the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation starts on day the day
+    and it is not the case that the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation ends on day a second day
+    and it is not the case that the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation is missed on day a third day.
+
+the obligation that construction contract workflow obliges a party to make payment with payment amount a payment amount by day a due day as its second obligation is still open if
+    the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its second obligation is pending since day a day.
+
+the deadline of the obligation that lease termination and deposit return obliges a party to complete repairs with repair description a repair description by day a due day as its second obligation has passed on day a day D if
+    the obligation that lease termination and deposit return obliges the party to complete repairs with repair description the repair description by day the due day as its second obligation starts on day a day N
+    and the obligation that lease termination and deposit return obliges the party to complete repairs with repair description the repair description by day the due day as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that lease termination and deposit return obliges a party to complete repairs with repair description a repair description by day a due day as its second obligation ends on day a day D if
+    the obligation that lease termination and deposit return obliges the party to complete repairs with repair description the repair description by day the due day as its second obligation is met on day D
+    and it is not the case that
+        the obligation that lease termination and deposit return obliges the party to complete repairs with repair description the repair description by day the due day as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that lease termination and deposit return obliges a party to complete repairs with repair description a repair description by day a due day as its second obligation is missed on day a day D if
+    the deadline of the obligation that lease termination and deposit return obliges the party to complete repairs with repair description the repair description by day the due day as its second obligation has passed on day D
+    and it is not the case that the obligation that lease termination and deposit return obliges the party to complete repairs with repair description the repair description by day the due day as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that lease termination and deposit return obliges the party to complete repairs with repair description the repair description by day the due day as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that lease termination and deposit return obliges a party to complete repairs with repair description a repair description by day a due day as its second obligation is pending since day a day if
+    the obligation that lease termination and deposit return obliges the party to complete repairs with repair description the repair description by day the due day as its second obligation starts on day the day
+    and it is not the case that the obligation that lease termination and deposit return obliges the party to complete repairs with repair description the repair description by day the due day as its second obligation ends on day a second day
+    and it is not the case that the obligation that lease termination and deposit return obliges the party to complete repairs with repair description the repair description by day the due day as its second obligation is missed on day a third day.
+
+the obligation that lease termination and deposit return obliges a party to complete repairs with repair description a repair description by day a due day as its second obligation is still open if
+    the obligation that lease termination and deposit return obliges the party to complete repairs with repair description the repair description by day the due day as its second obligation is pending since day a day.
+
+the deadline of the obligation that landlord repair obligation obliges a party to provide notice with notice content a notice content by day a due day as its second obligation has passed on day a day D if
+    the obligation that landlord repair obligation obliges the party to provide notice with notice content the notice content by day the due day as its second obligation starts on day a day N
+    and the obligation that landlord repair obligation obliges the party to provide notice with notice content the notice content by day the due day as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that landlord repair obligation obliges a party to provide notice with notice content a notice content by day a due day as its second obligation ends on day a day D if
+    the obligation that landlord repair obligation obliges the party to provide notice with notice content the notice content by day the due day as its second obligation is met on day D
+    and it is not the case that
+        the obligation that landlord repair obligation obliges the party to provide notice with notice content the notice content by day the due day as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that landlord repair obligation obliges a party to provide notice with notice content a notice content by day a due day as its second obligation is missed on day a day D if
+    the deadline of the obligation that landlord repair obligation obliges the party to provide notice with notice content the notice content by day the due day as its second obligation has passed on day D
+    and it is not the case that the obligation that landlord repair obligation obliges the party to provide notice with notice content the notice content by day the due day as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that landlord repair obligation obliges the party to provide notice with notice content the notice content by day the due day as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that landlord repair obligation obliges a party to provide notice with notice content a notice content by day a due day as its second obligation is pending since day a day if
+    the obligation that landlord repair obligation obliges the party to provide notice with notice content the notice content by day the due day as its second obligation starts on day the day
+    and it is not the case that the obligation that landlord repair obligation obliges the party to provide notice with notice content the notice content by day the due day as its second obligation ends on day a second day
+    and it is not the case that the obligation that landlord repair obligation obliges the party to provide notice with notice content the notice content by day the due day as its second obligation is missed on day a third day.
+
+the obligation that landlord repair obligation obliges a party to provide notice with notice content a notice content by day a due day as its second obligation is still open if
+    the obligation that landlord repair obligation obliges the party to provide notice with notice content the notice content by day the due day as its second obligation is pending since day a day.
+
+the deadline of the obligation that staged service contract obliges a party to make payment with payment amount a payment amount by day a due day as its third obligation has passed on day a day D if
+    the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation starts on day a day N
+    and the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that staged service contract obliges a party to make payment with payment amount a payment amount by day a due day as its third obligation ends on day a day D if
+    the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation is met on day D
+    and it is not the case that
+        the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation is met on day a day N
+        and N < D.
+
+the obligation that staged service contract obliges a party to make payment with payment amount a payment amount by day a due day as its third obligation is missed on day a day D if
+    the deadline of the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation has passed on day D
+    and it is not the case that the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation has passed on day a day N
+        and N < D.
+
+the obligation that staged service contract obliges a party to make payment with payment amount a payment amount by day a due day as its third obligation is pending since day a day if
+    the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation starts on day the day
+    and it is not the case that the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation ends on day a second day
+    and it is not the case that the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation is missed on day a third day.
+
+the obligation that staged service contract obliges a party to make payment with payment amount a payment amount by day a due day as its third obligation is still open if
+    the obligation that staged service contract obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation is pending since day a day.
+
+the deadline of the obligation that construction contract workflow obliges a party to provide services with service description a service description by day a due day as its third obligation has passed on day a day D if
+    the obligation that construction contract workflow obliges the party to provide services with service description the service description by day the due day as its third obligation starts on day a day N
+    and the obligation that construction contract workflow obliges the party to provide services with service description the service description by day the due day as its third obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that construction contract workflow obliges a party to provide services with service description a service description by day a due day as its third obligation ends on day a day D if
+    the obligation that construction contract workflow obliges the party to provide services with service description the service description by day the due day as its third obligation is met on day D
+    and it is not the case that
+        the obligation that construction contract workflow obliges the party to provide services with service description the service description by day the due day as its third obligation is met on day a day N
+        and N < D.
+
+the obligation that construction contract workflow obliges a party to provide services with service description a service description by day a due day as its third obligation is missed on day a day D if
+    the deadline of the obligation that construction contract workflow obliges the party to provide services with service description the service description by day the due day as its third obligation has passed on day D
+    and it is not the case that the obligation that construction contract workflow obliges the party to provide services with service description the service description by day the due day as its third obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that construction contract workflow obliges the party to provide services with service description the service description by day the due day as its third obligation has passed on day a day N
+        and N < D.
+
+the obligation that construction contract workflow obliges a party to provide services with service description a service description by day a due day as its third obligation is pending since day a day if
+    the obligation that construction contract workflow obliges the party to provide services with service description the service description by day the due day as its third obligation starts on day the day
+    and it is not the case that the obligation that construction contract workflow obliges the party to provide services with service description the service description by day the due day as its third obligation ends on day a second day
+    and it is not the case that the obligation that construction contract workflow obliges the party to provide services with service description the service description by day the due day as its third obligation is missed on day a third day.
+
+the obligation that construction contract workflow obliges a party to provide services with service description a service description by day a due day as its third obligation is still open if
+    the obligation that construction contract workflow obliges the party to provide services with service description the service description by day the due day as its third obligation is pending since day a day.
+
+the deadline of the obligation that lease termination and deposit return obliges a party to return security deposit with deposit amount a deposit amount by day a due day as its third obligation has passed on day a day D if
+    the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its third obligation starts on day a day N
+    and the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its third obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that lease termination and deposit return obliges a party to return security deposit with deposit amount a deposit amount by day a due day as its third obligation ends on day a day D if
+    the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its third obligation is met on day D
+    and it is not the case that
+        the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its third obligation is met on day a day N
+        and N < D.
+
+the obligation that lease termination and deposit return obliges a party to return security deposit with deposit amount a deposit amount by day a due day as its third obligation is missed on day a day D if
+    the deadline of the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its third obligation has passed on day D
+    and it is not the case that the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its third obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its third obligation has passed on day a day N
+        and N < D.
+
+the obligation that lease termination and deposit return obliges a party to return security deposit with deposit amount a deposit amount by day a due day as its third obligation is pending since day a day if
+    the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its third obligation starts on day the day
+    and it is not the case that the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its third obligation ends on day a second day
+    and it is not the case that the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its third obligation is missed on day a third day.
+
+the obligation that lease termination and deposit return obliges a party to return security deposit with deposit amount a deposit amount by day a due day as its third obligation is still open if
+    the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its third obligation is pending since day a day.
+
+the deadline of the obligation that construction contract workflow obliges a party to make payment with payment amount a payment amount by day a due day as its fourth obligation has passed on day a day D if
+    the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its fourth obligation starts on day a day N
+    and the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its fourth obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that construction contract workflow obliges a party to make payment with payment amount a payment amount by day a due day as its fourth obligation ends on day a day D if
+    the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its fourth obligation is met on day D
+    and it is not the case that
+        the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its fourth obligation is met on day a day N
+        and N < D.
+
+the obligation that construction contract workflow obliges a party to make payment with payment amount a payment amount by day a due day as its fourth obligation is missed on day a day D if
+    the deadline of the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its fourth obligation has passed on day D
+    and it is not the case that the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its fourth obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its fourth obligation has passed on day a day N
+        and N < D.
+
+the obligation that construction contract workflow obliges a party to make payment with payment amount a payment amount by day a due day as its fourth obligation is pending since day a day if
+    the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its fourth obligation starts on day the day
+    and it is not the case that the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its fourth obligation ends on day a second day
+    and it is not the case that the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its fourth obligation is missed on day a third day.
+
+the obligation that construction contract workflow obliges a party to make payment with payment amount a payment amount by day a due day as its fourth obligation is still open if
+    the obligation that construction contract workflow obliges the party to make payment with payment amount the payment amount by day the due day as its fourth obligation is pending since day a day.
+
+the deadline of the obligation that lease termination and deposit return obliges a party to return security deposit with deposit amount a deposit amount by day a due day as its fourth obligation has passed on day a day D if
+    the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its fourth obligation starts on day a day N
+    and the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its fourth obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that lease termination and deposit return obliges a party to return security deposit with deposit amount a deposit amount by day a due day as its fourth obligation ends on day a day D if
+    the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its fourth obligation is met on day D
+    and it is not the case that
+        the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its fourth obligation is met on day a day N
+        and N < D.
+
+the obligation that lease termination and deposit return obliges a party to return security deposit with deposit amount a deposit amount by day a due day as its fourth obligation is missed on day a day D if
+    the deadline of the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its fourth obligation has passed on day D
+    and it is not the case that the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its fourth obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its fourth obligation has passed on day a day N
+        and N < D.
+
+the obligation that lease termination and deposit return obliges a party to return security deposit with deposit amount a deposit amount by day a due day as its fourth obligation is pending since day a day if
+    the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its fourth obligation starts on day the day
+    and it is not the case that the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its fourth obligation ends on day a second day
+    and it is not the case that the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its fourth obligation is missed on day a third day.
+
+the obligation that lease termination and deposit return obliges a party to return security deposit with deposit amount a deposit amount by day a due day as its fourth obligation is still open if
+    the obligation that lease termination and deposit return obliges the party to return security deposit with deposit amount the deposit amount by day the due day as its fourth obligation is pending since day a day.
+
+scenario trace_147 is:
+    % #TRACE `monthly loan payment` (line 147) of the L4 source
+    the contract monthly loan payment starts on day 0.
+    the_borrower does make payment with payment amount 10000 on day 20.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_missing expects answers [].
+    q_the_contract_is_breached expects answers [].
+
+scenario trace_151 is:
+    % #TRACE `monthly loan payment` (line 151) of the L4 source
+    the contract monthly loan payment starts on day 0.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_missing expects answers [].
+    q_the_contract_is_breached expects answers [].
+
+scenario trace_154 is:
+    % #TRACE `purchase and delivery agreement` (line 154) of the L4 source
+    the contract purchase and delivery agreement starts on day 0.
+    the_buyer does make payment with payment amount 25000 on day 5.
+    the_seller does deliver goods with goods description "industrial machinery" on day 15.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_missing expects answers [].
+    q_the_contract_is_breached expects answers [].
+
+scenario trace_159 is:
+    % #TRACE `payment with late fee` (line 159) of the L4 source
+    the contract payment with late fee starts on day 0.
+    the_borrower does make payment with payment amount 12000 on day 40.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_missing expects answers [].
+    q_the_contract_is_breached expects answers [].
+
+scenario trace_163 is:
+    % #TRACE `payment with late fee` (line 163) of the L4 source
+    the contract payment with late fee starts on day 0.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_missing expects answers [].
+    q_the_contract_is_breached expects answers [].
+
+scenario trace_166 is:
+    % #TRACE `staged service contract` (line 166) of the L4 source
+    the contract staged service contract starts on day 0.
+    the_client does make payment with payment amount 5000 on day 2.
+    the_contractor does provide services with service description "website development" on day 25.
+    the_client does make payment with payment amount 15000 on day 30.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_missing expects answers [].
+    q_the_contract_is_breached expects answers [].
+
+scenario trace_172 is:
+    % #TRACE `construction contract workflow` (line 172) of the L4 source
+    the contract construction contract workflow starts on day 0.
+    the_contractor does sign contract on day 5.
+    the_client does make payment with payment amount 50000 on day 15.
+    the_contractor does provide services with service description "foundation work" on day 40.
+    the_client does make payment with payment amount 150000 on day 45.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_missing expects answers [].
+    q_the_contract_is_breached expects answers [].
+
+scenario trace_179 is:
+    % #TRACE `lease termination and deposit return` (line 179) of the L4 source
+    the contract lease termination and deposit return starts on day 0.
+    the_tenant does provide notice with notice content "60-day notice of non-renewal" on day 30.
+    the_tenant does complete repairs with repair description "restore premises to original condition" on day 55.
+    the_landlord does return security deposit with deposit amount 3000 on day 65.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_missing expects answers [].
+    q_the_contract_is_breached expects answers [].
+
+scenario trace_185 is:
+    % #TRACE `landlord repair obligation` (line 185) of the L4 source
+    the contract landlord repair obligation starts on day 0.
+    the_landlord does complete repairs with repair description "fix leaking roof" on day 10.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_missing expects answers [].
+    q_the_contract_is_breached expects answers [].
+
+scenario trace_189 is:
+    % #TRACE `landlord repair obligation` (line 189) of the L4 source
+    the contract landlord repair obligation starts on day 0.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_missing expects answers [].
+    q_the_contract_is_breached expects answers [].
+
+query fulfilled is:
+    the contract is fulfilled.
+
+query q_the_contract_is_breached_by_missing is:
+    the contract is breached by which party missing the deadline of day which deadline.
+
+query q_the_contract_is_breached is:
+    the contract is breached.
+
+query q_open_o_monthly_loan_payment_1 is:
+    the obligation that monthly loan payment obliges which party to make payment with payment amount which payment amount by day which due day as its first obligation is still open.
+
+query q_open_o_purchase_and_delivery_agreement_1 is:
+    the obligation that purchase and delivery agreement obliges which party to make payment with payment amount which payment amount by day which due day as its first obligation is still open.
+
+query q_open_o_payment_with_late_fee_1 is:
+    the obligation that payment with late fee obliges which party to make payment with payment amount which payment amount by day which due day as its first obligation is still open.
+
+query q_open_o_staged_service_contract_1 is:
+    the obligation that staged service contract obliges which party to make payment with payment amount which payment amount by day which due day as its first obligation is still open.
+
+query q_open_o_construction_contract_workflow_1 is:
+    the obligation that construction contract workflow obliges which party to sign contract by day which due day as its first obligation is still open.
+
+query q_open_o_lease_termination_and_deposit_return_1 is:
+    the obligation that lease termination and deposit return obliges which party to provide notice with notice content which notice content by day which due day as its first obligation is still open.
+
+query q_open_o_landlord_repair_obligation_1 is:
+    the obligation that landlord repair obligation obliges which party to complete repairs with repair description which repair description by day which due day as its first obligation is still open.
+
+query q_open_o_purchase_and_delivery_agreement_2 is:
+    the obligation that purchase and delivery agreement obliges which party to deliver goods with goods description which goods description by day which due day as its second obligation is still open.
+
+query q_open_o_payment_with_late_fee_2 is:
+    the obligation that payment with late fee obliges which party to make payment with payment amount which payment amount by day which due day as its second obligation is still open.
+
+query q_open_o_staged_service_contract_2 is:
+    the obligation that staged service contract obliges which party to provide services with service description which service description by day which due day as its second obligation is still open.
+
+query q_open_o_construction_contract_workflow_2 is:
+    the obligation that construction contract workflow obliges which party to make payment with payment amount which payment amount by day which due day as its second obligation is still open.
+
+query q_open_o_lease_termination_and_deposit_return_2 is:
+    the obligation that lease termination and deposit return obliges which party to complete repairs with repair description which repair description by day which due day as its second obligation is still open.
+
+query q_open_o_landlord_repair_obligation_2 is:
+    the obligation that landlord repair obligation obliges which party to provide notice with notice content which notice content by day which due day as its second obligation is still open.
+
+query q_open_o_staged_service_contract_3 is:
+    the obligation that staged service contract obliges which party to make payment with payment amount which payment amount by day which due day as its third obligation is still open.
+
+query q_open_o_construction_contract_workflow_3 is:
+    the obligation that construction contract workflow obliges which party to provide services with service description which service description by day which due day as its third obligation is still open.
+
+query q_open_o_lease_termination_and_deposit_return_3 is:
+    the obligation that lease termination and deposit return obliges which party to return security deposit with deposit amount which deposit amount by day which due day as its third obligation is still open.
+
+query q_open_o_construction_contract_workflow_4 is:
+    the obligation that construction contract workflow obliges which party to make payment with payment amount which payment amount by day which due day as its fourth obligation is still open.
+
+query q_open_o_lease_termination_and_deposit_return_4 is:
+    the obligation that lease termination and deposit return obliges which party to return security deposit with deposit amount which deposit amount by day which due day as its fourth obligation is still open.
+

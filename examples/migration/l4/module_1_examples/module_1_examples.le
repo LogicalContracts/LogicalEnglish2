@@ -1,0 +1,68 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from module-1-examples.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the name of *a registered charity* is *a text*.
+    the status of *a registered charity* is *a charity status*.
+    the annual income of *a registered charity* is *a number*.
+    the amount of *a pay the invoice* is *a number*.
+
+the templates are:
+    *an action* is a pay the invoice.
+    L4's answer at line 83 is reproduced.
+    L4's answer at line 84 is reproduced.
+    L4's answer at line 85 is reproduced.
+
+the knowledge base module_1_examples includes:
+
+the text of the source program is at "sources/module-1-examples.l4".
+
+L4's answer at line 83 is reproduced if
+    the name of animal_welfare_society is a text
+    and the text is equal to "Animal Welfare Society".
+
+L4's answer at line 84 is reproduced if
+    the status of animal_welfare_society is active.
+
+L4's answer at line 85 is reproduced if
+    the annual income of animal_welfare_society > 10000.
+
+the name of animal_welfare_society is "Animal Welfare Society".
+
+the status of animal_welfare_society is active.
+
+the annual income of animal_welfare_society is 50000.
+
+% The contracts of this file (the annual return obligation, the sale contract) are twins of their own, written by step 3 of
+% the L4 translator: in LE for LPS, run by LPS2 (LPS2's examples/migration/l4/module_1_examples/module_1_examples.le,
+% each #TRACE a scenario), and as a history view read over a finished history of
+% events (module_1_examples_history.le, beside this program).
+scenario line_83 is, as stated in the source program at line 83:
+    line_83 expects answers ["L4's answer at line 83 is reproduced"].
+
+scenario line_84 is, as stated in the source program at line 84:
+    line_84 expects answers ["L4's answer at line 84 is reproduced"].
+
+scenario line_85 is, as stated in the source program at line 85:
+    line_85 expects answers ["L4's answer at line 85 is reproduced"].
+
+query line_83 is:
+    L4's answer at line 83 is reproduced.
+
+query line_84 is:
+    L4's answer at line 84 is reproduced.
+
+query line_85 is:
+    L4's answer at line 85 is reproduced.
+

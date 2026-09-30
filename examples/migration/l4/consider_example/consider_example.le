@@ -1,0 +1,269 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from consider-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the radius of *a circle* is *a number*.
+    the width of *a rectangle* is *a number*.
+    the height of *a rectangle* is *a number*.
+    the first of *a pair num* is *a number*.
+    the second of *a pair num* is *a number*.
+
+the templates are:
+    *a shape* is a circle.
+    *a shape* is a rectangle.
+    the name of colour for *a colour* is *a text*.
+    the sum of list for *a list* is *a number*.
+    the first element else zero for *a list* is *a number*.
+    the length of list for *a value* with *a list* is *a number*.
+    the get value else default to zero for *a number* is *a second number*.
+    the area of shape for *a shape* is *a number*.
+    the handle one of *a result* is *a value*.
+    the add pair values for *a pair num* is *a number*.
+    the sum of maybe list for *a maybe list* is *a number*.
+    L4's answer at line 27 is reproduced.
+    L4's answer at line 37 is reproduced.
+    L4's answer at line 38 is reproduced.
+    L4's answer at line 48 is reproduced.
+    L4's answer at line 58 is reproduced.
+    L4's answer at line 59 is reproduced.
+    L4's answer at line 78 is reproduced.
+    L4's answer at line 79 is reproduced.
+    L4's answer at line 80 is reproduced.
+    L4's answer at line 103 is reproduced.
+    L4's answer at line 113 is reproduced.
+    L4's answer at line 114 is reproduced.
+
+the knowledge base consider_example includes:
+
+the text of the source program is at "sources/consider-example.l4".
+
+the name of colour for a colour is a text if
+    red is equal to the colour
+    and the text is equal to "Red"
+    otherwise green is equal to the colour
+    and the text is equal to "Green"
+    otherwise blue is equal to the colour
+    and the text is equal to "Blue".
+
+the sum of list for a list is a number N if
+    [] is equal to the list
+    and N is equal to 0
+    otherwise prolog (the list=[T|L])
+    and the sum of list for L is a number M
+    and N = T + M.
+
+the first element else zero for a list is a number if
+    [] is equal to the list
+    and the number is equal to 0
+    otherwise prolog (the list=[T|N])
+    and the number is equal to T.
+
+% RESIDUE r1 BEGIN: length of list
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 41-46
+% a value with no LE form: (`length of list` OF `rest`)
+%   l4:
+%   | GIVEN a IS A TYPE, zs IS A LIST OF a
+%   | GIVETH A NUMBER
+%   | `length of list` zs MEANS
+%   |   CONSIDER zs
+%   |   WHEN EMPTY THEN 0
+%   |   WHEN hd FOLLOWED BY rest THEN 1 PLUS `length of list` rest
+% RESIDUE r1 END
+
+the get value else default to zero for a number is a second number if
+    it is not the case that nothing is equal to the number
+    and the second number is equal to the number
+    otherwise the second number is equal to 0.
+
+the area of shape for a shape is a number N if
+    the shape is a circle
+    and the radius of the shape is a number M
+    and N = 3.14159 * M * M
+    otherwise the shape is a rectangle
+    and the width of the shape is a number K
+    and the height of the shape is a number P
+    and N = K * P
+    otherwise point is equal to the shape
+    and N is equal to 0.
+
+% RESIDUE r2 BEGIN: handle either result
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 84-88
+% a pattern with no LE form: papp('LEFT',[papp(err,[])])
+%   l4:
+%   | GIVEN result IS AN EITHER STRING NUMBER
+%   | `handle either result` result MEANS
+%   |   CONSIDER result
+%   |   WHEN LEFT err THEN CONCAT "Error: ", err
+%   |   WHEN RIGHT val THEN CONCAT "Value: ", TOSTRING val
+% RESIDUE r2 END
+
+the add pair values for a pair num is a number N if
+    the first of the pair num is a number M
+    and the second of the pair num is a number K
+    and N = M + K.
+
+the sum of maybe list for a maybe list is a number if
+    it is not the case that nothing is equal to the maybe list
+    and the sum of list for the maybe list is the number
+    otherwise the number is equal to 0.
+
+L4's answer at line 27 is reproduced if
+    the sum of list for [1, 2, 3, 4, 5] is a number N
+    and N * 100000000 >= 1499999999
+    and N * 100000000 <= 1500000001.
+
+L4's answer at line 37 is reproduced if
+    the first element else zero for [10, 20, 30] is a number N
+    and N * 100000000 >= 999999999
+    and N * 100000000 <= 1000000001.
+
+L4's answer at line 38 is reproduced if
+    the first element else zero for [] is a number N
+    and N * 1000000000 >= -1
+    and N * 1000000000 <= 1.
+
+L4's answer at line 58 is reproduced if
+    the get value else default to zero for 42 is a number N
+    and N * 100000000 >= 4199999999
+    and N * 100000000 <= 4200000001.
+
+L4's answer at line 59 is reproduced if
+    the get value else default to zero for nothing is a number N
+    and N * 1000000000 >= -1
+    and N * 1000000000 <= 1.
+
+L4's answer at line 78 is reproduced if
+    the area of shape for my_circle is a number N
+    and N * 100000000 >= 7853974999
+    and N * 100000000 <= 7853975001.
+
+L4's answer at line 79 is reproduced if
+    the area of shape for my_rectangle is a number N
+    and N * 100000000 >= 2399999999
+    and N * 100000000 <= 2400000001.
+
+L4's answer at line 80 is reproduced if
+    the area of shape for point is a number N
+    and N * 1000000000 >= -1
+    and N * 1000000000 <= 1.
+
+L4's answer at line 103 is reproduced if
+    the add pair values for first_pair is a number N
+    and N * 100000000 >= 2999999999
+    and N * 100000000 <= 3000000001.
+
+L4's answer at line 113 is reproduced if
+    the sum of maybe list for [1, 2, 3] is a number N
+    and N * 1000000000 >= 5999999999
+    and N * 1000000000 <= 6000000001.
+
+L4's answer at line 114 is reproduced if
+    the sum of maybe list for nothing is a number N
+    and N * 1000000000 >= -1
+    and N * 1000000000 <= 1.
+
+my_circle is a circle.
+
+the radius of my_circle is 5.
+
+my_rectangle is a rectangle.
+
+the width of my_rectangle is 4.
+
+the height of my_rectangle is 6.
+
+the first of first_pair is 10.
+
+the second of first_pair is 20.
+
+scenario line_14 is, as stated in the source program at line 14:
+    line_14 expects answers ["the name of colour for red is Red"].
+
+scenario line_15 is, as stated in the source program at line 15:
+    line_15 expects answers ["the name of colour for blue is Blue"].
+
+scenario line_27 is, as stated in the source program at line 27:
+    line_27 expects answers ["L4's answer at line 27 is reproduced"].
+
+scenario line_37 is, as stated in the source program at line 37:
+    line_37 expects answers ["L4's answer at line 37 is reproduced"].
+
+scenario line_38 is, as stated in the source program at line 38:
+    line_38 expects answers ["L4's answer at line 38 is reproduced"].
+
+scenario line_58 is, as stated in the source program at line 58:
+    line_58 expects answers ["L4's answer at line 58 is reproduced"].
+
+scenario line_59 is, as stated in the source program at line 59:
+    line_59 expects answers ["L4's answer at line 59 is reproduced"].
+
+scenario line_78 is, as stated in the source program at line 78:
+    line_78 expects answers ["L4's answer at line 78 is reproduced"].
+
+scenario line_79 is, as stated in the source program at line 79:
+    line_79 expects answers ["L4's answer at line 79 is reproduced"].
+
+scenario line_80 is, as stated in the source program at line 80:
+    line_80 expects answers ["L4's answer at line 80 is reproduced"].
+
+scenario line_103 is, as stated in the source program at line 103:
+    line_103 expects answers ["L4's answer at line 103 is reproduced"].
+
+scenario line_113 is, as stated in the source program at line 113:
+    line_113 expects answers ["L4's answer at line 113 is reproduced"].
+
+scenario line_114 is, as stated in the source program at line 114:
+    line_114 expects answers ["L4's answer at line 114 is reproduced"].
+
+query line_14 is:
+    the name of colour for red is which text.
+
+query line_15 is:
+    the name of colour for blue is which text.
+
+query line_27 is:
+    L4's answer at line 27 is reproduced.
+
+query line_37 is:
+    L4's answer at line 37 is reproduced.
+
+query line_38 is:
+    L4's answer at line 38 is reproduced.
+
+query line_58 is:
+    L4's answer at line 58 is reproduced.
+
+query line_59 is:
+    L4's answer at line 59 is reproduced.
+
+query line_78 is:
+    L4's answer at line 78 is reproduced.
+
+query line_79 is:
+    L4's answer at line 79 is reproduced.
+
+query line_80 is:
+    L4's answer at line 80 is reproduced.
+
+query line_103 is:
+    L4's answer at line 103 is reproduced.
+
+query line_113 is:
+    L4's answer at line 113 is reproduced.
+
+query line_114 is:
+    L4's answer at line 114 is reproduced.
+

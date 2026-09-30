@@ -1,0 +1,136 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from yield-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the name of *a person* is *a text*.
+    the age of *a person* is *a number*.
+
+the templates are:
+    the add one is *a value*.
+    the add together is *a value*.
+    the multiply values is *a value*.
+    the double number is *a value*.
+    the format pair is *a value*.
+    all positive for *a numbers*.
+    *a numbers* has negative.
+    the doubled list for *a numbers* is *a list*.
+    the only positive for *a numbers* is *a list*.
+    all adults for *a people*.
+    the negate for *a predicate* is *a value*.
+    the compose for *a value* with *a second value* with *a third value* with *a fourth value* with *a fifth value* is *a sixth value*.
+    L4's answer at line 89 is reproduced.
+    L4's answer at line 90 is reproduced.
+    L4's answer at line 91 is reproduced.
+
+the knowledge base yield_example includes:
+
+the text of the source program is at "sources/yield-example.l4".
+
+% RESIDUE r1 BEGIN: add one
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 10-10
+% a value with no LE form: (GIVEN `x` YIELD (`x` PLUS 1))
+%   l4:
+%   | DECIDE `add one` IS GIVEN x YIELD x + 1
+% RESIDUE r1 END
+
+% RESIDUE r2 BEGIN: add together
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 13-13
+% a value with no LE form: (GIVEN `x`, `y` YIELD (`x` PLUS `y`))
+%   l4:
+%   | DECIDE `add together` IS GIVEN x, y YIELD x + y
+% RESIDUE r2 END
+
+% RESIDUE r3 BEGIN: multiply values
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 16-19
+% a value with no LE form: (GIVEN `a`, `b` YIELD (`a` TIMES `b`))
+%   l4:
+%   | DECIDE `multiply values` IS
+%   |   GIVEN a
+%   |         b
+%   |   YIELD a * b
+% RESIDUE r3 END
+
+% RESIDUE r4 BEGIN: double number
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 26-26
+% a value with no LE form: (GIVEN `n` IS `NUMBER` YIELD (`n` TIMES 2))
+%   l4:
+%   | DECIDE `double number` IS GIVEN n IS A NUMBER YIELD n * 2
+% RESIDUE r4 END
+
+% RESIDUE r5 BEGIN: format pair
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 29-32
+% a value with no LE form: (GIVEN `personName` IS `STRING`, `personAge` IS `NUMBER` YIELD `personName`)
+%   l4:
+%   | DECIDE `format pair` IS
+%   |   GIVEN personName IS A STRING
+%   |         personAge IS A NUMBER
+%   |   YIELD personName
+% RESIDUE r5 END
+
+all positive for a numbers if
+    for all cases in which
+        a number N is in the numbers
+        it is the case that
+            N > 0.
+
+a numbers has negative if
+    a number N is in the numbers
+    and N < 0.
+
+the doubled list for a numbers is a list L if
+    L is the list of each T such that
+        a thing N is in the numbers
+        and a thing T = N * 2.
+
+the only positive for a numbers is a list L if
+    L is the list of each N such that
+        a number N is in the numbers
+        and N > 0.
+
+all adults for a people if
+    for all cases in which
+        a person is in the people
+        it is the case that
+            the age of the person is a number N
+            and N >= 18.
+
+% RESIDUE r6 BEGIN: negate
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 72-74
+% a value with no LE form: (GIVEN `x` YIELD (NOT (`predicate` OF `x`)))
+%   l4:
+%   | GIVEN predicate IS A FUNCTION FROM NUMBER TO BOOLEAN
+%   | GIVETH A FUNCTION FROM NUMBER TO BOOLEAN
+%   | negate predicate MEANS GIVEN x YIELD NOT predicate x
+% RESIDUE r6 END
+
+% RESIDUE r7 BEGIN: compose
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 77-83
+% a value with no LE form: (GIVEN `x` IS `a` YIELD (`f` OF (`g` OF `x`)))
+%   l4:
+%   | GIVEN a IS A TYPE
+%   |       b IS A TYPE
+%   |       c IS A TYPE
+%   |       f IS A FUNCTION FROM b TO c
+%   |       g IS A FUNCTION FROM a TO b
+%   | GIVETH A FUNCTION FROM a TO c
+%   | compose f g MEANS GIVEN x IS AN a YIELD f (g x)
+% RESIDUE r7 END
+

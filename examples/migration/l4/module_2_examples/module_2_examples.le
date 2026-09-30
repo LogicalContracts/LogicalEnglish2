@@ -1,0 +1,147 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from module-2-examples.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the name of *a person* is *a text*.
+    the address of *a person* is *a text*.
+    the name of *a registered charity* is *a text*.
+    the registration number of *a registered charity* is *a text*.
+    the registration date of *a registered charity* is *a number*.
+    the address of *a registered charity* is *a text*.
+    the description of *an other purpose* is *a text*.
+    the reason of *a suspended* is *a text*.
+    the bank name of *a bank account* is *a text*.
+    the account number of *a bank account* is *a text*.
+    the SWIFT code of *a bank account* is *a text*.
+    the company name of *a company* is *a text*.
+    the jurisdiction of *a company* is *a text*.
+    the bank account of *a company* is *a bank account*.
+    the person of *an individual* is *a person*.
+    the company of *a corporation* is *a company*.
+
+the templates are:
+    *a purpose* is an other purpose.
+    *a status* is a suspended.
+    *a legal entity* is an individual.
+    *a legal entity* is a corporation.
+    *a person* is a governor.
+    *a purpose* is charitable.
+    the entitys name for *an entity* is *a text*.
+    the education purpose is *a value*.
+    L4's answer at line 112 is reproduced.
+    L4's answer at line 113 is reproduced.
+    L4's answer at line 116 is reproduced.
+
+the knowledge base module_2_examples includes:
+
+the text of the source program is at "sources/module-2-examples.l4".
+
+a purpose is charitable if
+    advancement_of_education is equal to the purpose
+    otherwise advancement_of_animal_welfare is equal to the purpose
+    otherwise prevention_else_relief_of_poverty is equal to the purpose
+    otherwise advancement_of_health is equal to the purpose
+    otherwise advancement_of_religion is equal to the purpose.
+
+the entitys name for an entity is a text if
+    the entity is an individual
+    and the person of the entity is a person
+    and the name of the person is the text
+    otherwise the entity is a corporation
+    and the company of the entity is a company
+    and the company name of the company is the text.
+
+the education purpose is advancement_of_education.
+
+L4's answer at line 112 is reproduced if
+    the name of alice_smith is a text
+    and the text is equal to "Alice Smith".
+
+L4's answer at line 113 is reproduced if
+    alice_smith is a governor.
+
+L4's answer at line 116 is reproduced if
+    the bank name of the bank account of acme_corporation is a text
+    and the text is equal to "DBS Bank".
+
+the name of alice_smith is "Alice Smith".
+
+the address of alice_smith is "123 Main Street, Jersey".
+
+alice_smith is a governor.
+
+the name of bob_jones is "Bob Jones".
+
+the address of bob_jones is "456 High Street, Jersey".
+
+custom_purpose is an other purpose.
+
+the description of custom_purpose is "local community support".
+
+the bank name of acme_bank_account is "DBS Bank".
+
+the account number of acme_bank_account is "123-456789-0".
+
+the SWIFT code of acme_bank_account is "DBSSSGSG".
+
+the company name of acme_corporation is "Acme Corp".
+
+the jurisdiction of acme_corporation is "Singapore".
+
+the bank account of acme_corporation is acme_bank_account.
+
+alice_as_individual is an individual.
+
+the person of alice_as_individual is alice_smith.
+
+acme_as_corporation is a corporation.
+
+the company of acme_as_corporation is acme_corporation.
+
+scenario line_112 is, as stated in the source program at line 112:
+    line_112 expects answers ["L4's answer at line 112 is reproduced"].
+
+scenario line_113 is, as stated in the source program at line 113:
+    line_113 expects answers ["L4's answer at line 113 is reproduced"].
+
+scenario line_116 is, as stated in the source program at line 116:
+    line_116 expects answers ["L4's answer at line 116 is reproduced"].
+
+scenario line_120 is, as stated in the source program at line 120:
+    line_120 expects answers [].
+
+scenario line_123 is, as stated in the source program at line 123:
+    line_123 expects answers ["the entitys name for alice_as_individual is Alice Smith"].
+
+scenario line_124 is, as stated in the source program at line 124:
+    line_124 expects answers ["the entitys name for acme_as_corporation is Acme Corp"].
+
+query line_112 is:
+    L4's answer at line 112 is reproduced.
+
+query line_113 is:
+    L4's answer at line 113 is reproduced.
+
+query line_116 is:
+    L4's answer at line 116 is reproduced.
+
+query line_120 is:
+    custom_purpose is charitable.
+
+query line_123 is:
+    the entitys name for alice_as_individual is which text.
+
+query line_124 is:
+    the entitys name for acme_as_corporation is which text.
+

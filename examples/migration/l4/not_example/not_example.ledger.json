@@ -1,0 +1,304 @@
+{
+  "counts": {"approximated":6,"encoded":27,"residue":0},
+  "entries": [
+    {
+      "element":"hasAccess",
+      "in_program":"*a boolean* has access for *a second boolean*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"notAThenB",
+      "in_program":"not athen b for *a boolean* with *a second boolean*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"notBoth",
+      "in_program":"not both for *a value* with *a second value*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"isNotZero",
+      "in_program":"*a number* is not zero",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"isNotPositive",
+      "in_program":"*a value* is not positive",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"invertedMessage",
+      "in_program":"the inverted message for *a flag* is *a text*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"hasCriminalRecord",
+      "in_program":"hasCriminalRecord",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"isClean",
+      "in_program":"is clean",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"personAge",
+      "in_program":"personAge",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"isBlocked",
+      "in_program":"isBlocked",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"canAccess",
+      "in_program":"can access",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"hasAccess",
+      "in_program":"*a boolean* has access for *a second boolean*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"notAThenB",
+      "in_program":"not athen b for *a boolean* with *a second boolean*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"notBoth",
+      "in_program":"not both for *a value* with *a second value*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"isNotZero",
+      "in_program":"*a number* is not zero",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"isNotPositive",
+      "in_program":"*a value* is not positive",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"invertedMessage",
+      "in_program":"the inverted message for *a flag* is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 5",
+      "in_program":"line_5",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 6",
+      "in_program":"line_6",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 10",
+      "in_program":"line_10",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 11",
+      "in_program":"line_11",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 35",
+      "in_program":"line_35",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 36",
+      "in_program":"line_36",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 48",
+      "in_program":"line_48",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 49",
+      "in_program":"line_49",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 50",
+      "in_program":"line_50",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 51",
+      "in_program":"line_51",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 59",
+      "in_program":"line_59",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 60",
+      "in_program":"line_60",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 61",
+      "in_program":"line_61",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 62",
+      "in_program":"line_62",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 72",
+      "in_program":"line_72",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 73",
+      "in_program":"line_73",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":18,
+    "tests": [
+      {"detail":"","query":"line_5","result":"pass","scenario":"line_5"},
+      {"detail":"","query":"line_6","result":"pass","scenario":"line_6"},
+      {"detail":"","query":"line_10","result":"pass","scenario":"line_10"},
+      {"detail":"","query":"line_11","result":"pass","scenario":"line_11"},
+      {"detail":"","query":"line_35","result":"pass","scenario":"line_35"},
+      {"detail":"","query":"line_36","result":"pass","scenario":"line_36"},
+      {"detail":"","query":"line_48","result":"pass","scenario":"line_48"},
+      {"detail":"","query":"line_49","result":"pass","scenario":"line_49"},
+      {"detail":"","query":"line_50","result":"pass","scenario":"line_50"},
+      {"detail":"","query":"line_51","result":"pass","scenario":"line_51"},
+      {"detail":"","query":"line_59","result":"pass","scenario":"line_59"},
+      {"detail":"","query":"line_60","result":"pass","scenario":"line_60"},
+      {"detail":"","query":"line_61","result":"pass","scenario":"line_61"},
+      {"detail":"","query":"line_62","result":"pass","scenario":"line_62"},
+      {"detail":"","query":"line_72","result":"pass","scenario":"line_72"},
+      {"detail":"","query":"line_73","result":"pass","scenario":"line_73"},
+      {"detail":"","query":"is_clean","result":"pass","scenario":"variant_1"},
+      {"detail":"","query":"is_clean","result":"pass","scenario":"variant_2"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["not-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"not_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":18
+}

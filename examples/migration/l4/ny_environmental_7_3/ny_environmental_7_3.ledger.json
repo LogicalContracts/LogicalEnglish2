@@ -1,0 +1,341 @@
+{
+  "counts": {"approximated":5,"encoded":30,"residue":5},
+  "entries": [
+    {
+      "element":"Commission",
+      "in_program":"Commission",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Newspaper",
+      "in_program":"Newspaper",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Notice",
+      "in_program":"Notice",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Applicant",
+      "in_program":"Applicant",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"File draft copy of EIS and cause notice of hearing to be published",
+      "in_program":"File draft copy of EIS and cause notice of hearing to be published",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Action that may have a significant adverse effect on the environment",
+      "in_program":"Action that may have a significant adverse effect on the environment",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Environmental Impact Statement",
+      "in_program":"Environmental Impact Statement",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Proceeding Record",
+      "in_program":"Proceeding Record",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Tentative or recommended decision",
+      "in_program":"Tentative or recommended decision",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Final EIS Issuance Extension Cause",
+      "in_program":"Final EIS Issuance Extension Cause",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Final EIS Issuance",
+      "in_program":"Final EIS Issuance",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Render decision on whether or not to approve action",
+      "in_program":"Render decision on whether or not to approve action",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Tentative or recommended decision will contain a final EIS",
+      "in_program":"tentative else recommended decision will contain a final EIS for *a decision*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Determining issuance for final EIS",
+      "in_program":"the determining issuance for final EIS for *a decision* with *a cause for extension* is *a final EIS issuance*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Determining days till issuance for final EIS",
+      "in_program":"the determining days till issuance for final EIS for *a decision* with *a cause for extension* with *a days of extension* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Notice of no significant adverse effect on the environment determination will be filed in accordance with 6 NYCRR 617.10",
+      "in_program":"notice of no significant adverse effect on the environment determination will be filed in accordance with 6 NYCRR 617 10 for *a decision*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Filing of draft copy of EIS and causing notice of hearing to be published",
+      "in_program":"Filing of draft copy of EIS and causing notice of hearing to be published",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"Example Commission",
+      "in_program":"example_commission",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Example EIS",
+      "in_program":"example_eis",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Example Action",
+      "in_program":"example_action",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Example Filing",
+      "in_program":"r1",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"Example Newspaper",
+      "in_program":"example_newspaper",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Example Hearing Notice",
+      "in_program":"example_hearing_notice",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Example Notice of EIS Completion",
+      "in_program":"example_notice_of_eis_completion",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Tentative or recommended decision will contain a final EIS",
+      "in_program":"tentative else recommended decision will contain a final EIS for *a decision*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Example Proceeding Record",
+      "in_program":"example_proceeding_record",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Example Decision",
+      "in_program":"example_decision",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Determining issuance for final EIS",
+      "in_program":"the determining issuance for final EIS for *a decision* with *a cause for extension* is *a final EIS issuance*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Closing date",
+      "in_program":"the closing date for *a decision* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Closing date",
+      "in_program":"the closing date for *a decision* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Determining days till issuance for final EIS",
+      "in_program":"the determining days till issuance for final EIS for *a decision* with *a cause for extension* with *a days of extension* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Notice of no significant adverse effect on the environment determination will be filed in accordance with 6 NYCRR 617.10",
+      "in_program":"notice of no significant adverse effect on the environment determination will be filed in accordance with 6 NYCRR 617 10 for *a decision*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Copies of the decision (together with a notice of its completion) will be filed in accordance with 6 NYCRR 617.10.",
+      "in_program":"copies of *a decision* together with a notice of its completion will be filed in accordance with 6 NYCRR 617 10",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rendering of the decision on whether or not to approve action proposed by applicant",
+      "in_program":"Rendering of the decision on whether or not to approve action proposed by applicant",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"Never",
+      "in_program":"the never is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#eval at line 117",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"the evaluator's answer is not a value LE writes: PARTY `The commission`\nMUST `File draft copy of EIS and cause notice of hearing to be published` `Hearing Notice`\n                                                                           `Notice of EIS Completion`\n                                                                           `Prepared draft copy of EIS` PROVIDED (`Hearing Notice`'s `Scheduled date`) AT LEAST ((`Hearing Notice`'s `Publish date`) PLUS 14) AND (`Hearing Notice`'s `Scheduled date`) AT MOST ((`Hearing Notice`'s `Publish date`) PLUS 60) AND CONSIDER `Prepared draft copy of EIS` WHEN NOTHING THEN FALSE, WHEN JUST EIS THEN (`Hearing Notice`'s `Scheduled date`) AT LEAST ((EIS's `Draft filing date`) PLUS 15) AND (`Hearing Notice`'s `Scheduled date`) AT MOST ((EIS's `Draft filing date`) PLUS 60) AND ((`Hearing Notice`'s `Publishing medium`)'s `General circulation area`) EQUALS (`The action`'s `Potential effect area`) AND `Hearing Notice`'s `Is in accordance with the requirements of 6 NYCRR 617.10` AND `Notice of EIS Completion`'s `Is in accordance with the requirements of 6 NYCRR 617.10`\nWITHIN Day OF (`the week after` OF (March OF 2, 2028))\nHENCE FULFILLED",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#EVAL at line 160",
+      "in_program":"line_160",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#eval at line 205",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value that is not a constant: `NOTHING`",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"Filing of draft copy of EIS and causing notice of hearing to be published",
+      "in_program":"Filing of draft copy of EIS and causing notice of hearing to be published",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Rendering of the decision on whether or not to approve action proposed by applicant",
+      "in_program":"Rendering of the decision on whether or not to approve action proposed by applicant",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":1,
+    "tests": [ {"detail":"","query":"line_160","result":"pass","scenario":"line_160"} ]
+  },
+  "meta": {
+    "artifacts": ["ny-environmental-7.3.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"ny_environmental_7_3",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":1
+}

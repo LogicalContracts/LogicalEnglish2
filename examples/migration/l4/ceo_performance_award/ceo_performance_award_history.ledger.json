@@ -1,0 +1,14 @@
+{
+  "counts": {"approximated":0,"encoded":0,"residue":0},
+  "entries": [],
+  "fidelity":null,
+  "meta": {
+    "artifacts": ["ceo-performance-award.l4" ],
+    "date":"2026-09-29",
+    "program":"ceo_performance_award_history",
+    "source":"an L4 file (smucclaw/l4-ide)",
+    "translator":"the L4 translator"
+  },
+  "pending_expectations":0,
+  "source_tests":0
+}

@@ -55,6 +55,21 @@ import_arrows(Input0, OutDir, imported(LEFile, Notes)) :-
         close(S)),
     Notes = ["arrows read"].
 
+%   A made-up translator that takes the upload's options (import_call/5):
+%   it writes which editor asked.
+le_import:importer(asker, "Who asks (test)", [asker], File,
+                   test_le_import:import_asker, test_le_import:detect_asker) :-
+    this_file(File).
+
+detect_asker(Input) :- file_name_extension(_, asker, Input).
+
+import_asker(_Input, OutDir, Options, imported(LEFile, [Note])) :-
+    ( memberchk(target(lps), Options) -> Note = "lps" ; Note = "le" ),
+    atomic_list_concat([OutDir, '/asker.le'], LEFile),
+    setup_call_cleanup(open(LEFile, write, S),
+        format(S, "the target language is: prolog.~n~nthe templates are:~n    *a thing* is ready.~n~nthe knowledge base asker includes:~n~nx is ready.~n", []),
+        close(S)).
+
 %   The made-up exporter: a program with `*a thing* is ready` rules written
 %   back as arrows (the importer's own format), with a link.
 :- multifile le_import:exporter/6.
@@ -259,5 +274,11 @@ test(export_not_offered_when_it_does_not_apply) :-
     le_kbs:load_text("the target language is: prolog.\n\nthe templates are:\n    *a thing* is green.\n\nthe knowledge base u includes:\n\nb is green.\n", KB),
     export_formats(KB, Fs),
     assertion(\+ ( member(F, Fs), get_dict(id, F, arrows) )).
+
+test(an_importer_is_told_which_editor_asks) :-
+    import_upload("q.asker", text("x"), R1, []),
+    assertion(R1.notes == ["le"]),
+    import_upload("q.asker", text("x"), R2, [target(lps)]),
+    assertion(R2.notes == ["lps"]).
 
 :- end_tests(le_import).

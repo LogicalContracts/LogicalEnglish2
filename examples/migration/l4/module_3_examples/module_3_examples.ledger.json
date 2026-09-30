@@ -1,0 +1,467 @@
+{
+  "counts": {"approximated":9,"encoded":38,"residue":7},
+  "entries": [
+    {
+      "element":"Conviction",
+      "in_program":"Conviction",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Person",
+      "in_program":"Person",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the age category",
+      "in_program":"the age category for *an age* is *a text*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the letter grade",
+      "in_program":"the letter grade for *a score* is *a text*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the amount category",
+      "in_program":"the amount category for *an amount* is *a text*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the person can vote",
+      "in_program":"the person can vote for *an age* with *a boolean*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the transaction needs review",
+      "in_program":"the transaction needs review for *an amount* with *a boolean*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the person is a minor",
+      "in_program":"the person is a minor for *an age*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"some number is negative",
+      "in_program":"some number is negative for *a numbers*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"numbers above threshold",
+      "in_program":"the numbers above threshold for *a numbers* with *a threshold* is *a list*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"describe the list",
+      "in_program":"the describe the list for *an items* is *a text*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the age category",
+      "in_program":"the age category for *an age* is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the letter grade",
+      "in_program":"the letter grade for *a score* is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the amount category",
+      "in_program":"the amount category for *an amount* is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the person can vote",
+      "in_program":"the person can vote for *an age* with *a boolean*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the transaction needs review",
+      "in_program":"the transaction needs review for *an amount* with *a boolean*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the person is a minor",
+      "in_program":"the person is a minor for *an age*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"all numbers are positive",
+      "in_program":"all *a numbers* are positive",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"some number is negative",
+      "in_program":"some number is negative for *a numbers*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"numbers above threshold",
+      "in_program":"the numbers above threshold for *a numbers* with *a threshold* is *a list*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"describe the list",
+      "in_program":"the describe the list for *an items* is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the person has an unspent conviction",
+      "in_program":"*a person* has an unspent conviction",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the person is eligible for the position",
+      "in_program":"*a person* is eligible for the position",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"positive numbers",
+      "in_program":"the positive numbers is *a list*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"mixed numbers",
+      "in_program":"the mixed numbers is *a list*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"empty list",
+      "in_program":"the empty list is *a list*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"single item",
+      "in_program":"the single item is *a list*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"multiple items",
+      "in_program":"the multiple items is *a list*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"spent conviction",
+      "in_program":"spent_conviction",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"unspent conviction",
+      "in_program":"unspent_conviction",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"eligible person",
+      "in_program":"eligible_person",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"bankrupt person",
+      "in_program":"bankrupt_person",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"person with unspent conviction",
+      "in_program":"person_with_unspent_conviction",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"young person",
+      "in_program":"young_person",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 157",
+      "in_program":"line_157",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 158",
+      "in_program":"line_158",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 159",
+      "in_program":"line_159",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 160",
+      "in_program":"line_160",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 161",
+      "in_program":"line_161",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 162",
+      "in_program":"line_162",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 165",
+      "in_program":"line_165",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 166",
+      "in_program":"line_166",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 167",
+      "in_program":"line_167",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#eval at line 170",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value that is not a constant: `positive numbers`",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#eval at line 171",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value that is not a constant: `mixed numbers`",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#eval at line 172",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value that is not a constant: `mixed numbers`",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#eval at line 173",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value that is not a constant: `positive numbers`",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#eval at line 176",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value that is not a constant: `empty list`",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#eval at line 177",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value that is not a constant: `single item`",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#eval at line 178",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value that is not a constant: `multiple items`",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#EVAL at line 181",
+      "in_program":"line_181",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 182",
+      "in_program":"line_182",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 183",
+      "in_program":"line_183",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 184",
+      "in_program":"line_184",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":13,
+    "tests": [
+      {"detail":"","query":"line_157","result":"pass","scenario":"line_157"},
+      {"detail":"","query":"line_158","result":"pass","scenario":"line_158"},
+      {"detail":"","query":"line_159","result":"pass","scenario":"line_159"},
+      {"detail":"","query":"line_160","result":"pass","scenario":"line_160"},
+      {"detail":"","query":"line_161","result":"pass","scenario":"line_161"},
+      {"detail":"","query":"line_162","result":"pass","scenario":"line_162"},
+      {"detail":"","query":"line_165","result":"pass","scenario":"line_165"},
+      {"detail":"","query":"line_166","result":"pass","scenario":"line_166"},
+      {"detail":"","query":"line_167","result":"pass","scenario":"line_167"},
+      {"detail":"","query":"line_181","result":"pass","scenario":"line_181"},
+      {"detail":"","query":"line_182","result":"pass","scenario":"line_182"},
+      {"detail":"","query":"line_183","result":"pass","scenario":"line_183"},
+      {"detail":"","query":"line_184","result":"pass","scenario":"line_184"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["module-3-examples.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"module_3_examples",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":13
+}

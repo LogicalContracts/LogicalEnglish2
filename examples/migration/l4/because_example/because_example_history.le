@@ -1,0 +1,412 @@
+% because-example.l4: the history view
+%
+% The timeless Logical English twin of the contracts of an L4 file (because-example.l4), written
+% by the L4 translator (docs/migration/l4.md, step 3): the contracts read over a finished
+% history of events. For each obligation the program says when it starts, its deadline
+% and which events meet it, and four rules say how it ends: met, missed, or still
+% open when the history stops. The same obligations, in the same words, as the LE for LPS twin in LPS2's
+% examples/migration/l4/; each scenario expects what that twin's run ended with, which
+% agrees with L4's evaluator.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    something happens on day *a day*.
+    an obligation can start on day *a day*.
+    the obligation that delivery with reason obliges *a party* to deliver goods by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that delivery with reason obliges *a party* to deliver goods by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that delivery with reason obliges *a party* to deliver goods by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that delivery with reason obliges *a party* to deliver goods by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that delivery with reason obliges *a party* to deliver goods by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that delivery with reason obliges *a party* to deliver goods by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that delivery with reason obliges *a party* to deliver goods by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that delivery with reason obliges *a party* to deliver goods by day *a due day* as its first obligation is still open.
+    the obligation that delivery full form obliges *a party* to deliver goods by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that delivery full form obliges *a party* to deliver goods by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that delivery full form obliges *a party* to deliver goods by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that delivery full form obliges *a party* to deliver goods by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that delivery full form obliges *a party* to deliver goods by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that delivery full form obliges *a party* to deliver goods by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that delivery full form obliges *a party* to deliver goods by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that delivery full form obliges *a party* to deliver goods by day *a due day* as its first obligation is still open.
+    the obligation that no smoking policy forbids *a party* to smoke as its first obligation starts on day *a day*; memorable.
+    the obligation that no smoking policy forbids *a party* to smoke as its first obligation has deadline day *a day*.
+    the obligation that no smoking policy forbids *a party* to smoke as its first obligation is met on day *a day*.
+    the obligation that no smoking policy forbids *a party* to smoke as its first obligation ends on day *a day*; memorable.
+    the obligation that no smoking policy forbids *a party* to smoke as its first obligation is missed on day *a day*.
+    the deadline of the obligation that no smoking policy forbids *a party* to smoke as its first obligation has passed on day *a day*; memorable.
+    the obligation that no smoking policy forbids *a party* to smoke as its first obligation is pending since day *a day*.
+    the obligation that no smoking policy forbids *a party* to smoke as its first obligation is still open.
+    the obligation that rental agreement obliges *a party* to pay rent with amount *an amount* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that rental agreement obliges *a party* to pay rent with amount *an amount* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that rental agreement obliges *a party* to pay rent with amount *an amount* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that rental agreement obliges *a party* to pay rent with amount *an amount* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that rental agreement obliges *a party* to pay rent with amount *an amount* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that rental agreement obliges *a party* to pay rent with amount *an amount* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that rental agreement obliges *a party* to pay rent with amount *an amount* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that rental agreement obliges *a party* to pay rent with amount *an amount* by day *a due day* as its first obligation is still open.
+    the obligation that rental agreement obliges *a party* to maintain property by day *a due day* as its second obligation starts on day *a day*; memorable.
+    the obligation that rental agreement obliges *a party* to maintain property by day *a due day* as its second obligation has deadline day *a day*.
+    the obligation that rental agreement obliges *a party* to maintain property by day *a due day* as its second obligation is met on day *a day*.
+    the obligation that rental agreement obliges *a party* to maintain property by day *a due day* as its second obligation ends on day *a day*; memorable.
+    the obligation that rental agreement obliges *a party* to maintain property by day *a due day* as its second obligation is missed on day *a day*.
+    the deadline of the obligation that rental agreement obliges *a party* to maintain property by day *a due day* as its second obligation has passed on day *a day*; memorable.
+    the obligation that rental agreement obliges *a party* to maintain property by day *a due day* as its second obligation is pending since day *a day*.
+    the obligation that rental agreement obliges *a party* to maintain property by day *a due day* as its second obligation is still open.
+    the contract delivery with reason starts on day *a day*; scenario element.
+    delivery with reason obliges *a party* to deliver goods by day *a due day* as its first obligation.
+    *a party* does deliver goods on day *a day*; scenario element.
+    *a party* does something on day *a day*.
+    the clock reaches day *a day*; scenario element.
+    the contract delivery full form starts on day *a day*; scenario element.
+    delivery full form obliges *a party* to deliver goods by day *a due day* as its first obligation.
+    the contract no smoking policy starts on day *a day*; scenario element.
+    no smoking policy forbids *a party* to smoke as its first obligation.
+    *a party* does smoke on day *a day*; scenario element.
+    the contract rental agreement starts on day *a day*; scenario element.
+    rental agreement obliges *a party* to pay rent with amount *an amount* by day *a due day* as its first obligation.
+    *a party* does pay rent with amount *an amount* on day *a day*; scenario element.
+    the contract is fulfilled.
+    the contract is breached because *a reason*.
+    the contract is breached by *a party* because *a reason*.
+    rental agreement obliges *a party* to maintain property by day *a due day* as its second obligation.
+    *a party* does maintain property on day *a day*; scenario element.
+
+the knowledge base because_example_history includes:
+
+the text of "the L4 source because-example.l4" is at "sources/because-example.l4".
+
+something happens on day a day if
+    a party does deliver goods on day the day.
+
+something happens on day a day if
+    the clock reaches day the day.
+
+something happens on day a day if
+    a party does smoke on day the day.
+
+something happens on day a day if
+    a party does pay rent with amount an amount on day the day.
+
+something happens on day a day if
+    a party does maintain property on day the day.
+
+an obligation can start on day a day if
+    something happens on day the day.
+
+a party does something on day a day if
+    the party does deliver goods on day the day.
+
+a party does something on day a day if
+    the party does smoke on day the day.
+
+a party does something on day a day if
+    the party does pay rent with amount an amount on day the day.
+
+a party does something on day a day if
+    the party does maintain property on day the day.
+
+an obligation can start on day a day if
+    the contract delivery with reason starts on day the day.
+
+the obligation that delivery with reason obliges seller to deliver goods by day a due day D as its first obligation starts on day a day N if
+    the contract delivery with reason starts on day N
+    and D = N + 14.
+
+an obligation can start on day a day if
+    the contract delivery full form starts on day the day.
+
+the obligation that delivery full form obliges seller to deliver goods by day a due day D as its first obligation starts on day a day N if
+    the contract delivery full form starts on day N
+    and D = N + 14.
+
+an obligation can start on day a day if
+    the contract no smoking policy starts on day the day.
+
+the obligation that no smoking policy forbids employee to smoke as its first obligation starts on day a day if
+    the contract no smoking policy starts on day the day.
+
+an obligation can start on day a day if
+    the contract rental agreement starts on day the day.
+
+the obligation that rental agreement obliges tenant to pay rent with amount 2000 by day a due day D as its first obligation starts on day a day N if
+    the contract rental agreement starts on day N
+    and D = N + 5.
+
+the obligation that delivery with reason obliges a party to deliver goods by day a due day D as its first obligation is met on day a day N if
+    the party does deliver goods on day N
+    and the obligation that delivery with reason obliges the party to deliver goods by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that delivery with reason obliges a party to deliver goods by day a due day as its first obligation ends on day a day
+    and the party does deliver goods on day the day.
+
+the contract is breached because "delivery deadline exceeded" if
+    the obligation that delivery with reason obliges a party to deliver goods by day a due day as its first obligation is missed on day a day.
+
+the obligation that delivery with reason obliges a party to deliver goods by day a due day as its first obligation has deadline day the due day if
+    the obligation that delivery with reason obliges the party to deliver goods by day the due day as its first obligation starts on day a day.
+
+the obligation that delivery full form obliges a party to deliver goods by day a due day D as its first obligation is met on day a day N if
+    the party does deliver goods on day N
+    and the obligation that delivery full form obliges the party to deliver goods by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that delivery full form obliges a party to deliver goods by day a due day as its first obligation ends on day a day
+    and the party does deliver goods on day the day.
+
+the contract is breached by seller because "failed to deliver within contractual period" if
+    the obligation that delivery full form obliges a party to deliver goods by day a due day as its first obligation is missed on day a day.
+
+the obligation that delivery full form obliges a party to deliver goods by day a due day as its first obligation has deadline day the due day if
+    the obligation that delivery full form obliges the party to deliver goods by day the due day as its first obligation starts on day a day.
+
+the obligation that no smoking policy forbids a party to smoke as its first obligation is met on day a day D if
+    the party does smoke on day D
+    and the obligation that no smoking policy forbids the party to smoke as its first obligation starts on day a day N
+    and N < D.
+
+the contract is breached by employee because "violated workplace no-smoking policy" if
+    the obligation that no smoking policy forbids a party to smoke as its first obligation ends on day a day
+    and the party does smoke on day the day.
+
+the obligation that rental agreement obliges a party to pay rent with amount an amount by day a due day D as its first obligation is met on day a day N if
+    the party does pay rent with amount the amount on day N
+    and the obligation that rental agreement obliges the party to pay rent with amount the amount by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that rental agreement obliges landlord to maintain property by day a due day D as its second obligation starts on day a day N if
+    the obligation that rental agreement obliges a party to pay rent with amount an amount by day a second due day as its first obligation ends on day N
+    and the party does pay rent with amount the amount on day N
+    and D = N + 30.
+
+the contract is breached by tenant because "rent payment overdue" if
+    the obligation that rental agreement obliges a party to pay rent with amount an amount by day a due day as its first obligation is missed on day a day.
+
+the obligation that rental agreement obliges a party to pay rent with amount an amount by day a due day as its first obligation has deadline day the due day if
+    the obligation that rental agreement obliges the party to pay rent with amount the amount by day the due day as its first obligation starts on day a day.
+
+the obligation that rental agreement obliges a party to maintain property by day a due day D as its second obligation is met on day a day N if
+    the party does maintain property on day N
+    and the obligation that rental agreement obliges the party to maintain property by day D as its second obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that rental agreement obliges a party to maintain property by day a due day as its second obligation ends on day a day
+    and the party does maintain property on day the day.
+
+the contract is breached by landlord because "failed to perform maintenance duties" if
+    the obligation that rental agreement obliges a party to maintain property by day a due day as its second obligation is missed on day a day.
+
+the obligation that rental agreement obliges a party to maintain property by day a due day as its second obligation has deadline day the due day if
+    the obligation that rental agreement obliges the party to maintain property by day the due day as its second obligation starts on day a day.
+
+the deadline of the obligation that delivery with reason obliges a party to deliver goods by day a due day as its first obligation has passed on day a day D if
+    the obligation that delivery with reason obliges the party to deliver goods by day the due day as its first obligation starts on day a day N
+    and the obligation that delivery with reason obliges the party to deliver goods by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that delivery with reason obliges a party to deliver goods by day a due day as its first obligation ends on day a day D if
+    the obligation that delivery with reason obliges the party to deliver goods by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that delivery with reason obliges the party to deliver goods by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that delivery with reason obliges a party to deliver goods by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that delivery with reason obliges the party to deliver goods by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that delivery with reason obliges the party to deliver goods by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that delivery with reason obliges the party to deliver goods by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that delivery with reason obliges a party to deliver goods by day a due day as its first obligation is pending since day a day if
+    the obligation that delivery with reason obliges the party to deliver goods by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that delivery with reason obliges the party to deliver goods by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that delivery with reason obliges the party to deliver goods by day the due day as its first obligation is missed on day a third day.
+
+the obligation that delivery with reason obliges a party to deliver goods by day a due day as its first obligation is still open if
+    the obligation that delivery with reason obliges the party to deliver goods by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that delivery full form obliges a party to deliver goods by day a due day as its first obligation has passed on day a day D if
+    the obligation that delivery full form obliges the party to deliver goods by day the due day as its first obligation starts on day a day N
+    and the obligation that delivery full form obliges the party to deliver goods by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that delivery full form obliges a party to deliver goods by day a due day as its first obligation ends on day a day D if
+    the obligation that delivery full form obliges the party to deliver goods by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that delivery full form obliges the party to deliver goods by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that delivery full form obliges a party to deliver goods by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that delivery full form obliges the party to deliver goods by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that delivery full form obliges the party to deliver goods by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that delivery full form obliges the party to deliver goods by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that delivery full form obliges a party to deliver goods by day a due day as its first obligation is pending since day a day if
+    the obligation that delivery full form obliges the party to deliver goods by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that delivery full form obliges the party to deliver goods by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that delivery full form obliges the party to deliver goods by day the due day as its first obligation is missed on day a third day.
+
+the obligation that delivery full form obliges a party to deliver goods by day a due day as its first obligation is still open if
+    the obligation that delivery full form obliges the party to deliver goods by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that no smoking policy forbids a party to smoke as its first obligation has passed on day a day D if
+    the obligation that no smoking policy forbids the party to smoke as its first obligation starts on day a day N
+    and the obligation that no smoking policy forbids the party to smoke as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that no smoking policy forbids a party to smoke as its first obligation ends on day a day D if
+    the obligation that no smoking policy forbids the party to smoke as its first obligation is met on day D
+    and it is not the case that
+        the obligation that no smoking policy forbids the party to smoke as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that no smoking policy forbids a party to smoke as its first obligation is missed on day a day D if
+    the deadline of the obligation that no smoking policy forbids the party to smoke as its first obligation has passed on day D
+    and it is not the case that the obligation that no smoking policy forbids the party to smoke as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that no smoking policy forbids the party to smoke as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that no smoking policy forbids a party to smoke as its first obligation is pending since day a day if
+    the obligation that no smoking policy forbids the party to smoke as its first obligation starts on day the day
+    and it is not the case that the obligation that no smoking policy forbids the party to smoke as its first obligation ends on day a second day
+    and it is not the case that the obligation that no smoking policy forbids the party to smoke as its first obligation is missed on day a third day.
+
+the obligation that no smoking policy forbids a party to smoke as its first obligation is still open if
+    the obligation that no smoking policy forbids the party to smoke as its first obligation is pending since day a day.
+
+the deadline of the obligation that rental agreement obliges a party to pay rent with amount an amount by day a due day as its first obligation has passed on day a day D if
+    the obligation that rental agreement obliges the party to pay rent with amount the amount by day the due day as its first obligation starts on day a day N
+    and the obligation that rental agreement obliges the party to pay rent with amount the amount by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that rental agreement obliges a party to pay rent with amount an amount by day a due day as its first obligation ends on day a day D if
+    the obligation that rental agreement obliges the party to pay rent with amount the amount by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that rental agreement obliges the party to pay rent with amount the amount by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that rental agreement obliges a party to pay rent with amount an amount by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that rental agreement obliges the party to pay rent with amount the amount by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that rental agreement obliges the party to pay rent with amount the amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that rental agreement obliges the party to pay rent with amount the amount by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that rental agreement obliges a party to pay rent with amount an amount by day a due day as its first obligation is pending since day a day if
+    the obligation that rental agreement obliges the party to pay rent with amount the amount by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that rental agreement obliges the party to pay rent with amount the amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that rental agreement obliges the party to pay rent with amount the amount by day the due day as its first obligation is missed on day a third day.
+
+the obligation that rental agreement obliges a party to pay rent with amount an amount by day a due day as its first obligation is still open if
+    the obligation that rental agreement obliges the party to pay rent with amount the amount by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that rental agreement obliges a party to maintain property by day a due day as its second obligation has passed on day a day D if
+    the obligation that rental agreement obliges the party to maintain property by day the due day as its second obligation starts on day a day N
+    and the obligation that rental agreement obliges the party to maintain property by day the due day as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that rental agreement obliges a party to maintain property by day a due day as its second obligation ends on day a day D if
+    the obligation that rental agreement obliges the party to maintain property by day the due day as its second obligation is met on day D
+    and it is not the case that
+        the obligation that rental agreement obliges the party to maintain property by day the due day as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that rental agreement obliges a party to maintain property by day a due day as its second obligation is missed on day a day D if
+    the deadline of the obligation that rental agreement obliges the party to maintain property by day the due day as its second obligation has passed on day D
+    and it is not the case that the obligation that rental agreement obliges the party to maintain property by day the due day as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that rental agreement obliges the party to maintain property by day the due day as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that rental agreement obliges a party to maintain property by day a due day as its second obligation is pending since day a day if
+    the obligation that rental agreement obliges the party to maintain property by day the due day as its second obligation starts on day the day
+    and it is not the case that the obligation that rental agreement obliges the party to maintain property by day the due day as its second obligation ends on day a second day
+    and it is not the case that the obligation that rental agreement obliges the party to maintain property by day the due day as its second obligation is missed on day a third day.
+
+the obligation that rental agreement obliges a party to maintain property by day a due day as its second obligation is still open if
+    the obligation that rental agreement obliges the party to maintain property by day the due day as its second obligation is pending since day a day.
+
+scenario trace_109 is:
+    % #TRACE `delivery with reason` (line 109) of the L4 source
+    the contract delivery with reason starts on day 0.
+    seller does deliver goods on day 10.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_because expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_114 is:
+    % #TRACE `delivery full form` (line 114) of the L4 source
+    the contract delivery full form starts on day 0.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_because expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_117 is:
+    % #TRACE `no smoking policy` (line 117) of the L4 source
+    the contract no smoking policy starts on day 0.
+    employee does smoke on day 5.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_because expects answers [].
+    q_the_contract_is_breached_by_because expects answers ["the contract is breached by employee because violated workplace no-smoking policy"].
+
+scenario trace_121 is:
+    % #TRACE `rental agreement` (line 121) of the L4 source
+    the contract rental agreement starts on day 0.
+    tenant does pay rent with amount 2000 on day 3.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_because expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+query fulfilled is:
+    the contract is fulfilled.
+
+query q_the_contract_is_breached_because is:
+    the contract is breached because which reason.
+
+query q_the_contract_is_breached_by_because is:
+    the contract is breached by which party because which reason.
+
+query q_open_o_delivery_with_reason_1 is:
+    the obligation that delivery with reason obliges which party to deliver goods by day which due day as its first obligation is still open.
+
+query q_open_o_delivery_full_form_1 is:
+    the obligation that delivery full form obliges which party to deliver goods by day which due day as its first obligation is still open.
+
+query q_open_o_no_smoking_policy_1 is:
+    the obligation that no smoking policy forbids which party to smoke as its first obligation is still open.
+
+query q_open_o_rental_agreement_1 is:
+    the obligation that rental agreement obliges which party to pay rent with amount which amount by day which due day as its first obligation is still open.
+
+query q_open_o_rental_agreement_2 is:
+    the obligation that rental agreement obliges which party to maintain property by day which due day as its second obligation is still open.
+

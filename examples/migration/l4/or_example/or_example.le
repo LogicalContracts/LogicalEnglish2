@@ -1,0 +1,227 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from or-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    is student; scenario element.
+    is senior; scenario element.
+    gets discount.
+    any true for *a boolean* with *a second boolean* with *a third boolean*.
+    is admin; scenario element.
+    is owner; scenario element.
+    has permission; scenario element.
+    has access.
+    is terminal *a status*.
+    the get priority for *an user type* with *a boolean* is *a text*.
+    complex condition for *a number* with *a boolean*.
+    L4's answer at line 5 is reproduced.
+    L4's answer at line 6 is reproduced.
+    L4's answer at line 7 is reproduced.
+    L4's answer at line 8 is reproduced.
+    L4's answer at line 12 is reproduced.
+    L4's answer at line 13 is reproduced.
+
+the knowledge base or_example includes:
+
+the text of the source program is at "sources/or-example.l4".
+
+gets discount if
+    is student
+    or is senior.
+
+any true for a boolean with a second boolean with a third boolean if
+    true is equal to the boolean
+    or true is equal to the second boolean
+    or true is equal to the third boolean.
+
+has access if
+    is admin
+    or is owner
+    or has permission.
+
+is terminal a status if
+    "completed" is equal to the status
+    or "cancelled" is equal to the status
+    or "failed" is equal to the status.
+
+the get priority for an user type with a boolean is a text if
+    "admin" is equal to the user type
+    or true is equal to the boolean
+    and the text is equal to "high"
+    otherwise the text is equal to "normal".
+
+complex condition for a number N with a boolean if
+    N > 0
+    and N < 100
+    or true is equal to the boolean.
+
+L4's answer at line 5 is reproduced.
+
+L4's answer at line 6 is reproduced.
+
+L4's answer at line 7 is reproduced.
+
+L4's answer at line 8 is reproduced.
+
+L4's answer at line 12 is reproduced.
+
+L4's answer at line 13 is reproduced.
+
+scenario line_5 is, as stated in the source program at line 5:
+    line_5 expects answers ["L4's answer at line 5 is reproduced"].
+
+scenario line_6 is, as stated in the source program at line 6:
+    line_6 expects answers ["L4's answer at line 6 is reproduced"].
+
+scenario line_7 is, as stated in the source program at line 7:
+    line_7 expects answers ["L4's answer at line 7 is reproduced"].
+
+scenario line_8 is, as stated in the source program at line 8:
+    line_8 expects answers ["L4's answer at line 8 is reproduced"].
+
+scenario line_12 is, as stated in the source program at line 12:
+    line_12 expects answers ["L4's answer at line 12 is reproduced"].
+
+scenario line_13 is, as stated in the source program at line 13:
+    line_13 expects answers ["L4's answer at line 13 is reproduced"].
+
+scenario line_31 is, as stated in the source program at line 31:
+    line_31 expects answers [].
+
+scenario line_32 is, as stated in the source program at line 32:
+    line_32 expects answers ["any true for false with true with false"].
+
+scenario line_55 is, as stated in the source program at line 55:
+    line_55 expects answers ["is terminal completed"].
+
+scenario line_56 is, as stated in the source program at line 56:
+    line_56 expects answers [].
+
+scenario line_66 is, as stated in the source program at line 66:
+    line_66 expects answers ["the get priority for user with true is high"].
+
+scenario line_67 is, as stated in the source program at line 67:
+    line_67 expects answers ["the get priority for user with false is normal"].
+
+scenario line_75 is, as stated in the source program at line 75:
+    line_75 expects answers ["complex condition for 50 with false"].
+
+scenario line_76 is, as stated in the source program at line 76:
+    line_76 expects answers [].
+
+scenario line_77 is, as stated in the source program at line 77:
+    line_77 expects answers ["complex condition for 150 with true"].
+
+scenario variant_1 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is student.
+    is senior.
+    gets_discount expects answers ["gets discount"].
+
+scenario variant_2 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is senior.
+    gets_discount expects answers ["gets discount"].
+
+scenario variant_3 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is student.
+    gets_discount expects answers ["gets discount"].
+
+scenario variant_4 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    gets_discount expects answers [].
+
+scenario variant_5 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is admin.
+    is owner.
+    has permission.
+    has_access expects answers ["has access"].
+
+scenario variant_6 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is admin.
+    has permission.
+    has_access expects answers ["has access"].
+
+scenario variant_7 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is owner.
+    has permission.
+    has_access expects answers ["has access"].
+
+scenario variant_8 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    has permission.
+    has_access expects answers ["has access"].
+
+scenario variant_9 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is admin.
+    is owner.
+    has_access expects answers ["has access"].
+
+scenario variant_10 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is admin.
+    has_access expects answers ["has access"].
+
+scenario variant_11 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is owner.
+    has_access expects answers ["has access"].
+
+scenario variant_12 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    has_access expects answers [].
+
+query line_5 is:
+    L4's answer at line 5 is reproduced.
+
+query line_6 is:
+    L4's answer at line 6 is reproduced.
+
+query line_7 is:
+    L4's answer at line 7 is reproduced.
+
+query line_8 is:
+    L4's answer at line 8 is reproduced.
+
+query line_12 is:
+    L4's answer at line 12 is reproduced.
+
+query line_13 is:
+    L4's answer at line 13 is reproduced.
+
+query line_31 is:
+    any true for false with false with false.
+
+query line_32 is:
+    any true for false with true with false.
+
+query line_55 is:
+    is terminal "completed".
+
+query line_56 is:
+    is terminal "pending".
+
+query line_66 is:
+    the get priority for "user" with true is which text.
+
+query line_67 is:
+    the get priority for "user" with false is which text.
+
+query line_75 is:
+    complex condition for 50 with false.
+
+query line_76 is:
+    complex condition for 150 with false.
+
+query line_77 is:
+    complex condition for 150 with true.
+
+query gets_discount is:
+    gets discount.
+
+query has_access is:
+    has access.
+

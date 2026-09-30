@@ -19,7 +19,11 @@
                      or the directory an uploaded archive was extracted into;
                      the translation (the .le and what it includes or cites)
                      is written into the empty directory OutDir; Notes is a
-                     list of strings. A fragment the translator cannot
+                     list of strings. An importer may take the upload's
+                     options too, as call(Import, +Input, +OutDir,
+                     +Options, -imported(LEFile, Notes)); Options then holds
+                     target(lps) when the LPS2 IDE is the one opening the
+                     file (import_call/5). A fragment the translator cannot
                      translate is written into the .le as a comment block
                      carrying the word TODO and the fragment verbatim — it
                      never makes the whole import fail.
@@ -147,7 +151,8 @@ import_formats(Formats) :-
 %   null), `notes` (strings), `files` (what was written beside it). Or
 %   `error` when nothing could be read. Options: `importer(Id)` forces a
 %   translator; `root(Dir)` keeps the upload elsewhere than imported_dir/1
-%   (another server embedding LE, with a scratch directory of its own).
+%   (another server embedding LE, with a scratch directory of its own);
+%   `target(lps)` says the file is opened by the LPS2 IDE (import_call/5).
 import_upload(FileName0, Content, Reply, Options) :-
     atom_string(FileName1, FileName0),
     file_base_name(FileName1, FileName),
@@ -170,7 +175,7 @@ import_upload(FileName0, Content, Reply, Options) :-
     le_stem(Stem0, Stem),
     (   choose_importer(Ext, Input, Options, importer(_, Title, _, File, Import, _))
     ->  load_importer(File),
-        catch(( call(Import, Input, OutDir, imported(LEFile0, Notes0)) -> Outcome = ok(LEFile0, Notes0)
+        catch(( import_call(Import, Input, OutDir, Options, imported(LEFile0, Notes0)) -> Outcome = ok(LEFile0, Notes0)
               ; Outcome = failed("the translator failed") ),
               E, ( error_text(E, Msg), Outcome = failed(Msg) )),
         keep_originals(Input, OutDir),
@@ -185,6 +190,16 @@ import_upload(FileName0, Content, Reply, Options) :-
     ;   le_i18n:le_msg(import_no_translator, [file-FileName], Why),
         keep_originals(Input, OutDir),
         fallback(Id, OutDir, Stem, Input, null, Why, Reply)
+    ).
+
+%   An importer that defines its predicate with one more argument is also
+%   given the upload's options: `target(lps)` when the LPS2 IDE opens the
+%   file, so a source with both rules and contracts (L4) can answer with the
+%   reading the editor asking wants.
+import_call(M:N, Input, OutDir, Options, Result) :-
+    (   current_predicate(M:N/4)
+    ->  call(M:N, Input, OutDir, Options, Result)
+    ;   call(M:N, Input, OutDir, Result)
     ).
 
 %   What was uploaded, beside the program in sources/: the editor's File ▸

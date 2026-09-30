@@ -1,0 +1,82 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from declare-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the full name of *a person* is *a text*.
+    the age of *a person* is *a number*.
+    the x of *a point* is *a number*.
+    the y of *a point* is *a number*.
+    the radius of *a circle* is *a number*.
+    the width of *a rectangle* is *a number*.
+    the height of *a rectangle* is *a number*.
+    the contents of *a box* is *a thing*.
+    the first of *a my pair* is *a thing*.
+    the second of *a my pair* is *a b*.
+
+the templates are:
+    *a shape* is a circle.
+    *a shape* is a rectangle.
+    the my favourite colour is *a value*.
+    L4's answer at line 53 is reproduced.
+    L4's answer at line 54 is reproduced.
+
+the knowledge base declare_example includes:
+
+the text of the source program is at "sources/declare-example.l4".
+
+the my favourite colour is bright_red.
+
+L4's answer at line 53 is reproduced if
+    the full name of the_applicant is a text
+    and the text is equal to "John".
+
+L4's answer at line 54 is reproduced if
+    the age of the_applicant is a number N
+    and N * 100000000 >= 2999999999
+    and N * 100000000 <= 3000000001.
+
+the full name of the_applicant is "John".
+
+the age of the_applicant is 30.
+
+the x of the_origin is 0.
+
+the y of the_origin is 0.
+
+my_shape is a circle.
+
+the radius of my_shape is 5.
+
+the contents of box_with_number is 42.
+
+the contents of box_with_text is "hello".
+
+scenario line_53 is, as stated in the source program at line 53:
+    line_53 expects answers ["L4's answer at line 53 is reproduced"].
+
+scenario line_54 is, as stated in the source program at line 54:
+    line_54 expects answers ["L4's answer at line 54 is reproduced"].
+
+scenario line_55 is, as stated in the source program at line 55:
+    line_55 expects answers ["the my favourite colour is bright_red"].
+
+query line_53 is:
+    L4's answer at line 53 is reproduced.
+
+query line_54 is:
+    L4's answer at line 54 is reproduced.
+
+query line_55 is:
+    the my favourite colour is which value.
+

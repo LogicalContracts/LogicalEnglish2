@@ -1,0 +1,992 @@
+% may-example.l4: the history view
+%
+% The timeless Logical English twin of the contracts of an L4 file (may-example.l4), written
+% by the L4 translator (docs/migration/l4.md, step 3): the contracts read over a finished
+% history of events. For each obligation the program says when it starts, its deadline
+% and which events meet it, and four rules say how it ends: met, missed, or still
+% open when the history stops. The same obligations, in the same words, as the LE for LPS twin in LPS2's
+% examples/migration/l4/; each scenario expects what that twin's run ended with, which
+% agrees with L4's evaluator.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    something happens on day *a day*.
+    an obligation can start on day *a day*.
+    the obligation that prepayment option permits *a party* to prepay loan with prepayment amount *a prepayment amount* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that prepayment option permits *a party* to prepay loan with prepayment amount *a prepayment amount* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that prepayment option permits *a party* to prepay loan with prepayment amount *a prepayment amount* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that prepayment option permits *a party* to prepay loan with prepayment amount *a prepayment amount* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that prepayment option permits *a party* to prepay loan with prepayment amount *a prepayment amount* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that prepayment option permits *a party* to prepay loan with prepayment amount *a prepayment amount* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that prepayment option permits *a party* to prepay loan with prepayment amount *a prepayment amount* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that prepayment option permits *a party* to prepay loan with prepayment amount *a prepayment amount* by day *a due day* as its first obligation is still open.
+    the obligation that purchase with warranty obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that purchase with warranty obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that purchase with warranty obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that purchase with warranty obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that purchase with warranty obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that purchase with warranty obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that purchase with warranty obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that purchase with warranty obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is still open.
+    the obligation that first renewal option permits *a party* to extend lease with extension months *an extension months* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that first renewal option permits *a party* to extend lease with extension months *an extension months* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that first renewal option permits *a party* to extend lease with extension months *an extension months* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that first renewal option permits *a party* to extend lease with extension months *an extension months* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that first renewal option permits *a party* to extend lease with extension months *an extension months* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that first renewal option permits *a party* to extend lease with extension months *an extension months* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that first renewal option permits *a party* to extend lease with extension months *an extension months* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that first renewal option permits *a party* to extend lease with extension months *an extension months* by day *a due day* as its first obligation is still open.
+    the obligation that payment with acceleration right obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that payment with acceleration right obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that payment with acceleration right obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that payment with acceleration right obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that payment with acceleration right obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that payment with acceleration right obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that payment with acceleration right obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that payment with acceleration right obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is still open.
+    the obligation that conversion option permits *a party* to convert to equity with conversion amount *a conversion amount* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that conversion option permits *a party* to convert to equity with conversion amount *a conversion amount* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that conversion option permits *a party* to convert to equity with conversion amount *a conversion amount* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that conversion option permits *a party* to convert to equity with conversion amount *a conversion amount* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that conversion option permits *a party* to convert to equity with conversion amount *a conversion amount* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that conversion option permits *a party* to convert to equity with conversion amount *a conversion amount* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that conversion option permits *a party* to convert to equity with conversion amount *a conversion amount* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that conversion option permits *a party* to convert to equity with conversion amount *a conversion amount* by day *a due day* as its first obligation is still open.
+    the obligation that shareholder put option permits *a party* to exercise put option with share quantity *a share quantity* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that shareholder put option permits *a party* to exercise put option with share quantity *a share quantity* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that shareholder put option permits *a party* to exercise put option with share quantity *a share quantity* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that shareholder put option permits *a party* to exercise put option with share quantity *a share quantity* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that shareholder put option permits *a party* to exercise put option with share quantity *a share quantity* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that shareholder put option permits *a party* to exercise put option with share quantity *a share quantity* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that shareholder put option permits *a party* to exercise put option with share quantity *a share quantity* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that shareholder put option permits *a party* to exercise put option with share quantity *a share quantity* by day *a due day* as its first obligation is still open.
+    the obligation that early termination clause permits *a party* to terminate early by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that early termination clause permits *a party* to terminate early by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that early termination clause permits *a party* to terminate early by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that early termination clause permits *a party* to terminate early by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that early termination clause permits *a party* to terminate early by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that early termination clause permits *a party* to terminate early by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that early termination clause permits *a party* to terminate early by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that early termination clause permits *a party* to terminate early by day *a due day* as its first obligation is still open.
+    the obligation that warranty claim process obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that warranty claim process obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that warranty claim process obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that warranty claim process obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that warranty claim process obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that warranty claim process obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that warranty claim process obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that warranty claim process obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation is still open.
+    the obligation that purchase with warranty permits *a party* to claim warranty benefit with benefit description *a benefit description* by day *a due day* as its second obligation starts on day *a day*; memorable.
+    the obligation that purchase with warranty permits *a party* to claim warranty benefit with benefit description *a benefit description* by day *a due day* as its second obligation has deadline day *a day*.
+    the obligation that purchase with warranty permits *a party* to claim warranty benefit with benefit description *a benefit description* by day *a due day* as its second obligation is met on day *a day*.
+    the obligation that purchase with warranty permits *a party* to claim warranty benefit with benefit description *a benefit description* by day *a due day* as its second obligation ends on day *a day*; memorable.
+    the obligation that purchase with warranty permits *a party* to claim warranty benefit with benefit description *a benefit description* by day *a due day* as its second obligation is missed on day *a day*.
+    the deadline of the obligation that purchase with warranty permits *a party* to claim warranty benefit with benefit description *a benefit description* by day *a due day* as its second obligation has passed on day *a day*; memorable.
+    the obligation that purchase with warranty permits *a party* to claim warranty benefit with benefit description *a benefit description* by day *a due day* as its second obligation is pending since day *a day*.
+    the obligation that purchase with warranty permits *a party* to claim warranty benefit with benefit description *a benefit description* by day *a due day* as its second obligation is still open.
+    the obligation that first renewal option permits *a party* to extend lease with extension months *an extension months* by day *a due day* as its second obligation starts on day *a day*; memorable.
+    the obligation that first renewal option permits *a party* to extend lease with extension months *an extension months* by day *a due day* as its second obligation has deadline day *a day*.
+    the obligation that first renewal option permits *a party* to extend lease with extension months *an extension months* by day *a due day* as its second obligation is met on day *a day*.
+    the obligation that first renewal option permits *a party* to extend lease with extension months *an extension months* by day *a due day* as its second obligation ends on day *a day*; memorable.
+    the obligation that first renewal option permits *a party* to extend lease with extension months *an extension months* by day *a due day* as its second obligation is missed on day *a day*.
+    the deadline of the obligation that first renewal option permits *a party* to extend lease with extension months *an extension months* by day *a due day* as its second obligation has passed on day *a day*; memorable.
+    the obligation that first renewal option permits *a party* to extend lease with extension months *an extension months* by day *a due day* as its second obligation is pending since day *a day*.
+    the obligation that first renewal option permits *a party* to extend lease with extension months *an extension months* by day *a due day* as its second obligation is still open.
+    the obligation that payment with acceleration right permits *a party* to demand acceleration by day *a due day* as its second obligation starts on day *a day*; memorable.
+    the obligation that payment with acceleration right permits *a party* to demand acceleration by day *a due day* as its second obligation has deadline day *a day*.
+    the obligation that payment with acceleration right permits *a party* to demand acceleration by day *a due day* as its second obligation is met on day *a day*.
+    the obligation that payment with acceleration right permits *a party* to demand acceleration by day *a due day* as its second obligation ends on day *a day*; memorable.
+    the obligation that payment with acceleration right permits *a party* to demand acceleration by day *a due day* as its second obligation is missed on day *a day*.
+    the deadline of the obligation that payment with acceleration right permits *a party* to demand acceleration by day *a due day* as its second obligation has passed on day *a day*; memorable.
+    the obligation that payment with acceleration right permits *a party* to demand acceleration by day *a due day* as its second obligation is pending since day *a day*.
+    the obligation that payment with acceleration right permits *a party* to demand acceleration by day *a due day* as its second obligation is still open.
+    the obligation that warranty claim process permits *a party* to claim warranty benefit with benefit description *a benefit description* by day *a due day* as its second obligation starts on day *a day*; memorable.
+    the obligation that warranty claim process permits *a party* to claim warranty benefit with benefit description *a benefit description* by day *a due day* as its second obligation has deadline day *a day*.
+    the obligation that warranty claim process permits *a party* to claim warranty benefit with benefit description *a benefit description* by day *a due day* as its second obligation is met on day *a day*.
+    the obligation that warranty claim process permits *a party* to claim warranty benefit with benefit description *a benefit description* by day *a due day* as its second obligation ends on day *a day*; memorable.
+    the obligation that warranty claim process permits *a party* to claim warranty benefit with benefit description *a benefit description* by day *a due day* as its second obligation is missed on day *a day*.
+    the deadline of the obligation that warranty claim process permits *a party* to claim warranty benefit with benefit description *a benefit description* by day *a due day* as its second obligation has passed on day *a day*; memorable.
+    the obligation that warranty claim process permits *a party* to claim warranty benefit with benefit description *a benefit description* by day *a due day* as its second obligation is pending since day *a day*.
+    the obligation that warranty claim process permits *a party* to claim warranty benefit with benefit description *a benefit description* by day *a due day* as its second obligation is still open.
+    the obligation that warranty claim process obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its third obligation starts on day *a day*; memorable.
+    the obligation that warranty claim process obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its third obligation has deadline day *a day*.
+    the obligation that warranty claim process obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its third obligation is met on day *a day*.
+    the obligation that warranty claim process obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its third obligation ends on day *a day*; memorable.
+    the obligation that warranty claim process obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its third obligation is missed on day *a day*.
+    the deadline of the obligation that warranty claim process obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its third obligation has passed on day *a day*; memorable.
+    the obligation that warranty claim process obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its third obligation is pending since day *a day*.
+    the obligation that warranty claim process obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its third obligation is still open.
+    the contract prepayment option starts on day *a day*; scenario element.
+    prepayment option permits *a party* to prepay loan with prepayment amount *a prepayment amount* by day *a due day* as its first obligation.
+    *a party* does prepay loan with prepayment amount *a prepayment amount* on day *a day*; scenario element.
+    *a party* does something on day *a day*.
+    the clock reaches day *a day*; scenario element.
+    the contract purchase with warranty starts on day *a day*; scenario element.
+    purchase with warranty obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation.
+    *a party* does make payment with payment amount *a payment amount* on day *a day*; scenario element.
+    *a party* does claim warranty benefit with benefit description *a benefit description* on day *a day*; scenario element.
+    the contract first renewal option starts on day *a day*; scenario element.
+    first renewal option permits *a party* to extend lease with extension months *an extension months* by day *a due day* as its first obligation.
+    *a party* does extend lease with extension months *an extension months* on day *a day*; scenario element.
+    the contract payment with acceleration right starts on day *a day*; scenario element.
+    payment with acceleration right obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation.
+    *a party* does demand acceleration on day *a day*; scenario element.
+    the contract conversion option starts on day *a day*; scenario element.
+    conversion option permits *a party* to convert to equity with conversion amount *a conversion amount* by day *a due day* as its first obligation.
+    *a party* does convert to equity with conversion amount *a conversion amount* on day *a day*; scenario element.
+    the contract shareholder put option starts on day *a day*; scenario element.
+    shareholder put option permits *a party* to exercise put option with share quantity *a share quantity* by day *a due day* as its first obligation.
+    *a party* does exercise put option with share quantity *a share quantity* on day *a day*; scenario element.
+    the contract early termination clause starts on day *a day*; scenario element.
+    early termination clause permits *a party* to terminate early by day *a due day* as its first obligation.
+    *a party* does terminate early on day *a day*; scenario element.
+    the contract warranty claim process starts on day *a day*; scenario element.
+    warranty claim process obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its first obligation.
+    the contract is fulfilled.
+    purchase with warranty permits *a party* to claim warranty benefit with benefit description *a benefit description* by day *a due day* as its second obligation.
+    the contract is breached by *a party* missing the deadline of day *a deadline*.
+    first renewal option permits *a party* to extend lease with extension months *an extension months* by day *a due day* as its second obligation.
+    payment with acceleration right permits *a party* to demand acceleration by day *a due day* as its second obligation.
+    warranty claim process permits *a party* to claim warranty benefit with benefit description *a benefit description* by day *a due day* as its second obligation.
+    warranty claim process obliges *a party* to make payment with payment amount *a payment amount* by day *a due day* as its third obligation.
+
+the knowledge base may_example_history includes:
+
+the text of "the L4 source may-example.l4" is at "sources/may-example.l4".
+
+something happens on day a day if
+    a party does prepay loan with prepayment amount a prepayment amount on day the day.
+
+something happens on day a day if
+    the clock reaches day the day.
+
+something happens on day a day if
+    a party does make payment with payment amount a payment amount on day the day.
+
+something happens on day a day if
+    a party does claim warranty benefit with benefit description a benefit description on day the day.
+
+something happens on day a day if
+    a party does extend lease with extension months an extension months on day the day.
+
+something happens on day a day if
+    a party does demand acceleration on day the day.
+
+something happens on day a day if
+    a party does convert to equity with conversion amount a conversion amount on day the day.
+
+something happens on day a day if
+    a party does exercise put option with share quantity a share quantity on day the day.
+
+something happens on day a day if
+    a party does terminate early on day the day.
+
+an obligation can start on day a day if
+    something happens on day the day.
+
+a party does something on day a day if
+    the party does prepay loan with prepayment amount a prepayment amount on day the day.
+
+a party does something on day a day if
+    the party does make payment with payment amount a payment amount on day the day.
+
+a party does something on day a day if
+    the party does claim warranty benefit with benefit description a benefit description on day the day.
+
+a party does something on day a day if
+    the party does extend lease with extension months an extension months on day the day.
+
+a party does something on day a day if
+    the party does demand acceleration on day the day.
+
+a party does something on day a day if
+    the party does convert to equity with conversion amount a conversion amount on day the day.
+
+a party does something on day a day if
+    the party does exercise put option with share quantity a share quantity on day the day.
+
+a party does something on day a day if
+    the party does terminate early on day the day.
+
+an obligation can start on day a day if
+    the contract prepayment option starts on day the day.
+
+the obligation that prepayment option permits the_borrower to prepay loan with prepayment amount 100000 by day a due day D as its first obligation starts on day a day N if
+    the contract prepayment option starts on day N
+    and D = N + 365.
+
+an obligation can start on day a day if
+    the contract purchase with warranty starts on day the day.
+
+the obligation that purchase with warranty obliges the_buyer to make payment with payment amount 5000 by day a due day D as its first obligation starts on day a day N if
+    the contract purchase with warranty starts on day N
+    and D = N + 7.
+
+an obligation can start on day a day if
+    the contract first renewal option starts on day the day.
+
+the obligation that first renewal option permits the_tenant to extend lease with extension months 12 by day a due day D as its first obligation starts on day a day N if
+    the contract first renewal option starts on day N
+    and D = N + 60.
+
+an obligation can start on day a day if
+    the contract payment with acceleration right starts on day the day.
+
+the obligation that payment with acceleration right obliges the_borrower to make payment with payment amount 10000 by day a due day D as its first obligation starts on day a day N if
+    the contract payment with acceleration right starts on day N
+    and D = N + 30.
+
+an obligation can start on day a day if
+    the contract conversion option starts on day the day.
+
+the obligation that conversion option permits the_investor to convert to equity with conversion amount 500000 by day a due day D as its first obligation starts on day a day N if
+    the contract conversion option starts on day N
+    and D = N + 730.
+
+an obligation can start on day a day if
+    the contract shareholder put option starts on day the day.
+
+the obligation that shareholder put option permits the_investor to exercise put option with share quantity 100000 by day a due day D as its first obligation starts on day a day N if
+    the contract shareholder put option starts on day N
+    and D = N + 1825.
+
+an obligation can start on day a day if
+    the contract early termination clause starts on day the day.
+
+the obligation that early termination clause permits the_tenant to terminate early by day a due day D as its first obligation starts on day a day N if
+    the contract early termination clause starts on day N
+    and D = N + 180.
+
+an obligation can start on day a day if
+    the contract warranty claim process starts on day the day.
+
+the obligation that warranty claim process obliges the_buyer to make payment with payment amount 25000 by day a due day D as its first obligation starts on day a day N if
+    the contract warranty claim process starts on day N
+    and D = N + 14.
+
+the obligation that prepayment option permits a party to prepay loan with prepayment amount a prepayment amount by day a due day D as its first obligation is met on day a day N if
+    the party does prepay loan with prepayment amount the prepayment amount on day N
+    and the obligation that prepayment option permits the party to prepay loan with prepayment amount the prepayment amount by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that prepayment option permits a party to prepay loan with prepayment amount a prepayment amount by day a due day as its first obligation ends on day a day
+    and the party does prepay loan with prepayment amount the prepayment amount on day the day.
+
+the contract is fulfilled if
+    the obligation that prepayment option permits a party to prepay loan with prepayment amount a prepayment amount by day a due day as its first obligation is missed on day a day.
+
+the obligation that prepayment option permits a party to prepay loan with prepayment amount a prepayment amount by day a due day as its first obligation has deadline day the due day if
+    the obligation that prepayment option permits the party to prepay loan with prepayment amount the prepayment amount by day the due day as its first obligation starts on day a day.
+
+the obligation that purchase with warranty obliges a party to make payment with payment amount a payment amount by day a due day D as its first obligation is met on day a day N if
+    the party does make payment with payment amount the payment amount on day N
+    and the obligation that purchase with warranty obliges the party to make payment with payment amount the payment amount by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that purchase with warranty permits the_buyer to claim warranty benefit with benefit description "extended warranty coverage" by day a due day D as its second obligation starts on day a day N if
+    the obligation that purchase with warranty obliges a party to make payment with payment amount a payment amount by day a second due day as its first obligation ends on day N
+    and the party does make payment with payment amount the payment amount on day N
+    and D = N + 365.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that purchase with warranty obliges the party to make payment with payment amount a payment amount by day the deadline as its first obligation is missed on day a day.
+
+the obligation that purchase with warranty obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation has deadline day the due day if
+    the obligation that purchase with warranty obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day a day.
+
+the obligation that first renewal option permits a party to extend lease with extension months an extension months by day a due day D as its first obligation is met on day a day N if
+    the party does extend lease with extension months the extension months on day N
+    and the obligation that first renewal option permits the party to extend lease with extension months the extension months by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that first renewal option permits the_tenant to extend lease with extension months 12 by day a due day D as its second obligation starts on day a day N if
+    the obligation that first renewal option permits a party to extend lease with extension months an extension months by day a second due day as its first obligation ends on day N
+    and the party does extend lease with extension months the extension months on day N
+    and D = N + 60.
+
+the obligation that first renewal option permits the_tenant to extend lease with extension months 12 by day a due day D as its second obligation starts on day a day N if
+    the obligation that first renewal option permits a party to extend lease with extension months an extension months by day a second due day as its first obligation is missed on day N
+    and D = N + 60.
+
+the obligation that first renewal option permits a party to extend lease with extension months an extension months by day a due day as its first obligation has deadline day the due day if
+    the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its first obligation starts on day a day.
+
+the obligation that payment with acceleration right obliges a party to make payment with payment amount a payment amount by day a due day D as its first obligation is met on day a day N if
+    the party does make payment with payment amount the payment amount on day N
+    and the obligation that payment with acceleration right obliges the party to make payment with payment amount the payment amount by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that payment with acceleration right obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation ends on day a day
+    and the party does make payment with payment amount the payment amount on day the day.
+
+the obligation that payment with acceleration right permits the_lender to demand acceleration by day a due day D as its second obligation starts on day a day N if
+    the obligation that payment with acceleration right obliges a party to make payment with payment amount a payment amount by day a second due day as its first obligation is missed on day N
+    and D = N + 14.
+
+the obligation that payment with acceleration right obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation has deadline day the due day if
+    the obligation that payment with acceleration right obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day a day.
+
+the obligation that conversion option permits a party to convert to equity with conversion amount a conversion amount by day a due day D as its first obligation is met on day a day N if
+    the party does convert to equity with conversion amount the conversion amount on day N
+    and the obligation that conversion option permits the party to convert to equity with conversion amount the conversion amount by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that conversion option permits a party to convert to equity with conversion amount a conversion amount by day a due day as its first obligation ends on day a day
+    and the party does convert to equity with conversion amount the conversion amount on day the day.
+
+the contract is fulfilled if
+    the obligation that conversion option permits a party to convert to equity with conversion amount a conversion amount by day a due day as its first obligation is missed on day a day.
+
+the obligation that conversion option permits a party to convert to equity with conversion amount a conversion amount by day a due day as its first obligation has deadline day the due day if
+    the obligation that conversion option permits the party to convert to equity with conversion amount the conversion amount by day the due day as its first obligation starts on day a day.
+
+the obligation that shareholder put option permits a party to exercise put option with share quantity a share quantity by day a due day D as its first obligation is met on day a day N if
+    the party does exercise put option with share quantity the share quantity on day N
+    and the obligation that shareholder put option permits the party to exercise put option with share quantity the share quantity by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that shareholder put option permits a party to exercise put option with share quantity a share quantity by day a due day as its first obligation ends on day a day
+    and the party does exercise put option with share quantity the share quantity on day the day.
+
+the contract is fulfilled if
+    the obligation that shareholder put option permits a party to exercise put option with share quantity a share quantity by day a due day as its first obligation is missed on day a day.
+
+the obligation that shareholder put option permits a party to exercise put option with share quantity a share quantity by day a due day as its first obligation has deadline day the due day if
+    the obligation that shareholder put option permits the party to exercise put option with share quantity the share quantity by day the due day as its first obligation starts on day a day.
+
+the obligation that early termination clause permits a party to terminate early by day a due day D as its first obligation is met on day a day N if
+    the party does terminate early on day N
+    and the obligation that early termination clause permits the party to terminate early by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that early termination clause permits a party to terminate early by day a due day as its first obligation ends on day a day
+    and the party does terminate early on day the day.
+
+the contract is fulfilled if
+    the obligation that early termination clause permits a party to terminate early by day a due day as its first obligation is missed on day a day.
+
+the obligation that early termination clause permits a party to terminate early by day a due day as its first obligation has deadline day the due day if
+    the obligation that early termination clause permits the party to terminate early by day the due day as its first obligation starts on day a day.
+
+the obligation that warranty claim process obliges a party to make payment with payment amount a payment amount by day a due day D as its first obligation is met on day a day N if
+    the party does make payment with payment amount the payment amount on day N
+    and the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that warranty claim process permits the_buyer to claim warranty benefit with benefit description "defect repair" by day a due day D as its second obligation starts on day a day N if
+    the obligation that warranty claim process obliges a party to make payment with payment amount a payment amount by day a second due day as its first obligation ends on day N
+    and the party does make payment with payment amount the payment amount on day N
+    and D = N + 730.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that warranty claim process obliges the party to make payment with payment amount a payment amount by day the deadline as its first obligation is missed on day a day.
+
+the obligation that warranty claim process obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation has deadline day the due day if
+    the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day a day.
+
+the obligation that purchase with warranty permits a party to claim warranty benefit with benefit description a benefit description by day a due day D as its second obligation is met on day a day N if
+    the party does claim warranty benefit with benefit description the benefit description on day N
+    and the obligation that purchase with warranty permits the party to claim warranty benefit with benefit description the benefit description by day D as its second obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that purchase with warranty permits a party to claim warranty benefit with benefit description a benefit description by day a due day as its second obligation ends on day a day
+    and the party does claim warranty benefit with benefit description the benefit description on day the day.
+
+the contract is fulfilled if
+    the obligation that purchase with warranty permits a party to claim warranty benefit with benefit description a benefit description by day a due day as its second obligation is missed on day a day.
+
+the obligation that purchase with warranty permits a party to claim warranty benefit with benefit description a benefit description by day a due day as its second obligation has deadline day the due day if
+    the obligation that purchase with warranty permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation starts on day a day.
+
+the obligation that first renewal option permits a party to extend lease with extension months an extension months by day a due day D as its second obligation is met on day a day N if
+    the party does extend lease with extension months the extension months on day N
+    and the obligation that first renewal option permits the party to extend lease with extension months the extension months by day D as its second obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that first renewal option permits a party to extend lease with extension months an extension months by day a due day as its second obligation ends on day a day
+    and the party does extend lease with extension months the extension months on day the day.
+
+the contract is fulfilled if
+    the obligation that first renewal option permits a party to extend lease with extension months an extension months by day a due day as its second obligation is missed on day a day.
+
+the obligation that first renewal option permits a party to extend lease with extension months an extension months by day a due day as its second obligation has deadline day the due day if
+    the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its second obligation starts on day a day.
+
+the obligation that payment with acceleration right permits a party to demand acceleration by day a due day D as its second obligation is met on day a day N if
+    the party does demand acceleration on day N
+    and the obligation that payment with acceleration right permits the party to demand acceleration by day D as its second obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that payment with acceleration right permits a party to demand acceleration by day a due day as its second obligation ends on day a day
+    and the party does demand acceleration on day the day.
+
+the contract is fulfilled if
+    the obligation that payment with acceleration right permits a party to demand acceleration by day a due day as its second obligation is missed on day a day.
+
+the obligation that payment with acceleration right permits a party to demand acceleration by day a due day as its second obligation has deadline day the due day if
+    the obligation that payment with acceleration right permits the party to demand acceleration by day the due day as its second obligation starts on day a day.
+
+the obligation that warranty claim process permits a party to claim warranty benefit with benefit description a benefit description by day a due day D as its second obligation is met on day a day N if
+    the party does claim warranty benefit with benefit description the benefit description on day N
+    and the obligation that warranty claim process permits the party to claim warranty benefit with benefit description the benefit description by day D as its second obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that warranty claim process obliges the_seller to make payment with payment amount 5000 by day a due day D as its third obligation starts on day a day N if
+    the obligation that warranty claim process permits a party to claim warranty benefit with benefit description a benefit description by day a second due day as its second obligation ends on day N
+    and the party does claim warranty benefit with benefit description the benefit description on day N
+    and D = N + 30.
+
+the obligation that warranty claim process obliges the_seller to make payment with payment amount 5000 by day a due day D as its third obligation starts on day a day N if
+    the obligation that warranty claim process permits a party to claim warranty benefit with benefit description a benefit description by day a second due day as its second obligation is missed on day N
+    and D = N + 30.
+
+the obligation that warranty claim process permits a party to claim warranty benefit with benefit description a benefit description by day a due day as its second obligation has deadline day the due day if
+    the obligation that warranty claim process permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation starts on day a day.
+
+the obligation that warranty claim process obliges a party to make payment with payment amount a payment amount by day a due day D as its third obligation is met on day a day N if
+    the party does make payment with payment amount the payment amount on day N
+    and the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day D as its third obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that warranty claim process obliges a party to make payment with payment amount a payment amount by day a due day as its third obligation ends on day a day
+    and the party does make payment with payment amount the payment amount on day the day.
+
+the contract is breached by a party missing the deadline of day a deadline if
+    the obligation that warranty claim process obliges the party to make payment with payment amount a payment amount by day the deadline as its third obligation is missed on day a day.
+
+the obligation that warranty claim process obliges a party to make payment with payment amount a payment amount by day a due day as its third obligation has deadline day the due day if
+    the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation starts on day a day.
+
+the deadline of the obligation that prepayment option permits a party to prepay loan with prepayment amount a prepayment amount by day a due day as its first obligation has passed on day a day D if
+    the obligation that prepayment option permits the party to prepay loan with prepayment amount the prepayment amount by day the due day as its first obligation starts on day a day N
+    and the obligation that prepayment option permits the party to prepay loan with prepayment amount the prepayment amount by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that prepayment option permits a party to prepay loan with prepayment amount a prepayment amount by day a due day as its first obligation ends on day a day D if
+    the obligation that prepayment option permits the party to prepay loan with prepayment amount the prepayment amount by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that prepayment option permits the party to prepay loan with prepayment amount the prepayment amount by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that prepayment option permits a party to prepay loan with prepayment amount a prepayment amount by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that prepayment option permits the party to prepay loan with prepayment amount the prepayment amount by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that prepayment option permits the party to prepay loan with prepayment amount the prepayment amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that prepayment option permits the party to prepay loan with prepayment amount the prepayment amount by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that prepayment option permits a party to prepay loan with prepayment amount a prepayment amount by day a due day as its first obligation is pending since day a day if
+    the obligation that prepayment option permits the party to prepay loan with prepayment amount the prepayment amount by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that prepayment option permits the party to prepay loan with prepayment amount the prepayment amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that prepayment option permits the party to prepay loan with prepayment amount the prepayment amount by day the due day as its first obligation is missed on day a third day.
+
+the obligation that prepayment option permits a party to prepay loan with prepayment amount a prepayment amount by day a due day as its first obligation is still open if
+    the obligation that prepayment option permits the party to prepay loan with prepayment amount the prepayment amount by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that purchase with warranty obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation has passed on day a day D if
+    the obligation that purchase with warranty obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day a day N
+    and the obligation that purchase with warranty obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that purchase with warranty obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation ends on day a day D if
+    the obligation that purchase with warranty obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that purchase with warranty obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that purchase with warranty obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that purchase with warranty obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that purchase with warranty obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that purchase with warranty obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that purchase with warranty obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is pending since day a day if
+    the obligation that purchase with warranty obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that purchase with warranty obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that purchase with warranty obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is missed on day a third day.
+
+the obligation that purchase with warranty obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is still open if
+    the obligation that purchase with warranty obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that first renewal option permits a party to extend lease with extension months an extension months by day a due day as its first obligation has passed on day a day D if
+    the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its first obligation starts on day a day N
+    and the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that first renewal option permits a party to extend lease with extension months an extension months by day a due day as its first obligation ends on day a day D if
+    the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that first renewal option permits a party to extend lease with extension months an extension months by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that first renewal option permits a party to extend lease with extension months an extension months by day a due day as its first obligation is pending since day a day if
+    the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its first obligation is missed on day a third day.
+
+the obligation that first renewal option permits a party to extend lease with extension months an extension months by day a due day as its first obligation is still open if
+    the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that payment with acceleration right obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation has passed on day a day D if
+    the obligation that payment with acceleration right obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day a day N
+    and the obligation that payment with acceleration right obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that payment with acceleration right obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation ends on day a day D if
+    the obligation that payment with acceleration right obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that payment with acceleration right obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that payment with acceleration right obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that payment with acceleration right obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that payment with acceleration right obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that payment with acceleration right obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that payment with acceleration right obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is pending since day a day if
+    the obligation that payment with acceleration right obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that payment with acceleration right obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that payment with acceleration right obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is missed on day a third day.
+
+the obligation that payment with acceleration right obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is still open if
+    the obligation that payment with acceleration right obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that conversion option permits a party to convert to equity with conversion amount a conversion amount by day a due day as its first obligation has passed on day a day D if
+    the obligation that conversion option permits the party to convert to equity with conversion amount the conversion amount by day the due day as its first obligation starts on day a day N
+    and the obligation that conversion option permits the party to convert to equity with conversion amount the conversion amount by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that conversion option permits a party to convert to equity with conversion amount a conversion amount by day a due day as its first obligation ends on day a day D if
+    the obligation that conversion option permits the party to convert to equity with conversion amount the conversion amount by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that conversion option permits the party to convert to equity with conversion amount the conversion amount by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that conversion option permits a party to convert to equity with conversion amount a conversion amount by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that conversion option permits the party to convert to equity with conversion amount the conversion amount by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that conversion option permits the party to convert to equity with conversion amount the conversion amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that conversion option permits the party to convert to equity with conversion amount the conversion amount by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that conversion option permits a party to convert to equity with conversion amount a conversion amount by day a due day as its first obligation is pending since day a day if
+    the obligation that conversion option permits the party to convert to equity with conversion amount the conversion amount by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that conversion option permits the party to convert to equity with conversion amount the conversion amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that conversion option permits the party to convert to equity with conversion amount the conversion amount by day the due day as its first obligation is missed on day a third day.
+
+the obligation that conversion option permits a party to convert to equity with conversion amount a conversion amount by day a due day as its first obligation is still open if
+    the obligation that conversion option permits the party to convert to equity with conversion amount the conversion amount by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that shareholder put option permits a party to exercise put option with share quantity a share quantity by day a due day as its first obligation has passed on day a day D if
+    the obligation that shareholder put option permits the party to exercise put option with share quantity the share quantity by day the due day as its first obligation starts on day a day N
+    and the obligation that shareholder put option permits the party to exercise put option with share quantity the share quantity by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that shareholder put option permits a party to exercise put option with share quantity a share quantity by day a due day as its first obligation ends on day a day D if
+    the obligation that shareholder put option permits the party to exercise put option with share quantity the share quantity by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that shareholder put option permits the party to exercise put option with share quantity the share quantity by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that shareholder put option permits a party to exercise put option with share quantity a share quantity by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that shareholder put option permits the party to exercise put option with share quantity the share quantity by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that shareholder put option permits the party to exercise put option with share quantity the share quantity by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that shareholder put option permits the party to exercise put option with share quantity the share quantity by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that shareholder put option permits a party to exercise put option with share quantity a share quantity by day a due day as its first obligation is pending since day a day if
+    the obligation that shareholder put option permits the party to exercise put option with share quantity the share quantity by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that shareholder put option permits the party to exercise put option with share quantity the share quantity by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that shareholder put option permits the party to exercise put option with share quantity the share quantity by day the due day as its first obligation is missed on day a third day.
+
+the obligation that shareholder put option permits a party to exercise put option with share quantity a share quantity by day a due day as its first obligation is still open if
+    the obligation that shareholder put option permits the party to exercise put option with share quantity the share quantity by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that early termination clause permits a party to terminate early by day a due day as its first obligation has passed on day a day D if
+    the obligation that early termination clause permits the party to terminate early by day the due day as its first obligation starts on day a day N
+    and the obligation that early termination clause permits the party to terminate early by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that early termination clause permits a party to terminate early by day a due day as its first obligation ends on day a day D if
+    the obligation that early termination clause permits the party to terminate early by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that early termination clause permits the party to terminate early by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that early termination clause permits a party to terminate early by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that early termination clause permits the party to terminate early by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that early termination clause permits the party to terminate early by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that early termination clause permits the party to terminate early by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that early termination clause permits a party to terminate early by day a due day as its first obligation is pending since day a day if
+    the obligation that early termination clause permits the party to terminate early by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that early termination clause permits the party to terminate early by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that early termination clause permits the party to terminate early by day the due day as its first obligation is missed on day a third day.
+
+the obligation that early termination clause permits a party to terminate early by day a due day as its first obligation is still open if
+    the obligation that early termination clause permits the party to terminate early by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that warranty claim process obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation has passed on day a day D if
+    the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day a day N
+    and the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that warranty claim process obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation ends on day a day D if
+    the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that warranty claim process obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that warranty claim process obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is pending since day a day if
+    the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is missed on day a third day.
+
+the obligation that warranty claim process obliges a party to make payment with payment amount a payment amount by day a due day as its first obligation is still open if
+    the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that purchase with warranty permits a party to claim warranty benefit with benefit description a benefit description by day a due day as its second obligation has passed on day a day D if
+    the obligation that purchase with warranty permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation starts on day a day N
+    and the obligation that purchase with warranty permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that purchase with warranty permits a party to claim warranty benefit with benefit description a benefit description by day a due day as its second obligation ends on day a day D if
+    the obligation that purchase with warranty permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation is met on day D
+    and it is not the case that
+        the obligation that purchase with warranty permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that purchase with warranty permits a party to claim warranty benefit with benefit description a benefit description by day a due day as its second obligation is missed on day a day D if
+    the deadline of the obligation that purchase with warranty permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation has passed on day D
+    and it is not the case that the obligation that purchase with warranty permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that purchase with warranty permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that purchase with warranty permits a party to claim warranty benefit with benefit description a benefit description by day a due day as its second obligation is pending since day a day if
+    the obligation that purchase with warranty permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation starts on day the day
+    and it is not the case that the obligation that purchase with warranty permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation ends on day a second day
+    and it is not the case that the obligation that purchase with warranty permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation is missed on day a third day.
+
+the obligation that purchase with warranty permits a party to claim warranty benefit with benefit description a benefit description by day a due day as its second obligation is still open if
+    the obligation that purchase with warranty permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation is pending since day a day.
+
+the deadline of the obligation that first renewal option permits a party to extend lease with extension months an extension months by day a due day as its second obligation has passed on day a day D if
+    the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its second obligation starts on day a day N
+    and the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that first renewal option permits a party to extend lease with extension months an extension months by day a due day as its second obligation ends on day a day D if
+    the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its second obligation is met on day D
+    and it is not the case that
+        the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that first renewal option permits a party to extend lease with extension months an extension months by day a due day as its second obligation is missed on day a day D if
+    the deadline of the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its second obligation has passed on day D
+    and it is not the case that the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that first renewal option permits a party to extend lease with extension months an extension months by day a due day as its second obligation is pending since day a day if
+    the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its second obligation starts on day the day
+    and it is not the case that the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its second obligation ends on day a second day
+    and it is not the case that the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its second obligation is missed on day a third day.
+
+the obligation that first renewal option permits a party to extend lease with extension months an extension months by day a due day as its second obligation is still open if
+    the obligation that first renewal option permits the party to extend lease with extension months the extension months by day the due day as its second obligation is pending since day a day.
+
+the deadline of the obligation that payment with acceleration right permits a party to demand acceleration by day a due day as its second obligation has passed on day a day D if
+    the obligation that payment with acceleration right permits the party to demand acceleration by day the due day as its second obligation starts on day a day N
+    and the obligation that payment with acceleration right permits the party to demand acceleration by day the due day as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that payment with acceleration right permits a party to demand acceleration by day a due day as its second obligation ends on day a day D if
+    the obligation that payment with acceleration right permits the party to demand acceleration by day the due day as its second obligation is met on day D
+    and it is not the case that
+        the obligation that payment with acceleration right permits the party to demand acceleration by day the due day as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that payment with acceleration right permits a party to demand acceleration by day a due day as its second obligation is missed on day a day D if
+    the deadline of the obligation that payment with acceleration right permits the party to demand acceleration by day the due day as its second obligation has passed on day D
+    and it is not the case that the obligation that payment with acceleration right permits the party to demand acceleration by day the due day as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that payment with acceleration right permits the party to demand acceleration by day the due day as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that payment with acceleration right permits a party to demand acceleration by day a due day as its second obligation is pending since day a day if
+    the obligation that payment with acceleration right permits the party to demand acceleration by day the due day as its second obligation starts on day the day
+    and it is not the case that the obligation that payment with acceleration right permits the party to demand acceleration by day the due day as its second obligation ends on day a second day
+    and it is not the case that the obligation that payment with acceleration right permits the party to demand acceleration by day the due day as its second obligation is missed on day a third day.
+
+the obligation that payment with acceleration right permits a party to demand acceleration by day a due day as its second obligation is still open if
+    the obligation that payment with acceleration right permits the party to demand acceleration by day the due day as its second obligation is pending since day a day.
+
+the deadline of the obligation that warranty claim process permits a party to claim warranty benefit with benefit description a benefit description by day a due day as its second obligation has passed on day a day D if
+    the obligation that warranty claim process permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation starts on day a day N
+    and the obligation that warranty claim process permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that warranty claim process permits a party to claim warranty benefit with benefit description a benefit description by day a due day as its second obligation ends on day a day D if
+    the obligation that warranty claim process permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation is met on day D
+    and it is not the case that
+        the obligation that warranty claim process permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that warranty claim process permits a party to claim warranty benefit with benefit description a benefit description by day a due day as its second obligation is missed on day a day D if
+    the deadline of the obligation that warranty claim process permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation has passed on day D
+    and it is not the case that the obligation that warranty claim process permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that warranty claim process permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that warranty claim process permits a party to claim warranty benefit with benefit description a benefit description by day a due day as its second obligation is pending since day a day if
+    the obligation that warranty claim process permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation starts on day the day
+    and it is not the case that the obligation that warranty claim process permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation ends on day a second day
+    and it is not the case that the obligation that warranty claim process permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation is missed on day a third day.
+
+the obligation that warranty claim process permits a party to claim warranty benefit with benefit description a benefit description by day a due day as its second obligation is still open if
+    the obligation that warranty claim process permits the party to claim warranty benefit with benefit description the benefit description by day the due day as its second obligation is pending since day a day.
+
+the deadline of the obligation that warranty claim process obliges a party to make payment with payment amount a payment amount by day a due day as its third obligation has passed on day a day D if
+    the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation starts on day a day N
+    and the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that warranty claim process obliges a party to make payment with payment amount a payment amount by day a due day as its third obligation ends on day a day D if
+    the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation is met on day D
+    and it is not the case that
+        the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation is met on day a day N
+        and N < D.
+
+the obligation that warranty claim process obliges a party to make payment with payment amount a payment amount by day a due day as its third obligation is missed on day a day D if
+    the deadline of the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation has passed on day D
+    and it is not the case that the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation has passed on day a day N
+        and N < D.
+
+the obligation that warranty claim process obliges a party to make payment with payment amount a payment amount by day a due day as its third obligation is pending since day a day if
+    the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation starts on day the day
+    and it is not the case that the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation ends on day a second day
+    and it is not the case that the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation is missed on day a third day.
+
+the obligation that warranty claim process obliges a party to make payment with payment amount a payment amount by day a due day as its third obligation is still open if
+    the obligation that warranty claim process obliges the party to make payment with payment amount the payment amount by day the due day as its third obligation is pending since day a day.
+
+scenario trace_149 is:
+    % #TRACE `prepayment option` (line 149) of the L4 source
+    the contract prepayment option starts on day 0.
+    the_borrower does prepay loan with prepayment amount 100000 on day 180.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_missing expects answers [].
+
+scenario trace_153 is:
+    % #TRACE `prepayment option` (line 153) of the L4 source
+    the contract prepayment option starts on day 0.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_missing expects answers [].
+
+scenario trace_156 is:
+    % #TRACE `purchase with warranty` (line 156) of the L4 source
+    the contract purchase with warranty starts on day 0.
+    the_buyer does make payment with payment amount 5000 on day 5.
+    the_buyer does claim warranty benefit with benefit description "extended warranty coverage" on day 100.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_missing expects answers [].
+
+scenario trace_161 is:
+    % #TRACE `purchase with warranty` (line 161) of the L4 source
+    the contract purchase with warranty starts on day 0.
+    the_buyer does make payment with payment amount 5000 on day 5.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_missing expects answers [].
+
+scenario trace_165 is:
+    % #TRACE `first renewal option` (line 165) of the L4 source
+    the contract first renewal option starts on day 0.
+    the_tenant does extend lease with extension months 12 on day 30.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_missing expects answers [].
+
+scenario trace_169 is:
+    % #TRACE `first renewal option` (line 169) of the L4 source
+    the contract first renewal option starts on day 0.
+    the_tenant does extend lease with extension months 12 on day 30.
+    the_tenant does extend lease with extension months 12 on day 90.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_missing expects answers [].
+
+scenario trace_174 is:
+    % #TRACE `payment with acceleration right` (line 174) of the L4 source
+    the contract payment with acceleration right starts on day 0.
+    the_lender does demand acceleration on day 35.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_missing expects answers [].
+
+scenario trace_178 is:
+    % #TRACE `payment with acceleration right` (line 178) of the L4 source
+    the contract payment with acceleration right starts on day 0.
+    the_borrower does make payment with payment amount 10000 on day 20.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_missing expects answers [].
+
+scenario trace_182 is:
+    % #TRACE `conversion option` (line 182) of the L4 source
+    the contract conversion option starts on day 0.
+    the_investor does convert to equity with conversion amount 500000 on day 365.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_missing expects answers [].
+
+scenario trace_186 is:
+    % #TRACE `shareholder put option` (line 186) of the L4 source
+    the contract shareholder put option starts on day 0.
+    the_investor does exercise put option with share quantity 100000 on day 1000.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_missing expects answers [].
+
+scenario trace_190 is:
+    % #TRACE `early termination clause` (line 190) of the L4 source
+    the contract early termination clause starts on day 0.
+    the_tenant does terminate early on day 90.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_missing expects answers [].
+
+scenario trace_194 is:
+    % #TRACE `early termination clause` (line 194) of the L4 source
+    the contract early termination clause starts on day 0.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_missing expects answers [].
+
+scenario trace_197 is:
+    % #TRACE `warranty claim process` (line 197) of the L4 source
+    the contract warranty claim process starts on day 0.
+    the_buyer does make payment with payment amount 25000 on day 7.
+    the_buyer does claim warranty benefit with benefit description "defect repair" on day 200.
+    the_seller does make payment with payment amount 5000 on day 220.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_missing expects answers [].
+
+query fulfilled is:
+    the contract is fulfilled.
+
+query q_the_contract_is_breached_by_missing is:
+    the contract is breached by which party missing the deadline of day which deadline.
+
+query q_open_o_prepayment_option_1 is:
+    the obligation that prepayment option permits which party to prepay loan with prepayment amount which prepayment amount by day which due day as its first obligation is still open.
+
+query q_open_o_purchase_with_warranty_1 is:
+    the obligation that purchase with warranty obliges which party to make payment with payment amount which payment amount by day which due day as its first obligation is still open.
+
+query q_open_o_first_renewal_option_1 is:
+    the obligation that first renewal option permits which party to extend lease with extension months which extension months by day which due day as its first obligation is still open.
+
+query q_open_o_payment_with_acceleration_right_1 is:
+    the obligation that payment with acceleration right obliges which party to make payment with payment amount which payment amount by day which due day as its first obligation is still open.
+
+query q_open_o_conversion_option_1 is:
+    the obligation that conversion option permits which party to convert to equity with conversion amount which conversion amount by day which due day as its first obligation is still open.
+
+query q_open_o_shareholder_put_option_1 is:
+    the obligation that shareholder put option permits which party to exercise put option with share quantity which share quantity by day which due day as its first obligation is still open.
+
+query q_open_o_early_termination_clause_1 is:
+    the obligation that early termination clause permits which party to terminate early by day which due day as its first obligation is still open.
+
+query q_open_o_warranty_claim_process_1 is:
+    the obligation that warranty claim process obliges which party to make payment with payment amount which payment amount by day which due day as its first obligation is still open.
+
+query q_open_o_purchase_with_warranty_2 is:
+    the obligation that purchase with warranty permits which party to claim warranty benefit with benefit description which benefit description by day which due day as its second obligation is still open.
+
+query q_open_o_first_renewal_option_2 is:
+    the obligation that first renewal option permits which party to extend lease with extension months which extension months by day which due day as its second obligation is still open.
+
+query q_open_o_payment_with_acceleration_right_2 is:
+    the obligation that payment with acceleration right permits which party to demand acceleration by day which due day as its second obligation is still open.
+
+query q_open_o_warranty_claim_process_2 is:
+    the obligation that warranty claim process permits which party to claim warranty benefit with benefit description which benefit description by day which due day as its second obligation is still open.
+
+query q_open_o_warranty_claim_process_3 is:
+    the obligation that warranty claim process obliges which party to make payment with payment amount which payment amount by day which due day as its third obligation is still open.
+

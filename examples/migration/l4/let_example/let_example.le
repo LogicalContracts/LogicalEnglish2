@@ -1,0 +1,293 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from let-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the x of *a point* is *a number*.
+    the y of *a point* is *a number*.
+
+the templates are:
+    the result with single binding is *a number*.
+    the sum of two values is *a number*.
+    the sum of three values is *a number*.
+    the calculated result using forward references is *a value*.
+    the sum using various binding keywords is *a number*.
+    the using equals for binding is *a value*.
+    the nested let expressions is *a value*.
+    the factorial of *a number* is *a second number*.
+    the shifted point example is *a value*.
+    the list of numbers example is *a value*.
+    the quadratic discriminant for *a number* with *a second number* with *a third number* is *a value*.
+    the x is *a number*.
+    the x in sum of two values is *a number*.
+    the y is *a number*.
+    the x in sum of three values is *a number*.
+    the y in sum of three values is *a number*.
+    the z is *a number*.
+    the initial value is *a number*.
+    the doubled value is *a number*.
+    the final value is *a number*.
+    a is *a number*.
+    the b is *a number*.
+    the c is *a number*.
+    the d is *a number*.
+    the e is *a number*.
+    the val is *a number*.
+    the result is *a number*.
+    the step one is *a number*.
+    the step two is *a number*.
+    the step three is *a number*.
+    the previous factorial for *a number* is *a second number*.
+    the origin is *a value*.
+    the shifted point is *a value*.
+    the all numbers is *a list*.
+    the discriminant for *a number* with *a second number* with *a third number* is *a fourth number*.
+    L4's answer at line 9 is reproduced.
+    L4's answer at line 19 is reproduced.
+    L4's answer at line 30 is reproduced.
+    L4's answer at line 41 is reproduced.
+    L4's answer at line 54 is reproduced.
+    L4's answer at line 64 is reproduced.
+    L4's answer at line 74 is reproduced.
+    L4's answer at line 85 is reproduced.
+    L4's answer at line 118 is reproduced.
+
+the knowledge base let_example includes:
+
+the text of the source program is at "sources/let-example.l4".
+
+the x is 5.
+
+the result with single binding is a number N if
+    the x is a number M
+    and N = M * 2.
+
+the x in sum of two values is 5.
+
+the y is 10.
+
+the sum of two values is a number N if
+    the x in sum of two values is a number M
+    and the y is a number K
+    and N = M + K.
+
+the x in sum of three values is 5.
+
+the y in sum of three values is 10.
+
+the z is 15.
+
+the sum of three values is a number N if
+    the x in sum of three values is a number M
+    and the y in sum of three values is a number K
+    and the z is a number P
+    and N = M + K + P.
+
+the initial value is 5.
+
+the doubled value is a number N if
+    the initial value is a number M
+    and N = M * 2.
+
+the final value is a number N if
+    the doubled value is a number M
+    and N = M + 3.
+
+the calculated result using forward references is a value if
+    the final value is the value.
+
+a is 1.
+
+the b is 2.
+
+the c is 3.
+
+the d is 4.
+
+the e is 5.
+
+the sum using various binding keywords is a number N if
+    a is a number M
+    and the b is a number K
+    and the c is a number P
+    and the d is a number Q
+    and the e is a number R
+    and N = M + K + P + Q + R.
+
+the val is 42.
+
+the result is a number N if
+    the val is a number M
+    and N = M + 8.
+
+the using equals for binding is a value if
+    the result is the value.
+
+the step one is 10.
+
+the step two is a number N if
+    the step one is a number M
+    and N = M * 2.
+
+the step three is a number N if
+    the step two is a number M
+    and N = M + 5.
+
+the nested let expressions is a value if
+    the step three is the value.
+
+the previous factorial for a number N is a second number if
+    a number M = N - 1
+    and the factorial of M is the second number.
+
+the factorial of a number N is a number M if
+    N <= 1
+    and M is equal to 1
+    otherwise the previous factorial for N is a number K
+    and M = N * K.
+
+% RESIDUE r1 BEGIN: the origin
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 93-93
+% a value with no LE form: (`Point` WITH `x` IS 0, `y` IS 0)
+%   l4:
+%   |     `the origin` IS Point WITH x IS 0, y IS 0
+% RESIDUE r1 END
+
+% RESIDUE r2 BEGIN: shifted point
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 94-94
+% a value with no LE form: (`Point` WITH `x` IS ((`the origin`'s `x`) PLUS 10), `y` IS ((`the origin`'s `y`) PLUS 20))
+%   l4:
+%   |     `shifted point` IS Point WITH x IS `the origin`'s x PLUS 10, y IS `the origin`'s y PLUS 20
+% RESIDUE r2 END
+
+the shifted point example is a value if
+    the shifted point is the value.
+
+the all numbers is [1, 2, 3, 4, 5].
+
+the list of numbers example is a value if
+    the all numbers is the value.
+
+the discriminant for a number N with a number M with a number K is a number P if
+    P = M * M - 4 * N * K.
+
+the quadratic discriminant for a number with a second number with a third number is a value if
+    the discriminant for the number with the second number with the third number is the value.
+
+L4's answer at line 9 is reproduced if
+    the result with single binding is a number N
+    and N * 100000000 >= 999999999
+    and N * 100000000 <= 1000000001.
+
+L4's answer at line 19 is reproduced if
+    the sum of two values is a number N
+    and N * 100000000 >= 1499999999
+    and N * 100000000 <= 1500000001.
+
+L4's answer at line 30 is reproduced if
+    the sum of three values is a number N
+    and N * 100000000 >= 2999999999
+    and N * 100000000 <= 3000000001.
+
+L4's answer at line 41 is reproduced if
+    the calculated result using forward references is a value V
+    and V * 100000000 >= 1299999999
+    and V * 100000000 <= 1300000001.
+
+L4's answer at line 54 is reproduced if
+    the sum using various binding keywords is a number N
+    and N * 100000000 >= 1499999999
+    and N * 100000000 <= 1500000001.
+
+L4's answer at line 64 is reproduced if
+    the using equals for binding is a value V
+    and V * 100000000 >= 4999999999
+    and V * 100000000 <= 5000000001.
+
+L4's answer at line 74 is reproduced if
+    the nested let expressions is a value V
+    and V * 100000000 >= 2499999999
+    and V * 100000000 <= 2500000001.
+
+L4's answer at line 85 is reproduced if
+    the factorial of 5 is a number N
+    and N * 10000000 >= 1199999999
+    and N * 10000000 <= 1200000001.
+
+L4's answer at line 118 is reproduced if
+    the quadratic discriminant for 1 with 5 with 6 is a value V
+    and V * 1000000000 >= 999999999
+    and V * 1000000000 <= 1000000001.
+
+scenario line_9 is, as stated in the source program at line 9:
+    line_9 expects answers ["L4's answer at line 9 is reproduced"].
+
+scenario line_19 is, as stated in the source program at line 19:
+    line_19 expects answers ["L4's answer at line 19 is reproduced"].
+
+scenario line_30 is, as stated in the source program at line 30:
+    line_30 expects answers ["L4's answer at line 30 is reproduced"].
+
+scenario line_41 is, as stated in the source program at line 41:
+    line_41 expects answers ["L4's answer at line 41 is reproduced"].
+
+scenario line_54 is, as stated in the source program at line 54:
+    line_54 expects answers ["L4's answer at line 54 is reproduced"].
+
+scenario line_64 is, as stated in the source program at line 64:
+    line_64 expects answers ["L4's answer at line 64 is reproduced"].
+
+scenario line_74 is, as stated in the source program at line 74:
+    line_74 expects answers ["L4's answer at line 74 is reproduced"].
+
+scenario line_85 is, as stated in the source program at line 85:
+    line_85 expects answers ["L4's answer at line 85 is reproduced"].
+
+scenario line_106 is, as stated in the source program at line 106:
+    line_106 expects answers ["the list of numbers example is [1, 2, 3, 4, 5]"].
+
+scenario line_118 is, as stated in the source program at line 118:
+    line_118 expects answers ["L4's answer at line 118 is reproduced"].
+
+query line_9 is:
+    L4's answer at line 9 is reproduced.
+
+query line_19 is:
+    L4's answer at line 19 is reproduced.
+
+query line_30 is:
+    L4's answer at line 30 is reproduced.
+
+query line_41 is:
+    L4's answer at line 41 is reproduced.
+
+query line_54 is:
+    L4's answer at line 54 is reproduced.
+
+query line_64 is:
+    L4's answer at line 64 is reproduced.
+
+query line_74 is:
+    L4's answer at line 74 is reproduced.
+
+query line_85 is:
+    L4's answer at line 85 is reproduced.
+
+query line_106 is:
+    the list of numbers example is which value.
+
+query line_118 is:
+    L4's answer at line 118 is reproduced.
+

@@ -1,0 +1,408 @@
+{
+  "counts": {"approximated":19,"encoded":25,"residue":4},
+  "entries": [
+    {
+      "element":"Place",
+      "in_program":"Place",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Date",
+      "in_program":"Date",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Maybe",
+      "in_program":"Maybe",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"NaturalPerson",
+      "in_program":"NaturalPerson",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"mother of",
+      "in_program":"the mother of *a person* is *a second person*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"father of",
+      "in_program":"the father of *a person* is *a second person*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is born in the United Kingdom after commencement",
+      "in_program":"*a person* is born in the united kingdom after commencement",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is born in a qualifying territory after the appointed day",
+      "in_program":"*a person* is born in a qualifying territory after the appointed day",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is settled in the United Kingdom",
+      "in_program":"*a person* is settled in the united kingdom",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is settled in the qualifying territory in which the person is born",
+      "in_program":"*a person* is settled in the qualifying territory in what the person is born",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"isBOT",
+      "in_program":"*a place* is BOT",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"qualifying territory",
+      "in_program":"qualifying territory for *a place*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"after",
+      "in_program":"after for *a date* with *a second date*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"isBornInUK",
+      "in_program":"*a natural person* is born in UK",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"isBornInUS",
+      "in_program":"*a natural person* is born in US",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"afterCommencement",
+      "in_program":"after commencement for *a natural person*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"afterAppointedDay",
+      "in_program":"after appointed day for *a natural person*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"plus",
+      "in_program":"the plus for *a number* with *a second number* is *a third number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is a British citizen if anything",
+      "in_program":"*a person* is a british citizen whether anything for *a boolean*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is a British citizen (local)",
+      "in_program":"*a person* is a british citizen local",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"for father or mother of",
+      "in_program":"for father else mother of *a person* with *a property*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"is a British citizen (variant)",
+      "in_program":"*a person* is a british citizen variant",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"mother of",
+      "in_program":"mother of",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"father of",
+      "in_program":"father of",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is born in the United Kingdom after commencement",
+      "in_program":"is born in the United Kingdom after commencement",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is born in a qualifying territory after the appointed day",
+      "in_program":"is born in a qualifying territory after the appointed day",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is settled in the United Kingdom",
+      "in_program":"is settled in the United Kingdom",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is settled in the qualifying territory in which the person is born",
+      "in_program":"is settled in the qualifying territory in which the person is born",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"British Overseas Territories",
+      "in_program":"british_overseas_territories",
+      "kind":"record",
+      "mapping":"a list of individuals, one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"isBOT",
+      "in_program":"*a place* is BOT",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"akdh",
+      "in_program":"akdh",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"commencement",
+      "in_program":"commencement",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"appointed day",
+      "in_program":"appointed_day",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"qualifying territory",
+      "in_program":"qualifying territory for *a place*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"after",
+      "in_program":"after for *a date* with *a second date*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"isBornInUK",
+      "in_program":"*a natural person* is born in UK",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"isBornInUS",
+      "in_program":"*a natural person* is born in US",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"afterCommencement",
+      "in_program":"after commencement for *a natural person*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"afterAppointedDay",
+      "in_program":"after appointed day for *a natural person*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"plus",
+      "in_program":"the plus for *a number* with *a second number* is *a third number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is a British citizen if anything",
+      "in_program":"*a person* is a british citizen whether anything for *a boolean*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"father or mother",
+      "in_program":"father else mother for *a person* with *a property*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"father or mother",
+      "in_program":"r1",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"is a British citizen (local)",
+      "in_program":"r2",
+      "kind":"definition",
+      "mapping":"a condition with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"for father or mother of",
+      "in_program":"r3",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"is a British citizen (variant)",
+      "in_program":"r4",
+      "kind":"definition",
+      "mapping":"a condition with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#EVAL at line 57",
+      "in_program":"line_57",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 73",
+      "in_program":"line_73",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":2,
+    "tests": [
+      {"detail":"","query":"line_57","result":"pass","scenario":"line_57"},
+      {"detail":"","query":"line_73","result":"pass","scenario":"line_73"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["british-citizen-act.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"british_citizen_act",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":16,
+  "source_tests":18
+}

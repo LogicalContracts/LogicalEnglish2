@@ -1,0 +1,161 @@
+{
+  "counts": {"approximated":0,"encoded":17,"residue":0},
+  "entries": [
+    {
+      "element":"Person",
+      "in_program":"Person",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Point",
+      "in_program":"Point",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Colour",
+      "in_program":"Colour",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Shape",
+      "in_program":"Shape",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Age",
+      "in_program":"Age",
+      "kind":"type",
+      "mapping":"a type",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"PersonName",
+      "in_program":"PersonName",
+      "kind":"type",
+      "mapping":"a type",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Box",
+      "in_program":"Box",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"MyPair",
+      "in_program":"MyPair",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the applicant",
+      "in_program":"the_applicant",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the origin",
+      "in_program":"the_origin",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"my favourite colour",
+      "in_program":"the my favourite colour is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"my shape",
+      "in_program":"my_shape",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"box with number",
+      "in_program":"box_with_number",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"box with text",
+      "in_program":"box_with_text",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 53",
+      "in_program":"line_53",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 54",
+      "in_program":"line_54",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 55",
+      "in_program":"line_55",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":3,
+    "tests": [
+      {"detail":"","query":"line_53","result":"pass","scenario":"line_53"},
+      {"detail":"","query":"line_54","result":"pass","scenario":"line_54"},
+      {"detail":"","query":"line_55","result":"pass","scenario":"line_55"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["declare-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"declare_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":3
+}

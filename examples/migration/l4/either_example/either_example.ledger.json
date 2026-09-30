@@ -1,0 +1,64 @@
+{
+  "counts": {"approximated":0,"encoded":1,"residue":5},
+  "entries": [
+    {
+      "element":"api result",
+      "in_program":"api result",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"error case",
+      "in_program":"r1",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"success case",
+      "in_program":"r2",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"handle the result",
+      "in_program":"r3",
+      "kind":"definition",
+      "mapping":"a pattern with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#eval at line 18",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value that is not a constant: `error case`",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#eval at line 19",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value that is not a constant: `success case`",
+      "note":"",
+      "verdict":"residue"
+    }
+  ],
+  "fidelity":null,
+  "meta": {
+    "artifacts": ["either-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"either_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":0
+}

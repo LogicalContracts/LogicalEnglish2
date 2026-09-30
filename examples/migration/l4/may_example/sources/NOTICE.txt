@@ -1,0 +1,3 @@
+The L4 source here is `doc/reference/regulative/may-example.l4` of the repository smucclaw/l4-ide at commit 5e082cf1ecd9876969293edd8afff0f6577aa56e,
+Copyright 2025 Singapore Management University, licensed under the Apache License,
+Version 2.0 (LICENSE). It is unmodified.

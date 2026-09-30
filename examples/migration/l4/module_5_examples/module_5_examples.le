@@ -1,0 +1,28 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from module-5-examples.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the amount of *a pay the invoice* is *a number*.
+
+the templates are:
+    *a sale action* is a pay the invoice.
+
+the knowledge base module_5_examples includes:
+
+the text of the source program is at "sources/module-5-examples.l4".
+
+% The contracts of this file (the complete sale contract, the delivery obligation, the fidelity clause, the inspection right, the payment with late fee, the wedding ceremony) are twins of their own, written by step 3 of
+% the L4 translator: in LE for LPS, run by LPS2 (LPS2's examples/migration/l4/module_5_examples/module_5_examples.le,
+% each #TRACE a scenario), and as a history view read over a finished history of
+% events (module_5_examples_history.le, beside this program).

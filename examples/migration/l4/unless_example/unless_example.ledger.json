@@ -1,0 +1,420 @@
+{
+  "counts": {"approximated":0,"encoded":39,"residue":0},
+  "entries": [
+    {
+      "element":"basic1",
+      "in_program":"basic1",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"basic2",
+      "in_program":"basic2",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"basic3",
+      "in_program":"basic3",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"basic4",
+      "in_program":"basic4",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is a citizen",
+      "in_program":"is a citizen",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"has resided for 5 years",
+      "in_program":"has resided for 5 years",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"has valid identification",
+      "in_program":"has valid identification",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"has been disqualified",
+      "in_program":"has been disqualified",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is eligible for benefits",
+      "in_program":"is eligible for benefits",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"and_unless_example",
+      "in_program":"as well as except when example",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"and_unless_example2",
+      "in_program":"as well as except when example2",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"or_unless_example",
+      "in_program":"else except when example",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"or_unless_example2",
+      "in_program":"else except when example2",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"single_and",
+      "in_program":"single as well as",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"single_or",
+      "in_program":"single else",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"precedence_test",
+      "in_program":"precedence test",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"signed by both parties",
+      "in_program":"signed by both parties",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"consideration exchanged",
+      "in_program":"consideration exchanged",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"signed under duress",
+      "in_program":"signed under duress",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"contract is valid",
+      "in_program":"contract is valid",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"has valid badge",
+      "in_program":"has valid badge",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"during business hours",
+      "in_program":"during business hours",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"building is closed",
+      "in_program":"building is closed",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"can enter building",
+      "in_program":"can enter building",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is employee",
+      "in_program":"is employee",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"is contractor",
+      "in_program":"is contractor",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"has been terminated",
+      "in_program":"has been terminated",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"has system access",
+      "in_program":"has system access",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 10",
+      "in_program":"line_10",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 14",
+      "in_program":"line_14",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 18",
+      "in_program":"line_18",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 22",
+      "in_program":"line_22",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 53",
+      "in_program":"line_53",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 61",
+      "in_program":"line_61",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 76",
+      "in_program":"line_76",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 84",
+      "in_program":"line_84",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 93",
+      "in_program":"line_93",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 94",
+      "in_program":"line_94",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 105",
+      "in_program":"line_105",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":51,
+    "tests": [
+      {"detail":"","query":"line_10","result":"pass","scenario":"line_10"},
+      {"detail":"","query":"line_14","result":"pass","scenario":"line_14"},
+      {"detail":"","query":"line_18","result":"pass","scenario":"line_18"},
+      {"detail":"","query":"line_22","result":"pass","scenario":"line_22"},
+      {"detail":"","query":"line_53","result":"pass","scenario":"line_53"},
+      {"detail":"","query":"line_61","result":"pass","scenario":"line_61"},
+      {"detail":"","query":"line_76","result":"pass","scenario":"line_76"},
+      {"detail":"","query":"line_84","result":"pass","scenario":"line_84"},
+      {"detail":"","query":"line_93","result":"pass","scenario":"line_93"},
+      {"detail":"","query":"line_94","result":"pass","scenario":"line_94"},
+      {"detail":"","query":"line_105","result":"pass","scenario":"line_105"},
+      {"detail":"","query":"is_eligible_for_benefits","result":"pass","scenario":"variant_1"},
+      {"detail":"","query":"is_eligible_for_benefits","result":"pass","scenario":"variant_2"},
+      {"detail":"","query":"is_eligible_for_benefits","result":"pass","scenario":"variant_3"},
+      {"detail":"","query":"is_eligible_for_benefits","result":"pass","scenario":"variant_4"},
+      {"detail":"","query":"is_eligible_for_benefits","result":"pass","scenario":"variant_5"},
+      {"detail":"","query":"is_eligible_for_benefits","result":"pass","scenario":"variant_6"},
+      {"detail":"","query":"is_eligible_for_benefits","result":"pass","scenario":"variant_7"},
+      {"detail":"","query":"is_eligible_for_benefits","result":"pass","scenario":"variant_8"},
+      {"detail":"","query":"is_eligible_for_benefits","result":"pass","scenario":"variant_9"},
+      {
+	"detail":"",
+	"query":"is_eligible_for_benefits",
+	"result":"pass",
+	"scenario":"variant_10"
+      },
+      {
+	"detail":"",
+	"query":"is_eligible_for_benefits",
+	"result":"pass",
+	"scenario":"variant_11"
+      },
+      {
+	"detail":"",
+	"query":"is_eligible_for_benefits",
+	"result":"pass",
+	"scenario":"variant_12"
+      },
+      {
+	"detail":"",
+	"query":"is_eligible_for_benefits",
+	"result":"pass",
+	"scenario":"variant_13"
+      },
+      {
+	"detail":"",
+	"query":"is_eligible_for_benefits",
+	"result":"pass",
+	"scenario":"variant_14"
+      },
+      {
+	"detail":"",
+	"query":"is_eligible_for_benefits",
+	"result":"pass",
+	"scenario":"variant_15"
+      },
+      {
+	"detail":"",
+	"query":"is_eligible_for_benefits",
+	"result":"pass",
+	"scenario":"variant_16"
+      },
+      {"detail":"","query":"contract_is_valid","result":"pass","scenario":"variant_17"},
+      {"detail":"","query":"contract_is_valid","result":"pass","scenario":"variant_18"},
+      {"detail":"","query":"contract_is_valid","result":"pass","scenario":"variant_19"},
+      {"detail":"","query":"contract_is_valid","result":"pass","scenario":"variant_20"},
+      {"detail":"","query":"contract_is_valid","result":"pass","scenario":"variant_21"},
+      {"detail":"","query":"contract_is_valid","result":"pass","scenario":"variant_22"},
+      {"detail":"","query":"contract_is_valid","result":"pass","scenario":"variant_23"},
+      {"detail":"","query":"contract_is_valid","result":"pass","scenario":"variant_24"},
+      {"detail":"","query":"can_enter_building","result":"pass","scenario":"variant_25"},
+      {"detail":"","query":"can_enter_building","result":"pass","scenario":"variant_26"},
+      {"detail":"","query":"can_enter_building","result":"pass","scenario":"variant_27"},
+      {"detail":"","query":"can_enter_building","result":"pass","scenario":"variant_28"},
+      {"detail":"","query":"can_enter_building","result":"pass","scenario":"variant_29"},
+      {"detail":"","query":"can_enter_building","result":"pass","scenario":"variant_30"},
+      {"detail":"","query":"can_enter_building","result":"pass","scenario":"variant_31"},
+      {"detail":"","query":"can_enter_building","result":"pass","scenario":"variant_32"},
+      {"detail":"","query":"has_system_access","result":"pass","scenario":"variant_33"},
+      {"detail":"","query":"has_system_access","result":"pass","scenario":"variant_34"},
+      {"detail":"","query":"has_system_access","result":"pass","scenario":"variant_35"},
+      {"detail":"","query":"has_system_access","result":"pass","scenario":"variant_36"},
+      {"detail":"","query":"has_system_access","result":"pass","scenario":"variant_37"},
+      {"detail":"","query":"has_system_access","result":"pass","scenario":"variant_38"},
+      {"detail":"","query":"has_system_access","result":"pass","scenario":"variant_39"},
+      {"detail":"","query":"has_system_access","result":"pass","scenario":"variant_40"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["unless-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"unless_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":51
+}

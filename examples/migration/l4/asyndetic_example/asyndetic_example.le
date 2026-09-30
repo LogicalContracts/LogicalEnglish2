@@ -1,0 +1,60 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from asyndetic-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    citizen.
+    over18.
+    has ID.
+    approved.
+    pending.
+    review.
+    eligible1.
+    in progress.
+
+the knowledge base asyndetic_example includes:
+
+the text of the source program is at "sources/asyndetic-example.l4".
+
+citizen.
+
+over18.
+
+has ID.
+
+approved.
+
+% never holds
+% never holds
+eligible1 if
+    citizen
+    and over18
+    and has ID.
+
+in progress if
+    approved
+    or pending
+    or review.
+
+scenario line_20 is, as stated in the source program at line 20:
+    line_20 expects answers ["eligible1"].
+
+scenario line_21 is, as stated in the source program at line 21:
+    line_21 expects answers ["in progress"].
+
+query line_20 is:
+    eligible1.
+
+query line_21 is:
+    in progress.
+

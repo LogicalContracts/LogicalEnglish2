@@ -2224,7 +2224,7 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
         le_i18n:indefinite_isa_words(Type, IsaWords),
         flatten([ArgI, IsaWords, Type], WordsAndVars)
     ;   compound(Head), Head =.. [Op, [each, Var], AggGoal, [Result]],
-        memberchk(Op, [sum, count, min, max, average]) ->
+        memberchk(Op, [sum, count, min, max, average, list]) ->
         aggregate_words(KBmodule, Op, Var, AggGoal, Result, WordsAndVars)
     ;   Head = le_scoped(Goal, Scope) ->
         % "<goal> according to <scope>" (a source-scoped proof).
@@ -2550,7 +2550,7 @@ fill_variable_name(_, V, V).
 
 maybe_transform_value(KBmodule, Val, Transformed) :-
     (   is_list(Val)
-    ->  render_list_value(KBmodule, Val, Transformed)   % e.g. [Alice, Bob] -> '[Alice Bob]'
+    ->  render_list_value(KBmodule, Val, Transformed)   % e.g. [Alice, Bob] -> '[Alice, Bob]'
     ;   compound(Val), Val \= date(_), Val \= date(_,_,_), item_to_instance(KBmodule, Val, Transformed)
     ->  true
     ;   Transformed = Val
@@ -2559,13 +2559,16 @@ maybe_transform_value(KBmodule, Val, Transformed) :-
 %!  render_list_value(+KBmodule, +List, -Atom) is det.
 %
 %   Renders a list value as a single bracketed atom whose elements are
-%   space-separated, e.g. [Alice, Bob] -> '[Alice Bob]', [] -> '[]'. Producing a
+%   separated by commas, e.g. [Alice, Bob] -> '[Alice, Bob]', [] -> '[]' -- as
+%   a list is written in a program (until 29 September 2026 by spaces,
+%   '[Alice Bob]', which a reader could not tell from one element of two
+%   words, and which could not be pasted back into a query). Producing a
 %   single atom (rather than leaving a sublist) keeps the brackets visible: the
 %   surrounding flatten/2 in item_to_instance/3 and query/5 would otherwise
 %   splice the elements into the sentence and lose the list structure.
 render_list_value(KBmodule, List, Atom) :-
     maplist(render_list_element(KBmodule), List, ElemAtoms),
-    atomic_list_concat(ElemAtoms, ' ', Inner),
+    atomic_list_concat(ElemAtoms, ', ', Inner),
     atomic_list_concat(['[', Inner, ']'], Atom).
 
 render_list_element(KBmodule, E, A) :-

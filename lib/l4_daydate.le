@@ -1,0 +1,40 @@
+% lib/l4_daydate.le — L4's daydate library, as LE templates.
+%
+% The L4 translator (lpsPlus/docs/migration/l4.md, §3) writes L4's dates as
+% LE dates (2025-09-03) and uses these templates for what L4's daydate
+% library does with them: a date's day number (L4's `Day`, DATE_SERIAL,
+% from which L4 counts days), the date of a day number (L4's `Date n`,
+% DATE_FROM_SERIAL), a date made from its day, month and year (`Date d m
+% y`, DATE_FROM_DMY), and the parts of a date (DATE_DAY, DATE_MONTH,
+% DATE_YEAR). A library, included as a resource by the twin that needs it.
+
+the knowledge base l4_daydate includes these resources:
+    l4_daydate.pl.
+
+the templates are:
+    the day number of *a date* is *a number*.
+    the date of day number *a number* is *a date*.
+    the date with day *a number* month *a second number* year *a third number* is *a date*.
+    the day in the month of *a date* is *a number*.
+    the month number of *a date* is *a number*.
+    the year number of *a date* is *a number*.
+
+the knowledge base l4_daydate includes:
+
+the day number of a date is a number if
+    prolog l4_date_serial(the date, the number).
+
+the date of day number a number is a date if
+    prolog l4_date_serial(the date, the number).
+
+the date with day a number month a second number year a third number is a date if
+    prolog l4_date_make(the number, the second number, the third number, the date).
+
+the day in the month of a date is a number if
+    prolog l4_date_parts(the date, the number, M, Y).
+
+the month number of a date is a number if
+    prolog l4_date_parts(the date, D, the number, Y).
+
+the year number of a date is a number if
+    prolog l4_date_parts(the date, D, M, the number).

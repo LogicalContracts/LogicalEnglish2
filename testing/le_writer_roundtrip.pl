@@ -134,7 +134,7 @@ normal_body(T, N) :-
     compound(T), T =.. [F|Args], memberchk(F, [and, or, not, forall, le_scoped]), !,
     maplist(normal_body, Args, NArgs), N =.. [F|NArgs].
 normal_body(T, N) :-
-    compound(T), T =.. [Op, [each|E], G, R], memberchk(Op, [sum, count, average, min, max]), !,
+    compound(T), T =.. [Op, [each|E], G, R], memberchk(Op, [sum, count, average, min, max, list]), !,
     maplist(agg_var, E, E1), maplist(agg_var, R, R1),
     normal_body(G, G1), N =.. [Op, [each|E1], G1, R1].
 normal_body(le_flip(G, C), le_flip(NG, C)) :- !, normal_body(G, NG).

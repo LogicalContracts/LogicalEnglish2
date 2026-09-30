@@ -1,0 +1,436 @@
+% module-a1-regulatory-examples.l4: the history view
+%
+% The timeless Logical English twin of the contracts of an L4 file (module-a1-regulatory-examples.l4), written
+% by the L4 translator (docs/migration/l4.md, step 3): the contracts read over a finished
+% history of events. For each obligation the program says when it starts, its deadline
+% and which events meet it, and four rules say how it ends: met, missed, or still
+% open when the history stops. The same obligations, in the same words, as the LE for LPS twin in LPS2's
+% examples/migration/l4/; each scenario expects what that twin's run ended with, which
+% agrees with L4's evaluator.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    something happens on day *a day*.
+    an obligation can start on day *a day*.
+    the obligation that annual return obligation obliges *a party* to file annual return by day *a due day* as its first obligation given charity *a charity* starts on day *a day*; memorable.
+    the obligation that annual return obligation obliges *a party* to file annual return by day *a due day* as its first obligation given charity *a charity* has deadline day *a day*.
+    the obligation that annual return obligation obliges *a party* to file annual return by day *a due day* as its first obligation given charity *a charity* is met on day *a day*.
+    the obligation that annual return obligation obliges *a party* to file annual return by day *a due day* as its first obligation given charity *a charity* ends on day *a day*; memorable.
+    the obligation that annual return obligation obliges *a party* to file annual return by day *a due day* as its first obligation given charity *a charity* is missed on day *a day*.
+    the deadline of the obligation that annual return obligation obliges *a party* to file annual return by day *a due day* as its first obligation given charity *a charity* has passed on day *a day*; memorable.
+    the obligation that annual return obligation obliges *a party* to file annual return by day *a due day* as its first obligation given charity *a charity* is pending since day *a day*.
+    the obligation that annual return obligation obliges *a party* to file annual return by day *a due day* as its first obligation given charity *a charity* is still open.
+    the obligation that governor reporting obligation obliges *a party* to report reportable matter by day *a due day* as its first obligation given governor *a governor* starts on day *a day*; memorable.
+    the obligation that governor reporting obligation obliges *a party* to report reportable matter by day *a due day* as its first obligation given governor *a governor* has deadline day *a day*.
+    the obligation that governor reporting obligation obliges *a party* to report reportable matter by day *a due day* as its first obligation given governor *a governor* is met on day *a day*.
+    the obligation that governor reporting obligation obliges *a party* to report reportable matter by day *a due day* as its first obligation given governor *a governor* ends on day *a day*; memorable.
+    the obligation that governor reporting obligation obliges *a party* to report reportable matter by day *a due day* as its first obligation given governor *a governor* is missed on day *a day*.
+    the deadline of the obligation that governor reporting obligation obliges *a party* to report reportable matter by day *a due day* as its first obligation given governor *a governor* has passed on day *a day*; memorable.
+    the obligation that governor reporting obligation obliges *a party* to report reportable matter by day *a due day* as its first obligation given governor *a governor* is pending since day *a day*.
+    the obligation that governor reporting obligation obliges *a party* to report reportable matter by day *a due day* as its first obligation given governor *a governor* is still open.
+    the obligation that commissioner may issue notice permits *a party* to issue required steps notice as its first obligation given charity *a charity* starts on day *a day*; memorable.
+    the obligation that commissioner may issue notice permits *a party* to issue required steps notice as its first obligation given charity *a charity* has deadline day *a day*.
+    the obligation that commissioner may issue notice permits *a party* to issue required steps notice as its first obligation given charity *a charity* is met on day *a day*.
+    the obligation that commissioner may issue notice permits *a party* to issue required steps notice as its first obligation given charity *a charity* ends on day *a day*; memorable.
+    the obligation that commissioner may issue notice permits *a party* to issue required steps notice as its first obligation given charity *a charity* is missed on day *a day*.
+    the deadline of the obligation that commissioner may issue notice permits *a party* to issue required steps notice as its first obligation given charity *a charity* has passed on day *a day*; memorable.
+    the obligation that commissioner may issue notice permits *a party* to issue required steps notice as its first obligation given charity *a charity* is pending since day *a day*.
+    the obligation that commissioner may issue notice permits *a party* to issue required steps notice as its first obligation given charity *a charity* is still open.
+    the obligation that commissioner may suspend permits *a party* to suspend governor with reason *a reason* as its first obligation starts on day *a day*; memorable.
+    the obligation that commissioner may suspend permits *a party* to suspend governor with reason *a reason* as its first obligation has deadline day *a day*.
+    the obligation that commissioner may suspend permits *a party* to suspend governor with reason *a reason* as its first obligation is met on day *a day*.
+    the obligation that commissioner may suspend permits *a party* to suspend governor with reason *a reason* as its first obligation ends on day *a day*; memorable.
+    the obligation that commissioner may suspend permits *a party* to suspend governor with reason *a reason* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that commissioner may suspend permits *a party* to suspend governor with reason *a reason* as its first obligation has passed on day *a day*; memorable.
+    the obligation that commissioner may suspend permits *a party* to suspend governor with reason *a reason* as its first obligation is pending since day *a day*.
+    the obligation that commissioner may suspend permits *a party* to suspend governor with reason *a reason* as its first obligation is still open.
+    the obligation that charity must comply with notice obliges *a party* to file annual return by day *a due day* as its first obligation given charity *a charity* starts on day *a day*; memorable.
+    the obligation that charity must comply with notice obliges *a party* to file annual return by day *a due day* as its first obligation given charity *a charity* has deadline day *a day*.
+    the obligation that charity must comply with notice obliges *a party* to file annual return by day *a due day* as its first obligation given charity *a charity* is met on day *a day*.
+    the obligation that charity must comply with notice obliges *a party* to file annual return by day *a due day* as its first obligation given charity *a charity* ends on day *a day*; memorable.
+    the obligation that charity must comply with notice obliges *a party* to file annual return by day *a due day* as its first obligation given charity *a charity* is missed on day *a day*.
+    the deadline of the obligation that charity must comply with notice obliges *a party* to file annual return by day *a due day* as its first obligation given charity *a charity* has passed on day *a day*; memorable.
+    the obligation that charity must comply with notice obliges *a party* to file annual return by day *a due day* as its first obligation given charity *a charity* is pending since day *a day*.
+    the obligation that charity must comply with notice obliges *a party* to file annual return by day *a due day* as its first obligation given charity *a charity* is still open.
+    the contract annual return obligation starts on day *a day* with charity *a charity*; scenario element.
+    the status of *a registered charity* is *a value*.
+    the name of *a registered charity* is *a value*.
+    the registration number of *a registered charity* is *a value*.
+    the section of *a registered charity* is *a value*.
+    the constitution of *a registered charity* is *a value*.
+    the purposes of *a registered charity* is *a value*.
+    the public benefit statement of *a registered charity* is *a value*.
+    the name of *a governor* is *a value*.
+    the address of *a governor* is *a value*.
+    the is bankrupt of *a governor* is *a value*.
+    the governors of *a registered charity* is *a value*.
+    the financials of *a registered charity* is *a value*.
+    annual return obligation obliges *a party* to file annual return by day *a due day* as its first obligation given charity *a charity*.
+    *a party* is the charity actor of *a thing*.
+    the contract is fulfilled.
+    *a party* does file annual return on day *a day*; scenario element.
+    *a party* does something on day *a day*.
+    the clock reaches day *a day*; scenario element.
+    the contract governor reporting obligation starts on day *a day* with governor *a governor* and matter *a matter*; scenario element.
+    governor reporting obligation obliges *a party* to report reportable matter by day *a due day* as its first obligation given governor *a governor*.
+    *a party* is the governor actor of *a thing*.
+    *a party* does report reportable matter with matter *a matter* on day *a day*; scenario element.
+    commissioner may issue notice permits *a party* to issue required steps notice as its first obligation given charity *a charity*.
+    commissioner may suspend permits *a party* to suspend governor with reason *a reason* as its first obligation.
+    *a party* does issue required steps notice on day *a day*; scenario element.
+    charity must comply with notice obliges *a party* to file annual return by day *a due day* as its first obligation given charity *a charity*.
+    *a party* does suspend governor with reason *a reason* on day *a day*; scenario element.
+    the contract is breached by *a party* because *a reason*.
+
+the knowledge base module_a1_regulatory_examples_history includes:
+
+the text of "the L4 source module-a1-regulatory-examples.l4" is at "sources/module-a1-regulatory-examples.l4".
+
+the name of acme_animal_shelter is "Acme Animal Shelter".
+
+the registration number of acme_animal_shelter is "JC-2024-001".
+
+the section of acme_animal_shelter is general_section.
+
+the status of acme_animal_shelter is active.
+
+the constitution of acme_animal_shelter is "Standard charitable constitution".
+
+the purposes of acme_animal_shelter is [advancement_of_animal_welfare].
+
+the public benefit statement of acme_animal_shelter is "Provides shelter and care for abandoned animals in Jersey".
+
+the name of john_smith is "John Smith".
+
+the address of john_smith is "123 Main Street, St Helier".
+
+the is bankrupt of john_smith is false.
+
+the governors of acme_animal_shelter is [john_smith].
+
+the financials of acme_animal_shelter is sample_financials.
+
+charity_actor_acme_animal_shelter is the charity actor of acme_animal_shelter.
+
+governor_actor_john_smith is the governor actor of john_smith.
+
+something happens on day a day if
+    a party does file annual return on day the day.
+
+something happens on day a day if
+    the clock reaches day the day.
+
+something happens on day a day if
+    a party does report reportable matter with matter a matter on day the day.
+
+something happens on day a day if
+    a party does issue required steps notice on day the day.
+
+something happens on day a day if
+    a party does suspend governor with reason a reason on day the day.
+
+an obligation can start on day a day if
+    something happens on day the day.
+
+a party does something on day a day if
+    the party does file annual return on day the day.
+
+a party does something on day a day if
+    the party does report reportable matter with matter a matter on day the day.
+
+a party does something on day a day if
+    the party does issue required steps notice on day the day.
+
+a party does something on day a day if
+    the party does suspend governor with reason a reason on day the day.
+
+an obligation can start on day a day if
+    the contract annual return obligation starts on day the day with charity a charity.
+
+the obligation that annual return obligation obliges a party to file annual return by day a due day D as its first obligation given charity a charity starts on day a day N if
+    the contract annual return obligation starts on day N with charity the charity
+    and the status of the charity is a value
+    and the value is equal to active
+    and the party is the charity actor of the charity
+    and D = N + 60.
+
+the contract is fulfilled if
+    the contract annual return obligation starts on day a day with charity a charity
+    and the status of the charity is a value
+    and it is not the case that the value is equal to active.
+
+an obligation can start on day a day if
+    the contract governor reporting obligation starts on day the day with governor a governor and matter a matter.
+
+the obligation that governor reporting obligation obliges a party to report reportable matter by day a due day D as its first obligation given governor a governor starts on day a day N if
+    the contract governor reporting obligation starts on day N with governor the governor and matter a matter
+    and the party is the governor actor of the governor
+    and D = N + 14.
+
+the obligation that annual return obligation obliges a party to file annual return by day a due day D as its first obligation given charity a charity is met on day a day N if
+    the party does file annual return on day N
+    and the obligation that annual return obligation obliges the party to file annual return by day D as its first obligation given charity the charity starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that annual return obligation obliges a party to file annual return by day a due day as its first obligation given charity a charity ends on day a day
+    and the party does file annual return on day the day.
+
+the obligation that commissioner may issue notice permits commissioner_actor to issue required steps notice as its first obligation given charity a charity starts on day a day if
+    the obligation that annual return obligation obliges a party to file annual return by day a due day as its first obligation given charity the charity is missed on day the day.
+
+the obligation that annual return obligation obliges a party to file annual return by day a due day as its first obligation given charity a charity has deadline day the due day if
+    the obligation that annual return obligation obliges the party to file annual return by day the due day as its first obligation given charity the charity starts on day a day.
+
+the obligation that governor reporting obligation obliges a party to report reportable matter by day a due day D as its first obligation given governor a governor is met on day a day N if
+    the party does report reportable matter with matter a matter on day N
+    and the obligation that governor reporting obligation obliges the party to report reportable matter by day D as its first obligation given governor the governor starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that governor reporting obligation obliges a party to report reportable matter by day a due day as its first obligation given governor a governor ends on day a day
+    and the party does report reportable matter with matter a matter on day the day.
+
+the obligation that commissioner may suspend permits commissioner_actor to suspend governor with reason "Failed to report reportable matter" as its first obligation starts on day a day if
+    the obligation that governor reporting obligation obliges a party to report reportable matter by day a due day as its first obligation given governor a governor is missed on day the day.
+
+the obligation that governor reporting obligation obliges a party to report reportable matter by day a due day as its first obligation given governor a governor has deadline day the due day if
+    the obligation that governor reporting obligation obliges the party to report reportable matter by day the due day as its first obligation given governor the governor starts on day a day.
+
+the obligation that commissioner may issue notice permits a party to issue required steps notice as its first obligation given charity a charity is met on day a day D if
+    the party does issue required steps notice on day D
+    and the obligation that commissioner may issue notice permits the party to issue required steps notice as its first obligation given charity the charity starts on day a day N
+    and N < D.
+
+the obligation that charity must comply with notice obliges a party to file annual return by day a due day D as its first obligation given charity a charity starts on day a day N if
+    the obligation that commissioner may issue notice permits a second party to issue required steps notice as its first obligation given charity the charity ends on day N
+    and the second party does issue required steps notice on day N
+    and the party is the charity actor of the charity
+    and D = N + 30.
+
+the obligation that commissioner may suspend permits a party to suspend governor with reason a reason as its first obligation is met on day a day D if
+    the party does suspend governor with reason the reason on day D
+    and the obligation that commissioner may suspend permits the party to suspend governor with reason the reason as its first obligation starts on day a day N
+    and N < D.
+
+the contract is fulfilled if
+    the obligation that commissioner may suspend permits a party to suspend governor with reason a reason as its first obligation ends on day a day
+    and the party does suspend governor with reason the reason on day the day.
+
+the obligation that charity must comply with notice obliges a party to file annual return by day a due day D as its first obligation given charity a charity is met on day a day N if
+    the party does file annual return on day N
+    and the obligation that charity must comply with notice obliges the party to file annual return by day D as its first obligation given charity the charity starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that charity must comply with notice obliges a party to file annual return by day a due day as its first obligation given charity a charity ends on day a day
+    and the party does file annual return on day the day.
+
+the contract is breached by a party because "Failed to comply with Required Steps Notice" if
+    the obligation that charity must comply with notice obliges a second party to file annual return by day a due day as its first obligation given charity a charity is missed on day a day
+    and the party is the charity actor of the charity.
+
+the obligation that charity must comply with notice obliges a party to file annual return by day a due day as its first obligation given charity a charity has deadline day the due day if
+    the obligation that charity must comply with notice obliges the party to file annual return by day the due day as its first obligation given charity the charity starts on day a day.
+
+the deadline of the obligation that annual return obligation obliges a party to file annual return by day a due day as its first obligation given charity a charity has passed on day a day D if
+    the obligation that annual return obligation obliges the party to file annual return by day the due day as its first obligation given charity the charity starts on day a day N
+    and the obligation that annual return obligation obliges the party to file annual return by day the due day as its first obligation given charity the charity has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that annual return obligation obliges a party to file annual return by day a due day as its first obligation given charity a charity ends on day a day D if
+    the obligation that annual return obligation obliges the party to file annual return by day the due day as its first obligation given charity the charity is met on day D
+    and it is not the case that
+        the obligation that annual return obligation obliges the party to file annual return by day the due day as its first obligation given charity the charity is met on day a day N
+        and N < D.
+
+the obligation that annual return obligation obliges a party to file annual return by day a due day as its first obligation given charity a charity is missed on day a day D if
+    the deadline of the obligation that annual return obligation obliges the party to file annual return by day the due day as its first obligation given charity the charity has passed on day D
+    and it is not the case that the obligation that annual return obligation obliges the party to file annual return by day the due day as its first obligation given charity the charity ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that annual return obligation obliges the party to file annual return by day the due day as its first obligation given charity the charity has passed on day a day N
+        and N < D.
+
+the obligation that annual return obligation obliges a party to file annual return by day a due day as its first obligation given charity a charity is pending since day a day if
+    the obligation that annual return obligation obliges the party to file annual return by day the due day as its first obligation given charity the charity starts on day the day
+    and it is not the case that the obligation that annual return obligation obliges the party to file annual return by day the due day as its first obligation given charity the charity ends on day a second day
+    and it is not the case that the obligation that annual return obligation obliges the party to file annual return by day the due day as its first obligation given charity the charity is missed on day a third day.
+
+the obligation that annual return obligation obliges a party to file annual return by day a due day as its first obligation given charity a charity is still open if
+    the obligation that annual return obligation obliges the party to file annual return by day the due day as its first obligation given charity the charity is pending since day a day.
+
+the deadline of the obligation that governor reporting obligation obliges a party to report reportable matter by day a due day as its first obligation given governor a governor has passed on day a day D if
+    the obligation that governor reporting obligation obliges the party to report reportable matter by day the due day as its first obligation given governor the governor starts on day a day N
+    and the obligation that governor reporting obligation obliges the party to report reportable matter by day the due day as its first obligation given governor the governor has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that governor reporting obligation obliges a party to report reportable matter by day a due day as its first obligation given governor a governor ends on day a day D if
+    the obligation that governor reporting obligation obliges the party to report reportable matter by day the due day as its first obligation given governor the governor is met on day D
+    and it is not the case that
+        the obligation that governor reporting obligation obliges the party to report reportable matter by day the due day as its first obligation given governor the governor is met on day a day N
+        and N < D.
+
+the obligation that governor reporting obligation obliges a party to report reportable matter by day a due day as its first obligation given governor a governor is missed on day a day D if
+    the deadline of the obligation that governor reporting obligation obliges the party to report reportable matter by day the due day as its first obligation given governor the governor has passed on day D
+    and it is not the case that the obligation that governor reporting obligation obliges the party to report reportable matter by day the due day as its first obligation given governor the governor ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that governor reporting obligation obliges the party to report reportable matter by day the due day as its first obligation given governor the governor has passed on day a day N
+        and N < D.
+
+the obligation that governor reporting obligation obliges a party to report reportable matter by day a due day as its first obligation given governor a governor is pending since day a day if
+    the obligation that governor reporting obligation obliges the party to report reportable matter by day the due day as its first obligation given governor the governor starts on day the day
+    and it is not the case that the obligation that governor reporting obligation obliges the party to report reportable matter by day the due day as its first obligation given governor the governor ends on day a second day
+    and it is not the case that the obligation that governor reporting obligation obliges the party to report reportable matter by day the due day as its first obligation given governor the governor is missed on day a third day.
+
+the obligation that governor reporting obligation obliges a party to report reportable matter by day a due day as its first obligation given governor a governor is still open if
+    the obligation that governor reporting obligation obliges the party to report reportable matter by day the due day as its first obligation given governor the governor is pending since day a day.
+
+the deadline of the obligation that commissioner may issue notice permits a party to issue required steps notice as its first obligation given charity a charity has passed on day a day D if
+    the obligation that commissioner may issue notice permits the party to issue required steps notice as its first obligation given charity the charity starts on day a day N
+    and the obligation that commissioner may issue notice permits the party to issue required steps notice as its first obligation given charity the charity has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that commissioner may issue notice permits a party to issue required steps notice as its first obligation given charity a charity ends on day a day D if
+    the obligation that commissioner may issue notice permits the party to issue required steps notice as its first obligation given charity the charity is met on day D
+    and it is not the case that
+        the obligation that commissioner may issue notice permits the party to issue required steps notice as its first obligation given charity the charity is met on day a day N
+        and N < D.
+
+the obligation that commissioner may issue notice permits a party to issue required steps notice as its first obligation given charity a charity is missed on day a day D if
+    the deadline of the obligation that commissioner may issue notice permits the party to issue required steps notice as its first obligation given charity the charity has passed on day D
+    and it is not the case that the obligation that commissioner may issue notice permits the party to issue required steps notice as its first obligation given charity the charity ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that commissioner may issue notice permits the party to issue required steps notice as its first obligation given charity the charity has passed on day a day N
+        and N < D.
+
+the obligation that commissioner may issue notice permits a party to issue required steps notice as its first obligation given charity a charity is pending since day a day if
+    the obligation that commissioner may issue notice permits the party to issue required steps notice as its first obligation given charity the charity starts on day the day
+    and it is not the case that the obligation that commissioner may issue notice permits the party to issue required steps notice as its first obligation given charity the charity ends on day a second day
+    and it is not the case that the obligation that commissioner may issue notice permits the party to issue required steps notice as its first obligation given charity the charity is missed on day a third day.
+
+the obligation that commissioner may issue notice permits a party to issue required steps notice as its first obligation given charity a charity is still open if
+    the obligation that commissioner may issue notice permits the party to issue required steps notice as its first obligation given charity the charity is pending since day a day.
+
+the deadline of the obligation that commissioner may suspend permits a party to suspend governor with reason a reason as its first obligation has passed on day a day D if
+    the obligation that commissioner may suspend permits the party to suspend governor with reason the reason as its first obligation starts on day a day N
+    and the obligation that commissioner may suspend permits the party to suspend governor with reason the reason as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that commissioner may suspend permits a party to suspend governor with reason a reason as its first obligation ends on day a day D if
+    the obligation that commissioner may suspend permits the party to suspend governor with reason the reason as its first obligation is met on day D
+    and it is not the case that
+        the obligation that commissioner may suspend permits the party to suspend governor with reason the reason as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that commissioner may suspend permits a party to suspend governor with reason a reason as its first obligation is missed on day a day D if
+    the deadline of the obligation that commissioner may suspend permits the party to suspend governor with reason the reason as its first obligation has passed on day D
+    and it is not the case that the obligation that commissioner may suspend permits the party to suspend governor with reason the reason as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that commissioner may suspend permits the party to suspend governor with reason the reason as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that commissioner may suspend permits a party to suspend governor with reason a reason as its first obligation is pending since day a day if
+    the obligation that commissioner may suspend permits the party to suspend governor with reason the reason as its first obligation starts on day the day
+    and it is not the case that the obligation that commissioner may suspend permits the party to suspend governor with reason the reason as its first obligation ends on day a second day
+    and it is not the case that the obligation that commissioner may suspend permits the party to suspend governor with reason the reason as its first obligation is missed on day a third day.
+
+the obligation that commissioner may suspend permits a party to suspend governor with reason a reason as its first obligation is still open if
+    the obligation that commissioner may suspend permits the party to suspend governor with reason the reason as its first obligation is pending since day a day.
+
+the deadline of the obligation that charity must comply with notice obliges a party to file annual return by day a due day as its first obligation given charity a charity has passed on day a day D if
+    the obligation that charity must comply with notice obliges the party to file annual return by day the due day as its first obligation given charity the charity starts on day a day N
+    and the obligation that charity must comply with notice obliges the party to file annual return by day the due day as its first obligation given charity the charity has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that charity must comply with notice obliges a party to file annual return by day a due day as its first obligation given charity a charity ends on day a day D if
+    the obligation that charity must comply with notice obliges the party to file annual return by day the due day as its first obligation given charity the charity is met on day D
+    and it is not the case that
+        the obligation that charity must comply with notice obliges the party to file annual return by day the due day as its first obligation given charity the charity is met on day a day N
+        and N < D.
+
+the obligation that charity must comply with notice obliges a party to file annual return by day a due day as its first obligation given charity a charity is missed on day a day D if
+    the deadline of the obligation that charity must comply with notice obliges the party to file annual return by day the due day as its first obligation given charity the charity has passed on day D
+    and it is not the case that the obligation that charity must comply with notice obliges the party to file annual return by day the due day as its first obligation given charity the charity ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that charity must comply with notice obliges the party to file annual return by day the due day as its first obligation given charity the charity has passed on day a day N
+        and N < D.
+
+the obligation that charity must comply with notice obliges a party to file annual return by day a due day as its first obligation given charity a charity is pending since day a day if
+    the obligation that charity must comply with notice obliges the party to file annual return by day the due day as its first obligation given charity the charity starts on day the day
+    and it is not the case that the obligation that charity must comply with notice obliges the party to file annual return by day the due day as its first obligation given charity the charity ends on day a second day
+    and it is not the case that the obligation that charity must comply with notice obliges the party to file annual return by day the due day as its first obligation given charity the charity is missed on day a third day.
+
+the obligation that charity must comply with notice obliges a party to file annual return by day a due day as its first obligation given charity a charity is still open if
+    the obligation that charity must comply with notice obliges the party to file annual return by day the due day as its first obligation given charity the charity is pending since day a day.
+
+scenario trace_379 is:
+    % #TRACE (`annual return obligation` OF `Acme Animal Shelter`) (line 379) of the L4 source
+    the contract annual return obligation starts on day 0 with charity acme_animal_shelter.
+    charity_actor_acme_animal_shelter does file annual return on day 30.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_383 is:
+    % #TRACE (`annual return obligation` OF `Acme Animal Shelter`) (line 383) of the L4 source
+    the contract annual return obligation starts on day 0 with charity acme_animal_shelter.
+    the clock reaches day 70.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_388 is:
+    % #TRACE (`governor reporting obligation` OF `John Smith`, `bankruptcy matter`) (line 388) of the L4 source
+    the contract governor reporting obligation starts on day 0 with governor john_smith and matter bankruptcy_matter.
+    governor_actor_john_smith does report reportable matter with matter bankruptcy_matter on day 10.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached_by_because expects answers [].
+
+scenario trace_392 is:
+    % #TRACE (`governor reporting obligation` OF `John Smith`, `bankruptcy matter`) (line 392) of the L4 source
+    the contract governor reporting obligation starts on day 0 with governor john_smith and matter bankruptcy_matter.
+    the clock reaches day 20.
+    fulfilled expects answers [].
+    q_the_contract_is_breached_by_because expects answers [].
+
+query fulfilled is:
+    the contract is fulfilled.
+
+query q_the_contract_is_breached_by_because is:
+    the contract is breached by which party because which reason.
+
+query q_open_o_annual_return_obligation_1 is:
+    the obligation that annual return obligation obliges which party to file annual return by day which due day as its first obligation given charity which charity is still open.
+
+query q_open_o_governor_reporting_obligation_1 is:
+    the obligation that governor reporting obligation obliges which party to report reportable matter by day which due day as its first obligation given governor which governor is still open.
+
+query q_open_o_commissioner_may_issue_notice_1 is:
+    the obligation that commissioner may issue notice permits which party to issue required steps notice as its first obligation given charity which charity is still open.
+
+query q_open_o_commissioner_may_suspend_1 is:
+    the obligation that commissioner may suspend permits which party to suspend governor with reason which reason as its first obligation is still open.
+
+query q_open_o_charity_must_comply_with_notice_1 is:
+    the obligation that charity must comply with notice obliges which party to file annual return by day which due day as its first obligation given charity which charity is still open.
+

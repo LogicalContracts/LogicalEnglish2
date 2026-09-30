@@ -1,0 +1,64 @@
+{
+  "counts": {"approximated":0,"encoded":5,"residue":0},
+  "entries": [
+    {
+      "element":"x",
+      "in_program":"the x is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"y",
+      "in_program":"the y is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"z",
+      "in_program":"the z is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 9",
+      "in_program":"line_9",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 13",
+      "in_program":"line_13",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":2,
+    "tests": [
+      {"detail":"","query":"line_9","result":"pass","scenario":"line_9"},
+      {"detail":"","query":"line_13","result":"pass","scenario":"line_13"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["precedence-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"precedence_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":2
+}

@@ -1,0 +1,191 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from means-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    the greeting is *a text*.
+    the answer is *a number*.
+    the double for *a number* is *a second number*.
+    the add for *a number* with *a second number* is *a third number*.
+    the factorial for *a number* is *a second number*.
+    the circumference for *a radius* is *a number*.
+    the outer function is *a number*.
+    the value with means is *a number*.
+    the value with means2 is *a number*.
+    the sum *an items* is *a number*.
+    the pi is *a number*.
+    the inner result is *a number*.
+    the base value is *a number*.
+    L4's answer at line 10 is reproduced.
+    L4's answer at line 20 is reproduced.
+    L4's answer at line 21 is reproduced.
+    L4's answer at line 32 is reproduced.
+    L4's answer at line 42 is reproduced.
+    L4's answer at line 53 is reproduced.
+    L4's answer at line 61 is reproduced.
+    L4's answer at line 62 is reproduced.
+    L4's answer at line 72 is reproduced.
+
+the knowledge base means_example includes:
+
+the text of the source program is at "sources/means-example.l4".
+
+the greeting is "Hello, World!".
+
+the answer is 42.
+
+the double for a number N is a number M if
+    M = N * 2.
+
+the add for a number N with a number M is a number K if
+    K = N + M.
+
+the factorial for a number N is a number M if
+    0 is equal to N
+    and M is equal to 1
+    otherwise a number K = N - 1
+    and the factorial for K is a number P
+    and M = N * P.
+
+the pi is 3.14159.
+
+the circumference for a radius R is a number N if
+    the pi is a number M
+    and N = 2 * M * R.
+
+the base value is 5.
+
+the inner result is a number N if
+    the base value is a number M
+    and N = M + 10.
+
+the outer function is a number N if
+    the inner result is a number M
+    and N = M * 2.
+
+the value with means is 100.
+
+the value with means2 is 200.
+
+the sum an items is a number N if
+    [] is equal to the items
+    and N is equal to 0
+    otherwise prolog (the items=[T|M])
+    and the sum M is a number K
+    and N = T + K.
+
+L4's answer at line 10 is reproduced if
+    the answer is a number N
+    and N * 100000000 >= 4199999999
+    and N * 100000000 <= 4200000001.
+
+L4's answer at line 20 is reproduced if
+    the double for 21 is a number N
+    and N * 100000000 >= 4199999999
+    and N * 100000000 <= 4200000001.
+
+L4's answer at line 21 is reproduced if
+    the add for 10 with 32 is a number N
+    and N * 100000000 >= 4199999999
+    and N * 100000000 <= 4200000001.
+
+L4's answer at line 32 is reproduced if
+    the factorial for 6 is a number N
+    and N * 10000000 >= 7199999999
+    and N * 10000000 <= 7200000001.
+
+L4's answer at line 42 is reproduced if
+    the circumference for 10 is a number N
+    and N * 100000000 >= 6283179999
+    and N * 100000000 <= 6283180001.
+
+L4's answer at line 53 is reproduced if
+    the outer function is a number N
+    and N * 100000000 >= 2999999999
+    and N * 100000000 <= 3000000001.
+
+L4's answer at line 61 is reproduced if
+    the value with means is a number N
+    and N * 10000000 >= 999999999
+    and N * 10000000 <= 1000000001.
+
+L4's answer at line 62 is reproduced if
+    the value with means2 is a number N
+    and N * 10000000 >= 1999999999
+    and N * 10000000 <= 2000000001.
+
+L4's answer at line 72 is reproduced if
+    the sum [1, 2, 3, 4, 5] is a number N
+    and N * 100000000 >= 1499999999
+    and N * 100000000 <= 1500000001.
+
+scenario line_9 is, as stated in the source program at line 9:
+    line_9 expects answers ["the greeting is Hello, World!"].
+
+scenario line_10 is, as stated in the source program at line 10:
+    line_10 expects answers ["L4's answer at line 10 is reproduced"].
+
+scenario line_20 is, as stated in the source program at line 20:
+    line_20 expects answers ["L4's answer at line 20 is reproduced"].
+
+scenario line_21 is, as stated in the source program at line 21:
+    line_21 expects answers ["L4's answer at line 21 is reproduced"].
+
+scenario line_32 is, as stated in the source program at line 32:
+    line_32 expects answers ["L4's answer at line 32 is reproduced"].
+
+scenario line_42 is, as stated in the source program at line 42:
+    line_42 expects answers ["L4's answer at line 42 is reproduced"].
+
+scenario line_53 is, as stated in the source program at line 53:
+    line_53 expects answers ["L4's answer at line 53 is reproduced"].
+
+scenario line_61 is, as stated in the source program at line 61:
+    line_61 expects answers ["L4's answer at line 61 is reproduced"].
+
+scenario line_62 is, as stated in the source program at line 62:
+    line_62 expects answers ["L4's answer at line 62 is reproduced"].
+
+scenario line_72 is, as stated in the source program at line 72:
+    line_72 expects answers ["L4's answer at line 72 is reproduced"].
+
+query line_9 is:
+    the greeting is which text.
+
+query line_10 is:
+    L4's answer at line 10 is reproduced.
+
+query line_20 is:
+    L4's answer at line 20 is reproduced.
+
+query line_21 is:
+    L4's answer at line 21 is reproduced.
+
+query line_32 is:
+    L4's answer at line 32 is reproduced.
+
+query line_42 is:
+    L4's answer at line 42 is reproduced.
+
+query line_53 is:
+    L4's answer at line 53 is reproduced.
+
+query line_61 is:
+    L4's answer at line 61 is reproduced.
+
+query line_62 is:
+    L4's answer at line 62 is reproduced.
+
+query line_72 is:
+    L4's answer at line 72 is reproduced.
+

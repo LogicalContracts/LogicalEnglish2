@@ -1,0 +1,1285 @@
+{
+  "counts": {"approximated":47,"encoded":102,"residue":7},
+  "entries": [
+    {
+      "element":"Tesla Performance Metrics",
+      "in_program":"Tesla Performance Metrics",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Service Status",
+      "in_program":"Service Status",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Termination Reason",
+      "in_program":"Termination Reason",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Covered Event Type",
+      "in_program":"Covered Event Type",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"CEO Award State",
+      "in_program":"CEO Award State",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Vesting Category",
+      "in_program":"Vesting Category",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Tranche Status",
+      "in_program":"Tranche Status",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Award Participant",
+      "in_program":"Award Participant",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Award Action",
+      "in_program":"Award Action",
+      "kind":"choice",
+      "mapping":"named individuals",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Required Market Cap For Tranche",
+      "in_program":"the required market cap for tranche for *a tranche number* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Market Cap Milestone Met",
+      "in_program":"market cap milestone met given *a tranche number* with *a metrics*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Market Cap Milestone Met For Change In Control",
+      "in_program":"market cap milestone met for change in control for *a tranche number* with *a metrics*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Operational Milestone Met",
+      "in_program":"operational milestone met for *a tranche number* with *a metrics*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"EBITDA Milestone Met",
+      "in_program":"EBITDA milestone met for *a tranche number* with *a metrics*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Deemed Achievement Applies",
+      "in_program":"deemed achievement applies for *a tranche number* with *an award state*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Covered Event Affects Product Goals",
+      "in_program":"covered event affects product goals for *a tranche number* with *an award state*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"All Market Cap Averages Met",
+      "in_program":"all market cap averages met for *a tranche number* with *a metrics*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Tranche Can Be Earned",
+      "in_program":"tranche can be earned for *a tranche number* with *an award state*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Musk In Eligible Service",
+      "in_program":"musk in eligible service for *an award state*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"CEO Succession Framework Required Met",
+      "in_program":"CEO succession framework required met for *a tranche number* with *an award state*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Tranche Already Earned",
+      "in_program":"tranche already earned for *a tranche number* with *an award state*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Operational Milestone Already Used",
+      "in_program":"operational milestone already used for *a tranche number* with *an award state*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Product Goal Already Used",
+      "in_program":"product goal already used for *a tranche number* with *an award state*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Issuance Conditions Met",
+      "in_program":"issuance conditions met for *an award state*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Determine Vesting Category",
+      "in_program":"the determine vesting category for *an earn date* is *a vesting category*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Determine Vesting Date",
+      "in_program":"the determine vesting date for *a vesting category* is *a date*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Tranche Is Vested",
+      "in_program":"tranche is vested for *a tranche number* with *a current date* with *an earn date*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Immediate Vesting Applies",
+      "in_program":"immediate vesting applies for *an award state*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Forfeiture Applies",
+      "in_program":"forfeiture applies for *an award state*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Offset Amount For Tranche",
+      "in_program":"the offset amount for tranche for *a tranche number* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Holding Period Met",
+      "in_program":"holding period met for *an earn date* with *a current date*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Tranche Is Earned",
+      "in_program":"*a tranche* is earned for *an award state*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Get Earn Date For Tranche",
+      "in_program":"the get earn date for *a tranche* for *an award state* is *a date*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Get Index Of Tranche",
+      "in_program":"the get *an index* of *a tranche* for *a tranche list* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Get Date At Index",
+      "in_program":"the get date at *an index* for *a date list* is *a date*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Million",
+      "in_program":"the million for *a number* is *a second number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Billion",
+      "in_program":"the billion for *a number* is *a second number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Trillion",
+      "in_program":"the trillion for *a number* is *a second number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"years after",
+      "in_program":"the years after for *a number* with *a date* is *a second date*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Number In List",
+      "in_program":"number in *a list* for *an item*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Any Earned Tranche Uses Same Product Goal",
+      "in_program":"any earned tranche uses same product goal for *a tranche number* with *an earned tranches*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Product Goals Are Same",
+      "in_program":"product goals are same for *a tranche1* with *a tranche2*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Forfeiture Reason",
+      "in_program":"the forfeiture reason for *an award state* is *a text*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Immediate Vesting Reason",
+      "in_program":"the immediate vesting reason for *an award state* is *a text*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Grant Date",
+      "in_program":"the grant date is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Performance Period Years",
+      "in_program":"the performance period years is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Performance End Date",
+      "in_program":"the performance end date is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Reference Stock Price",
+      "in_program":"the reference stock price is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Total Award Shares",
+      "in_program":"the total award shares is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Shares Per Tranche",
+      "in_program":"the shares per tranche is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Number Of Tranches",
+      "in_program":"the number of tranches is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Third Anniversary",
+      "in_program":"the third anniversary is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Fifth Anniversary",
+      "in_program":"the fifth anniversary is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Seventh And Half Anniversary",
+      "in_program":"the seventh as well as half anniversary is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Acquisition Threshold",
+      "in_program":"the acquisition threshold is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"EBITDA Threshold",
+      "in_program":"the EBITDA threshold is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Required Market Cap For Tranche",
+      "in_program":"the required market cap for tranche for *a tranche number* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Required Market Cap",
+      "in_program":"the required market cap given *a tranche number* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Required Market Cap",
+      "in_program":"the required market cap given *a tranche number* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Market Cap Milestone Met",
+      "in_program":"market cap milestone met given *a tranche number* with *a metrics*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Required Market Cap",
+      "in_program":"the required market cap in market cap milestone met for change in control for *a tranche number* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Change In Control Market Cap",
+      "in_program":"the change in control market cap for *a metrics* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Higher Price",
+      "in_program":"the higher price for *a metrics* is *a value*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Required Market Cap",
+      "in_program":"the required market cap in market cap milestone met for change in control for *a tranche number* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Change In Control Market Cap",
+      "in_program":"the change in control market cap for *a metrics* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Higher Price",
+      "in_program":"the higher price for *a metrics* is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Market Cap Milestone Met For Change In Control",
+      "in_program":"market cap milestone met for change in control for *a tranche number* with *a metrics*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Operational Milestone Met",
+      "in_program":"operational milestone met for *a tranche number* with *a metrics*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"EBITDA Milestone Met",
+      "in_program":"EBITDA milestone met for *a tranche number* with *a metrics*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Deemed Achievement Applies",
+      "in_program":"deemed achievement applies for *a tranche number* with *an award state*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Covered Event Affects Product Goals",
+      "in_program":"covered event affects product goals for *a tranche number* with *an award state*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Required Market Cap",
+      "in_program":"the required market cap in all market cap averages met for *a tranche number* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"Required Market Cap",
+      "in_program":"the required market cap in all market cap averages met for *a tranche number* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"All Market Cap Averages Met",
+      "in_program":"all market cap averages met for *a tranche number* with *a metrics*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Tranche Can Be Earned",
+      "in_program":"tranche can be earned for *a tranche number* with *an award state*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Musk In Eligible Service",
+      "in_program":"musk in eligible service for *an award state*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"CEO Succession Framework Required Met",
+      "in_program":"CEO succession framework required met for *a tranche number* with *an award state*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Tranche Already Earned",
+      "in_program":"tranche already earned for *a tranche number* with *an award state*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Operational Milestone Already Used",
+      "in_program":"operational milestone already used for *a tranche number* with *an award state*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Product Goal Already Used",
+      "in_program":"product goal already used for *a tranche number* with *an award state*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Issuance Conditions Met",
+      "in_program":"issuance conditions met for *an award state*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Determine Vesting Category",
+      "in_program":"the determine vesting category for *an earn date* is *a vesting category*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Determine Vesting Date",
+      "in_program":"the determine vesting date for *a vesting category* is *a date*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"vesting category",
+      "in_program":"the vesting category for *an earn date* is *a vesting category*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"vesting date",
+      "in_program":"the vesting date for *an earn date* is *a date*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"vesting category",
+      "in_program":"the vesting category for *an earn date* is *a vesting category*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"vesting date",
+      "in_program":"the vesting date for *an earn date* is *a date*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Tranche Is Vested",
+      "in_program":"tranche is vested for *a tranche number* with *a current date* with *an earn date*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Immediate Vesting Applies",
+      "in_program":"immediate vesting applies for *an award state*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Forfeiture Applies",
+      "in_program":"forfeiture applies for *an award state*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Offset Amount For Tranche",
+      "in_program":"the offset amount for tranche for *a tranche number* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"holding period end",
+      "in_program":"the holding period end for *an earn date* is *a date*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"holding period end",
+      "in_program":"the holding period end for *an earn date* is *a date*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Holding Period Met",
+      "in_program":"holding period met for *an earn date* with *a current date*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Elon Musk",
+      "in_program":"elon_musk",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Eligible Service Requirement",
+      "in_program":"Eligible Service Requirement",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"Milestone Achievement Requirement",
+      "in_program":"Milestone Achievement Requirement",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"Vesting Requirement",
+      "in_program":"Vesting Requirement",
+      "kind":"contract",
+      "mapping":"the contracts half (step 3)",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"Tranche Is Earned",
+      "in_program":"*a tranche* is earned for *an award state*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Get Earn Date For Tranche",
+      "in_program":"the get earn date for *a tranche* for *an award state* is *a date*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Get Index Of Tranche",
+      "in_program":"the get *an index* of *a tranche* for *a tranche list* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Get Date At Index",
+      "in_program":"the get date at *an index* for *a date list* is *a date*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Million",
+      "in_program":"the million for *a number* is *a second number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Billion",
+      "in_program":"the billion for *a number* is *a second number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Trillion",
+      "in_program":"the trillion for *a number* is *a second number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"newYear",
+      "in_program":"the new year for *a date* with *a number* is *a second number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"fractionalDays",
+      "in_program":"the fractional days for *a date* with *a number* is *a second number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"newDay",
+      "in_program":"the new day for *a date* with *a number* is *a second number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"newMonth",
+      "in_program":"the new month for *a date* is *a value*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"newYear",
+      "in_program":"the new year for *a date* with *a number* is *a second number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"fractionalDays",
+      "in_program":"r1",
+      "kind":"definition",
+      "mapping":"a value with no LE form",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"newDay",
+      "in_program":"the new day for *a date* with *a number* is *a second number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"newMonth",
+      "in_program":"the new month for *a date* is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"years after",
+      "in_program":"the years after for *a number* with *a date* is *a second date*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Number In List",
+      "in_program":"number in *a list* for *an item*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Any Earned Tranche Uses Same Product Goal",
+      "in_program":"any earned tranche uses same product goal for *a tranche number* with *an earned tranches*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Product Goals Are Same",
+      "in_program":"product goals are same for *a tranche1* with *a tranche2*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Forfeiture Reason",
+      "in_program":"the forfeiture reason for *an award state* is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Immediate Vesting Reason",
+      "in_program":"the immediate vesting reason for *an award state* is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Example Metrics High Performance",
+      "in_program":"example_metrics_high_performance",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Example Metrics Medium Performance",
+      "in_program":"example_metrics_medium_performance",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Example Metrics Low Performance",
+      "in_program":"example_metrics_low_performance",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Example Award State Active",
+      "in_program":"example_award_state_active",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Example Award State Terminated",
+      "in_program":"example_award_state_terminated",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Example Award State Change In Control",
+      "in_program":"example_award_state_change_in_control",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Example Award State Medium Performance",
+      "in_program":"example_award_state_medium_performance",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Example Award State Low Performance",
+      "in_program":"example_award_state_low_performance",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Example Award State With Earned Tranche",
+      "in_program":"example_award_state_with_earned_tranche",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 665",
+      "in_program":"line_665",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 666",
+      "in_program":"line_666",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 667",
+      "in_program":"line_667",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 668",
+      "in_program":"line_668",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 669",
+      "in_program":"line_669",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#eval at line 672",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value that is not a constant: `Fifth Anniversary`",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#eval at line 673",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value that is not a constant: `Performance End Date`",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"#EVAL at line 676",
+      "in_program":"line_676",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 677",
+      "in_program":"line_677",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 678",
+      "in_program":"line_678",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 679",
+      "in_program":"line_679",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 680",
+      "in_program":"line_680",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 683",
+      "in_program":"line_683",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 684",
+      "in_program":"line_684",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 685",
+      "in_program":"line_685",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 686",
+      "in_program":"line_686",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 687",
+      "in_program":"line_687",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 690",
+      "in_program":"line_690",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 691",
+      "in_program":"line_691",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 692",
+      "in_program":"line_692",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 693",
+      "in_program":"line_693",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 694",
+      "in_program":"line_694",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 697",
+      "in_program":"line_697",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 698",
+      "in_program":"line_698",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#eval at line 699",
+      "in_program":"",
+      "kind":"test",
+      "mapping":"a value that is not a constant: `Grant Date`",
+      "note":"",
+      "verdict":"residue"
+    },
+    {
+      "element":"Eligible Service Requirement",
+      "in_program":"Eligible Service Requirement",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Milestone Achievement Requirement",
+      "in_program":"Milestone Achievement Requirement",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Vesting Requirement",
+      "in_program":"Vesting Requirement",
+      "kind":"contract",
+      "mapping":"a contract -> LE for LPS (LPS2) and a history view (step 3)",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":15,
+    "tests": [
+      {"detail":"","query":"line_665","result":"pass","scenario":"line_665"},
+      {"detail":"","query":"line_666","result":"pass","scenario":"line_666"},
+      {"detail":"","query":"line_667","result":"pass","scenario":"line_667"},
+      {"detail":"","query":"line_668","result":"pass","scenario":"line_668"},
+      {"detail":"","query":"line_669","result":"pass","scenario":"line_669"},
+      {"detail":"","query":"line_678","result":"pass","scenario":"line_678"},
+      {"detail":"","query":"line_679","result":"pass","scenario":"line_679"},
+      {"detail":"","query":"line_680","result":"pass","scenario":"line_680"},
+      {"detail":"","query":"line_685","result":"pass","scenario":"line_685"},
+      {"detail":"","query":"line_686","result":"pass","scenario":"line_686"},
+      {"detail":"","query":"line_687","result":"pass","scenario":"line_687"},
+      {"detail":"","query":"line_692","result":"pass","scenario":"line_692"},
+      {"detail":"","query":"line_693","result":"pass","scenario":"line_693"},
+      {"detail":"","query":"line_694","result":"pass","scenario":"line_694"},
+      {"detail":"","query":"line_697","result":"pass","scenario":"line_697"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["ceo-performance-award.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"ceo_performance_award",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":7,
+  "source_tests":22
+}

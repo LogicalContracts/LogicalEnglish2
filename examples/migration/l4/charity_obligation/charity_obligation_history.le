@@ -1,0 +1,189 @@
+% charity-obligation.l4: the history view
+%
+% The timeless Logical English twin of the contracts of an L4 file (charity-obligation.l4), written
+% by the L4 translator (docs/migration/l4.md, step 3): the contracts read over a finished
+% history of events. For each obligation the program says when it starts, its deadline
+% and which events meet it, and four rules say how it ends: met, missed, or still
+% open when the history stops. The same obligations, in the same words, as the LE for LPS twin in LPS2's
+% examples/migration/l4/; each scenario expects what that twin's run ended with, which
+% agrees with L4's evaluator.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    something happens on day *a day*.
+    an obligation can start on day *a day*.
+    the obligation that the charity must file its annual return obliges *a party* to file the annual return by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that the charity must file its annual return obliges *a party* to file the annual return by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that the charity must file its annual return obliges *a party* to file the annual return by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that the charity must file its annual return obliges *a party* to file the annual return by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that the charity must file its annual return obliges *a party* to file the annual return by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that the charity must file its annual return obliges *a party* to file the annual return by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that the charity must file its annual return obliges *a party* to file the annual return by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that the charity must file its annual return obliges *a party* to file the annual return by day *a due day* as its first obligation is still open.
+    the obligation that the charity must file its annual return permits *a party* to issue a required steps notice as its second obligation starts on day *a day*; memorable.
+    the obligation that the charity must file its annual return permits *a party* to issue a required steps notice as its second obligation has deadline day *a day*.
+    the obligation that the charity must file its annual return permits *a party* to issue a required steps notice as its second obligation is met on day *a day*.
+    the obligation that the charity must file its annual return permits *a party* to issue a required steps notice as its second obligation ends on day *a day*; memorable.
+    the obligation that the charity must file its annual return permits *a party* to issue a required steps notice as its second obligation is missed on day *a day*.
+    the deadline of the obligation that the charity must file its annual return permits *a party* to issue a required steps notice as its second obligation has passed on day *a day*; memorable.
+    the obligation that the charity must file its annual return permits *a party* to issue a required steps notice as its second obligation is pending since day *a day*.
+    the obligation that the charity must file its annual return permits *a party* to issue a required steps notice as its second obligation is still open.
+    the contract the charity must file its annual return starts on day *a day* with charity *a charity*; scenario element.
+    the status of *a registered charity* is *a value*.
+    the name of *a registered charity* is *a value*.
+    the registration number of *a registered charity* is *a value*.
+    the charity must file its annual return obliges *a party* to file the annual return by day *a due day* as its first obligation.
+    the contract is fulfilled.
+    *a party* does file the annual return on day *a day*; scenario element.
+    *a party* does something on day *a day*.
+    the clock reaches day *a day*; scenario element.
+    the charity must file its annual return permits *a party* to issue a required steps notice as its second obligation.
+    *a party* does issue a required steps notice on day *a day*; scenario element.
+
+the knowledge base charity_obligation_history includes:
+
+the text of "the L4 source charity-obligation.l4" is at "sources/charity-obligation.l4".
+
+the name of acme_animal_shelter is "Acme Animal Shelter".
+
+the registration number of acme_animal_shelter is "JC-2024-001".
+
+the status of acme_animal_shelter is active.
+
+something happens on day a day if
+    a party does file the annual return on day the day.
+
+something happens on day a day if
+    the clock reaches day the day.
+
+something happens on day a day if
+    a party does issue a required steps notice on day the day.
+
+an obligation can start on day a day if
+    something happens on day the day.
+
+a party does something on day a day if
+    the party does file the annual return on day the day.
+
+a party does something on day a day if
+    the party does issue a required steps notice on day the day.
+
+an obligation can start on day a day if
+    the contract the charity must file its annual return starts on day the day with charity a charity.
+
+the obligation that the charity must file its annual return obliges the_charity to file the annual return by day a due day D as its first obligation starts on day a day N if
+    the contract the charity must file its annual return starts on day N with charity a charity
+    and the status of the charity is a value
+    and the value is equal to active
+    and D = N + 60.
+
+the contract is fulfilled if
+    the contract the charity must file its annual return starts on day a day with charity a charity
+    and the status of the charity is a value
+    and it is not the case that the value is equal to active.
+
+the obligation that the charity must file its annual return obliges a party to file the annual return by day a due day D as its first obligation is met on day a day N if
+    the party does file the annual return on day N
+    and the obligation that the charity must file its annual return obliges the party to file the annual return by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that the charity must file its annual return obliges a party to file the annual return by day a due day as its first obligation ends on day a day
+    and the party does file the annual return on day the day.
+
+the obligation that the charity must file its annual return permits the_commissioner to issue a required steps notice as its second obligation starts on day a day if
+    the obligation that the charity must file its annual return obliges a party to file the annual return by day a due day as its first obligation is missed on day the day.
+
+the obligation that the charity must file its annual return obliges a party to file the annual return by day a due day as its first obligation has deadline day the due day if
+    the obligation that the charity must file its annual return obliges the party to file the annual return by day the due day as its first obligation starts on day a day.
+
+the obligation that the charity must file its annual return permits a party to issue a required steps notice as its second obligation is met on day a day D if
+    the party does issue a required steps notice on day D
+    and the obligation that the charity must file its annual return permits the party to issue a required steps notice as its second obligation starts on day a day N
+    and N < D.
+
+the contract is fulfilled if
+    the obligation that the charity must file its annual return permits a party to issue a required steps notice as its second obligation ends on day a day
+    and the party does issue a required steps notice on day the day.
+
+the deadline of the obligation that the charity must file its annual return obliges a party to file the annual return by day a due day as its first obligation has passed on day a day D if
+    the obligation that the charity must file its annual return obliges the party to file the annual return by day the due day as its first obligation starts on day a day N
+    and the obligation that the charity must file its annual return obliges the party to file the annual return by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that the charity must file its annual return obliges a party to file the annual return by day a due day as its first obligation ends on day a day D if
+    the obligation that the charity must file its annual return obliges the party to file the annual return by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that the charity must file its annual return obliges the party to file the annual return by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that the charity must file its annual return obliges a party to file the annual return by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that the charity must file its annual return obliges the party to file the annual return by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that the charity must file its annual return obliges the party to file the annual return by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that the charity must file its annual return obliges the party to file the annual return by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that the charity must file its annual return obliges a party to file the annual return by day a due day as its first obligation is pending since day a day if
+    the obligation that the charity must file its annual return obliges the party to file the annual return by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that the charity must file its annual return obliges the party to file the annual return by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that the charity must file its annual return obliges the party to file the annual return by day the due day as its first obligation is missed on day a third day.
+
+the obligation that the charity must file its annual return obliges a party to file the annual return by day a due day as its first obligation is still open if
+    the obligation that the charity must file its annual return obliges the party to file the annual return by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that the charity must file its annual return permits a party to issue a required steps notice as its second obligation has passed on day a day D if
+    the obligation that the charity must file its annual return permits the party to issue a required steps notice as its second obligation starts on day a day N
+    and the obligation that the charity must file its annual return permits the party to issue a required steps notice as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that the charity must file its annual return permits a party to issue a required steps notice as its second obligation ends on day a day D if
+    the obligation that the charity must file its annual return permits the party to issue a required steps notice as its second obligation is met on day D
+    and it is not the case that
+        the obligation that the charity must file its annual return permits the party to issue a required steps notice as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that the charity must file its annual return permits a party to issue a required steps notice as its second obligation is missed on day a day D if
+    the deadline of the obligation that the charity must file its annual return permits the party to issue a required steps notice as its second obligation has passed on day D
+    and it is not the case that the obligation that the charity must file its annual return permits the party to issue a required steps notice as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that the charity must file its annual return permits the party to issue a required steps notice as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that the charity must file its annual return permits a party to issue a required steps notice as its second obligation is pending since day a day if
+    the obligation that the charity must file its annual return permits the party to issue a required steps notice as its second obligation starts on day the day
+    and it is not the case that the obligation that the charity must file its annual return permits the party to issue a required steps notice as its second obligation ends on day a second day
+    and it is not the case that the obligation that the charity must file its annual return permits the party to issue a required steps notice as its second obligation is missed on day a third day.
+
+the obligation that the charity must file its annual return permits a party to issue a required steps notice as its second obligation is still open if
+    the obligation that the charity must file its annual return permits the party to issue a required steps notice as its second obligation is pending since day a day.
+
+scenario trace_42 is:
+    % #TRACE (`the charity must file its annual return` OF `Acme Animal Shelter`) (line 42) of the L4 source
+    the contract the charity must file its annual return starts on day 0 with charity acme_animal_shelter.
+    the_charity does file the annual return on day 30.
+    fulfilled expects answers ["the contract is fulfilled"].
+
+query fulfilled is:
+    the contract is fulfilled.
+
+query q_open_o_the_charity_must_file_its_annual_return_1 is:
+    the obligation that the charity must file its annual return obliges which party to file the annual return by day which due day as its first obligation is still open.
+
+query q_open_o_the_charity_must_file_its_annual_return_2 is:
+    the obligation that the charity must file its annual return permits which party to issue a required steps notice as its second obligation is still open.
+

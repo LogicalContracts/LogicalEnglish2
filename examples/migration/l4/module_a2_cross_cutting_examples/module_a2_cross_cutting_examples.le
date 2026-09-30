@@ -1,0 +1,163 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from module-a2-cross-cutting-examples.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the charity of *a charity actor* is *a registered charity*.
+    the holder name of *a holder* is *a text*.
+    the violation of *an issue warning notice* is *a text*.
+    the notice of *a take required steps* is *a required steps notice*.
+    the decision of *a lodge appeal against* is *a decision*.
+    the decision of *a determine appeal against* is *a decision*.
+    the decision of *a hear appeal* is *a commissioner decision*.
+    the payment amount of *a pay* is *a number*.
+    the total amount of *a pay with late fee* is *a number*.
+    the description of *a violation* is *a text*.
+    the penalty of *a violation* is *a number*.
+    the severity of *a violation* is *a severity*.
+    the charity name of *a registered charity* is *a text*.
+    the registration number of *a registered charity* is *a text*.
+    the status of *a registered charity* is *a charity status*.
+    the decision id of *a decision* is *a text*.
+    the description of *a decision* is *a text*.
+    the decision id of *a commissioner decision* is *a text*.
+    the decision type of *a commissioner decision* is *a text*.
+    the affected charity of *a commissioner decision* is *a registered charity*.
+    the new decision of *a varied* is *a decision*.
+    the notice id of *a required steps notice* is *a text*.
+    the issued date of *a required steps notice* is *a number*.
+    the steps of *a required steps notice* is *a list*.
+    the deadline of *a required steps notice* is *a number*.
+    the modifications of *an appeal partially allowed* is *a text*.
+
+the templates are:
+    *an actor* is a charity actor.
+    *a licence party* is a holder.
+    *an action* is an issue warning notice.
+    *an action* is a take required steps.
+    *an action* is a lodge appeal against.
+    *an action* is a determine appeal against.
+    *an action* is a hear appeal.
+    *an action* is a pay.
+    *an action* is a pay with late fee.
+    *a court decision* is a varied.
+    *an appeal outcome* is an appeal partially allowed.
+    the practicable days for *a timing* is *a number*.
+    the to calendar days for *a business days* is *a number*.
+    the ten business days is *a number*.
+    the original decision takes effect is *a value*.
+    the decision has no effect is *a value*.
+    the licence suspended is *a value*.
+    the licence revoked is *a value*.
+    the appeal procedure is *a value*.
+
+the knowledge base module_a2_cross_cutting_examples includes:
+
+the text of the source program is at "sources/module-a2-cross-cutting-examples.l4".
+
+the practicable days for a timing is a number if
+    immediate is equal to the timing
+    and the number is equal to 1
+    otherwise prompt is equal to the timing
+    and the number is equal to 7
+    otherwise reasonable is equal to the timing
+    and the number is equal to 14
+    otherwise extended is equal to the timing
+    and the number is equal to 30.
+
+the to calendar days for a business days B is a number N if
+    N = B * 7 / 5.
+
+the ten business days is a number if
+    the to calendar days for 10 is the number.
+
+% RESIDUE r1 BEGIN: original decision takes effect
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 268-268
+% a value with no LE form: `FULFILLED`
+%   l4:
+%   | `original decision takes effect` MEANS FULFILLED
+% RESIDUE r1 END
+
+% RESIDUE r2 BEGIN: decision has no effect
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 269-269
+% a value with no LE form: `FULFILLED`
+%   l4:
+%   | `decision has no effect` MEANS FULFILLED
+% RESIDUE r2 END
+
+% RESIDUE r3 BEGIN: licence suspended
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 396-396
+% a value with no LE form: `FULFILLED`
+%   l4:
+%   | `licence suspended` MEANS FULFILLED
+% RESIDUE r3 END
+
+% RESIDUE r4 BEGIN: licence revoked
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 397-397
+% a value with no LE form: `FULFILLED`
+%   l4:
+%   | `licence revoked` MEANS FULFILLED
+% RESIDUE r4 END
+
+% RESIDUE r5 BEGIN: appeal procedure
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 398-398
+% a value with no LE form: `FULFILLED`
+%   l4:
+%   | `appeal procedure` MEANS FULFILLED
+% RESIDUE r5 END
+
+the charity name of test_charity is "Test Charity".
+
+the registration number of test_charity is "TC-001".
+
+the status of test_charity is active.
+
+the notice id of test_notice is "RSN-001".
+
+the issued date of test_notice is 0.
+
+the steps of test_notice is ["Update records", "Submit report"].
+
+the deadline of test_notice is 30.
+
+the description of minor_violation is "Late filing".
+
+the penalty of minor_violation is 500.
+
+the severity of minor_violation is minor.
+
+the description of serious_violation is "Missing records".
+
+the penalty of serious_violation is 2000.
+
+the severity of serious_violation is serious.
+
+the description of critical_violation is "Fraud detected".
+
+the penalty of critical_violation is 10000.
+
+the severity of critical_violation is critical.
+
+test_holder is a holder.
+
+the holder name of test_holder is "Test Holder".
+
+% The contracts of this file (appeal commissioner decision, enforcement response, escalation chain, licence renewal procedure, notice and cure, obligation after trigger, obligation within days, payment with grace, required steps procedure, right to appeal, suspensive appeal, varied decision takes effect) are twins of their own, written by step 3 of
+% the L4 translator: in LE for LPS, run by LPS2 (LPS2's examples/migration/l4/module_a2_cross_cutting_examples/module_a2_cross_cutting_examples.le,
+% each #TRACE a scenario), and as a history view read over a finished history of
+% events (module_a2_cross_cutting_examples_history.le, beside this program).

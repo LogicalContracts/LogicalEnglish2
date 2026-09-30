@@ -231,12 +231,33 @@ the templates are:
   recognises a question it has already answered by a short code computed from
   the question's shape.
 - **Only finished questions are reused.** The system remembers a question once
-  all its answers have been worked out. While a question is still being worked
-  out, the same question met again inside that work is solved in the usual way.
-  The check that stops a rule from calling itself for ever applies exactly as it
-  does without the marker.
-- **Same answers, same explanations.** The marker changes when the work is
-  done, not what is concluded. A question answered from memory gives the answers
+  all its answers have been worked out. A question is not remembered when the
+  work on it was cut short by the check against endless loops (below) because
+  of a question asked *outside* it: its answers are then right only where it
+  was asked, and the next asking works it out again.
+- **Recursion through a value not yet known.** Without the marker, the system
+  stops a rule from calling itself for ever by refusing a condition that is the
+  same as one it is already proving, as that one was when its proof began —
+  `the obligation starts on a day`, asked while proving `the obligation starts
+  on a day`. So a rule such as
+  ```le
+  the obligation starts on a day if
+      the obligation starts on an earlier day
+      and a person pays on the day
+      and the day > the earlier day.
+  ```
+  finds the days that follow the obligation's first day, but not the days that
+  follow those. With the template marked `; memorable`, the same question met
+  again inside its own work is answered from the answers found so far, and the
+  work is repeated, round after round, until a round finds no new answer. The
+  question then has every answer: each day that follows any earlier one.
+  (Logicians call the result the least fixpoint; the rounds may not settle when
+  the recursion goes through `it is not the case that`, and the system then
+  stops after 200 rounds and does not remember the answers.)
+- **Same answers, same explanations.** Apart from the recursion just
+  described, where the marker finds answers the plain rule cannot, the marker
+  changes when the work is done, not what is concluded. A question answered
+  from memory gives the answers
   the first asking gave, in the same order, and its explanation is the same
   proof, so the editor folds repeated explanations together as it always does.
   Where such a question has no answer, its explanation of the failure, and the
@@ -432,9 +453,22 @@ constraint of this kind.
 
 ## 5. Aggregates
 An aggregate works out one value from a whole set of answers.
-- **Operators:** `sum`, `count`, `average`, `min`, `max`
+- **Operators:** `sum`, `count`, `average`, `min`, `max`, `list`
 - **Syntax:** `<ResultVar> is the <Op> of each <Var> such that <Goal>`
 - **Example:** `*Total* is the sum of each *Amount* such that *the account* has *Amount*`
+- **Lists:** `L is the list of each A such that the customer pays A` gives the
+  answers themselves, as a list. The values keep the order in which the
+  system finds them, which is the order of the facts and rules that give
+  them. A value found twice is in the list twice. The list of nothing is the
+  empty list, `[]`. An answer shows a list with commas between its values:
+  `[50, 20, 50]`. (In other languages: `a lista de cada`, `la lista de
+  cada`, `la liste de chaque`, `la lista di ogni`.) See
+  `examples/moreExamples/language/aggregates/lists.le`.
+- **Nothing to aggregate:** where no answer satisfies the goal, the sum and
+  the count are 0 and the list is `[]`. The minimum, the maximum and the
+  average of nothing do not exist, so the condition fails and the rule gives
+  no answer. (Until 29 September 2026 they were 0, which made "the first
+  payment after the deadline" come out as time 0 when there was none.)
 - **Scope:** the conditions of `such that` are the lines indented under it. A
   line back at the aggregate's own level (`and N > 3`) is a condition that comes
   after the aggregate. The same holds where the aggregate is the first condition

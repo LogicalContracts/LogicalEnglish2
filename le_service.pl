@@ -117,7 +117,8 @@
     le_lps_module/5,
     le_lps_json/1,
     le_lps_json_text/1,
-    le_lps_dict/4
+    le_lps_dict/4,
+    le_lps_with_scenario/2
   ]).
 :- reexport(le_kbs, [
     le_network_allowed/0,

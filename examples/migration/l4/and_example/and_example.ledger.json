@@ -1,0 +1,268 @@
+{
+  "counts": {"approximated":4,"encoded":25,"residue":0},
+  "entries": [
+    {
+      "element":"allTrue",
+      "in_program":"all true for *a boolean* with *a second boolean* with *a third boolean*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"inRange",
+      "in_program":"in range for *a number* with *a second number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"passingGrade",
+      "in_program":"passing grade for *a score*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"accessLevel",
+      "in_program":"the access level for *an user age* with *a boolean* is *a text*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"age",
+      "in_program":"age",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"hasLicense",
+      "in_program":"hasLicense",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"canDrive",
+      "in_program":"can drive",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"allTrue",
+      "in_program":"all true for *a boolean* with *a second boolean* with *a third boolean*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"personAge",
+      "in_program":"personAge",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"personIncome",
+      "in_program":"personIncome",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"hasCriminalRecord",
+      "in_program":"hasCriminalRecord",
+      "kind":"assume",
+      "mapping":"a template the scenarios state (; undefined)",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"isEligible",
+      "in_program":"is eligible",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"inRange",
+      "in_program":"in range for *a number* with *a second number*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"passingGrade",
+      "in_program":"passing grade for *a score*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"accessLevel",
+      "in_program":"the access level for *an user age* with *a boolean* is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 5",
+      "in_program":"line_5",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 6",
+      "in_program":"line_6",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 7",
+      "in_program":"line_7",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 8",
+      "in_program":"line_8",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 12",
+      "in_program":"line_12",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 13",
+      "in_program":"line_13",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 31",
+      "in_program":"line_31",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 32",
+      "in_program":"line_32",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 52",
+      "in_program":"line_52",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 53",
+      "in_program":"line_53",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 60",
+      "in_program":"line_60",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 61",
+      "in_program":"line_61",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 71",
+      "in_program":"line_71",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 72",
+      "in_program":"line_72",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":14,
+    "tests": [
+      {"detail":"","query":"line_5","result":"pass","scenario":"line_5"},
+      {"detail":"","query":"line_6","result":"pass","scenario":"line_6"},
+      {"detail":"","query":"line_7","result":"pass","scenario":"line_7"},
+      {"detail":"","query":"line_8","result":"pass","scenario":"line_8"},
+      {"detail":"","query":"line_12","result":"pass","scenario":"line_12"},
+      {"detail":"","query":"line_13","result":"pass","scenario":"line_13"},
+      {"detail":"","query":"line_31","result":"pass","scenario":"line_31"},
+      {"detail":"","query":"line_32","result":"pass","scenario":"line_32"},
+      {"detail":"","query":"line_52","result":"pass","scenario":"line_52"},
+      {"detail":"","query":"line_53","result":"pass","scenario":"line_53"},
+      {"detail":"","query":"line_60","result":"pass","scenario":"line_60"},
+      {"detail":"","query":"line_61","result":"pass","scenario":"line_61"},
+      {"detail":"","query":"line_71","result":"pass","scenario":"line_71"},
+      {"detail":"","query":"line_72","result":"pass","scenario":"line_72"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["and-example.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"and_example",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":14
+}

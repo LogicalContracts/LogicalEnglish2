@@ -1,0 +1,136 @@
+% ny-environmental-7.3.l4: the history view
+%
+% The timeless Logical English twin of the contracts of an L4 file (ny-environmental-7.3.l4), written
+% by the L4 translator (docs/migration/l4.md, step 3): the contracts read over a finished
+% history of events. For each obligation the program says when it starts, its deadline
+% and which events meet it, and four rules say how it ends: met, missed, or still
+% open when the history stops. The same obligations, in the same words, as the LE for LPS twin in LPS2's
+% examples/migration/l4/; each scenario expects what that twin's run ended with, which
+% agrees with L4's evaluator.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    something happens on day *a day*.
+    an obligation can start on day *a day*.
+    the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges *a party* to file draft copy of eis and cause notice of hearing to be published by day *a due day* as its first obligation given action *an action* starts on day *a day*; memorable.
+    the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges *a party* to file draft copy of eis and cause notice of hearing to be published by day *a due day* as its first obligation given action *an action* has deadline day *a day*.
+    the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges *a party* to file draft copy of eis and cause notice of hearing to be published by day *a due day* as its first obligation given action *an action* is met on day *a day*.
+    the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges *a party* to file draft copy of eis and cause notice of hearing to be published by day *a due day* as its first obligation given action *an action* ends on day *a day*; memorable.
+    the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges *a party* to file draft copy of eis and cause notice of hearing to be published by day *a due day* as its first obligation given action *an action* is missed on day *a day*.
+    the deadline of the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges *a party* to file draft copy of eis and cause notice of hearing to be published by day *a due day* as its first obligation given action *an action* has passed on day *a day*; memorable.
+    the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges *a party* to file draft copy of eis and cause notice of hearing to be published by day *a due day* as its first obligation given action *an action* is pending since day *a day*.
+    the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges *a party* to file draft copy of eis and cause notice of hearing to be published by day *a due day* as its first obligation given action *an action* is still open.
+    the contract example filing starts on day *a day*; scenario element.
+    the name of *a commission* is *a value*.
+    the lead agency of *an action that may have a significant adverse effect on the environment* is *a value*.
+    the potential effect area of *an action that may have a significant adverse effect on the environment* is *a value*.
+    the has hearing required by statute of *an action that may have a significant adverse effect on the environment* is *a value*.
+    the has been withdrawn of *an action that may have a significant adverse effect on the environment* is *a value*.
+    the final filing date of *an environmental impact statement* is *a value*.
+    the eis of *an action that may have a significant adverse effect on the environment* is *a value*.
+    filing of draft copy of eis and causing notice of hearing to be published obliges *a party* to file draft copy of eis and cause notice of hearing to be published by day *a due day* as its first obligation given action *an action*.
+    the value of day for days *a days* is *a value*; memorable.
+    the value of march for day *a day* and year *a year* is *a value*; memorable.
+    *a party* does file draft copy of eis and cause notice of hearing to be published with hearing notice *a hearing notice* and notice eis completion *a notice eis completion* and prepared draft copy eis *a prepared draft copy eis* on day *a day*; scenario element.
+    *a party* does something on day *a day*.
+    the clock reaches day *a day*; scenario element.
+    the scheduled date of *a notice* is *a value*.
+    the name of *a newspaper* is *a value*.
+    the general circulation area of *a newspaper* is *a value*.
+    the publishing medium of *a notice* is *a value*.
+    the is in accordance with the requirements of 6 nycrr 617. 10 of *a notice* is *a value*.
+    the publish date of *a notice* is *a value*.
+    the draft filing date of *an environmental impact statement* is *a value*.
+
+the knowledge base ny_environmental_7_3_history includes:
+
+the text of "the L4 source ny-environmental-7.3.l4" is at "sources/ny-environmental-7.3.l4".
+
+% Not translated: the contract Example Filing (outside what the translator covers: "a function applied to fewer or more inputs than it takes").
+% Not translated: the contract Filing of draft copy of EIS and causing notice of hearing to be published (outside what the translator covers: field_of_unknown('General circulation area')).
+the name of example_commission is "A commission".
+
+the lead agency of example_action is example_commission.
+
+the potential effect area of example_action is "Brooklyn".
+
+the has hearing required by statute of example_action is true.
+
+the has been withdrawn of example_action is false.
+
+the final filing date of example_eis is nothing.
+
+the eis of example_action is example_eis.
+
+the name of example_newspaper is "New York Times".
+
+the general circulation area of example_newspaper is "Brooklyn".
+
+the publishing medium of example_notice_of_eis_completion is example_newspaper.
+
+the is in accordance with the requirements of 6 nycrr 617 . 10 of example_notice_of_eis_completion is true.
+
+the publishing medium of example_hearing_notice is example_newspaper.
+
+the is in accordance with the requirements of 6 nycrr 617 . 10 of example_hearing_notice is true.
+
+the value of day for days a days is the days.
+
+something happens on day a day if
+    a party does file draft copy of eis and cause notice of hearing to be published with hearing notice a hearing notice and notice eis completion a notice eis completion and prepared draft copy eis a prepared draft copy eis on day the day.
+
+something happens on day a day if
+    the clock reaches day the day.
+
+an obligation can start on day a day if
+    something happens on day the day.
+
+a party does something on day a day if
+    the party does file draft copy of eis and cause notice of hearing to be published with hearing notice a hearing notice and notice eis completion a notice eis completion and prepared draft copy eis a prepared draft copy eis on day the day.
+
+the deadline of the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges a party to file draft copy of eis and cause notice of hearing to be published by day a due day as its first obligation given action an action has passed on day a day D if
+    the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges the party to file draft copy of eis and cause notice of hearing to be published by day the due day as its first obligation given action the action starts on day a day N
+    and the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges the party to file draft copy of eis and cause notice of hearing to be published by day the due day as its first obligation given action the action has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges a party to file draft copy of eis and cause notice of hearing to be published by day a due day as its first obligation given action an action ends on day a day D if
+    the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges the party to file draft copy of eis and cause notice of hearing to be published by day the due day as its first obligation given action the action is met on day D
+    and it is not the case that
+        the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges the party to file draft copy of eis and cause notice of hearing to be published by day the due day as its first obligation given action the action is met on day a day N
+        and N < D.
+
+the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges a party to file draft copy of eis and cause notice of hearing to be published by day a due day as its first obligation given action an action is missed on day a day D if
+    the deadline of the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges the party to file draft copy of eis and cause notice of hearing to be published by day the due day as its first obligation given action the action has passed on day D
+    and it is not the case that the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges the party to file draft copy of eis and cause notice of hearing to be published by day the due day as its first obligation given action the action ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges the party to file draft copy of eis and cause notice of hearing to be published by day the due day as its first obligation given action the action has passed on day a day N
+        and N < D.
+
+the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges a party to file draft copy of eis and cause notice of hearing to be published by day a due day as its first obligation given action an action is pending since day a day if
+    the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges the party to file draft copy of eis and cause notice of hearing to be published by day the due day as its first obligation given action the action starts on day the day
+    and it is not the case that the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges the party to file draft copy of eis and cause notice of hearing to be published by day the due day as its first obligation given action the action ends on day a second day
+    and it is not the case that the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges the party to file draft copy of eis and cause notice of hearing to be published by day the due day as its first obligation given action the action is missed on day a third day.
+
+the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges a party to file draft copy of eis and cause notice of hearing to be published by day a due day as its first obligation given action an action is still open if
+    the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges the party to file draft copy of eis and cause notice of hearing to be published by day the due day as its first obligation given action the action is pending since day a day.
+
+scenario trace_119 is:
+    % #TRACE `Example Filing` (line 119) is not translated: outside what the translator covers: "a function applied to fewer or more inputs than it takes"
+
+query fulfilled is:
+    the_contract_is_fulfilled.
+
+query q_open_o_filing_of_draft_copy_of_eis_and_causing_notice_of_hearing_to_be_published_1 is:
+    the obligation that filing of draft copy of eis and causing notice of hearing to be published obliges which party to file draft copy of eis and cause notice of hearing to be published by day which due day as its first obligation given action which action is still open.
+

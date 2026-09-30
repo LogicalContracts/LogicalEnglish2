@@ -1,0 +1,45 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from maybe-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    the value is present is *a value*.
+    the value is absent is *a value*.
+    the get the value else default to zero is *a value*.
+    L4's answer at line 12 is reproduced.
+
+the knowledge base maybe_example includes:
+
+the text of the source program is at "sources/maybe-example.l4".
+
+the value is present is 42.
+
+the value is absent is nothing.
+
+the get the value else default to zero is a value if
+    the value is present is a second value
+    and it is not the case that nothing is equal to the second value
+    and the value is equal to the second value
+    otherwise the value is equal to 0.
+
+L4's answer at line 12 is reproduced if
+    the get the value else default to zero is a value V
+    and V * 100000000 >= 4199999999
+    and V * 100000000 <= 4200000001.
+
+scenario line_12 is, as stated in the source program at line 12:
+    line_12 expects answers ["L4's answer at line 12 is reproduced"].
+
+query line_12 is:
+    L4's answer at line 12 is reproduced.
+

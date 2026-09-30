@@ -1,0 +1,853 @@
+{
+  "counts": {"approximated":33,"encoded":68,"residue":0},
+  "entries": [
+    {
+      "element":"Person",
+      "in_program":"Person",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the person is an adult",
+      "in_program":"the person is an adult for *an age*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the person is eligible to vote",
+      "in_program":"the person is eligible to vote for *an age* with *a boolean*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"qualifies for senior discount",
+      "in_program":"*an age* qualifies for senior discount",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the person is a student",
+      "in_program":"the person is a student for *an age* with *a boolean*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"qualifies for exemption",
+      "in_program":"*an income* qualifies for exemption",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the tax bracket",
+      "in_program":"the tax bracket for *an income* is *a text*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the income category",
+      "in_program":"the income category for *an income* is *a text*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the tax owed",
+      "in_program":"the tax owed for *a gross income* with *a tax rate* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the income tax owed",
+      "in_program":"the income tax owed for *an income* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the net income",
+      "in_program":"the net income for *a gross income* with *an expenses* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the taxpayer's bracket",
+      "in_program":"the taxpayers bracket for *a taxpayer* is *a text*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the loan is approved",
+      "in_program":"the loan is approved for *an income* with *a credit score* with *a loan amount*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the annual premium",
+      "in_program":"the annual premium for *an insured age* with *a coverage amount* with *a boolean* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the late payment penalty",
+      "in_program":"the late payment penalty for *a principal amount* with *a days overdue* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"qualifies for lease renewal",
+      "in_program":"*a years as tenant* qualifies for lease renewal for *a late payments* with *a current rent* with *a market rent*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the person is an adult",
+      "in_program":"the person is an adult for *an age*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the person is eligible to vote",
+      "in_program":"the person is eligible to vote for *an age* with *a boolean*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"qualifies for senior discount",
+      "in_program":"*an age* qualifies for senior discount",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the person is a student",
+      "in_program":"the person is a student for *an age* with *a boolean*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"qualifies for exemption",
+      "in_program":"*an income* qualifies for exemption",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the tax bracket",
+      "in_program":"the tax bracket for *an income* is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the income category",
+      "in_program":"the income category for *an income* is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the taxable income",
+      "in_program":"the taxable income for *a gross income* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the standard deduction",
+      "in_program":"the standard deduction is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the taxable income",
+      "in_program":"the taxable income for *a gross income* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the tax owed",
+      "in_program":"the tax owed for *a gross income* with *a tax rate* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"tax on first bracket",
+      "in_program":"the tax on first bracket for *an income* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"tax on second bracket",
+      "in_program":"the tax on second bracket for *an income* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"tax on third bracket",
+      "in_program":"the tax on third bracket for *an income* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"amount in first bracket",
+      "in_program":"the amount in first bracket for *an income* is *a value*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"amount in second bracket",
+      "in_program":"the amount in second bracket for *an income* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"amount in third bracket",
+      "in_program":"the amount in third bracket for *an income* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"tax on first bracket",
+      "in_program":"the tax on first bracket for *an income* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"tax on second bracket",
+      "in_program":"the tax on second bracket for *an income* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"tax on third bracket",
+      "in_program":"the tax on third bracket for *an income* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"amount in first bracket",
+      "in_program":"the amount in first bracket for *an income* is *a value*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"amount in second bracket",
+      "in_program":"the amount in second bracket for *an income* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"amount in third bracket",
+      "in_program":"the amount in third bracket for *an income* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the income tax owed",
+      "in_program":"the income tax owed for *an income* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the standard deduction",
+      "in_program":"the standard deduction for *a gross income* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"calculated deduction",
+      "in_program":"the calculated deduction for *a gross income* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the total deductions",
+      "in_program":"the total deductions for *an expenses* with *a gross income* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the standard deduction",
+      "in_program":"the standard deduction for *a gross income* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"calculated deduction",
+      "in_program":"the calculated deduction for *a gross income* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the total deductions",
+      "in_program":"the total deductions for *an expenses* with *a gross income* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the net income",
+      "in_program":"the net income for *a gross income* with *an expenses* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the applicant is a qualifying resident",
+      "in_program":"*an applicant* is a qualifying resident",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the applicant is of age",
+      "in_program":"*an applicant* is of age",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the applicant meets income threshold",
+      "in_program":"*an applicant* meets income threshold",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the applicant is disqualified",
+      "in_program":"*an applicant* is disqualified",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the applicant is eligible for benefit",
+      "in_program":"*an applicant* is eligible for benefit",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the taxpayer's bracket",
+      "in_program":"the taxpayers bracket for *a taxpayer* is *a text*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"income requirement is met",
+      "in_program":"income requirement is met for *an income* with *a loan amount*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"credit score is sufficient",
+      "in_program":"credit score is sufficient for *a credit score*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"debt to income ratio is acceptable",
+      "in_program":"debt to income ratio is acceptable for *an income* with *a loan amount*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"income requirement is met",
+      "in_program":"income requirement is met for *an income* with *a loan amount*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"credit score is sufficient",
+      "in_program":"credit score is sufficient for *a credit score*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"debt to income ratio is acceptable",
+      "in_program":"debt to income ratio is acceptable for *an income* with *a loan amount*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the loan is approved",
+      "in_program":"the loan is approved for *an income* with *a credit score* with *a loan amount*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the base premium",
+      "in_program":"the base premium for *a coverage amount* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the age factor",
+      "in_program":"the age factor for *an insured age* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the smoking factor",
+      "in_program":"the smoking factor for *a boolean* is *a number*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"the base premium",
+      "in_program":"the base premium for *a coverage amount* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the age factor",
+      "in_program":"the age factor for *an insured age* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the smoking factor",
+      "in_program":"the smoking factor for *a boolean* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the annual premium",
+      "in_program":"the annual premium for *an insured age* with *a coverage amount* with *a boolean* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the late payment penalty",
+      "in_program":"the late payment penalty for *a principal amount* with *a days overdue* is *a number*",
+      "kind":"definition",
+      "mapping":"func",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"tenant is in good standing",
+      "in_program":"tenant is in good standing for *a late payments* with *a years as tenant*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"rent is at market rate",
+      "in_program":"rent is at market rate for *a current rent* with *a market rent*",
+      "kind":"wording",
+      "mapping":"the template's words made from the name, its inputs appended",
+      "note":"to be reviewed: the name does not say where its inputs go",
+      "verdict":"approximated"
+    },
+    {
+      "element":"tenant is in good standing",
+      "in_program":"tenant is in good standing for *a late payments* with *a years as tenant*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"rent is at market rate",
+      "in_program":"rent is at market rate for *a current rent* with *a market rent*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"qualifies for lease renewal",
+      "in_program":"*a years as tenant* qualifies for lease renewal for *a late payments* with *a current rent* with *a market rent*",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"test person eligible",
+      "in_program":"test_person_eligible",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"test person ineligible age",
+      "in_program":"test_person_ineligible_age",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"test person ineligible citizenship",
+      "in_program":"test_person_ineligible_citizenship",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"test person ineligible income",
+      "in_program":"test_person_ineligible_income",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"test person disqualified",
+      "in_program":"test_person_disqualified",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 271",
+      "in_program":"line_271",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 272",
+      "in_program":"line_272",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 273",
+      "in_program":"line_273",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 274",
+      "in_program":"line_274",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 275",
+      "in_program":"line_275",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 276",
+      "in_program":"line_276",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 279",
+      "in_program":"line_279",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 280",
+      "in_program":"line_280",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 281",
+      "in_program":"line_281",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 284",
+      "in_program":"line_284",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 285",
+      "in_program":"line_285",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 286",
+      "in_program":"line_286",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 287",
+      "in_program":"line_287",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 288",
+      "in_program":"line_288",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 289",
+      "in_program":"line_289",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 292",
+      "in_program":"line_292",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 293",
+      "in_program":"line_293",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 294",
+      "in_program":"line_294",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 295",
+      "in_program":"line_295",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 298",
+      "in_program":"line_298",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 299",
+      "in_program":"line_299",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 300",
+      "in_program":"line_300",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 301",
+      "in_program":"line_301",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":23,
+    "tests": [
+      {"detail":"","query":"line_271","result":"pass","scenario":"line_271"},
+      {"detail":"","query":"line_272","result":"pass","scenario":"line_272"},
+      {"detail":"","query":"line_273","result":"pass","scenario":"line_273"},
+      {"detail":"","query":"line_274","result":"pass","scenario":"line_274"},
+      {"detail":"","query":"line_275","result":"pass","scenario":"line_275"},
+      {"detail":"","query":"line_276","result":"pass","scenario":"line_276"},
+      {"detail":"","query":"line_279","result":"pass","scenario":"line_279"},
+      {"detail":"","query":"line_280","result":"pass","scenario":"line_280"},
+      {"detail":"","query":"line_281","result":"pass","scenario":"line_281"},
+      {"detail":"","query":"line_284","result":"pass","scenario":"line_284"},
+      {"detail":"","query":"line_285","result":"pass","scenario":"line_285"},
+      {"detail":"","query":"line_286","result":"pass","scenario":"line_286"},
+      {"detail":"","query":"line_287","result":"pass","scenario":"line_287"},
+      {"detail":"","query":"line_288","result":"pass","scenario":"line_288"},
+      {"detail":"","query":"line_289","result":"pass","scenario":"line_289"},
+      {"detail":"","query":"line_292","result":"pass","scenario":"line_292"},
+      {"detail":"","query":"line_293","result":"pass","scenario":"line_293"},
+      {"detail":"","query":"line_294","result":"pass","scenario":"line_294"},
+      {"detail":"","query":"line_295","result":"pass","scenario":"line_295"},
+      {"detail":"","query":"line_298","result":"pass","scenario":"line_298"},
+      {"detail":"","query":"line_299","result":"pass","scenario":"line_299"},
+      {"detail":"","query":"line_300","result":"pass","scenario":"line_300"},
+      {"detail":"","query":"line_301","result":"pass","scenario":"line_301"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["module-4-examples.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"module_4_examples",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":23
+}

@@ -1,0 +1,43 @@
+the target language is: prolog.
+
+% A recursion through a value not yet known (docs/user/reference/language.md
+% §2.4). A loan's repayment obligation starts again after every payment made
+% within 40 days of the day the current obligation started. Asked "on which
+% days does an obligation start?", the rule must ask the same question about
+% an earlier, unknown day. Without the marker, the check against endless
+% loops refuses that inner question as soon as it would need the rule again,
+% so only the payments that follow the first day are found: 2025-01-01 and
+% 2025-02-05, but not 2025-03-12 or 2025-04-15, which follow later days.
+% With the template marked `; memorable`, the inner question is answered from
+% the answers found so far, round after round, until no new one appears:
+% every day is found. The payment of 2025-06-30 comes more than 40 days after
+% the last obligation started, and starts nothing.
+
+the templates are:
+    the borrower pays on *a date*; undefined.
+    an obligation starts on *a date*; memorable.
+    a payment on *a date* is within 40 days of *a date*.
+
+the knowledge base instalments includes:
+
+an obligation starts on 2025-01-01.
+
+an obligation starts on a date if
+    an obligation starts on an earlier date
+    and the borrower pays on the date
+    and a payment on the date is within 40 days of the earlier date.
+
+a payment on a date is within 40 days of an earlier date if
+    the date is after the earlier date
+    and a limit is 40 days after the earlier date
+    and the date is before or equal to the limit.
+
+query starts is:
+    an obligation starts on which date.
+
+scenario monthly is:
+    the borrower pays on 2025-02-05.
+    the borrower pays on 2025-03-12.
+    the borrower pays on 2025-04-15.
+    the borrower pays on 2025-06-30.
+    starts expects answers ["an obligation starts on 2025-01-01", "an obligation starts on 2025-02-05", "an obligation starts on 2025-03-12", "an obligation starts on 2025-04-15"].

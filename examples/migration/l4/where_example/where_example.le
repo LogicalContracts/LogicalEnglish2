@@ -1,0 +1,210 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from where-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    the area of circle for *a radius* is *a number*.
+    the sum times difference for *a number* with *a second number* is *a third number*.
+    the quadratic discriminant for *a number* with *a second number* with *a third number* is *a fourth number*.
+    the outer is *a value*.
+    the sum of squares for *a number* with *a second number* is *a third number*.
+    the distance between points for *a number* with *a second number* with *a third number* with *a fourth number* is *a value*.
+    the sum of list using where for *a list* is *a number*.
+    the pi is *a number*.
+    the sum value for *a number* with *a second number* is *a third number*.
+    the diff value for *a number* with *a second number* is *a third number*.
+    the b squared for *a number* is *a second number*.
+    the four a c for *a number* with *a second number* is *a third number*.
+    the middle is *a value*.
+    the inner is *a number*.
+    the square of *a value* is *a number*.
+    the delta x for *a number* with *a second number* is *a third number*.
+    the delta y for *a number* with *a second number* is *a third number*.
+    the dx squared for *a number* with *a second number* is *a third number*.
+    the dy squared for *a number* with *a second number* is *a third number*.
+    the square root for *a value* is *a second value*.
+    the rest sum for *a tail* is *a number*.
+    L4's answer at line 11 is reproduced.
+    L4's answer at line 22 is reproduced.
+    L4's answer at line 35 is reproduced.
+    L4's answer at line 47 is reproduced.
+    L4's answer at line 57 is reproduced.
+    L4's answer at line 76 is reproduced.
+    L4's answer at line 89 is reproduced.
+
+the knowledge base where_example includes:
+
+the text of the source program is at "sources/where-example.l4".
+
+the pi is 3.14159.
+
+the area of circle for a radius R is a number N if
+    the pi is a number M
+    and N = M * R * R.
+
+the sum value for a number N with a number M is a number K if
+    K = N + M.
+
+the diff value for a number N with a number M is a number K if
+    K = N - M.
+
+the sum times difference for a number with a second number is a number N if
+    the sum value for the number with the second number is a number M
+    and the diff value for the number with the second number is a number K
+    and N = M * K.
+
+the b squared for a number N is a number M if
+    M = N * N.
+
+the four a c for a number N with a number M is a number K if
+    K = 4 * N * M.
+
+the quadratic discriminant for a number with a second number with a third number is a number N if
+    the b squared for the second number is a number M
+    and the four a c for the number with the third number is a number K
+    and N = M - K.
+
+the inner is 42.
+
+the middle is a value if
+    the inner is the value.
+
+the outer is a value if
+    the middle is the value.
+
+the square of a value V is a number N if
+    N = V * V.
+
+the sum of squares for a number with a second number is a number N if
+    the square of the number is a number M
+    and the square of the second number is a number K
+    and N = M + K.
+
+the delta x for a number N with a number M is a number K if
+    K = M - N.
+
+the delta y for a number N with a number M is a number K if
+    K = M - N.
+
+the dx squared for a number with a second number is a number N if
+    the delta x for the number with the second number is a number M
+    and the delta x for the number with the second number is a number K
+    and N = M * K.
+
+the dy squared for a number with a second number is a number N if
+    the delta y for the number with the second number is a number M
+    and the delta y for the number with the second number is a number K
+    and N = M * K.
+
+% RESIDUE r1 BEGIN: square root
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 72-72
+% a value with no LE form: (`sqrt` OF `n`)
+%   l4:
+%   |     `square root` n MEANS sqrt n
+% RESIDUE r1 END
+
+the distance between points for a number with a second number with a third number with a fourth number is a value if
+    the dx squared for the number with the third number is a number N
+    and the dy squared for the second number with the fourth number is a number M
+    and a value V = N + M
+    and the square root for V is the value.
+
+the rest sum for a tail is a number if
+    the sum of list using where for the tail is the number.
+
+the sum of list using where for a list is a number N if
+    [] is equal to the list
+    and N is equal to 0
+    otherwise prolog (the list=[T|M])
+    and the rest sum for M is a number K
+    and N = T + K.
+
+L4's answer at line 11 is reproduced if
+    the area of circle for 10 is a number N
+    and N * 10000000 >= 3141589999
+    and N * 10000000 <= 3141590001.
+
+L4's answer at line 22 is reproduced if
+    the sum times difference for 10 with 3 is a number N
+    and N * 100000000 >= 9099999999
+    and N * 100000000 <= 9100000001.
+
+L4's answer at line 35 is reproduced if
+    the quadratic discriminant for 1 with 5 with 6 is a number N
+    and N * 1000000000 >= 999999999
+    and N * 1000000000 <= 1000000001.
+
+L4's answer at line 47 is reproduced if
+    the outer is a value V
+    and V * 100000000 >= 4199999999
+    and V * 100000000 <= 4200000001.
+
+L4's answer at line 57 is reproduced if
+    the sum of squares for 3 with 4 is a number N
+    and N * 100000000 >= 2499999999
+    and N * 100000000 <= 2500000001.
+
+L4's answer at line 76 is reproduced if
+    the distance between points for 0 with 0 with 3 with 4 is a value V
+    and V * 1000000000 >= 4999999999
+    and V * 1000000000 <= 5000000001.
+
+L4's answer at line 89 is reproduced if
+    the sum of list using where for [1, 2, 3, 4, 5] is a number N
+    and N * 100000000 >= 1499999999
+    and N * 100000000 <= 1500000001.
+
+scenario line_11 is, as stated in the source program at line 11:
+    line_11 expects answers ["L4's answer at line 11 is reproduced"].
+
+scenario line_22 is, as stated in the source program at line 22:
+    line_22 expects answers ["L4's answer at line 22 is reproduced"].
+
+scenario line_35 is, as stated in the source program at line 35:
+    line_35 expects answers ["L4's answer at line 35 is reproduced"].
+
+scenario line_47 is, as stated in the source program at line 47:
+    line_47 expects answers ["L4's answer at line 47 is reproduced"].
+
+scenario line_57 is, as stated in the source program at line 57:
+    line_57 expects answers ["L4's answer at line 57 is reproduced"].
+
+scenario line_76 is, as stated in the source program at line 76:
+    % pending — waits for residue r1:
+    % line_76 expects answers ["L4's answer at line 76 is reproduced"].
+
+scenario line_89 is, as stated in the source program at line 89:
+    line_89 expects answers ["L4's answer at line 89 is reproduced"].
+
+query line_11 is:
+    L4's answer at line 11 is reproduced.
+
+query line_22 is:
+    L4's answer at line 22 is reproduced.
+
+query line_35 is:
+    L4's answer at line 35 is reproduced.
+
+query line_47 is:
+    L4's answer at line 47 is reproduced.
+
+query line_57 is:
+    L4's answer at line 57 is reproduced.
+
+query line_76 is:
+    L4's answer at line 76 is reproduced.
+
+query line_89 is:
+    L4's answer at line 89 is reproduced.
+

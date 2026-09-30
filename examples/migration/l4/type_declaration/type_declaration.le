@@ -1,0 +1,54 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from type-declaration.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the name of *a registered charity* is *a text*.
+    the registration number of *a registered charity* is *a text*.
+    the annual income of *a registered charity* is *a number*.
+
+the templates are:
+    L4's answer at line 14 is reproduced.
+    L4's answer at line 15 is reproduced.
+
+the knowledge base type_declaration includes:
+
+the text of the source program is at "sources/type-declaration.l4".
+
+L4's answer at line 14 is reproduced if
+    the name of example_charity is a text
+    and the text is equal to "Jersey Wildlife Trust".
+
+L4's answer at line 15 is reproduced if
+    the annual income of example_charity is a number N
+    and N * 100000 >= 7499999999
+    and N * 100000 <= 7500000001.
+
+the name of example_charity is "Jersey Wildlife Trust".
+
+the registration number of example_charity is "JC-2024-042".
+
+the annual income of example_charity is 75000.
+
+scenario line_14 is, as stated in the source program at line 14:
+    line_14 expects answers ["L4's answer at line 14 is reproduced"].
+
+scenario line_15 is, as stated in the source program at line 15:
+    line_15 expects answers ["L4's answer at line 15 is reproduced"].
+
+query line_14 is:
+    L4's answer at line 14 is reproduced.
+
+query line_15 is:
+    L4's answer at line 15 is reproduced.
+

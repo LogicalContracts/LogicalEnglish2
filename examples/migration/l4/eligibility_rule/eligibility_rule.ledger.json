@@ -1,0 +1,105 @@
+{
+  "counts": {"approximated":0,"encoded":10,"residue":0},
+  "entries": [
+    {
+      "element":"Applicant",
+      "in_program":"Applicant",
+      "kind":"record",
+      "mapping":"a type of individuals, one template per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the applicant is eligible",
+      "in_program":"*an applicant* is eligible",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the applicant is at least 18 years old",
+      "in_program":"*an applicant* is at least 18 years old",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"the applicant has shown valid identification",
+      "in_program":"*an applicant* has shown valid identification",
+      "kind":"definition",
+      "mapping":"pred",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Alice the adult",
+      "in_program":"alice_the_adult",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Bob without ID",
+      "in_program":"bob_without_id",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"Young Charlie",
+      "in_program":"young_charlie",
+      "kind":"record",
+      "mapping":"an individual with one fact per field",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 34",
+      "in_program":"line_34",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 35",
+      "in_program":"line_35",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    },
+    {
+      "element":"#EVAL at line 36",
+      "in_program":"line_36",
+      "kind":"test",
+      "mapping":"a query and the evaluator's answer",
+      "note":"",
+      "verdict":"encoded"
+    }
+  ],
+  "fidelity": {
+    "errors":0,
+    "failed":0,
+    "passed":3,
+    "tests": [
+      {"detail":"","query":"line_34","result":"pass","scenario":"line_34"},
+      {"detail":"","query":"line_35","result":"pass","scenario":"line_35"},
+      {"detail":"","query":"line_36","result":"pass","scenario":"line_36"}
+    ]
+  },
+  "meta": {
+    "artifacts": ["eligibility-rule.l4" ],
+    "date":"2026-09-29",
+    "licence":"Apache-2.0, Singapore Management University",
+    "program":"eligibility_rule",
+    "source":"an L4 program (smucclaw/l4-ide)",
+    "translator":"lpsPlus/migration/l4 (l4_twin.pl)"
+  },
+  "pending_expectations":0,
+  "source_tests":3
+}

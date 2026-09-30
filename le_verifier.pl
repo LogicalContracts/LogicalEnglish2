@@ -793,6 +793,7 @@ find_in_body(count(_, G, _), L) :- !, find_in_body(G, L).
 find_in_body(min(_, G, _), L) :- !, find_in_body(G, L).
 find_in_body(max(_, G, _), L) :- !, find_in_body(G, L).
 find_in_body(average(_, G, _), L) :- !, find_in_body(G, L).
+find_in_body(list([each|_], G, _), L) :- !, find_in_body(G, L).
 find_in_body(true, _) :- !, fail.
 find_in_body(fail, _) :- !, fail.
 find_in_body(unknown_tokens(_), _) :- !, fail.

@@ -1,0 +1,52 @@
+the target language is: prolog.
+
+% Lists of answers: "L is the list of each X such that ...". The list holds
+% the values in the order they are found, and a value found twice is there
+% twice. The list of nothing is the empty list. The minimum of nothing, by
+% contrast, does not exist: the last query has no answer where no payment
+% is late.
+
+the templates are:
+    *a customer* pays *an amount* on day *a number*.
+    the payments of *a customer* are *a list*.
+    the late payments are *a list*.
+    the first late payment is on day *a number*.
+
+the knowledge base lists includes:
+
+the payments of a customer are L if
+    L is the list of each A such that
+        the customer pays A on day a day.
+
+the late payments are L if
+    L is the list of each A such that
+        a customer pays A on day a day
+        and the day > 30.
+
+the first late payment is on day D if
+    D is the min of each N such that
+        a customer pays an amount on day N
+        and N > 30.
+
+scenario march is:
+    ann pays 50 on day 3.
+    bob pays 20 on day 12.
+    ann pays 50 on day 40.
+    payments expects answers ["the payments of ann are [50, 50]"].
+    late expects answers ["the late payments are [50]"].
+    first expects answers ["the first late payment is on day 40"].
+
+scenario april is:
+    bob pays 20 on day 2.
+    payments expects answers ["the payments of ann are []"].
+    late expects answers ["the late payments are []"].
+    first expects answers [].
+
+query payments is:
+    the payments of ann are which list.
+
+query late is:
+    the late payments are which list.
+
+query first is:
+    the first late payment is on day which number.

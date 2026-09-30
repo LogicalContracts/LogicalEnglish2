@@ -1,0 +1,182 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from not-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    has criminal record; scenario element.
+    is clean.
+    the person age is *a number*; scenario element.
+    is blocked; scenario element.
+    can access.
+    *a boolean* has access for *a second boolean*.
+    not athen b for *a boolean* with *a second boolean*.
+    not both for *a value* with *a second value*.
+    *a number* is not zero.
+    *a value* is not positive.
+    the inverted message for *a flag* is *a text*.
+    L4's answer at line 5 is reproduced.
+    L4's answer at line 6 is reproduced.
+    L4's answer at line 10 is reproduced.
+    L4's answer at line 11 is reproduced.
+
+the knowledge base not_example includes:
+
+the text of the source program is at "sources/not-example.l4".
+
+is clean if
+    it is not the case that has criminal record.
+
+can access if
+    the person age is a number N
+    and N >= 18
+    and it is not the case that is blocked.
+
+a boolean has access for a second boolean if
+    true is equal to the boolean
+    or it is not the case that true is equal to the second boolean.
+
+not athen b for a boolean with a second boolean if
+    it is not the case that
+        true is equal to the boolean
+        and true is equal to the second boolean.
+
+not both for a value with a second value if
+    it is not the case that
+        true is equal to the value
+        and true is equal to the second value.
+
+a number is not zero if
+    it is not the case that 0 is equal to the number.
+
+a value V is not positive if
+    it is not the case that V > 0.
+
+the inverted message for a flag is a text if
+    it is not the case that true is equal to the flag
+    and the text is equal to "flag is off"
+    otherwise the text is equal to "flag is on".
+
+L4's answer at line 5 is reproduced.
+
+L4's answer at line 6 is reproduced.
+
+L4's answer at line 10 is reproduced.
+
+L4's answer at line 11 is reproduced.
+
+scenario line_5 is, as stated in the source program at line 5:
+    line_5 expects answers ["L4's answer at line 5 is reproduced"].
+
+scenario line_6 is, as stated in the source program at line 6:
+    line_6 expects answers ["L4's answer at line 6 is reproduced"].
+
+scenario line_10 is, as stated in the source program at line 10:
+    line_10 expects answers ["L4's answer at line 10 is reproduced"].
+
+scenario line_11 is, as stated in the source program at line 11:
+    line_11 expects answers ["L4's answer at line 11 is reproduced"].
+
+scenario line_35 is, as stated in the source program at line 35:
+    line_35 expects answers ["false has access for false"].
+
+scenario line_36 is, as stated in the source program at line 36:
+    line_36 expects answers [].
+
+scenario line_48 is, as stated in the source program at line 48:
+    line_48 expects answers [].
+
+scenario line_49 is, as stated in the source program at line 49:
+    line_49 expects answers ["not athen b for false with true"].
+
+scenario line_50 is, as stated in the source program at line 50:
+    line_50 expects answers [].
+
+scenario line_51 is, as stated in the source program at line 51:
+    line_51 expects answers ["not both for false with true"].
+
+scenario line_59 is, as stated in the source program at line 59:
+    line_59 expects answers ["5 is not zero"].
+
+scenario line_60 is, as stated in the source program at line 60:
+    line_60 expects answers [].
+
+scenario line_61 is, as stated in the source program at line 61:
+    line_61 expects answers [].
+
+scenario line_62 is, as stated in the source program at line 62:
+    line_62 expects answers ["-3 is not positive"].
+
+scenario line_72 is, as stated in the source program at line 72:
+    line_72 expects answers ["the inverted message for true is flag is on"].
+
+scenario line_73 is, as stated in the source program at line 73:
+    line_73 expects answers ["the inverted message for false is flag is off"].
+
+scenario variant_1 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    has criminal record.
+    is_clean expects answers [].
+
+scenario variant_2 is, as stated in the source program at a variant of the program each ASSUMEd fact given a value:
+    is_clean expects answers ["is clean"].
+
+query line_5 is:
+    L4's answer at line 5 is reproduced.
+
+query line_6 is:
+    L4's answer at line 6 is reproduced.
+
+query line_10 is:
+    L4's answer at line 10 is reproduced.
+
+query line_11 is:
+    L4's answer at line 11 is reproduced.
+
+query line_35 is:
+    false has access for false.
+
+query line_36 is:
+    false has access for true.
+
+query line_48 is:
+    not athen b for true with true.
+
+query line_49 is:
+    not athen b for false with true.
+
+query line_50 is:
+    not both for true with true.
+
+query line_51 is:
+    not both for false with true.
+
+query line_59 is:
+    5 is not zero.
+
+query line_60 is:
+    0 is not zero.
+
+query line_61 is:
+    5 is not positive.
+
+query line_62 is:
+    -3 is not positive.
+
+query line_72 is:
+    the inverted message for true is which text.
+
+query line_73 is:
+    the inverted message for false is which text.
+
+query is_clean is:
+    is clean.
+

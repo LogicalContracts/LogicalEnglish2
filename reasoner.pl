@@ -19,7 +19,8 @@
 :- thread_local checking_assumptions/1, rejected_assumptions/2.
 % Memoization of `; memorable` templates (memo_solve/8 below).
 :- thread_local memo_done/3, memo_active/2, memo_answer/6, memo_alias/2,
-                memo_generation/1, memo_gen_counter/1, memo_depth/1, memo_stat/2.
+                memo_generation/1, memo_gen_counter/1, memo_depth/1, memo_stat/2,
+                memo_provisional/3, memo_consumed/2, memo_birth/3.
 
 % When set (the default), repeated sub-explanations are collapsed; the client can
 % turn this off per query so the full tree is built and shown. Tracked per worker
@@ -107,17 +108,18 @@ solve(G, SM, KM, Anc, D, ParentID, Us, Whys) :-
         ( ParentID \== none -> assertz(called(ParentID, MyID, G)); true),
         (   SM:debug_mode
 
-        ->  dap_server:dap_tracer_hook(call, SM, G, MyID, Anc, D),
+        ->  live_ancestors(Anc, LiveAnc),
+            dap_server:dap_tracer_hook(call, SM, G, MyID, LiveAnc, D),
             % Soft cut (*->) so backtracking into alternative solutions is preserved
             % while tracing: the exit port fires for EACH solution, so a user can step
             % through every answer, not only the first. (A plain -> would commit to the
             % first solution and make only the first answer traceable.)
             (   catch(solve_real(G, SM, KM, Anc, D, MyID, Us, Whys), E,
-                      (dap_server:dap_tracer_hook(exception(E), SM, G, MyID, Anc, D), throw(E)))
+                      (dap_server:dap_tracer_hook(exception(E), SM, G, MyID, LiveAnc, D), throw(E)))
             *-> (succeeded(MyID) -> true ; assertz(succeeded(MyID))),
                 note_solved(MyID, G),
-                dap_server:dap_tracer_hook(exit, SM, G, MyID, Anc, D)
-            ;   dap_server:dap_tracer_hook(fail, SM, G, MyID, Anc, D),
+                dap_server:dap_tracer_hook(exit, SM, G, MyID, LiveAnc, D)
+            ;   dap_server:dap_tracer_hook(fail, SM, G, MyID, LiveAnc, D),
                 fail
             )
         ;   solve_real(G, SM, KM, Anc, D, MyID, Us, Whys),
@@ -420,14 +422,14 @@ solve_literal(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
             (   X == Z -> Us = [], WhysBody = [success(G, identity, [])]
             ;   get_clause(is_a(X, Z), SM, KM, Body, Ref),
                 \+ SM:le_neg(is_a(X, Z)),
-                \+ member(is_a(X, Z), Anc),
+                \+ ancestor_unifies(is_a(X, Z), Anc),
                 solve(Body, SM, KM, [is_a(X, Z)|Anc], D1, MyID, Us, WhysBody)
             ;   % Transitivity: X is a Y and Y is a Z
                 % Use a base fact for the first step to avoid infinite recursion
                 (SM:clause(is_a(X, Y), true, Ref1) ; (KM \== none, KM:clause(is_a(X, Y), true, Ref1))),
                 Y \== Z, Y \== X,
                 \+ SM:le_neg(is_a(X, Y)),
-                \+ member(is_a(X, Y), Anc),
+                \+ ancestor_unifies(is_a(X, Y), Anc),
                 % Record the fact call
                 next_id(FactID),
                 ( ground(is_a(X, Y)) -> assertz(called(MyID, FactID, is_a(X, Y))) ; true ),
@@ -439,19 +441,20 @@ solve_literal(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
             admissible_clause(Ref, G, SM, KM, MyID),
             ( KM \== none -> le_kbs:set_id_from_ref(Ref, KM) ; le_kbs:set_id_from_ref(Ref, SM) ),
             \+ SM:le_neg(G),
-            \+ member(G, Anc),
+            \+ in_ancestors(G, Anc),
             is_type_compatible(SM, KM, G),
             D1 is D + 1,
-            (   has_opposite(G, SM, KM, OppG), \+ member(OppG, Anc) ->
+            ancestor_frame(G, Frame),
+            (   has_opposite(G, SM, KM, OppG), \+ ancestor_unifies(OppG, Anc) ->
                 ( le_kbs:do_log -> format('Solving ~w with opposite ~w\n', [G, OppG]) ; true ),
                 % Solve Body, then check that OppG is not true for reasons OTHER than not(G)
-                solve_rule_body(Body, SM, KM, [G|Anc], D1, MyID, Ref, Us, WhysBody),
+                solve_rule_body(Body, SM, KM, [Frame|Anc], D1, MyID, Ref, Us, WhysBody),
                 \+ ( get_clause(OppG, SM, KM, OppBody, OppRef),
                      OppRef \== implicit_opposite,
                      % Use a fresh Anc for OppBody to avoid loop but allow checking G
                      solve(OppBody, SM, KM, [OppG], D1, MyID, [], _)
                    )
-            ;   solve_rule_body(Body, SM, KM, [G|Anc], D1, MyID, Ref, Us, WhysBody)
+            ;   solve_rule_body(Body, SM, KM, [Frame|Anc], D1, MyID, Ref, Us, WhysBody)
             )
         ; checking_assumptions(Assumed) ->
           % Checking a constraint (consistent_assumptions/4): what the answer
@@ -460,7 +463,7 @@ solve_literal(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
         ; get_clause(le_unknown(G), SM, KM, UnkBody, _UnkRef),
           \+ SM:le_neg(le_unknown(G)),
           \+ SM:le_neg(G),                 % the scenario says it is not so
-          \+ member(le_unknown(G), Anc),
+          \+ ancestor_unifies(le_unknown(G), Anc),
           \+ judged_question_decided(G, SM, KM),
           D1 is D + 1,
           %  A goal the scenario already proves is not also assumed: i/4 would
@@ -473,6 +476,86 @@ solve_literal(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
           \+ ( ground(G), \+ \+ solve(G, SM, KM, [le_unknown(G)|Anc], D1, none, [], _) ),
           solve(UnkBody, SM, KM, [le_unknown(G)|Anc], D1, MyID, [], _) ->  
             Us = [G], WhysBody = [], Ref = unknown
+    ).
+
+%!  in_ancestors(+G, +Anc) is semidet.
+%
+%   The loop check: G is the same condition — a variant, equal up to the
+%   names of its variables — as one already being proved further up, as
+%   that one was when its proof began. A condition that merely unifies with
+%   an ancestor is not a loop: a rule about the obligation started on one
+%   date may ask about the obligation started on an earlier, still unknown
+%   date (docs/migration/l4.md of lpsPlus, trap 6). Until 29 September 2026
+%   the check was member/2, which refused any ancestor that unifies with G.
+%
+%   The comparison is with the ancestor's snapshot (ancestor_frame/2), not
+%   with the ancestor as it is now: the ancestor's variables are bound as
+%   its proof goes on, and `the obligation starts on _` asked again under
+%   an ancestor that was `the obligation starts on _` when it was asked
+%   would no longer look the same, and the proof would descend for ever.
+%   Both sides are compared without their type constraints (when/2 goals):
+%   =@= tells a constrained variable from a plain one, and the same
+%   condition asked twice carries its constraints on different variables.
+in_ancestors(G, Anc) :-
+    copy_term(G, Plain, _),
+    ancestor_variant(Plain, Anc, Above),
+    !,
+    note_loop_cut(Above).
+
+%!  ancestor_unifies(+G, +Anc) is semidet.
+%
+%   The older loop check, kept for the goals it guards besides rule
+%   conclusions — an assumption under way (le_unknown/1), an opposite, a
+%   step of the ontology: some ancestor unifies with G.
+ancestor_unifies(G, Anc) :-
+    ancestor_unifying(G, Anc, Above),
+    !,
+    note_loop_cut(Above).
+
+ancestor_variant(G, [A|T], Above) :-
+    (   A = '$le_goal'(_, Snapshot), Snapshot =@= G
+    ->  Above = T
+    ;   ancestor_variant(G, T, Above)
+    ).
+
+%!  ancestor_frame(+G, -Frame) is det.
+%
+%   What a rule's conclusion puts on the ancestor list: the goal itself,
+%   whose bindings the proof goes on to fill in (what the debugger shows,
+%   what the other loop checks compare with), and a snapshot of it as it
+%   was when its proof began, without the type constraints (what
+%   in_ancestors/2 compares with).
+ancestor_frame(G, '$le_goal'(G, Snapshot)) :-
+    copy_term(G, Snapshot, _).
+
+%!  live_ancestors(+Anc, -Goals) is det.
+%
+%   The ancestor list as goals, for the debugger.
+live_ancestors([], []).
+live_ancestors([A|T], [G|Gs]) :-
+    ( A = '$le_goal'(G, _) -> true ; G = A ),
+    live_ancestors(T, Gs).
+
+
+ancestor_unifying(G, [A0|T], Above) :-
+    ( A0 = '$le_goal'(A, _) -> true ; A = A0 ),
+    (   \+ A \= G -> Above = T ; ancestor_unifying(G, T, Above) ).
+
+%!  note_loop_cut(+Above) is det.
+%
+%   A loop check has just refused a condition because of an ancestor, Above
+%   being the ancestors further up than that one. While a memorable call is
+%   computed (memo_solve/8), the global variable le_loop_floor holds the
+%   fewest ancestors any such refusal left above it, so that the call can
+%   tell whether a refusal reached above the call itself: its answers then
+%   depend on where the call was made, and are not remembered (trap 7 of
+%   lpsPlus's docs/migration/l4.md). Outside a memorable call the variable is
+%   `none` and nothing is noted.
+note_loop_cut(Above) :-
+    (   nb_current(le_loop_floor, Floor), Floor \== none
+    ->  length(Above, N),
+        ( N < Floor -> nb_setval(le_loop_floor, N) ; true )
+    ;   true
     ).
 
 % ── Memoization of `; memorable` templates ──────────────────────────────────
@@ -509,6 +592,8 @@ solve_literal(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
 %   records of the call that did the work (failure_children/2).
 %
 %   Not memoized: a call made while a variant of it is still active (above),
+%   a call whose computation met the loop check on one of the call's own
+%   ancestors (its answers are those of that place only: note_loop_cut/1),
 %   and every literal of a template without the marker. The verifier warns
 %   about a memorable call under a negation (a negation stops at the first
 %   answer, the memorable call computes them all) and about a memorable
@@ -540,21 +625,149 @@ memo_solve(G, SM, KM, Anc, D, MyID, Us, Whys) :-
         memo_replay(Key, Gen, G, Us, Whys)
     ;   memo_active(Key, Gen)
     ->  % A variant of a call still being computed (recursion through the
-        % memorable predicate): solved as usual, not recorded.
-        solve_literal(G, SM, KM, Anc, D, MyID, Us, Whys)
+        % memorable predicate): answered from the answers the computation
+        % has found so far (memo_fixpoint/10), which is repeated until it
+        % finds no new one. A memorable call inside it remembers what it
+        % proves from these provisional answers only until the next round,
+        % which forgets it (forget_records_from/1).
+        memo_count(provisional),
+        ( memo_consumed(Key, Gen) -> true ; assertz(memo_consumed(Key, Gen)) ),
+        memo_provisional(Key, Gen, Provisional),
+        member(answer(G, Us, Whys, Constraints), Provisional),
+        maplist(call, Constraints)
     ;   memo_count(misses),
+        %   The loop floor (note_loop_cut/1): a refusal inside this call that
+        %   leaves fewer ancestors above it than the call has was caused by
+        %   an ancestor of the call, outside it — the answers are then those
+        %   of this place only, and are returned without being remembered.
+        length(Anc, Outside),
+        ( nb_current(le_loop_floor, Saved) -> true ; Saved = none ),
+        flag(le_memo_birth, Start, Start),
         setup_call_cleanup(
             assertz(memo_active(Key, Gen)),
-            findall(answer(G, Us1, Whys1),
-                    solve_literal(G, SM, KM, Anc, D, MyID, Us1, Whys1),
-                    Answers),
-            retractall(memo_active(Key, Gen))),
-        forall(member(Answer, Answers),
-               ( copy_term(Answer, answer(G2, Us2, Whys2), Constraints),
-                 assertz(memo_answer(Key, Gen, G2, Us2, Whys2, Constraints)) )),
-        assertz(memo_done(Key, Gen, MyID)),
-        memo_replay(Key, Gen, G, Us, Whys)
+            memo_fixpoint(G, SM, KM, Anc, D, MyID, Key, Gen, Outside, Answers-Floor),
+            ( retractall(memo_active(Key, Gen)),
+              retractall(memo_provisional(Key, Gen, _)),
+              retractall(memo_consumed(Key, Gen)),
+              restore_loop_floor(Saved) )),
+        (   Floor < Outside
+        ->  memo_count(unremembered),
+            % the memorable calls inside it may rest on its answers
+            forget_memos_from(Start),
+            ( Saved == none -> true ; Low is min(Saved, Floor), nb_setval(le_loop_floor, Low) ),
+            member(answer(G, Us, Whys), Answers)
+        ;   forall(member(Answer, Answers),
+                   ( copy_term(Answer, answer(G2, Us2, Whys2), Constraints),
+                     assertz(memo_answer(Key, Gen, G2, Us2, Whys2, Constraints)) )),
+            assertz(memo_done(Key, Gen, MyID)),
+            flag(le_memo_birth, Birth, Birth + 1),
+            assertz(memo_birth(Key, Gen, Birth)),
+            memo_replay(Key, Gen, G, Us, Whys)
+        )
     ).
+
+%!  memo_fixpoint(+G, +SM, +KM, +Anc, +D, +MyID, +Key, +Gen, +Outside, -Result) is det.
+%
+%   Every answer of the memorable call G, with the loop floor the last round
+%   reached (Result = Answers-Floor). A round proves G with the answers of
+%   the round before standing for the recursive variants of G inside it (none
+%   in the first round). Where no recursive variant was asked, one round is
+%   all there is. Otherwise the rounds go on until a round finds no answer
+%   the one before did not — the least fixpoint, for a program without
+%   negation through the recursion — or until memo_max_rounds/1 rounds,
+%   after which the answers are not remembered (the floor is lowered).
+%   What a round other than the last recorded for the explanations
+%   (called/3 and the rest, from the first identifier it used) is removed,
+%   so that the explanation is the last round's.
+%
+%   With it a recursion through a value not yet known — the obligation that
+%   started on some date, asked while proving the obligation that started
+%   on some date — finds all its answers, which a depth-first proof with a
+%   loop check cannot (lpsPlus docs/migration/l4.md, trap 6).
+memo_fixpoint(G, SM, KM, Anc, D, MyID, Key, Gen, Outside, Result) :-
+    memo_max_rounds(Max),
+    memo_rounds(1, Max, [], G, SM, KM, Anc, D, MyID, Key, Gen, Outside, Result).
+
+memo_max_rounds(200).
+
+memo_rounds(Round, Max, Previous, G, SM, KM, Anc, D, MyID, Key, Gen, Outside, Result) :-
+    retractall(memo_provisional(Key, Gen, _)),
+    assertz(memo_provisional(Key, Gen, Previous)),
+    retractall(memo_consumed(Key, Gen)),
+    counter(Start),
+    flag(le_memo_birth, Births, Births),
+    nb_setval(le_loop_floor, Outside),
+    findall(answer(G, Us1, Whys1),
+            solve_literal(G, SM, KM, Anc, D, MyID, Us1, Whys1),
+            Answers),
+    nb_getval(le_loop_floor, Floor0),
+    (   \+ memo_consumed(Key, Gen)
+    ->  Result = Answers-Floor0
+    ;   maplist(stored_answer, Answers, Stored0),
+        distinct_answers(Stored0, Stored),
+        (   same_answers(Stored, Previous)
+        ->  Result = Answers-Floor0
+        ;   Round >= Max
+        ->  Floor is min(Floor0, Outside - 1),
+            Result = Answers-Floor
+        ;   forget_records_from(Start),
+            forget_memos_from(Births),
+            Round1 is Round + 1,
+            memo_rounds(Round1, Max, Stored, G, SM, KM, Anc, D, MyID, Key, Gen, Outside, Result)
+        )
+    ).
+
+%   An answer as the provisional answers hold it: without the type
+%   constraints, which are kept beside it and re-attached when it is used.
+stored_answer(answer(G, Us, Whys), answer(G2, Us2, Whys2, Constraints)) :-
+    copy_term(answer(G, Us, Whys), answer(G2, Us2, Whys2), Constraints).
+
+%   One answer per conclusion and unknowns, the first found: a recursion
+%   through a cycle proves the same conclusion in ever more ways, and the
+%   next round needs each conclusion once.
+distinct_answers([], []).
+distinct_answers([A|As], [A|Ds]) :-
+    A = answer(G, Us, _, _),
+    exclude(same_conclusion(G-Us), As, Rest),
+    distinct_answers(Rest, Ds).
+
+same_conclusion(GU, answer(G, Us, _, _)) :-
+    GU =@= G-Us.
+
+%   Two rounds found the same answers: each answer of one (its conclusion and
+%   its unknowns, not its explanation) is a variant of an answer of the
+%   other.
+same_answers(As, Bs) :-
+    length(As, N), length(Bs, N),
+    forall(member(answer(G, Us, _, _), As),
+           ( member(answer(G2, Us2, _, _), Bs), G-Us =@= G2-Us2 )),
+    forall(member(answer(G, Us, _, _), Bs),
+           ( member(answer(G2, Us2, _, _), As), G-Us =@= G2-Us2 )).
+
+%   The records of the explanation made from identifier Start on.
+forget_records_from(Start) :-
+    forall(( called(P, ID, X), ID >= Start ), retract(called(P, ID, X))),
+    forall(( called_clause(ID, C, Ref), ID >= Start ), retract(called_clause(ID, C, Ref))),
+    forall(( succeeded(ID), ID >= Start ), retract(succeeded(ID))),
+    forall(( success_in_not(ID, W), ID >= Start ), retract(success_in_not(ID, W))),
+    forall(( solved_binding(ID, B), ID >= Start ), retract(solved_binding(ID, B))),
+    forall(( memo_alias(ID, F), ID >= Start ), retract(memo_alias(ID, F))).
+
+%   The memorable calls remembered since birth number Start (memo_birth/3,
+%   numbered in the order they were remembered, whatever identifier the
+%   call ran under) are forgotten.
+forget_memos_from(Start) :-
+    forall(( memo_birth(K, Gn, B), B >= Start ),
+           ( retract(memo_birth(K, Gn, B)),
+             forall(retract(memo_done(K, Gn, First)),
+                    retractall(memo_alias(_, First))),
+             retractall(memo_answer(K, Gn, _, _, _, _)) )).
+
+%   The loop floor of the enclosing memorable call, if any, is put back once
+%   this one is done; a refusal inside this call is inside that one too, and
+%   is carried up where it reached above this call (memo_solve/8).
+restore_loop_floor(Saved) :-
+    nb_setval(le_loop_floor, Saved).
 
 memo_replay(Key, Gen, G, Us, Whys) :-
     memo_answer(Key, Gen, G, Us, Whys, Constraints),
@@ -600,6 +813,9 @@ clear_memo :-
     retractall(memo_active(_, _)),
     retractall(memo_answer(_, _, _, _, _, _)),
     retractall(memo_alias(_, _)),
+    retractall(memo_provisional(_, _, _)),
+    retractall(memo_consumed(_, _)),
+    retractall(memo_birth(_, _, _)),
     retractall(memo_stat(_, _)).
 
 memo_count(Kind) :-
@@ -1592,16 +1808,24 @@ extract_var(V, V).
 
 is_aggregate(Term, Type, VarTerm, Goal, ResultTerm) :-
     Term =.. [Type, [each, VarTerm], Goal, [ResultTerm]],
-    memberchk(Type, [sum, count, min, max, average]).
+    memberchk(Type, [sum, count, min, max, average, list]).
 
+% The sum and the count of nothing are 0. The minimum, the maximum and the
+% average of nothing do not exist, so the aggregate has no answer -- as in the
+% LPS target (min_list/2 fails on an empty list). Until 29 September 2026 they
+% were 0 here, which made `the time is the min of each moment such that …`
+% answer 0 when no moment qualified (docs/user/reference/language.md §5).
 apply_aggregate(sum, List, Sum) :- (List == [] -> Sum = 0 ; sum_list(List, Sum)).
 apply_aggregate(count, List, Count) :- length(List, Count).
-apply_aggregate(min, List, Min) :- (List == [] -> Min = 0 ; min_list(List, Min)).
-apply_aggregate(max, List, Max) :- (List == [] -> Max = 0 ; max_list(List, Max)).
-apply_aggregate(average, List, Avg) :- 
-    (   List == [] -> Avg = 0 
-    ;   sum_list(List, Sum), length(List, Count), Avg is Sum / Count
-    ).
+apply_aggregate(min, List, Min) :- List \== [], min_list(List, Min).
+apply_aggregate(max, List, Max) :- List \== [], max_list(List, Max).
+apply_aggregate(average, List, Avg) :-
+    List \== [],
+    sum_list(List, Sum), length(List, Count), Avg is Sum / Count.
+% `L is the list of each X such that …`: the values in the order they were
+% found, a value found twice kept twice (as L4's `map` and `filter` keep
+% them); the list of nothing is the empty list.
+apply_aggregate(list, List, List).
 
 init_counter :-
     retractall(counter(_)),

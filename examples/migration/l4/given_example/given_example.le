@@ -1,0 +1,200 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from given-example.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the x of *a point* is *a number*.
+    the y of *a point* is *a number*.
+
+the templates are:
+    the double the value for *a number* is *a second number*.
+    the greet the person for *a person name* is *a value*.
+    the add two numbers for *a number* with *a second number* is *a third number*.
+    the multiply two numbers for *a number* with *a second number* is *a third number*.
+    the sum of three numbers for *a number* with *a second number* with *a third number* is *a fourth number*.
+    the get x coordinate for *a point* is *a value*.
+    the distance squared between points for *a point* with *a second point* is *a number*.
+    the length of list for *a value* with *a list* is *a number*.
+    *a number* is positive number.
+    the sign of number for *a num* is *a text*.
+    the delta x for *a point* with *a second point* is *a number*.
+    the delta y for *a point* with *a second point* is *a number*.
+    L4's answer at line 11 is reproduced.
+    L4's answer at line 22 is reproduced.
+    L4's answer at line 23 is reproduced.
+    L4's answer at line 32 is reproduced.
+    L4's answer at line 51 is reproduced.
+    L4's answer at line 52 is reproduced.
+    L4's answer at line 63 is reproduced.
+    L4's answer at line 64 is reproduced.
+
+the knowledge base given_example includes:
+
+the text of the source program is at "sources/given-example.l4".
+
+the double the value for a number N is a number M if
+    M = N * 2.
+
+% RESIDUE r1 BEGIN: greet the person
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 8-9
+% a value with no LE form: (CONCAT "Hello, ", `person name`)
+%   l4:
+%   | GIVEN `person name` IS A STRING
+%   | `greet the person` `person name` MEANS CONCAT "Hello, ", `person name`
+% RESIDUE r1 END
+
+the add two numbers for a number N with a number M is a number K if
+    K = N + M.
+
+the multiply two numbers for a number N with a number M is a number K if
+    K = N * M.
+
+the sum of three numbers for a number N with a number M with a number K is a number P if
+    P = N + M + K.
+
+the get x coordinate for a point is the x of the point.
+
+the delta x for a point with a second point is a number N if
+    the x of the second point is a number M
+    and the x of the point is a number K
+    and N = M - K.
+
+the delta y for a point with a second point is a number N if
+    the y of the second point is a number M
+    and the y of the point is a number K
+    and N = M - K.
+
+the distance squared between points for a point with a second point is a number N if
+    the delta x for the point with the second point is a number M
+    and the delta x for the point with the second point is a number K
+    and the delta y for the point with the second point is a number P
+    and the delta y for the point with the second point is a number Q
+    and N = M * K + P * Q.
+
+% RESIDUE r2 BEGIN: length of list
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 56-61
+% a value with no LE form: (`length of list` OF `tail`)
+%   l4:
+%   | GIVEN a IS A TYPE, xs IS A LIST OF a
+%   | GIVETH A NUMBER
+%   | `length of list` xs MEANS
+%   |   CONSIDER xs
+%   |   WHEN EMPTY THEN 0
+%   |   WHEN hd FOLLOWED BY tail THEN 1 PLUS `length of list` tail
+% RESIDUE r2 END
+
+a number N is positive number if
+    N > 0.
+
+the sign of number for a num N is a text if
+    N > 0
+    and the text is equal to "positive"
+    otherwise N < 0
+    and the text is equal to "negative"
+    otherwise the text is equal to "zero".
+
+L4's answer at line 11 is reproduced if
+    the double the value for 21 is a number N
+    and N * 100000000 >= 4199999999
+    and N * 100000000 <= 4200000001.
+
+L4's answer at line 22 is reproduced if
+    the add two numbers for 10 with 32 is a number N
+    and N * 100000000 >= 4199999999
+    and N * 100000000 <= 4200000001.
+
+L4's answer at line 23 is reproduced if
+    the multiply two numbers for 6 with 7 is a number N
+    and N * 100000000 >= 4199999999
+    and N * 100000000 <= 4200000001.
+
+L4's answer at line 32 is reproduced if
+    the sum of three numbers for 1 with 2 with 3 is a number N
+    and N * 1000000000 >= 5999999999
+    and N * 1000000000 <= 6000000001.
+
+L4's answer at line 51 is reproduced if
+    the get x coordinate for point_one is a value V
+    and V * 1000000000 >= 2999999999
+    and V * 1000000000 <= 3000000001.
+
+L4's answer at line 52 is reproduced if
+    the distance squared between points for the_origin with point_one is a number N
+    and N * 100000000 >= 2499999999
+    and N * 100000000 <= 2500000001.
+
+the x of the_origin is 0.
+
+the y of the_origin is 0.
+
+the x of point_one is 3.
+
+the y of point_one is 4.
+
+scenario line_11 is, as stated in the source program at line 11:
+    line_11 expects answers ["L4's answer at line 11 is reproduced"].
+
+scenario line_12 is, as stated in the source program at line 12:
+    % pending — waits for residue r1:
+    % line_12 expects answers ["the greet the person for World is Hello, World"].
+
+scenario line_22 is, as stated in the source program at line 22:
+    line_22 expects answers ["L4's answer at line 22 is reproduced"].
+
+scenario line_23 is, as stated in the source program at line 23:
+    line_23 expects answers ["L4's answer at line 23 is reproduced"].
+
+scenario line_32 is, as stated in the source program at line 32:
+    line_32 expects answers ["L4's answer at line 32 is reproduced"].
+
+scenario line_51 is, as stated in the source program at line 51:
+    line_51 expects answers ["L4's answer at line 51 is reproduced"].
+
+scenario line_52 is, as stated in the source program at line 52:
+    line_52 expects answers ["L4's answer at line 52 is reproduced"].
+
+scenario line_79 is, as stated in the source program at line 79:
+    line_79 expects answers ["5 is positive number"].
+
+scenario line_80 is, as stated in the source program at line 80:
+    line_80 expects answers ["the sign of number for -3 is negative"].
+
+query line_11 is:
+    L4's answer at line 11 is reproduced.
+
+query line_12 is:
+    the greet the person for "World" is which value.
+
+query line_22 is:
+    L4's answer at line 22 is reproduced.
+
+query line_23 is:
+    L4's answer at line 23 is reproduced.
+
+query line_32 is:
+    L4's answer at line 32 is reproduced.
+
+query line_51 is:
+    L4's answer at line 51 is reproduced.
+
+query line_52 is:
+    L4's answer at line 52 is reproduced.
+
+query line_79 is:
+    5 is positive number.
+
+query line_80 is:
+    the sign of number for -3 is which text.
+

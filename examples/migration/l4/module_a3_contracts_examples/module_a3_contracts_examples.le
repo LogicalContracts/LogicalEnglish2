@@ -1,0 +1,183 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from module-a3-contracts-examples.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the amount of *a money* is *a number*.
+    the currency of *a money* is *a text*.
+    the name of *a person* is *a text*.
+    the name of *a company* is *a text*.
+    the borrower of *a borrower party* is *a borrower*.
+    the lender of *a lender party* is *a lender*.
+    the person of *an individual borrower* is *a person*.
+    the company of *a corporate borrower* is *a company*.
+    the person of *an individual lender* is *a person*.
+    the company of *an institutional lender* is *a company*.
+    the amount of *a payment* is *a money*.
+    the due date of *a payment* is *a number*.
+    the interest rate of *a penalty terms* is *a number*.
+    the grace period days of *a penalty terms* is *a number*.
+    the principal of *a loan terms* is *a money*.
+    the annual interest rate of *a loan terms* is *a number*.
+    the number of installments of *a loan terms* is *a number*.
+    the default after days of *a loan terms* is *a number*.
+    the penalty terms of *a loan terms* is *a penalty terms*.
+    the recipient of *a pay installment* is *a lender*.
+    the amount of *a pay installment* is *a money*.
+    the amount of *a deposit funds* is *a money*.
+    the payment amount of *a pay* is *a number*.
+    the milestone of *a complete milestone* is *a milestone*.
+    the milestone of *a pay milestone* is *a milestone*.
+
+the templates are:
+    *a party* is a borrower party.
+    *a party* is a lender party.
+    *a borrower* is an individual borrower.
+    *a borrower* is a corporate borrower.
+    *a lender* is an individual lender.
+    *a lender* is an institutional lender.
+    *a loan action* is a pay installment.
+    *an escrow action* is a deposit funds.
+    *a card action* is a pay.
+    *a milestone action* is a complete milestone.
+    *a milestone action* is a pay milestone.
+    the USD for *a number* is *a money*.
+    the SGD for *a number* is *a money*.
+    the monthly rate for *a terms* is *a number*.
+    the power for *a base* with *an exp* is *a number*.
+    the monthly payment amount for *a terms* is *a money*.
+    the calculate next payment for *a terms* with *an outstanding* is *a money*.
+    the calculate due date for *a terms* with *an outstanding* is *a number*.
+    *a paid* is valid payment for *an expected*.
+    the p for *a terms* is *a value*.
+    the r for *a terms* is *a number*.
+    the n for *a terms* is *a value*.
+    the compound factor for *a terms* is *a number*.
+    the payment for *a terms* is *a number*.
+
+the knowledge base module_a3_contracts_examples includes:
+
+the text of the source program is at "sources/module-a3-contracts-examples.l4".
+
+% RESIDUE r1 BEGIN: USD
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 15-17
+% a value with no LE form: (`Money` WITH `amount` IS `n`, `currency` IS "USD")
+%   l4:
+%   | GIVEN n IS A NUMBER
+%   | GIVETH A Money
+%   | USD MEANS Money WITH amount IS n, currency IS "USD"
+% RESIDUE r1 END
+
+% RESIDUE r2 BEGIN: SGD
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 19-21
+% a value with no LE form: (`Money` WITH `amount` IS `n`, `currency` IS "SGD")
+%   l4:
+%   | GIVEN n IS A NUMBER
+%   | GIVETH A Money
+%   | SGD MEANS Money WITH amount IS n, currency IS "SGD"
+% RESIDUE r2 END
+
+the principal of example_loan is a money if
+    the USD for 25000 is the money.
+
+the monthly rate for a terms is a number N if
+    the annual interest rate of the terms is a number M
+    and N = M / 12.
+
+the power for a base B with an exp E is a number N if
+    0 is equal to E
+    and N is equal to 1
+    otherwise 1 is equal to E
+    and N is equal to B
+    otherwise an exp M = E - 1
+    and the power for B with M is a number K
+    and N = B * K.
+
+the p for a terms is the amount of the principal of the terms.
+
+the r for a terms is a number if
+    the monthly rate for the terms is the number.
+
+the n for a terms is the number of installments of the terms.
+
+the compound factor for a terms is a number if
+    the r for the terms is a number M
+    and a base B = 1 + M
+    and the n for the terms is a value
+    and the power for B with the value is the number.
+
+the payment for a terms is a number N if
+    the p for the terms is a value V
+    and the r for the terms is a number M
+    and the compound factor for the terms is a number K
+    and the compound factor for the terms is a number Q
+    and N = V * (M * K) / (Q - 1).
+
+% RESIDUE r3 BEGIN: monthly payment amount
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 97-106
+% a value with no LE form: (`Money` WITH `amount` IS `payment`, `currency` IS ((`terms`'s `principal`)'s `currency`))
+%   l4:
+%   | GIVEN terms IS A LoanTerms
+%   | GIVETH A Money
+%   | `monthly payment amount` MEANS
+%   |     Money WITH amount IS payment, currency IS terms's principal's currency
+%   |     WHERE
+%   |         p MEANS terms's principal's amount
+%   |         r MEANS `monthly rate` terms
+%   |         n MEANS terms's numberOfInstallments
+%   |         compoundFactor MEANS `power` (1 + r) n
+%   |         payment MEANS p * (r * compoundFactor) / (compoundFactor - 1)
+% RESIDUE r3 END
+
+the calculate next payment for a terms with an outstanding is a money if
+    the monthly payment amount for the terms is the money.
+
+the calculate due date for a terms with an outstanding is 30.
+
+a paid is valid payment for an expected if
+    the currency of the paid is a text
+    and the text is equal to the currency of the expected
+    and the amount of the expected is a number N
+    and the amount of the paid >= N - 0.05.
+
+the annual interest rate of example_loan is 0.15.
+
+the number of installments of example_loan is 12.
+
+the default after days of example_loan is 30.
+
+the interest rate of penalty_terms_1 is 0.05.
+
+the grace period days of penalty_terms_1 is 10.
+
+the penalty terms of example_loan is penalty_terms_1.
+
+alice_borrower is an individual borrower.
+
+the name of person_1 is "Alice".
+
+the person of alice_borrower is person_1.
+
+bob_lender is an individual lender.
+
+the name of person_2 is "Bob".
+
+the person of bob_lender is person_2.
+
+% The contracts of this file (credit payment, default handling, delivery options, escrow arrangement, late payment handling, milestone payments, payment obligation, service delivery) are twins of their own, written by step 3 of
+% the L4 translator: in LE for LPS, run by LPS2 (LPS2's examples/migration/l4/module_a3_contracts_examples/module_a3_contracts_examples.le,
+% each #TRACE a scenario), and as a history view read over a finished history of
+% events (module_a3_contracts_examples_history.le, beside this program).

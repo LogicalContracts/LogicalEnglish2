@@ -1,0 +1,313 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from module-a1-regulatory-examples.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the offence of *a conviction* is *a text*.
+    the date of *a conviction* is *a date*.
+    the amount of *a money* is *a number*.
+    the currency of *a money* is *a text*.
+    the description of *an asset* is *a text*.
+    the value of *an asset* is *a money*.
+    the name of *an applicant* is *a text*.
+    the contact of *an applicant* is *a text*.
+    the description of *an other misconduct* is *a text*.
+    the description of *an other charitable purpose* is *a text*.
+    the name of *a governor* is *a text*.
+    the date of birth of *a governor* is *a date*.
+    the address of *a governor* is *a text*.
+    the convictions of *a governor* is *a list*.
+    the income of *a core financial info* is *a money*.
+    the expenditure of *a core financial info* is *a money*.
+    the opening assets of *a core financial info* is *a money*.
+    the closing assets of *a core financial info* is *a money*.
+    the other assets of *a core financial info* is *a list*.
+    the reason of *a suspended* is *a text*.
+    the date of *a suspended* is *a date*.
+    the reason of *a deregistered* is *a text*.
+    the date of *a deregistered* is *a date*.
+    the name of *a registered charity* is *a text*.
+    the registration number of *a registered charity* is *a text*.
+    the section of *a registered charity* is *a register section*.
+    the status of *a registered charity* is *a charity status*.
+    the constitution of *a registered charity* is *a text*.
+    the purposes of *a registered charity* is *a list*.
+    the public benefit statement of *a registered charity* is *a text*.
+    the governors of *a registered charity* is *a list*.
+    the financials of *a registered charity* is *a core financial info*.
+    the registration date of *a registered charity* is *a date*.
+    the date of *a bankruptcy* is *a date*.
+    the date of *a director disqualification* is *a date*.
+    the jurisdiction of *a director disqualification* is *a text*.
+    the description of *a dishonest conviction* is *a text*.
+    the date of *a dishonest conviction* is *a date*.
+    the charity of *a charity actor* is *a registered charity*.
+    the governor of *a governor actor* is *a governor*.
+    the applicant of *an applicant actor* is *an applicant*.
+    the matter of *a report reportable matter* is *a reportable matter*.
+    the reason of *a suspend governor* is *a text*.
+    the reason of *a deregister charity* is *a text*.
+    the charity of *a charity registered* is *a registered charity*.
+    the date of *a charity registered* is *a date*.
+    the charity of *a charity moved to restricted* is *a registered charity*.
+    the date of *a charity moved to restricted* is *a date*.
+    the charity of *a charity deregistered* is *a registered charity*.
+    the reason of *a charity deregistered* is *a text*.
+    the date of *a charity deregistered* is *a date*.
+    the charity of *an annual return filed* is *a registered charity*.
+    the year of *an annual return filed* is *a number*.
+    the charity of *a required steps notice issued* is *a registered charity*.
+    the notice id of *a required steps notice issued* is *a text*.
+    the deadline of *a required steps notice issued* is *a date*.
+    the governor of *a governor suspended* is *a governor*.
+    the charity of *a governor suspended* is *a registered charity*.
+    the reason of *a governor suspended* is *a text*.
+    the period of *a governor suspended* is *a number*.
+    the purpose of *a purpose with date* is *a charitable purpose*.
+    the effective from of *a purpose with date* is *a date*.
+
+the templates are:
+    *a misconduct type* is an other misconduct.
+    *a charitable purpose* is an other charitable purpose.
+    *a charity status* is a suspended.
+    *a charity status* is a deregistered.
+    *a reportable matter* is a bankruptcy.
+    *a reportable matter* is a director disqualification.
+    *a reportable matter* is a dishonest conviction.
+    *an actor* is a charity actor.
+    *an actor* is a governor actor.
+    *an actor* is an applicant actor.
+    *an action* is a report reportable matter.
+    *an action* is a suspend governor.
+    *an action* is a deregister charity.
+    *a register event* is a charity registered.
+    *a register event* is a charity moved to restricted.
+    *a register event* is a charity deregistered.
+    *a register event* is an annual return filed.
+    *a register event* is a required steps notice issued.
+    *a register event* is a governor suspended.
+    *a conviction* has involves dishonesty.
+    *a governor* is bankrupt.
+    *a deregistered* is retrospective.
+    *a charity deregistered* is retrospective.
+    *an annual return filed* was late.
+    the event effect for *an event* is *a text*.
+    meets *a charity* test.
+    *a charity* has charitable purposes.
+    *a charity* provides public benefit.
+    *a charity* has identifiable benefit.
+    benefit outweighs detriment for *a charity*.
+    unduly restricts beneficiaries for *a charity*.
+    *a charity* has valid constitution.
+    *a charity* has complete financial info.
+    *a purpose* valid at date for *a date*.
+
+the knowledge base module_a1_regulatory_examples includes:
+
+the text of the source program is at "sources/module-a1-regulatory-examples.l4".
+
+section layer a structural definitions is:
+
+section layer b deontic definitions is:
+
+section layer b deontic rules is:
+
+section layer c events as well as state transitions is:
+
+the event effect for an event is a text if
+    the event is a charity registered
+    and the charity of the event is a registered charity
+    and the date of the event is a date
+    and the text is equal to "New active entry created in register"
+    otherwise the event is a charity deregistered
+    and the charity of the event is a second registered charity
+    and the reason of the event is a second text
+    and the date of the event is a second date
+    and the event is retrospective
+        and true is equal to a thing
+        otherwise false is equal to the thing
+    and true is equal to the thing
+        and the text is equal to "Entry moved to historic; registration void from earlier date"
+        otherwise the text is equal to "Entry moved to historic"
+    otherwise the event is an annual return filed
+    and the charity of the event is a third registered charity
+    and the year of the event is a number
+    and the event was late
+        and true is equal to a second thing
+        otherwise false is equal to the second thing
+    and true is equal to the second thing
+        and the text is equal to "Annual return logged with late flag"
+        otherwise the text is equal to "Annual return logged"
+    otherwise the event is a required steps notice issued
+    and the charity of the event is a fourth registered charity
+    and the notice id of the event is a third text
+    and the deadline of the event is a third date
+    and the text is equal to "Notice reference stored under Art 8(3)(k)"
+    otherwise the text is equal to "Register updated".
+
+section cross references as well as charity test is:
+
+meets a charity test if
+    the charity has charitable purposes
+    and the charity provides public benefit
+    and the charity has valid constitution
+    and the charity has complete financial info.
+
+a charity has charitable purposes if
+    it is not the case that
+        the purposes of the charity is a list
+        and [] is equal to the list.
+
+a charity provides public benefit if
+    the charity has identifiable benefit
+    and benefit outweighs detriment for the charity
+    and it is not the case that unduly restricts beneficiaries for the charity.
+
+a charity has identifiable benefit if
+    it is not the case that the public benefit statement of the charity is "".
+
+benefit outweighs detriment for a charity.
+
+% never holds
+a charity has valid constitution if
+    it is not the case that the constitution of the charity is "".
+
+a charity has complete financial info if
+    the amount of the income of the financials of the charity >= 0
+    and the amount of the expenditure of the financials of the charity >= 0.
+
+section handling amendments temporal validity is:
+
+a purpose valid at date for a date D if
+    advancement_of_animal_welfare is equal to the purpose
+    and D >= 2025-01-01
+    or it is not the case that advancement_of_animal_welfare is equal to the purpose.
+
+section test data is:
+
+section test traces is:
+
+section evaluations is:
+
+the name of john_smith is "John Smith".
+
+the date of birth of john_smith is 1975-06-15.
+
+the address of john_smith is "123 Main Street, St Helier".
+
+the convictions of john_smith is [].
+
+the amount of money_1 is 50000.
+
+the currency of money_1 is "GBP".
+
+the income of sample_financials is money_1.
+
+the amount of money_2 is 45000.
+
+the currency of money_2 is "GBP".
+
+the expenditure of sample_financials is money_2.
+
+the amount of money_3 is 100000.
+
+the currency of money_3 is "GBP".
+
+the opening assets of sample_financials is money_3.
+
+the amount of money_4 is 105000.
+
+the currency of money_4 is "GBP".
+
+the closing assets of sample_financials is money_4.
+
+the other assets of sample_financials is [].
+
+the name of acme_animal_shelter is "Acme Animal Shelter".
+
+the registration number of acme_animal_shelter is "JC-2024-001".
+
+the section of acme_animal_shelter is general_section.
+
+the status of acme_animal_shelter is active.
+
+the constitution of acme_animal_shelter is "Standard charitable constitution".
+
+the purposes of acme_animal_shelter is [advancement_of_animal_welfare].
+
+the public benefit statement of acme_animal_shelter is "Provides shelter and care for abandoned animals in Jersey".
+
+the governors of acme_animal_shelter is [john_smith].
+
+the financials of acme_animal_shelter is sample_financials.
+
+the registration date of acme_animal_shelter is 2024-01-15.
+
+bankruptcy_matter is a bankruptcy.
+
+the date of bankruptcy_matter is 2024-07-01.
+
+registration_event is a charity registered.
+
+the charity of registration_event is acme_animal_shelter.
+
+the date of registration_event is 2024-01-15.
+
+late_filing_event is an annual return filed.
+
+the charity of late_filing_event is acme_animal_shelter.
+
+the year of late_filing_event is 2024.
+
+late_filing_event was late.
+
+% The contracts of this file (Commissioner may issue notice, annual return obligation, charity must comply with notice, commissioner may suspend, governor reporting obligation) are twins of their own, written by step 3 of
+% the L4 translator: in LE for LPS, run by LPS2 (LPS2's examples/migration/l4/module_a1_regulatory_examples/module_a1_regulatory_examples.le,
+% each #TRACE a scenario), and as a history view read over a finished history of
+% events (module_a1_regulatory_examples_history.le, beside this program).
+scenario line_400 is, as stated in the source program at line 400:
+    line_400 expects answers ["meets acme_animal_shelter test"].
+
+scenario line_403 is, as stated in the source program at line 403:
+    line_403 expects answers ["acme_animal_shelter provides public benefit"].
+
+scenario line_406 is, as stated in the source program at line 406:
+    line_406 expects answers [].
+
+scenario line_409 is, as stated in the source program at line 409:
+    line_409 expects answers ["advancement_of_animal_welfare valid at date for 2025-06-01"].
+
+scenario line_413 is, as stated in the source program at line 413:
+    line_413 expects answers ["the event effect for registration_event is New active entry created in register"].
+
+scenario line_417 is, as stated in the source program at line 417:
+    line_417 expects answers ["the event effect for late_filing_event is Annual return logged with late flag"].
+
+query line_400 is:
+    meets acme_animal_shelter test.
+
+query line_403 is:
+    acme_animal_shelter provides public benefit.
+
+query line_406 is:
+    advancement_of_animal_welfare valid at date for 2024-06-01.
+
+query line_409 is:
+    advancement_of_animal_welfare valid at date for 2025-06-01.
+
+query line_413 is:
+    the event effect for registration_event is which text.
+
+query line_417 is:
+    the event effect for late_filing_event is which text.
+

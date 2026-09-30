@@ -1,0 +1,283 @@
+% The Logical English twin of an L4 program, written by the L4 translator
+% from promissory-note.l4 (kept in sources/; L4 is Apache-2.0, Singapore Management University).
+% Every expected answer in the scenarios is L4's own evaluator's on the source.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the functions are:
+    the currency of *a money* is *a text*.
+    the value of *a money* is *a number*.
+    the name of *a company* is *a text*.
+    the address of *a company* is *a text*.
+    the jurisdiction of *a company* is *a text*.
+    the company number of *a company* is *a text*.
+    the account of *a company* is *a bank account*.
+    the name of *a natural person* is *a text*.
+    the address of *a natural person* is *a text*.
+    the jurisdiction of *a natural person* is *a text*.
+    the ID number of *a natural person* is *a text*.
+    the account of *a natural person* is *a bank account*.
+    the individual of *an individual borrower* is *a natural person*.
+    the entity of *a commercial borrower* is *a company*.
+    the individual of *an individual lender* is *a natural person*.
+    the entity of *a commercial lender* is *a company*.
+    the bank name of *a bank account* is *a text*.
+    the account name of *a bank account* is *a text*.
+    the account number of *a bank account* is *a text*.
+    the SWIFT of *a bank account* is *a text*.
+    the amount of *a payment* is *a money*.
+    the days beyond commencement of *a payment* is *a number*.
+    the interest rate of *a penalty* is *a number*.
+    the grace period days of *a penalty* is *a number*.
+    the recipient of *a pay monthly installment to* is *a lender*.
+    the amount of *a pay monthly installment to* is *a money*.
+
+the templates are:
+    *a borrower* is an individual borrower.
+    *a borrower* is a commercial borrower.
+    *a lender* is an individual lender.
+    *a lender* is a commercial lender.
+    the note date is *a value*.
+    the principal amount is *a value*.
+    the interest rate per annum is *a number*.
+    the security collateral is *a value*.
+    the monthly installments is *a number*.
+    the default after days not paid beyond due is *a number*.
+    the governing law is *a text*.
+    the monthly interest rate is *a number*.
+    the monthly installment amount is *a value*.
+    the na n is *a number*; scenario element.
+    the NO COLLATERAL is *a text*; scenario element.
+    the lesser of *a number* with *a second number* is *a value*.
+    the greater of *a number* with *a second number* is *a value*.
+    the base to the power of *a base* with *an exp* is *a number*.
+    *a money* is money at least equal within error for *a second money*.
+    the USD for *a number* is *a value*.
+    the EUR for *a number* is *a value*.
+    the SGD for *a number* is *a value*.
+    the compound factor is *a number*.
+    L4's answer at line 171 is reproduced.
+
+the knowledge base promissory_note includes:
+
+the text of the source program is at "sources/promissory-note.l4".
+
+section promissory note is:
+
+section basic definitions is:
+
+the note date is 2024-02-04.
+
+the principal amount is a value if
+    the USD for 25000 is the value.
+
+the interest rate per annum is a number N if
+    N = 15 / 100.
+
+the security collateral is a value if
+    the NO COLLATERAL is the value.
+
+the monthly installments is 12.
+
+the default after days not paid beyond due is 30.
+
+the governing law is "The laws of The Republic of Singapore".
+
+section parties is:
+
+section repayment terms is:
+
+the monthly interest rate is a number N if
+    the interest rate per annum is a number M
+    and N = M / 12.
+
+the compound factor is a number if
+    the monthly interest rate is a number N
+    and a base B = 1 + N
+    and the monthly installments is a third number
+    and the base to the power of B with the third number is the number.
+
+% RESIDUE r1 BEGIN: Monthly Installment Amount
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 65-75
+% a value with no LE form: (`Money` WITH `Currency` IS (`Principal Amount`'s `Currency`), `Value` IS ((`Principal Amount`'s `Value`) TIMES ((`Monthly Interest Rate` TIMES `Compound Fac...
+%   l4:
+%   | `Monthly Installment Amount` MEANS                          -- Here we implement a basic Loan Amortization Formula or PMT
+%   |     Money WITH
+%   |         Currency  IS `Principal Amount`'s Currency          -- Installment Amount =
+%   |         Value     IS `Principal Amount`'s Value             --    Principal * (Rate * Compound Factor) / (Compound Factor - 1)
+%   |                         TIMES (`Monthly Interest Rate` TIMES `Compound Factor`)
+%   |                             DIVIDED BY (`Compound Factor` MINUS 1)
+%   |     WHERE
+%   |         `Compound Factor` MEANS                             -- Compound Factor =
+%   |             `Base to the power of`                          --    (1 + Rate) ^ Number of Installments
+%   |                 (1 PLUS `Monthly Interest Rate`)
+%   |                 `Monthly Installments`
+% RESIDUE r1 END
+
+the currency of total_repayment_amount is the currency of a value if
+    the principal amount is the value.
+
+the value of total_repayment_amount is a number N if
+    the monthly installment amount is a value
+    and the value of the value is a number M
+    and the monthly installments is a number K
+    and N = M * K.
+
+the currency of total_interest_amount is the currency of a value if
+    the principal amount is the value.
+
+the value of total_interest_amount is a number N if
+    the value of total_repayment_amount is a number M
+    and the principal amount is a value
+    and the value of the value is a number K
+    and N = M - K.
+
+section promissory note tests is:
+
+section promissory appendix is:
+
+section type definitions is:
+
+section useful functions is:
+
+the lesser of a number N with a number M is a value if
+    N > M
+    and the value is equal to M
+    otherwise the value is equal to N.
+
+the greater of a number N with a number M is a value if
+    N > M
+    and the value is equal to N
+    otherwise the value is equal to M.
+
+the base to the power of a base B with an exp E is a number M if
+    0 is equal to E
+    and M is equal to 1
+    otherwise 0 is equal to B
+    and E < 0
+        and the na n is M
+        otherwise M is equal to 0
+    otherwise 1 is equal to E
+    and M is equal to B
+    otherwise E > 0
+    and an exp K = E - 1
+    and the base to the power of B with K is a number P
+    and M = B * P
+    otherwise an exp Q = 0 - E
+    and the base to the power of B with Q is a number R
+    and M = 1 / R.
+
+a money is money at least equal within error for a second money if
+    the currency of the money is a text
+    and the text is equal to the currency of the second money
+    and the value of the second money is a number N
+    and the value of the money >= N - 0.05.
+
+% RESIDUE r2 BEGIN: USD
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 310-314
+% a value with no LE form: (`Money` WITH `Currency` IS "USD", `Value` IS `a`)
+%   l4:
+%   | GIVEN a IS A NUMBER                         -- This function just enables more readable writing of Money amounts. e.g. USD 2500
+%   | USD MEANS                                   -- It looks much cleaner in the note and in the tests instead of always having to write
+%   |    Money WITH                               -- Money WITH ...
+%   |       Currency IS "USD"
+%   |       Value    IS a
+% RESIDUE r2 END
+
+% RESIDUE r3 BEGIN: EUR
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 316-320
+% a value with no LE form: (`Money` WITH `Currency` IS "EUR", `Value` IS `a`)
+%   l4:
+%   | GIVEN a IS A NUMBER
+%   | EUR MEANS
+%   |    Money WITH
+%   |       Currency IS "EUR"
+%   |       Value    IS a
+% RESIDUE r3 END
+
+% RESIDUE r4 BEGIN: SGD
+% TODO: translate the fragment below by hand, or with the Contract Assistant (residue mode); it was not translated automatically
+%   source: lines 322-326
+% a value with no LE form: (`Money` WITH `Currency` IS "SGD", `Value` IS `a`)
+%   l4:
+%   | GIVEN a IS A NUMBER
+%   | SGD MEANS
+%   |    Money WITH
+%   |       Currency IS "SGD"
+%   |       Value    IS a
+% RESIDUE r4 END
+
+L4's answer at line 171 is reproduced if
+    the monthly interest rate is a number N
+    and N * 1000000000 >= 12499999
+    and N * 1000000000 <= 12500001.
+
+the interest rate of late_payment_penalty is 0.05.
+
+the grace period days of late_payment_penalty is 10.
+
+the_borrower is a commercial borrower.
+
+the name of company_1 is "Jane Dough Pte Ltd".
+
+the address of company_1 is "42 Jane Doe Rd #04-20, Singapore 420000".
+
+the jurisdiction of company_1 is "Singapore".
+
+the company number of company_1 is "UEN 200424242N".
+
+the bank name of bank_account_1 is "DBS Bank Ltd".
+
+the account name of bank_account_1 is "Jane Dough Pte Ltd".
+
+the account number of bank_account_1 is "242-242424-9".
+
+the SWIFT of bank_account_1 is "DBSSSGSG".
+
+the account of company_1 is bank_account_1.
+
+the entity of the_borrower is company_1.
+
+the_lender is an individual lender.
+
+the name of natural_person_1 is "John Doe".
+
+the address of natural_person_1 is "42 The Lender Rd, Singapore 424242".
+
+the jurisdiction of natural_person_1 is "Singapore".
+
+the ID number of natural_person_1 is "G5301960D".
+
+the bank name of bank_account_2 is "DBS Bank Ltd".
+
+the account name of bank_account_2 is "The Lender".
+
+the account number of bank_account_2 is "120-643240-1".
+
+the SWIFT of bank_account_2 is "DBSSSGSG".
+
+the account of natural_person_1 is bank_account_2.
+
+the individual of the_lender is natural_person_1.
+
+% The contracts of this file (Payment Obligations) are twins of their own, written by step 3 of
+% the L4 translator: in LE for LPS, run by LPS2 (LPS2's examples/migration/l4/promissory_note/promissory_note.le,
+% each #TRACE a scenario), and as a history view read over a finished history of
+% events (promissory_note_history.le, beside this program).
+scenario line_171 is, as stated in the source program at line 171:
+    line_171 expects answers ["L4's answer at line 171 is reproduced"].
+
+query line_171 is:
+    L4's answer at line 171 is reproduced.
+

@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      core (this repository alone; extension-dependent trees excluded)
 Command:    testing/run_tests.sh le   (or: runTests)
 Sibling:    testSuiteStatus.txt — all (core + trees requiring the proprietary le_extensions.pl)
-Generated:  2026-09-27 00:17:39 UTC
+Generated:  2026-09-29 22:01:51 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 358
-Total tests:     2721
-Passed:          2721
+Files processed: 438
+Total tests:     3536
+Passed:          3536
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -45,6 +45,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/domains/tax/small_business.le: 25 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/prolog/prolog_call.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/memoization/family_relatives.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/memoization/instalments.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/memoization/lattice_paths.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/memoization/memorable_warnings.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/language/negation/alice_propositional.le: 0 Pass, 0 Fail, 0 Error
@@ -52,6 +53,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/language/negation/only_if.le: 4 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/language/negation/propositional.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/language/aggregates/ecommerce.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/language/aggregates/lists.le: 6 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/aggregates/sums.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/unknowns/assumption_constraints.le: 5 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/unknowns/unknowns.le: 6 Pass, 0 Fail, 0 Error
@@ -75,10 +77,8 @@ Detailed File Summary:
   [PASS] examples/moreExamples/language/abduction/grass_is_wet.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/abduction/loan_approval.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/language/abduction/sunglasses.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/collections/logical-thinking-talk/heart_failure.le: 30 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/collections/logical-thinking-talk/heart_failure_what_if.le: 3 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/collections/logical-thinking-talk/provocation_transposed.le: 8 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/collections/logical-thinking-talk/standard_for_judgment.le: 8 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/collections/logical-thinking-talk/leniency.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/collections/logical-thinking-talk/leniency0.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/collections/kowalski-book/above_transitivity.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/collections/kowalski-book/amazing_animals.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/collections/kowalski-book/behaviourist_fox.le: 3 Pass, 0 Fail, 0 Error
@@ -284,6 +284,86 @@ Detailed File Summary:
   [NONE] examples/migration/legalruleml/ex1_curies/ex1_curies.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/migration/legalruleml/ex3_deontic/deontic.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/legalruleml/ex3_deontic/ex3_deontic.le: 8 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/record_example/record_example.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/a_an_example/a_an_example.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/module_6_examples/module_6_examples.le: 9 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/module_6_examples/module_6_examples_history.le: 6 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/and_example/and_example.le: 14 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/ny_environmental_7_3/l4_daydate.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/ny_environmental_7_3/ny_environmental_7_3.le: 1 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/ny_environmental_7_3/ny_environmental_7_3_history.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/comment_example/comment_example.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/annotation_example/annotation_example.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/decide_example/decide_example.le: 9 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/party_example/party_example_history.le: 28 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/aka_example/aka_example.le: 6 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/polymorphic_example/polymorphic_example.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/ceo_performance_award/ceo_performance_award.le: 15 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/ceo_performance_award/ceo_performance_award_history.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/ceo_performance_award/l4_daydate.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/assume_example/assume_example.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/textual_vs_symbolic_example/textual_vs_symbolic_example.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/implies_example/implies_example.le: 24 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/function_type_example/function_type_example.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/promissory_note/promissory_note.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/promissory_note/promissory_note_history.le: 1 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/module_a3_contracts_examples/module_a3_contracts_examples.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/maybe_example/maybe_example.le: 1 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/charity_obligation/charity_obligation.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/charity_obligation/charity_obligation_history.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/consider_example/consider_example.le: 13 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/not_example/not_example.le: 18 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/precedence_example/precedence_example.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/module_1_examples/module_1_examples.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/module_1_examples/module_1_examples_history.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/british_citizen_act/british_citizen_act.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/module_a1_regulatory_examples/module_a1_regulatory_examples.le: 6 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/module_a1_regulatory_examples/module_a1_regulatory_examples_history.le: 8 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/type_inference_example/type_inference_example.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/associativity_example/associativity_example.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/imaginary_alcohol_act/imaginary_alcohol_act.le: 152 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/module_a2_cross_cutting_examples/module_a2_cross_cutting_examples.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/module_a2_cross_cutting_examples/module_a2_cross_cutting_examples_history.le: 36 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/giveth_example/giveth_example.le: 8 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/sale_contract/sale_contract.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/sale_contract/sale_contract_history.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/because_example/because_example_history.le: 12 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/either_example/either_example.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/identifier_example/identifier_example.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/computed_fields_example/computed_fields_example.le: 8 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/unless_example/unless_example.le: 51 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/given_example/given_example.le: 8 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/genitive_example/genitive_example.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/enum_example/enum_example.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/asyndetic_example/asyndetic_example.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/where_example/where_example.le: 6 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/or_example/or_example.le: 27 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/ditto_example/ditto_example.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/eligibility_rule/eligibility_rule.le: 3 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/directive_example/directive_example.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/layout_example/layout_example.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/anti_social/anti_social.le: 128 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/module_5_examples/module_5_examples.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/module_5_examples/module_5_examples_history.le: 15 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/module_4_examples/module_4_examples.le: 23 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/may_example/may_example_history.le: 26 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/type_declaration/type_declaration.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/shant_example/shant_example_history.le: 18 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/hello/hello.le: 1 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/coercion_example/coercion_example.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/deontic_example/deontic_example_history.le: 48 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/module_2_examples/module_2_examples.le: 6 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/module_3_examples/module_3_examples.le: 13 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/for_all_example/for_all_example.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/yield_example/yield_example.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/must_example/must_example_history.le: 30 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/section_example/section_example.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/declare_example/declare_example.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/if_example/if_example.le: 15 Pass, 0 Fail, 0 Error
+  [NONE] examples/migration/l4/jerseycharities/jerseycharities.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/means_example/means_example.le: 10 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/list_example/list_example.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/migration/l4/let_example/let_example.le: 10 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/blawx/beard_tax/beard_tax.le: 13 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/blawx/covid_test/covid_test.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/migration/blawx/rps/rps.le: 11 Pass, 0 Fail, 0 Error

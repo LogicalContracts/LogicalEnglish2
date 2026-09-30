@@ -1,0 +1,243 @@
+% sale-contract.l4: the history view
+%
+% The timeless Logical English twin of the contracts of an L4 file (sale-contract.l4), written
+% by the L4 translator (docs/migration/l4.md, step 3): the contracts read over a finished
+% history of events. For each obligation the program says when it starts, its deadline
+% and which events meet it, and four rules say how it ends: met, missed, or still
+% open when the history stops. The same obligations, in the same words, as the LE for LPS twin in LPS2's
+% examples/migration/l4/; each scenario expects what that twin's run ended with, which
+% agrees with L4's evaluator.
+%
+% DISCLAIMER. This program was written by a translator from a program of another
+% system. It is provided "as is", without warranty of any kind, express or
+% implied, including any warranty that it is accurate, complete or fit for a
+% particular purpose. The translation may be wrong: check it against its source
+% before relying on it. It is not legal, tax, insurance, financial or other
+% professional advice. Its authors accept no liability for any loss or damage
+% arising from its use.
+
+the target language is: prolog.
+
+the templates are:
+    something happens on day *a day*.
+    an obligation can start on day *a day*.
+    the obligation that the sale contract obliges *a party* to deliver the goods by day *a due day* as its first obligation starts on day *a day*; memorable.
+    the obligation that the sale contract obliges *a party* to deliver the goods by day *a due day* as its first obligation has deadline day *a day*.
+    the obligation that the sale contract obliges *a party* to deliver the goods by day *a due day* as its first obligation is met on day *a day*.
+    the obligation that the sale contract obliges *a party* to deliver the goods by day *a due day* as its first obligation ends on day *a day*; memorable.
+    the obligation that the sale contract obliges *a party* to deliver the goods by day *a due day* as its first obligation is missed on day *a day*.
+    the deadline of the obligation that the sale contract obliges *a party* to deliver the goods by day *a due day* as its first obligation has passed on day *a day*; memorable.
+    the obligation that the sale contract obliges *a party* to deliver the goods by day *a due day* as its first obligation is pending since day *a day*.
+    the obligation that the sale contract obliges *a party* to deliver the goods by day *a due day* as its first obligation is still open.
+    the obligation that the sale contract obliges *a party* to pay the invoice by day *a due day* as its second obligation starts on day *a day*; memorable.
+    the obligation that the sale contract obliges *a party* to pay the invoice by day *a due day* as its second obligation has deadline day *a day*.
+    the obligation that the sale contract obliges *a party* to pay the invoice by day *a due day* as its second obligation is met on day *a day*.
+    the obligation that the sale contract obliges *a party* to pay the invoice by day *a due day* as its second obligation ends on day *a day*; memorable.
+    the obligation that the sale contract obliges *a party* to pay the invoice by day *a due day* as its second obligation is missed on day *a day*.
+    the deadline of the obligation that the sale contract obliges *a party* to pay the invoice by day *a due day* as its second obligation has passed on day *a day*; memorable.
+    the obligation that the sale contract obliges *a party* to pay the invoice by day *a due day* as its second obligation is pending since day *a day*.
+    the obligation that the sale contract obliges *a party* to pay the invoice by day *a due day* as its second obligation is still open.
+    the obligation that the sale contract permits *a party* to cancel the order as its third obligation starts on day *a day*; memorable.
+    the obligation that the sale contract permits *a party* to cancel the order as its third obligation has deadline day *a day*.
+    the obligation that the sale contract permits *a party* to cancel the order as its third obligation is met on day *a day*.
+    the obligation that the sale contract permits *a party* to cancel the order as its third obligation ends on day *a day*; memorable.
+    the obligation that the sale contract permits *a party* to cancel the order as its third obligation is missed on day *a day*.
+    the deadline of the obligation that the sale contract permits *a party* to cancel the order as its third obligation has passed on day *a day*; memorable.
+    the obligation that the sale contract permits *a party* to cancel the order as its third obligation is pending since day *a day*.
+    the obligation that the sale contract permits *a party* to cancel the order as its third obligation is still open.
+    the contract the sale contract starts on day *a day*; scenario element.
+    the sale contract obliges *a party* to deliver the goods by day *a due day* as its first obligation.
+    *a party* does deliver the goods on day *a day*; scenario element.
+    *a party* does something on day *a day*.
+    the clock reaches day *a day*; scenario element.
+    *a party* does pay the invoice on day *a day*; scenario element.
+    the sale contract obliges *a party* to pay the invoice by day *a due day* as its second obligation.
+    the sale contract permits *a party* to cancel the order as its third obligation.
+    the contract is fulfilled.
+    the contract is breached.
+    *a party* does cancel the order on day *a day*; scenario element.
+
+the knowledge base sale_contract_history includes:
+
+the text of "the L4 source sale-contract.l4" is at "sources/sale-contract.l4".
+
+something happens on day a day if
+    a party does deliver the goods on day the day.
+
+something happens on day a day if
+    the clock reaches day the day.
+
+something happens on day a day if
+    a party does pay the invoice on day the day.
+
+something happens on day a day if
+    a party does cancel the order on day the day.
+
+an obligation can start on day a day if
+    something happens on day the day.
+
+a party does something on day a day if
+    the party does deliver the goods on day the day.
+
+a party does something on day a day if
+    the party does pay the invoice on day the day.
+
+a party does something on day a day if
+    the party does cancel the order on day the day.
+
+an obligation can start on day a day if
+    the contract the sale contract starts on day the day.
+
+the obligation that the sale contract obliges the_seller to deliver the goods by day a due day D as its first obligation starts on day a day N if
+    the contract the sale contract starts on day N
+    and D = N + 14.
+
+the obligation that the sale contract obliges a party to deliver the goods by day a due day D as its first obligation is met on day a day N if
+    the party does deliver the goods on day N
+    and the obligation that the sale contract obliges the party to deliver the goods by day D as its first obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the obligation that the sale contract obliges the_buyer to pay the invoice by day a due day D as its second obligation starts on day a day N if
+    the obligation that the sale contract obliges a party to deliver the goods by day a second due day as its first obligation ends on day N
+    and the party does deliver the goods on day N
+    and D = N + 30.
+
+the obligation that the sale contract permits the_seller to cancel the order as its third obligation starts on day a day if
+    the obligation that the sale contract obliges a party to deliver the goods by day a due day as its first obligation is missed on day the day.
+
+the obligation that the sale contract obliges a party to deliver the goods by day a due day as its first obligation has deadline day the due day if
+    the obligation that the sale contract obliges the party to deliver the goods by day the due day as its first obligation starts on day a day.
+
+the obligation that the sale contract obliges a party to pay the invoice by day a due day D as its second obligation is met on day a day N if
+    the party does pay the invoice on day N
+    and the obligation that the sale contract obliges the party to pay the invoice by day D as its second obligation starts on day a day M
+    and M < N
+    and N <= D.
+
+the contract is fulfilled if
+    the obligation that the sale contract obliges a party to pay the invoice by day a due day as its second obligation ends on day a day
+    and the party does pay the invoice on day the day.
+
+the contract is breached if
+    the obligation that the sale contract obliges a party to pay the invoice by day a due day as its second obligation is missed on day a day.
+
+the obligation that the sale contract obliges a party to pay the invoice by day a due day as its second obligation has deadline day the due day if
+    the obligation that the sale contract obliges the party to pay the invoice by day the due day as its second obligation starts on day a day.
+
+the obligation that the sale contract permits a party to cancel the order as its third obligation is met on day a day D if
+    the party does cancel the order on day D
+    and the obligation that the sale contract permits the party to cancel the order as its third obligation starts on day a day N
+    and N < D.
+
+the contract is fulfilled if
+    the obligation that the sale contract permits a party to cancel the order as its third obligation ends on day a day
+    and the party does cancel the order on day the day.
+
+the deadline of the obligation that the sale contract obliges a party to deliver the goods by day a due day as its first obligation has passed on day a day D if
+    the obligation that the sale contract obliges the party to deliver the goods by day the due day as its first obligation starts on day a day N
+    and the obligation that the sale contract obliges the party to deliver the goods by day the due day as its first obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that the sale contract obliges a party to deliver the goods by day a due day as its first obligation ends on day a day D if
+    the obligation that the sale contract obliges the party to deliver the goods by day the due day as its first obligation is met on day D
+    and it is not the case that
+        the obligation that the sale contract obliges the party to deliver the goods by day the due day as its first obligation is met on day a day N
+        and N < D.
+
+the obligation that the sale contract obliges a party to deliver the goods by day a due day as its first obligation is missed on day a day D if
+    the deadline of the obligation that the sale contract obliges the party to deliver the goods by day the due day as its first obligation has passed on day D
+    and it is not the case that the obligation that the sale contract obliges the party to deliver the goods by day the due day as its first obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that the sale contract obliges the party to deliver the goods by day the due day as its first obligation has passed on day a day N
+        and N < D.
+
+the obligation that the sale contract obliges a party to deliver the goods by day a due day as its first obligation is pending since day a day if
+    the obligation that the sale contract obliges the party to deliver the goods by day the due day as its first obligation starts on day the day
+    and it is not the case that the obligation that the sale contract obliges the party to deliver the goods by day the due day as its first obligation ends on day a second day
+    and it is not the case that the obligation that the sale contract obliges the party to deliver the goods by day the due day as its first obligation is missed on day a third day.
+
+the obligation that the sale contract obliges a party to deliver the goods by day a due day as its first obligation is still open if
+    the obligation that the sale contract obliges the party to deliver the goods by day the due day as its first obligation is pending since day a day.
+
+the deadline of the obligation that the sale contract obliges a party to pay the invoice by day a due day as its second obligation has passed on day a day D if
+    the obligation that the sale contract obliges the party to pay the invoice by day the due day as its second obligation starts on day a day N
+    and the obligation that the sale contract obliges the party to pay the invoice by day the due day as its second obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that the sale contract obliges a party to pay the invoice by day a due day as its second obligation ends on day a day D if
+    the obligation that the sale contract obliges the party to pay the invoice by day the due day as its second obligation is met on day D
+    and it is not the case that
+        the obligation that the sale contract obliges the party to pay the invoice by day the due day as its second obligation is met on day a day N
+        and N < D.
+
+the obligation that the sale contract obliges a party to pay the invoice by day a due day as its second obligation is missed on day a day D if
+    the deadline of the obligation that the sale contract obliges the party to pay the invoice by day the due day as its second obligation has passed on day D
+    and it is not the case that the obligation that the sale contract obliges the party to pay the invoice by day the due day as its second obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that the sale contract obliges the party to pay the invoice by day the due day as its second obligation has passed on day a day N
+        and N < D.
+
+the obligation that the sale contract obliges a party to pay the invoice by day a due day as its second obligation is pending since day a day if
+    the obligation that the sale contract obliges the party to pay the invoice by day the due day as its second obligation starts on day the day
+    and it is not the case that the obligation that the sale contract obliges the party to pay the invoice by day the due day as its second obligation ends on day a second day
+    and it is not the case that the obligation that the sale contract obliges the party to pay the invoice by day the due day as its second obligation is missed on day a third day.
+
+the obligation that the sale contract obliges a party to pay the invoice by day a due day as its second obligation is still open if
+    the obligation that the sale contract obliges the party to pay the invoice by day the due day as its second obligation is pending since day a day.
+
+the deadline of the obligation that the sale contract permits a party to cancel the order as its third obligation has passed on day a day D if
+    the obligation that the sale contract permits the party to cancel the order as its third obligation starts on day a day N
+    and the obligation that the sale contract permits the party to cancel the order as its third obligation has deadline day a day M
+    and something happens on day D
+    and N < D
+    and D > M.
+
+the obligation that the sale contract permits a party to cancel the order as its third obligation ends on day a day D if
+    the obligation that the sale contract permits the party to cancel the order as its third obligation is met on day D
+    and it is not the case that
+        the obligation that the sale contract permits the party to cancel the order as its third obligation is met on day a day N
+        and N < D.
+
+the obligation that the sale contract permits a party to cancel the order as its third obligation is missed on day a day D if
+    the deadline of the obligation that the sale contract permits the party to cancel the order as its third obligation has passed on day D
+    and it is not the case that the obligation that the sale contract permits the party to cancel the order as its third obligation ends on day a second day
+    and it is not the case that
+        the deadline of the obligation that the sale contract permits the party to cancel the order as its third obligation has passed on day a day N
+        and N < D.
+
+the obligation that the sale contract permits a party to cancel the order as its third obligation is pending since day a day if
+    the obligation that the sale contract permits the party to cancel the order as its third obligation starts on day the day
+    and it is not the case that the obligation that the sale contract permits the party to cancel the order as its third obligation ends on day a second day
+    and it is not the case that the obligation that the sale contract permits the party to cancel the order as its third obligation is missed on day a third day.
+
+the obligation that the sale contract permits a party to cancel the order as its third obligation is still open if
+    the obligation that the sale contract permits the party to cancel the order as its third obligation is pending since day a day.
+
+scenario trace_33 is:
+    % #TRACE `the sale contract` (line 33) of the L4 source
+    the contract the sale contract starts on day 0.
+    the_seller does deliver the goods on day 10.
+    the_buyer does pay the invoice on day 35.
+    fulfilled expects answers ["the contract is fulfilled"].
+    q_the_contract_is_breached expects answers [].
+
+query fulfilled is:
+    the contract is fulfilled.
+
+query q_the_contract_is_breached is:
+    the contract is breached.
+
+query q_open_o_the_sale_contract_1 is:
+    the obligation that the sale contract obliges which party to deliver the goods by day which due day as its first obligation is still open.
+
+query q_open_o_the_sale_contract_2 is:
+    the obligation that the sale contract obliges which party to pay the invoice by day which due day as its second obligation is still open.
+
+query q_open_o_the_sale_contract_3 is:
+    the obligation that the sale contract permits which party to cancel the order as its third obligation is still open.
+
