@@ -105,7 +105,7 @@ Logical English into its own process, never reports into these projects.
 
 ## 2. The Cloudflare Web Analytics site
 
-The site already exists; its token is `1b82e2b050984555b84cbcbd02983d7a`.
+The site already exists; its token is `TTT`.
 To create it again, or check its settings:
 
 1. Sign in at <https://dash.cloudflare.com> ▸ **Analytics & Logs ▸ Web
@@ -115,7 +115,7 @@ To create it again, or check its settings:
 3. Cloudflare shows the snippet:
 
    ```html
-   <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "1b82e2b050984555b84cbcbd02983d7a"}'></script><!-- End Cloudflare Web Analytics -->
+   <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "TTT"}'></script><!-- End Cloudflare Web Analytics -->
    ```
 
    Do **not** paste it into the pages: only its token is needed. The server
@@ -133,7 +133,7 @@ and every other environment: only the deployed server reports.
 ```sh
 fly secrets set -a logicalenglish2 \
     LE_SENTRY_DSN='https://<key>@o<nnn>.ingest.de.sentry.io/<nnn>' \
-    LE_CLOUDFLARE_ANALYTICS_TOKEN='1b82e2b050984555b84cbcbd02983d7a'
+    LE_CLOUDFLARE_ANALYTICS_TOKEN='TTT'
 fly secrets list -a logicalenglish2        # names and digests, to check
 ```
 
