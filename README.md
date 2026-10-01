@@ -198,7 +198,7 @@ LE 2.0 is built on **SWI-Prolog** for the reasoning engine and **TypeScript/Mona
 
 ## ⚖️ Licensing and Copyright
 
-All software in this repository is licensed under the **Apache License 2.0** except where noted.
+All software in this repository is licensed under the **[Apache License 2.0](LICENSE)** except where noted: the [NOTICE](NOTICE) file lists the parts written by others, which keep their own copyright and licence (libraries bundled in the editor, and the programs and texts of other systems among the examples).
 
 **Copyright holders by country:**
 - LodgeIT (AU)

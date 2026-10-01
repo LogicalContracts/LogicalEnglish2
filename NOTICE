@@ -1,0 +1,68 @@
+Logical English 2 (LE2)
+
+Copyright the Logical English 2 copyright holders:
+  Bob Kowalski (United Kingdom)
+  Miguel Calejo (Portugal)
+  Jacinto Dávila (Venezuela)
+  Axiome Partners (United Kingdom) 
+  AORA Law (United Kingdom)
+  LodgeIT (Australia)
+  AINexus (United States)
+
+This product is licensed under the Apache License, Version 2.0 (the LICENSE
+file in this directory).
+
+Some parts of this repository were written by others and keep their own
+copyright and licence:
+
+Bundled in the editor (editor/dist/ and web_extras/docsview/)
+
+- ELK, the Eclipse Layout Kernel, as elkjs 0.11.1 (https://github.com/kieler/elkjs),
+  by the Eclipse Layout Kernel project; Eclipse Public License 2.0. It is
+  bundled unchanged into editor/dist/graph-client.js and
+  editor/dist/proof-game.js; its source is available at the address above.
+- web-worker 1.5.0 (https://github.com/developit/web-worker); Apache
+  License 2.0.
+- Under the MIT licence, each copyright its authors: Monaco Editor
+  (Microsoft), monaco-languageclient (TypeFox), vscode-languageserver and its
+  companion packages (Microsoft), Cytoscape.js and cytoscape-dagre,
+  cytoscape-elk, cytoscape-fcose, cose-base and layout-base, dagre, React and
+  React DOM (Meta Platforms), Rete.js and its plugins, styled-components,
+  qrcode-generator (Kazuhiko Arase), marked 12.0.2 (Christopher Jeffrey) and
+  Mermaid 11.12.0.
+
+Example programs and the texts they cite (examples/)
+
+- examples/migration/*/sources/ — other systems' programs, copied so that
+  their translations into Logical English can be checked against them. Each
+  keeps its authors' copyright and licence, stated in a LICENSE or NOTICE
+  file in its folder or in the folder's MAKING_OF.md:
+  - blawx/: example projects of Blawx, by Lexpedite Legal Technologies; MIT
+    licence (BLAWX_LICENSE beside each project).
+  - l4/: L4 examples, copyright Singapore Management University; Apache
+    License 2.0.
+  - legalruleml/: examples of the LegalRuleML Core Specification Version 1.0,
+    copyright OASIS Open, under the OASIS intellectual property rights policy.
+  - miniscript/: spending policies from Bitcoin Core (MIT licence,
+    COPYING), Liana (copyright the Liana developers, 3-clause BSD licence,
+    LICENCE) and Pieter Wuille's Miniscript page; the pages and files they
+    come from are kept unchanged in sources/originals/.
+  - scasp/: programs by the authors of Logical English 1 and of s(CASP),
+    copied unchanged.
+  The OIPA examples (oipa/) are not Oracle's: they were written for this
+  repository, following the forms of Oracle's public OIPA XML Configuration
+  Guide.
+- examples/regulatory/ — models of public legal texts, which quote those
+  texts for citation: United States federal texts (the Harmonized Tariff
+  Schedule, Customs rulings, Medicare coverage documents, regulations and
+  decisions), which are in the public domain; European Binding Tariff
+  Information decisions, published by the European Commission for reuse; and
+  published insurance filings and historical documents (underwriting/).
+- examples/regulatory/bna.le — the British Nationality Act 1981 as a logic
+  program, recovered from a 1980s micro-PROLOG program by M. J. Sergot,
+  F. Sadri, R. A. Kowalski, F. Kriwaczek, P. Hammond and H. T. Cory ("The
+  British Nationality Act as a logic program", Communications of the ACM,
+  1986).
+- examples/moreExamples/collections/kowalski-book/ — programs based on the
+  examples of Robert Kowalski's book "Computational Logic and Human
+  Thinking" (Cambridge University Press, 2011).
