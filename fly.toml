@@ -18,6 +18,11 @@ primary_region = 'lhr'
   image = "le2:latest"
 
 [env]
+  # One sign-in for le2. and lps2.logicalcontracts.com: the lpsPlus sign-in
+  # cookie is set for the parent domain (lpsPlus accounts/README.md). The
+  # secrets — LC_AUTH_SECRET (the same on both apps), GOOGLE_CLIENT_ID/SECRET,
+  # GITHUB_CLIENT_ID/SECRET — are set with `fly secrets set`, never here.
+  LC_AUTH_COOKIE_DOMAIN = '.logicalcontracts.com'
   ALLOWED_LE_EXPORTS = "examples/moreExamples"
 
 [http_service]

@@ -7,10 +7,10 @@
 
 :- module(le_assistant, [handle_assistant_command/2, handle_assistant_status/2, handle_assistant_interrupt/2, get_most_recent_opencode_session/2, normalize_path/2, test_llm_providers/0, extract_json_from_string/3, assistant_docs_material/2, assistant_docs_search_result/2]).
 
+:- use_module(le_entitlements).
 :- use_module(library(process)).
 :- use_module(library(readutil)).
 :- use_module(library(http/http_json)).
-:- use_module(library(http/http_session)).
 :- use_module(library(pcre)).
 :- use_module(llm/llm_client, [llm_model/3]).
 :- use_module(le_assistant_light).
@@ -238,14 +238,18 @@ handle_assistant_command(Dict, Response) :-
         ( get_dict(max_steps, Dict, MaxSteps) -> true ; MaxSteps = 10 ),
         get_next_id(ID),
         format(string(JobID), "job_~w", [ID]),
-        (   http_in_session(_SessionId), http_session_data(user(_, Roles)) -> UserRoles = Roles ; UserRoles = [] ),
+        (   catch(le_api:api_user(_, Roles), _, fail) -> UserRoles = Roles ; UserRoles = [] ),
         % The job thread inherits the request's UI language (thread-local, set
         % from ?lang= by set_request_language), so its progress messages come
-        % out localized.
+        % out localized — and the visitor's entitlements (le_entitlements.pl,
+        % also thread-local), so the programs it checks parse as the visitor's
+        % own would.
         le_i18n:le_active_language(UILang),
-        Job = le_i18n:with_le_language(UILang,
-                  le_assistant_light:run_light_assistant_thread(JobID, Command, Content,
-                                                                Model, APIKeys, UserRoles, MaxSteps)),
+        le_entitlements:current_entitlements(Caps),
+        Job = le_entitlements:with_entitlements(Caps,
+                  le_i18n:with_le_language(UILang,
+                      le_assistant_light:run_light_assistant_thread(JobID, Command, Content,
+                                                                    Model, APIKeys, UserRoles, MaxSteps))),
         (   current_prolog_flag(threads, true)
         ->  thread_create(Job, ThreadID, [detached(true)]),
             asserta(assistant_job(JobID, ThreadID))

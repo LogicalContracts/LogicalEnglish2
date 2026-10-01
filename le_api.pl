@@ -54,9 +54,9 @@
 :- use_module(le_contract_assistant).
 :- use_module(llm/llm_client, [llm_list_models/1]).
 :- use_module(nl_to_le, [english_to_le/8]).
-:- use_module(le_users).
 :- use_module(restricted_paths).
 :- use_module(le_telemetry).
+:- use_module(le_entitlements).
 
 :- multifile prolog:message//1.
 

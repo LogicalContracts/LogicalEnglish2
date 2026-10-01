@@ -167,11 +167,15 @@ extra folders that `le_extra_examples_dir/2` in `le_kbs.pl` lists, as
 name beginning `"imported/<id>/…"` belongs to a program that `importForeign`
 wrote.
 
-Some folders of examples are open only to callers who hold a given role, as
-`restricted_paths.pl` records. The server learns a caller's roles from the
-cookie that logging in at `/login` leaves behind, a cookie being the small note
-a browser keeps and sends back with each request. A request that carries no
-such cookie has no roles at all.
+Some folders of examples are open only to callers who hold a given licence, as
+`restricted_paths.pl` records ([Signing in, and what a licence
+adds](../guide/accounts.md)). The server learns who the caller is from the
+cookie that signing in at `/login` leaves behind, a cookie being the small note
+a browser keeps and sends back with each request. It then looks up the
+licences attached to that email address. A request that carries no such cookie
+holds no licence at all. The same is true of the translators of other systems
+(`importFormats`, `importForeign`, `exportFormats`, `exportForeign`): a caller
+without the licence *with extensions* is offered none of them.
 
 ---
 
@@ -258,7 +262,7 @@ everything in `sources/` folders.
   `{ "answer": "File not found", "details": "<path>", "document": "" }`.
 - A restricted example answers `{ "error": "<message>", "loginRequired": true }`
   when the caller has not logged in, since logging in may give access. A caller
-  who has logged in but holds no role for that example gets
+  who has logged in but holds no licence for that example gets
   `{ "error": "<message>" }`.
 
 ### `load` — Load a program into a new session
@@ -323,7 +327,7 @@ program's folder, together with `source` or `base` as `load` takes them.
 
 **Reply**: `{ "text": "...", "address": "..." }`, or `{ "error": "<reason>" }`.
 The reason is `"no such document file"` when no file is there, or a message
-about a document that the caller's roles do not reach.
+about a document that the caller's licences do not reach.
 
 ### `originals` — The original files a program was converted from
 
@@ -1144,8 +1148,8 @@ numbers the nodes from 1, so `"2.1"` is the first child of the second root.
 | `GET /docs/user/…` | the user documentation: a path ending in `.md` gives the file itself, and the same path without `.md` gives the viewer |
 | `GET /source/<path>` | an example's `.le` text. The server serves a path only when it lies under one of the folders named in the setting `ALLOWED_LE_EXPORTS`, which the server is started with and which lists folders separated by commas, such as `examples/moreExamples`, and only when the caller's roles allow it |
 | `GET /build_info` | `{ "build_info": "<first line of build_info.txt>" }`, or `"unknown build"` |
-| `GET,POST /login`, `GET /logout` | log in, with the form fields `email`, `password` and `return`, and log out again; the cookie left behind carries the user's roles |
-| `GET /whoami` | `{ "loggedIn": true, "email": "…" }` or `{ "loggedIn": false, "email": null }` |
+| `GET,POST /login`, `GET /logout` | sign in — with Google or GitHub (the buttons lead to `/auth/google` and `/auth/github`), or with the form fields `email`, `password` and `return` — and sign out again. The cookie left behind, `lc_session`, says who signed in; it is shared with the LPS server of the same domain |
+| `GET /whoami` | `{ "loggedIn": true, "email": "…", "provider": "google", "licenses": [{ "id", "title", "expires" }], "capabilities": [ … ] }` or `{ "loggedIn": false, "email": null, "licenses": [], "capabilities": [] }` |
 | `WS /dap` | the lasting connection over which the debugger speaks the Debug Adapter Protocol ([docs/dev/debugger.md](../../dev/debugger.md)) |
 | `POST /mcp` | the address that speaks the Model Context Protocol ([mcp.md](mcp.md)) |
 | `GET /list_examples`, `POST /query`, `POST /verify`, `POST /example_details` | the same four MCP tools as plain web addresses ([mcp.md](mcp.md#rest-endpoints)) |

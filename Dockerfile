@@ -38,7 +38,13 @@ WORKDIR /app
 
 # Copy the Prolog source files and examples into the container
 COPY *.pl ./
-COPY *.db ./
+# The parts of the private lpsPlus repository this server uses — signing in
+# and the licences table (accounts/), the translators (migration/) — copied
+# there by vendor_lpsplus.sh, which buildPush.sh runs. Without them the image
+# still works: every visitor is anonymous and only Logical English's own
+# formats are offered (le_plus.pl).
+COPY vendor/ ./vendor/
+ENV LPS_PLUS_DIR=/app/vendor/lpsplus
 # i18n CSV dictionaries: read by le_i18n.pl at load time AND by the editor
 # build below (scripts/gen-i18n.cjs generates the TS tables from them)
 COPY i18n/ ./i18n/

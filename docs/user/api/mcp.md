@@ -143,8 +143,8 @@ the result `isError: true`.
 **`list_examples`** lists the programs of `examples/moreExamples/`, of the
 extra folders (`regulatory/…`, `migration/…`, …) and of the folders of the
 other languages (`pt/…`), each with a one-line summary. Folders that only
-readers with certain roles may open are left out, because a client speaking
-MCP never logs in. To write a summary the server loads the program once, and
+readers holding a licence may open are left out, because a client speaking
+MCP never signs in. To write a summary the server loads the program once, and
 keeps the summary for the next listing. The server gives the whole listing 20
 seconds; when that time is up, each program still without a summary is
 described by the comment at the top of the program instead.
@@ -158,13 +158,13 @@ the fields that the web API — the other way one program asks this server for
 something — sends back from
 [its `load` operation](web-api.md#load--load-a-program-into-a-new-session),
 minus the session, plus `program_text`, which is the program's own text. An
-example in a folder reserved for certain roles answers
+example in a folder reserved for licence holders answers
 `{error: "Example '…' requires login"}`, because a client speaking MCP never
 logs in.
 
 **`query`** works in four steps. First the tool loads a program — the example
 named by `example_name`, or the text given as `program_text` — into a session
-that lasts for this one call; an example reserved for certain roles answers
+that lasts for this one call; an example reserved for licence holders answers
 `error`, as above. Second, the tool sets the scenario `scenario_name`, when the
 call gives one. Third, the tool adds the sentences of `facts`, each of them an
 LE sentence ending in a full stop, read against the program's templates.

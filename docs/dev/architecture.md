@@ -36,7 +36,7 @@ workers.
 | `/multilingual`, `/executive` | a language picker, or with `?lang=` a landing page for `examples/<lang>/`; the executive view |
 | `/docs/…` | the user documentation, only under `docs/user/` (`public_doc/1`); a document name answers the markdown viewer `web_extras/docsview/viewer.html`; old paths redirect (`doc_moved/2`) |
 | `/source/<example>` | an example's `.le` text, only under the directories listed in `ALLOWED_LE_EXPORTS` and allowed for the user's roles |
-| `/login`, `/logout`, `/whoami` | sessions for users of `le_users.db` (`le_users.pl`); roles gate example trees (`restricted_paths.pl`); single files of a gated tree that a public page links to are let out by name (`open_to_everyone/1`: the program, what it includes, the texts it cites — never a folder), and `testing/test_restricted_paths.pl` keeps the exception that narrow |
+| `/login`, `/logout`, `/whoami` | the sign-in shared with LPS2, from the private lpsPlus repository (`accounts/lc_accounts.pl`, found by `le_plus.pl`): Google, GitHub or a password account we created, and `/auth/google`, `/auth/github` with their callbacks. The visitor of every request is identified by a request expansion (`identify_visitor/3`), from a signed cookie; the licences held by that email address (lpsPlus `accounts/licenses.csv`) become capabilities, which gate the example trees (`restricted_paths.pl`) and, through `le_entitlements.pl`, the translators of other systems and the InsurLE extensions. Without lpsPlus every visitor is anonymous; lpsPlus `accounts/README.md` has the whole design |
 | `/telemetry.js`, `/telemetry_test` | Sentry and Cloudflare configuration, off unless configured ([telemetry.md](telemetry.md)) |
 | `POST /test_services/…` | stub services for programs that declare services (`le_services.pl`) |
 | `/build_info` | the build string |
@@ -98,7 +98,11 @@ program includes.
 | `llm/mcp.pl` | MCP server (tools, prompts, resource `le://docs/syntax` = `docs/user/reference/language.md`) and REST endpoints; see [MCP](../user/api/mcp.md) |
 
 **Server infrastructure**: `classic_web_api.pl`, `dap_server.pl`,
-`le_users.pl`, `restricted_paths.pl`, `le_telemetry.pl`.
+`restricted_paths.pl`, `le_telemetry.pl`; `le_plus.pl` (where the private
+lpsPlus repository is: the sign-in and the translators) and
+`le_entitlements.pl` (what the request being served may use of the licensed
+parts: `converters`, `extended_examples`, `le_extensions`; everything on the
+command line and in the tests, what the visitor's licences hold on a server).
 
 ## 2. The editor (`editor/`)
 

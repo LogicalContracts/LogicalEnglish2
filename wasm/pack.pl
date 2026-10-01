@@ -22,7 +22,9 @@
         grammar extensions would be published by accident. Links are skipped,
         and `--private` is the one way to include them, for a deployment that
         is not public.
-      * **anything with an account in it**: `le_users.db`.
+      * **anything with an account in it**: `vendor/` (the copy of lpsPlus
+        that vendor_lpsplus.sh makes for the server's image holds the
+        licences and passwords tables), and the old `le_users.db`.
       * **the large public trees** of light_excluded/1 (the customs and
         Medicare models, the OIPA twins): the browser build is "LE light",
         and a visitor should not unpack 12 MB before the first request.
@@ -88,6 +90,7 @@ payload_tree(dir('docs/user', [md, json])).
 %
 %   Excluded whatever else says otherwise.
 never('le_users.db').
+never(Rel) :- sub_atom(Rel, 0, _, _, 'vendor/').
 %   The two modules that are the *server*: they import library(socket) and
 %   library(http/thread_httpd), neither of which the WebAssembly image has, so
 %   they could not load here even if something tried. Left out deliberately,

@@ -43,6 +43,7 @@
    ( user:file_search_path(le2, LEDir) -> true
    ; assertz(user:file_search_path(le2, LEDir)) ).
 
+:- use_module(le_entitlements).
 :- use_module(le_grammar).
 :- use_module(tokenizer).
 :- use_module(le_system_templates).
@@ -218,14 +219,22 @@ le_example_relpath(Name0, Path) :-
    ).
 
 %  The translators of other systems (File ▸ Open, File ▸ Export), in the
-%  private lpsPlus repository: `le_importers.pl` is a symbolic link in this
-%  directory to its `migration/le_importers.pl`, the table le_import.pl reads.
-%  Registering a translator loads none of them; an adapter is loaded when a
-%  file of its kind is opened, or a program is exported. Without the link LE2
-%  offers its own formats only.
-:- ( absolute_file_name(le2('le_importers.pl'), FI, [access(read), file_errors(fail)])
-   -> use_module(FI)
-   ;  true
+%  private lpsPlus repository: its `migration/le_importers.pl` is the table
+%  le_import.pl reads. It is found where le_plus.pl finds lpsPlus (a checkout
+%  beside this one, $LPS_PLUS_DIR, or the copy vendor_lpsplus.sh puts in the
+%  server's image), or through a symbolic link `le_importers.pl` in this
+%  directory. Registering a translator loads none of them; an adapter is
+%  loaded when a file of its kind is opened, or a program is exported, and
+%  only for a visitor holding the licence (le_entitlements.pl). Without
+%  lpsPlus LE2 offers its own formats only; `LPS_PLUS_DIR=none` forces that.
+:- use_module(le_plus).
+:- (   le_plus_disabled
+   ->  true
+   ;   le_plus_file('migration/le_importers.pl', FI)
+   ->  use_module(FI)
+   ;   absolute_file_name(le2('le_importers.pl'), FI, [access(read), file_errors(fail)])
+   ->  use_module(FI)
+   ;   true
    ).
 
 %  The LPS target's second-pass hooks (le_lps.pl). A document declaring
@@ -374,7 +383,8 @@ load(FilePath, NewModule) :-
 load(FilePath, NewModule, Options) :-
     (   var(NewModule) ->
         time_file(FilePath, Time),
-        variant_sha1([FilePath, Time], Hash),
+        grammar_key([FilePath, Time], Key),
+        variant_sha1(Key, Hash),
         atom_concat(m, Hash, NewModule)
     ;   true
     ),
@@ -387,6 +397,22 @@ load_sync(NewModule, FilePath, Options) :-
         ( retractall(le_include_base(_)), assertz(le_include_base(Dir)) ),
         load_common_sync(NewModule, parse_le_file(FilePath, doc(Sections), NewModule), Sections, "parse_le_file failed for ~w" - [FilePath], Options),
         retractall(le_include_base(_))).
+
+%!  grammar_key(+Key0:list, -Key:list) is det.
+%
+%   The name of a loaded program's module is a hash of what it was loaded
+%   from, and a module is reused when the same program is loaded again. The
+%   same text parses differently when InsurLE's `le_extensions.pl` is
+%   installed but switched off for this request (le_entitlements.pl: the
+%   visitor does not hold the licence), so that case gets a key of its own —
+%   one visitor's licence must not decide how another visitor's copy of the
+%   program was read. In every other case the key is unchanged.
+grammar_key(Key0, Key) :-
+    (   current_predicate(le_extensions:parse_numbered_body/7),
+        \+ le_entitlements:entitled(le_extensions)
+    ->  append(Key0, [core_grammar], Key)
+    ;   Key = Key0
+    ).
 
 %!  load_text(+Text:string, -Module:atom) is det.
 %
@@ -401,7 +427,8 @@ load_text(Text, NewModule) :-
 %   the example's sibling resources. Base = '-' keeps the default (cwd).
 load_text(Text, Base, NewModule) :-
     (   var(NewModule) ->
-        variant_sha1([Text, Base], Hash),
+        grammar_key([Text, Base], Key),
+        variant_sha1(Key, Hash),
         atom_concat(m, Hash, NewModule)
     ;   true
     ),
@@ -1567,15 +1594,16 @@ with_kb_reference(KB, Goal) :-
 kb_summary_safe(Path, Options, Summary) :-
     catch(absolute_file_name(Path, Abs), _, fail),
     catch(time_file(Abs, Time), _, fail),
-    (   kb_summary_cache(Abs, Time, Cached)
+    grammar_key([Abs], CacheKey),           % as a loaded module's name
+    (   kb_summary_cache(CacheKey, Time, Cached)
     ->  Cached \== failed, Summary = Cached
     ;   with_mutex(kb_summary_cache,
-            (   kb_summary_cache(Abs, Time, Cached2)   % filled while we waited
+            (   kb_summary_cache(CacheKey, Time, Cached2)   % filled while we waited
             ->  Result = Cached2
             ;   ( kb_summary_compute(Path, Options, Summary0)
                 -> Result = Summary0 ; Result = failed ),
-                retractall(kb_summary_cache(Abs, _, _)),
-                assertz(kb_summary_cache(Abs, Time, Result))
+                retractall(kb_summary_cache(CacheKey, _, _)),
+                assertz(kb_summary_cache(CacheKey, Time, Result))
             )),
         Result \== failed,
         Summary = Result

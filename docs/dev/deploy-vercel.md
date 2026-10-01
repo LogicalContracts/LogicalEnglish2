@@ -10,7 +10,7 @@ There are two ways to deploy LE2, and they are not versions of each other.
 | What the host does | runs a container | serves files |
 | Sessions live | in the server's memory, for everyone | in the tab, for its own user |
 | Scaling | vertically: a session is a module inside one process, so it does not spread across machines | nothing to scale: every visitor brings an engine |
-| Accounts, restricted examples | yes (`le_users.pl`, `restricted_paths.pl`) | no, and therefore nothing restricted is shipped |
+| Accounts, restricted examples | yes (the lpsPlus sign-in, `restricted_paths.pl`, `le_entitlements.pl`) | no, and therefore nothing restricted is shipped |
 | The assistants, the debugger | yes | no (§ What is not there) |
 | Cost when nobody is using it | a machine that stops and starts | a static file bill |
 | Privacy | the program is POSTed to the server | the program never leaves the machine |
@@ -179,7 +179,8 @@ by this build.
 On top of that: no symbolic links (`le_extensions.pl`, `le_importers.pl` and
 the `insureLE2`/`lpsPlus` example trees are links into private repositories,
 and a link resolves perfectly well on the machine that builds — which is
-exactly what makes it dangerous), and no `le_users.db`.
+exactly what makes it dangerous), and no `vendor/` (the copy of lpsPlus made
+for the server's image, with the licences and passwords tables in it).
 
 `--private` turns both off, for a deployment that is not public. The build
 says so, loudly, when it does.

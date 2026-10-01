@@ -26,7 +26,6 @@
 :- use_module(library(http/http_files)).
 :- use_module(library(http/http_host)).
 :- use_module(library(http/html_write)).
-:- use_module(library(http/http_session)).
 :- use_module(library(assoc)).
 :- use_module(le_kbs).
 :- use_module(le_api).
@@ -51,12 +50,57 @@
 :- use_module(llm/llm_prices, [llm_prices_start/0]).
 :- use_module(nl_to_le, [english_to_le/8]).
 :- use_module(llm/mcp, [handle_mcp/1, handle_rest_list_examples/1, handle_rest_query/1, handle_rest_verify/1, handle_rest_example_details/1]).
-:- use_module(le_users).
 :- use_module(restricted_paths).
+:- use_module(le_entitlements).
+:- use_module(le_plus).
 :- use_module(wasm/pack, [light_excluded_path/1]).
 :- use_module(le_telemetry).
 
 :- dynamic build_info/1.
+
+%  Signing in, and the licences of whoever signed in, are the private lpsPlus
+%  repository's (`accounts/lc_accounts.pl`, found by le_plus.pl): one sign-in
+%  for this server and LPS2's, with Google, GitHub or an account we created.
+%  Without lpsPlus every visitor is anonymous and /login says so.
+:- (   le_plus_file('accounts/lc_accounts.pl', AccountsFile)
+   ->  use_module(AccountsFile)
+   ;   true
+   ).
+
+accounts_available :- current_predicate(lc_accounts:lc_request_user/2).
+
+%!  request_visitor(?Email, ?Capabilities) is semidet.
+%
+%   Who the request being served is from, set for every request by
+%   identify_visitor/4 below; absent for an anonymous visitor.
+:- thread_local request_visitor/2.
+
+%   Every request, before its handler: who sent it (the lpsPlus sign-in
+%   cookie, shared with LPS2), and so what it may use — the example trees
+%   (restricted_paths.pl) and the licensed parts of the language and of the
+%   editor (le_entitlements.pl). Set afresh each time: a worker thread serves
+%   many visitors in turn.
+:- http_request_expansion(identify_visitor, 10).
+
+identify_visitor(Request, Request, _Options) :-
+    retractall(request_visitor(_, _)),
+    (   accounts_available,
+        catch(lc_accounts:lc_request_user(Request, User), E,
+              ( print_message(warning, E), fail ))
+    ->  get_dict(email, User, Email),
+        get_dict(capabilities, User, Caps),
+        assertz(request_visitor(Email, Caps)),
+        set_request_entitlements(Caps)
+    ;   set_request_entitlements([])
+    ).
+
+%!  visitor(-Email, -Capabilities) is det.
+%
+%   The request's visitor: `anonymous` and `[]` when nobody signed in.
+visitor(Email, Caps) :-
+    (   request_visitor(E, C) -> Email = E, Caps = C
+    ;   Email = anonymous, Caps = []
+    ).
 
 %  The handler's time limit is above those the operations themselves apply
 %  (operation_time_limit/2): an operation that runs out of time replies so,
@@ -117,6 +161,9 @@ start_api_server(Port) :-
     % Reclaim reasoning-session modules abandoned by the editor (reload on edit,
     % tab close, ...) so they don't accumulate in memory over time.
     le_kbs:start_session_reaper,
+    % A thread no request has set (le_entitlements.pl) may use nothing
+    % licensed: identify_visitor/3 grants each request what its visitor holds.
+    set_default_entitlements(none),
     % A debug-trace session holds a worker for its websocket plus one for the
     % blocked traced query, so keep generous headroom on top of the bound in
     % dap_server:dap_command_timeout/1 to avoid starving normal requests.
@@ -278,13 +325,12 @@ validate_token(Dict) :-
     get_dict(token, Dict, Token),
     Token == "myToken123".
 
-%   Who the request is from, for le_api.pl's benefit: the HTTP session's user,
-%   when one is logged in. This is the whole of what the operations know about
-%   authentication, and the only thing they need to: restricted_paths.pl
-%   decides what a set of roles may see.
+%   Who the request is from, for le_api.pl's benefit: the signed-in visitor,
+%   with their capabilities as "roles". This is the whole of what the
+%   operations know about authentication, and the only thing they need to:
+%   restricted_paths.pl decides what a set of capabilities may see.
 le_api:le_api_user(Email, Roles) :-
-    http_in_session(_SessionId),
-    http_session_data(user(Email, Roles)).
+    request_visitor(Email, Roles).
 
 
 % --- Landing Page ---
@@ -296,11 +342,7 @@ handle_landing_page(Request) :-
     le_i18n:set_le_language(default),
     http_parameters(Request, [run_tests(RunTests, [boolean, optional(true), default(false)]),
                               dir(DirParam0, [optional(true), default('')])]),
-    (   http_in_session(_SessionId),
-        http_session_data(user(Email, Roles))
-    ->  UserEmail = Email, UserRoles = Roles
-    ;   UserEmail = 'anonymous', UserRoles = []
-    ),
+    visitor(UserEmail, UserRoles),
     (   RunTests == true ->
         le_examples_dir(Dir), le_kbs:runTestsInDir(Dir, Results),
         format_test_results(Results, UserRoles, TestHtml)
@@ -437,15 +479,14 @@ handle_landing_page(Request) :-
 
 %!  handle_whoami(+Request) is det.
 %
-%   Reports the current session's login state as JSON, so client-rendered
+%   Reports the current visitor's sign-in state as JSON, so client-rendered
 %   pages (e.g. the Executive view) can show the same "Logged in as … /
-%   Login" affordance the server-rendered landing page has. The session
-%   cookie is shared same-origin.
-handle_whoami(_Request) :-
-    (   http_in_session(_SessionId), http_session_data(user(Email, _Roles))
-    ->  atom_string(Email, EmailStr),
-        Response = _{loggedIn: true, email: EmailStr}
-    ;   Response = _{loggedIn: false, email: null}
+%   Login" affordance the server-rendered landing page has: `loggedIn`,
+%   `email`, and the `licenses` and `capabilities` the visitor holds today.
+handle_whoami(Request) :-
+    (   accounts_available
+    ->  lc_accounts:lc_whoami(Request, Response)
+    ;   Response = _{loggedIn: false, email: null, licenses: [], capabilities: []}
     ),
     reply_json_dict(Response).
 
@@ -461,47 +502,26 @@ safe_return(Request, Target) :-
     ;   Target = '/'
     ).
 
+%   The sign-in page is lpsPlus's (lc_accounts:lc_login_page/2), the same on
+%   this server and on LPS2's, in the reader's menu language: its words are
+%   looked up in this repository's interface dictionary (i18n/ui.csv).
 handle_login(Request) :-
     set_cookie_language(Request),
-    (   member(method(post), Request)
-    ->  http_parameters(Request, [email(Email, []), password(Password, []), return(Ret, [default('/')])]),
-        (   authenticate_le_user(Email, Password, Roles)
-        ->  http_session_assert(user(Email, Roles)),
-            ( sub_atom(Ret, 0, 1, _, '/'), \+ sub_atom(Ret, 0, 2, _, '//') -> Target = Ret ; Target = '/' ),
-            http_redirect(moved, Target, Request)
-        ;   uit('Login Failed', LoginFailed),
-            uit('Invalid email or password.', InvalidCreds),
-            uit('Try again', TryAgain),
-            reply_html_page(
-                [title(LoginFailed), script([src('/telemetry.js')], [])],
-                [h1(LoginFailed), p(InvalidCreds), a(href('/login'), TryAgain)]
-            )
-        )
-    ;   safe_return(Request, Ret),
-        uit('Login', LoginTxt),
-        uit('Email: ', EmailLbl),
-        uit('Password: ', PasswordLbl),
-        reply_html_page(
-            [title(LoginTxt), script([src('/telemetry.js')], [])],
-            [
-                h1(LoginTxt),
-                form([action('/login'), method('post')], [
-                    input([type(hidden), name(return), value(Ret)]),
-                    p([EmailLbl, input([type(text), name(email)])]),
-                    p([PasswordLbl, input([type(password), name(password)])]),
-                    p(input([type(submit), value(LoginTxt)]))
-                ])
-            ]
-        )
+    (   accounts_available
+    ->  lc_accounts:lc_login_page(Request,
+            [translate(classic_web_api:uit), head([script([src('/telemetry.js')], [])])])
+    ;   uit('Login', LoginTxt),
+        uit('Signing in is not available on this server.', NoAccounts),
+        reply_html_page([title(LoginTxt), script([src('/telemetry.js')], [])],
+                        [h1(LoginTxt), p(NoAccounts), p(a(href('/'), 'Logical English'))])
     ).
 
 handle_logout(Request) :-
-    (   http_in_session(_)
-    ->  http_session_retractall(user(_, _))
-    ;   true
-    ),
     safe_return(Request, Target),
-    http_redirect(moved, Target, Request).
+    (   accounts_available
+    ->  lc_accounts:lc_sign_out_reply(Request, Target)
+    ;   http_redirect(moved_temporary, Target, Request)
+    ).
 
 %!  folder_readme_src(+Dir, +Prefix, -Element) is det.
 %
@@ -835,11 +855,7 @@ multilingual_picker_page :-
 %   until one is chosen.
 multilingual_landing_page(Lang, LangDir) :-
     le_i18n:set_le_language(Lang),
-    (   http_in_session(_SessionId),
-        http_session_data(user(Email, Roles))
-    ->  UserEmail = Email, UserRoles = Roles
-    ;   UserEmail = 'anonymous', UserRoles = []
-    ),
+    visitor(UserEmail, UserRoles),
     %  As on the standard landing page: the corner is a term computed here,
     %  never a conditional inside the page.
     (   static_export
@@ -1083,7 +1099,7 @@ handle_source(Request) :-
     ;   ExamplePath = ExamplePath0
     ),
     atom_concat(ExamplePath, '.le', FilePath),
-    (   http_in_session(_SessionId), http_session_data(user(_, Roles)) -> UserRoles = Roles ; UserRoles = [] ),
+    visitor(_, UserRoles),
     (   is_allowed_export(FilePath), is_path_allowed(FilePath, UserRoles)
     ->  (   exists_file(FilePath)
         ->  http_reply_file(FilePath, [mime_type(text/plain)], Request)

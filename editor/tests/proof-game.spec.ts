@@ -242,6 +242,11 @@ query one is:
 test.describe('Proof Game — conjunctive query', () => {
     test('Show Proof completes a prepositional-chain query', async ({ page }) => {
         test.setTimeout(90000);
+        // Prepositional chaining is one of the InsurLE extensions: a licence
+        // (lpsPlus accounts/). Sign in with the account the auth tests use;
+        // the page and its popup share the cookie.
+        await page.request.post('/login', { form: {
+            email: 'support@logicalcontracts.com', password: 'LE2rocks', return: '/' } });
         const popup = await openGame(page, CHAIN_QUERY, 'zero', 'one');
 
         // One socket per conjunct, not a single 'in'.
