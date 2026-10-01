@@ -51,6 +51,13 @@
           "menuTip": "How to sign in, what each licence adds, and what the sites keep about you."
         },
         {
+          "path": "privacy",
+          "title": "Privacy notice",
+          "blurb": "What personal data the hosted sites keep (only the email addresses of licence holders and password accounts), why, for how long, which other companies handle data, and how to have your data corrected or removed.",
+          "menu": "Privacy notice",
+          "menuTip": "What the hosted sites keep about you, and how to have it removed."
+        },
+        {
           "path": "guide/executive-view",
           "title": "The executive view",
           "blurb": "Running a program without its text: choosing a scenario and query, citations and the source viewer, why not, views, shareable links, login."

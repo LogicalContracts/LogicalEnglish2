@@ -70,3 +70,6 @@ contact Logical Contracts.
   licences table holds your email address, the licence, and its expiry date.
 
 The programs you write are not stored with your account.
+
+The [privacy notice](../privacy.md) says the same in full: who is responsible,
+which other companies handle data, and how to have your data removed.
