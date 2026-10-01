@@ -94,7 +94,12 @@ legal_view_text(LEText, Options, Text) :-
     legal_view_text(LEText, Options, Text, _).
 
 legal_view_text(LEText, Options, Text, Issues) :-
-    catch(le_kbs:load_text(LEText, KB), _, fail),
+    %  base(Dir): where the document's includes and bases (`extends`) are
+    %  resolved; with none, the loader's default, the working directory.
+    (   option(base(Base), Options), Base \== (-)
+    ->  catch(le_kbs:load_text(LEText, Base, KB), _, fail)
+    ;   catch(le_kbs:load_text(LEText, KB), _, fail)
+    ),
     legal_view_kb(KB, Options, IR),
     legal_view_write(IR, Text, Issues).
 

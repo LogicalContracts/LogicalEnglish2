@@ -15,6 +15,7 @@
 
 :- use_module(library(plunit)).
 :- use_module(library(lists)).
+:- use_module(library(filesex)).
 :- use_module('../le_kbs').
 :- use_module('../le_lps_legal').
 :- use_module('../le_writer').
@@ -231,6 +232,75 @@ test(no_actions_said) :-
 :- end_tests(lps_legal_view).
 
 :- begin_tests(lps_legal_api).
+
+%   A document that extends another is viewed with the base's constraints:
+%   the pausable token twin extends ownable, and its view used to say that
+%   nothing governed `pause` because the base was not found. base(Dir) is
+%   where the loader looks for `ownable.le`.
+test(extends_brings_the_bases_constraints, [setup(extends_pair(Dir)), cleanup(delete_directory_and_contents(Dir))]) :-
+    atomic_list_concat([Dir, '/child.le'], ChildFile),
+    read_file_to_string(ChildFile, Child, [encoding(utf8)]),
+    once(legal_view_text(Child, [base(Dir)], Text, _Issues)),
+    assertion(sub_string(Text, _, _, _, "may pause the token")),
+    %  the base's own permission rule, from a constraint written in ownable.le
+    assertion(sub_string(Text, _, _, _, "may renounce the ownership")),
+    assertion(\+ sub_string(Text, _, _, _, "nothing in the program governs pause")).
+
+extends_pair(Dir) :-
+    tmp_file(le_legal_extends, Dir), make_directory(Dir),
+    atomic_list_concat([Dir, '/ownable.le'], Base),
+    atomic_list_concat([Dir, '/child.le'], Child),
+    write_text(Base, "the target language is: lps.
+
+the maximum time is 4.
+
+the actions are:
+    *an owner* renounces the ownership; known as renounce_ownership.
+
+the fluents are:
+    the owner of the token is *an account*; known as owner.
+
+the knowledge base ownable includes:
+
+initially the owner of the token is alice.
+
+it must not be true that
+    an owner renounces the ownership
+    and the owner of the token is an account
+    and the account is different from the owner.
+
+when an owner renounces the ownership
+    and the owner of the token is an account
+then it is not the case that the owner of the token is the account.
+"),
+    write_text(Child, "the target language is: lps.
+
+the knowledge base pausable extends ownable.
+
+the maximum time is 4.
+
+the actions are:
+    *a pauser* pauses the token; known as pause.
+
+the fluents are:
+    the token is paused; known as paused.
+
+the knowledge base pausable includes:
+
+it must not be true that
+    a pauser pauses the token
+    and the owner of the token is an account
+    and the account is different from the pauser.
+
+when a pauser pauses the token
+then the token is paused.
+
+scenario one is:
+    alice pauses the token from 1 to 2.
+").
+
+write_text(File, Text) :-
+    setup_call_cleanup(open(File, write, S, [encoding(utf8)]), write(S, Text), close(S)).
 
 test(operation) :-
     bank(Doc),

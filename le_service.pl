@@ -158,6 +158,10 @@ le_legal_view(LEText, Text, Issues) :-
 %
 %   The same, with le_lps_legal.pl's options: run(States, Happened), a run
 %   of the program, makes the view's scenarios and questions the run's calls.
+%   Options also take base(Dir): the folder the document's includes and the
+%   knowledge bases it extends are resolved against — without it a document
+%   that `extends ownable` is viewed without ownable's constraints, and the
+%   view says nothing governs the actions those constraints govern.
 le_legal_view(LEText, Options, Text, Issues) :-
     le_lps_legal:legal_view_text(LEText, Options, Text, Issues).
 

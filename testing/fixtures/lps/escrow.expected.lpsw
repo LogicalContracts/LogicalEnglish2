@@ -5,8 +5,8 @@ maxTime(10).
 fluents([balance(A,B),escrow(C,D,E)]).
 events([accept_goods(A),received_goods(B),reject_goods(C),deposit(D,E),create_escrow(F,G,H)]).
 actions([authorise_shipping,pay(A,B)]).
-observe([create_escrow(bob,miguel,1600)],1).
-observe([deposit(bob,1600)],2).
+observe([create_escrow(bob,miguel,1600)],2).
+observe([deposit(bob,1600)],3).
 observe([received_goods(bob)],5).
 observe([reject_goods(bob)],7).
 initiated(happens(create_escrow(A,B,C),D,E),escrow(A,B,C),[holds(not(escrow(F,G,H)),D)]).
