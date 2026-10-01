@@ -29,7 +29,7 @@ is there):
 
 - Language reference: [Logical English syntax summary](../../reference/language.md)
 - Editor manual: [How to use the LE2 web application](../../guide/editor.md)
-- All examples: [`examples/moreExamples/`](https://github.com/LogicalContracts/LogicalEnglish2/tree/main/examples/moreExamples)
+- All examples: [`examples/moreExamples/`](https://github.com/LogicalContractsOrg/LogicalEnglish2/tree/main/examples/moreExamples)
 
 ---
 
@@ -1278,10 +1278,10 @@ From here:
   [Proof Game](../../guide/proof-game.md), which has you build a proof yourself.
 - Coming from another rules system? [Other systems: importing and exporting](../../integrations/index.md)
   says whose files the editor can open as LE, and write back out again.
-- Browse the [examples](https://github.com/LogicalContracts/LogicalEnglish2/tree/main/examples/moreExamples)
+- Browse the [examples](https://github.com/LogicalContractsOrg/LogicalEnglish2/tree/main/examples/moreExamples)
   — `language/includes/citizenship_including`, `royal_family`, `language/templates/subset`,
   the `domains/tax/` set, and the programs of
-  [`examples/regulatory/`](https://github.com/LogicalContracts/LogicalEnglish2/tree/main/examples/regulatory)
+  [`examples/regulatory/`](https://github.com/LogicalContractsOrg/LogicalEnglish2/tree/main/examples/regulatory)
   — and open any of them straight from the running system at
   **<https://le2.logicalcontracts.com>**.
 

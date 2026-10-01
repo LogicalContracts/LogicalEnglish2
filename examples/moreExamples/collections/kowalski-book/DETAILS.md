@@ -3,7 +3,7 @@
 Which example of Robert Kowalski's *Computational Logic and Human Thinking*
 (Cambridge University Press, 2011) each program renders. The programs were
 drafted from the examples that
-[bookExamples.md](https://github.com/LogicalContracts/LogicalEnglish2/blob/main/docs/project/research/rk-book/bookExamples.md)
+[bookExamples.md](https://github.com/LogicalContractsOrg/LogicalEnglish2/blob/main/docs/project/research/rk-book/bookExamples.md)
 judged to fit current Logical English. Each program's opening comment gives
 its chapter and section.
 

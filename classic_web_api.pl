@@ -463,7 +463,7 @@ handle_landing_page(Request) :-
                     small(ExecBlurb)
                 ]),
                 li([id('le-other-languages')], OtherLangsLine),
-                li(a(href('https://github.com/LogicalContracts/LogicalEnglish2'), GitHubRepo))
+                li(a(href('https://github.com/LogicalContractsOrg/LogicalEnglish2'), GitHubRepo))
             ]),
             h2(DocumentationTxt),
             form([action('/docs/search'), method(get), role(search)], [
@@ -562,7 +562,7 @@ landing_readme_script(JS) :-
     ),
     format(atom(JS), 'window.EXAMPLE_README = { folders: "details.le-folder[data-path]", \c
 editor: "/editor/index.html?example=", viewer: "/executive?program=", programs: ["le"], keepExt: [], \c
-source: "https://github.com/LogicalContracts/LogicalEnglish2/blob/main/", about: ~w, close: ~w, copy: ~w, copied: ~w };~n~w',
+source: "https://github.com/LogicalContractsOrg/LogicalEnglish2/blob/main/", about: ~w, close: ~w, copy: ~w, copied: ~w };~n~w',
            [AboutJs, CloseJs, CopyJs, CopiedJs, Panel]).
 
 %!  landing_folders_script(-JS:atom) is det.

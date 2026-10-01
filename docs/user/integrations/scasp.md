@@ -350,4 +350,4 @@ program for 83 of the 88 programs s(CASP) can state (14 September 2026;
 - In the LPS2 IDE: [integrations](https://lps2.logicalcontracts.com/docs/user/integrations/index).
 - s(CASP)'s and LE1's own documentation:
   - [s(CASP) for SWI-Prolog](https://github.com/SWI-Prolog/sCASP);
-  - [LE1, the first Logical English](https://github.com/LogicalContracts/LogicalEnglish).
+  - [LE1, the first Logical English](https://github.com/LogicalContractsOrg/LogicalEnglish).

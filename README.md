@@ -2,7 +2,7 @@
 
 **Logical English (LE)** is a controlled natural language for legal and business logic. It allows experts to write executable rules that look like plain English, which are then automatically translated into formal logic (Prolog) for reasoning and explanation.
 
-LE 2.0 is a modernized, high-performance implementation of the original [Logical English](https://github.com/LogicalContracts/LogicalEnglish) project.
+LE 2.0 is a modernized, high-performance implementation of the original [Logical English](https://github.com/LogicalContractsOrg/LogicalEnglish) project.
 
 🚀 **[Try the Live Demo](https://le2.logicalcontracts.com)**
 
@@ -57,7 +57,7 @@ To run Logical English 2.0 on your local machine:
 1. **Install SWI-Prolog:** Download and install a recent [SWI-Prolog](https://www.swi-prolog.org/download/stable) (the Docker image uses `swipl:latest`).
 2. **Clone the Repository:**
    ```bash
-   git clone https://github.com/LogicalContracts/LogicalEnglish2.git
+   git clone https://github.com/LogicalContractsOrg/LogicalEnglish2.git
    cd LogicalEnglish2
    ```
 3. **Start the Server** (from the repository root):
@@ -210,6 +210,6 @@ All software in this repository is licensed under the **Apache License 2.0** exc
 
 **Special thanks to:** Andrew Noble, John Cummins, Chris and Bruce Mennell, Galileo Sartor and Faramarz Farhoodi.
 
-For the legacy implementation and historical context, visit the [original Logical English repository](https://github.com/LogicalContracts/LogicalEnglish).
+For the legacy implementation and historical context, visit the [original Logical English repository](https://github.com/LogicalContractsOrg/LogicalEnglish).
 
 ---

@@ -303,7 +303,7 @@ Natural Language — InsurLE*. British Insurance Law Association Journal,
 `http://www.doc.ic.ac.uk/~rak/papers/InsurLE.pdf`.
 
 [4] *Logical English 2.0* — project repository, documentation and live
-demo: `https://github.com/LogicalContracts/LogicalEnglish2`,
+demo: `https://github.com/LogicalContractsOrg/LogicalEnglish2`,
 `https://le2.logicalcontracts.com`.
 
 [5] M. Calejo. *Can we vibe code financial contracts?* Butterworths

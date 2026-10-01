@@ -26,7 +26,7 @@ decisions needed.
 | Editor Help menu | Logical English syntax | `docs/le_summary.md` | `editor/index.html:797` |
 | Landing page `/`, "Documentation" | the same three documents | as above | `classic_web_api.pl:394-414` |
 | Landing page `/multilingual?lang=pt` | syntax summary | `docs/le_summary.pt.md`. It exists only for pt, so es/fr/it get no documentation | `classic_web_api.pl:699-711` |
-| Landing page | GitHub repository | `github.com/mcalejo/LogicalEnglish2` (redirects; the repo is `LogicalContracts/…`) | `classic_web_api.pl:392` |
+| Landing page | GitHub repository | `github.com/mcalejo/LogicalEnglish2` (redirects; the repo is `LogicalContractsOrg/…`) | `classic_web_api.pl:392` |
 | Doc viewer header | ← Logical English / Editor / View source on GitHub | `web_extras/docsview/viewer.html` | `:64-67, 80-81, 120` |
 | Tooltips and verifier messages | cite `docs/le_summary.md §17.10`, `§17.4`, `§15.5` as plain text | – | `editor/index.html:915`; `i18n/messages.csv:168,190,192` |
 | Links inside documents | `IntroducingLEViews.md` (from howToUse and le_summary) | opens as **raw markdown**: the LE2 viewer does not rewrite `.md` links | `howToUse.md:85`, `le_summary.md:1270` |
