@@ -728,6 +728,11 @@ export const keywords: Record<string, KeywordTable> = {
         "max"
       ]
     ],
+    "list": [
+      [
+        "list"
+      ]
+    ],
     "is_the": [
       [
         "is",
@@ -2442,6 +2447,11 @@ export const keywords: Record<string, KeywordTable> = {
       ],
       [
         "máx"
+      ]
+    ],
+    "list": [
+      [
+        "lista"
       ]
     ],
     "is_the": [
@@ -4297,6 +4307,11 @@ export const keywords: Record<string, KeywordTable> = {
         "máx"
       ]
     ],
+    "list": [
+      [
+        "lista"
+      ]
+    ],
     "is_the": [
       [
         "es",
@@ -6030,6 +6045,11 @@ export const keywords: Record<string, KeywordTable> = {
       ],
       [
         "max"
+      ]
+    ],
+    "list": [
+      [
+        "liste"
       ]
     ],
     "is_the": [
@@ -7828,6 +7848,11 @@ export const keywords: Record<string, KeywordTable> = {
         "max"
       ]
     ],
+    "list": [
+      [
+        "lista"
+      ]
+    ],
     "is_the": [
       [
         "è",
@@ -8783,6 +8808,7 @@ export const keywordCategories: Record<string, string> = {
   "average": "aggregate",
   "min": "aggregate",
   "max": "aggregate",
+  "list": "aggregate",
   "is_the": "aggregate",
   "of_each": "aggregate",
   "such_that": "aggregate",
@@ -9498,7 +9524,12 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Logical English in other languages": "Logical English noutras línguas",
     "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Escrever programas em português, espanhol, francês ou italiano, e escolher o idioma dos menus.",
     "About this folder": "Sobre esta pasta",
-    "Copy the web address of this README": "Copiar o endereço web deste README"
+    "Copy the web address of this README": "Copiar o endereço web deste README",
+    "Sign in with Google": "Iniciar sessão com Google",
+    "Sign in with GitHub": "Iniciar sessão com GitHub",
+    "Or, with an account we created for you:": "Ou, com uma conta que criámos para si:",
+    "Anybody may sign in with Google or GitHub. A licence is attached to the email address of the account.": "Qualquer pessoa pode iniciar sessão com Google ou GitHub. Uma licença fica associada ao endereço de email da conta.",
+    "Signing in is not available on this server.": "Este servidor não oferece início de sessão."
   },
   "es": {
     "+ Add": "+ Añadir",
@@ -10112,7 +10143,12 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Logical English in other languages": "Logical English en otros idiomas",
     "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Escribir programas en portugués, español, francés o italiano, y elegir el idioma de los menús.",
     "About this folder": "Acerca de esta carpeta",
-    "Copy the web address of this README": "Copiar la dirección web de este README"
+    "Copy the web address of this README": "Copiar la dirección web de este README",
+    "Sign in with Google": "Iniciar sesión con Google",
+    "Sign in with GitHub": "Iniciar sesión con GitHub",
+    "Or, with an account we created for you:": "O, con una cuenta que creamos para usted:",
+    "Anybody may sign in with Google or GitHub. A licence is attached to the email address of the account.": "Cualquier persona puede iniciar sesión con Google o GitHub. Una licencia queda asociada a la dirección de correo de la cuenta.",
+    "Signing in is not available on this server.": "Este servidor no ofrece inicio de sesión."
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -10726,7 +10762,12 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Logical English in other languages": "Logical English dans d'autres langues",
     "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Écrire des programmes en portugais, espagnol, français ou italien, et choisir la langue des menus.",
     "About this folder": "À propos de ce dossier",
-    "Copy the web address of this README": "Copier l'adresse web de ce README"
+    "Copy the web address of this README": "Copier l'adresse web de ce README",
+    "Sign in with Google": "Se connecter avec Google",
+    "Sign in with GitHub": "Se connecter avec GitHub",
+    "Or, with an account we created for you:": "Ou, avec un compte que nous avons créé pour vous :",
+    "Anybody may sign in with Google or GitHub. A licence is attached to the email address of the account.": "Tout le monde peut se connecter avec Google ou GitHub. Une licence est attachée à l'adresse e-mail du compte.",
+    "Signing in is not available on this server.": "Ce serveur ne propose pas de connexion."
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -11340,7 +11381,12 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Logical English in other languages": "Logical English in altre lingue",
     "Writing programs in Portuguese, Spanish, French or Italian, and choosing the language of the menus.": "Scrivere programmi in portoghese, spagnolo, francese o italiano, e scegliere la lingua dei menu.",
     "About this folder": "Informazioni su questa cartella",
-    "Copy the web address of this README": "Copia l'indirizzo web di questo README"
+    "Copy the web address of this README": "Copia l'indirizzo web di questo README",
+    "Sign in with Google": "Accedi con Google",
+    "Sign in with GitHub": "Accedi con GitHub",
+    "Or, with an account we created for you:": "Oppure, con un account che abbiamo creato per lei:",
+    "Anybody may sign in with Google or GitHub. A licence is attached to the email address of the account.": "Chiunque può accedere con Google o GitHub. Una licenza è associata all'indirizzo email dell'account.",
+    "Signing in is not available on this server.": "Questo server non offre l'accesso."
   }
 } as const;
 

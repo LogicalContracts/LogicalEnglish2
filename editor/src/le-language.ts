@@ -80,13 +80,21 @@ export function buildLeMonarchTokens(lang: string): any {
     const W = '[A-Za-zÀ-ÖØ-öø-ÿ0-9_]';
     const b = (re: string) => `(?<!${W})(?:${re})(?!${W})`;
 
-    const headers = alt(T, ['kb_open', 'contract_open', 'scenario', 'query', 'ontology', 'meta_target', 'constants']);
+    const headers = alt(T, ['kb_open', 'scenario', 'query', 'ontology', 'meta_target', 'constants']);
+    // "the contract" opens a section only on a line that goes on to say
+    // "states that:" or "includes these resources:" (le_grammar.pl, section//1).
+    // Anywhere else it is ordinary words: "the contract is breached", or the
+    // template "the contract delivery starts on day *a day*" inside a list.
+    const contractHeader = alt(T, ['contract_open']) &&
+        `^[ \\t]*(?:${alt(T, ['contract_open'])})(?=[ \\t].*?(?:${alt(T, ['contract_states', 'resources_include'])})[ \\t]*:)`;
+    // The aggregate words are keywords only in "is the sum of each ..."
+    // (le_grammar.pl, is_aggregate/4): "minimum" in "minimum payment" is not.
+    const aggregates = `(?:${alt(T, ['sum', 'count', 'average', 'min', 'max'])})(?=[ \\t]+(?:${alt(T, ['of_each'])})(?!${W}))`;
     const templateHeaders = alt(T, ['predicates', 'templates', 'functions', 'fluents', 'events', 'actions', 'prolog_events']);
     const structural = alt(T, [
         'resources_include', 'kb_include', 'if', 'only_if', 'either', 'any_of',
         'all_of', 'at_least_one_of', 'unless', 'and_unless', 'forall',
-        'it_the_case', 'not_the_case', 'such_that', 'sum', 'count', 'average',
-        'min', 'max', 'marker',
+        'it_the_case', 'not_the_case', 'such_that', 'marker',
         // LPS (lps2's docs/user/reference/le-for-lps.md §3): the sentence forms a document with
         // "the target language is: lps." adds. Highlighting them in a plain-LE
         // document is harmless -- they read as ordinary template instances --
@@ -121,9 +129,11 @@ export function buildLeMonarchTokens(lang: string): any {
                 // Section headers
                 [new RegExp(`(?:${templateHeaders}):`), { token: 'keyword.header', next: '@templates' }],
                 [new RegExp(b(headers)), 'keyword.header'],
+                ...(contractHeader ? [[new RegExp(contractHeader), 'keyword.header']] : []),
 
                 // Structural keywords
                 [new RegExp(b(structural)), 'keyword'],
+                [new RegExp(b(aggregates)), 'keyword'],
                 [new RegExp(`^\\s*(?:${andOr})(?!${W})`), 'keyword'],
                 [new RegExp(b(expects)), 'keyword.expects'],
 
@@ -173,6 +183,10 @@ export function buildLeMonarchTokens(lang: string): any {
             templates: [
                 [new RegExp(b(additions)), 'keyword.addition'],
                 [new RegExp(b(headers)), { token: 'keyword.header', next: '@pop' }],
+                // The next list of templates ("the fluents are:" after "the
+                // events are:") is a header too, and stays in this state.
+                [new RegExp(`(?:${templateHeaders}):`), 'keyword.header'],
+                ...(contractHeader ? [[new RegExp(contractHeader), { token: 'keyword.header', next: '@pop' }]] : []),
                 [/\*[^*]+\*/, 'variable'],
                 [/%.*$/, 'comment'],
                 [/\/\*/, 'comment', '@comment'],
