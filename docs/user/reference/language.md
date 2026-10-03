@@ -1408,10 +1408,14 @@ the rules work out for themselves.
   (order-insensitive, within and between sets).
 - **How the search works.** The explanation guides it, and the system checks
   every answer it proposes. The changes it considers come only from what an
-  attempt at the goal actually touched: a scenario-element sentence with all
-  its values fixed that the attempt asked for and did not find as a fact (which
-  it may add), or a scenario fact the attempt used (which it may remove). It
-  never ranges over every fact the program could state. A set of changes grows
+  attempt at the goal actually touched: a scenario-element sentence the
+  attempt asked for and did not find as a fact (which it may add), or a
+  scenario fact the attempt used (which it may remove). Where the sentence
+  asked for has a place left open, as under *for all cases in which bob is a
+  parent of an other dragon*, the system fills the place with each individual
+  the scenario names (so `add: bob is a parent of alice` is considered), but
+  never invents a new individual, and leaves alone a sentence with more than
+  two open places. It never ranges over every fact the program could state. A set of changes grows
   one change at a time. The system applies each set to a copy of the session
   and solves the goal again, and each set's own attempt supplies the next
   changes to consider, so a change that opens a new path brings that path's

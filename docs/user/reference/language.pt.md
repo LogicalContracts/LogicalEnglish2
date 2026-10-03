@@ -1186,7 +1186,13 @@ derivados nunca mudam.
 - **Expectativas**: `inverter espera alterações [["acrescentar: rico tem baixos rendimentos"]].`
   (a ordem não conta, dentro e entre conjuntos).
 - **A pesquisa** segue a explicação e confirma cada resultado. Os candidatos
-  vêm só daquilo que uma tentativa do objetivo tocou, e os conjuntos crescem
+  vêm só daquilo que uma tentativa do objetivo tocou: uma frase de elemento de
+  cenário que a tentativa pediu e não encontrou como facto (pode acrescentá-la)
+  ou um facto do cenário que a tentativa usou (pode retirá-lo). Quando a frase
+  pedida tem um lugar em aberto, como em *em todos os casos em que bob é
+  progenitor de um outro dragão*, o sistema preenche esse lugar com cada
+  indivíduo que o cenário nomeia, mas nunca inventa um indivíduo novo, e deixa
+  de lado uma frase com mais de dois lugares em aberto. Os conjuntos crescem
   uma alteração de cada vez, aplicada a uma cópia da sessão. Os limites são as
   opções Prolog `le_flip_max_changes` (3 por omissão) e
   `le_flip_max_evaluations` (400).

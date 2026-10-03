@@ -14,10 +14,11 @@
 
     The search is explanation-guided and verified. Candidates are never drawn
     from the whole fact space, only from what an attempt at the goal actually
-    touched: an ADDITION is a ground goal of a scenario-element template that
-    the attempt called and that is not a fact (it failed, or held only by
+    touched: an ADDITION is a goal of a scenario-element template that the
+    attempt called and that is not a fact (it failed, or held only by
     assumption — so a judged template's open instance becomes a "judgment"
-    change); a REMOVAL is a scenario fact the attempt used. Change sets grow
+    change), with any open place of the call filled by an individual the
+    scenario names; a REMOVAL is a scenario fact the attempt used. Change sets grow
     one change at a time (iterative deepening on their size), each candidate
     set applied to a copy of the session and the goal re-solved there; the
     candidates of a set are recomputed from ITS attempt, so a change that
@@ -32,6 +33,7 @@
 ]).
 
 :- use_module(le_i18n).
+:- use_module(library(yall)).
 
 max_changes(Max) :-
     ( current_prolog_flag(le_flip_max_changes, M), integer(M) -> Max = M ; Max = 3 ).
@@ -145,8 +147,9 @@ candidate_pool(T, KM, Base, Set, Pool) :-
     findall(G, ( reasoner:called(_, _, G0), strip_le_at(G0, G), callable(G) ), Called0),
     sort(Called0, Called),
     findall(add(G),
-            ( member(G, Called), ground(G),
-              changeable(KM, G), \+ kept(G),
+            ( member(G0, Called),
+              changeable(KM, G0), \+ kept(G0),
+              ground_instance(G0, Base, G),
               \+ current_fact(T, G) ),
             Adds),
     Base = base(Facts, _),
@@ -161,6 +164,39 @@ candidate_pool(T, KM, Base, Set, Pool) :-
 
 strip_le_at(le_at(G0, _, _), G) :- !, strip_le_at(G0, G).
 strip_le_at(G, G).
+
+%!  ground_instance(+Called, +Base, -Instance) is nondet.
+%
+%   A fact the attempt's call could be answered by. A ground call is its own
+%   instance. A call with open places — `bob is a parent of *an other
+%   dragon*`, from a "for all cases" or a condition no earlier one bound —
+%   is filled with the individuals the scenario names (scenario_individuals/2),
+%   one instance per way of filling it, so that "add: bob is a parent of
+%   alice" is on the table when nothing else is. Calls with more than two
+%   open places are left alone: their instances would be a grid of guesses.
+ground_instance(G, _, G) :- ground(G), !.
+ground_instance(G0, base(Facts, _), G) :-
+    copy_term(G0, G),
+    term_variables(G, Vs), Vs \== [],
+    length(Vs, N), N =< 2,
+    scenario_individuals(Facts, Is), Is \== [],
+    maplist([V]>>member(V, Is), Vs).
+
+%   The individuals a scenario names: every value stated in one of its facts,
+%   and, of a type statement (`bob is a dragon`), the thing typed rather than
+%   its type.
+scenario_individuals(Facts, Is) :-
+    findall(I,
+            ( member(fact(F, _, _), Facts),
+              ( F = (H :- _) -> true ; H = F ),
+              callable(H),
+              (   H = is_a(I, _)
+              ->  true
+              ;   H =.. [_|Args], member(I, Args)
+              ),
+              ground(I) ),
+            Is0),
+    sort(Is0, Is).
 
 current_fact(T, G) :-
     catch(clause(T:G, true), _, fail), !.

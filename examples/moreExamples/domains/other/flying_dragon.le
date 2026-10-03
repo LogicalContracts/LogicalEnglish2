@@ -27,6 +27,9 @@ scenario colourless is:
 	bob is a dragon.
 	alice is a dragon.
 	alice is a parent of bob.
+	happy expects answers ["bob is happy"].
+	not_happy expects changes [["add: bob is a parent of alice"], ["add: bob is a parent of bob"]].
+	alice_happy expects changes [["remove: alice is a parent of bob"]].
 
 scenario green is:
 	bob is a dragon.
@@ -41,3 +44,14 @@ query happy is:
 
 query green is:
 	which creature is green.
+
+% What would make bob unhappy: a child of his that does not fly. The flip
+% fills the open place of "bob is a parent of an other dragon" with the
+% individuals the scenario names.
+query not_happy is:
+	which minimal change to the scenario makes it the case that
+	it is not the case that bob is happy.
+
+query alice_happy is:
+	which minimal change to the scenario makes it the case that
+	alice is happy.
