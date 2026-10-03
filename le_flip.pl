@@ -148,7 +148,7 @@ candidate_pool(T, KM, Base, Set, Pool) :-
     findall(add(G),
             ( member(G0, Called),
               changeable(KM, G0), \+ kept(G0),
-              ground_instance(G0, Base, G),
+              ground_instance(G0, T, KM, Base, G),
               \+ current_fact(T, G) ),
             Adds),
     Base = base(Facts, _),
@@ -164,41 +164,88 @@ candidate_pool(T, KM, Base, Set, Pool) :-
 strip_le_at(le_at(G0, _, _), G) :- !, strip_le_at(G0, G).
 strip_le_at(G, G).
 
-%!  ground_instance(+Called, +Base, -Instance) is nondet.
+%!  ground_instance(+Called, +T, +KM, +Base, -Instance) is nondet.
 %
 %   A fact the attempt's call could be answered by. A ground call is its own
-%   instance. A call with open places — `bob is a parent of *an other
-%   dragon*`, from a "for all cases" or a condition no earlier one bound —
-%   is filled with the individuals the scenario names (scenario_individuals/2),
-%   one instance per way of filling it, so that "add: bob is a parent of
-%   alice" is on the table when nothing else is. Calls with more than two
-%   open places are left alone: their instances would be a grid of guesses.
-ground_instance(G, _, G) :- ground(G), !.
-ground_instance(G0, base(Facts, _), G) :-
+%   instance. A call with open places that the scenario answers nowhere —
+%   `bob is a parent of *an other dragon*` when bob has no children, from a
+%   "for all cases" or a condition no earlier one bound — is filled, place by
+%   place, with the individuals of the place's declared type that the scenario
+%   names (individuals_of_type/4), one instance per way of filling it, so that
+%   "add: bob is a parent of alice" is on the table when nothing else is. A
+%   call the scenario does answer (`claim 1 is for *an item*`, when the claim
+%   names its item) is not filled: a second item for the same claim would
+%   change the case rather than complete it, which is what the kept facts of
+%   keep_templates/2 exist to prevent. A place whose type is a value (a
+%   number, a date, a list, text, or `any`) is never filled: a value is not an
+%   individual the scenario names, and guessing one would be a grid of
+%   guesses. Calls with more than two open places are left alone for the same
+%   reason.
+ground_instance(G, _, _, _, G) :- ground(G), !.
+ground_instance(G0, T, KM, base(Facts, _), G) :-
+    \+ scenario_answers(T, G0),
     copy_term(G0, G),
-    term_variables(G, Vs), Vs \== [],
-    length(Vs, N), N =< 2,
-    scenario_individuals(Facts, Is), Is \== [],
-    fill_with(Vs, Is).
+    G =.. [Fn|Args],
+    template_types(KM, Fn, Args, Pairs),
+    open_places(Pairs, Open),
+    Open \== [],
+    length(Open, N), N =< 2,
+    fill_places(Open, KM, Facts).
 
-fill_with([], _).
-fill_with([V|Vs], Is) :- member(V, Is), fill_with(Vs, Is).
+scenario_answers(T, G0) :-
+    copy_term(G0, G),
+    catch(clause(T:G, true), _, fail), !.
 
-%   The individuals a scenario names: every value stated in one of its facts,
-%   and, of a type statement (`bob is a dragon`), the thing typed rather than
-%   its type.
-scenario_individuals(Facts, Is) :-
+open_places([], []).
+open_places([V-T|Ps], Open) :-
+    ( var(V) -> Open = [V-T|Open1] ; Open = Open1 ),
+    open_places(Ps, Open1).
+
+fill_places([], _, _).
+fill_places([V-T|Ps], KM, Facts) :-
+    individual_type(T),
+    individuals_of_type(KM, Facts, T, Is), Is \== [],
+    member(V, Is),
+    fill_places(Ps, KM, Facts).
+
+%   A type whose instances are things the scenario names, rather than values.
+individual_type(T) :-
+    atom(T),
+    \+ memberchk(T, [any, number, date, list, text, string, time, datetime,
+                     boolean, atom]).
+
+%!  template_types(+KM, +Fn, +Args, -Pairs) is semidet.
+%   The template of Fn with as many places as Args: each argument paired with
+%   the type the template declares for its place (`alice-creature`).
+template_types(KM, Fn, Args, Pairs) :-
+    length(Args, N), length(Vs, N),
+    once(( KM:le_dict(dict([Fn|Vs], NTs, _, _, _, _, _))
+         ; KM:le_dict(dict([Fn|Vs], NTs, _, _))
+         ; KM:le_dict(dict([Fn|Vs], NTs, _)) )),
+    Vs = Args, Pairs = NTs.
+
+%!  individuals_of_type(+KM, +Facts, +Type, -Individuals) is det.
+%
+%   The things of Type the scenario names: those a type statement gives that
+%   type (`bob is a dragon`), or a subtype of it that the program or the
+%   scenario declares (`a dragon is a creature`), and those that stand, in a
+%   scenario fact, at a place the fact's template declares to be of Type.
+individuals_of_type(KM, Facts, T, Is) :-
     findall(I,
-            ( member(fact(F, _, _), Facts),
-              ( F = (H :- _) -> true ; H = F ),
+            ( member(fact(F0, _, _), Facts),
+              ( F0 = (H :- _) -> true ; H = F0 ),
               callable(H),
-              (   H = is_a(I, _)
-              ->  true
-              ;   H =.. [_|Args], member(I, Args)
-              ),
-              ground(I) ),
+              (   H = is_a(I, T0), ground(I)
+              ->  ( T0 == T ; subtype(KM, Facts, T0, T) )
+              ;   H =.. [Fn|Args], Fn \== is_a,
+                  template_types(KM, Fn, Args, Pairs),
+                  member(I-T, Pairs), ground(I)
+              ) ),
             Is0),
     sort(Is0, Is).
+
+subtype(_, Facts, S, T) :- member(fact(is_a(S, T), _, _), Facts), !.
+subtype(KM, _, S, T) :- catch(clause(KM:is_a(S, T), true), _, fail), !.
 
 current_fact(T, G) :-
     catch(clause(T:G, true), _, fail), !.

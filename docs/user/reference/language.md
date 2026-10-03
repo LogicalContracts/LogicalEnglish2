@@ -1411,11 +1411,15 @@ the rules work out for themselves.
   attempt at the goal actually touched: a scenario-element sentence the
   attempt asked for and did not find as a fact (which it may add), or a
   scenario fact the attempt used (which it may remove). Where the sentence
-  asked for has a place left open, as under *for all cases in which bob is a
-  parent of an other dragon*, the system fills the place with each individual
-  the scenario names (so `add: bob is a parent of alice` is considered), but
-  never invents a new individual, and leaves alone a sentence with more than
-  two open places. It never ranges over every fact the program could state. A set of changes grows
+  asked for has a place left open and the scenario answers it nowhere, as
+  under *for all cases in which bob is a parent of an other dragon* when bob
+  has no children, the system fills the place with each individual of the
+  place's type that the scenario names (so `add: bob is a parent of alice` is
+  considered). It never invents a new individual, never fills a place that
+  takes a number, a date, a list or text, leaves alone a sentence with more
+  than two open places, and does not fill a sentence the scenario already
+  answers (a claim that names its item is not given a second one). It never
+  ranges over every fact the program could state. A set of changes grows
   one change at a time. The system applies each set to a copy of the session
   and solves the goal again, and each set's own attempt supplies the next
   changes to consider, so a change that opens a new path brings that path's

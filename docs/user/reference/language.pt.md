@@ -1189,10 +1189,14 @@ derivados nunca mudam.
   vêm só daquilo que uma tentativa do objetivo tocou: uma frase de elemento de
   cenário que a tentativa pediu e não encontrou como facto (pode acrescentá-la)
   ou um facto do cenário que a tentativa usou (pode retirá-lo). Quando a frase
-  pedida tem um lugar em aberto, como em *em todos os casos em que bob é
-  progenitor de um outro dragão*, o sistema preenche esse lugar com cada
-  indivíduo que o cenário nomeia, mas nunca inventa um indivíduo novo, e deixa
-  de lado uma frase com mais de dois lugares em aberto. Os conjuntos crescem
+  pedida tem um lugar em aberto e o cenário não lhe responde em lado nenhum,
+  como em *em todos os casos em que bob é progenitor de um outro dragão*
+  quando bob não tem filhos, o sistema preenche esse lugar com cada indivíduo
+  do tipo desse lugar que o cenário nomeia. Nunca inventa um indivíduo novo,
+  nunca preenche um lugar que recebe um número, uma data, uma lista ou texto,
+  deixa de lado uma frase com mais de dois lugares em aberto, e não preenche
+  uma frase a que o cenário já responde (uma reclamação que nomeia o seu
+  artigo não recebe um segundo). Os conjuntos crescem
   uma alteração de cada vez, aplicada a uma cópia da sessão. Os limites são as
   opções Prolog `le_flip_max_changes` (3 por omissão) e
   `le_flip_max_evaluations` (400).
