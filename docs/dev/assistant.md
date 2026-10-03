@@ -129,6 +129,19 @@ UI language. The system message is, in order:
 The user message is the command. There is no token budget: the prompt is
 sent as assembled.
 
+**One reference for every assistant.** The language reference,
+`docs/user/reference/language.md`, is what every assistant that writes Logical
+English reads: this one (step 3), the Contract Assistant
+(`le_contract_assistant.pl`, `le_syntax_summary/1`), the MCP server (the
+resource `le://docs/syntax`, `llm/mcp.pl`), and, since 3 October 2026, the LPS2
+assistant when its document is a Logical English one (LPS2
+`src/edges/lps_assistant.pl`, `le_reference/1`, which reads the file from the
+LE2 checkout LPS2 compiles with and leaves out §11–§15 and §17). So advice on
+writing good Logical English belongs in that file, once; `language.pt.md` is the
+separate Portuguese reference and needs the same section. Advice about the
+assistant's own conduct, rather than the language, belongs in
+`AGENTS_LE_template.md`.
+
 ### The loop (`agent_loop/10`)
 
 Each step checks the job is still `running`, calls
