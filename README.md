@@ -6,6 +6,18 @@ LE 2.0 is a modernized, high-performance implementation of the original [Logical
 
 🚀 **[Try the Live Demo](https://le2.logicalcontracts.com)**
 
+**Logic Production Systems**, the sister system for rules about time and
+change — contracts, processes, agents — runs programs written in Logical
+English: [LogicalContractsOrg/lps2](https://github.com/LogicalContractsOrg/lps2),
+live at [lps2.logicalcontracts.com](https://lps2.logicalcontracts.com).
+
+Logical English reads the programs of twelve other rule systems. The
+translations of their published examples, with the sources, the tests and a
+ledger of what was and was not carried over, are in
+[`examples/migration/`](./examples/migration/README.md); the translators
+themselves are the [Logical English Translators](https://logicalcontracts.com/logical-english-extensions/),
+a licensed product of [Logical Contracts](https://logicalcontracts.com).
+
 ---
 
 ## 📖 The Language
@@ -71,7 +83,7 @@ Optional components:
 - **s(CASP):** `swipl -g "pack_install(scasp)"` enables the s(CASP) engine (`le_scasp.pl`).
 - **Deep mode of the LE Assistant:** `npm install -g opencode-ai mcp-remote` ([docs/dev/assistant.md](./docs/dev/assistant.md)).
 - **LPS:** programs with `the target language is: lps.` run on an LPS2 server beside this one.
-- **Proprietary extensions:** `le_extensions.pl`, when present next to `le_kbs.pl`, adds the constructs of [docs/user/reference/extensions.md](./docs/user/reference/extensions.md); `le_importers.pl`, likewise a link into the private lpsPlus repository, adds the importers and exporters of other systems.
+- **Licensed extensions:** `le_extensions.pl`, when present next to `le_kbs.pl`, adds the [InsurLE](https://www.axiomepartners.com) constructs of [docs/user/reference/extensions.md](./docs/user/reference/extensions.md); `le_importers.pl`, likewise a link into the private lpsPlus repository, adds the [Logical English Translators](https://logicalcontracts.com/logical-english-extensions/), the importers and exporters of other systems.
 
 ### Testing
 

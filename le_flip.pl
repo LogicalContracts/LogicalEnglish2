@@ -33,7 +33,6 @@
 ]).
 
 :- use_module(le_i18n).
-:- use_module(library(yall)).
 
 max_changes(Max) :-
     ( current_prolog_flag(le_flip_max_changes, M), integer(M) -> Max = M ; Max = 3 ).
@@ -180,7 +179,10 @@ ground_instance(G0, base(Facts, _), G) :-
     term_variables(G, Vs), Vs \== [],
     length(Vs, N), N =< 2,
     scenario_individuals(Facts, Is), Is \== [],
-    maplist([V]>>member(V, Is), Vs).
+    fill_with(Vs, Is).
+
+fill_with([], _).
+fill_with([V|Vs], Is) :- member(V, Is), fill_with(Vs, Is).
 
 %   The individuals a scenario names: every value stated in one of its facts,
 %   and, of a type statement (`bob is a dragon`), the thing typed rather than
