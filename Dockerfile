@@ -62,6 +62,10 @@ ENV OPENCODE_DANGEROUSLY_SKIP_PERMISSIONS=true
 # Build the editor
 RUN cd editor && npm install --legacy-peer-deps && npm run build
 
+# The examples' search index (le_examples_search.pl), written now so that the
+# first search on the server reads it in milliseconds instead of building it.
+RUN swipl -q -g "use_module(le_api), le_examples_search:write_index" -t halt
+
 ARG BUILD_INFO="unknown"
 RUN echo "${BUILD_INFO}" > build_info.txt
 

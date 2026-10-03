@@ -55,6 +55,7 @@
 :- use_module(llm/llm_client, [llm_list_models/1]).
 :- use_module(nl_to_le, [english_to_le/8]).
 :- use_module(restricted_paths).
+:- use_module(le_examples_search).
 :- use_module(le_telemetry).
 :- use_module(le_entitlements).
 
@@ -118,6 +119,7 @@ handle_operation(Dict, Response) :-
     get_dict(operation, Dict, Op),
     (   Op == "examples" -> handle_examples(Dict, Response)
         ; Op == "list_examples" -> handle_list_examples(Dict, Response)
+        ; Op == "search_examples" -> handle_search_examples(Dict, Response)
         ; Op == "answer" -> handle_answer(Dict, Response)
         ; Op == "explain" -> handle_explain(Dict, Response)
         ; Op == "load" -> 
@@ -258,6 +260,48 @@ handle_list_examples(_Dict, Response) :-
     append([LangExamples, StandardExamples, ExtraExamples], Examples),
     example_folders(Examples, Folders),
     Response = _{examples: Examples, folders: Folders}.
+
+%!  handle_search_examples(+Dict, -Response) is det.
+%
+%   The examples' search (le_examples_search.pl): {query, scope} in, {hits}
+%   out, each hit {name, title, field, snippet, score}. The visitor's
+%   capabilities keep restricted programs out, as the listing does.
+handle_search_examples(Dict, Response) :-
+    ( get_dict(query, Dict, Q0), Q0 \== null -> Q = Q0 ; Q = "" ),
+    (   get_dict(scope, Dict, S0), S0 \== null, atom_string(Scope0, S0),
+        memberchk(Scope0, [all, name, templates, text])
+    ->  Scope = Scope0
+    ;   Scope = all
+    ),
+    ( api_user(_, Roles) -> UserRoles = Roles ; UserRoles = [] ),
+    catch(le_examples_search:examples_search(Q, [scope(Scope), roles(UserRoles), limit(60)], Hits),
+          E, ( print_message(error, E), Hits = [] )),
+    Response = _{hits: Hits}.
+
+%!  every_example(-Name, -File) is nondet.
+%
+%   Every example of every tree the pickers list — the standard one, the
+%   other languages' and the extra trees — whatever a visitor's rights, with
+%   the file it is in: what the examples' search indexes (it decides what a
+%   visitor may see when it answers, not here).
+every_example(Name, File) :-
+    findall(R, ( restricted_paths:restricted_access_for(_, Rs), member(R, Rs) ), Roles0),
+    sort(Roles0, Roles),
+    le_examples_dir(Dir),
+    atomic_list_concat([Dir, '/'], DirSlash),
+    (   list_examples_in_dir(DirSlash, '', Roles, Names), member(Name, Names)
+    ;   language_examples_dir(Lang, LangDir),
+        atomic_list_concat([LangDir, '/'], LangDirSlash),
+        atomic_list_concat([Lang, '/'], LangPrefix),
+        list_examples_in_dir(LangDirSlash, LangPrefix, Roles, Names), member(Name, Names)
+    ;   le_kbs:le_extra_examples_dir(Root, ExtraDir),
+        exists_directory(ExtraDir),
+        atomic_list_concat([ExtraDir, '/'], ExtraDirSlash),
+        atomic_list_concat([Root, '/'], ExtraPrefix),
+        list_examples_in_dir(ExtraDirSlash, ExtraPrefix, Roles, Names), member(Name, Names)
+    ),
+    le_kbs:le_example_relpath(Name, Rel),
+    atom_concat(Rel, '.le', File).
 
 %!  example_folders(+Examples:list, -Folders:list) is det.
 %

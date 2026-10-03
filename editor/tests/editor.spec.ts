@@ -15,7 +15,7 @@ async function openFromServer(page: any, name: string) {
     await page.fill('#example-filter', name);
     await expect(item).toBeVisible({ timeout: 5000 });
   }).toPass();
-  await item.click();
+  await item.dblclick();   // a click selects and previews; a double click opens
 }
 
 // A program whose "alice is happy" answer has an internal "for all cases …" node as

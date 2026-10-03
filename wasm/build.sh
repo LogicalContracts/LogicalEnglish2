@@ -127,6 +127,13 @@ else
     "$SWIPL" -q -g "use_module('wasm/pack'), print_payload_files, halt." 2>/dev/null > "$LISTFILE"
 fi
 [ -s "$LISTFILE" ] || { echo "wasm/pack.pl listed no files" >&2; exit 1; }
+#  The examples' search index (le_examples_search.pl), written from the
+#  examples this payload carries — and only those, since the index is trusted
+#  at run time only when it describes exactly the files present — and packed
+#  with them, so the first search in the browser reads it instead of building it.
+"$SWIPL" -q -g "use_module(le_api), le_examples_search:write_index('examples/search-index.fast', [only_list('$LISTFILE')]), halt." 2>/dev/null \
+    && echo "examples/search-index.fast" >> "$LISTFILE" \
+    || echo "  (no examples' search index: the browser build will build it on the first search)"
 node wasm/runtime/mkpayload.mjs "$LISTFILE" "$ROOT" "$OUT/le-wasm/payload.bin"
 
 # ---------------------------------------------------------------------------

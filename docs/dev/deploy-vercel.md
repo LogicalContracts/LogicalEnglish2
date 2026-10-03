@@ -50,8 +50,10 @@ downloads **about 3.2 MB compressed** before the first question can be answered 
 the SWI-Prolog runtime (0.8 MB of WebAssembly and 1.2 MB of its library) and
 one payload file of 1.3 MB carrying LE2's Prolog, the i18n dictionaries, the
 shared LE libraries, the examples, the originals the migrated ones were
-converted from, and the user documentation as text (which the Light Assistant
-searches). The rest — the editor's own bundle,
+converted from, the user documentation as text (which the Light Assistant
+searches), and the examples' search index (`examples/search-index.fast`,
+written by the build from the examples the payload carries, so that the first
+search in the picker reads it instead of building it; `le_examples_search.pl`). The rest — the editor's own bundle,
 Monaco from a CDN, the documentation and its images — arrives as it is needed,
 and the browser caches all of it.
 

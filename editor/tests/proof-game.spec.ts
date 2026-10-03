@@ -109,7 +109,7 @@ test.describe('Proof Game', () => {
             }
             await expect(item).toBeVisible({ timeout: 10000 });
         }).toPass({ timeout: 90000 });
-        await item.click();
+        await item.dblclick();   // a click selects and previews; a double click opens
         await expect(page.locator('#filename-display')).toHaveText('citizenship.le');
         await expect(async () => {
             expect(await page.locator('#scenario-select option').count()).toBeGreaterThan(1);

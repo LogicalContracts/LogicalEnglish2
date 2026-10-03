@@ -1812,7 +1812,6 @@ const queryChannel = new BroadcastChannel('le-query-editor');
 
     // Server Examples Modal
     const modalOverlay = document.getElementById('modal-overlay');
-    const exampleList = document.getElementById('example-list');
     const modalClose = document.getElementById('modal-close');
     const modalCancel = document.getElementById('modal-cancel');
 
@@ -1840,12 +1839,14 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     // one, and the selected one's first lines are shown below. A twin's
     // folder holding just its program (migration/scasp/birds/birds) is that
     // program's row.
-    const exampleFilter = document.getElementById('example-filter') as HTMLInputElement | null;
-    const examplePreview = document.getElementById('example-preview');
+    // The search panel (editor/examples-search.js, shared with the landing
+    // page) does the box, the list, the preview and the Open button; this
+    // side gives it the tree of folders to list when nothing is searched for,
+    // the server's search, the preview and what opening means here.
+    const examplePanelRoot = document.getElementById('example-search');
     type ExampleFolder = { path: string, label: string, blurb: string, folders: ExampleFolder[], items: { name: string, label: string }[] };
     let exampleTree: ExampleFolder | null = null;
-    let exampleRows: { el: HTMLElement, name: string }[] = [];
-    let exampleSel = -1;
+    let examplePanel: any = null;
     const exampleFolderOpen = (path: string) => localStorage.getItem('le-examples-open.' + path) === 'true';
 
     const buildExampleTree = (names: string[], folders: { path: string, blurb?: string }[]): ExampleFolder => {
@@ -1884,146 +1885,95 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         return root;
     };
 
-    const showExamplePreview = (() => {
-        let timer: any = null;
-        return (name: string) => {
-            if (!examplePreview) return;
-            clearTimeout(timer);
-            timer = setTimeout(async () => {
-                examplePreview.textContent = t('loading…');
-                try {
-                    const r = await fetch('/leapi', {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ token: 'myToken123', operation: 'examples', file: name })
-                    });
-                    const data = await r.json();
-                    examplePreview.textContent = typeof data.document === 'string' && data.document
-                        ? data.document.split('\n').slice(0, 30).join('\n') : (data.error || '');
-                } catch { examplePreview.textContent = ''; }
-            }, 150);
-        };
-    })();
-
-    const selectExample = (i: number) => {
-        if (exampleRows.length === 0) return;
-        exampleSel = Math.max(0, Math.min(exampleRows.length - 1, i));
-        exampleRows.forEach((row, j) => row.el.classList.toggle('selected', j === exampleSel));
-        exampleRows[exampleSel].el.scrollIntoView({ block: 'nearest' });
-        showExamplePreview(exampleRows[exampleSel].name);
-    };
-
-    const drawExamples = () => {
-        if (!exampleList || !exampleTree) return;
-        const f = (exampleFilter?.value || '').toLowerCase().trim();
-        localStorage.setItem('le-examples-filter', exampleFilter?.value || '');
+    // The tree as rows for the panel, filtered by name while a search is
+    // typed; a filter opens every folder that has a match.
+    const exampleRows = (query: string): any[] => {
+        if (!exampleTree) return [];
+        const f = query.toLowerCase();
         const matches = (name: string) => !f || name.toLowerCase().includes(f);
         const count = (folder: ExampleFolder): number =>
             folder.items.filter(x => matches(x.name)).length + folder.folders.reduce((n, sub) => n + count(sub), 0);
-        exampleRows = [];
-        exampleSel = -1;
-        const out: HTMLElement[] = [];
-        const draw = (folder: ExampleFolder, depth: number) => {
+        const out: any[] = [];
+        const walk = (folder: ExampleFolder, depth: number) => {
             for (const x of folder.items) {
-                if (!matches(x.name)) continue;
-                const item = document.createElement('div');
-                item.className = 'dropdown-item example-row';
-                item.style.paddingLeft = `${15 + 18 * depth}px`;
-                item.textContent = x.label;
-                item.title = x.name;
-                item.addEventListener('click', async () => {
-                    closeModal();
-                    await loadExampleFromServer(x.name);
-                });
-                item.addEventListener('mouseenter', () => { exampleSel = exampleRows.findIndex(r => r.el === item); });
-                exampleRows.push({ el: item, name: x.name });
-                out.push(item);
+                if (matches(x.name)) out.push({ kind: 'item', name: x.name, label: x.label, depth });
             }
             for (const sub of folder.folders) {
                 const n = count(sub);
                 if (n === 0) continue;
-                // A filter is a search: it opens every folder that matched.
                 const open = f ? true : exampleFolderOpen(sub.path);
-                const head = document.createElement('div');
-                head.className = 'example-folder' + (open ? ' open' : '');
-                head.dataset.path = sub.path;
-                head.style.paddingLeft = `${15 + 18 * depth}px`;
-                const label = document.createElement('span');
-                label.className = 'example-folder-label';
-                label.textContent = `${sub.label}  (${n})`;
-                head.appendChild(label);
-                if (sub.blurb) {
-                    const blurb = document.createElement('span');
-                    blurb.className = 'example-folder-blurb';
-                    blurb.textContent = sub.blurb;
-                    head.appendChild(blurb);
-                }
-                head.addEventListener('click', () => {
-                    localStorage.setItem('le-examples-open.' + sub.path, String(!open));
-                    drawExamples();
-                });
-                out.push(head);
-                if (open) draw(sub, depth + 1);
+                out.push({ kind: 'folder', label: sub.label, count: n, blurb: sub.blurb, depth, open,
+                           toggle: () => localStorage.setItem('le-examples-open.' + sub.path, String(!open)) });
+                if (open) walk(sub, depth + 1);
             }
         };
-        draw(exampleTree, 0);
-        if (out.length === 0) {
-            const none = document.createElement('div');
-            none.style.cssText = 'padding: 20px; text-align: center; color: #888;';
-            none.textContent = t('No example matches the filter.');
-            out.push(none);
-        }
-        exampleList.replaceChildren(...out);
-        if (f && exampleRows.length > 0) selectExample(0);
+        walk(exampleTree, 0);
+        return out;
     };
 
-    exampleFilter?.addEventListener('input', drawExamples);
-    exampleFilter?.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowDown') { selectExample(exampleSel + 1); e.preventDefault(); }
-        else if (e.key === 'ArrowUp') { selectExample(exampleSel - 1); e.preventDefault(); }
-        else if (e.key === 'Enter' && exampleRows[exampleSel]) {
-            const name = exampleRows[exampleSel].name;
-            e.preventDefault();
-            closeModal();
-            loadExampleFromServer(name);
-        }
-    });
+    const leapi = async (body: any) => {
+        const r = await fetch('/leapi', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: 'myToken123', ...body })
+        });
+        return r.json();
+    };
 
-    document.getElementById('menu-open-server')?.addEventListener('click', async () => {
+    const mountExamplePanel = (query?: string, scope?: string) => {
+        if (!examplePanelRoot || !(window as any).ExamplesSearch) return;
+        examplePanel = (window as any).ExamplesSearch.mount({
+            root: examplePanelRoot,
+            t,
+            query: query ?? (localStorage.getItem('le-examples-filter') || ''),
+            scope: scope || localStorage.getItem('le-examples-scope') || 'all',
+            onQuery: (q: string) => localStorage.setItem('le-examples-filter', q),
+            onScope: (s: string) => localStorage.setItem('le-examples-scope', s),
+            idle: exampleRows,
+            hint: t('Loading examples...'),
+            search: async (q: string, s: string) => {
+                const data = await leapi({ operation: 'search_examples', query: q, scope: s });
+                if (!Array.isArray(data.hits)) throw new Error(data.error || t('The search failed.'));
+                return data.hits;
+            },
+            preview: async (name: string) => {
+                const data = await leapi({ operation: 'examples', file: name });
+                return typeof data.document === 'string' && data.document ? data.document : (data.error || '');
+            },
+            open: (name: string) => { closeModal(); loadExampleFromServer(name); }
+        });
+    };
 
+    // The picker: from the File menu, or from the landing page
+    // (`?examples=<query>&scope=<where>`), which opens it on the search.
+    async function openExamplesPicker(query?: string, scope?: string) {
         if (modalOverlay) modalOverlay.style.display = 'flex';
-        if (examplePreview) examplePreview.textContent = '';
-        if (exampleFilter) {
-            exampleFilter.value = localStorage.getItem('le-examples-filter') || '';
-            exampleFilter.focus();
-            exampleFilter.select();
-        }
-        if (exampleList) exampleList.innerHTML = `<div style="padding: 20px; text-align: center; color: #888;">${t('Loading examples...')}</div>`;
-
+        exampleTree = null;
+        mountExamplePanel(query, scope);
+        examplePanel?.focus();
         try {
-            const response = await fetch('/leapi', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    token: 'myToken123',
-                    operation: 'list_examples'
-                })
-            });
-            const data = await response.json();
-            
-            if (data.examples && exampleList) {
+            const data = await leapi({ operation: 'list_examples' });
+            if (data.examples) {
                 exampleTree = buildExampleTree([...data.examples].sort(), data.folders || []);
-                drawExamples();
-            } else if (exampleList) {
-                // An error reply (no `examples`) used to leave "Loading
-                // examples..." up forever; show the failure instead.
-                exampleList.innerHTML = `<div style="padding: 20px; text-align: center; color: #f44;">${t('Failed to load examples.')}</div>`;
+            } else {
                 console.error('list_examples returned no examples', data);
             }
         } catch (err) {
-            if (exampleList) exampleList.innerHTML = `<div style="padding: 20px; text-align: center; color: #f44;">${t('Failed to load examples.')}</div>`;
             console.error('Failed to list examples', err);
         }
-    });
+        if (!exampleTree && examplePanelRoot) {
+            // An error reply (no `examples`) used to leave "Loading
+            // examples..." up forever; show the failure instead.
+            examplePanelRoot.innerHTML = `<div style="padding: 20px; text-align: center; color: #f44;">${t('Failed to load examples.')}</div>`;
+            return;
+        }
+        examplePanel?.refresh();
+    }
+    document.getElementById('menu-open-server')?.addEventListener('click', () => openExamplesPicker());
+    {
+        const p = new URLSearchParams(window.location.search);
+        const q = p.get('examples');
+        if (q !== null) openExamplesPicker(q, p.get('scope') || undefined);
+    }
 
     async function loadExampleFromServer(name: string) {
         try {

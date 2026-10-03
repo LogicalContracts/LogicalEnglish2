@@ -24,3 +24,6 @@ wasm/shims/http/INDEX.pl
 
 # A copy of the private lpsPlus repository, for the image (vendor_lpsplus.sh).
 vendor/lpsplus/
+
+# the examples' search index, written by the build (le_examples_search.pl)
+examples/search-index.fast

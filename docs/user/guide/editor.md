@@ -49,6 +49,15 @@ web address), which is handy when you want to share a link:
     `/?dir=insureLE2/testing`), with a "[show all]" link back to the full list.
 *   `?expand=all` opens all the folders.
 
+Above the list of examples, a box **searches the examples**, as the box under
+*Documentation* searches the documents. Type a few words, or a phrase in
+quotation marks, and choose where to look (everywhere, in the names, in the
+templates, or in the text): the programs that match are listed under the box,
+best first, each with the line it matched. A click on one shows its first
+lines; a double click, Enter or the *Open* button opens it in the editor. The
+same panel is the picker inside the editor (`File > Open example from
+server...`, below).
+
 Each folder has a small link symbol (🔗) after its name. A click on the symbol
 copies the web address of that folder, ready to paste into a message; the
 symbol shows "Copied" for a moment. The address is the page with
@@ -152,7 +161,7 @@ Every menu item has a tooltip saying what it does (hover over it).
     For example, in `migration/legalruleml/ex12_usc_17_504_context`, View Original Text inside `rule ps2_tblock1` shows the LegalRuleML statement `ps2-tblock1` of the source.
 *   **New from URL:** `File > New from URL...` opens a copy of a Logical English program published at a web address. Where that program's `includes these resources:` names a file by a path relative to itself, and where it cites documents, the editor looks for them beside that address.
 *   **Tests:** `Misc > Run the Program's Tests…` runs every expectation the program states and lists each one with its outcome: what was expected, and what came instead. Clicking a row opens that expectation's scenario and query.
-*   **Open example from server:** `File > Open example from server...` shows the server's examples as a tree of folders. Each folder says how many examples it holds and what they are about — `citizenship` at the top, for instance, or `domains/tax/` or `migration/`. A click opens a folder, and the editor remembers which folders you left open. Typing in the box above searches the whole tree by name; the arrow keys move through the matches, showing the first lines of the one selected, and Enter opens it. What opens is a copy, so your changes never touch the server's own file.
+*   **Open example from server:** `File > Open example from server...` shows the server's examples as a tree of folders. Each folder says how many examples it holds and what they are about — `citizenship` at the top, for instance, or `domains/tax/` or `migration/`. A click opens a folder, and the editor remembers which folders you left open. Typing in the box above searches the examples: every word you type must occur, and a phrase in quotation marks must occur as you wrote it. The list beside the box says where to look: **everywhere** (the default), **in names** (the program's name and its first comment), **in templates** (its declaration sections: the templates, the predicates, the ontology, the fluents, the events) or **in the text** (everything, rules, scenarios and comments). While you type, the tree is filtered by name; a moment later the server answers with the programs that match, best first, each with the line it matched. A program whose name has your word ranks above one that has it in a template, and that one above a program with the word somewhere in its text. A click on a program, or the arrow keys, select it and show its first lines below the list; a double click, Enter or the *Open* button opens it. What opens is a copy, so your changes never touch the server's own file. The same panel is on the landing page, above the examples.
 *   **Save:** `File > Save` or `Save As...` saves your work back to your own computer.
 *   **Export to Another System:** `File > Export to Another System…` writes the program out in another system's format, whenever the server has a writer for a system the program suits (see below).
 *   **QR code:** `File > QR code…` shows a QR code that opens this document with the scenario and query you have chosen — so that you can carry on with it on a phone, for instance. **Copy URL** copies the same address as plain text.

@@ -99,7 +99,7 @@ test.describe('Editor file tabs', () => {
                 await page.fill('#example-filter', name);
                 await expect(item).toBeVisible({ timeout: 5000 });
             }).toPass();
-            await item.click();
+            await item.dblclick();   // a click selects and previews; a double click opens
         };
         await page.goto('index.html');
         const tabs = page.locator('#editor-tabs .le-tab');

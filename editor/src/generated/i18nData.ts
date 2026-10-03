@@ -9529,7 +9529,18 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Sign in with GitHub": "Iniciar sessão com GitHub",
     "Or, with an account we created for you:": "Ou, com uma conta que criámos para si:",
     "Anybody may sign in with Google or GitHub. A licence is attached to the email address of the account.": "Qualquer pessoa pode iniciar sessão com Google ou GitHub. Uma licença fica associada ao endereço de email da conta.",
-    "Signing in is not available on this server.": "Este servidor não oferece início de sessão."
+    "Signing in is not available on this server.": "Este servidor não oferece início de sessão.",
+    "Search the examples": "Pesquisar os exemplos",
+    "search — a few words, or a phrase in quotes": "pesquisa — algumas palavras, ou uma frase entre aspas",
+    "in names": "nos nomes",
+    "in templates": "nos modelos",
+    "in the text": "no texto",
+    "everywhere": "em todo o lado",
+    "No example matches the search.": "Nenhum exemplo corresponde à pesquisa.",
+    "Where to search: the names of the programs, their templates (the declaration sections), the whole text, or all three": "Onde pesquisar: os nomes dos programas, os seus modelos (as secções de declarações), o texto completo, ou os três",
+    "Open": "Abrir",
+    "Type a few words to search the examples.": "Escreva algumas palavras para pesquisar os exemplos.",
+    "The search failed.": "A pesquisa falhou."
   },
   "es": {
     "+ Add": "+ Añadir",
@@ -10148,7 +10159,18 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Sign in with GitHub": "Iniciar sesión con GitHub",
     "Or, with an account we created for you:": "O, con una cuenta que creamos para usted:",
     "Anybody may sign in with Google or GitHub. A licence is attached to the email address of the account.": "Cualquier persona puede iniciar sesión con Google o GitHub. Una licencia queda asociada a la dirección de correo de la cuenta.",
-    "Signing in is not available on this server.": "Este servidor no ofrece inicio de sesión."
+    "Signing in is not available on this server.": "Este servidor no ofrece inicio de sesión.",
+    "Search the examples": "Buscar en los ejemplos",
+    "search — a few words, or a phrase in quotes": "búsqueda — unas palabras, o una frase entre comillas",
+    "in names": "en los nombres",
+    "in templates": "en las plantillas",
+    "in the text": "en el texto",
+    "everywhere": "en todas partes",
+    "No example matches the search.": "Ningún ejemplo coincide con la búsqueda.",
+    "Where to search: the names of the programs, their templates (the declaration sections), the whole text, or all three": "Dónde buscar: los nombres de los programas, sus plantillas (las secciones de declaraciones), el texto completo, o los tres",
+    "Open": "Abrir",
+    "Type a few words to search the examples.": "Escriba unas palabras para buscar en los ejemplos.",
+    "The search failed.": "La búsqueda falló."
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -10767,7 +10789,18 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Sign in with GitHub": "Se connecter avec GitHub",
     "Or, with an account we created for you:": "Ou, avec un compte que nous avons créé pour vous :",
     "Anybody may sign in with Google or GitHub. A licence is attached to the email address of the account.": "Tout le monde peut se connecter avec Google ou GitHub. Une licence est attachée à l'adresse e-mail du compte.",
-    "Signing in is not available on this server.": "Ce serveur ne propose pas de connexion."
+    "Signing in is not available on this server.": "Ce serveur ne propose pas de connexion.",
+    "Search the examples": "Chercher dans les exemples",
+    "search — a few words, or a phrase in quotes": "recherche — quelques mots, ou une phrase entre guillemets",
+    "in names": "dans les noms",
+    "in templates": "dans les modèles",
+    "in the text": "dans le texte",
+    "everywhere": "partout",
+    "No example matches the search.": "Aucun exemple ne correspond à la recherche.",
+    "Where to search: the names of the programs, their templates (the declaration sections), the whole text, or all three": "Où chercher : les noms des programmes, leurs modèles (les sections de déclarations), le texte entier, ou les trois",
+    "Open": "Ouvrir",
+    "Type a few words to search the examples.": "Tapez quelques mots pour chercher dans les exemples.",
+    "The search failed.": "La recherche a échoué."
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -11386,7 +11419,18 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Sign in with GitHub": "Accedi con GitHub",
     "Or, with an account we created for you:": "Oppure, con un account che abbiamo creato per lei:",
     "Anybody may sign in with Google or GitHub. A licence is attached to the email address of the account.": "Chiunque può accedere con Google o GitHub. Una licenza è associata all'indirizzo email dell'account.",
-    "Signing in is not available on this server.": "Questo server non offre l'accesso."
+    "Signing in is not available on this server.": "Questo server non offre l'accesso.",
+    "Search the examples": "Cerca negli esempi",
+    "search — a few words, or a phrase in quotes": "ricerca — alcune parole, o una frase tra virgolette",
+    "in names": "nei nomi",
+    "in templates": "nei modelli",
+    "in the text": "nel testo",
+    "everywhere": "ovunque",
+    "No example matches the search.": "Nessun esempio corrisponde alla ricerca.",
+    "Where to search: the names of the programs, their templates (the declaration sections), the whole text, or all three": "Dove cercare: i nomi dei programmi, i loro modelli (le sezioni di dichiarazioni), il testo intero, o tutti e tre",
+    "Open": "Apri",
+    "Type a few words to search the examples.": "Digita alcune parole per cercare negli esempi.",
+    "The search failed.": "La ricerca non è riuscita."
   }
 } as const;
 

@@ -158,6 +158,10 @@ start_api_server(Port) :-
     % Per-token model prices (LiteLLM's public table) for the Contract
     % Assistant's cost estimates: cached copy now, refresh in the background.
     llm_prices_start,
+    % The examples' search index (le_examples_search.pl) takes a few seconds
+    % to build from the files; build it now, in the background, rather than
+    % at the first visitor's first search.
+    catch(thread_create(catch(le_examples_search:examples_index_size(_), _, true), _, [detached(true)]), _, true),
     % Reclaim reasoning-session modules abandoned by the editor (reload on edit,
     % tab close, ...) so they don't accumulate in memory over time.
     le_kbs:start_session_reaper,
@@ -399,6 +403,15 @@ handle_landing_page(Request) :-
     uit('Documentation', DocumentationTxt),
     uit('Search the documentation', SearchDocsTxt),
     uit('Search', SearchTxt),
+    %  The examples' search, above the tree as the documentation's is above
+    %  its links, and answered on this page: the panel of
+    %  editor/examples-search.js (shared with the editor's "Open example from
+    %  server"), inlined with its settings by landing_examples_search_script/1.
+    %  A program chosen there opens in the editor.
+    uit('Search the examples', SearchExamplesTxt),
+    SearchExamplesForm = div([id('le-examples-search'), 'aria-label'(SearchExamplesTxt),
+                              style('margin: 6px 0 10px; max-width: 54rem;')], []),
+    landing_examples_search_script(SearchScript),
     landing_doc_items(DocItems),
     %  The programs written in the other languages of Logical English, each
     %  language on a landing page of its own, and the guide to them.
@@ -436,7 +449,8 @@ handle_landing_page(Request) :-
                 a.folder-link:hover, a.folder-link.copied { opacity: 1; } \c
                 details.folder-target > summary { background: rgba(255, 200, 0, 0.25); }'),
          script([type('text/javascript')], FolderScript),
-         script([type('text/javascript')], ReadmeScript)],
+         script([type('text/javascript')], ReadmeScript),
+         script([type('text/javascript')], SearchScript)],
         [
             AuthCorner,
             h1('Logical English 2.0'),
@@ -454,6 +468,7 @@ handle_landing_page(Request) :-
                         ')'
                     ]),
                     FocusNote,
+                    SearchExamplesForm,
                     ul(ExampleItems)
                 ]),
                 li([
@@ -564,6 +579,32 @@ landing_readme_script(JS) :-
 editor: "/editor/index.html?example=", viewer: "/executive?program=", programs: ["le"], keepExt: [], \c
 source: "https://github.com/LogicalContractsOrg/LogicalEnglish2/blob/main/", about: ~w, close: ~w, copy: ~w, copied: ~w };~n~w',
            [AboutJs, CloseJs, CopyJs, CopiedJs, Panel]).
+
+%!  landing_examples_search_script(-JS:atom) is det.
+%
+%   The examples' search panel (editor/examples-search.js, the same file as
+%   LPS2's ui/static/examples-search.js), after its settings: the server's
+%   endpoint, how a program is previewed and opened, the words of the panel
+%   in the page's language, and, for a copy served without a server (the
+%   WebAssembly build), the scripts that boot the engine in the page.
+landing_examples_search_script(JS) :-
+    findall(Key-Text, ( member(Key, ['search — a few words, or a phrase in quotes',
+                                     'Where to search: the names of the programs, their templates (the declaration sections), the whole text, or all three',
+                                     'everywhere', 'in names', 'in templates', 'in the text',
+                                     'Open', 'loading…', 'Searching…', 'The search failed.',
+                                     'No example matches the search.',
+                                     'Type a few words to search the examples.']),
+                        uit(Key, Text) ),
+            Pairs),
+    dict_pairs(Labels, _, Pairs),
+    atom_json_dict(LabelsJs, Labels, [as(atom), width(0)]),
+    (   catch(read_file_to_string('editor/examples-search.js', Panel, [encoding(utf8)]), _, fail)
+    ->  true
+    ;   Panel = ""
+    ),
+    format(atom(JS), 'window.EXAMPLES_SEARCH = { root: "#le-examples-search", api: "/leapi", token: "myToken123", \c
+preview: { operation: "examples", param: "file", field: "document" }, open: "/editor/index.html?example=", \c
+boot: ["/le-wasm/config.js", "/le-wasm/boot.js"], labels: ~w };~n~w', [LabelsJs, Panel]).
 
 %!  landing_folders_script(-JS:atom) is det.
 %
